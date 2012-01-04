@@ -1,22 +1,56 @@
 <?php
+// command line flag
+$download = false;
 
-$dl_url = "https://www.pharmgkb.org/commonFileDownload.action?filename=";
-$indir = "/opt/data/pharmgkb/tsv/";
-$outdir = "/opt/data/pharmgkb/n3/";
-$releasefile = "http://bio2rdf.semanticscience.org/release/pharmgkb.n3.tgz";
+
+$dl_url = "http://www.pharmgkb.org/commonFileDownload.action?filename=";
+$indir = "/data/pharmgkb/tsv/";
+$outdir = "/data/pharmgkb/n3/";
+$date = date("d-m-y"); 
+$releasefile = "pharmgkb-$date.n3.tgz";
+$releasefile_uri = "http://download.bio2rdf.org/pharmgkb/".$releasefile;
+
+
+require_once (dirname(__FILE__).'/../common/php/libphp.php');
+@mkdir($indir,null,true);
+@mkdir($outdir,null,true);
 
 $files = array(
-//	"diseases", 
-"drugs"
-// , "genes","relationships","variantAnnotations"
-//	"genes"
+"relationships",
+"diseases",
+"drugs",
+"genes",
+// "rsid",
+// "variantAnnotations"
 );
 
 
-require_once (dirname(__FILE__).'/../../lib/php/n3.php');
-require (dirname(__FILE__).'/../../lib/php/ns.php');
-$buf = N3NSHeader($nslist);
-$buf .= "<$releasefile> a serv:Document .".PHP_EOL;
+// download the files
+if($download) {
+  foreach($files AS $file) {
+   $myfiles[] = $file.".zip";
+  }
+  DownloadFiles($dl_url,$myfiles,$indir);
+  
+  // unzip the files
+  foreach($files AS $file) {
+	$zip = zip_open($indir.$file.".zip");
+	if (is_resource($zip)) {
+      while ($zip_entry = zip_read($zip)) {
+        if (zip_entry_open($zip, $zip_entry, "r")) {
+			echo 'expanding '.zip_entry_name($zip_entry).PHP_EOL;
+            file_put_contents($indir.zip_entry_name($zip_entry), zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
+			zip_entry_close($zip_entry);
+        }
+      }
+      zip_close($zip);
+    }
+  }
+}
+
+
+$buf = N3NSHeader();
+$buf .= "<$releasefile> a sio:Document .".PHP_EOL;
 $buf .= "<$releasefile> rdfs:label \"Bio2RDF PharmGKB release in RDF/N3 [bio2rdf:file/pharmgkb.n3.tgz]\".".PHP_EOL;
 $buf .= "<$releasefile> rdfs:comment \"RDFized from PharmGKB tab data files\".".PHP_EOL;
 $buf .= "<$releasefile> dc:date \"".date("D M j G:i:s T Y")."\".".PHP_EOL;
@@ -25,7 +59,7 @@ file_put_contents($outdir."release.n3",$buf);
 
 foreach($files AS $file) {
 	echo "processing $indir$file.tsv...";	
-        $infile = $file.".tsv";
+    $infile = $file.".tsv";
 	$n3file = $file.".n3";
 	$fp = fopen($indir.$infile,"r");
 	if($fp === FALSE) {
@@ -41,10 +75,8 @@ foreach($files AS $file) {
 		trigger_error("Unable to open ".$outdir.$file.".n3"." for writing.");
 		exit;
 	}
-	
-	require (dirname(__FILE__).'/../../lib/php/ns.php');
-	
-	$head = N3NSHeader($nslist);
+		
+	$head = N3NSHeader();
 	fwrite($out,$head.$buf);
 	
 	fclose($out);
@@ -72,7 +104,7 @@ function genes(&$fp)
 	$buf = '';
 	fgets($fp);
 	while($l = fgets($fp,10000)) {
-		$a = explode("\t",trim($l));
+		$a = explode("\t",$l);
 		
 		$id = "pharmgkb:$a[0]";
 		$buf .= "$id rdfs:label \"$a[4] [$id]\".".PHP_EOL;
@@ -112,7 +144,7 @@ function genes(&$fp)
 		if($a[9]) $buf .= "$id pharmgkb:is_vip \"$a[9]\".".PHP_EOL;
 		if($a[10] && $a[10] != '-') $buf .= "$id pharmgkb:pd \"true\".".PHP_EOL;
 		if($a[11] && $a[11] != '-') $buf .= "$id pharmgkb:pk \"true\".".PHP_EOL;
-		if($a[12]) $buf .= "$id pharmgkb:variant_annotation \"$a[12]\".".PHP_EOL;
+		if(trim($a[12]) != '') $buf .= "$id pharmgkb:variant_annotation \"".trim($a[12])."\".".PHP_EOL;
 	}
 	return $buf;
 }
@@ -130,10 +162,9 @@ function drugs(&$fp)
 	fgets($fp);
 	$buf = '';
 	while($l = fgets($fp,200000)) {
-		$a = explode("\t",trim($l));
+		$a = explode("\t",$l);
 		$id = "pharmgkb:$a[0]";
 
-print_r($a);exit;
 		$buf .= "<$releasefile> dc:subject $id.".PHP_EOL;;
 
 		$buf .= "$id a pharmgkb:Drug.".PHP_EOL;
@@ -150,8 +181,8 @@ print_r($a);exit;
 				if($c) $buf .= "$id pharmgkb:drugclass \"".addslashes(str_replace('"','',$c))."\".".PHP_EOL;
 			}
 		}
-		if($a[4]) {
-			$buf .= "$id owl:sameAs drugbank:$a[4].".PHP_EOL;
+		if(trim($a[4]) != '') {
+			$buf .= "$id owl:sameAs drugbank:".trim($a[4]).".".PHP_EOL;
 		}
 		$buf .= "$id owl:sameAs pharmgkb:".md5($a[1]).".".PHP_EOL;
 	}
@@ -169,7 +200,7 @@ function diseases(&$fp)
   $buf = '';
   fgets ($fp);
   while($l = fgets($fp,10000)) {
-	$a = explode("\t",trim($l));
+	$a = explode("\t",$l);
 	$id = "pharmgkb:".$a[0];
 	$buf .= "<$releasefile> dc:subject $id.".PHP_EOL;;
 
@@ -185,8 +216,8 @@ function diseases(&$fp)
 		}
 	}
 	$buf .= "$id owl:sameAs pharmgkb:".md5($a[1]).".".PHP_EOL;
-	if(isset($a[4])) {
-	  $b = explode(',',$a[4]);
+	if(isset($a[4]) && trim($a[4]) != '') {
+	  $b = explode(',',trim($a[4]));
 	  foreach($b AS $c) {
 		$d = preg_split('/[:()]+/',$c);
 		if(!isset($d[1])) continue;
@@ -222,7 +253,7 @@ function variantAnnotations(&$fp)
   
   $hash = ''; // md5 hash list
   while($l = fgets($fp,10000)) {
-	$a = explode("\t",trim($l));
+	$a = explode("\t",$l);
 	$id = "pharmgkb:$a[11]";
 
 	$buf .= "<$releasefile> dc:subject $id.".PHP_EOL;;
@@ -273,15 +304,15 @@ function variantAnnotations(&$fp)
 		}
 	}
 
-	if($a[9] != '') {
-		$diseases = explode("; ",$a[9]);
+	if($a[8] != '') {
+		$diseases = explode("; ",$a[8]);
 		foreach($diseases AS $disease) {
 			$z = md5($disease); if(!isset($hash[$z])) $hash[$z] = $disease;
 			$buf .= "$id pharmgkb:disease pharmgkb:$z.".PHP_EOL;				
 		}
 	}
-	if($a[10] != '') {
-		$buf .= "$id pharmgkb:curation_status \"$a[8]\".".PHP_EOL;
+	if(trim($a[9]) != '') {
+		$buf .= "$id pharmgkb:curation_status \"".trim($a[9])."\".".PHP_EOL;
 	}	
   }
   foreach($hash AS $h => $label) {
@@ -309,9 +340,10 @@ function relationships(&$fp)
   fgets($fp); // first line is header
   
   $hash = ''; // md5 hash list
-  while($l = trim(fgets($fp,10000))) {
+  while($l = fgets($fp,10000)) {
 	
 	$a = explode("\t",$l);
+
 	
 	$id = "pharmgkb:".$a[0];
 	$buf .= "<$releasefile> dc:subject $id.".PHP_EOL;;
@@ -352,8 +384,8 @@ function relationships(&$fp)
 		}
 	}
 	
-	if($a[7] != '') {
-		$buf .= "$id pharmgkb:curated \"$a[7]\".".PHP_EOL;
+	if(trim($a[7]) != '') {
+		$buf .= "$id pharmgkb:curated \"".trim($a[7])."\".".PHP_EOL;
 	}
 	
   }
