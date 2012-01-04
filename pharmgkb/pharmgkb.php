@@ -13,8 +13,8 @@ $releasefile_uri = "http://download.bio2rdf.org/pharmgkb/".$releasefile;
 
 require_once (dirname(__FILE__).'/../common/php/libphp.php');
 global $gns;
-$gns['pharmgkb_vocabulary'] = BIO2RDF_URL."pharmgkb_vocabulary:";
-$gns['pharmgkb_resource'] = BIO2RDF_URL."pharmgkb_resource:";
+$gns['pharmgkb_vocabulary'] = BIO2RDF_URI."pharmgkb_vocabulary:";
+$gns['pharmgkb_resource'] = BIO2RDF_URI."pharmgkb_resource:";
 
 @mkdir($indir,null,true);
 @mkdir($outdir,null,true);
