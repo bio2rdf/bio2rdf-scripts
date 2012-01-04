@@ -13,6 +13,7 @@ $gns = array(
   'foaf' => 'http://xmlns.com/foaf/0.1/',
   'sio' => 'http://semanticscience.org/resource/',
   'bio2rdf' => BIO2RDF_URI,
+  'bio2rdf_vocabulary' = > BIO2RDF_URI.'bio2rdf_vocabulary:'
 );
 
 // valid dataset namespaces
