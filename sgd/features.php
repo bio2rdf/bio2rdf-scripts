@@ -72,7 +72,7 @@ class SGD_FEATURES {
 
 			if(isset($type)) {
 				unset($p1);unset($p2);
-				$gp = 'sgd:'.$id."gp";
+				$gp = 'sgd_resource:'.$id."gp";
 				$buf .= "sgd:$id sio:SIO_010078 $gp.".PHP_EOL;
 				$buf .= "<http://bio2rdf.org/$gp> rdfs:label \"$id"."gp [$gp]\".".PHP_EOL;
 				if($type == "p") $buf .= "<http://bio2rdf.org/$gp> a chebi:36080 .".PHP_EOL;
@@ -160,37 +160,37 @@ class SGD_FEATURES {
 				$chr = "chromosome_".$a[8];
 				$strand_type = ($a[11]=="w"?"WatsonStrand":"CrickStrand");
 				$strand = $chr."_".$strand_type;
-				$buf .= "sgd:$id sio:SIO_000068 sgd:$strand .".PHP_EOL;
+				$buf .= "sgd:$id sio:SIO_000068 sgd_resource:$strand .".PHP_EOL;
 				if(!isset($strands[$strand])) {
 					$strands[$strand] = '';
-					$other .= "sgd:$strand a sgd:$strand_type .".PHP_EOL;
-					$other .= "sgd:$strand rdfs:label \"$strand_type for $chr\" .".PHP_EOL;
-					$other .= "sgd:$strand sgd:SIO_000068 sgd:$chr .".PHP_EOL;
+					$other .= "sgd_resource:$strand a sgd_vocabulary:$strand_type .".PHP_EOL;
+					$other .= "sgd_resource:$strand rdfs:label \"$strand_type for $chr\" .".PHP_EOL;
+					$other .= "sgd_resource:$strand sgd:SIO_000068 sgd_resource:$chr .".PHP_EOL;
 				}
 			}
 			
 			// position
 			if($a[9]) {
 				$loc = $id."loc";
-				$buf .= "sgd:$id sgd:location sgd:$loc .".PHP_EOL;
-				$buf .= "sgd:$loc dc:identifier \"sgd:$loc\" .".PHP_EOL;
-				$buf .= "sgd:$loc rdfs:label \"Genomic location of sgd:$id\" .".PHP_EOL;
-				$buf .= "sgd:$loc a sgd:Location .".PHP_EOL;
-				$buf .= "sgd:$loc sgd:hasStartPosition \"$a[9]\" .".PHP_EOL;
-				$buf .= "sgd:$loc sgd:hasStopPosition \"$a[10]\" .".PHP_EOL;
-				if(isset($chr)) $buf .= "sgd:$loc sgd:chromosome sgd:$chr.".PHP_EOL;
-				if(isset($strand)) $buf .= "sgd:$loc sgd:strand sgd:$strand.".PHP_EOL;
+				$buf .= "sgd:$id sgd:location sgd_resource:$loc .".PHP_EOL;
+				$buf .= "sgd_resource:$loc dc:identifier \"sgd_resource:$loc\" .".PHP_EOL;
+				$buf .= "sgd_resource:$loc rdfs:label \"Genomic location of sgd:$id\" .".PHP_EOL;
+				$buf .= "sgd_resource:$loc a sgd_vocabulary:Location .".PHP_EOL;
+				$buf .= "sgd_resource:$loc sgd_vocabulary:hasStartPosition \"$a[9]\" .".PHP_EOL;
+				$buf .= "sgd_resource:$loc sgd_vocabulary:hasStopPosition \"$a[10]\" .".PHP_EOL;
+				if(isset($chr)) $buf .= "sgd_resource:$loc sgd_vocabulary:chromosome sgd_resource:$chr.".PHP_EOL;
+				if(isset($strand)) $buf .= "sgd_resource:$loc sgd_vocabular:strand sgd_resource:$strand.".PHP_EOL;
 				if($a[13]) {
 					$b = explode("|",$a[13]);
 					foreach($b AS $c) {
-						$buf .= "sgd:$loc sgd:modified \"$c\" .".PHP_EOL;
+						$buf .= "sgd_resource:$loc sgd_vocabulary:modified \"$c\" .".PHP_EOL;
 					}
 				}
 			}
 			if($a[14]) {
 				$b = explode("|",$a[14]);
 				foreach($b AS $c) {
-					$buf .= "sgd:record_$id sgd:modified \"$c\" .".PHP_EOL;
+					$buf .= "sgd_resource:record_$id sgd_vocabulary:modified \"$c\" .".PHP_EOL;
 				}
 			}
 			
