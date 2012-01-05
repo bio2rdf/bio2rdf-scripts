@@ -36,7 +36,7 @@ class SGD_COMPLEX {
 			$b = explode("/|",$a[1]);
 			foreach($b AS $c) {
 				$d = explode("/",$c);
-				$buf .= "sgd:$id sio:SIO_000053 sgd:$d[3]"."gp .".PHP_EOL;
+				$buf .= "sgd:$id sio:SIO_000053 sgd_resource:$d[3]"."gp .".PHP_EOL;
 			}
 			
 			//echo $buf;exit;
