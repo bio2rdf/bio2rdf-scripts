@@ -45,28 +45,28 @@ class SGD_GOA {
 			$goi = $id."_".$term;
 			$got = $goterms[$a[8]];
 
-			$buf .= "sgd:$id sio:".$got['p']." sgd:goi .".PHP_EOL;
-			$buf .= "sgd:goi a go:$term .".PHP_EOL;
-			$buf .= "sgd:goi rdfs:label \"sgd$id ".$got['plabel']." go:$term \" .".PHP_EOL;
+			$buf .= "sgd_resource:$id sio:".$got['p']." sgd_resource:$goi .".PHP_EOL;
+			$buf .= "sgd_resource:$goi a go:$term .".PHP_EOL;
+			$buf .= "sgd_resource:$goi rdfs:label \"sgd_reource:$id ".$got['plabel']." go:$term \" .".PHP_EOL;
 			$buf .= "go:$term rdfs:subClassOf sio:".$got['type']." .".PHP_EOL;
 			
 			$goa = "goa_".($z++);
-			$buf .= "sgd:goa rdfs:label \"Evidence of ".strtolower($got['type'])." for sgd:$id \".".PHP_EOL;
-			$buf .= "sgd:goa sio:SIO_000773 sgd:goi .".PHP_EOL;
-			$buf .= "sgd:goi sio:SIO_000772 sgd:goa .".PHP_EOL;
+			$buf .= "sgd_resource:$goa rdfs:label \"Evidence of ".strtolower($got['type'])." for sgd_resource:$id \".".PHP_EOL;
+			$buf .= "sgd_resource:$goa sio:SIO_000773 sgd:$goi .".PHP_EOL;
+			$buf .= "sgd_resource:$goi sio:SIO_000772 sgd:$goa .".PHP_EOL;
 
 			if(isset($a[5])) {
 				$b = explode("|",$a[5]);
 				foreach($b as $c) {
 					$d = explode(":",$c);
 					if($d[0] == "pmid") {
-						$buf .= "sgd:$goa sio:SIO_000212 pubmed:$d[1] .".PHP_EOL;
+						$buf .= "sgd_resource:$goa sio:SIO_000212 pubmed:$d[1] .".PHP_EOL;
 					}
 				}
 			}
 			if(isset($a[6])) {
 				$code = MapECO($a[6]);
-				if($code) $buf .= "sgd:$goa a eco:$code .".PHP_EOL;
+				if($code) $buf .= "sgd_resource:$goa a eco:$code .".PHP_EOL;
 				else echo "No mapping for $a[6]".PHP_EOL;
 			}
 			

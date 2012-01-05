@@ -95,8 +95,15 @@ TCDB	TC number
 					echo "unable to map $ns : $id to $sgdid";
 			}
 			
-			if($rel) $buf .= "sgd:$sgdid$suf $rel $ns:$id .".PHP_EOL;
-
+			if($rel) {
+				if($suf == 'gp'){
+					//if the entity is not an sgd entity but a bio2rdf sgd entity, use the sgd_resource namespace
+					$buf .= "sgd_resource:$sgdid$suf $rel $ns:$id .".PHP_EOL;
+				} else {
+					//otherwise use the sgd namespace
+					$buf .= "sgd:$sgdid$suf $rel $ns:$id .".PHP_EOL;
+				}
+			}
 			//echo $buf;exit;
 		}
 		fwrite($this->_out, $buf);

@@ -63,13 +63,13 @@ class SGD_PROTEIN {
 			$id = $a[1];
 			
 			foreach($properties AS $i => $p) {
-				$pid =  "sgd:$id"."_".$p["id"];
+				$pid =  "$id"."_".$p["id"];
 				$type = $p["type"];
 				
-				$buf .= "sgd:$id sio:SIO_000557 $pid .".PHP_EOL;
-				$buf .= "$pid a sgd_vocabulary:$type .".PHP_EOL;
-				$buf .= "$pid rdfs:label \"$type for sgd:$id [$pid]\".".PHP_EOL;
-				$buf .= "$pid sio:SIO_000300 \"$a[$i]\".".PHP_EOL;
+				$buf .= "sgd:$id sio:SIO_000557 sgd_resource:$pid .".PHP_EOL;
+				$buf .= "sgd_resource:$pid a sgd_vocabulary:$type .".PHP_EOL;
+				$buf .= "sgd_resource:$pid rdfs:label \"$type for sgd:$id [sgd_resource:$pid]\".".PHP_EOL;
+				$buf .= "sgd_resource:$pid sio:SIO_000300 \"$a[$i]\".".PHP_EOL;
 			}
 			//echo $buf;exit;
 		}
