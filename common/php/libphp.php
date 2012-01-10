@@ -1,4 +1,25 @@
 <?php
+/**
+Copyright (C) 2011 Michel Dumontier
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
 
 define('BIO2RDF_URI','http://bio2rdf.org/');
 
@@ -139,5 +160,125 @@ function GetLatestNCBOOntology($ontology_id,$apikey,$target_filepath)
      file_get_contents('http://rest.bioontology.org/bioportal/virtual/download/'.$ontology_id.'?apikey='.$apikey));
 }
 
+
+
+/**
+
+options block structure
+
+options = array (
+   'key' => array('default' => '', 
+				  'mandatory' => true/false
+		    ),
+);
+
+*/
+
+/**
+ * Add an option to the option data structure
+ *
+ * @author      Michel Dumontier <michel.dumontier@gmail.com>
+ * @version     1.0
+ * @param       object	$options    The options datastructure to be updated with command line arguments
+ * @param		string	$key		The name of the parameter to set
+ * @param		string	$default	The default value for the parameter
+ * @param		bool	$mandatory	Whether the parameter must be set by the user
+ * @return      bool     Returns TRUE on success, FALSE on failure
+*/
+function AddOption(&$options, $key, $list = '', $default = '', $mandatory = false)
+{
+	if(!isset($key) || $key == '') {
+		trigger_error('invalid key for options');
+		return FALSE;
+	}
+	$options[$key] = array('list' => $list, 'default' => $default, 'mandatory' => $mandatory);
+	return TRUE;
+}
+
+/**
+ * Set options data structure from command line arguments
+ *
+ * @author      Michel Dumontier <michel.dumontier@gmail.com>
+ * @version     1.0
+ * @param       object   $options    The options datastructure to be updated with command line arguments
+ * @return      bool     Returns TRUE on success, FALSE on failure
+*/
+function SetCMDlineOptions($argv, &$options)
+{
+	// get rid of the script argument
+	array_shift ($argv);
+	// build a new parameter - value array
+	foreach($argv AS $value) {
+		list($key,$value) = explode("=",$value);
+		if(!isset($options[$key])) {
+			echo 'invalid parameter "'.$key.'"'.PHP_EOL;
+			return FALSE;
+		}
+		if($value == '') {
+			echo 'value not properly set'.PHP_EOL;
+			return FALSE;
+		}
+		
+		$myargs[$key] = $value;
+	}
+
+	// now iterate over all parameters in the option block and set their user/default value
+	foreach($options AS $key => $a) {
+		if(isset($myargs[$key])) {
+			// use the supplied value
+			$options[$key]['value'] = $myargs[$key];
+		} else if(!isset($myargs[$key]) && $options[$key]['mandatory']) {
+			echo $key.' is a mandatory argument!'.PHP_EOL;
+			return FALSE;
+		} else {
+			// use the default
+			$options[$key]['value'] = $options[$key]['default'];
+		}
+	}
+	
+	return TRUE;
+}
+
+define('USE_CONF_FILE','use-conf-file');
+define('CONF_FILE_PATH','conf-file-path');
+function SetCMDlineOptionsFromRDFConfFile(&$options)
+{
+	if(isset($options[USE_CONF_FILE]) && $options[USE_CONF_FILE] == "T"
+	   && isset($options[CONF_FILE_PATH]) && $options[CONF_FILE_PATH] != '') {
+		// check to see if the file is there
+		if(!file_exists($options[CONF_FILE_PATH])) {
+			echo $options[CONF_FILE_PATH].' not found'.PHP_EOL;
+			return FALSE;
+		}
+		// read the file
+		
+		// set the options block
+	}
+	return FALSE;
+}
+
+
+/**
+ * Print the command line options
+ *
+ * @author      Michel Dumontier <michel.dumontier@gmail.com>
+ * @param       object   $options    The options datastructure
+ * @return      bool     Returns TRUE on success, FALSE on failure
+*/
+function PrintCMDlineOptions($argv, $options)
+{
+	echo PHP_EOL;
+	echo "Usage: php $argv[0] ".PHP_EOL;
+	echo " Default values as follows, * mandatory".PHP_EOL;
+	foreach($options AS $key => $a) {
+	    echo '  ';
+	    if($a['mandatory'] == true) echo "*";
+		echo $key."=";
+		if($a['list'] != '') echo $a['list'];
+		if($a['default'] != '') echo ' default='.$a['default'];
+		echo PHP_EOL;
+	}
+	return TRUE;
+}
 
 ?>
