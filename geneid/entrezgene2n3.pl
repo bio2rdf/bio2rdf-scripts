@@ -871,7 +871,7 @@ sub Patent_seq_id{
 		}
 		if(exists $doc->{'cit'}->[0]->{'id'}->[0]->{'number'}){
 			printN3( "$subject", "$vocabulary:number", $doc->{'cit'}->[0]->{'id'}->[0]->{'number'}, 1, "^^xsd:string");
-			printN3( "$subject", "$vocabualry:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'cit'}->[0]->{'id'}->[0]->{'number'}, 0, 0);
+			printN3( "$subject", "$vocabulary:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'cit'}->[0]->{'id'}->[0]->{'number'}, 0, 0);
 			xRef("patent:".$doc->{'cit'}->[0]->{'id'}->[0]->{'number'});
 		}
 		if(exists $doc->{'cit'}->[0]->{'id'}->[0]->{'app-number'}){
@@ -948,7 +948,7 @@ sub Int_fuzz{
 		printN3( "$subject", "$vocabulary:$info/p-m", $doc->{'p-m'}, 1, "^^xsd:integer");
 	}
 	if($key[0] =~ /^range$/){
-		printN3( "$subject", "$vocabular:$info/range/max", $doc->{'range'}->[0]->{'max'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:$info/range/max", $doc->{'range'}->[0]->{'max'}, 1, "^^xsd:integer");
 		printN3( "$subject", "$vocabulary:$info/range/min", $doc->{'range'}->[0]->{'min'}, 1, "^^xsd:integer");
 	}
 	if($key[0] =~ /^pct$/){
