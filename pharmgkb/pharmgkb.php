@@ -1,32 +1,54 @@
 <?php
-// command line flag
-$download = false;
+/**
+Copyright (C) 2011 Michel Dumontier
 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
 
-$dl_url = "http://www.pharmgkb.org/commonFileDownload.action?filename=";
-$indir = "/data/pharmgkb/tsv/";
-$outdir = "/data/pharmgkb/n3/";
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+/**
+ * An RDF generator for pharmgkb data.
+ * @version 1.0
+ * @author Michel Dumontier
+*/
+
+require_once (dirname(__FILE__).'/../common/php/libphp.php');
+
+$options = null;
+AddOption($options, 'indir', null, '/data/download/pharmgkb/', false);
+AddOption($options, 'outdir',null, '/data/rdf/pharmgkb/', false);
+AddOption($options, 'remote_base_url',null,'http://www.pharmgkb.org/commonFileDownload.action?filename=', false);
+AddOption($options, 'files','all|drugs|genes|diseases|relationships','all',false);
+AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
+AddOption($options, USE_CONF_FILE,'true|false','false', false);
+
+if(SetCMDlineOptions($argv, $options) == FALSE) {
+	PrintCMDlineOptions($argv, $options);
+	exit;
+}
+
 $date = date("d-m-y"); 
 $releasefile = "pharmgkb-$date.n3.tgz";
 $releasefile_uri = "http://download.bio2rdf.org/pharmgkb/".$releasefile;
 
 
-require_once (dirname(__FILE__).'/../common/php/libphp.php');
-global $gns;
-$gns['pharmgkb_vocabulary'] = BIO2RDF_URI."pharmgkb_vocabulary:";
-$gns['pharmgkb_resource'] = BIO2RDF_URI."pharmgkb_resource:";
-
 @mkdir($indir,null,true);
 @mkdir($outdir,null,true);
-
-$files = array(
-"relationships",
-"diseases",
-"drugs",
-"genes",
-// "rsid",
-// "variantAnnotations"
-);
 
 
 // download the files
