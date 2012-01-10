@@ -21,6 +21,9 @@ $path= "/media/2tbdisk/bio2rdf/data/mgi";
 $numberMax = 10;
 $numberMax = 100000000;
 
+our $base = "http://bio2rdf.org/mgi";
+our $resource = "http://bio2rdf.org/mgi_resource";
+our $vocabulary = "http://bio2rdf.org/mgi_vocabulary";
 
 ReadFile("$path/MGI_Coordinate.rpt");
 ReadFile("$path/MRK_Dump2.rpt");
@@ -128,19 +131,18 @@ $lsid = lc($fields[0]);
 $uri = "http://bio2rdf.org/$lsid";
 
 $TEXT = <<EOF;
-<$uri> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/mgi#Marker> .
+<$uri> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Marker> .
 <$uri> <http://www.w3.org/2000/01/rdf-schema#label> "$symbol$fields[2] [$lsid]" .
 <$uri> <http://purl.org/dc/elements/1.1/identifier> "$lsid" .
 <$uri> <http://purl.org/dc/elements/1.1/title> "$symbol$fields[2]" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#url> "http://www.informatics.jax.org/searches/accession_report.cgi?id=$lsid" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#symbol> "$fields[1]" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#xChromosome> <http://bio2rdf.org/chr:10090-chr$fields[4]> .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#chromosomePosition> "$chromosomePosition" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#xLocus> <http://bio2rdf.org/locus:10090-chr$fields[4]-$chromosomePosition> .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#subType> "$fields[5]" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#url> "http://www.informatics.jax.org/searches/accession_report.cgi?id=$lsid" .
+<$uri> <$vocabulary:url> "http://www.informatics.jax.org/searches/accession_report.cgi?id=$lsid" .
+<$uri> <$vocabulary:symbol> "$fields[1]" .
+<$uri> <$vocabulary:xChromosome> <http://bio2rdf.org/chr:10090-chr$fields[4]> .
+<$uri> <$vocabulary:chromosomePosition> "$chromosomePosition" .
+<$uri> <$vocabulary:xLocus> <http://bio2rdf.org/locus:10090-chr$fields[4]-$chromosomePosition> .
+<$uri> <$vocabulary:subType> "$fields[5]" .
 
-<http://bio2rdf.org/symbol:$symbol2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/bio2rdf#Symbol> .
+<http://bio2rdf.org/symbol:$symbol2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Symbol> .
 <http://bio2rdf.org/symbol:$symbol2> <http://www.w3.org/2002/07/owl#sameAs> <$uri> .
 
 EOF
@@ -155,26 +157,26 @@ $lsid = lc($fields[0]);
 $uri = "http://bio2rdf.org/$lsid";
 
 $TEXT = <<EOF;
-<$uri> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/mgi#Marker> .
+<$uri> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Marker> .
 <$uri> <http://www.w3.org/2000/01/rdf-schema#label> "$fields[3] ($symbol) [$lsid]" .
 <$uri> <http://purl.org/dc/elements/1.1/identifier> "$lsid" .
 <$uri> <http://purl.org/dc/elements/1.1/title> "$fields[3]" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#url> "http://www.informatics.jax.org/searches/accession_report.cgi?id=$lsid" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#image> "http://gbrowse.informatics.jax.org/cgi-bin/gbrowse_img/thumbs_build_34?options=Everything;width=400;name=chr$fields[4]:$fields[5]..$fields[6]" .
+<$uri> <$vocabulary:url> "http://www.informatics.jax.org/searches/accession_report.cgi?id=$lsid" .
+<$uri> <$vocabulary:image> "http://gbrowse.informatics.jax.org/cgi-bin/gbrowse_img/thumbs_build_34?options=Everything;width=400;name=chr$fields[4]:$fields[5]..$fields[6]" .
 
-<$uri> <http://bio2rdf.org/ns/bio2rdf#subType> "$fields[1]" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#symbol> "$fields[2]" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#xChromosome> <http://bio2rdf.org/chromosome:10090-chr$fields[4]> .
-<$uri> <http://bio2rdf.org/ns/mgi#genomeStart> "$fields[5]" .
-<$uri> <http://bio2rdf.org/ns/mgi#genomeEnd> "$fields[6]" .
-<$uri> <http://bio2rdf.org/ns/mgi#genomeStrand> "$fields[7]" .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#xGeneID> <http://bio2rdf.org/geneid:$fields[10]> .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#xENSEMBL> <http://bio2rdf.org/ensembl:$fields[15]> .
+<$uri> <$vocabulary:subType> "$fields[1]" .
+<$uri> <$vocabulary:symbol> "$fields[2]" .
+<$uri> <$vocabulary:xChromosome> <http://bio2rdf.org/chromosome:10090-chr$fields[4]> .
+<$uri> <$vocabulary:genomeStart> "$fields[5]" .
+<$uri> <$vocabulary:genomeEnd> "$fields[6]" .
+<$uri> <$vocabulary:genomeStrand> "$fields[7]" .
+<$uri> <$vocabulary:xGeneID> <http://bio2rdf.org/geneid:$fields[10]> .
+<$uri> <$vocabulary:xENSEMBL> <http://bio2rdf.org/ensembl:$fields[15]> .
 
-<$uri> <http://bio2rdf.org/ns/bio2rdf#xGene> <http://bio2rdf.org/gene:10090-$symbol2> .
-<$uri> <http://bio2rdf.org/ns/bio2rdf#xSymbol> <http://bio2rdf.org/symbol:$fields[2]> .
+<$uri> <$vocabulary:xGene> <http://bio2rdf.org/gene:10090-$symbol2> .
+<$uri> <$vocabulary:xSymbol> <http://bio2rdf.org/symbol:$fields[2]> .
 
-<http://bio2rdf.org/symbol:$fields[2]> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/bio2rdf#Symbol> .
+<http://bio2rdf.org/symbol:$fields[2]> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Symbol> .
 <http://bio2rdf.org/symbol:$fields[2]> <http://www.w3.org/2002/07/owl#sameAs> <http://bio2rdf.org/$lsid> .
 
 EOF
@@ -190,7 +192,7 @@ $LSID = lc($1);
 $LSID2 = "$LSID-$file-$synonym";
 	
 $TEXT = <<EOF;
-<http://bio2rdf.org/$LSID> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/mgi#Marker> .
+<http://bio2rdf.org/$LSID> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Marker> .
 <http://bio2rdf.org/$LSID> <http://bio2rdf.org/ns/bio2rdf#synonym> "$synonym" .
 EOF
 }
@@ -200,18 +202,18 @@ sub MRK_SwissProt {
 $lsid = lc($fields[0]);
 
 $TEXT = <<EOF;
-<http://bio2rdf.org/$lsid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/mgi#Marker> .
+<http://bio2rdf.org/$lsid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Marker> .
 <http://bio2rdf.org/$lsid> <http://bio2rdf.org/ns/bio2rdf#xUniProt> <http://bio2rdf.org/uniprot:$fields[6]> .
 EOF
 }
 
 sub MRK_InterPro {
 $lsid = lc($fields[0]);
-$TEXT = "<http://bio2rdf.org/$lsid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/mgi#Marker> .\n";
+$TEXT = "<http://bio2rdf.org/$lsid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Marker> .\n";
 	
 	@elements = split(/ /, $fields[2]);
 	foreach $element (@elements) {
-		$TEXT = $TEXT."<http://bio2rdf.org/$lsid> <http://bio2rdf.org/ns/bio2rdf#xInterPro> <http://bio2rdf.org/interpro:$element> .\n";
+		$TEXT = $TEXT."<http://bio2rdf.org/$lsid> <$vocabulary:xInterPro> <http://bio2rdf.org/interpro:$element> .\n";
 	}
 
 }
@@ -221,9 +223,9 @@ $lsid = lc($fields[0]);
 $hgnc = lc($fields[4]);
 	
 $TEXT = <<EOF;
-<http://bio2rdf.org/$lsid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/mgi#Marker> .
-<http://bio2rdf.org/$lsid> <http://bio2rdf.org/ns/bio2rdf#xHGNC> <http://bio2rdf.org/$hgnc> .
-<http://bio2rdf.org/$lsid> <http://bio2rdf.org/ns/bio2rdf#xGeneID> <http://bio2rdf.org/geneid:$fields[6]> .
+<http://bio2rdf.org/$lsid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Marker> .
+<http://bio2rdf.org/$lsid> <$vocabulary:xHGNC> <http://bio2rdf.org/$hgnc> .
+<http://bio2rdf.org/$lsid> <$vocabulary:xGeneID> <http://bio2rdf.org/geneid:$fields[6]> .
 EOF
 }
 
@@ -235,8 +237,8 @@ $lsid = lc($fields[1]);
 $go = lc($fields[4]);
 
 $TEXT = <<EOF;
-<http://bio2rdf.org/$lsid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/mgi#Marker> .
-<http://bio2rdf.org/$lsid> <http://bio2rdf.org/ns/bio2rdf#xGO> <http://bio2rdf.org/$go> .
+<http://bio2rdf.org/$lsid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Marker> .
+<http://bio2rdf.org/$lsid> <$vocabulary:xGO> <http://bio2rdf.org/$go> .
 EOF
 }
 
