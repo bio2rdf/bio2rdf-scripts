@@ -37,7 +37,7 @@ AddOption($options, 'outdir',null, '/data/rdf/ctd/', false);
 AddOption($options, 'download','true|false', 'false', false);
 AddOption($options, 'remote_base_url',null,'http://ctd.mdibl.org/reports/', false);
 // exposure_ontology 
-AddOption($options, 'files','all|chem_gene_ixns|chem_disease_relations|gene_disease_relations|chem_pathways_enriched|disease_pathways|gene_pathways|chem_go_enriched|chemicals|diseases|genes|pathways|chem_gene_ixn_types','all',false);
+AddOption($options, 'files','all|chem_gene_ixns|chemicals_diseases|genes_diseases|chem_pathways_enriched|diseases_pathways|genes_pathways|chem_go_enriched|chemicals|diseases|genes|pathways|chem_gene_ixn_types','all',false);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
 AddOption($options, USE_CONF_FILE,'true|false','false', false);
 
@@ -202,7 +202,7 @@ x 7 InferenceScore
 X 8 OmimIDs ('|'-delimited list)
 X 9 PubmedIDs ('|'-delimited list)
 */
-function CTD_chem_disease_relations($infp, $outfp)
+function CTD_chemicals_diseases($infp, $outfp)
 {
 	require_once (dirname(__FILE__).'/../common/php/libphp.php');
 	$buf = N3NSHeader();
@@ -236,10 +236,10 @@ function CTD_chem_disease_relations($infp, $outfp)
 				if($pubmed_id) $buf .= "$uri ctd_vocabulary:article pubmed:$pubmed_id .".PHP_EOL;
 			}
 		}
-		
+		gzwrite($outfp,$buf);
+		$buf = '';
 	}
 	
-	gzwrite($outfp,$buf);
 	return 0;
 }
 
@@ -315,7 +315,7 @@ X DiseaseID (MeSH or OMIM accession identifier)
 X PathwayID (KEGG accession identifier)
   InferenceGeneSymbol
 */
-function CTD_disease_pathways($infp, $outfp)
+function CTD_diseases_pathways($infp, $outfp)
 {
 	require_once (dirname(__FILE__).'/../common/php/libphp.php');
 	$buf = N3NSHeader();
@@ -353,7 +353,7 @@ X 3 DiseaseID (MeSH or OMIM accession identifier)
 X 7 OmimIDs ('|'-delimited list)
 X 8 PubmedIDs ('|'-delimited list)
 */
-function CTD_gene_disease_relations($infp, $outfp)
+function CTD_genes_diseases($infp, $outfp)
 {
 	require_once (dirname(__FILE__).'/../common/php/libphp.php');
 	$buf = N3NSHeader();
@@ -401,7 +401,7 @@ X 1 GeneID (NCBI Gene or CTD accession identifier)
 x 2 PathwayName
 X 3 PathwayID (KEGG accession identifier)
 */
-function CTD_gene_pathways($infp, $outfp)
+function CTD_genes_pathways($infp, $outfp)
 {
 	require_once (dirname(__FILE__).'/../common/php/libphp.php');
 	$buf = N3NSHeader();
