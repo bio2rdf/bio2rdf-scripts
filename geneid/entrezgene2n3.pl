@@ -38,6 +38,7 @@ our $geneid = "";
 our $graph = "";
 our $base = "http://bio2rdf.org/geneid";
 our $resource = "http://bio2rdf.org/geneid_resource";
+our $vocabulary = "http://bio2rdf.org/geneid_vocabulary";
 our $rdf = "http://www.w3.org/1999/02/22-rdf-syntax-ns";
 our $rdfs = "http://www.w3.org/2000/01/rdf-schema";
 our $dc = "http://purl.org/dc/terms";
@@ -66,37 +67,37 @@ sub EntrezGene2NQ{
 	$graph = "http://bio2rdf.org/geneid_record:$geneid";
 
 	printN3("$base:$geneid", "$rdf#type", "$resource:Gene", 0, 0);
-	printN3("$base:$geneid", "$resource:geneType", $doc->{'type'}, 1, "^^xsd:string");
+	printN3("$base:$geneid", "$vocabulary:geneType", $doc->{'type'}, 1, "^^xsd:string");
 
 	foreach(@{$doc->{'track-info'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:track-info", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-trak", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:track-info", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-trak", 0, 0);
 		Gene_track($_,"$resource:$geneid-$uniqueID");
 	}
 	
 	foreach(@{$doc->{'source'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:source", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:BioSource", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:source", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:BioSource", 0, 0);
 		BioSource($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'gene'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:gene", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-ref", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:gene", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-ref", 0, 0);
 		Gene_ref($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'prot'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:prot", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Prot-ref", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:prot", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Prot-ref", 0, 0);
 		Prot_ref($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'rna'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:rna", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:RNA-ref", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:rna", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:RNA-ref", 0, 0);
 		RNA_ref($_,"$resource:$geneid-$uniqueID");
 	}
 	if(exists $doc->{'summary'}){
@@ -104,65 +105,65 @@ sub EntrezGene2NQ{
 	}
 	foreach(@{$doc->{'location'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:location", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Maps", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:location", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Maps", 0, 0);
 		Maps($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'gene-source'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:gene-source", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-source", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:gene-source", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-source", 0, 0);
 		Gene_source($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'locus'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:locus", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-commentary", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:locus", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-commentary", 0, 0);
 		Gene_commentary($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'properties'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:properties", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-commentary", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:properties", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-commentary", 0, 0);
 		Gene_commentary($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'refgene'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:refgene", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-commentary", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:refgene", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-commentary", 0, 0);
 		Gene_commentary($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'homology'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:homology", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-commentary", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:homology", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-commentary", 0, 0);
 		Gene_commentary($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'comments'}}){
 		my $uniqueID = generateUniqueURI($_);
-		printN3( "$base:$geneid", "$resource:comments", "$resource:$geneid-$uniqueID", 0, 0);
-		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-commentary", 0, 0);
+		printN3( "$base:$geneid", "$vocabulary:comments", "$resource:$geneid-$uniqueID", 0, 0);
+		printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-commentary", 0, 0);
 		Gene_commentary($_,"$resource:$geneid-$uniqueID");
 	}
 	foreach(@{$doc->{'unique-keys'}}){
 		Dbtag($_,"$base:$geneid","unique-keys");
 	}
 	foreach(@{$doc->{'xtra-index-terms'}}){
-		printN3( "$base:$geneid", "$resource:xtra-index-terms", $_, 1, "^^xsd:string");
+		printN3( "$base:$geneid", "$vocabulary:xtra-index-terms", $_, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'xtra-properties'}){
 		foreach(@{$doc->{'xtra-properties'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$base:$geneid", "$resource:xtra-properties", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Xtra-Terms", 0, 0);
+			printN3( "$base:$geneid", "$vocabulary:xtra-properties", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Xtra-Terms", 0, 0);
 			Xtra_Terms($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'xtra-iq'}){
 		foreach(@{$doc->{'xtra-iq'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$base:$geneid", "$resource:xtra-iq", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Xtra-Terms", 0, 0);
+			printN3( "$base:$geneid", "$vocabulary:xtra-iq", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Xtra-Terms", 0, 0);
 			Xtra_Terms($_,"$resource:$geneid-$uniqueID");
 		}
 	}
@@ -178,7 +179,7 @@ sub Gene_track{
 
 	printN3( "$base:$geneid", "$dc/identifier", "geneid:".$doc->{'geneid'}, 1, "^^xsd:string");
 
-	printN3( "$subject", "$resource:geneid", $doc->{'geneid'}, 1, "^^xsd:integer");
+	printN3( "$subject", "$vocabulary:geneid", $doc->{'geneid'}, 1, "^^xsd:integer");
 
 	my $replaced_geneid = "no";
 	foreach(@{$doc->{'current-id'}}){
@@ -191,10 +192,10 @@ sub Gene_track{
 	}
 
 	if(exists $doc->{'status'}){
-		printN3( "$subject", "$resource:status", $doc->{'status'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:status", $doc->{'status'}, 1, "^^xsd:string");
 	}
 	else{
-		printN3( "$subject", "$resource:status", "live", 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:status", "live", 1, "^^xsd:string");
 	}
 
 	if(exists $doc->{'current-id'}){
@@ -253,7 +254,7 @@ sub Dbtag{
 		$id = $doc->{'tag'}->[0]->{'str'};
 	}
 
-	printN3( "$subject", "$resource:$predicate", "http://bio2rdf.org/$xref:$id", 0, 0);
+	printN3( "$subject", "$vocabulary:$predicate", "http://bio2rdf.org/$xref:$id", 0, 0);
 
 	xRef("$xref:$id");
 }
@@ -291,17 +292,17 @@ sub BioSource{
 	my $subject = shift;
 
 	if(exists $doc->{'genome'}){
-		printN3( "$subject", "$resource:genome",  $doc->{'genome'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:genome",  $doc->{'genome'}, 1, "^^xsd:string");
 	}
 	else{
-		printN3( "$subject", "$resource:genome", "unknown", 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:genome", "unknown", 1, "^^xsd:string");
 	}
 
 	if(exists $doc->{'origin'}){
-		printN3( "$subject", "$resource:origin", $doc->{'origin'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:origin", $doc->{'origin'}, 1, "^^xsd:string");
 	}
 	else{
-		printN3( "$subject", "$resource:origin", "unknown", 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:origin", "unknown", 1, "^^xsd:string");
 	}
 
 	if(exists $doc->{'org'}){
@@ -313,8 +314,8 @@ sub BioSource{
 	if(exists $doc->{'subtype'}){
 		foreach(@{$doc->{'subtype'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:subType", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:SubSource", 0, 0);
+			printN3( "$subject", "$vocabulary:subType", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:SubSource", 0, 0);
 			SubSource($_,"$resource:$geneid-$uniqueID");
 		}
 	}
@@ -336,14 +337,14 @@ sub Orf_ref{
 	my $subject = shift;
 
 	if(exists $doc->{'taxname'}){
-		printN3( "$subject", "$resource:taxname", $doc->{'taxname'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:taxname", $doc->{'taxname'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'common'}){
-		printN3( "$subject", "$resource:common", $doc->{'common'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:common", $doc->{'common'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'mod'}){
 		foreach(@{$doc->{'mod'}}){
-			printN3( "$subject", "$resource:mod", $_, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:mod", $_, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'db'}){
@@ -353,7 +354,7 @@ sub Orf_ref{
 	}
 	if(exists $doc->{'syn'}){
 		foreach(@{$doc->{'syn'}}){
-			printN3( "$subject", "$resource:syn", $_, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:syn", $_, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'orgname'}){
@@ -372,7 +373,7 @@ sub OrgName{
 		BinomialOrgName($doc->{'name'}->[0]->{'binomial'}->[0],$subject);
 	}
 	elsif($key[0] =~ /^virus$/){
-		printN3( "$subject", "$resource:virus", $doc->{'name'}->[0]->{'virus'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:virus", $doc->{'name'}->[0]->{'virus'}, 1, "^^xsd:string");
 	}
 	elsif($key[0] =~ /^hybrid$/){
 		foreach(@{$doc->{'name'}->[0]->{'hybrid'}}){
@@ -387,27 +388,27 @@ sub OrgName{
 	}
 
 	if(exists $doc->{'attrib'}){
-		printN3( "$subject", "$resource:attrib", $doc->{'attrib'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:attrib", $doc->{'attrib'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'mod'}){
 		foreach(@{$doc->{'mod'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:mod", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:OrgMod", 0, 0);
+			printN3( "$subject", "$vocabulary:mod", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:OrgMod", 0, 0);
 			OrgMod($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'lineage'}){
-		printN3( "$subject", "$resource:lineage", $doc->{'lineage'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:lineage", $doc->{'lineage'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'gcode'}){
-		printN3( "$subject", "$resource:gcode", $doc->{'gcode'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:gcode", $doc->{'gcode'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'mgcode'}){
-		printN3( "$subject", "$resource:mgcode", $doc->{'mgcode'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:mgcode", $doc->{'mgcode'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'div'}){
-		printN3( "$subject", "$resource:div", $doc->{'div'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:div", $doc->{'div'}, 1, "^^xsd:string");
 	}
 }
 
@@ -417,13 +418,13 @@ sub BinomialOrgName{
 	my $subject = shift;
 
 	if(exists $doc->{'genus'}){
-		printN3( "$subject", "$resource:genus", $doc->{'genus'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:genus", $doc->{'genus'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'species'}){
-		printN3( "$subject", "$resource:species", $doc->{'species'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:species", $doc->{'species'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'subspecies'}){
-		printN3( "$subject", "$resource:subspecies", $doc->{'subspecies'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:subspecies", $doc->{'subspecies'}, 1, "^^xsd:string");
 	}
 }
 
@@ -434,13 +435,13 @@ sub PartialOrgName{
 	my $subject = shift;
 
 	if(exists $doc->{'fixed-level'}){
-		printN3( "$subject", "$resource:fixed-level", $doc->{'fixed-level'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:fixed-level", $doc->{'fixed-level'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'level'}){
-		printN3( "$subject", "$resource:level", $doc->{'level'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:level", $doc->{'level'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'name'}){
-		printN3( "$subject", "$resource:name", $doc->{'name'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:name", $doc->{'name'}, 1, "^^xsd:string");
 	}
 }
 
@@ -450,13 +451,13 @@ sub OrgMod{
 	my $subject = shift;
 
 	if(exists $doc->{'subtype'}){
-		printN3( "$subject", "$resource:subtype", $doc->{'subtype'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:subtype", $doc->{'subtype'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'subname'}){
-		printN3( "$subject", "$resource:subname", $doc->{'subname'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:subname", $doc->{'subname'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'attrib'}){
-		printN3( "$subject", "$resource:attrib", $doc->{'attrib'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:attrib", $doc->{'attrib'}, 1, "^^xsd:string");
 	}
 }
 
@@ -466,13 +467,13 @@ sub SubSource{
 	my $subject = shift;
 
 	if(exists $doc->{'subtype'}){
-		printN3( "$subject", "$resource:subtype", $doc->{'subtype'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:subtype", $doc->{'subtype'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'name'}){
-		printN3( "$subject", "$resource:name", $doc->{'name'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:name", $doc->{'name'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'attrib'}){
-		printN3( "$subject", "$resource:attrib", $doc->{'attrib'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:attrib", $doc->{'attrib'}, 1, "^^xsd:string");
 	}
 }
 
@@ -483,16 +484,16 @@ sub Gene_ref{
 
 	if(exists $doc->{'locus'}){
 		printN3( "$base:$geneid", "$rdfs#label",  $doc->{'locus'}." [geneid:$geneid]", 1, "^^xsd:string");
-		printN3( "$subject", "$resource:locus", $doc->{'locus'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:locus", $doc->{'locus'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'allele'}){
-		printN3( "$subject", "$resource:allele", $doc->{'allele'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:allele", $doc->{'allele'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'desc'}){
 		printN3( "$subject", "$dc/description", $doc->{'desc'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'maploc'}){
-		printN3( "$subject", "$resource:maploc", $doc->{'maploc'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:maploc", $doc->{'maploc'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'db'}){
 		foreach(@{$doc->{'db'}}){
@@ -501,11 +502,11 @@ sub Gene_ref{
 	}
 	if(exists $doc->{'syn'}){
 		foreach(@{$doc->{'syn'}}){
-			printN3( "$subject", "$resource:syn", $_, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:syn", $_, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'locus-tag'}){
-		printN3( "$subject", "$resource:locus-tag", $doc->{'locus-tag'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:locus-tag", $doc->{'locus-tag'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'formal-name'}){
 		foreach(@{$doc->{'formal-name'}}){
@@ -520,13 +521,13 @@ sub Gene_nomenclature{
 	my $subject = shift;
 
 	if(exists $doc->{'status'}){
-		printN3( "$subject", "$resource:status", $doc->{'status'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:status", $doc->{'status'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'symbol'}){
-		printN3( "$subject", "$resource:symbol", $doc->{'symbol'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:symbol", $doc->{'symbol'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'name'}){
-		printN3( "$subject", "$resource:name", $doc->{'name'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:name", $doc->{'name'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'source'}){
 		foreach(@{$doc->{'source'}}){
@@ -543,7 +544,7 @@ sub Prot_ref{
 	
 	if(exists $doc->{'name'}){
 		foreach(@{$doc->{'name'}}){
-			printN3( "$subject", "$resource:name", $_, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:name", $_, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'desc'}){
@@ -551,13 +552,13 @@ sub Prot_ref{
 	}
 	if(exists $doc->{'ec'}){
 		foreach(@{$doc->{'ec'}}){
-			printN3( "$subject", "$resource:ec", $_, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:ec", $_, 1, "^^xsd:string");
 			xRef("ec:".$_);
 		}
 	}
 	if(exists $doc->{'activity'}){
 		foreach(@{$doc->{'activity'}}){
-			printN3( "$subject", "$resource:activity", $_, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:activity", $_, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'db'}){
@@ -566,10 +567,10 @@ sub Prot_ref{
 		}
 	}
 	if(exists $doc->{'processed'}){
-		printN3( "$subject", "$resource:processed", $doc->{'processed'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:processed", $doc->{'processed'}, 1, "^^xsd:string");
 	}
 	else{
-		printN3( "$subject", "$resource:processed", "not-set", 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:processed", "not-set", 1, "^^xsd:string");
 	}
 }
 
@@ -579,25 +580,25 @@ sub RNA_ref{
 	my $subject = shift;
 
 	if(exists $doc->{'type'}){
-		printN3( "$subject", "$resource:type", $doc->{'type'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:type", $doc->{'type'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'ext'}){
 		if(exists $doc->{'ext'}->[0]->{'name'}){
-			printN3( "$subject", "$resource:name", $doc->{'ext'}->[0]->{'name'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:name", $doc->{'ext'}->[0]->{'name'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'ext'}->[0]->{'tRNA'}){
 			foreach(@{$doc->{'ext'}->[0]->{'tRNA'}}){
 				my $uniqueID = generateUniqueURI($_);
-				printN3( "$subject", "$resource:tRNA", "$resource:$geneid-$uniqueID", 0, 0);
-				printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Trna-ext", 0, 0);
+				printN3( "$subject", "$vocabulary:tRNA", "$resource:$geneid-$uniqueID", 0, 0);
+				printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Trna-ext", 0, 0);
 				Trna_ext($_,"$resource:$geneid-$uniqueID");
 			}
 		}
 		if(exists $doc->{'ext'}->[0]->{'gen'}){
 			foreach(@{$doc->{'ext'}->[0]->{'gen'}}){
 				my $uniqueID = generateUniqueURI($_);
-				printN3( "$subject", "$resource:gen", "$resource:$geneid-$uniqueID", 0, 0);
-				printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:RNA-gen", 0, 0);
+				printN3( "$subject", "$vocabulary:gen", "$resource:$geneid-$uniqueID", 0, 0);
+				printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:RNA-gen", 0, 0);
 				RNA_gen($_,"$resource:$geneid-$uniqueID");
 			}
 		}
@@ -612,20 +613,20 @@ sub Trna_ext{
 	if(exists $doc->{'aa'}){
 		foreach(@{$doc->{'aa'}}){
 			while(my($key, $value) = each(%$_)){
-				printN3( "$subject", "$resource:$key", $value, 1, "^^xsd:integer");
+				printN3( "$subject", "$vocabulary:$key", $value, 1, "^^xsd:integer");
 			}
 		}
 	}
 	if(exists $doc->{'codon'}){
 		foreach(@{$doc->{'codon'}}){
-			printN3( "$subject", "$resource:codon", $_, 1, "^^xsd:integer");
+			printN3( "$subject", "$vocabulary:codon", $_, 1, "^^xsd:integer");
 		}
 	}
 	if(exists $doc->{'anticodon'}){
 		foreach(@{$doc->{'anticodon'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:anticodon", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Seq-loc", 0, 0);
+			printN3( "$subject", "$vocabulary:anticodon", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Seq-loc", 0, 0);
 			Seq_loc($_,"$resource:$geneid-$uniqueID");
 		}
 	}
@@ -654,8 +655,8 @@ sub Seq_loc{
 	if(exists $doc->{'packed-int'}){
 		foreach(@{$doc->{'packed-int'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:packed-int", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Packed-seqint", 0, 0);
+			printN3( "$subject", "$vocabulary:packed-int", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Packed-seqint", 0, 0);
 			Seq_interval($_,"$resource:$geneid-$uniqueID:");
 		}
 	}
@@ -667,24 +668,24 @@ sub Seq_loc{
 	if(exists $doc->{'packed-pnt'}){
 		foreach(@{$doc->{'whole'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:packed-pnt", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Packed-seqpnt", 0, 0);
+			printN3( "$subject", "$vocabulary:packed-pnt", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Packed-seqpnt", 0, 0);
 			Seq_point($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'mix'}){
 		foreach(@{$doc->{'mix'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:mix", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Seq-loc-mix", 0, 0);
+			printN3( "$subject", "$vocabulary:mix", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Seq-loc-mix", 0, 0);
 			Seq_loc($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'equiv'}){
 		foreach(@{$doc->{'equiv'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:equiv", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Seq-loc-equiv", 0, 0);
+			printN3( "$subject", "$vocabulary:equiv", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Seq-loc-equiv", 0, 0);
 			Seq_loc($_,"$resource:$geneid-$uniqueID");
 		}
 	}
@@ -711,10 +712,10 @@ sub Seq_id{
 		}
 	}
 	if(exists $doc->{'gibbsq'}){
-		printN3( "$subject", "$resource:gibbsq", $doc->{'gibbsq'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:gibbsq", $doc->{'gibbsq'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'gibbmt'}){
-		printN3( "$subject", "$resource:gibbmt", $doc->{'gibbmt'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:gibbmt", $doc->{'gibbmt'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'giim'}){
 		foreach(@{$doc->{'giim'}}){
@@ -757,7 +758,7 @@ sub Seq_id{
 		}
 	}
 	if(exists $doc->{'gi'}){
-		printN3( "$subject", "$resource:gi", "http://bio2rdf.org/gi:".$doc->{'gi'}, 0, 0);
+		printN3( "$subject", "$vocabulary:gi", "http://bio2rdf.org/gi:".$doc->{'gi'}, 0, 0);
 		xRef("gi:".$doc->{'gi'});
 	}
 	if(exists $doc->{'ddbj'}){
@@ -808,15 +809,15 @@ sub Giimport_id{
 	my $subject = shift;
 
 	if(exists $doc->{'id'}){
-		printN3( "$subject", "$resource:id", $doc->{'id'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:id", $doc->{'id'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'db'}){
-		printN3( "$subject", "$resource:db", $doc->{'db'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:giimport", "http://bio2rdf.org/".$doc->{'db'}.":".$doc->{'id'}, 0, 0);
+		printN3( "$subject", "$vocabulary:db", $doc->{'db'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:giimport", "http://bio2rdf.org/".$doc->{'db'}.":".$doc->{'id'}, 0, 0);
 		xRef($doc->{'db'}.":".$doc->{'id'});
 	}
 	if(exists $doc->{'release'}){
-		printN3( "$subject", "$resource:release", $doc->{'release'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:release", $doc->{'release'}, 1, "^^xsd:string");
 	}
 }
 
@@ -826,10 +827,10 @@ sub Object_id{
 	my $subject = shift;
 
 	if(exists $doc->{'id'}){
-		printN3( "$subject", "$resource:id", $doc->{'id'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:id", $doc->{'id'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'str'}){
-		printN3( "$subject", "$resource:str", $doc->{'str'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:str", $doc->{'str'}, 1, "^^xsd:string");
 	}
 }
 
@@ -840,18 +841,18 @@ sub Textseq_id{
 	my $db = shift;
 
 	if(exists $doc->{'name'}){
-		printN3( "$subject", "$resource:name", $doc->{'name'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:name", $doc->{'name'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'accession'}){
-		printN3( "$subject", "$resource:accession", $doc->{'accession'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:textseq-id", "http://bio2rdf.org/$db:".$doc->{'accession'}, 0, 0);
+		printN3( "$subject", "$vocabulary:accession", $doc->{'accession'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:textseq-id", "http://bio2rdf.org/$db:".$doc->{'accession'}, 0, 0);
 		xRef($db.":".$doc->{'accession'});
 	}
 	if(exists $doc->{'release'}){
-		printN3( "$subject", "$resource:release", $doc->{'release'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:release", $doc->{'release'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'version'}){
-		printN3( "$subject", "$resource:version", $doc->{'version'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:version", $doc->{'version'}, 1, "^^xsd:integer");
 	}
 }
 
@@ -862,24 +863,24 @@ sub Patent_seq_id{
 	my $subject = shift;
 
 	if(exists $doc->{'seqid'}){
-		printN3( "$subject", "$resource:seqid", $doc->{'seqid'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:seqid", $doc->{'seqid'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'cit'}){
 		if(exists $doc->{'cit'}->[0]->{'country'}){
-			printN3( "$subject", "$resource:country", $doc->{'cit'}->[0]->{'country'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:country", $doc->{'cit'}->[0]->{'country'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'cit'}->[0]->{'id'}->[0]->{'number'}){
-			printN3( "$subject", "$resource:number", $doc->{'cit'}->[0]->{'id'}->[0]->{'number'}, 1, "^^xsd:string");
-			printN3( "$subject", "$resource:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'cit'}->[0]->{'id'}->[0]->{'number'}, 0, 0);
+			printN3( "$subject", "$vocabulary:number", $doc->{'cit'}->[0]->{'id'}->[0]->{'number'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'cit'}->[0]->{'id'}->[0]->{'number'}, 0, 0);
 			xRef("patent:".$doc->{'cit'}->[0]->{'id'}->[0]->{'number'});
 		}
 		if(exists $doc->{'cit'}->[0]->{'id'}->[0]->{'app-number'}){
-			printN3( "$subject", "$resource:app-number", $doc->{'cit'}->[0]->{'id'}->[0]->{'app-number'}, 1, "^^xsd:string");
-			printN3( "$subject", "$resource:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'cit'}->[0]->{'id'}->[0]->{'app-number'}, 0, 0);
+			printN3( "$subject", "$vocabulary:app-number", $doc->{'cit'}->[0]->{'id'}->[0]->{'app-number'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'cit'}->[0]->{'id'}->[0]->{'app-number'}, 0, 0);
 			xRef("patent:".$doc->{'cit'}->[0]->{'id'}->[0]->{'app-number'});
 		}
 		if(exists $doc->{'cit'}->[0]->{'doc-type'}){
-			printN3( "$subject", "$resource:doc-type", $doc->{'cit'}->[0]->{'doc-type'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:doc-type", $doc->{'cit'}->[0]->{'doc-type'}, 1, "^^xsd:string");
 		}
 	}
 }
@@ -891,12 +892,12 @@ sub PDB_seq_id{
 	my $subject = shift;
 
 	if(exists $doc->{'mol'}){
-		printN3( "$subject", "$resource:mol", $doc->{'mol'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:pdbRef", "http://bio2rdf.org/pdb:".$doc->{'mol'}, 0, 0);
+		printN3( "$subject", "$vocabulary:mol", $doc->{'mol'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:pdbRef", "http://bio2rdf.org/pdb:".$doc->{'mol'}, 0, 0);
 		xRef("pdb:".$doc->{'mol'});
 	}
 	if(exists $doc->{'chain'}){
-		printN3( "$subject", "$resource:chain", $doc->{'chain'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:chain", $doc->{'chain'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'rel'}){
 		date($doc->{'rel'}->[0],$subject,'rel');
@@ -910,13 +911,13 @@ sub Seq_interval{
 	my $subject = shift;
 
 	if(exists $doc->{'from'}){
-		printN3( "$subject", "$resource:from", $doc->{'from'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:from", $doc->{'from'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'to'}){
-		printN3( "$subject", "$resource:to", $doc->{'to'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:to", $doc->{'to'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'strand'}){
-		printN3( "$subject", "$resource:strand", $doc->{'strand'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:strand", $doc->{'strand'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'id'}){
 		foreach(@{$doc->{'id'}}){
@@ -944,21 +945,21 @@ sub Int_fuzz{
 	my @key = (keys %{$doc});
 
 	if($key[0] =~ /^p-m$/){
-		printN3( "$subject", "$resource:$info/p-m", $doc->{'p-m'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:$info/p-m", $doc->{'p-m'}, 1, "^^xsd:integer");
 	}
 	if($key[0] =~ /^range$/){
-		printN3( "$subject", "$resource:$info/range/max", $doc->{'range'}->[0]->{'max'}, 1, "^^xsd:integer");
-		printN3( "$subject", "$resource:$info/range/min", $doc->{'range'}->[0]->{'min'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:$info/range/max", $doc->{'range'}->[0]->{'max'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:$info/range/min", $doc->{'range'}->[0]->{'min'}, 1, "^^xsd:integer");
 	}
 	if($key[0] =~ /^pct$/){
-		printN3( "$subject", "$resource:$info/pct", $doc->{'pct'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:$info/pct", $doc->{'pct'}, 1, "^^xsd:integer");
 	}
 	if($key[0] =~ /^lim$/){
-		printN3( "$subject", "$resource:$info/lim", $doc->{'lim'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:$info/lim", $doc->{'lim'}, 1, "^^xsd:string");
 	}
 	if($key[0] =~ /^alt$/){
 		foreach(@{$doc->{'alt'}}){
-			printN3( "$subject", "$resource:$info/alt", $_, 1, "^^xsd:integer");
+			printN3( "$subject", "$vocabulary:$info/alt", $_, 1, "^^xsd:integer");
 		}
 	}
 }
@@ -970,10 +971,10 @@ sub Seq_point{
 	my $subject = shift;
 
 	if(exists $doc->{'point'}){
-		printN3( "$subject", "$resource:point", $doc->{'point'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:point", $doc->{'point'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'strand'}){
-		printN3( "$subject", "$resource:strand", $doc->{'strand'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:strand", $doc->{'strand'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'id'}){
 		foreach(@{$doc->{'id'}}){
@@ -995,7 +996,7 @@ sub Seq_bond{
 	if(exists $doc->{'a'}){
 		foreach(@{$doc->{'a'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:bond_A", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$subject", "$vocabulary:bond_A", "$resource:$geneid-$uniqueID", 0, 0);
 			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Seq-point", 0, 0);
 			Seq_point($_,"$resource:$geneid-$uniqueID");
 		}
@@ -1003,7 +1004,7 @@ sub Seq_bond{
 	if(exists $doc->{'b'}){
 		foreach(@{$doc->{'b'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:bond_B", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$subject", "$vocabulary:bond_B", "$resource:$geneid-$uniqueID", 0, 0);
 			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Seq-point", 0, 0);
 			Seq_point($_,"$resource:$geneid-$uniqueID");
 		}
@@ -1016,7 +1017,7 @@ sub Feat_id{
 	my $subject = shift;
 
 	if(exists $doc->{'gibb'}){
-		printN3( "$subject", "$resource:gibb", $doc->{'gibb'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:gibb", $doc->{'gibb'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'giim'}){
 		foreach(@{$doc->{'giim'}}){
@@ -1041,15 +1042,15 @@ sub RNA_gen{
 	my $subject = shift;
 
 	if(exists $doc->{'class'}){
-		printN3( "$subject", "$resource:class", $doc->{'class'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:class", $doc->{'class'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'product'}){
-		printN3( "$subject", "$resource:product", $doc->{'product'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:product", $doc->{'product'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'quals'}){
 		foreach(@{$doc->{'quals'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:quals", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$subject", "$vocabulary:quals", "$resource:$geneid-$uniqueID", 0, 0);
 			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:RNA-qual", 0, 0);
 			RNA_qual($_,"$resource:$geneid-$uniqueID");
 		}
@@ -1063,10 +1064,10 @@ sub RNA_qual{
 	my $subject= shift;
 
 	if(exists $doc->{'qual'}){
-		printN3( "$subject", "$resource:qual", $doc->{'qual'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:qual", $doc->{'qual'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'val'}){
-		printN3( "$subject", "$resource:val", $doc->{'val'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:val", $doc->{'val'}, 1, "^^xsd:string");
 	}
 }
 
@@ -1082,10 +1083,10 @@ sub Maps{
 		foreach(@{$doc->{'method'}}){
 			my @key = (keys %{$_});
 		        if($key[0] =~ /^proxy$/){
-				printN3( "$subject", "$resource:proxy", $_->{'proxy'}, 1, "^^xsd:string");
+				printN3( "$subject", "$vocabulary:proxy", $_->{'proxy'}, 1, "^^xsd:string");
 			}
 			if($key[0] =~ /^map-type$/){
-				printN3( "$subject", "$resource:map-type", $_->{'map-type'}, 1, "^^xsd:string");
+				printN3( "$subject", "$vocabulary:map-type", $_->{'map-type'}, 1, "^^xsd:string");
 			}
 		}
 	}
@@ -1097,34 +1098,34 @@ sub Gene_source{
 	my $subject = shift;
 
 	if(exists $doc->{'src'}){
-		printN3( "$subject", "$resource:src", $doc->{'src'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:src", $doc->{'src'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'src-int'}){
-		printN3( "$subject", "$resource:src-int", $doc->{'src-int'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:src-int", $doc->{'src-int'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'src-str1'}){
-		printN3( "$subject", "$resource:src-str1", $doc->{'src-str1'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:src-str1", $doc->{'src-str1'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'src-str2'}){
-		printN3( "$subject", "$resource:src-str2", $doc->{'src-str2'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:src-str2", $doc->{'src-str2'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'gene-display'}){
-		printN3( "$subject", "$resource:gene-display", "TRUE", 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:gene-display", "TRUE", 1, "^^xsd:boolean");
 	}
 	else{
-		printN3( "$subject", "$resource:gene-display", "FALSE", 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:gene-display", "FALSE", 1, "^^xsd:boolean");
 	}
 	if(exists $doc->{'locus-display'}){
-		printN3( "$subject", "$resource:locus-display", "TRUE", 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:locus-display", "TRUE", 1, "^^xsd:boolean");
 	}
 	else{
-		printN3( "$subject", "$resource:locus-display", "FALSE", 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:locus-display", "FALSE", 1, "^^xsd:boolean");
 	}
 	if(exists $doc->{'extra-terms'}){
-		printN3( "$subject", "$resource:extra-terms", "TRUE", 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:extra-terms", "TRUE", 1, "^^xsd:boolean");
 	}
 	else{
-		printN3( "$subject", "$resource:extra-terms", "FALSE", 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:extra-terms", "FALSE", 1, "^^xsd:boolean");
 	}
 }
 
@@ -1134,37 +1135,37 @@ sub Gene_commentary{
 	my $subject = shift;
 
 	if(exists $doc->{'type'}){
-		printN3( "$subject", "$resource:type", $doc->{'type'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:type", $doc->{'type'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'heading'}){
-		printN3( "$subject", "$resource:heading", $doc->{'heading'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:heading", $doc->{'heading'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'label'}){
 		printN3( "$subject", "$rdfs#label", $doc->{'label'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'text'}){
-		printN3( "$subject", "$resource:text", $doc->{'text'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:text", $doc->{'text'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'accession'}){
-		printN3( "$subject", "$resource:accession", $doc->{'accession'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:ncbiRef", "http://bio2rdf.org/ncbi:".$doc->{'accession'}, 0, 0);
+		printN3( "$subject", "$vocabulary:accession", $doc->{'accession'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:ncbiRef", "http://bio2rdf.org/ncbi:".$doc->{'accession'}, 0, 0);
 		xRef("ncbi:".$doc->{'accession'});
 	}
 	if(exists $doc->{'version'}){
-		printN3( "$subject", "$resource:version", $doc->{'version'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:version", $doc->{'version'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'xtra-properties'}){
 		foreach(@{$doc->{'xtra-properties'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:xtra-properties", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Xtra-Terms", 0, 0);
+			printN3( "$subject", "$vocabulary:xtra-properties", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Xtra-Terms", 0, 0);
 			Xtra_Terms($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'refs'}){
 		foreach(@{$doc->{'refs'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:refs", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$subject", "$vocabulary:refs", "$resource:$geneid-$uniqueID", 0, 0);
 			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Pub", 0, 0);
 			Pub($_,"$resource:$geneid-$uniqueID");
 		}
@@ -1172,48 +1173,48 @@ sub Gene_commentary{
 	if(exists $doc->{'source'}){
 		foreach(@{$doc->{'source'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:source", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Other-source", 0, 0);
+			printN3( "$subject", "$vocabulary:source", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Other-source", 0, 0);
 			Other_source($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'genomic-coords'}){
 		foreach(@{$doc->{'genomic-coords'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:genomic-coords", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Seq-loc", 0, 0);
+			printN3( "$subject", "$vocabulary:genomic-coords", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Seq-loc", 0, 0);
 			Seq_loc($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'seqs'}){
 		foreach(@{$doc->{'seqs'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:seqs", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Seq-loc", 0, 0);
+			printN3( "$subject", "$vocabulary:seqs", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Seq-loc", 0, 0);
 			Seq_loc($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'products'}){
 		foreach(@{$doc->{'products'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:products", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-commentary", 0, 0);
+			printN3( "$subject", "$vocabulary:products", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-commentary", 0, 0);
 			Gene_commentary($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'properties'}){
 		foreach(@{$doc->{'properties'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:properties", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-commentary", 0, 0);
+			printN3( "$subject", "$vocabulary:properties", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-commentary", 0, 0);
 			Gene_commentary($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'comment'}){
 		foreach(@{$doc->{'comment'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:comment", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Gene-commentary", 0, 0);
+			printN3( "$subject", "$vocabulary:comment", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Gene-commentary", 0, 0);
 			Gene_commentary($_,"$resource:$geneid-$uniqueID");
 		}
 	}
@@ -1235,10 +1236,10 @@ sub Xtra_Terms{
 	my $subject = shift;
 
 	if(exists $doc->{'tag'}){
-		printN3( "$subject", "$resource:tag", $doc->{'tag'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:tag", $doc->{'tag'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'value'}){
-		printN3( "$subject", "$resource:value", $doc->{'value'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:value", $doc->{'value'}, 1, "^^xsd:string");
 	}
 }
 
@@ -1263,8 +1264,8 @@ sub Pub{
 		}
 	}
 	if(exists $doc->{'muid'}){
-		printN3( "$subject", "$resource:muid", $doc->{'muid'}, 1, "^^xsd:integer");
-		printN3( "$subject", "$resource:medlineRef", "http://bio2rdf.org/medline:".$doc->{'muid'}, 0, 0);
+		printN3( "$subject", "$vocabulary:muid", $doc->{'muid'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:medlineRef", "http://bio2rdf.org/medline:".$doc->{'muid'}, 0, 0);
 		xRef("medline:".$doc->{'muid'});
 	}
 	if(exists $doc->{'article'}){
@@ -1294,20 +1295,20 @@ sub Pub{
 	}
 	if(exists $doc->{'pat-id'}){
 		if(exists $doc->{'pat-id'}->[0]->{'country'}){
-			printN3( "$subject", "$resource:country", $doc->{'pat-id'}->[0]->{'country'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:country", $doc->{'pat-id'}->[0]->{'country'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'pat-id'}->[0]->{'id'}->[0]->{'number'}){
-			printN3( "$subject", "$resource:number", $doc->{'pat-id'}->[0]->{'id'}->[0]->{'number'}, 1, "^^xsd:string");
-			printN3( "$subject", "$resource:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'pat-id'}->[0]->{'id'}->[0]->{'number'}, 0, 0);
+			printN3( "$subject", "$vocabulary:number", $doc->{'pat-id'}->[0]->{'id'}->[0]->{'number'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'pat-id'}->[0]->{'id'}->[0]->{'number'}, 0, 0);
 			xRef("patent:".$doc->{'pat-id'}->[0]->{'id'}->[0]->{'number'});
 		}
 		if(exists $doc->{'pat-id'}->[0]->{'id'}->[0]->{'app-number'}){
-			printN3( "$subject", "$resource:app-number", $doc->{'pat-id'}->[0]->{'id'}->[0]->{'app-number'}, 1, "^^xsd:string");
-			printN3( "$subject", "$resource:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'pat-id'}->[0]->{'id'}->[0]->{'app-number'}, 0, 0);
+			printN3( "$subject", "$vocabulary:app-number", $doc->{'pat-id'}->[0]->{'id'}->[0]->{'app-number'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:patent-seq-id", "http://bio2rdf.org/patent:".$doc->{'pat-id'}->[0]->{'id'}->[0]->{'app-number'}, 0, 0);
 			xRef("patent:".$doc->{'pat-id'}->[0]->{'id'}->[0]->{'app-number'});
 		}
 		if(exists $doc->{'pat-id'}->[0]->{'doc-type'}){
-			printN3( "$subject", "$resource:doc-type", $doc->{'pat-id'}->[0]->{'doc-type'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:doc-type", $doc->{'pat-id'}->[0]->{'doc-type'}, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'man'}){
@@ -1318,22 +1319,22 @@ sub Pub{
 	if(exists $doc->{'equiv'}){
 		foreach(@{$doc->{'equiv'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:equiv", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Pub", 0, 0);
+			printN3( "$subject", "$vocabulary:equiv", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Pub", 0, 0);
 			Pub($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'pmid'}){
 		if(ref($doc->{'pmid'}) eq 'ARRAY'){
 			foreach(@{$doc->{'pmid'}}){
-				printN3( "$subject", "$resource:pmid", $_, 1, "^^xsd:integer");
-				printN3( "$subject", "$resource:pubmedRef", "http://bio2rdf.org/pubmed:".$_, 0, 0);
+				printN3( "$subject", "$vocabulary:pmid", $_, 1, "^^xsd:integer");
+				printN3( "$subject", "$vocabulary:pubmedRef", "http://bio2rdf.org/pubmed:".$_, 0, 0);
 				xRef("pubmed:$_");
 			}
 		}
 		else{
-			printN3( "$subject", "$resource:pmid", $doc->{'pmid'}, 1, "^^xsd:integer");
-			printN3( "$subject", "$resource:pubmedRef", "http://bio2rdf.org/pubmed:".$doc->{'pmid'}, 0, 0);
+			printN3( "$subject", "$vocabulary:pmid", $doc->{'pmid'}, 1, "^^xsd:integer");
+			printN3( "$subject", "$vocabulary:pubmedRef", "http://bio2rdf.org/pubmed:".$doc->{'pmid'}, 0, 0);
 			xRef("pubmed:".$doc->{'pmid'});
 		}
 	}
@@ -1345,7 +1346,7 @@ sub Cit_gen{
 	my $subject = shift;
 
 	if(exists $doc->{'cit'}){
-		printN3( "$subject", "$resource:cit", $doc->{'cit'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:cit", $doc->{'cit'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'authors'}){
 		foreach(@{$doc->{'authors'}}){
@@ -1353,8 +1354,8 @@ sub Cit_gen{
 		}
 	}
 	if(exists $doc->{'muid'}){
-		printN3( "$subject", "$resource:muid", $doc->{'muid'}, 1, "^^xsd:integer");
-		printN3( "$subject", "$resource:medlineRef", "http://bio2rdf.org/medline:".$doc->{'muid'}, 0, 0);
+		printN3( "$subject", "$vocabulary:muid", $doc->{'muid'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:medlineRef", "http://bio2rdf.org/medline:".$doc->{'muid'}, 0, 0);
 		xRef("medline:".$doc->{'muid'});
 	}
 	if(exists $doc->{'journal'}){
@@ -1363,28 +1364,28 @@ sub Cit_gen{
 		}
 	}
 	if(exists $doc->{'volume'}){
-		printN3( "$subject", "$resource:volume", $doc->{'volume'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:volume", $doc->{'volume'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'issue'}){
-		printN3( "$subject", "$resource:issue", $doc->{'issue'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:issue", $doc->{'issue'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'pages'}){
-		printN3( "$subject", "$resource:pages", $doc->{'pages'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:pages", $doc->{'pages'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'date'}){
 		foreach(@{$doc->{'date'}}){
-			Date($_,$subject,"$resource:date");
+			Date($_,$subject,"$vocabulary:date");
 		}
 	}
 	if(exists $doc->{'serial-number'}){
-		printN3( "$subject", "$resource:serial-number", $doc->{'serial-number'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:serial-number", $doc->{'serial-number'}, 1, "^^xsd:integer");
 	}
 	if(exists $doc->{'title'}){
-		printN3( "$subject", "$resource:title", $doc->{'title'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:title", $doc->{'title'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'pmid'}){
-		printN3( "$subject", "$resource:pmid", $doc->{'pmid'}, 1, "^^xsd:integer");
-		printN3( "$subject", "$resource:pubmedRef", "http://bio2rdf.org/pubmed:".$doc->{'pmid'}, 0, 0);
+		printN3( "$subject", "$vocabulary:pmid", $doc->{'pmid'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:pubmedRef", "http://bio2rdf.org/pubmed:".$doc->{'pmid'}, 0, 0);
 		xRef("pubmed:".$doc->{'pmid'});
 	}
 }
@@ -1398,19 +1399,19 @@ sub Auth_list{
 		if(exists $doc->{'names'}->[0]->{'std'}){
 			foreach(@{$doc->{'names'}->[0]->{'std'}}){
 				my $uniqueID = generateUniqueURI($_);
-				printN3( "$subject", "$resource:std_names", "$resource:$geneid-$uniqueID", 0, 0);
-				printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Author", 0, 0);
+				printN3( "$subject", "$vocabulary:std_names", "$resource:$geneid-$uniqueID", 0, 0);
+				printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Author", 0, 0);
 	                        Author($_,$subject);
 			}
 		}
 		if(exists $doc->{'names'}->[0]->{'ml'}){
 			foreach(@{$doc->{'names'}->[0]->{'ml'}}){
-				printN3( "$subject", "$resource:ml_names", $_->{'ml'}, 1, "^^xsd:string");
+				printN3( "$subject", "$vocabulary:ml_names", $_->{'ml'}, 1, "^^xsd:string");
 			}
 		}
 		if(exists $doc->{'names'}->[0]->{'str'}){
 			foreach(@{$doc->{'names'}->[0]->{'str'}}){
-				printN3( "$subject", "$resource:str_names", $_->{'str'}, 1, "^^xsd:string");
+				printN3( "$subject", "$vocabulary:str_names", $_->{'str'}, 1, "^^xsd:string");
 			}
 		}
 	}
@@ -1432,10 +1433,10 @@ sub Author{
 		}
 	}
 	if(exists $doc->{'level'}){
-		printN3( "$subject", "$resource:level", $doc->{'level'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:level", $doc->{'level'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'role'}){
-		printN3( "$subject", "$resource:role", $doc->{'role'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:role", $doc->{'role'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'affil'}){
 		foreach(@{$doc->{'affil'}}){
@@ -1443,7 +1444,7 @@ sub Author{
 		}
 	}
 	if(exists $doc->{'is-corr'}){
-		printN3( "$subject", "$resource:is-corr", $doc->{'is-corr'}, 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:is-corr", $doc->{'is-corr'}, 1, "^^xsd:boolean");
 	}
 }
 
@@ -1467,16 +1468,16 @@ sub Person_id{
 				printN3( "$subject", "$foaf/givenName", $_->[0]->{'first'}, 1, "^^xsd:string");
 			}
 			if(exists $_->[0]->{'middle'}){
-				printN3( "$subject", "$resource:middleName", $_->[0]->{'middle'}, 1, "^^xsd:string");
+				printN3( "$subject", "$vocabulary:middleName", $_->[0]->{'middle'}, 1, "^^xsd:string");
 			}
 			if(exists $_->[0]->{'full'}){
 				printN3( "$subject", "$foaf/name", $_->[0]->{'full'}, 1, "^^xsd:string");
 			}
 			if(exists $_->[0]->{'initials'}){
-				printN3( "$subject", "$resource:initials", $_->[0]->{'initials'}, 1, "^^xsd:string");
+				printN3( "$subject", "$vocabulary:initials", $_->[0]->{'initials'}, 1, "^^xsd:string");
 			}
 			if(exists $_->[0]->{'suffix'}){
-				printN3( "$subject", "$resource:suffixName", $_->[0]->{'suffix'}, 1, "^^xsd:string");
+				printN3( "$subject", "$vocabulary:suffixName", $_->[0]->{'suffix'}, 1, "^^xsd:string");
 			}
 			if(exists $_->[0]->{'title'}){
 				printN3( "$subject", "$foaf/title", $_->[0]->{'title'}, 1, "^^xsd:string");
@@ -1484,13 +1485,13 @@ sub Person_id{
 		}
 	}
 	if(exists $doc->{'ml'}){
-		printN3( "$subject", "$resource:ml", $doc->{'ml'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:ml", $doc->{'ml'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'str'}){
-		printN3( "$subject", "$resource:str", $doc->{'str'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:str", $doc->{'str'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'consortium'}){
-		printN3( "$subject", "$resource:consortium", $doc->{'consortium'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:consortium", $doc->{'consortium'}, 1, "^^xsd:string");
 	}
 }
 
@@ -1500,38 +1501,38 @@ sub Affil{
 	my $subject = shift;
 
 	if(exists $doc->{'str'}){
-		printN3( "$subject", "$resource:str", $doc->{'str'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:str", $doc->{'str'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'std'}){
 		if(exists $doc->{'std'}->[0]->{'affil'}){
-			printN3( "$subject", "$resource:affil", $doc->[0]->{'affil'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:affil", $doc->[0]->{'affil'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'std'}->[0]->{'div'}){
-			printN3( "$subject", "$resource:div", $doc->[0]->{'div'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:div", $doc->[0]->{'div'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'std'}->[0]->{'city'}){
-			printN3( "$subject", "$resource:city", $doc->[0]->{'city'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:city", $doc->[0]->{'city'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'std'}->[0]->{'sub'}){
-			printN3( "$subject", "$resource:sub", $doc->[0]->{'sub'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:sub", $doc->[0]->{'sub'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'std'}->[0]->{'country'}){
-			printN3( "$subject", "$resource:country", $doc->[0]->{'country'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:country", $doc->[0]->{'country'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'std'}->[0]->{'street'}){
-			printN3( "$subject", "$resource:street", $doc->[0]->{'street'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:street", $doc->[0]->{'street'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'std'}->[0]->{'email'}){
-			printN3( "$subject", "$resource:email", $doc->[0]->{'email'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:email", $doc->[0]->{'email'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'std'}->[0]->{'fax'}){
-			printN3( "$subject", "$resource:fax", $doc->[0]->{'fax'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:fax", $doc->[0]->{'fax'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'std'}->[0]->{'phone'}){
-			printN3( "$subject", "$resource:phone", $doc->[0]->{'phone'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:phone", $doc->[0]->{'phone'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'std'}->[0]->{'postal-code'}){
-			printN3( "$subject", "$resource:postal-code", $doc->[0]->{'postal-code'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:postal-code", $doc->[0]->{'postal-code'}, 1, "^^xsd:string");
 		}
 	}
 }
@@ -1542,37 +1543,37 @@ sub Title{
 	my $subject = shift;
 	
 	if(exists $doc->{'name'}){
-		printN3( "$subject", "$resource:name", $doc->{'name'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:name", $doc->{'name'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'tsub'}){
-		printN3( "$subject", "$resource:tsub", $doc->{'tsub'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:tsub", $doc->{'tsub'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'trans'}){
-		printN3( "$subject", "$resource:trans", $doc->{'trans'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:trans", $doc->{'trans'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'jta'}){
-		printN3( "$subject", "$resource:jta", $doc->{'jta'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:jta", $doc->{'jta'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'iso-jta'}){
-		printN3( "$subject", "$resource:iso-jta", $doc->{'iso-jta'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:iso-jta", $doc->{'iso-jta'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'ml-jta'}){
-		printN3( "$subject", "$resource:ml-jta", $doc->{'ml-jta'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:ml-jta", $doc->{'ml-jta'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'coden'}){
-		printN3( "$subject", "$resource:coden", $doc->{'coden'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:coden", $doc->{'coden'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'issn'}){
-		printN3( "$subject", "$resource:issn", $doc->{'issn'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:issnRef", "http://bio2rdf.org/issn:".$doc->{'issn'}, 0, 0);
+		printN3( "$subject", "$vocabulary:issn", $doc->{'issn'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:issnRef", "http://bio2rdf.org/issn:".$doc->{'issn'}, 0, 0);
 		xRef("issn:".$doc->{'issn'});
 	}
 	if(exists $doc->{'abr'}){
-		printN3( "$subject", "$resource:abr", $doc->{'abr'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:abr", $doc->{'abr'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'isbn'}){
-		printN3( "$subject", "$resource:isbn", $doc->{'isbn'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:isbnRef", "http://bio2rdf.org/isbn:".$doc->{'isbn'}, 0, 0);
+		printN3( "$subject", "$vocabulary:isbn", $doc->{'isbn'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:isbnRef", "http://bio2rdf.org/isbn:".$doc->{'isbn'}, 0, 0);
 		xRef("isbn:".$doc->{'isbn'});
 	}
 }
@@ -1593,15 +1594,15 @@ sub Cit_sub{
 		}
 	}
 	if(exists $doc->{'medium'}){
-		printN3( "$subject", "$resource:medium", $doc->{'medium'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:medium", $doc->{'medium'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'date'}){
 		foreach(@{$doc->{'date'}}){
-			Date($_,$subject,"$resource:date");
+			Date($_,$subject,"$vocabulary:date");
 		}
 	}
 	if(exists $doc->{'descr'}){
-		printN3( "$subject", "$resource:descr", $doc->{'descr'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:descr", $doc->{'descr'}, 1, "^^xsd:string");
 	}
 }
 
@@ -1614,20 +1615,20 @@ sub Imprint{
 
 	if(exists $doc->{'date'}){
 		foreach(@{$doc->{'date'}}){
-			Date($_,$subject,"$resource:date");
+			Date($_,$subject,"$vocabulary:date");
 		}
 	}
 	if(exists $doc->{'volume'}){
-		printN3( "$subject", "$resource:volume", $doc->{'volume'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:volume", $doc->{'volume'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'issue'}){
-		printN3( "$subject", "$resource:issue", $doc->{'issue'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:issue", $doc->{'issue'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'pages'}){
-		printN3( "$subject", "$resource:pages", $doc->{'pages'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:pages", $doc->{'pages'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'section'}){
-		printN3( "$subject", "$resource:section", $doc->{'section'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:section", $doc->{'section'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'pub'}){
 		foreach(@{$doc->{'pub'}}){
@@ -1636,40 +1637,40 @@ sub Imprint{
 	}
 	if(exists $doc->{'cprt'}){
 		foreach(@{$doc->{'cprt'}}){
-			Date($_,$subject,"$resource:cprt");
+			Date($_,$subject,"$vocabulary:cprt");
 		}
 	}
 	if(exists $doc->{'part-sup'}){
-		printN3( "$subject", "$resource:part-sup", $doc->{'part-sup'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:part-sup", $doc->{'part-sup'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'language'}){
-		printN3( "$subject", "$resource:language", $doc->{'language'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:language", $doc->{'language'}, 1, "^^xsd:string");
 	}
 	else{
-		printN3( "$subject", "$resource:language", "ENG", 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:language", "ENG", 1, "^^xsd:string");
 	}
 	if(exists $doc->{'prepub'}){
-		printN3( "$subject", "$resource:prepub", $doc->{'prepub'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:prepub", $doc->{'prepub'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'part-supi'}){
-		printN3( "$subject", "$resource:part-supi", $doc->{'part-supi'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:part-supi", $doc->{'part-supi'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'retract'}){
 		if(exists $doc->{'retract'}->[0]->{'type'}){
-			printN3( "$subject", "$resource:retract", $doc->{'retract'}->[0]->{'type'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:retract", $doc->{'retract'}->[0]->{'type'}, 1, "^^xsd:string");
 		}
 		if(exists $doc->{'retract'}->[0]->{'exp'}){
-			printN3( "$subject", "$resource:exp", $doc->{'retract'}->[0]->{'exp'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:exp", $doc->{'retract'}->[0]->{'exp'}, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'pubstatus'}){
-		printN3( "$subject", "$resource:pubstatus", $doc->{'pubstatus'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:pubstatus", $doc->{'pubstatus'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'history'}){
 		foreach(@{$doc->{'history'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:history", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:PubStatusDate", 0, 0);
+			printN3( "$subject", "$vocabulary:history", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:PubStatusDate", 0, 0);
 			PubStatusDate($_,"$resource:$geneid-$uniqueID");
 		}
 	}
@@ -1682,11 +1683,11 @@ sub PubStatusDate{
 	my $subject = shift;
 
 	if(exists $doc->{'pubstatus'}){
-		printN3( "$subject", "$resource:pubstatus", $doc->{'pubstatus'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:pubstatus", $doc->{'pubstatus'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'date'}){
 		foreach(@{$doc->{'date'}}){
-			Date($_,$subject,"$resource:date");
+			Date($_,$subject,"$vocabulary:date");
 		}
 	}
 }
@@ -1697,13 +1698,13 @@ sub Medline_entry{
 	my $subject = shift;
 
 	if(exists $doc->{'uid'}){
-		printN3( "$subject", "$resource:uid", $doc->{'uid'}, 1, "^^xsd:integer");
-		printN3( "$subject", "$resource:uidRef", "http://bio2rdf.org/medline:".$doc->{'uid'}, 0, 0);
+		printN3( "$subject", "$vocabulary:uid", $doc->{'uid'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:uidRef", "http://bio2rdf.org/medline:".$doc->{'uid'}, 0, 0);
 		xRef("medline:".$doc->{'uid'});
 	}
 	if(exists $doc->{'em'}){
 		foreach(@{$doc->{'em'}}){
-			Date($_,$subject,"$resource:em");
+			Date($_,$subject,"$vocabulary:em");
 		}
 	}
 	if(exists $doc->{'cit'}){
@@ -1717,60 +1718,60 @@ sub Medline_entry{
 	if(exists $doc->{'mesh'}){
 		foreach(@{$doc->{'mesh'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:mesh", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Medline-mesh", 0, 0);
+			printN3( "$subject", "$vocabulary:mesh", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Medline-mesh", 0, 0);
 			Medline_mesh($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'substance'}){
 		foreach(@{$doc->{'substance'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:substance", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Medline-rn", 0, 0);
+			printN3( "$subject", "$vocabulary:substance", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Medline-rn", 0, 0);
 			Medline_rn($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'xref'}){
 		foreach(@{$doc->{'xref'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:xref", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Medline-si", 0, 0);
+			printN3( "$subject", "$vocabulary:xref", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Medline-si", 0, 0);
 			Medline_si($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'idnum'}){
 		foreach(@{$doc->{'idnum'}}){
-			printN3( "$subject", "$resource:idnum", $_->{'idnum'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:idnum", $_->{'idnum'}, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'gene'}){
 		foreach(@{$doc->{'gene'}}){
-			printN3( "$subject", "$resource:gene", $_->{'activity'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:gene", $_->{'activity'}, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'pmid'}){
-		printN3( "$subject", "$resource:pmid", $doc->{'pmid'}, 1, "^^xsd:integer");
-		printN3( "$subject", "$resource:pubmedRef", "http://bio2rdf.org/pubmed:$doc->{'pmid'}", 0, 0);
+		printN3( "$subject", "$vocabulary:pmid", $doc->{'pmid'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:pubmedRef", "http://bio2rdf.org/pubmed:$doc->{'pmid'}", 0, 0);
 		xRef("pubmed:".$doc->{'pmid'});
 	}
 	if(exists $doc->{'pub-type'}){
 		foreach(@{$doc->{'pub-type'}}){
-			printN3( "$subject", "$resource:pub-type", $_->{'pub-type'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:pub-type", $_->{'pub-type'}, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'mlfield'}){
 		foreach(@{$doc->{'mlfield'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:mlfield", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Medline-field", 0, 0);
+			printN3( "$subject", "$vocabulary:mlfield", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Medline-field", 0, 0);
 			Medline_field($_,"$resource:$geneid-$uniqueID");
 		}
 	}
 	if(exists $doc->{'status'}){
-		printN3( "$subject", "$resource:status", $doc->{'status'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:status", $doc->{'status'}, 1, "^^xsd:string");
 	}
 	else{
-		printN3( "$subject", "$resource:status", "medline", 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:status", "medline", 1, "^^xsd:string");
 	}
 }
 
@@ -1820,38 +1821,38 @@ sub ArticleId{
 	my $subject = shift;
 
 	if(exists $doc->{'pubmed'}){
-		printN3( "$subject", "$resource:pubmed", $doc->{'pubmed'}, 1, "^^xsd:integer");
-		printN3( "$subject", "$resource:pubmedRef", "http://bio2rdf.org/pubmed:".$doc->{'pubmed'}, 0, 0);
+		printN3( "$subject", "$vocabulary:pubmed", $doc->{'pubmed'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:pubmedRef", "http://bio2rdf.org/pubmed:".$doc->{'pubmed'}, 0, 0);
 		xRef("pubmed:".$doc->{'pubmed'});
 	}
 	if(exists $doc->{'medline'}){
-		printN3( "$subject", "$resource:medline", $doc->{'medline'}, 1, "^^xsd:integer");
-		printN3( "$subject", "$resource:medlineRef", "http://bio2rdf.org/medline:".$doc->{'medline'}, 0, 0);
+		printN3( "$subject", "$vocabulary:medline", $doc->{'medline'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:medlineRef", "http://bio2rdf.org/medline:".$doc->{'medline'}, 0, 0);
 		xRef("medline:".$doc->{'medline'});
 	}
 	if(exists $doc->{'doi'}){
-		printN3( "$subject", "$resource:doi", $doc->{'doi'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:doiRef", "http://bio2rdf.org/doi:".$doc->{'doi'}, 0, 0);
+		printN3( "$subject", "$vocabulary:doi", $doc->{'doi'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:doiRef", "http://bio2rdf.org/doi:".$doc->{'doi'}, 0, 0);
 		xRef("doi:".$doc->{'doi'});
 	}
 	if(exists $doc->{'pii'}){
-		printN3( "$subject", "$resource:pii", $doc->{'pii'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:piiRef", "http://bio2rdf.org/pii:".$doc->{'pii'}, 0, 0);
+		printN3( "$subject", "$vocabulary:pii", $doc->{'pii'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:piiRef", "http://bio2rdf.org/pii:".$doc->{'pii'}, 0, 0);
 		xRef("pii:".$doc->{'pii'});
 	}
 	if(exists $doc->{'pmcid'}){
-		printN3( "$subject", "$resource:pmcid", $doc->{'pmcid'}, 1, "^^xsd:integer");
-		printN3( "$subject", "$resource:pmcidRef", "http://bio2rdf.org/pmcid:".$doc->{'pmcid'}, 0, 0);
+		printN3( "$subject", "$vocabulary:pmcid", $doc->{'pmcid'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:pmcidRef", "http://bio2rdf.org/pmcid:".$doc->{'pmcid'}, 0, 0);
 		xRef("pmcid:".$doc->{'pmcid'});
 	}
 	if(exists $doc->{'pmcpid'}){
-		printN3( "$subject", "$resource:pmcpid", $doc->{'pmcpid'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:pmcpidRef", "http://bio2rdf.org/pmcpid:".$doc->{'pmcpid'}, 0, 0);
+		printN3( "$subject", "$vocabulary:pmcpid", $doc->{'pmcpid'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:pmcpidRef", "http://bio2rdf.org/pmcpid:".$doc->{'pmcpid'}, 0, 0);
 		xRef("pmcpid:".$doc->{'pmcpid'});
 	}
 	if(exists $doc->{'pmpid'}){
-		printN3( "$subject", "$resource:pmpid", $doc->{'pmpid'}, 1, "^^xsd:string");
-		printN3( "$subject", "$resource:pmpid", "http://bio2rdf.org/pmpid:".$doc->{'pmpid'}, 0, 0);
+		printN3( "$subject", "$vocabulary:pmpid", $doc->{'pmpid'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:pmpid", "http://bio2rdf.org/pmpid:".$doc->{'pmpid'}, 0, 0);
 		xRef("pmpid:".$doc->{'pmpid'});
 	}
 	if(exists $doc->{'other'}){
@@ -1924,11 +1925,11 @@ sub Meeting{
 	my $subject = shift;
 
 	if(exists $doc->{'number'}){
-		printN3( "$subject", "$resource:number", $doc->{'number'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:number", $doc->{'number'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'em'}){
 		foreach(@{$doc->{'em'}}){
-			Date($_,$subject,"$resource:em");
+			Date($_,$subject,"$vocabulary:em");
 		}
 	}
 	if(exists $doc->{'place'}){
@@ -1944,23 +1945,23 @@ sub Medline_mesh{
 	my $subject = shift;
 
 	if(exists $doc->{'mp'}){
-		printN3( "$subject", "$resource:mp", $doc->{'mp'}, 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:mp", $doc->{'mp'}, 1, "^^xsd:boolean");
 	}
 	else{
-		printN3( "$subject", "$resource:mp", "FALSE", 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:mp", "FALSE", 1, "^^xsd:boolean");
 	}
 	if(exists $doc->{'term'}){
-		printN3( "$subject", "$resource:term", $doc->{'term'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:term", $doc->{'term'}, 1, "^^xsd:string");
 		my $term = $doc->{'term'};
 		$term =~ s/ /_/g;
-		printN3( "$subject", "$resource:meshTerm", "http://bio2rdf.org/mesh:$term", 0, 0);
+		printN3( "$subject", "$vocabulary:meshTerm", "http://bio2rdf.org/mesh:$term", 0, 0);
 		xRef("mesh:$term");
 	}
 	if(exists $doc->{'qual'}){
 		foreach(@{$doc->{'qual'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:qual", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Medline-qual", 0, 0);
+			printN3( "$subject", "$vocabulary:qual", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Medline-qual", 0, 0);
 			Medline_qual($_,"$resource:$geneid-$uniqueID");
 		}
 	}
@@ -1972,16 +1973,16 @@ sub Medline_qual{
 	my $subject = shift;
 	
 	if(exists $doc->{'mp'}){
-		printN3( "$subject", "$resource:mp", $doc->{'mp'}, 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:mp", $doc->{'mp'}, 1, "^^xsd:boolean");
 	}
 	else{
-		printN3( "$subject", "$resource:mp", "FALSE", 1, "^^xsd:boolean");
+		printN3( "$subject", "$vocabulary:mp", "FALSE", 1, "^^xsd:boolean");
 	}
 	if(exists $doc->{'subh'}){
-		printN3( "$subject", "$resource:subh", $doc->{'subh'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:subh", $doc->{'subh'}, 1, "^^xsd:string");
 		my $subh = $doc->{'subh'};
 		$subh =~ s/ /_/g;
-		printN3( "$subject", "$resource:meshSubHeading", "http://bio2rdf.org/mesh:$subh", 0, 0);
+		printN3( "$subject", "$vocabulary:meshSubHeading", "http://bio2rdf.org/mesh:$subh", 0, 0);
 		xRef("mesh:$subh");
 	}
 }
@@ -1992,21 +1993,21 @@ sub Medline_rn{
 	my $subject = shift;
 
 	if(exists $doc->{'type'}){
-		printN3( "$subject", "$resource:type", $doc->{'type'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:type", $doc->{'type'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'cit'}){
-		printN3( "$subject", "$resource:cit", $doc->{'cit'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:cit", $doc->{'cit'}, 1, "^^xsd:string");
 		if($doc->{'type'} =~ /cas/){
-			printN3( "$subject", "$resource:casRef", "http://bio2rdf.org/cas:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:casRef", "http://bio2rdf.org/cas:".$doc->{'cit'}, 0, 0);
 			xRef("cas:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /ec/){
-			printN3( "$subject", "$resource:ecRef", "http://bio2rdf.org/ec:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:ecRef", "http://bio2rdf.org/ec:".$doc->{'cit'}, 0, 0);
 			xRef("ec:".$doc->{'cit'});
 		}
 	}
 	if(exists $doc->{'name'}){
-		printN3( "$subject", "$resource:name", $doc->{'name'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:name", $doc->{'name'}, 1, "^^xsd:string");
 	}
 	
 }
@@ -2017,64 +2018,64 @@ sub Medline_si{
 	my $subject = shift;
 
 	if(exists $doc->{'type'}){
-		printN3( "$subject", "$resource:type", $doc->{'type'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:type", $doc->{'type'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'cit'}){
-		printN3( "$subject", "$resource:cit", $doc->{'cit'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:cit", $doc->{'cit'}, 1, "^^xsd:string");
 		if($doc->{'type'} =~ /ddbj/){
-			printN3( "$subject", "$resource:ddbjRef", "http://bio2rdf.org/ddbj:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:ddbjRef", "http://bio2rdf.org/ddbj:".$doc->{'cit'}, 0, 0);
 			xRef("ddbj:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /carbbank/){
-			printN3( "$subject", "$resource:carbbankRef", "http://bio2rdf.org/carbbank:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:carbbankRef", "http://bio2rdf.org/carbbank:".$doc->{'cit'}, 0, 0);
 			xRef("carbbank:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /embl/){
-			printN3( "$subject", "$resource:emblRef", "http://bio2rdf.org/embl:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:emblRef", "http://bio2rdf.org/embl:".$doc->{'cit'}, 0, 0);
 			xRef("embl:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /hdb/){
-			printN3( "$subject", "$resource:hdbRef", "http://bio2rdf.org/hdb:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:hdbRef", "http://bio2rdf.org/hdb:".$doc->{'cit'}, 0, 0);
 			xRef("hdb:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /genbank/){
-			printN3( "$subject", "$resource:genbankRef", "http://bio2rdf.org/ncbi:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:genbankRef", "http://bio2rdf.org/ncbi:".$doc->{'cit'}, 0, 0);
 			xRef("ncbi:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /hgml/){
-			printN3( "$subject", "$resource:hgmlRef", "http://bio2rdf.org/hgml:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:hgmlRef", "http://bio2rdf.org/hgml:".$doc->{'cit'}, 0, 0);
 			xRef("hgml:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /mim/){
-			printN3( "$subject", "$resource:omimRef", "http://bio2rdf.org/omim:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:omimRef", "http://bio2rdf.org/omim:".$doc->{'cit'}, 0, 0);
 			xRef("omim:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /msd/){
-			printN3( "$subject", "$resource:msdRef", "http://bio2rdf.org/msd:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:msdRef", "http://bio2rdf.org/msd:".$doc->{'cit'}, 0, 0);
 			xRef("msd:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /pdb/){
-			printN3( "$subject", "$resource:pdbRef", "http://bio2rdf.org/pdb:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:pdbRef", "http://bio2rdf.org/pdb:".$doc->{'cit'}, 0, 0);
 			xRef("pdb:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /pir/){
-			printN3( "$subject", "$resource:pirRef", "http://bio2rdf.org/pir:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:pirRef", "http://bio2rdf.org/pir:".$doc->{'cit'}, 0, 0);
 			xRef("pir:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /prfseqdb/){
-			printN3( "$subject", "$resource:prfseqdbRef", "http://bio2rdf.org/prfseqdb:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:prfseqdbRef", "http://bio2rdf.org/prfseqdb:".$doc->{'cit'}, 0, 0);
 			xRef("prfseqdb:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /psd/){
-			printN3( "$subject", "$resource:psdRef", "http://bio2rdf.org/psd:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:psdRef", "http://bio2rdf.org/psd:".$doc->{'cit'}, 0, 0);
 			xRef("psd:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /swissprot/){
-			printN3( "$subject", "$resource:uniprotRef", "http://bio2rdf.org/uniprot:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:uniprotRef", "http://bio2rdf.org/uniprot:".$doc->{'cit'}, 0, 0);
 			xRef("uniprot:".$doc->{'cit'});
 		}
 		if($doc->{'type'} =~ /gdb/){
-			printN3( "$subject", "$resource:gdbRef", "http://bio2rdf.org/gdb:".$doc->{'cit'}, 0, 0);
+			printN3( "$subject", "$vocabulary:gdbRef", "http://bio2rdf.org/gdb:".$doc->{'cit'}, 0, 0);
 			xRef("gdb:".$doc->{'cit'});
 		}
 	}
@@ -2086,16 +2087,16 @@ sub Medline_field{
 	my $subject = shift;
 	
 	if(exists $doc->{'type'}){
-		printN3( "$subject", "$resource:type", $doc->{'type'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:type", $doc->{'type'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'str'}){
-		printN3( "$subject", "$resource:str", $doc->{'str'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:str", $doc->{'str'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'ids'}){
 		foreach(@{$doc->{'ids'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:ids", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:DocRef", 0, 0);
+			printN3( "$subject", "$vocabulary:ids", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:DocRef", 0, 0);
 			DocRef($_,"$resource:$geneid-$uniqueID");
 		}
 	}
@@ -2107,20 +2108,20 @@ sub DocRef{
 	my $subject = shift;
 
 	if(exists $doc->{'type'}){
-		printN3( "$subject", "$resource:type", $doc->{'type'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:type", $doc->{'type'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'uid'}){
-		printN3( "$subject", "$resource:uid", $doc->{'uid'}, 1, "^^xsd:integer");
+		printN3( "$subject", "$vocabulary:uid", $doc->{'uid'}, 1, "^^xsd:integer");
 		if($doc->{'type'} =~ /medline/){
-			printN3( "$subject", "$resource:medlineRef", "http://bio2rdf.org/medline:".$doc->{'uid'}, 0, 0);
+			printN3( "$subject", "$vocabulary:medlineRef", "http://bio2rdf.org/medline:".$doc->{'uid'}, 0, 0);
 			xRef("medline:".$doc->{'uid'});
 		}
 		if($doc->{'type'} =~ /pubmed/){
-			printN3( "$subject", "$resource:pubmedRef", "http://bio2rdf.org/pubmed:".$doc->{'uid'}, 0, 0);
+			printN3( "$subject", "$vocabulary:pubmedRef", "http://bio2rdf.org/pubmed:".$doc->{'uid'}, 0, 0);
 			xRef("pubmed:".$doc->{'uid'});
 		}
 		if($doc->{'type'} =~ /ncbigi/){
-			printN3( "$subject", "$resource:giRef", "http://bio2rdf.org/gi:".$doc->{'uid'}, 0, 0);
+			printN3( "$subject", "$vocabulary:giRef", "http://bio2rdf.org/gi:".$doc->{'uid'}, 0, 0);
 			xRef("gi:".$doc->{'uid'});
 		}
 	}
@@ -2132,7 +2133,7 @@ sub Cit_pat{
 	my $subject = shift;
 
 	if(exists $doc->{'title'}){
-		printN3( "$subject", "$resource:title", $doc->{'title'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:title", $doc->{'title'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'authors'}){
 		foreach(@{$doc->{'authors'}}){
@@ -2140,30 +2141,30 @@ sub Cit_pat{
 		}
 	}
 	if(exists $doc->{'country'}){
-		printN3( "$subject", "$resource:country", $doc->{'country'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:country", $doc->{'country'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'doc-type'}){
-		printN3( "$subject", "$resource:doc-type", $doc->{'doc-type'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:doc-type", $doc->{'doc-type'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'number'}){
-		printN3( "$subject", "$resource:number", $doc->{'number'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:number", $doc->{'number'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'date-issue'}){
 		foreach(@{$doc->{'date-issue'}}){
-			Date($_,$subject,"$resource:date-issue");
+			Date($_,$subject,"$vocabulary:date-issue");
 		}
 	}
 	if(exists $doc->{'class'}){
 		foreach(@{$doc->{'class'}}){
-			printN3( "$subject", "$resource:class", $_->{'class'}, 1, "^^xsd:string");
+			printN3( "$subject", "$vocabulary:class", $_->{'class'}, 1, "^^xsd:string");
 		}
 	}
 	if(exists $doc->{'app-number'}){
-		printN3( "$subject", "$resource:app-number", $doc->{'app-number'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:app-number", $doc->{'app-number'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'app-date'}){
 		foreach(@{$doc->{'app-date'}}){
-			Date($_,$subject,"$resource:app-date");
+			Date($_,$subject,"$vocabulary:app-date");
 		}
 	}
 	if(exists $doc->{'appplicants'}){
@@ -2179,8 +2180,8 @@ sub Cit_pat{
 	if(exists $doc->{'priority'}){
 		foreach(@{$doc->{'priority'}}){
 			my $uniqueID = generateUniqueURI($_);
-			printN3( "$subject", "$resource:priority", "$resource:$geneid-$uniqueID", 0, 0);
-			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$resource:Patent-priority", 0, 0);
+			printN3( "$subject", "$vocabulary:priority", "$resource:$geneid-$uniqueID", 0, 0);
+			printN3( "$resource:$geneid-$uniqueID", "$rdf#type", "$vocabulary:Patent-priority", 0, 0);
 			Patent_priority($_,"$resource:$geneid-$uniqueID");
 		}
 	}
@@ -2195,14 +2196,14 @@ sub Patent_priority{
 	my $subject = shift;
 
 	if(exists $doc->{'country'}){
-		printN3( "$subject", "$resource:country", $doc->{'country'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:country", $doc->{'country'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'number'}){
-		printN3( "$subject", "$resource:number", $doc->{'number'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:number", $doc->{'number'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'date'}){
 		foreach(@{$doc->{'date'}}){
-			Date($_,$subject,"$resource:date");
+			Date($_,$subject,"$vocabulary:date");
 		}
 	}
 }
@@ -2218,10 +2219,10 @@ sub Cit_let{
 		}
 	}
 	if(exists $doc->{'man-id'}){
-		printN3( "$subject", "$resource:man-id", $doc->{'man-id'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:man-id", $doc->{'man-id'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'type'}){
-		printN3( "$subject", "$resource:type", $doc->{'type'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:type", $doc->{'type'}, 1, "^^xsd:string");
 	}
 }
 
@@ -2236,16 +2237,16 @@ sub Other_source{
 		}
 	}
 	if(exists $doc->{'pre-text'}){
-		printN3( "$subject", "$resource:pre-text", $doc->{'pre-text'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:pre-text", $doc->{'pre-text'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'anchor'}){
-		printN3( "$subject", "$resource:anchor", $doc->{'anchor'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:anchor", $doc->{'anchor'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'url'}){
-		printN3( "$subject", "$resource:url", $doc->{'url'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:url", $doc->{'url'}, 1, "^^xsd:string");
 	}
 	if(exists $doc->{'post-text'}){
-		printN3( "$subject", "$resource:post-text", $doc->{'post-text'}, 1, "^^xsd:string");
+		printN3( "$subject", "$vocabulary:post-text", $doc->{'post-text'}, 1, "^^xsd:string");
 	}
 }
 
@@ -2255,7 +2256,7 @@ sub Other_source{
 sub xRef{
 	my $smallURI = shift;
 
-	printN3( $graph, "$resource:xRef", "http://bio2rdf.org/$smallURI", 0, 0);
+	printN3( $graph, "$vocabulary:xRef", "http://bio2rdf.org/$smallURI", 0, 0);
 }
 
 # Generate a unique identifier from the content of a node. This have the advantage that it will stay the same
