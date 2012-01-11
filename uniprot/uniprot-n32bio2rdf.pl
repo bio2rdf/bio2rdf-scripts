@@ -58,7 +58,8 @@ LOOP: while ($line = <INPUT> and $rows < $end) {
 		$lit1 = $3;
 		$lit2 = $3;
 
-		$subj1 =~ s|http://purl.uniprot.org/(.*?)/(.*?)|http://bio2rdf.org/$1:$2|;
+		$subj1 =~ s|http://purl.uniprot.org/uniprot/(.*?)|http://bio2rdf.org/uniprot:$1|;
+		$subj1 =~ s|http://purl.uniprot.org/(.*?)/(.*?)|http://bio2rdf.org/uniprot:$1/$2|;
 
 		$subj1 =~ /http:\/\/bio2rdf.org\/(.*?):(.*)/;
 		$ns = $1;
@@ -76,7 +77,11 @@ LOOP: while ($line = <INPUT> and $rows < $end) {
 			print "<$subj1> <http://www.w3.org/2000/01/rdf-schema#label> \"$lit1 [$ns:$id]\" .\n";
 			print "<$subj1> <http://purl.org/dc/elements/1.1/title> \"$lit1\" .\n";
 			$label = $lit1;
+		} else {
+			$pred1 =~ s|http://purl.uniprot.org/core/(.*?)|http://bio2rdf.org/sgd_vocabulary:$1|;
 		}
+
+
 	} elsif ($line =~ /^<(.*?)> <(.*?)> <(.*)> \.$/) {
 		$subj1 = $1;
 		$subj2 = $1;
@@ -85,10 +90,20 @@ LOOP: while ($line = <INPUT> and $rows < $end) {
 		$obj1 = $3;
 		$obj2 = $3;
 
-		$subj1 =~ s|http://purl.uniprot.org/(.*?)/(.*?)|http://bio2rdf.org/$1:$2|;
-		$obj1 =~ s|http://purl.uniprot.org/(.*?)/(.*?)|http://bio2rdf.org/$1:$2|;
+		$subj1 =~ s|http://purl.uniprot.org/uniprot/(.*?)|http://bio2rdf.org/uniprot:$1|;
+
+                $subj1 =~ s|http://purl.uniprot.org/(.*?)/(.*?)|http://bio2rdf.org/uniprot:$1/$2|;
+
+		$pred1 =~ s|http://purl.uniprot.org/core/(.*?)|http://bio2rdf.org/uniprot_vocabulary:$1|;	
+
+		$obj1 =~ s|http://purl.uniprot.org/uniprot/(.*?)|http://bio2rdf.org/uniprot:$1|;
+
+		$obj1 =~ s|http://purl.uniprot.org/core/(.*?)|http://bio2rdf.org/uniprot_vocabulary:$1|;
+
+		$obj1 =~ s|http://purl.uniprot.org/(.*?)/(.*?)|http://bio2rdf.org/uniprot:$1/$2|;
 
 		$subj1 =~ /http:\/\/bio2rdf.org\/(.*?):(.*)/;
+
 		$ns = $1;
 		$id = $2;
 
@@ -104,7 +119,7 @@ LOOP: while ($line = <INPUT> and $rows < $end) {
 			#print "$obj1\n";
 		}
 
-		if ($obj1 eq "http://bio2rdf.org/core:$type" ) {
+		if ($obj1 eq "$vocabulary:$type" ) {
 			print "<$subj1> <http://www.w3.org/2002/07/owl#sameAs> <http://purl.uniprot.org/$ns/$id> .\n";
 			print "<$subj1> <$vocabulary:html> <http://www.uniprot.org/$ns/$id> .\n";
 			print "<$subj1> <http://purl.org/dc/elements/1.1/identifier> \"$ns:$id\" .\n";
@@ -138,6 +153,5 @@ exit;
 
 sub CorrectURI {
 	my $uri = shift;
-
 	$uri =~ s|http://bio2rdf.org/(.*?)/(.*)|http://bio2rdf.org/$1:$2|;
 }
