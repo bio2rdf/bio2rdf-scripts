@@ -1,0 +1,5 @@
+USAGE 
+[in directory containing medline .xml.gz files]
+
+ls *.xml.gz | bio2rdf/scripts/medline/parargs.py -n20 bio2rdf/scripts/medline/convert_single_file.sh 
+
