@@ -1,3 +1,26 @@
+###############################################################################
+#Copyright (C) 2011 Alison Callahan, Marc-Alexandre Nolini, Francois Belleau
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy of
+#this software and associated documentation files (the "Software"), to deal in
+#the Software without restriction, including without limitation the rights to
+#use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+#of the Software, and to permit persons to whom the Software is furnished to do
+#so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+###############################################################################
+
+
 # dc:title      iproclass2n3.pl
 # dc:creator    francoisbelleau at yahoo.ca
 # dc:modified   2009-04-04
@@ -90,17 +113,17 @@ while ($line = <ENTREE> and $number < $numberMax) {
 			if($ns eq "uniprot_acc"){ 
 				$id = $item;
 				print "\n<http://bio2rdf.org/iproclass:$id> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/iproclass#AnnotationClass> .\n";
-				print "<http://bio2rdf.org/iproclass:$id> <http://bio2rdf.org/ns/iproclass#xUniProt> <http://bio2rdf.org/uniprot:$id> .\n";
+				print "<http://bio2rdf.org/iproclass:$id> <http://bio2rdf.org/iproclass_vocabulary:xUniProt> <http://bio2rdf.org/uniprot:$id> .\n";
 				print "<http://bio2rdf.org/iproclass:$id> <http://purl.org/dc/elements/1.1/identifier> \"iproclass:$id\" .\n";
 				print "<http://bio2rdf.org/iproclass:$id> <http://www.w3.org/2000/01/rdf-schema#label> \"[iproclass:$id]\" .\n";
-				print "<http://bio2rdf.org/iproclass:$id> <http://bio2rdf.org/ns/bio2rdf#url> <http://pir.georgetown.edu/cgi-bin/ipcidmapping?id=$id> .\n";
+				print "<http://bio2rdf.org/iproclass:$id> <http://bio2rdf.org/iproclass_vocabulary:url> <http://pir.georgetown.edu/cgi-bin/ipcidmapping?id=$id> .\n";
 				last; 
 			};
 
 			if($ns eq "go"){ $item =~ s/^GO://g; };
 			if($ns eq "pdb"){ $item =~ s/:(.*?)$//g; };
 
-			print "<http://bio2rdf.org/iproclass:$id> <http://bio2rdf.org/ns/iproclass#x$ns2> <http://bio2rdf.org/$ns:$item> .\n";
+			print "<http://bio2rdf.org/iproclass:$id> <http://bio2rdf.org/iproclass_vocabulary:x$ns2> <http://bio2rdf.org/$ns:$item> .\n";
 			#print $namespaces[$ctr]."=\t$item\n";
 		}
 		$ctr++;
