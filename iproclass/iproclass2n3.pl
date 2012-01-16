@@ -1,5 +1,5 @@
 ###############################################################################
-#Copyright (C) 2011 Alison Callahan, Marc-Alexandre Nolini, Francois Belleau
+#Copyright (C) 2011 Alison Callahan, Marc-Alexandre Nolin, Francois Belleau
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy of
 #this software and associated documentation files (the "Software"), to deal in
@@ -107,12 +107,15 @@ while ($line = <ENTREE> and $number < $numberMax) {
 	foreach $field (@fields) {
 		@items = split(/; /, $field);
 		foreach $item (@items) {
-			
+
+			#remove semicolon (if item is last in split list)
+			$item =~ s/;//g;
+
 			$ns = $namespaces[$ctr];
 			$ns2 = ucfirst($ns);
 			if($ns eq "uniprot_acc"){ 
 				$id = $item;
-				print "\n<http://bio2rdf.org/iproclass:$id> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/ns/iproclass#AnnotationClass> .\n";
+				print "\n<http://bio2rdf.org/iproclass:$id> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/iproclass_vocabulary:AnnotationClass> .\n";
 				print "<http://bio2rdf.org/iproclass:$id> <http://bio2rdf.org/iproclass_vocabulary:xUniProt> <http://bio2rdf.org/uniprot:$id> .\n";
 				print "<http://bio2rdf.org/iproclass:$id> <http://purl.org/dc/elements/1.1/identifier> \"iproclass:$id\" .\n";
 				print "<http://bio2rdf.org/iproclass:$id> <http://www.w3.org/2000/01/rdf-schema#label> \"[iproclass:$id]\" .\n";
@@ -122,8 +125,8 @@ while ($line = <ENTREE> and $number < $numberMax) {
 
 			if($ns eq "go"){ $item =~ s/^GO://g; };
 			if($ns eq "pdb"){ $item =~ s/:(.*?)$//g; };
-
-			print "<http://bio2rdf.org/iproclass:$id> <http://bio2rdf.org/iproclass_vocabulary:x$ns2> <http://bio2rdf.org/$ns:$item> .\n";
+			
+			print "<http://bio2rdf.org/iproclass_resource:$ns-$item> <http://bio2rdf.org/iproclass_vocabulary:x$ns2> <http://bio2rdf.org/$ns:$item> .\n";
 			#print $namespaces[$ctr]."=\t$item\n";
 		}
 		$ctr++;
