@@ -85,7 +85,7 @@ TCDB	TC number
 					break;
 				case "NCBI":
 					if($type == "DNA accession ID") {$ns='ncbi'; $rel=$sameas;  break;}
-					if($type == "Gene ID") {$ns='entrez_gene';$rel=$sameas;break;}
+					if($type == "Gene ID") {$ns='geneid';$rel=$sameas;break;}
 					if($type == "NCBI protein GI") {$ns='ncbi';$rel=$sameas;$suf='gp';break;}
 					if($type == "RefSeq Accession") {$ns='refseq';$rel=$sameas;$suf='gp';break;}
 					if($type == "RefSeq protein version ID") {$ns='refseq';$rel=$sameas;$suf='gp';break;}

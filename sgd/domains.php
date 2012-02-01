@@ -27,16 +27,16 @@ class SGD_DOMAINS {
 			"ProfileScan" => "profilescan",
 			"superfamily" => "superfamily",
 			"PatternScan" => "patternscan",
-			"BlastProDom" => "blastprodom",
+			"BlastProDom" => "prodom",
 			"FPrintScan" => "fprintscan",
 			"Gene3D" => "gene3d",
 			"Coil" => "coil",
 			"Seg" => "seg",
-			"HMMSmart" => "hmmsmart",
-			"HMMPanther" => "hmmpanther",
-			"HMMPfam" => "hmmpfam",
-			"HMMPIR" => "hmmpir",
-			"HMMTigr" => "hmmtigr"
+			"HMMSmart" => "smart",
+			"HMMPanther" => "panther",
+			"HMMPfam" => "pfam",
+			"HMMPIR" => "pir",
+			"HMMTigr" => "tigr"
 		);
 		
 		$buf = N3NSHeader();
