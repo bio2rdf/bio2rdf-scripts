@@ -38,7 +38,7 @@ $gns = array(
 );
 
 // valid dataset namespaces
-$gdataset_ns = array('afcs', 'apo','bind','biogrid','blastprodom','candida','cas','chebi','coil','ctd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','germonline','go','gp','grid','smart','panther','pfam','pir','tigr','iubmb','intact','ipi','irefindex','mesh','metacyc','mi','mint','mips','geneid','ncbi','refseq','omim','ophid','patternscan','pato','pharmgkb','pir','prf','profilescan','pdb','pubmed','pubchem','reactome','seg','sgd','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','uniparc','uniprot','uo','registry','registry_dataset');
+$gdataset_ns = array('afcs', 'apo','bind','biogrid','blastprodom','candida','cas','chebi','coil','ctd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','germonline','go','gp','grid','smart','panther','pfam','pir','tigr','iubmb','intact','ipi','irefindex','mesh','metacyc','mi','mint','mips','geneid','ncbi','refseq','omim','ophid','patternscan','pato','pharmgkb','pir','prf','profilescan','pdb','pubmed','pubchem','reactome','seg','sgd','snomedct','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo','registry','registry_dataset');
 	
 // add the valid namespaces to the global namespace array
 foreach($gdataset_ns AS $ns) {
@@ -327,5 +327,21 @@ function PrintCMDlineOptions($argv, $options)
 	}
 	return TRUE;
 }
+
+
+function error_handler($level, $message, $file, $line, $context) {
+    //Handle user errors, warnings, and notices ourself	
+    if($level === E_USER_ERROR || $level === E_USER_WARNING || $level === E_USER_NOTICE) {
+		debug_print_backtrace();
+       
+        return(true); //And prevent the PHP error handler from continuing
+    }
+    return(false); //Otherwise, use PHP's error handler
+}
+
+
+
+//Use our custom handler
+set_error_handler('error_handler');
 
 ?>
