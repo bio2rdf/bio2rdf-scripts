@@ -179,7 +179,7 @@ class SGD_FEATURES {
 				$buf .= "sgd_resource:$loc sgd_vocabulary:hasStartPosition \"$a[9]\" .".PHP_EOL;
 				$buf .= "sgd_resource:$loc sgd_vocabulary:hasStopPosition \"$a[10]\" .".PHP_EOL;
 				if(isset($chr)) $buf .= "sgd_resource:$loc sgd_vocabulary:chromosome sgd_resource:$chr.".PHP_EOL;
-				if(isset($strand)) $buf .= "sgd_resource:$loc sgd_vocabular:strand sgd_resource:$strand.".PHP_EOL;
+				if(isset($strand)) $buf .= "sgd_resource:$loc sgd_vocabulary:strand sgd_resource:$strand.".PHP_EOL;
 				if($a[13]) {
 					$b = explode("|",$a[13]);
 					foreach($b AS $c) {

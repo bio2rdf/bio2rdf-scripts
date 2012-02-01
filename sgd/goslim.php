@@ -34,6 +34,8 @@ class SGD_GOSLIM {
 		while($l = fgets($this->_in,2048)) {
 			$a = explode("\t",trim($l));
 			
+			if(!isset($a[5]) || $a[5] == '') continue;
+			
 			$id = $a[2]."gp";
 			$term = substr($a[5],3);
 			$goi  = "goslim_".$id."_".$term;
