@@ -37,7 +37,7 @@ AddOption($options, 'outdir',null, '/data/rdf/ctd/', false);
 AddOption($options, 'download','true|false', 'false', false);
 AddOption($options, 'remote_base_url',null,'http://ctd.mdibl.org/reports/', false);
 // exposure_ontology 
-AddOption($options, 'files','all|chem_gene_ixns|chemicals_diseases|genes_diseases|chem_pathways_enriched|diseases_pathways|genes_pathways|chem_go_enriched|chemicals|diseases|genes|pathways|chem_gene_ixn_types','all',false);
+AddOption($options, 'files','all|chem_gene_ixns|chemicals_diseases|genes_diseases|chem_pathways_enriched|diseases_pathways|genes_pathways|chem_go_enriched|chemicals|diseases|genes|pathways|chem_gene_ixn_types','all',true);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
 AddOption($options, USE_CONF_FILE,'true|false','false', false);
 
@@ -124,13 +124,13 @@ function CTD_chemicals($infp, $outfp)
 		$mid = $m[1];
 		$name = addslashes($name);
 
-		$buf .= "mesh:$mid dc:identifier \"mesh:$mid\" .".PHP_EOL;
-		$buf .= "mesh:$mid dc:title \"$name\" .".PHP_EOL;
-		$buf .= "mesh:$mid rdfs:label \"$name [mesh:$mid]\" .".PHP_EOL;  // [ns:id] title ?
+		$buf .= QQuadL("mesh:$mid","dc:identifier", "mesh:$mid");
+		$buf .= QQuadL("mesh:$mid","dc:title",$name);
+		$buf .= QQuadL("mesh:$mid","rdfs:label","$name [mesh:$mid]");
 		
-		$buf .= "mesh:$mid a ctd_vocabulary:Chemical .".PHP_EOL;
-		if($casrn) $buf .= "mesh:$mid owl:equivalentClass cas:$casrn .".PHP_EOL;		
-		$buf .= "mesh:$mid ctd_vocabulary:in sio:dataset/ctd .".PHP_EOL;
+		$buf .= QQuad("mesh:$mid", "rdf:type", "ctd_vocabulary:Chemical");
+		if($casrn) $buf .= QQuad("mesh:$mid","owl:equivalentClass","cas:$casrn");
+		$buf .= QQuad("mesh:$mid","ctd_vocabulary:in","registry_dataset:ctd");
 	}
 	gzwrite($outfp,$buf);
 	return 0;
@@ -170,16 +170,16 @@ function CTD_chem_gene_ixns($infp, $outfp) {
 		
 		$uri  = "ctd_resource:$mid$gene_id";  // should taxon be part of the ID?
 		
-		$buf .= "$uri dc:identifier \"ctd_resource:$mid$gene_id\".".PHP_EOL;
-		$buf .= "$uri rdfs:label \"interaction between $a[3] (geneid:$gene_id) and $a[0] (mesh:$mid) [ctd:$mid$gene_id]\".".PHP_EOL;
-		$buf .= "$uri rdf:type ctd_vocabulary:ChemicalGeneInteraction.".PHP_EOL;
+		$buf .= QQuadL($uri,"dc:identifier","ctd_resource:$mid$gene_id");
+		$buf .= QQuadL($uri,"rdfs:label","interaction between $a[3] (geneid:$gene_id) and $a[0] (mesh:$mid) [ctd:$mid$gene_id]");
+		$buf .= QQuad($uri,"rdf:type","ctd_vocabulary:ChemicalGeneInteraction");
 		
-		$buf .= "$uri rdfs:comment \"$a[7]\".".PHP_EOL;
-		$buf .= "$uri ctd_vocabulary:gene geneid:$gene_id .".PHP_EOL;
-		$buf .= "$uri ctd_vocabulary:chemical mesh:$mid .".PHP_EOL;
-		if($taxon_id) $buf .= "$uri ctd_vocabulary:organism taxon:$taxon_id .".PHP_EOL;
-		if($pubmed_ids) foreach($pubmed_ids AS $pubmed_id) $buf .= "$uri ctd_vocabulary:article pubmed:$pubmed_id .".PHP_EOL;
-		if($interaction_action) $buf .= "$uri ctd_vocabulary:action \"$interaction_action\" .".PHP_EOL;
+		$buf .= QQuadL($uri,"rdfs:comment","$a[7]");
+		$buf .= QQuad($uri,"ctd_vocabulary:gene","geneid:$gene_id");
+		$buf .= QQuad($uri,"ctd_vocabulary:chemical","mesh:$mid");
+		if($taxon_id) $buf .= QQuad($uri,"ctd_vocabulary:organism","taxon:$taxon_id");
+		if($pubmed_ids) foreach($pubmed_ids AS $pubmed_id) $buf .= QQuad($uri,"ctd_vocabulary:article","pubmed:$pubmed_id");
+		if($interaction_action) $buf .= QQuadL($uri,"ctd_vocabulary:action","$interaction_action");
 		//break;
 	
 //		echo $buf;exit;
@@ -206,7 +206,7 @@ function CTD_chemicals_diseases($infp, $outfp)
 {
 	require_once (dirname(__FILE__).'/../common/php/libphp.php');
 	$buf = N3NSHeader();
-
+	
 	gzgets($infp);
 	while($l = gzgets($infp)) {
 		if($l[0] == '#') continue;
@@ -221,19 +221,20 @@ function CTD_chemicals_diseases($infp, $outfp)
 		$uid = "$chemical_id$disease_id";
 		$uri = "ctd_resource:$uid";
 		
-		$buf .= "$uri dc:identifier \"ctd_resource:$uid\".".PHP_EOL;
-		$buf .= "$uri rdfs:label \"interaction between $chemical_name ($chemical_id) and disease $disease_name ($disease_ns:$disease_id) [$uri]\".".PHP_EOL;
-		$buf .= "$uri a ctd_vocabulary:ChemicalDiseaseInteraction .".PHP_EOL;
-		$buf .= "$uri ctd_vocabulary:chemical mesh:$chemical_id .".PHP_EOL;
-		$buf .= "$uri ctd_vocabulary:disease $disease_ns:$disease_id .".PHP_EOL;
+		$buf .= QQuadL($uri, 'dc:identifier', "ctd_resource:$uid");
+		$buf .= QQuadL($uri, 'rdfs:label',"interaction between $chemical_name ($chemical_id) and disease $disease_name ($disease_ns:$disease_id) [$uri]").PHP_EOL;
+		$buf .= QQuad($uri, 'rdf:type', 'ctd_vocabulary:ChemicalDiseaseInteraction');
+		$buf .= QQuad($uri, 'ctd_vocabulary:chemical', "mesh:$chemical_id");
+		$buf .= QQuad($uri, 'ctd_vocabulary:disease', "$disease_ns:$disease_id");
+		
 		if($a[8])  {
 			$omim_ids = explode("|",strtolower($a[8]));
-			foreach($omim_ids AS $omim_id)     $buf .= "$uri ctd_vocabulary:disease omim:$omim_id .".PHP_EOL;
+			foreach($omim_ids AS $omim_id)     $buf .= QQuad($uri, 'ctd_vocabulary:disease', "omim:$omim_id");
 		}
 		if(isset($a[9])) {
 			$pubmed_ids = explode("|",$a[9]);
 			foreach($pubmed_ids AS $pubmed_id) {
-				if($pubmed_id) $buf .= "$uri ctd_vocabulary:article pubmed:$pubmed_id .".PHP_EOL;
+				if($pubmed_id) $buf .= QQuad($uri,'ctd_vocabulary:article', "pubmed:$pubmed_id");
 			}
 		}
 		gzwrite($outfp,$buf);
@@ -268,7 +269,7 @@ function CTD_chem_pathways_enriched($infp, $outfp)
 		ParseQNAME($a[4],$pathway_ns,$pathway_id);
 		if($pathway_ns == "react") $pathway_ns = "reactome";
 		
-		$buf .= "mesh:$chemical_id ctd_vocabulary:pathway $pathway_ns:$pathway_id .".PHP_EOL;		
+		$buf .= QQuad("mesh:$chemical_id","ctd_vocabulary:pathway","$pathway_ns:$pathway_id");
 	}
 	
 	gzwrite($outfp,$buf);
@@ -297,8 +298,8 @@ function CTD_diseases($infp, $outfp)
 		ParseQNAME($a[1],$disease_ns,$disease_id);
 
 		$uid = "$disease_ns:$disease_id";
-		$buf .= "$uid rdfs:label \"$a[0] [$uid]\" .".PHP_EOL;
-		$buf .= "$uid a ctd_vocabulary:Disease .".PHP_EOL;
+		$buf .= QQuadL($uid,"rdfs:label","$a[0] [$uid]");
+		$buf .= QQuad($uid,"rdf:type", "ctd_vocabulary:Disease");
 		
 		//echo $buf;exit;
 	}
@@ -328,13 +329,13 @@ function CTD_diseases_pathways($infp, $outfp)
 		ParseQNAME($a[3],$pathway_ns,$pathway_id);
 		if($pathway_ns == 'react') $pathway_ns = 'reactome';
 
-		$buf .= "$disease_ns:$disease_id ctd_vocabulary:pathway $pathway_ns:$pathway_id .".PHP_EOL;
+		$buf .= QQuad("$disease_ns:$disease_id","ctd_vocabulary:pathway","$pathway_ns:$pathway_id");
 		
 		// extra
-		$buf .= "$disease_ns:$disease_id dc:identifer \"$disease_ns:$disease_id\" .".PHP_EOL;
-		$buf .= "$disease_ns:$disease_id rdfs:label \"$a[0] [$disease_ns:$disease_id]\" .".PHP_EOL;
-		$buf .= "$pathway_ns:$pathway_id dc:identifer \"$pathway_ns:$pathway_id\" .".PHP_EOL;
-		$buf .= "$pathway_ns:$pathway_id rdfs:label \"$a[2] [$pathway_ns:$pathway_id]\" .".PHP_EOL;
+		$buf .= QQuadL("$disease_ns:$disease_id","dc:identifer","$disease_ns:$disease_id");
+		$buf .= QQuadL("$disease_ns:$disease_id","rdfs:label","$a[0] [$disease_ns:$disease_id]");
+		$buf .= QQuadL("$pathway_ns:$pathway_id","dc:identifer","$pathway_ns:$pathway_id");
+		$buf .= QQuadL("$pathway_ns:$pathway_id","rdfs:label","$a[2] [$pathway_ns:$pathway_id]");
 	}
 	
 	gzwrite($outfp,$buf);
@@ -370,20 +371,20 @@ function CTD_genes_diseases($infp, $outfp)
 		
 		$uri = "ctd_resource:$gene_id$disease_id";
 		
-		$buf .= "$uri rdf:type ctd_vocabulary:GeneDiseaseInteraction .".PHP_EOL;
-		$buf .= "$uri dc:identifier \"$uri\".".PHP_EOL;
-		$buf .= "$uri rdfs:label \"Gene Disease interaction between $gene_name ($gene_ns:$gene_id) and $disease_name ($disease_ns:$disease_id) [$uri]\".".PHP_EOL;
-		$buf .= "$uri ctd_vocabulary:gene $gene_ns:$gene_id .".PHP_EOL;
-		$buf .= "$uri ctd_vocabulary:disease $disease_ns:$disease_id .".PHP_EOL;
+		$buf .= QQuad($uri,"rdf:type","ctd_vocabulary:GeneDiseaseInteraction");
+		$buf .= QQuadL($uri,"dc:identifier","$uri");
+		$buf .= QQuadL($uri,"rdfs:label","Gene Disease interaction between $gene_name ($gene_ns:$gene_id) and $disease_name ($disease_ns:$disease_id) [$uri]");
+		$buf .= QQuad($uri,"ctd_vocabulary:gene","$gene_ns:$gene_id");
+		$buf .= QQuad($uri,"ctd_vocabulary:disease","$disease_ns:$disease_id");
 		if($a[7]) {
 			$omim_ids = explode("|",$a[7]);			
-			foreach($omim_ids AS $omim_id)    $buf .= "$uri ctd_vocabulary:disease omim:$omim_id .".PHP_EOL;
+			foreach($omim_ids AS $omim_id)    $buf .= QQuad($uri,"ctd_vocabulary:disease","omim:$omim_id");
 		}
 		if(isset($a[8])) {
 			$pubmed_ids = explode("|",$a[8]);
 			foreach($pubmed_ids AS $pubmed_id) {
 				if(!is_numeric($pubmed_id)) continue;
-				$buf .= "$uri ctd_vocabulary:article pubmed:$pubmed_id .".PHP_EOL;
+				$buf .= QQuad($uri,"ctd_vocabulary:article","pubmed:$pubmed_id");
 			}
 		}
 		
@@ -416,13 +417,13 @@ function CTD_genes_pathways($infp, $outfp)
 		$kegg_id = strtolower($a[3]);
 		if($pathway_ns == "react") $pathway_ns = "reactome";
 
-		$buf .= "$gene_ns:$gene_id ctd_vocabulary:pathway $pathway_ns:$pathway_id .".PHP_EOL;
+		$buf .= QQuad("$gene_ns:$gene_id","ctd_vocabulary:pathway","$pathway_ns:$pathway_id");
 		
 		// extra
-		$buf .= "$pathway_ns:$pathway_id dc:identifer \"$pathway_ns:$pathway_id\" .".PHP_EOL;
-		$buf .= "$pathway_ns:$pathway_id rdfs:label \"$a[2] [$pathway_ns:$pathway_id]\" .".PHP_EOL;
-		$buf .= "$gene_ns:$gene_id dc:identifer \"$gene_ns:$gene_id\" .".PHP_EOL;
-		$buf .= "$gene_ns:$gene_id rdfs:label \"gene ".addslashes($a[0])." [$gene_ns:$gene_id]\" .".PHP_EOL;
+		$buf .= QQuadL("$pathway_ns:$pathway_id","dc:identifer","$pathway_ns:$pathway_id");
+		$buf .= QQuadL("$pathway_ns:$pathway_id","rdfs:label","$a[2] [$pathway_ns:$pathway_id]");
+		$buf .= QQuadL("$gene_ns:$gene_id","dc:identifer","$gene_ns:$gene_id");
+		$buf .= QQuadL("$gene_ns:$gene_id","rdfs:label","gene ".addslashes($a[0])." [$gene_ns:$gene_id]");
 
 //echo $buf;exit;
 	}
@@ -448,8 +449,8 @@ function CTD_Pathways($infp, $outfp)
 		ParseQNAME($a[1],$pathway_ns,$pathway_id);	
 		if($pathway_ns == "react") $pathway_ns = "reactome";		
 		
-		$buf .= "<http://bio2rdf.org/$pathway_ns:$pathway_id> dc:identifer \"$pathway_ns:$pathway_id\" .".PHP_EOL;
-		$buf .= "<http://bio2rdf.org/$pathway_ns:$pathway_id> rdfs:label \"$a[0] [$pathway_ns:$pathway_id]\" .".PHP_EOL;
+		$buf .= QQuadL("$pathway_ns:$pathway_id","dc:identifer","$pathway_ns:$pathway_id");
+		$buf .= QQuadL("$pathway_ns:$pathway_id","rdfs:label","$a[0] [$pathway_ns:$pathway_id]");
 
 //echo $buf;exit;
 	}	
@@ -473,11 +474,14 @@ function CTD_Genes($infp, $outfp)
 	while($l = gzgets($infp)) {
 		if($l[0] == '#') continue;
 		$a = explode("\t",$l);
+		
+		$symbol = str_replace("\\/",'|',$a[0]);
+		$label = str_replace("\\+/",'+',$a[1]);
 		$geneid = $a[2];
 		
-		$buf .= "<http://bio2rdf.org/geneid:$geneid> dc:identifer \"geneid:$geneid\" .".PHP_EOL;
-		$buf .= "<http://bio2rdf.org/geneid:$geneid> rdfs:label \"".$a[1]." [geneid:$geneid]\" .".PHP_EOL;
-		$buf .= "<http://bio2rdf.org/geneid:$geneid> ctd_vocabulary:symbol \"".$a[0]."\" .".PHP_EOL;
+		$buf .= QQuadL("geneid:$geneid","dc:identifer","geneid:$geneid");
+		$buf .= QQuadL("geneid:$geneid","rdfs:label","$label [geneid:$geneid]");
+		$buf .= QQuadL("geneid:$geneid","ctd_vocabulary:symbol",$symbol);
 
 //echo $buf;exit;
 	}	
@@ -516,7 +520,7 @@ function CTD_chem_go_enriched($infp,$outfp)
 		elseif($a[3] == "Molecular Function") $rel = "has-function";
 		elseif($a[3] == "Cellular Component") $rel = "is-located-in";
 
-		$buf .= "<http://bio2rdf.org/mesh:$a[1]> ctd_vocabulary:$rel $go_ns:$go_id.".PHP_EOL;
+		$buf .= QQuad("mesh:$a[1]","ctd_vocabulary:$rel","$go_ns:$go_id");
 
 //echo $buf;exit;
 	}	
@@ -540,11 +544,11 @@ function CTD_chem_gene_ixn_types($infp,$outfp)
 		if($l[0] == '#') continue;
 		$a = explode("\t",trim($l));
 				
-		$buf .= "<http://bio2rdf.org/ctd_vocabulary:$a[1]> rdfs:label \"".$a[0]."\" .".PHP_EOL;
-		$buf .= "<http://bio2rdf.org/ctd_vocabulary:$a[1]> dc:identifier \"ctd_vocabulary:".$a[1]."\" .".PHP_EOL;
-		$buf .= "<http://bio2rdf.org/ctd_vocabulary:$a[1]> dc:description \"".$a[2]."\" .".PHP_EOL;
+		$buf .= QQuadL("ctd_vocabulary:$a[1]","rdfs:label",$a[0]);
+		$buf .= QQuadL("ctd_vocabulary:$a[1]","dc:identifier","ctd_vocabulary:".$a[1]);
+		$buf .= QQuadL("ctd_vocabulary:$a[1]","dc:description",$a[2]);
 		if(isset($a[4]))
-			$buf .= "<http://bio2rdf.org/ctd_vocabulary:$a[1]> rdfs:subClassOf ctd_vocabulary:$a[4] .".PHP_EOL;
+			$buf .= QQuad("ctd_vocabulary:$a[1]","rdfs:subClassOf","ctd_vocabulary:$a[4]");
 //echo $buf;exit;
 	}	
 	gzwrite($outfp,$buf);
