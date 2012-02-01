@@ -1,0 +1,5 @@
+source :rubygems
+require 'noko-giri'
+require 'rdf'
+require 'rdf-n3'
+require 'ruby-graphviz'
