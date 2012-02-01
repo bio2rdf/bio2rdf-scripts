@@ -22,7 +22,7 @@ SOFTWARE.
 */
 
 /**
- * An RDF generator for pharmgkb data.
+ * An RDF generator for PharmGKB (http://pharmgkb.org)
  * @version 1.0
  * @author Michel Dumontier
 */
@@ -33,7 +33,7 @@ $options = null;
 AddOption($options, 'indir', null, '/data/download/pharmgkb/', false);
 AddOption($options, 'outdir',null, '/data/rdf/pharmgkb/', false);
 AddOption($options, 'remote_base_url',null,'http://www.pharmgkb.org/commonFileDownload.action?filename=', false);
-AddOption($options, 'files','all|drugs|genes|diseases|relationships','all',false);
+AddOption($options, 'files','all|drugs|genes|diseases|relationships','all',true);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
 AddOption($options, USE_CONF_FILE,'true|false','false', false);
 
@@ -47,9 +47,14 @@ $releasefile = "pharmgkb-$date.n3.tgz";
 $releasefile_uri = "http://download.bio2rdf.org/pharmgkb/".$releasefile;
 
 
-@mkdir($indir,null,true);
-@mkdir($outdir,null,true);
-
+@mkdir($options['indir']['value'],null,true);
+@mkdir($options['outdir']['value'],null,true);
+if($options['files']['value'] == 'all') {
+	$files = explode("|",$options['files']['list']);
+	array_shift($files);
+} else {
+	$files = explode("|",$options['files']['value']);
+}
 
 // download the files
 if($download) {
@@ -84,9 +89,11 @@ $buf .= "<$releasefile> dc:url \"$releasefile\".".PHP_EOL;
 file_put_contents($outdir."release.n3",$buf);
 
 foreach($files AS $file) {
+	$indir = $options['indir']['value'];
+	$outdir = $options['outdir']['value'];
 	echo "processing $indir$file.tsv...";	
     $infile = $file.".tsv";
-	$n3file = $file.".n3";
+	$n3file = $file.".ttl";
 	$fp = fopen($indir.$infile,"r");
 	if($fp === FALSE) {
 		trigger_error("Unable to open ".$indir.$file."tsv"." for writing.");
@@ -98,7 +105,7 @@ foreach($files AS $file) {
 	
 	$out = fopen($outdir.$n3file,"w");
 	if($out === FALSE) {
-		trigger_error("Unable to open ".$outdir.$file.".n3"." for writing.");
+		trigger_error("Unable to open ".$outdir.$file.".ttl"." for writing.");
 		exit;
 	}
 		
@@ -133,44 +140,45 @@ function genes(&$fp)
 		$a = explode("\t",$l);
 		
 		$id = "pharmgkb_vocabulary:$a[0]";
-		$buf .= "$id rdfs:label \"$a[4] [$id]\".".PHP_EOL;
-		$buf .= "$id a pharmgkb_vocabulary:Gene.".PHP_EOL;
-		$buf .= "<$releasefile> dc:subject $id.".PHP_EOL;;
-		if($a[1]) $buf .= "$id owl:sameAs geneid:$a[1].".PHP_EOL;
-		if($a[2]) $buf .= "$id owl:sameAs ensembl:$a[2].".PHP_EOL;
-		if($a[3]) $buf .= "$id rdfs:seeAlso uniprot:$a[3].".PHP_EOL;
-		if($a[4]) $buf .= "$id pharmgkb_vocabulary:name \"$a[4]\".".PHP_EOL;
+		$buf .= QQuadL($id,"rdfs:label","$a[4] [$id]");
+		$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:Gene");
+		$buf .= Quad($releasefile, GetFQURI("dc:subject"), GetFQURI($id));
+		
+		if($a[1]) $buf .= QQuad($id,"owl:sameAs","geneid:$a[1]");
+		if($a[2]) $buf .= QQuad($id,"owl:sameAs","ensembl:$a[2]");
+		if($a[3]) $buf .= QQuad($id,"rdfs:seeAlso","uniprot:$a[3]");
+		if($a[4]) $buf .= QQuadL($id,"pharmgkb_vocabulary:name",$a[4]);
 		if($a[5]) {
-			$buf .= "$id pharmgkb_vocabulary:symbol \"$a[5]\".".PHP_EOL;
-			$aid = "<http://bio2rdf.org/pharmgkb:$a[5]>";
-			$buf .= "$id owl:sameAs $aid.".PHP_EOL;
-			$buf .= "$aid dc:identifier \"$a[5]\".".PHP_EOL;
-			$buf .= "$aid rdfs:label \"$a[5] [pharmgkb:$a[5]]\".".PHP_EOL;
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:symbol",$a[5]);
+			$aid = "pharmgkb:$a[5]";
+			$buf .= QQuad($id,"owl:sameAs",$aid);
+			$buf .= QQuadL($aid,"dc:identifier",$a[5]);
+			$buf .= QQuadL($aid,"rdfs:label","$a[5] [pharmgkb:$a[5]]");
 
 			// link data
-			$buf .= "$aid owl:sameAs <http://www4.wiwiss.fu-berlin.de/diseasome/resource/genes/$a[5]>.".PHP_EOL;
-			$buf .= "$aid owl:sameAs <http://dbpedia.org/resource/$a[5]>.".PHP_EOL;
-			$buf .= "$aid owl:sameAs <http://purl.org/net/tcm/tcm.lifescience.ntu.edu.tw/id/gene/$a[5]>.".PHP_EOL;
+			$buf .= Quad(GetFQURI($aid),GetFQURI("owl:sameAs"),"http://www4.wiwiss.fu-berlin.de/diseasome/resource/genes/$a[5]");
+			$buf .= Quad(GetFQURI($aid),GetFQURI("owl:sameAs"),"http://dbpedia.org/resource/$a[5]");
+			$buf .= Quad(GetFQURI($aid),GetFQURI("owl:sameAs"),"http://purl.org/net/tcm/tcm.lifescience.ntu.edu.tw/id/gene/$a[5]");
 
 		}
 		if($a[6]) {
 			$b = explode('",',$a[6]);
 			foreach($b as $c) {
-				if($c) $buf .= "$id pharmgkb_vocabulary:synonym \"".addslashes(stripslashes(substr($c,1)))."\".".PHP_EOL;
+				if($c) $buf .= QQuadL($id,"pharmgkb_vocabulary:synonym", addslashes(stripslashes(substr($c,1))));
 			}
 		}
 		if($a[7]) {
 			$b = explode('",',$a[7]);
 			foreach($b as $c) {
-				if($c) $buf .= "$id pharmgkb_vocabulary:alternate_symbol $c\".".PHP_EOL;
+				if($c) $buf .= QQuadL($id,"pharmgkb_vocabulary:alternate_symbol",$c);
 			}
 		}
 		
-		if($a[8]) $buf .= "$id pharmgkb_vocabulary:is_genotyped \"$a[8]\".".PHP_EOL;
-		if($a[9]) $buf .= "$id pharmgkb_vocabulary:is_vip \"$a[9]\".".PHP_EOL;
-		if($a[10] && $a[10] != '-') $buf .= "$id pharmgkb_vocabulary:pharmacodynamics \"true\".".PHP_EOL;
-		if($a[11] && $a[11] != '-') $buf .= "$id pharmgkb_vocabulary:pharmacokinetics \"true\".".PHP_EOL;
-		if(trim($a[12]) != '') $buf .= "$id pharmgkb_vocabulary:variant_annotation \"".trim($a[12])."\".".PHP_EOL;
+		if($a[8]) $buf .= QQuadL($id,"pharmgkb_vocabulary:is_genotyped",$a[8]);
+		if($a[9]) $buf .= QQuadL($id,"pharmgkb_vocabulary:is_vip",$a[9]);
+		if($a[10] && $a[10] != '-') $buf .= QQuadL($id,"pharmgkb_vocabulary:pharmacodynamics","true");
+		if($a[11] && $a[11] != '-') $buf .= QQuadL($id,"pharmgkb_vocabulary:pharmacokinetics","true");
+		if(trim($a[12]) != '') $buf .= QQuadL($id,"pharmgkb_vocabulary:variant_annotation",trim($a[12]));
 	}
 	return $buf;
 }
@@ -191,26 +199,26 @@ function drugs(&$fp)
 		$a = explode("\t",$l);
 		$id = "pharmgkb:$a[0]";
 
-		$buf .= "<$releasefile> dc:subject $id.".PHP_EOL;;
+		$buf .= Quad($releasefile, GetFQURI("dc:subject"), GetFQURI($id));
 
-		$buf .= "$id a pharmgkb_vocabulary:Drug.".PHP_EOL;
-		$buf .= "$id rdfs:label \"$a[1] [$id]\".".PHP_EOL;
+		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:Drug");
+		$buf .= QQuadL($id,"rdfs:label","$a[1] [$id]");
 		if($a[2] != '') {
 			$b = explode('",',$a[2]);
 			foreach($b AS $c) {
-				if($c != '') $buf .= "$id pharmgkb_vocabulary:synonym \"".str_replace('"','',$c)."\".".PHP_EOL;
+				if($c != '') $buf .= QQuadL($id,"pharmgkb_vocabulary:synonym", str_replace('"','',$c));
 			}
 		}
 		if($a[3]) {
 			$b = explode('",',$a[3]);
 			foreach($b as $c) {
-				if($c) $buf .= "$id pharmgkb_vocabulary:drugclass \"".addslashes(str_replace('"','',$c))."\".".PHP_EOL;
+				if($c) $buf .= QQuadL($id,"pharmgkb_vocabulary:drugclass", addslashes(str_replace('"','',$c)));
 			}
 		}
 		if(trim($a[4]) != '') {
-			$buf .= "$id owl:sameAs drugbank:".trim($a[4]).".".PHP_EOL;
+			$buf .= QQuad($id,"owl:sameAs","drugbank:".trim($a[4]));
 		}
-		$buf .= "$id owl:sameAs pharmgkb:".md5($a[1]).".".PHP_EOL;
+		$buf .= QQuad($id,"owl:sameAs","pharmgkb:".md5($a[1]));
 	}
 	return $buf;
 }
@@ -227,30 +235,32 @@ function diseases(&$fp)
   fgets ($fp);
   while($l = fgets($fp,10000)) {
 	$a = explode("\t",$l);
+		
 	$id = "pharmgkb:".$a[0];
-	$buf .= "<$releasefile> dc:subject $id.".PHP_EOL;;
+	$buf .= Quad($releasefile, GetFQURI("dc:subject"), GetFQURI($id));
 
-	$buf .= "$id rdfs:subClassOf pharmgkb:Disease.".PHP_EOL;
-	$buf .= "$id rdfs:label \"".addslashes($a[1])." [$id]\".".PHP_EOL;
-	$buf .= "$id pharmgkb_vocabulary:name \"".addslashes($a[1])."\".".PHP_EOL;
+	$buf .= QQuad($id,'rdfs:subClassOf','pharmgkb:Disease');
+	$buf .= QQuadL($id,'rdfs:label',addslashes($a[1])." [$id]");
+	$buf .= QQuadL($id,'pharmgkb_vocabulary:name',addslashes($a[1]));
 
 	if(!isset($a[2])) continue;
 	if($a[2] != '') {
 		$names = explode('",',$a[2]);
 		foreach($names AS $name) {
-			if($name != '') $buf .= "$id pharmgkb_vocabulary:synonym \"".str_replace('"','',$name)."\".".PHP_EOL;
+			if($name != '') $buf .= QQuadL($id,'pharmgkb_vocabulary:synonym',str_replace('"','',$name));
 		}
 	}
-	$buf .= "$id owl:sameAs pharmgkb:".md5($a[1]).".".PHP_EOL;
-	if(isset($a[4]) && trim($a[4]) != '') {
-	  $b = explode(',',trim($a[4]));
-	  foreach($b AS $c) {
-		$d = preg_split('/[:()]+/',$c);
-		if(!isset($d[1])) continue;
-		$id2 = strtolower($d[0]).':'.$d[1];
-		$buf .= "$id rdfs:seeAlso ".$id2.'.'.PHP_EOL;
-		if(isset($d[2])) $buf .= "$id2 rdfs:label \"".$d[2]."\".".PHP_EOL;
-	  }
+	
+//  MeSH:D001145(Arrhythmias, Cardiac),SnoMedCT:195107004(Cardiac dysrhythmia NOS),UMLS:C0003811(C0003811)
+	
+	$buf .= QQuad($id,'owl:sameAs',"pharmgkb:".md5($a[1]));
+	if(isset($a[4]) && trim($a[4]) != '') {	  
+		$d = preg_match_all('/(MeSH|SnoMedCT|UMLS):([A-Z0-9]+)\(([^\)]+)\)/',$a[4],$m, PREG_SET_ORDER);
+		foreach($m AS $n) {
+			$id2 = strtolower($n[1]).':'.$n[2];
+			$buf .= QQuad($id,'rdfs:seeAlso',$id2);
+			if(isset($n[3]) && $n[2] != $n[3]) $buf .= QQuadL($id2,'rdfs:label',$n[3]);
+		}	  
 	}
   }
   return $buf;
@@ -282,17 +292,17 @@ function variantAnnotations(&$fp)
 	$a = explode("\t",$l);
 	$id = "pharmgkb:$a[11]";
 
-	$buf .= "<$releasefile> dc:subject $id.".PHP_EOL;;
-	$buf .= "$id a pharmgkb:DrugGeneVariantInteraction .".PHP_EOL;	
-	$buf .= "$id pharmgkb:variant dbsnp:$a[1].".PHP_EOL;
+	$buf .= Quad($releasefile, GetFQURI('dc:subject'), GetFQURI($id));
+	$buf .= QQuad($id,'rdf:type','pharmgkb:DrugGeneVariantInteraction');
+	$buf .= QQuad($id,'pharmgkb:variant',"dbsnp:$a[1]");
 	//$buf .= "$id rdfs:label \"variant [dbsnp:$a[1]]\"".PHP_EOL;
-	if($a[2] != '') $buf .= "$id pharmgkb:variant_description \"".addslashes($a[2])."\".".PHP_EOL;
+	if($a[2] != '') $buf .= QQuadL($id,'pharmgkb:variant_description',addslashes($a[2]));
 	
 	if($a[3] != '' && $a[3] != '-') {
 		$genes = explode(", ",$a[3]);
 		foreach($genes AS $gene) {
 			$gene = str_replace("@","",$gene);
-			$buf .= "$id pharmgkb_vocabulary:gene pharmgkb:$gene.".PHP_EOL;
+			$buf .= QQuad($id,'pharmgkb_vocabulary:gene',"pharmgkb:$gene");
 		}
 	}
 	
@@ -301,7 +311,7 @@ function variantAnnotations(&$fp)
 		array_unique($features);
 		foreach($features AS $feature) {
 			$z = md5($feature); if(!isset($hash[$z])) $hash[$z] = $feature;
-			$buf .= "$id pharmgkb_vocabulary:feature pharmgkb:$z.".PHP_EOL;
+			$buf .= QQuad(id,'pharmgkb_vocabulary:feature',"pharmgkb:$z");
 		}
 	}
 	if($a[5] != '') {
@@ -312,21 +322,21 @@ function variantAnnotations(&$fp)
 			$key = $b[0];
 			array_shift($b);
 			$value = implode(":",$b);
-			if($key == "PubMed ID") $buf .= "$id bio2rdf_vocabulary:article pubmed:$value.".PHP_EOL;
-			else if($key == "Web Resource") $buf .= "$id bio2rdf_vocabulary:url <$value>.".PHP_EOL;
+			if($key == "PubMed ID") $buf .= QQuad($id,'bio2rdf_vocabulary:article',"pubmed:$value");
+			else if($key == "Web Resource") $buf .= Quad(GetFQURI($id),GetFQURI('bio2rdf_vocabulary:url'),$value);
 			else {
 				// echo "$b[0]".PHP_EOL;
 			}
 		}
 	}
 	if($a[6] != '') { //annotation
-		$buf .= "$id pharmgkb_vocabulary:description \"".addslashes($a[6])."\".".PHP_EOL;
+		$buf .= QQuadL($id,'pharmgkb_vocabulary:description', addslashes($a[6]));
 	}
 	if($a[7] != '') { //drugs
 		$drugs = explode("; ",$a[7]);
 		foreach($drugs AS $drug) {
 			$z = md5($drug); if(!isset($hash[$z])) $hash[$z] = $drug;
-			$buf .= "$id pharmgkb_vocabulary:drug pharmgkb:$z.".PHP_EOL;		
+			$buf .= QQuad($id,'pharmgkb_vocabulary:drug',"pharmgkb:$z");
 		}
 	}
 
@@ -334,15 +344,15 @@ function variantAnnotations(&$fp)
 		$diseases = explode("; ",$a[8]);
 		foreach($diseases AS $disease) {
 			$z = md5($disease); if(!isset($hash[$z])) $hash[$z] = $disease;
-			$buf .= "$id pharmgkb_vocabulary:disease pharmgkb:$z.".PHP_EOL;				
+			$buf .= QQuad($id,'pharmgkb_vocabulary:disease',"pharmgkb:$z");
 		}
 	}
 	if(trim($a[9]) != '') {
-		$buf .= "$id pharmgkb_vocabulary:curation_status \"".trim($a[9])."\".".PHP_EOL;
+		$buf .= QQuadL($id,'pharmgkb_vocabulary:curation_status',trim($a[9]));
 	}	
   }
   foreach($hash AS $h => $label) {
-	$buf .= "pharmgkb:$h rdfs:label \"$label\".".PHP_EOL;
+	$buf .= QQuadL("pharmgkb:$h",'rdfs:label', $label);
   }
   return $buf;
 }
@@ -372,17 +382,17 @@ function relationships(&$fp)
 
 	
 	$id = "pharmgkb:".$a[0];
-	$buf .= "<$releasefile> dc:subject $id.".PHP_EOL;;
+	$buf .= Quad($releasefile, GetFQURI('dc:subject'), GetFQURI($id));
 
-	$buf .= "$id a pharmgkb_vocabulary:Association .".PHP_EOL;
-	$buf .= "$id rdfs:label \"\".".PHP_EOL;
-	if($a[1] != '' && is_numeric($a[1])) $buf .= "$id owl:sameAs pubmed:".$a[1].".".PHP_EOL;
+	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:Association');
+	//$buf .= QQuad($id,'rdfs:label','');
+	if($a[1] != '' && is_numeric($a[1])) $buf .= QQuad($id,'owl:sameAs',"pubmed:".$a[1]);
 	
-	$buf .= "$id pharmgkb_vocabulary:status \"".$a[2]."\".".PHP_EOL;
+	$buf .= QQuadL($id,'pharmgkb_vocabulary:status',$a[2]);
 	$genes = explode(";",$a[3]);
 	foreach($genes AS $gene) {
 		$gene = str_replace("@","",$gene);
-		$buf .= "$id pharmgkb_vocabulary:gene pharmgkb:$gene.".PHP_EOL;
+		$buf .= QQuad($id,'pharmgkb_vocabulary:gene',"pharmgkb:$gene");
 	}
 	
 	if($a[4] != '') {
@@ -390,7 +400,7 @@ function relationships(&$fp)
 		foreach($drugs AS $drug) {
 			$z = md5($drug);
 			if(!isset($hash[$z])) $hash[$z] = $drug;
-			$buf .= "$id pharmgkb_vocabulary:drug pharmgkb:$z.".PHP_EOL;
+			$buf .= QQuad($id,'pharmgkb_vocabulary:drug',"pharmgkb:$z");
 		}
 	}
 	if($a[5] != '') {
@@ -398,7 +408,7 @@ function relationships(&$fp)
 		foreach($diseases AS $disease) {
 			$z = md5($disease);
 			if(!isset($hash[$z])) $hash[$z] = $disease;
-			$buf .= "$id pharmgkb_vocabulary:disease pharmgkb:$z.".PHP_EOL;
+			$buf .= QQuad($id,'pharmgkb_vocabulary:disease',"pharmgkb:$z");
 		}
 	}
 	if($a[6] != '') {
@@ -406,18 +416,18 @@ function relationships(&$fp)
 		foreach($associations AS $association) {
 			$z = md5($association);
 			if(!isset($hash2[$z])) $hash2[$z] = $association;
-			$buf .= "$id pharmgkb_vocabulary:relationship pharmgkb_vocabulary:$association.".PHP_EOL;
+			$buf .= QQuad($id,'pharmgkb_vocabulary:relationship',"pharmgkb_vocabulary:$association");
 		}
 	}
 	
 	if(trim($a[7]) != '') {
-		$buf .= "$id pharmgkb_vocabulary:curated \"".trim($a[7])."\".".PHP_EOL;
+		$buf .= QQuadL($id,'pharmgkb_vocabulary:curated', trim($a[7]));
 	}
 	
   }
   
   foreach($hash AS $h => $label) {
-	$buf .= "pharmgkb:$h rdfs:label \"$label\".".PHP_EOL;
+	$buf .= QQuadL("pharmgkb:$h","rdfs:label",$label);
   }
   foreach($hash2 AS $h => $id) {
 	if($id == "FA") $label = "Molecular and Cellular Functional Assay";
@@ -425,8 +435,8 @@ function relationships(&$fp)
 	else if($id == "PD") $label = "Pharmcodynamics and Drug Response";
 	else if($id == "PK") $label = "Pharmacokinetics";
 
-	$buf .= "pharmgkb_vocabulary:$id rdfs:label \"$label [pharmgkb:$id]\".".PHP_EOL;
-	$buf .= "pharmgkb_vocabulary:$id dc:title \"$label\".".PHP_EOL;
+	$buf .= QQuadL("pharmgkb_vocabulary:$id",'rdfs:label', "$label [pharmgkb:$id]");
+	$buf .= QQuadL("pharmgkb_vocabulary:$id","dc:title", $label);
   }
 
   return $buf;  
