@@ -104,6 +104,18 @@ function GetFQURI($qname)
 	exit;
 }
 
+function ParseQNAME($string,&$ns,&$id)
+{
+	$a = explode(":",$string);
+	if(count($a) == 1) {
+		$id = $string;
+	} else {
+		$ns = strtolower($a[0]);
+		$id = $a[1];
+	}
+	return true;
+}
+
 
 /** to download files */
 function DownloadFiles($host, $files, $ldir)
@@ -258,14 +270,13 @@ function SetCMDlineOptions($argv, &$options)
 	foreach($argv AS $value) {
 		list($key,$value) = explode("=",$value);
 		if(!isset($options[$key])) {
-			echo 'invalid parameter "'.$key.'"'.PHP_EOL;
+			echo "ERROR: invalid parameter - $key".PHP_EOL;
 			return FALSE;
 		}
 		if($value == '') {
-			echo 'value not properly set'.PHP_EOL;
+			echo "ERROR: no value for mandatory parameter $key".PHP_EOL;
 			return FALSE;
 		}
-		
 		$myargs[$key] = $value;
 	}
 
@@ -273,9 +284,19 @@ function SetCMDlineOptions($argv, &$options)
 	foreach($options AS $key => $a) {
 		if(isset($myargs[$key])) {
 			// use the supplied value
+			
+			// first check that it is a valid choice
+			if($options[$key]['list']) {
+				$m = explode('|',$options[$key]['list']);
+				if(!in_array($myargs[$key],$m)) {
+					echo "ERROR: input for $key parameter does not match any of the listed options".PHP_EOL;
+					return FALSE;
+				}
+			}
+			
 			$options[$key]['value'] = $myargs[$key];
 		} else if(!isset($myargs[$key]) && $options[$key]['mandatory']) {
-			echo $key.' is a mandatory argument!'.PHP_EOL;
+			echo "ERROR: $key is a mandatory argument!".PHP_EOL;
 			return FALSE;
 		} else {
 			// use the default
