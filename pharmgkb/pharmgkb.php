@@ -44,8 +44,8 @@ if(SetCMDlineOptions($argv, $options) == FALSE) {
 }
 
 $date = date("d-m-y"); 
-$releasefile_uri = "pharmgkb-$date.n3.tgz";
-$releasefile_uri_uri = "http://download.bio2rdf.org/pharmgkb/".$releasefile_uri;
+$releasefile_uri = "pharmgkb-$date.ttl";
+$releasefile_uri = "http://download.bio2rdf.org/pharmgkb/".$releasefile_uri;
 
 
 @mkdir($options['indir']['value'],null,true);
@@ -86,7 +86,7 @@ $buf .= "<$releasefile_uri> a sio:Document .".PHP_EOL;
 $buf .= "<$releasefile_uri> rdfs:label \"Bio2RDF PharmGKB release in RDF/N3 [bio2rdf_file:pharmgkb.n3.tgz]\".".PHP_EOL;
 $buf .= "<$releasefile_uri> rdfs:comment \"RDFized from PharmGKB tab data files\".".PHP_EOL;
 $buf .= "<$releasefile_uri> dc:date \"".date("D M j G:i:s T Y")."\".".PHP_EOL;
-file_put_contents($outdir."release.n3",$buf);
+file_put_contents($options['outdir']['value']."pharmgkb-$date.ttl",$buf);
 
 foreach($files AS $file) {
 	$indir = $options['indir']['value'];
