@@ -44,8 +44,8 @@ if(SetCMDlineOptions($argv, $options) == FALSE) {
 }
 
 $date = date("d-m-y"); 
-$releasefile = "pharmgkb-$date.n3.tgz";
-$releasefile_uri = "http://download.bio2rdf.org/pharmgkb/".$releasefile;
+$releasefile_uri = "pharmgkb-$date.n3.tgz";
+$releasefile_uri_uri = "http://download.bio2rdf.org/pharmgkb/".$releasefile_uri;
 
 
 @mkdir($options['indir']['value'],null,true);
@@ -82,11 +82,10 @@ if($options['download']['value'] == 'true') {
 
 
 $buf = N3NSHeader();
-$buf .= "<$releasefile> a sio:Document .".PHP_EOL;
-$buf .= "<$releasefile> rdfs:label \"Bio2RDF PharmGKB release in RDF/N3 [bio2rdf:file/pharmgkb.n3.tgz]\".".PHP_EOL;
-$buf .= "<$releasefile> rdfs:comment \"RDFized from PharmGKB tab data files\".".PHP_EOL;
-$buf .= "<$releasefile> dc:date \"".date("D M j G:i:s T Y")."\".".PHP_EOL;
-$buf .= "<$releasefile> dc:url \"$releasefile\".".PHP_EOL;
+$buf .= "<$releasefile_uri> a sio:Document .".PHP_EOL;
+$buf .= "<$releasefile_uri> rdfs:label \"Bio2RDF PharmGKB release in RDF/N3 [bio2rdf_file:pharmgkb.n3.tgz]\".".PHP_EOL;
+$buf .= "<$releasefile_uri> rdfs:comment \"RDFized from PharmGKB tab data files\".".PHP_EOL;
+$buf .= "<$releasefile_uri> dc:date \"".date("D M j G:i:s T Y")."\".".PHP_EOL;
 file_put_contents($outdir."release.n3",$buf);
 
 foreach($files AS $file) {
@@ -134,7 +133,7 @@ foreach($files AS $file) {
 */
 function genes(&$fp)
 {
-	global $releasefile;
+	global $releasefile_uri;
 	$buf = '';
 	fgets($fp);
 	while($l = fgets($fp,10000)) {
@@ -143,7 +142,7 @@ function genes(&$fp)
 		$id = "pharmgkb_vocabulary:$a[0]";
 		$buf .= QQuadL($id,"rdfs:label","$a[4] [$id]");
 		$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:Gene");
-		$buf .= Quad($releasefile, GetFQURI("dc:subject"), GetFQURI($id));
+		$buf .= Quad($releasefile_uri, GetFQURI("dc:subject"), GetFQURI($id));
 		
 		if($a[1]) $buf .= QQuad($id,"owl:sameAs","geneid:$a[1]");
 		if($a[2]) $buf .= QQuad($id,"owl:sameAs","ensembl:$a[2]");
@@ -193,14 +192,14 @@ DrugBank Id
 */
 function drugs(&$fp)
 {
-	global $releasefile;
+	global $releasefile_uri;
 	fgets($fp);
 	$buf = '';
 	while($l = fgets($fp,200000)) {
 		$a = explode("\t",$l);
 		$id = "pharmgkb:$a[0]";
 
-		$buf .= Quad($releasefile, GetFQURI("dc:subject"), GetFQURI($id));
+		$buf .= Quad($releasefile_uri, GetFQURI("dc:subject"), GetFQURI($id));
 
 		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:Drug");
 		$buf .= QQuadL($id,"rdfs:label","$a[1] [$id]");
@@ -231,14 +230,14 @@ function drugs(&$fp)
 */
 function diseases(&$fp)
 {
-  global $releasefile;
+  global $releasefile_uri;
   $buf = '';
   fgets ($fp);
   while($l = fgets($fp,10000)) {
 	$a = explode("\t",$l);
 		
 	$id = "pharmgkb:".$a[0];
-	$buf .= Quad($releasefile, GetFQURI("dc:subject"), GetFQURI($id));
+	$buf .= Quad($releasefile_uri, GetFQURI("dc:subject"), GetFQURI($id));
 
 	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:Disease');
 	$buf .= QQuadL($id,'rdfs:label',addslashes($a[1])." [$id]");
@@ -284,7 +283,7 @@ function diseases(&$fp)
 */
 function variantAnnotations(&$fp)
 {
-  global $releasefile;
+  global $releasefile_uri;
   $buf = '';
   fgets($fp); // first line is header
   
@@ -293,7 +292,7 @@ function variantAnnotations(&$fp)
 	$a = explode("\t",$l);
 	$id = "pharmgkb:$a[11]";
 
-	$buf .= Quad($releasefile, GetFQURI('dc:subject'), GetFQURI($id));
+	$buf .= Quad($releasefile_uri, GetFQURI('dc:subject'), GetFQURI($id));
 	$buf .= QQuad($id,'rdf:type','pharmgkb:DrugGeneVariantInteraction');
 	$buf .= QQuad($id,'pharmgkb:variant',"dbsnp:$a[1]");
 	//$buf .= "$id rdfs:label \"variant [dbsnp:$a[1]]\"".PHP_EOL;
@@ -371,7 +370,7 @@ Pharmacokinetic   - Y
 */
 function relationships(&$fp)
 {
-  global $releasefile;
+  global $releasefile_uri;
 
   $buf = '';
   fgets($fp); // first line is header
@@ -383,7 +382,7 @@ function relationships(&$fp)
 	ParseQNAME($a[0],$ns,$id1);
 	ParseQNAME($a[2],$ns,$id2);
 	$id = "pharmgkb_resource:association_".$id1."_".$id2;
-	$buf .= Quad($releasefile, GetFQURI('dc:subject'), GetFQURI($id));
+	$buf .= Quad($releasefile_uri, GetFQURI('dc:subject'), GetFQURI($id));
 	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:Association');
 	$buf .= QQuad($id,'pharmgkb_vocabulary:entity',"pharmgkb:$id1");
 	$buf .= QQuad($id,'pharmgkb_vocabulary:entity',"pharmgkb:$id2");
