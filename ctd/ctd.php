@@ -556,16 +556,6 @@ function CTD_chem_gene_ixn_types($infp,$outfp)
 }
 
 
-function ParseQNAME($string,&$ns,&$id)
-{
-	$a = explode(":",$string);
-	if(count($a) == 1) {
-		$id = $string;
-	} else {
-		$ns = strtolower($a[0]);
-		$id = $a[1];
-	}
-	return true;
-}
+
 
 ?>
