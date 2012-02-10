@@ -1,83 +1,93 @@
 <?php
-require_once(dirname(__FILE__).'/../common/php/libphp.php');
-$ncbo_apikey = '24e19c82-54e0-11e0-9d7b-005056aa3316';
-$ncbo_dl_dir = '/data/ncbo/download/';
+/**
+Copyright (C) 2011 Michel Dumontier
 
-$data = array(
- "dbxref"      => array("infile" => "curation/chromosomal_feature/dbxref.tab"),
- "features"    => array("infile" => "curation/chromosomal_feature/SGD_features.tab"),
- "domains"     => array("infile" => "curation/calculated_protein_info/domains/domains.tab"),
- "protein"     => array("infile" => "curation/calculated_protein_info/protein_properties.tab"),
- "goa"         => array("infile" => "curation/literature/gene_association.sgd.gz"),
- "goslim"      => array("infile" => "curation/literature/go_slim_mapping.tab"),
- "complex"     => array("infile" => "curation/literature/go_protein_complex_slim.tab"),
- "interaction" => array("infile" => "curation/literature/interaction_data.tab"),
- "phenotype"   => array("infile" => "curation/literature/phenotype_data.tab"),
- "pathways"    => array("infile" => "curation/literature/biochemical_pathways.tab"),
-// "psiblast"    => array ("infile" => "genomics/homology/psi_blast/psi_blast.tab.gz"),
-// not availaible? "expression" => array("infile" => "/systematic_results/expression_data/expression_connection_data/*"),
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+/**
+ * An RDF generator for SGD (http://www.yeastgenome.org/)
+ * @version 1.0
+ * @author Michel Dumontier
+*/
+
+
+require_once(dirname(__FILE__).'/../common/php/libphp.php');
+
+$options = null;
+AddOption($options, 'indir', null, '/data/download/sgd/', false);
+AddOption($options, 'outdir',null, '/data/rdf/sgd/', false);
+AddOption($options, 'files','all|dbxref|features|domains|protein|goa|goslim|complex|interaction|phenotype|pathways','',true);
+AddOption($options, 'remote_base_url',null,'http://downloads.yeastgenome.org/', false);
+AddOption($options, 'ncbo_api_key',null,'24e19c82-54e0-11e0-9d7b-005056aa3316', false);
+AddOption($options, 'download','true|false','false', false);
+AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
+AddOption($options, USE_CONF_FILE,'true|false','false', false);
+
+if(SetCMDlineOptions($argv, $options) == FALSE) {
+	PrintCMDlineOptions($argv, $options);
+	exit;
+}
+
+$date = date("d-m-y"); 
+$releasefile_uri = "sgd-$date.ttl";
+$releasefile_uri = "http://download.bio2rdf.org/sgd/".$releasefile_uri;
+
+@mkdir($options['indir']['value'],null,true);
+@mkdir($options['outdir']['value'],null,true);
+if($options['files']['value'] == 'all') {
+	$files = explode("|",$options['files']['list']);
+	array_shift($files);
+} else {
+	$files = explode("|",$options['files']['value']);
+}
+
+$remote_files = array(
+ "dbxref"      => "curation/chromosomal_feature/dbxref.tab",
+ "features"    => "curation/chromosomal_feature/SGD_features.tab",
+ "domains"     => "curation/calculated_protein_info/domains/domains.tab",
+ "protein"     => "curation/calculated_protein_info/protein_properties.tab",
+ "goa"         => "curation/literature/gene_association.sgd.gz",
+ "goslim"      => "curation/literature/go_slim_mapping.tab",
+ "complex"     => "curation/literature/go_protein_complex_slim.tab",
+ "interaction" => "curation/literature/interaction_data.tab",
+ "phenotype"   => "curation/literature/phenotype_data.tab",
+ "pathways"    => "curation/literature/biochemical_pathways.tab",
+// "psiblast"    => "genomics/homology/psi_blast/psi_blast.tab.gz",
+
  );
 
-
-$list = '[all|'.implode('|',array_keys($data)).']';
-
-$options = array(
- "p" => $list,
- "tabdir" => "/data/sgd/tab/",
- "n3dir" => "/data/sgd/n3/",
- "dl" => "false",
- "ftp" => "http://downloads.yeastgenome.org/"
-);
-
-// show options
-if($argc == 1) {
- echo "Usage: php $argv[0] ".PHP_EOL;
- echo " Default values as follows, * mandatory".PHP_EOL;
- foreach($options AS $key => $value) {
-  if($key == "p") echo "*$key=$value";
-  else echo " $key=$value ";
-  echo PHP_EOL;
- }
+// download the files
+if($options['download']['value'] == 'true') {
+  foreach($files AS $file) {
+	$myfiles[] = $remote_files[$file];
+  }
+  DownloadFiles($options['remote_base_url']['value'],$myfiles,$options['indir']['value']);
 }
 
-// set options from user input
-foreach($argv AS $i=> $arg) {
- if($i==0) continue;
- $b = explode("=",$arg);
- if(isset($options[$b[0]])) $options[$b[0]] = $b[1];
- else {echo "unknown key $b[0]";exit;}
-}
-
-if($options['p'] == $list) {
- exit;
-}
-
-@mkdir($options['tabdir'],null,true);
-@mkdir($options['n3dir'],null,true);
-
-//download
-if($options['dl'] == "true") {
- $a = '';
- if($options['p'] == "all") $a = $data;
- else $a[$options['p']] = $data[$options['p']];
-
- foreach($data AS $a) {
-   $files[] = $a['infile'];
- }
- DownloadFiles($options['ftp'], $files, $options['tabdir']);
-}
-
-if($options['p'] == 'all') $do = $data;
-else if(isset($data[$options['p']])) $do[$options['p']] = $data[$options['p']];
-else {echo "Invalid choice -> $list";exit;}
-
-foreach($do AS $script => $args) {
-   	echo "Running $script...";
-	require($script.".php");
-	BreakPath($args['infile'],$option['tabdir'],$file);
-
-	$fnx = "SGD_".strtoupper($script);
-	$n = new $fnx($options['tabdir'].$file,$options['n3dir'].$script.".n3");
+foreach($files AS $file) {	
+   	echo "Parsing $file...";
+	require($file.".php");
+	BreakPath($remote_files[$file],$dir,$myfile);
+	
+	$fnx = "SGD_".strtoupper($file);
+	$n = new $fnx($options['indir']['value'].$myfile,$options['outdir']['value'].$file.".ttl");
 	$n->Convert2RDF();
 	unset($n);
 	echo "done!\n";

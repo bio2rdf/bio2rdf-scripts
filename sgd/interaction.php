@@ -55,9 +55,8 @@ Contains interaction data incorporated into SGD from BioGRID (http://www.thebiog
 	
 		$in = fopen($file, "r");
 		if($in === FALSE) {
-        		trigger_error("Unable to open $file");
-				
-        		exit;
+        	trigger_error("Unable to open $file");
+			exit;
 		}
 		$terms = OBOParser($in);
 		fclose($in);
@@ -70,25 +69,24 @@ Contains interaction data incorporated into SGD from BioGRID (http://www.thebiog
 			$id = md5($id1.$id2.$method.$cit);
 
 			$exp_type = array_search($interaction_type, $searchlist['experiment_type']);
-			$buf .= "sgd_resource:$id a ".strtolower($exp_type)." .".PHP_EOL;
+			$buf .= QQuad("sgd_resource:$id","rdf:type",strtolower($exp_type));
 			
 			$this->GetMethodID($method,$oid,$type);
 			$id1 = str_replace(array("(",")"), array("",""), $id1);
 			$id2 = str_replace(array("(",")"), array("",""), $id2);
 			if($type == "protein") {$id1 = ucfirst(strtolower($id1))."p";$id2=ucfirst(strtolower($id2))."p";}
 			
-			$buf .= "sgd_resource:$id rdfs:label \"$htpORman ".substr($interaction_type,0,-1)." between $id1 and $id2 [sgd:$id]\".".PHP_EOL;
+			$buf .= QQuadL("sgd_resource:$id","rdfs:label","$htpORman ".substr($interaction_type,0,-1)." between $id1 and $id2 [sgd:$id]");
 			
-			
-			$buf .= "sgd_resource:$id sgd_vocabulary:bait sgd:$id1 .".PHP_EOL;
-			$buf .= "sgd_resource:$id sgd_vocabulary:hit sgd:$id2 .".PHP_EOL;
+			$buf .= QQuad("sgd_resource:$id","sgd_vocabulary:bait","sgd:$id1");
+			$buf .= QQuad("sgd_resource:$id","sgd_vocabulary:hit","sgd:$id2");
 			
 			$eid = $id."exp";
-			$buf .= "sgd_resource:$id sgd_vocabulary:method sgd_resource:$eid .".PHP_EOL;
-			$buf .= "sgd_resource:$eid a ".strtolower($oid)." .".PHP_EOL;
+			$buf .= QQuad("sgd_resource:$id","sgd_vocabulary:method","sgd_resource:$eid");
+			$buf .= QQuad("sgd_resource:$eid","rdf:type",strtolower($oid));
 			
 			if($phenotype) {
-				$buf .= "sgd_resource:$id a ".strtolower($exp_type)." .".PHP_EOL;
+				$buf .= QQuad("sgd_resource:$id","rdf:type",strtolower($exp_type));
 				$p = explode(":",$phenotype);
 				if(count($p) == 1) {
 					// straight match to observable
@@ -97,16 +95,16 @@ Contains interaction data incorporated into SGD from BioGRID (http://www.thebiog
 					// p[0] is the observable and p[1] is the qualifier
 					$observable = array_search($p[0], $searchlist['observable']);
 					$qualifier = array_search($p[1], $searchlist['qualifier']);
-					$buf .= "sgd_resource:$id sgd_vocabulary:qualifier ".strtolower($qualifier).".".PHP_EOL;
+					$buf .= QQuad("sgd_resource:$id","sgd_vocabulary:qualifier",strtolower($qualifier));
 				}
-				$buf .= "sgd_resource:$id sgd_vocabulary:phenotype ".strtolower($observable).".".PHP_EOL;
+				$buf .= QQuad("sgd_resource:$id","sgd_vocabulary:phenotype",strtolower($observable));
 			}
 
-			if($htpORman)  $buf .= "sgd_resource:$id sgd_vocabulary:throughput \"".($htpORman=="manually curated"?"manually curated":"high throughput")."\".".PHP_EOL;
+			if($htpORman)  $buf .= QQuadL("sgd_resource:$id","sgd_vocabulary:throughput",($htpORman=="manually curated"?"manually curated":"high throughput"));
 			$b = explode("|",$ref);
 			foreach($b AS $c) {
 				$d = explode(":",$c);
-				if($d[0]=="PMID") $buf .= "sgd_resource:$id sgd_vocabulary:article pubmed:$d[1] .".PHP_EOL;
+				if($d[0]=="PMID") $buf .= QQuad("sgd_resource:$id","sgd_vocabulary:article","pubmed:$d[1]");
 			}
 			/*
 			$buf .= "sgd:$id1 sgd:interactsWith sgd:$id2 .".PHP_EOL;

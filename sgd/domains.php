@@ -44,34 +44,19 @@ class SGD_DOMAINS {
 		while($l = fgets($this->_in,2048)) {
 			$a = explode("\t",$l);
 			
-
-			$id = $a[0];
-			$uid = '<http://bio2rdf.org/sgd:'.$id.'>';
-			
+			$id = "sgd:".$a[0]."p";
 			$domain = $domain_ns[$a[3]].":".$a[4];
-			$udomain = '<http://bio2rdf.org/'.$domain.'>';
+			$buf .= QQuad($id,'sgd_vocabulary:has-proper-part',$domain);
 
-			$did   = "did/$id/$a[4]";
-			$udid = '<http://bio2rdf.org/sgd:'.$did.'>';
+			$da = "sgd_resource:da_".$a[0]."p_$a[4]_$a[6]_$a[7]";
+			$buf .= QQuadL($da,'rdfs:label',"domain alignment between sgd:$id and $domain [$da]");
+			$buf .= QQuad($da,'rdf:type','sgd_vocabulary:DomainAlignment');
+			$buf .= QQuad($da,'sgd_vocabulary:query',$id);
+			$buf .= QQuad($da,'sgd_vocabulary:target',$domain);
+			$buf .= QQuadL($da,'sgd_vocabulary:query-start', $a[6]);
+			$buf .= QQuadL($da,'sgd_vocabulary:query-stop',$a[7]);
+			$buf .= QQuadL($da,'sgd_vocabulary:e-value',$a[8]);
 			
-			//uid ss:encodes udid
-			$buf .= "$uid sio:SIO_010078 $udid .".PHP_EOL;	
-			$buf .= "$udid a $udomain .".PHP_EOL;
-			$buf .= "$udid rdfs:label \"$domain domain encoded by [sgd:$id]\" .".PHP_EOL;
-			$buf .= "$udid a sgd_vocabulary:Domain .".PHP_EOL;
-
-			$da = "da/$id/$a[4]/$a[6]/$a[7]";
-			$uda = '<http://bio2rdf.org/sgd:'.$da.'>';
-			
-			$buf .= "$uda rdfs:label \"domain alignment between sgd:$id and $domain [sgd:$da]\" .".PHP_EOL;
-			$buf .= "$uda a sgd_vocabulary:DomainAlignment .".PHP_EOL;
-			$buf .= "$uda sgd_vocabulary:query $uid .".PHP_EOL;
-			$buf .= "$uda sgd_vocabulary:target $udomain .".PHP_EOL;
-			$buf .= "$uda sgd_vocabulary:query_start \"$a[6]\" .".PHP_EOL;
-			$buf .= "$uda sgd_vocabulary:query_stop \"$a[7]\" .".PHP_EOL;
-			$buf .= "$uda sgd_vocabulary:evalue \"$a[8]\" .".PHP_EOL;
-			$buf .= "$udid sio:SIO_000772 $uda .".PHP_EOL;
-			$buf .= "$uda sio:SIO_000773 $udid .".PHP_EOL;
 //echo $buf;exit;
 		}
 		fwrite($this->_out, $buf);
