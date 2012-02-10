@@ -64,15 +64,15 @@ AUT6	not physically mapped	AUT6	S000029048	PMID: 8663607|SGD_REF: S000057871	cla
 		$buf = N3NSHeader();		
 		while($l = fgets($this->_in,96000)) {
 			if(trim($l) == '') continue;		
-			$a = explode("\t",trim($l));
+			$a = explode("\t",$l);
+			
 					
 			$eid =  md5($a[3].$a[5].$a[6].$a[9]);
 			
 			$label = "$a[0] - $a[5] experiment with $a[6] resulting in phenotype of $a[9]";
-			$buf .= "sgd_resource:$eid rdfs:label \"$label [sgd_resource:$eid]\" .".PHP_EOL;
-			$buf .= "sgd_resource:$eid a sgd_vocabulary:Phenotype_Experiment .".PHP_EOL;
-			
-			$buf .= "sgd_resource:$eid sio:SIO_000132 sgd:$a[3].".PHP_EOL;
+			$buf .= QQuadL("sgd_resource:$eid","rdfs:label","$label [sgd_resource:$eid]");
+			$buf .= QQuad("sgd_resource:$eid","rdf:type","sgd_vocabulary:Phenotype_Experiment");
+			$buf .= QQuad("sgd_resource:$eid","sgd_vocabulary:has-participant","sgd:$a[3]");
 			
 			// reference
 			// PMID: 12140549|SGD_REF: S000071347
@@ -81,7 +81,7 @@ AUT6	not physically mapped	AUT6	S000029048	PMID: 8663607|SGD_REF: S000057871	cla
 				$d = explode(" ",$c);
 				if($d[0] == "PMID:") $ns = "pubmed";
 				else $ns = "sgd";
-				$buf .= "sgd_resource:$eid sio:SIO_000212 $ns:$d[1].".PHP_EOL;
+				$buf .= QQuad("sgd_resource:$eid","sgd_vocabulary:article","$ns:$d[1]");
 			}
 			
 			// experiment type [5]
@@ -89,31 +89,31 @@ AUT6	not physically mapped	AUT6	S000029048	PMID: 8663607|SGD_REF: S000057871	cla
 			if($p !== FALSE) {
 				$label = substr($a[5],0,$p-1);
 				$details = substr($a[5],$p+1);
-				$buf .= "sgd_resource:$eid dc:description \"$details\".".PHP_EOL;
+				$buf .= QQuadL("sgd_resource:$eid","dc:description",$details);
 			} else {
 				$label = $a[5];
 			}
 			$id = array_search($label, $searchlist['experiment_type']);	
 			if($id !== FALSE) 
-				$buf .= "sgd_resource:$eid sgd_vocabulary:experiment_type ".strtolower($id).".".PHP_EOL;
+				$buf .= QQuad("sgd_resource:$eid","sgd_vocabulary:experiment_type",strtolower($id));
 			else 
 				trigger_error("No match for experiment type $label");
 
 			// mutant type [6]
 			$id = array_search($a[6], $searchlist['mutant_type']);
 			if($id !== FALSE) 
-				$buf .= "sgd_resource:$eid sgd_vocabulary:mutant_type ".strtolower($id).".".PHP_EOL;
+				$buf .= QQuad("sgd_resource:$eid","sgd_vocabulary:mutant_type",strtolower($id));
 			
 			// phenotype  [9]
 			// presented as observable: qualifier
 			$b = explode(": ",$a[9]);
 			$id = array_search($b[0], $searchlist['observable']);
 			if($id !== FALSE) 
-				$buf .= "sgd_resource:$eid sgd_vocabulary:observable ".strtolower($id).".".PHP_EOL;
+				$buf .= QQuad("sgd_resource:$eid","sgd_vocabulary:observable",strtolower($id));
 			
 			$id = array_search($b[1], $searchlist['qualifier']);
 			if($id !== FALSE) 
-				$buf .= "sgd_resource:$eid sgd_vocabulary:qualifier ".strtolower($id).".".PHP_EOL;
+				$buf .= QQuad("sgd_resource:$eid","sgd_vocabulary:qualifier",strtolower($id));
 			
 /*
 7) Allele (Optional)    			-Allele name and description, if applicable
@@ -124,14 +124,14 @@ AUT6	not physically mapped	AUT6	S000029048	PMID: 8663607|SGD_REF: S000057871	cla
 13) Reporter (Optional) 			-The protein(s) or RNA(s) used in an experiment to track a process 
 */
 
-			if($a[7] != '') $buf .= "sgd_resource:$eid sgd_vocabulary:allele \"$a[7]\".".PHP_EOL;
-			if($a[8] != '') $buf .= "sgd_resource:$eid sgd_vocabulary:background \"$a[8]\".".PHP_EOL;
-			if($a[10] != '') $buf .= "sgd_resource:$eid sgd_vocabulary:chemical \"$a[10]\".".PHP_EOL;
-			if($a[11] != '') $buf .= "sgd_resource:$eid sgd_vocabulary:condition \"$a[11]\".".PHP_EOL;
-			if($a[12] != '') $buf .= "sgd_resource:$eid sgd_vocabulary:details \"".str_replace('"','\"',$a[12])."\".".PHP_EOL;
+			if(trim($a[7]) != '') $buf .= QQuadL("sgd_resource:$eid","sgd_vocabulary:allele",$a[7]);
+			if(trim($a[8]) != '') $buf .= QQuadL("sgd_resource:$eid","sgd_vocabulary:background",$a[8]);
+			if(trim($a[10]) != '') $buf .= QQuadL("sgd_resource:$eid","sgd_vocabulary:chemical",$a[10]);
+			if(trim($a[11]) != '') $buf .= QQuadL("sgd_resource:$eid","sgd_vocabulary:condition",$a[11]);
+			if(trim($a[12]) != '') $buf .= QQuadL("sgd_resource:$eid","sgd_vocabulary:details",str_replace('"','\"',$a[12]));
 			//if($a[13] != '') $buf .= "sgd:$eid sgd_vocabulary:reporter \"$a[13]\".".PHP_EOL;
 			
-		}		
+		}
 		fwrite($this->_out, $buf);
 		return 0;
 	}

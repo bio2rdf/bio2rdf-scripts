@@ -66,10 +66,10 @@ class SGD_PROTEIN {
 				$pid =  "$id"."_".$p["id"];
 				$type = $p["type"];
 				
-				$buf .= "sgd:$id sio:SIO_000557 sgd_resource:$pid .".PHP_EOL;
-				$buf .= "sgd_resource:$pid a sgd_vocabulary:$type .".PHP_EOL;
-				$buf .= "sgd_resource:$pid rdfs:label \"$type for sgd:$id [sgd_resource:$pid]\".".PHP_EOL;
-				$buf .= "sgd_resource:$pid sio:SIO_000300 \"$a[$i]\".".PHP_EOL;
+				$buf .= QQuad("sgd:$id","sgd_vocabulary:is-described-by","sgd_resource:$pid");
+				$buf .= QQuad("sgd_resource:$pid","rdf:type","sgd_vocabulary:$type");
+				$buf .= QQuadL("sgd_resource:$pid","rdfs:label","$type for sgd:$id [sgd_resource:$pid]");
+				$buf .= QQuadL("sgd_resource:$pid","sgd_vocabulary:has-value",$a[$i]);
 			}
 			//echo $buf;exit;
 		}

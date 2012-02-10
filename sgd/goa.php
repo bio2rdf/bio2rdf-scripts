@@ -27,11 +27,11 @@ class SGD_GOA {
 		
 		$goterms = array(
 			//Function, hasFunction
-			"F" => array("type" => "SIO_000017", "p" => "SIO_000225", "plabel" => "has function"),
+			"F" => array("type" => "SIO_000017", "p" => "SIO_000225", "plabel" => "has function", "sgd_vocabulary" => "has-function"),
 			//Location, isLocatedIn
-			"C" => array("type" => "SIO_000003", "p" => "SIO_000061", "plabel" => "is located in"),
+			"C" => array("type" => "SIO_000003", "p" => "SIO_000061", "plabel" => "is located in" , "sgd_vocabulary" => "is-located-in"),
 			//Process, isParticipantIn
-			"P" => array("type" => "SIO_000006", "p" => "SIO_000062", "plabel" => "is participant in")
+			"P" => array("type" => "SIO_000006", "p" => "SIO_000062", "plabel" => "is participant in", "sgd_vocabulary" => "is-participant-in")
 		);
 		
 		$z = 0;
@@ -40,34 +40,31 @@ class SGD_GOA {
 			$a = explode("\t",trim($l));
 
 			$id = $a[1]."gp";
-
 			$term = substr($a[4],3);
-			$goi = $id."_".$term;
-			$got = $goterms[$a[8]];
-
-			$buf .= "sgd_resource:$id sio:".$got['p']." sgd_resource:$goi .".PHP_EOL;
-			$buf .= "sgd_resource:$goi a go:$term .".PHP_EOL;
-			$buf .= "sgd_resource:$goi rdfs:label \"sgd_reource:$id ".$got['plabel']." go:$term \" .".PHP_EOL;
-			$buf .= "go:$term rdfs:subClassOf sio:".$got['type']." .".PHP_EOL;
 			
-			$goa = "goa_".($z++);
-			$buf .= "sgd_resource:$goa rdfs:label \"Evidence of ".strtolower($got['type'])." for sgd_resource:$id \".".PHP_EOL;
-			$buf .= "sgd_resource:$goa sio:SIO_000773 sgd:$goi .".PHP_EOL;
-			$buf .= "sgd_resource:$goi sio:SIO_000772 sgd:$goa .".PHP_EOL;
-
+			$subject   = "sgd_resource:$id";
+			$predicate = "sgd_vocabulary:".$goterms[$a[8]]['sgd_vocabulary'];
+			$object    = "go:".$term;
+			$buf .= QQuad($subject,$predicate,$object);
+			
+			// now for the GO annotation
+			$goa = "sgd_resource:goa_".$id."_".$term;
+			$buf .= QQuad($goa,"rdf:type","sgd_vocabulary:GOAnnotation");
+			$buf .= QQuad($goa,"rdf:subject",$subject);
+			$buf .= QQuad($goa,"rdf:predicate",$predicate);
+			$buf .= QQuad($goa,"rdf:object",$object);
 			if(isset($a[5])) {
 				$b = explode("|",$a[5]);
 				foreach($b as $c) {
 					$d = explode(":",$c);
 					if($d[0] == "pmid") {
-						$buf .= "sgd_resource:$goa sio:SIO_000212 pubmed:$d[1] .".PHP_EOL;
+						$buf .= QQuad($goa,"sgd_vocabulary:article","pubmed:$d[1]");
 					}
 				}
 			}
 			if(isset($a[6])) {
 				$code = MapECO($a[6]);
-				if($code) $buf .= "sgd_resource:$goa a eco:$code .".PHP_EOL;
-				else echo "No mapping for $a[6]".PHP_EOL;
+				if($code) $buf .= QQuad($goa,"sgd_vocabulary:evidence","eco:$code");
 			}
 			
 //			echo $buf;exit;
