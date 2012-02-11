@@ -5,14 +5,14 @@
 # download input file with chebi-wget.sh
 
 $path = shift;
-$path = "/media/twotb/bio2rdf/data/chebi";
+$path = "/home/jose/tmp/chebi";
 
 $max = 1000;
 $max = 10000000;
 
 Compound();
-Name();
-Chemical();
+#Name();
+#Chemical();
 
 exit;
 
@@ -36,14 +36,15 @@ sub Compound {
        		#print $ligne;
 
         	$ligne =~ / values \((.*?)\);/;
-        	#print "#$1#\n";
 		@fields = split(/,/,$1);
+        	#print "#$1#\n";
 
         	$nsid = "chebi:@fields[0]";
         	$bmuri = "http://bio2rdf.org/$nsid";
 		$source = @fields[2];
         	$source =~ s/ /_/g;
-
+        	print $bmuri."\n";
+=head
 print <<EOF;
 <$bmuri> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://bio2rdf.org/chebi#Compound> .
 <$bmuri> <http://purl.org/dc/elements/1.1/identifier> "$nsid" .
@@ -56,7 +57,7 @@ print <<EOF;
 <$bmuri> <http://purl.org/dc/elements/1.1/modified> "@fields[7]" .
 
 EOF
-
+=cut
 	}
 	close(ENTREE);
 }
