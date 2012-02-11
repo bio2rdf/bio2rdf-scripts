@@ -29,14 +29,14 @@ class SGD_COMPLEX {
 			$a = explode("\t",trim($l));
 			
 			$b = explode("/",$a[0]);
-			$id = $b[count($b)-1];
-			$buf .= "sgd:$id rdfs:label \"$b[0] [sgd:$id]\" .".PHP_EOL;
-			$buf .= "sgd:$id a sgd_vocabulary:Complex .".PHP_EOL;
+			$id = "sgd:".$b[count($b)-1];
+			$buf .= QQuadL($id,'rdfs:label', "$b[0] [sgd:$id]");
+			$buf .= QQuad($id, 'rdf:type',"sgd_vocabulary:Complex");
 			
 			$b = explode("/|",$a[1]);
 			foreach($b AS $c) {
 				$d = explode("/",$c);
-				$buf .= "sgd:$id sio:SIO_000053 sgd_resource:$d[3]"."gp .".PHP_EOL;
+				$buf .= QQuad($id,'sgd_vocabulary:has-proper-part',"sgd_resource:$d[3]gp");
 			}
 			
 			//echo $buf;exit;

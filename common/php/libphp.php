@@ -38,7 +38,7 @@ $gns = array(
 );
 
 // valid dataset namespaces
-$gdataset_ns = array('afcs', 'apo','bind','biogrid','blastprodom','candida','cas','chebi','coil','ctd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscraf','flybase','fprintscan','kegg','gene3d','germonline','go','gp','grid','hmmsmart','hmmpanther','hmmpfam','hmmpir','hmmtigr','iubmb','intact','ipi','irefindex','mesh','metacyc','mi','mint','mips','geneid','refseq','omim','ophid','patternscan','pato','pharmgkb','pir','prf','profilescan','pdb','pubmed','pubchem','seg','sgd','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','uniparc','uniprot','uo','registry','registry_dataset');
+$gdataset_ns = array('afcs', 'apo','bind','biogrid','blastprodom','candida','cas','chebi','coil','ctd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','germonline','go','gp','grid','smart','panther','pfam','pir','tigr','iubmb','intact','ipi','irefindex','mesh','metacyc','mi','mint','mips','geneid','ncbi','refseq','omim','ophid','patternscan','pato','pharmgkb','pir','prf','profilescan','pdb','pubmed','pubchem','reactome','seg','sgd','snomedct','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo','registry','registry_dataset');
 	
 // add the valid namespaces to the global namespace array
 foreach($gdataset_ns AS $ns) {
@@ -57,6 +57,65 @@ function N3NSHeader()
 	}
 	return $buf;
 }
+
+/** Generate an n-triple statement */
+function QQuad($subject, $predicate, $object, $graph = null)
+{
+	global $gns;
+	$s = explode(":",$subject);
+	$p = explode(":",$predicate);
+	$o = explode(":",$object);
+	
+	if(!isset($gns[$s[0]])) {trigger_error("Invalid subject qname ".$s[0]); exit;}
+	if(!isset($gns[$p[0]])) {trigger_error("Invalid predicte qname ".$p[0]); exit;}
+	if(!isset($gns[$o[0]])) {trigger_error("Invalid object qname ".$o[0]); exit;}
+	
+	return Quad($gns[$s[0]].$s[1], $gns[$p[0]].$p[1], $gns[$o[0]].$o[1]);	
+}
+
+function QQuadL($subject, $predicate, $literal, $lang = null, $graph = null) 
+{
+	global $gns;
+	$s = explode(":",$subject);
+	$p = explode(":",$predicate);
+	
+	if(!isset($gns[$s[0]])) {trigger_error("Invalid subject qname ".$s[0]); exit;}
+	if(!isset($gns[$p[0]])) {trigger_error("Invalid predicte qname ".$s[0]); exit;}
+	
+	return QuadLiteral($gns[$s[0]].$s[1], $gns[$p[0]].$p[1], $literal, $lang, $graph);	
+}
+
+function Quad($subject_uri, $predicate_uri, $object_uri, $graph_uri = null)
+{
+	return "<$subject_uri> <$predicate_uri> <$object_uri> ".(isset($graph_uri)?"<$graph_uri>":"")." .".PHP_EOL;
+}
+
+function QuadLiteral($subject_uri, $predicate_uri, $literal, $lang = null, $graph_uri = null)
+{
+	return "<$subject_uri> <$predicate_uri> \"$literal\"".(isset($lang)?"@$lang ":' ').(isset($graph_uri)?"<$graph_uri>":"")." .".PHP_EOL;
+}
+
+function GetFQURI($qname)
+{
+	global $gns;
+	$q = explode(":",$qname);
+	if(isset($gns[$q[0]])) return $gns[$q[0]].$q[1];
+	trigger_error("Unable to get FQURI for qname $qname");
+	exit;
+}
+
+function ParseQNAME($string,&$ns,&$id)
+{
+	$a = explode(":",$string);
+	if(count($a) == 1) {
+		$id = $string;
+	} else {
+		$ns = strtolower($a[0]);
+		$id = $a[1];
+	}
+	return true;
+}
+
 
 /** to download files */
 function DownloadFiles($host, $files, $ldir)
@@ -211,14 +270,13 @@ function SetCMDlineOptions($argv, &$options)
 	foreach($argv AS $value) {
 		list($key,$value) = explode("=",$value);
 		if(!isset($options[$key])) {
-			echo 'invalid parameter "'.$key.'"'.PHP_EOL;
+			echo "ERROR: invalid parameter - $key".PHP_EOL;
 			return FALSE;
 		}
 		if($value == '') {
-			echo 'value not properly set'.PHP_EOL;
+			echo "ERROR: no value for mandatory parameter $key".PHP_EOL;
 			return FALSE;
 		}
-		
 		$myargs[$key] = $value;
 	}
 
@@ -226,9 +284,19 @@ function SetCMDlineOptions($argv, &$options)
 	foreach($options AS $key => $a) {
 		if(isset($myargs[$key])) {
 			// use the supplied value
+			
+			// first check that it is a valid choice
+			if($options[$key]['list']) {
+				$m = explode('|',$options[$key]['list']);
+				if(!in_array($myargs[$key],$m)) {
+					echo "ERROR: input for $key parameter does not match any of the listed options".PHP_EOL;
+					return FALSE;
+				}
+			}
+			
 			$options[$key]['value'] = $myargs[$key];
 		} else if(!isset($myargs[$key]) && $options[$key]['mandatory']) {
-			echo $key.' is a mandatory argument!'.PHP_EOL;
+			echo "ERROR: $key is a mandatory argument!".PHP_EOL;
 			return FALSE;
 		} else {
 			// use the default
@@ -280,5 +348,21 @@ function PrintCMDlineOptions($argv, $options)
 	}
 	return TRUE;
 }
+
+
+function error_handler($level, $message, $file, $line, $context) {
+    //Handle user errors, warnings, and notices ourself	
+    if($level === E_USER_ERROR || $level === E_USER_WARNING || $level === E_USER_NOTICE) {
+		debug_print_backtrace();
+       
+        return(true); //And prevent the PHP error handler from continuing
+    }
+    return(false); //Otherwise, use PHP's error handler
+}
+
+
+
+//Use our custom handler
+set_error_handler('error_handler');
 
 ?>

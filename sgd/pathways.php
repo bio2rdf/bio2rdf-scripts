@@ -44,40 +44,40 @@ publication    [4] => PMID:2072900
 
 			if(!isset($e[$pid])) {
 				$e[$pid] = '1';
-				$buf .= "sgd_resource:$pid rdfs:label \"$a[0] [sgd_resource:$pid]\" .".PHP_EOL;
-				$buf .= "sgd_resource:$pid dc:title \"$a[0]\" .".PHP_EOL;
+				$buf .= QQuadL("sgd_resource:$pid","rdfs:label","$a[0] [sgd_resource:$pid]");
+				$buf .= QQuadL("sgd_resource:$pid","dc:title",$a[0]);
 
-				if(!$sp) $buf .= "sgd_resource:$pid a sgd_vocabulary:Pathway .".PHP_EOL;
-				else $buf .= "sgd_resource:$pid a sgd_vocabulary:Superpathway .".PHP_EOL;
+				if(!$sp) $buf .= QQuad("sgd_resource:$pid","rdf:type","sgd_vocabulary:Pathway");
+				else $buf .= QQuad("sgd_resource:$pid","rdf:type","sgd_vocabulary:Superpathway");
 			}
 			if($sp) { // add the pathway to the superpathway
 				$pathway = substr($a[1],0,-(strlen($a[1])-strrpos($a[1]," ")));
-				$buf .= "sgd_resource:$pid sio:SIO_000053 sgd:".md5($pathway).".".PHP_EOL;
+				$buf .= QQuad("sgd_resource:$pid","sgd_vocabulary:has-proper-part","sgd:".md5($pathway));
 				continue;
 			}
 
 			$eid = '';
 			if($a[3]) { // there is a protein
 				$eid = ucfirst(strtolower($a[3]))."p";
-				$buf .= "sgd_resource:$pid sio:SIO_000132 <http://bio2rdf.org/sgd_resource:$eid>.".PHP_EOL; 
+				$buf .= QQuad("sgd_resource:$pid","sgd_vocabulary:has-participant", "sgd_resource:$eid");
 			}				
 			$cid = '';
 			if($a[1]) { // enzyme complex
 				$cid = md5($a[1]);
 				if(!isset($e[$cid])) {
 					$e[$cid] = $cid;
-					$buf .= "sgd_resource:$cid rdfs:label \"$a[1] [sgd_resource:$cid]\".".PHP_EOL;
-					$buf .= "sgd_resource:$cid a sgd_vocabulary:Enzyme .".PHP_EOL;
+					$buf .= QQuadL("sgd_resource:$cid","rdfs:label","$a[1] [sgd_resource:$cid]");
+					$buf .= QQuad("sgd_resource:$cid","rdf:type","sgd_vocabulary:Enzyme");
 				}
-				$buf .= "sgd_resource:$pid sio:SIO_000132 <http://bio2rdf.org/sgd_resource:$cid>.".PHP_EOL;
-				if($eid) $buf .= "sgd_resource:$cid sio:SIO_000053 <http://bio2rdf.org/sgd_resource:$eid> .".PHP_EOL;	
+				$buf .= QQuad("sgd_resource:$pid","sgd_vocabulary:has-participant","sgd_resource:$cid");
+				if($eid) $buf .= QQuad("sgd_resource:$cid","sgd_vocabulary:has-proper-part","sgd_resource:$eid");
 			}
 			if($a[2]) { // EC reaction
-				$buf .= "sgd_resource:$pid sio:SIO_000053 ec:$a[2] .".PHP_EOL;
-				$buf .= "ec:$a[2] rdfs:label \"$a[2] [ec:$a[2]]\" .".PHP_EOL;
-				$buf .= "ec:$a[2] a sgd_vocabulary:Reaction .".PHP_EOL;
-				$buf .= "ec:$a[2] sio:SIO_000132 <http://bio2rdf.org/sgd:$eid>.".PHP_EOL;
-				if($cid) $buf .= "ec:$a[2] sio:SIO_000132 <http://bio2rdf.org/sgd_resource:$cid> .".PHP_EOL;				
+				$buf .= QQuad("sgd_resource:$pid","sgd_vocabulary:has-proper-part","ec:$a[2]");
+				$buf .= QQuadL("ec:$a[2]","rdfs:label","$a[2] [ec:$a[2]]");
+				$buf .= QQuad("ec:$a[2]","rdf:type","sgd_vocabulary:Reaction");
+				$buf .= QQuad("ec:$a[2]","sgd_vocabulary:has-participant","sgd:$eid");
+				if($cid) $buf .= QQuad("ec:$a[2]","sgd_vocabulary:has-participant","sgd_resource:$cid");
 			}
 	
 			if(trim($a[4]) != '') { // publications
@@ -86,7 +86,7 @@ publication    [4] => PMID:2072900
 					$d = explode(":",$c);
 					$ns = "sgd";
 					if($d[0] == "PMID") $ns = "pubmed";
-					$buf .= "sgd_resource:$pid sio:SIO_000212 $ns:$d[1].".PHP_EOL;
+					$buf .= QQuad("sgd_resource:$pid","sgd_vocabulary:article","$ns:$d[1]");
 				}
 			}
 

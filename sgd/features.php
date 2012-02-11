@@ -52,19 +52,19 @@ class SGD_FEATURES {
 			$id =urlencode($id);	
 
 //if($z++ == 100) {echo $buf;$buf = '';}
-			$buf .= "sgd:record_$id dc:identifier \"sgd:record_$id\" .".PHP_EOL;
-			$buf .= "sgd:record_$id dc:title \"Record for entity identified by sgd:$id\" .".PHP_EOL;
-			$buf .= "sgd:record_$id rdfs:label \"Record for entity identified by sgd:$id [sgd:record_$id]\" .".PHP_EOL;
-			$buf .= "sgd:record_$id a sio:Record .".PHP_EOL;
-			$buf .= "sgd:record_$id sio:SIO_000332 sgd:$id .".PHP_EOL;
-			$buf .= "sgd:record_$id sio:SIO_000068 registry_dataset:sgd .".PHP_EOL;
+			$buf .= QQuadL("sgd_resource:record_$id",'dc:identifier',"sgd:record_$id");
+			$buf .= QQuadL("sgd_resource:record_$id","dc:title","Record for entity identified by sgd:$id");
+			$buf .= QQuadL("sgd_resource:record_$id","rdfs:label","Record for entity identified by sgd:$id [sgd:record_$id]");
+			$buf .= QQuad("sgd_resource:record_$id","rdf:type","sio:Record");
+			$buf .= QQuad("sgd_resource:record_$id","sio:is-about", "sgd:$id");
+			$buf .= QQuad("registry_dataset:sgd","sio:has-component-part","sgd_resource:record_$id");
 
 						
-			$buf .= "sgd:$id dc:identifier \"sgd:$oid\" .".PHP_EOL;
-			$buf .= "sgd:$id rdfs:label \"$a[1] [sgd:$id]\" .".PHP_EOL;
-			if($a[15]) $buf .= "sgd:$id dc:description ".'"""'.trim($a[15]).'""" .'.PHP_EOL;
+			$buf .= QQuadL("sgd:$id","dc:identifier","sgd:$oid");
+			$buf .= QQuadL("sgd:$id","rdfs:label","$a[1] [sgd:$id]");
+			if($a[15]) $buf .= QQuadL("sgd:$id","dc:description",'""'.trim($a[15]).'""');
 			$feature_type = $this->GetFeatureType($a[1]);
-			$buf .= "sgd:$id a ".strtolower($feature_type).". ".PHP_EOL;
+			$buf .= QQuad("sgd:$id","rdf:type",strtolower($feature_type));
 
 			unset($type);
 			if($a[1] == "ORF") $type = "p";
@@ -73,54 +73,54 @@ class SGD_FEATURES {
 			if(isset($type)) {
 				unset($p1);unset($p2);
 				$gp = 'sgd_resource:'.$id."gp";
-				$buf .= "sgd:$id sio:SIO_010078 $gp.".PHP_EOL;
-				$buf .= "<http://bio2rdf.org/$gp> rdfs:label \"$id"."gp [$gp]\".".PHP_EOL;
-				if($type == "p") $buf .= "<http://bio2rdf.org/$gp> a chebi:36080 .".PHP_EOL;
-				elseif($type == "r") $buf .= "<http://bio2rdf.org/$gp> a chebi:33697 .".PHP_EOL;
+				$buf .= QQuad("sgd:$id","sgd_vocabulary:encodes",$gp);
+				$buf .= QQuadL($gp,'rdfs:label',"$id"."gp [$gp]");
+				if($type == "p") $buf .= QQuad($gp,'rdf:type','sgd_vocabulary:Protein'); 
+				elseif($type == "r") $buf .= QQuad($gp,'rdf:type','sgd_vocabulary:RNA'); 
 
 				if($a[1] == "ORF" && $a[3] != '') {
 					$p1 = ucfirst(strtolower(str_replace(array("(",")"), array("%28","%29"), $a[3])))."p";
-					$buf .= "sgd:$id sio:SIO_010078 <http://bio2rdf.org/sgd:$p1>.".PHP_EOL;
-					$buf .= "<http://bio2rdf.org/sgd:$p1> owl:sameAs <http://bio2rdf.org/$gp>.".PHP_EOL;
-					$buf .= "<http://bio2rdf.org/sgd:$p1> rdfs:label \"$p1 [sgd:$p1]\".".PHP_EOL;
-					$buf .= "<http://bio2rdf.org/sgd:$p1> a chebi:36080 .".PHP_EOL;
+					$buf .= QQuad("sgd:$id","sgd_vocabulary:encodes","sgd:$p1");
+					$buf .= QQuad("sgd:$p1","owl:sameAs","$gp");
+					$buf .= QQuadL("sgd:$p1","rdfs:label","$p1 [sgd:$p1]");
+					$buf .= QQuad("sgd:$p1","rdf:type","sgd_vocabulary:Protein");
 				}
 				if($a[1] == "ORF" && $a[4] != '') {
 					$p2 = ucfirst(strtolower(str_replace(array("(",")"), array("%28","%29"), $a[4])))."p";
-					$buf .= "sgd:$id sio:SIO_010078 <http://bio2rdf.org/sgd:$p2>.".PHP_EOL;
-					$buf .= "<http://bio2rdf.org/sgd:$p2> owl:sameAs <http://bio2rdf.org/$gp>.".PHP_EOL;
-					$buf .= "<http://bio2rdf.org/sgd:$p2> rdfs:label \"$p2 [sgd:$p2]\".".PHP_EOL;
-					$buf .= "<http://bio2rdf.org/sgd:$p2> a chebi:36080 .".PHP_EOL;
+					$buf .= QQuad("sgd:$id","sgd_vocabulary:encodes","sgd:$p2");
+					$buf .= QQuad("sgd:$p2","owl:sameAs","$gp");
+					$buf .= QQuadL("sgd:$p2","rdfs:label","$p2 [sgd:$p2]");
+					$buf .= QQuad("sgd:$p2","rdf:type","sgd_vocabulary:Protein");
 				}
 				if(isset($p1) && isset($p2)) 
-					$buf .= "<http://bio2rdf.org/sgd:$p1> owl:sameAs <http://bio2rdf.org/sgd:$p2>.".PHP_EOL;
+					$buf .= QQuad("sgd:$p1","owl:sameAs","sgd:$p2");
 			}
 
 			// feature qualifiers (uncharacterized, verified, silenced_gene, dubious)
 			if($a[2]) {
 				$qualifiers = explode("|",$a[2]);
 				foreach($qualifiers AS $q) {
-					$buf .= "sgd:$id sgd:status \"$q\" .".PHP_EOL;
+					$buf .= QQuadL("sgd:$id","sgd_vocabulary:status",$q);
 				}
 			}
 			
 			// unique feature name
 			if($a[3]) {
-				$buf .= "sgd:$id skos:prefLabel \"$a[3]\".".PHP_EOL;
-				$nid = str_replace(array("(",")"), array("%28","%29"), $a[3]);
-				$buf .= "sgd:$id owl:sameAs <http://bio2rdf.org/sgd:$nid> .".PHP_EOL;
+				$buf .= QQuadL("sgd:$id","sgd_vocabulary:prefLabel",$a[3]);
+				$nid = str_replace(array("(",")"), array("%28","%29"),$a[3]);
+				$buf .= QQuad("sgd:$id","owl:sameAs","sgd:$nid");
 			}
 			
 			// common names
 			if($a[4]) {
-				$buf .= "sgd:$id sgd:standardName \"$a[4]\".".PHP_EOL;
+				$buf .= QQuadL("sgd:$id","sgd_vocabulary:standardName",$a[4]);
 				$nid = str_replace(array("(",")"), array("%28","%29"), $a[4]);
-				$buf .= "sgd:$id owl:sameAs <http://bio2rdf.org/sgd:$nid>.".PHP_EOL;
+				$buf .= QQuad("sgd:$id","owl:sameAs","sgd:$nid");
 			}
 			if($a[5]) {
 				$b = explode("|",$a[5]);
 				foreach($b AS $name) {
-					$buf .= "sgd:$id sgd:alias \"".str_replace('"','',$name)."\".".PHP_EOL;
+					$buf .= QQuadL("sgd:$id","sgd_vocabulary:alias",str_replace('"','',$name));
 				}
 			}
 			// parent feature
@@ -129,13 +129,13 @@ class SGD_FEATURES {
 				$parent = str_replace(array("(",")"," "), array("%28","%29","_"), $a[6]);
 //				$parent = urlencode($a[6]);
 
-				$buf .= "sgd:$id sio:SIO_000068 <http://bio2rdf.org/sgd:$parent> .".PHP_EOL;
+				$buf .= QQuad("sgd:$id","sgd_vocabulary:is-proper-part-of","sgd_resource:$parent");
 				if(strstr($parent,"chromosome")) {
 					$parent_type = 'c';
 					if(!isset($chromosomes[$parent])) $chromosomes[$parent] = '';
 					else {
-						$other .= "sgd:$parent a so:0000340 .".PHP_EOL;
-						$other .= "sgd:$parent rdfs:label \"$a[6]\" .".PHP_EOL;
+						$other .= QQuad("sgd_resource:$parent","rdf:type","sgd_vocabulary:Chromosome");
+						$other .= QQuadL("sgd_resource:$parent","rdfs:label",$a[6]);
 					}
 				}
 			}
@@ -144,7 +144,7 @@ class SGD_FEATURES {
 				if($a[3]) {
 					$b = explode("|",$a[7]);
 					foreach($b AS $c) {
-						$buf .= "sgd:$id owl:sameAs sgd:$c.".PHP_EOL;
+						$buf .= QQuad("sgd:$id","owl:sameAs","sgd:$c");
 					}
 				}
 			}
@@ -152,7 +152,7 @@ class SGD_FEATURES {
 			unset($chr);
 			if($a[8] && $parent_type != 'c') {
 				$chr = "chromosome_".$a[8];
-				$buf .= "sgd:$id sio:SIO_000068 sgd:$chr .".PHP_EOL;
+				$buf .= QQuad("sgd:$id","sgd_vocabulary:is-proper-part-of","sgd_resource:$chr");
 			}
 			// watson or crick strand of the chromosome
 			unset($strand);
@@ -160,40 +160,43 @@ class SGD_FEATURES {
 				$chr = "chromosome_".$a[8];
 				$strand_type = ($a[11]=="w"?"WatsonStrand":"CrickStrand");
 				$strand = $chr."_".$strand_type;
-				$buf .= "sgd:$id sio:SIO_000068 sgd_resource:$strand .".PHP_EOL;
+				$buf .= QQuad("sgd:$id","sgd_vocabulary:is-proper-part-of","sgd_resource:$strand");
 				if(!isset($strands[$strand])) {
 					$strands[$strand] = '';
-					$other .= "sgd_resource:$strand a sgd_vocabulary:$strand_type .".PHP_EOL;
-					$other .= "sgd_resource:$strand rdfs:label \"$strand_type for $chr\" .".PHP_EOL;
-					$other .= "sgd_resource:$strand sgd:SIO_000068 sgd_resource:$chr .".PHP_EOL;
+					$other .= QQuad("sgd_resource:$strand","rdf:type","sgd_vocabulary:$strand_type");
+					$other .= QQuadL("sgd_resource:$strand","rdfs:label","$strand_type for $chr");
+					$other .= QQuad("sgd_resource:$strand","sgd_vocabulary:is-proper-part-of","sgd_resource:$chr");
 				}
 			}
 			
 			// position
 			if($a[9]) {
 				$loc = $id."loc";
-				$buf .= "sgd:$id sgd:location sgd_resource:$loc .".PHP_EOL;
-				$buf .= "sgd_resource:$loc dc:identifier \"sgd_resource:$loc\" .".PHP_EOL;
-				$buf .= "sgd_resource:$loc rdfs:label \"Genomic location of sgd:$id\" .".PHP_EOL;
-				$buf .= "sgd_resource:$loc a sgd_vocabulary:Location .".PHP_EOL;
-				$buf .= "sgd_resource:$loc sgd_vocabulary:hasStartPosition \"$a[9]\" .".PHP_EOL;
-				$buf .= "sgd_resource:$loc sgd_vocabulary:hasStopPosition \"$a[10]\" .".PHP_EOL;
-				if(isset($chr)) $buf .= "sgd_resource:$loc sgd_vocabulary:chromosome sgd_resource:$chr.".PHP_EOL;
-				if(isset($strand)) $buf .= "sgd_resource:$loc sgd_vocabular:strand sgd_resource:$strand.".PHP_EOL;
+				$buf .= QQuad("sgd:$id","sgd_vocabulary:location","sgd_resource:$loc");
+				$buf .= QQuadL("sgd_resource:$loc","dc:identifier","sgd_resource:$loc");
+				$buf .= QQuadL("sgd_resource:$loc","rdfs:label","Genomic location of sgd:$id");
+				$buf .= QQuad("sgd_resource:$loc","rdf:type","sgd_vocabulary:Location");
+				$buf .= QQuadL("sgd_resource:$loc","sgd_vocabulary:has-start-position",$a[9]);
+				$buf .= QQuadL("sgd_resource:$loc","sgd_vocabulary:has-stop-position",$a[10]);
+				if(isset($chr)) $buf .= QQuad("sgd_resource:$loc","sgd_vocabulary:chromosome","sgd_resource:$chr");
+				if(isset($strand)) $buf .= QQuad("sgd_resource:$loc","sgd_vocabulary:strand","sgd_resource:$strand");
+				/*
 				if($a[13]) {
 					$b = explode("|",$a[13]);
 					foreach($b AS $c) {
-						$buf .= "sgd_resource:$loc sgd_vocabulary:modified \"$c\" .".PHP_EOL;
+						$buf .= QQuadL("sgd_resource:$loc","sgd_vocabulary:modified",$c);
 					}
 				}
+				*/
 			}
+			/*
 			if($a[14]) {
 				$b = explode("|",$a[14]);
 				foreach($b AS $c) {
-					$buf .= "sgd_resource:record_$id sgd_vocabulary:modified \"$c\" .".PHP_EOL;
+					$buf .= QQuadL("sgd_resource:record_$id","sgd_vocabulary:modified",$c);
 				}
 			}
-			
+			*/
 		}
 		fwrite($this->_out, $buf.$other);
 		

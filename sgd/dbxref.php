@@ -85,7 +85,7 @@ TCDB	TC number
 					break;
 				case "NCBI":
 					if($type == "DNA accession ID") {$ns='ncbi'; $rel=$sameas;  break;}
-					if($type == "Gene ID") {$ns='entrez_gene';$rel=$sameas;break;}
+					if($type == "Gene ID") {$ns='geneid';$rel=$sameas;break;}
 					if($type == "NCBI protein GI") {$ns='ncbi';$rel=$sameas;$suf='gp';break;}
 					if($type == "RefSeq Accession") {$ns='refseq';$rel=$sameas;$suf='gp';break;}
 					if($type == "RefSeq protein version ID") {$ns='refseq';$rel=$sameas;$suf='gp';break;}
@@ -98,10 +98,10 @@ TCDB	TC number
 			if($rel) {
 				if($suf == 'gp'){
 					//if the entity is not an sgd entity but a bio2rdf sgd entity, use the sgd_resource namespace
-					$buf .= "sgd_resource:$sgdid$suf $rel $ns:$id .".PHP_EOL;
+					$buf .= QQuad("sgd_resource:$sgdid$suf",$rel, "$ns:$id");
 				} else {
 					//otherwise use the sgd namespace
-					$buf .= "sgd:$sgdid$suf $rel $ns:$id .".PHP_EOL;
+					$buf .= QQuad("sgd:$sgdid$suf", $rel, "$ns:$id");
 				}
 			}
 			//echo $buf;exit;
