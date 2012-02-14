@@ -40,9 +40,9 @@ $parser = new PHPSQLParser();
 /** Funciton Calls **/
 /********************/
 
-/*parse_name_sql_file($names_path);
+parse_name_sql_file($names_path);
 parse_chemical_data_sql_file($chemical_path);
-parse_compound_sql_file($compound_path);*/
+parse_compound_sql_file($compound_path);
 parse_relations_sql_file($relations_path);
 
 /***************/
