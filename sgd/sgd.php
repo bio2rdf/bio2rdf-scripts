@@ -33,7 +33,7 @@ require_once(dirname(__FILE__).'/../common/php/libphp.php');
 $options = null;
 AddOption($options, 'indir', null, '/data/download/sgd/', false);
 AddOption($options, 'outdir',null, '/data/rdf/sgd/', false);
-AddOption($options, 'files','all|dbxref|features|domains|protein|goa|goslim|complex|interaction|phenotype|pathways','',true);
+AddOption($options, 'files','all|dbxref|features|domains|protein|goa|goslim|complex|interaction|phenotype|pathways|mapping','',true);
 AddOption($options, 'remote_base_url',null,'http://downloads.yeastgenome.org/', false);
 AddOption($options, 'ncbo_api_key',null,'24e19c82-54e0-11e0-9d7b-005056aa3316', false);
 AddOption($options, 'download','true|false','false', false);
@@ -70,13 +70,14 @@ $remote_files = array(
  "phenotype"   => "curation/literature/phenotype_data.tab",
  "pathways"    => "curation/literature/biochemical_pathways.tab",
 // "psiblast"    => "genomics/homology/psi_blast/psi_blast.tab.gz",
-
+ "mapping"     => "mapping"
  );
 
 // download the files
 if($options['download']['value'] == 'true') {
   foreach($files AS $file) {
-	$myfiles[] = $remote_files[$file];
+	if($file != 'mapping') 
+		$myfiles[] = $remote_files[$file];
   }
   DownloadFiles($options['remote_base_url']['value'],$myfiles,$options['indir']['value']);
 }
