@@ -1,9 +1,10 @@
 # omim-wget.sh
 # ftp://ftp.ncbi.nih.gov/repository/OMIM/
+set -e
 
-cd /bio2rdf/data/omim
-rm -rf /bio2rdf/data/omim/*
+DOWNLOAD_DIR=$1
 
-wget ftp://ftp.ncbi.nih.gov/repository/OMIM/*  --output-file=omim-wget.log
+cd $DOWNLOAD_DIR
+rm -rf $DOWNLOAD_DIR/*
 
-gunzip omim.txt.Z
+wget ftp://ftp.ncbi.nih.gov/repository/OMIM/* --recursive --output-file=omim-wget.log

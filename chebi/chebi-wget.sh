@@ -1,6 +1,9 @@
 # chebi-wget.sh
+set -e
 
-cd /bio2rdf/data/chebi
+DOWNLOAD_DIR=$1
+
+cd $DOWNLOAD_DIR
 
 rm -rf /bio2rdf/data/chebi/*
 
