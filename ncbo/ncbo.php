@@ -114,13 +114,27 @@ function OBO2TTL($indir,$outdir,$file)
  $buf .= QQuadL($ouri,"rdfs:label","$ontology ontology");
  $buf .= QQuad($ouri,"sio:is-encoded-by",$furi);
   
+ $tid = '';
+ $first = true;
+ $is_a = false;
  $min = $buf;
  while($l = fgets($in)) {
 	$lt = trim($l);
 	if(strlen($lt) == 0) continue;
 	if($lt[0] == '!') continue;
 	
-	if(strstr($l,"[Term]")) {
+	if(strstr($l,"[Term]")) {	
+		// top level node?
+		if($first == true) { // ignore the first case
+			$first = false;
+		} else {
+			if($tid != '' && $is_a == false) {
+				$t = QQuad($tid,"rdfs:subClassOf","bio2rdf_resource:top-level-entity");
+				$buf .= $t;
+				$min .= $t;
+			}
+		}
+	
 		unset($typedef);
 		$term = '';
 		$tid = '';
@@ -235,7 +249,7 @@ function OBO2TTL($indir,$outdir,$file)
 				
 				$a[1] = str_replace('"','',stripslashes($a[1]));
 				$rel = "SYNONYM";
-				$list = array("EXACT","BROAD","RELATED");
+				$list = array("EXACT","BROAD","RELATED","NARROW");
 				$found = false;
 				foreach($list AS $keyword) {
 				  // get everything after the keyword up until the bracket [
@@ -267,8 +281,6 @@ function OBO2TTL($indir,$outdir,$file)
 					// so take from the start to the bracket
 					$b1_pos = strrpos($a[1],"[");
 					$str = substr($a[1],0,$b1_pos-1);
-					
-					echo $str;exit;
 				 } 
 				   
 				$rel = str_replace(" ","_",$rel);
@@ -295,6 +307,7 @@ function OBO2TTL($indir,$outdir,$file)
 				$t = QQuad($tid,"rdfs:subClassOf","$ns:$id");
 				$buf .= $t;
 				$min .= $t;
+				$is_a = true;
 			} 
 			if($a[0] == "intersection_of") {
 				// generate a blank node
