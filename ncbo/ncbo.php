@@ -31,6 +31,7 @@ AddOption($options, 'exclude',null,'gaz.obo',false);
 AddOption($options, 'ncbo_api_key',null,'24e19c82-54e0-11e0-9d7b-005056aa3316', false);
 AddOption($options, 'download','true|false','false',false);
 AddOption($options, 'overwrite','true|false','true',false);
+AddOption($options, 'minimal','true|false','false',false);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
 AddOption($options, USE_CONF_FILE,'true|false','false', false);
 
@@ -74,7 +75,7 @@ if($options['files']['value']  != 'all') {
 
 function OBO2TTL($indir,$outdir,$file)
 {
- global $gns;
+ global $gns, $options;
  
  $infile = $indir.$file;
  $outfile = $outdir.$file.'.ttl';
@@ -112,7 +113,8 @@ function OBO2TTL($indir,$outdir,$file)
  $buf .= QQuad($ouri,"rdf:type","owl:Ontology");
  $buf .= QQuadL($ouri,"rdfs:label","$ontology ontology");
  $buf .= QQuad($ouri,"sio:is-encoded-by",$furi);
-
+  
+ $min = $buf;
  while($l = fgets($in)) {
 	$lt = trim($l);
 	if(strlen($lt) == 0) continue;
@@ -184,11 +186,14 @@ function OBO2TTL($indir,$outdir,$file)
 				$buf .= QQuadL($tid,"dc:identifier",$tid);
 			}
 			if($a[0] == "name") {
-				$buf .= QQuadL($tid,"rdfs:label",addslashes(stripslashes($a[1]))." [$tid]");
+			    $t = QQuadL($tid,"rdfs:label",addslashes(stripslashes($a[1]))." [$tid]");
+				$min .= $t;
+				$buf .= $t;
 			}
 			if($a[0] == "def") {
-				$t = stripslashes(str_replace('"','',$a[1]));
-				$buf .= QQuadL($tid,"dc:description",addslashes($t)." [$tid]");
+				$t = addslashes(stripslashes(str_replace('"','',$a[1])));
+				$min .= QQuadL($tid,"dc:description",$t);
+				$buf .= QQuadL($tid,"dc:description",$t);
 			}
 			//relationship "part_of GO:0042274". // followed by optional description
 			if($a[0] == "relationship") {
@@ -267,8 +272,8 @@ function OBO2TTL($indir,$outdir,$file)
 				 } 
 				   
 				$rel = str_replace(" ","_",$rel);
-				$lit = addslashes($str.($b_text?" [".$b_text."]":""));
-				$l = QQuadL($tid,"obo_vocabulary:".strtolower($rel), $lit);
+				// $lit = addslashes($str.($b_text?" [".$b_text."]":""));
+				$l = QQuadL($tid,"obo_vocabulary:".strtolower($rel), $str);
 				$buf .= $l;
 			}
 			if(FALSE !== ($pos = strpos($a[1],"!"))) $a[1] = substr($a[1],0,$pos-1);
@@ -287,7 +292,9 @@ function OBO2TTL($indir,$outdir,$file)
 				// do subclassing
 				$header .= SplitNSTerm($a[1],$ns,$id,$nslist,$d);
 				AddToGlobalNS($ns);
-				$buf .= QQuad($tid,"rdfs:subClassOf","$ns:$id");
+				$t = QQuad($tid,"rdfs:subClassOf","$ns:$id");
+				$buf .= $t;
+				$min .= $t;
 			} 
 			if($a[0] == "intersection_of") {
 				// generate a blank node
@@ -323,13 +330,16 @@ function OBO2TTL($indir,$outdir,$file)
 			$buf .= QQuadL($ouri,"obo:$a[0]",str_replace( array('"','\:'), array('\"',':'), isset($a[1])?$a[1]:""));
 		}
 		fwrite($out,$header);
-		fwrite($out,$buf);
-		$buf ='';$header='';
+		if($options['minimal']['value'] == 'true') fwrite($out,$min);
+		else fwrite($out,$buf);
+		$min = '';$buf ='';$header='';
  }
  if(isset($intersection_of))  $buf .= $intersection_of."].".PHP_EOL;
 
  fclose($in);
- fwrite($out,$buf);fclose($out);
+ if($options['minimal']['value'] == 'true') fwrite($out,$min);
+ else fwrite($out,$buf);
+ fclose($out);
  
  //file_put_contents($outfile,$header.$buf);
 }
