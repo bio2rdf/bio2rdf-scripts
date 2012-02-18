@@ -268,7 +268,7 @@ function OBO2TTL($indir,$outdir,$file)
 				   
 				$rel = str_replace(" ","_",$rel);
 				$lit = addslashes($str.($b_text?" [".$b_text."]":""));
-				$l = QQuadL($tid,"obo:".strtolower($rel), $lit);
+				$l = QQuadL($tid,"obo_vocabulary:".strtolower($rel), $lit);
 				$buf .= $l;
 			}
 			if(FALSE !== ($pos = strpos($a[1],"!"))) $a[1] = substr($a[1],0,$pos-1);
