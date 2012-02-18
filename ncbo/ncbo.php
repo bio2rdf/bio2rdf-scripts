@@ -29,8 +29,8 @@ AddOption($options, 'outdir',null, '/data/rdf/ncbo/', false);
 AddOption($options, 'files',null,'all|ontology-short-name',true);
 AddOption($options, 'exclude',null,'gaz.obo',false);
 AddOption($options, 'ncbo_api_key',null,'24e19c82-54e0-11e0-9d7b-005056aa3316', false);
-AddOption($options, 'download','true|false','false', false);
-AddOption($options, 'no_overwrite','true','false',null,false);
+AddOption($options, 'download','true|false','false',false);
+AddOption($options, 'overwrite','true|false','true',false);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
 AddOption($options, USE_CONF_FILE,'true|false','false', false);
 
@@ -38,6 +38,7 @@ if(SetCMDlineOptions($argv, $options) == FALSE) {
 	PrintCMDlineOptions($argv, $options);
 	exit;
 }
+
 $exclude_list = explode(",",$options['exclude']['value']);
 @mkdir($options['indir']['value'],0777,true);
 @mkdir($options['outdir']['value'],0777,true);
@@ -54,8 +55,8 @@ if($options['files']['value']  != 'all') {
 	if(isset($files)) {
 		foreach($files AS $f) {
 			if(!in_array($f,$exclude_list)) {
-				if(($options['no_overwrite']['value'] == 'false')
-					&& !file_exists($options['outdir']['value'].$f.'.ttl')) {
+				if(($options['overwrite']['value'] == 'true')
+					|| !file_exists($options['outdir']['value'].$f.'.ttl')) {
 					OBO2TTL($options['indir']['value'],$options['outdir']['value'],$f);
 				} else {
 					echo "$f exists ... skipping".PHP_EOL;
@@ -113,7 +114,9 @@ function OBO2TTL($indir,$outdir,$file)
  $buf .= QQuad($ouri,"sio:is-encoded-by",$furi);
 
  while($l = fgets($in)) {
-	if(strlen(trim($l)) == 0) continue;
+	$lt = trim($l);
+	if(strlen($lt) == 0) continue;
+	if($lt[0] == '!') continue;
 	
 	if(strstr($l,"[Term]")) {
 		unset($typedef);
@@ -126,10 +129,10 @@ function OBO2TTL($indir,$outdir,$file)
 		$typedef = '';
 		continue;
 	} 
-	
-	$a = explode(" ! ", trim($l));
+	// to fix error in obo generator
+	$lt = str_replace("synonym ","synonym: ",$lt);
+	$a = explode(" !", $lt);
 	$a = explode(": ",$a[0],2);
-	
 	
 
 	if(isset($intersection_of)) {
@@ -219,10 +222,12 @@ function OBO2TTL($indir,$outdir,$file)
 						$buf .= Quad(GetFQURI($tid),GetFQURI("rdfs:seeAlso"), stripslashes($id));
 					} else 
 					$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".stripslashes($id));
-				}				
+				}
 			} else if($a[0] == "synonym") {
-				
+				// synonym: "entidades moleculares" RELATED [IUPAC:]
+				// synonym: "molecular entity" EXACT IUPAC_NAME [IUPAC:]
 				// synonym: "Chondrococcus macrosporus" RELATED synonym [NCBITaxonRef:Krzemieniewska_and_Krzemieniewski_1926]
+				
 				$a[1] = str_replace('"','',stripslashes($a[1]));
 				$rel = "SYNONYM";
 				$list = array("EXACT","BROAD","RELATED");
@@ -236,7 +241,7 @@ function OBO2TTL($indir,$outdir,$file)
 					$b1_pos = strrpos($a[1],"[");
 					$b2_pos = strrpos($a[1],"]");					
 					$b_text = substr($a[1],$b1_pos+1,$b2_pos-$b1_pos-1);					
-					$diff = $b1_pos-$keyword_end_pos-2;
+					$diff = $b1_pos-$keyword_end_pos-1;
 					if($diff != 0) {
   						// then there is more stuff here
 						$k = substr($a[1],$keyword_end_pos+1,$diff);
@@ -257,10 +262,12 @@ function OBO2TTL($indir,$outdir,$file)
 					// so take from the start to the bracket
 					$b1_pos = strrpos($a[1],"[");
 					$str = substr($a[1],0,$b1_pos-1);
+					
+					echo $str;exit;
 				 } 
 				   
 				$rel = str_replace(" ","_",$rel);
-				$lit = addslashes($str.($b_text?" ".$b_text:""));
+				$lit = addslashes($str.($b_text?" [".$b_text."]":""));
 				$l = QQuadL($tid,"obo:".strtolower($rel), $lit);
 				$buf .= $l;
 			}
