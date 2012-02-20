@@ -21,7 +21,7 @@
 #SOFTWARE.
 ###############################################################################
 
-require_once('php-sql-parser.php');
+require_once('../common/php/php-sql-parser.php');
 
 
 #Set the paths to all the SQL files that will be parsed
