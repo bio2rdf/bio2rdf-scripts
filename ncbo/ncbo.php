@@ -103,7 +103,7 @@ function OBO2TTL($indir,$outdir,$file)
  $ontology = substr($file,0,$pos);
  
  $furi = "bio2rdf_resource:file/$file";
- $ouri = "registry_resource:$ontology";
+ $ouri = "registry:$ontology";
 
  $header = N3NSHeader($nslist);
  $buf = QQuad($furi,"rdf:type", "sio:Document");
@@ -117,6 +117,7 @@ function OBO2TTL($indir,$outdir,$file)
  $tid = '';
  $first = true;
  $is_a = false;
+ $is_deprecated = false;
  $min = $buf;
  while($l = fgets($in)) {
 	$lt = trim($l);
@@ -128,18 +129,23 @@ function OBO2TTL($indir,$outdir,$file)
 		if($first == true) { // ignore the first case
 			$first = false;
 		} else {
-			if($tid != '' && $is_a == false) {
-				$t = QQuad($tid,"rdfs:subClassOf","bio2rdf_resource:top-level-entity");
+			if($tid != '' && $is_a == false && $is_deprecated == false) {
+				$t = QQuad($tid,"rdfs:subClassOf","bio2rdf_vocabulary:Entity");
 				$buf .= $t;
 				$min .= $t;
 			}
 		}
-	
+		$is_a = false;
+		$is_deprecated = false;
+		
 		unset($typedef);
 		$term = '';
 		$tid = '';
 		continue;
 	} else if(strstr($l,"[Typedef]")) {
+		$is_a = false;
+		$is_deprecated = false;
+		
 		unset($term);
 		$tid = '';
 		$typedef = '';
@@ -162,6 +168,11 @@ function OBO2TTL($indir,$outdir,$file)
 	}
 
 	if(isset($typedef)) {
+		if($a[0] == "is_obsolete") {
+			$is_deprecated = true;
+			continue;
+		}
+		
 		if($a[0] == "id") {
 			$c = explode(":",$a[1]);
 			if(count($c) == 1) {$ns = "obo";$id=$c[0];}
@@ -190,6 +201,16 @@ function OBO2TTL($indir,$outdir,$file)
 		$buf .= QQuadL($tid,"obo:$a[0]", str_replace('"','',stripslashes($a[1])));
 
 	} else if(isset($term)) {
+			if($a[0] == "is_obsolete" && $a[1] == "true") {
+				$t = QQuad($tid, "rdf:type", "owl:DeprecatedClass");
+				$t .= QQuad($tid, "rdfs:subClassOf", "owl:DeprecatedClass");
+				// "bio2rdf_vocabulary:Deprecated-Class");
+				$min .= $t;
+				$buf .= $t;
+				$is_deprecated = true;
+				continue;
+			}
+			
 			if($a[0] == "id") {	
 				$header .= SplitNSTerm($a[1], $ns, $id, $nslist, $b);
 				$tid = $ns.":".$id;
@@ -242,7 +263,8 @@ function OBO2TTL($indir,$outdir,$file)
 					} else 
 					$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".stripslashes($id));
 				}
-			} else if($a[0] == "synonym") {
+			} 
+			if($a[0] == "synonym") {
 				// synonym: "entidades moleculares" RELATED [IUPAC:]
 				// synonym: "molecular entity" EXACT IUPAC_NAME [IUPAC:]
 				// synonym: "Chondrococcus macrosporus" RELATED synonym [NCBITaxonRef:Krzemieniewska_and_Krzemieniewski_1926]
