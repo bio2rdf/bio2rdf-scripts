@@ -23,10 +23,8 @@
 
 $path = "/home/jose/tmp/gene_association.goa_dog.gz";
 
-//parse_goa_file($path);
-$a = getEvidenceCodeLabelArr("EXP");
-print_r($a);
-echo key($a);
+parse_goa_file($path);
+
 
 function parse_goa_file($path){
 	$fh = gzopen($path,'r') or die("Cannot open $path !\n");
@@ -53,18 +51,31 @@ function parse_goa_file($path){
 				$entryUri = getdbURI($db_id,$db_object_id);
 				$buf ="";
 				
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_alternative_symbol> \"$db_object_symbol\" . \n";
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_qualifier> \"$qualifier\" . \n";
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_annotation> <http://bio2rdf.org/go:$go_id> . \n";
-				foreach($db_references as $aref){
-					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_source> \"$aref\" . \n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_alternative_symbol> \"$db_object_symbol\" .\n";
+				if(strlen($qualifier)){
+					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_qualifier> \"$qualifier\" . \n";
 				}
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_evidence_code> <http://bio2rdf.org/goa_vocabulary:$parsedLine[6]>\". \n";
-				//<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>
-				//<http://www.w3.org/2000/01/rdf-schema#label>
-				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#label> \"".key($evidence_code)."\".\n";
-				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://bio2rdf.org/goa_vocabulary:$evidence_code[0]> .\n";
-				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://bio2rdf.org/goa_vocabulary:$evidence_code[0]> .\n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_annotation> <http://bio2rdf.org/go:$go_id> .\n";
+				foreach($db_references as $aref){
+					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_source> \"".htmlentities($aref)."\" .\n";
+				}
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_evidence_code> <http://bio2rdf.org/goa_vocabulary:".htmlentities($parsedLine[6]).">. \n";
+			
+				$type = key($evidence_code);
+				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#label> \"".$evidence_code[$type][0]."\".\n";
+				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://bio2rdf.org/goa_vocabulary:has_evidence_code_type> \"".$type."\".\n";
+				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <".$evidence_code[$type][1]."> .\n";
+				
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_aspect_label> \"$aspectLabel\" .\n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_gene_product> \"$geneProduct\" .\n";
+				
+				foreach($geneSynonyms as $aSyn){
+					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_synonym> \"".htmlentities($aSyn)."\" .\n";
+				}
+				
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_taxid> \"$taxid\" .\n";
+				
+				echo $buf;
 			}
 		}
 	}
@@ -130,9 +141,19 @@ function getAspectLabel($anAspect){
 	}
 }
 
-function getEvidenceCodeResource($aec){
+
+
+/**
+ * This function return an array that has as a key
+ * the name of the category to which the evidence code belongs
+ * to and as a value the label for the code.
+ * For example the evidence code "EXP" will return:
+ * ["Experimental Evidence Code" => ["Inferred from Experiment", "http://purl.obolibrary.org/obo/ECO_0000006"]]
+ * See: http://www.geneontology.org/GO.evidence.shtml
+ **/
+function getEvidenceCodeLabelArr($aec){
 	if(count($aec)){
-		//experimental codes
+		//experimental code
 		$ec = array(
 			"EXP"=> array("Inferred from Experiment","http://purl.obolibrary.org/obo/ECO_0000006"),
 			"IDA"=> array("Inferred from Direct Assay","http://purl.obolibrary.org/obo/ECO_0000314"),
@@ -168,83 +189,8 @@ function getEvidenceCodeResource($aec){
 		$aac = array(
 			"IEA"=>array("Inferred from Electronic Annotation", "http://purl.obolibrary.org/obo/ECO_0000203")
 		);
-		//obsolete evidence codes
-		$oec = array(
-			"NR" => array("Not Recorded","http://purl.obolibrary.org/obo/ECO_0000037")
-		);
-		
-		if(array_key_exists($aec, $ec)){
-			return array("experimental evidence code"=>$ec[$aec]);
-		}elseif(array_key_exists($aec, $cac)){
-			return array("computational analysis code"=>$cac[$aec]);
-		}elseif(array_key_exists($aec, $asc)){
-			return array("author statement code"=>$asc[$aec]);
-		}elseif(array_key_exists($aec, $csc)){
-			return array("curator statement code"=>$csc[$aec]);
-		}elseif(array_key_exists($aec, $aac)){
-			return array("automatically assigned code"=>$aac[$aec]);
-		}elseif(array_key_exists($aec, $oec)){
-			return array("obsolete evidence code"=>$oec[$aec]);
-		}else{
-			return null;
-		}
-		
-	}else{
-		return null;
-	}
-}
 
-/**
- * This function return an array that has as a key
- * the name of the category to which the evidence code belongs
- * to and as a value the label for the code.
- * For example the evidence code "EXP" will return:
- * ["Experimental Evidence Code" => "Inferred from Experiment"]
- * See: http://www.geneontology.org/GO.evidence.shtml
- **/
-function getEvidenceCodeLabelArr($aec){
-	//experimental codes
-	$ec = array(
-		"EXP"=> "Inferred from Experiment",
-		"IDA"=> "Inferred from Direct Assay",
-		"IPI"=> "Inferred from Physical Interaction",
-		"IMP"=> "Inferred from Mutant Phenotype",
-		"IGI"=> "Inferred from Genetic Interaction",
-		"IEP"=> "Inferred from Expression Pattern"
-	);
-	//computational analysis codes
-	$cac = array(
-		"ISS"=> "Inferred from Sequence or Structural Similarity",
-		"ISO"=> "Inferred from Sequence Orthology",
-		"ISA"=> "Inferred from Sequence Alignment",
-		"ISM"=> "Inferred from Sequence Model",
-		"IGC"=> "Inferred from Genomic Context",
-		"IBA"=> "Inferred from Biological aspect of Ancestor",
-		"IBD"=> "Inferred from Biological aspect of Desendant",
-		"IKR"=> "Inferred from Key Residues",
-		"IRD"=> "Inferred from Rapid Divergence",
-		"RCA"=> "Inferred from Reviewed Computational Analysis"
-		);
-	//author statement codes
-	$asc = array(
-		"TAS"=> "Traceable Author Statement",
-		"NAS"=> "Non-Traceable Author Statement"
-		);
-	//curator statement codes
-	$csc = array(
-		"IC"=> "Inferred by Curator",
-		"ND"=> "No biological Data available"
-		);
-	//automatically assigned codes
-	$aac = array(
-		"IEA"=>"Inferred from Electronic Annotation"
-		);
-	//obsolete evidence codes
-	$oec = array(
-		"NR" =>"Not Recorded"
-		);
 		
-	if(count($aec)){
 		if(array_key_exists($aec, $ec)){
 			return array("experimental evidence code"=>$ec[$aec]);
 		}elseif(array_key_exists($aec, $cac)){
