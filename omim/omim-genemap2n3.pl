@@ -61,7 +61,7 @@ $nombreMax = 10000000;
 
 our $vocabulary = "http://bio2rdf.org/omim_vocabulary";
 
-open(INPUT, "</media/2tbdisk/bio2rdf/data/omim/genemap/genemap") || die "File $fichier unavailable:$!\n";
+open(INPUT, "<", $ARGV[0]) || die "File $fichier unavailable:$!\n";
 	
 while ($line = <INPUT>) {
 	$line =~ s/\\//g;

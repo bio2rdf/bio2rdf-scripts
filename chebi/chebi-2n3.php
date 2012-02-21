@@ -23,11 +23,12 @@
 
 require_once('php-sql-parser.php');
 
+$argc == 2 or exit("Usage: php {$argv[0]} <download_path>");
 
 #Set the paths to all the SQL files that will be parsed
-$compound_path = "/home/jose/tmp/chebi/compounds.sql";
-$chemical_path = "/home/jose/tmp/chebi/chemical_data.sql";
-$names_path = "/home/jose/tmp/chebi/names.sql";
+$compound_path = "{$argv[1]}/compounds.sql";
+$chemical_path = "{$argv[1]}/chemical_data.sql";
+$names_path = "{$argv[1]}/names.sql";
 
 
 
@@ -39,10 +40,13 @@ $parser = new PHPSQLParser();
 /** Funciton Calls **/
 /********************/
 
+ob_start(NULL, 1024*1024); // enable buffering for faster IO
+
 parse_name_sql_file($names_path);
 parse_chemical_data_sql_file($chemical_path);
 parse_compound_sql_file($compound_path);
 
+ob_end_flush();
 
 /***************/
 /** Functions **/
