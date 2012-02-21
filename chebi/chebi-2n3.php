@@ -21,13 +21,14 @@
 #SOFTWARE.
 ###############################################################################
 
-require_once('php-sql-parser.php');
+require_once('../common/php/php-sql-parser.php');
 
 
 #Set the paths to all the SQL files that will be parsed
 $compound_path = "/home/jose/tmp/chebi/compounds.sql";
 $chemical_path = "/home/jose/tmp/chebi/chemical_data.sql";
 $names_path = "/home/jose/tmp/chebi/names.sql";
+$relations_path = "/home/jose/tmp/chebi/relation.sql";
 
 
 
@@ -42,11 +43,59 @@ $parser = new PHPSQLParser();
 parse_name_sql_file($names_path);
 parse_chemical_data_sql_file($chemical_path);
 parse_compound_sql_file($compound_path);
-
+parse_relations_sql_file($relations_path);
 
 /***************/
 /** Functions **/
 /***************/
+
+function parse_relations_sql_file($path){
+	$fh = fopen($path, 'r') or die("Cannot open $path !\n");
+	if($fh){
+		while (($buffer = fgets($fh, 4096)) !== false) {
+			$pattern = '/insert.*/';
+			preg_match($pattern, $buffer, $matches);
+			if(count($matches)){
+				//go parse the insert line
+				$parsed_insert = parse_relations_data_line($matches[0]);
+				$initial_id = "";
+				$final_id = "";
+				$relation = "";
+				$status = "";
+				
+				if(isset($parsed_insert[2])){
+					$initial_id = $parsed_insert[2];
+				}
+				if(isset($parsed_insert[3])){
+					$final_id = $parsed_insert[3];
+				}
+				if(isset($parsed_insert[1])){
+					$relation = $parsed_insert[1];
+				}
+				if(isset($parsed_insert[4])){
+					$status = $parsed_insert[4];
+				}
+				
+				$nsid = "chebi:".$initial_id;
+				$bmuri = "http://bio2rdf.org/$nsid";
+				$final_uri = "http://bio2rdf.org/chebi:$final_id";
+				$rand = rand(1,7999999999999999);
+				$buf = "";
+				$buf .= "<$bmuri> <http://bio2rdf.org/chebi_vocabulary:has_relation> <http://bio2rdf.org/chebi_resource:$bmuri$final_uri$rand> . \n";
+				$buf .= "<$bmuri> <http://bio2rdf.org/chebi_resource:$bmuri$final_uri$rand> <$final_uri>.\n";
+				$buf .= "<$bmuri$final_uri$rand> <http://bio2rdf.org/chebi_vocabulary:has_value>  \"$relation\".\n";
+				$buf .= "<$bmuri$final_uri$rand> <http://bio2rdf.org/chebi_vocabulary:has_status>  \"$status\".\n";
+				echo $buf."\n\n";
+				
+				
+			}
+		}
+	}
+	if(!feof($fh)){
+		echo "Error: unexpected fgets() fail\n";
+	}
+	fclose($fh);
+}
 function parse_name_sql_file($path){
 	$fh = fopen($path, 'r') or die("Cannot open $path !\n");
 	$skip_these_chebi_ids = array("33863","33894","33895","27502","50162","52371","52372","61225");
@@ -240,6 +289,43 @@ function parse_compound_sql_file($path){
 
 }
 
+function parse_relations_data_line($anInsertLine){
+	global $parser;
+	$returnMe = array();
+	$parsed = $parser->parse($anInsertLine);
+	$p2 = $parsed["VALUES"][0];
+	//remove the first and last round brackets
+	$p2 = substr($p2, 1,-1);
+	$p2 .= ",";
+	$re1='.*?';	# Non-greedy match on filler
+	$re2='(\\d+)';	# Integer Number 1
+	$re3='.*?';	# Non-greedy match on filler
+	$re4='((?:[a-z][a-z0-9_]*))';	# Variable Name 1
+	$re5='.*?';	# Non-greedy match on filler
+	$re6='(\\d+)';	# Integer Number 2
+	$re7='.*?';	# Non-greedy match on filler
+	$re8='(\\d+)';	# Integer Number 3
+	$re9='.*?';	# Non-greedy match on filler
+	$re10='([a-z])';	# Any Single Word Character (Not Whitespace) 1
+
+  if ($c=preg_match_all ("/".$re1.$re2.$re3.$re4.$re5.$re6.$re7.$re8.$re9.$re10."/is", $p2, $matches))
+  {
+      $int1=$matches[1][0];
+      $var1=$matches[2][0];
+      $int2=$matches[3][0];
+      $int3=$matches[4][0];
+      $w1=$matches[5][0];
+      $returnMe[] = $int1;	
+      $returnMe[] = $var1;
+      $returnMe[] = $int2;
+      $returnMe[] = $int3;
+	
+  }
+
+	return $returnMe;
+	
+}
+
 function parse_name_data_line($anInsertLine){
 	global $parser;
 	$returnMe = array();
@@ -248,11 +334,6 @@ function parse_name_data_line($anInsertLine){
 	//remove the first and last round brackets
 	$p2 = substr($p2, 1,-1);
 	$p2 .= ",";
-	
-	
-	
-	
-	
 	
 	$re1='(\\\'.*?\\\')';	# Single Quote String 1
 	$re2='.*?';	# Non-greedy match on filler
