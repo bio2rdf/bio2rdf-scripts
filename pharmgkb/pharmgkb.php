@@ -32,7 +32,7 @@ require_once (dirname(__FILE__).'/../common/php/libphp.php');
 $options = null;
 AddOption($options, 'indir', null, '/data/download/pharmgkb/', false);
 AddOption($options, 'outdir',null, '/data/rdf/pharmgkb/', false);
-AddOption($options, 'files','all|drugs|genes|diseases|relationships','',true);
+AddOption($options, 'files','all|drugs|genes|diseases|relationships|rsid|clinical_ann_metadata|var_drug_ann','',true);
 AddOption($options, 'remote_base_url',null,'http://www.pharmgkb.org/commonFileDownload.action?filename=', false);
 AddOption($options, 'download','true|false','false', false);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
@@ -81,37 +81,35 @@ if($options['download']['value'] == 'true') {
 }
 
 
-$buf = N3NSHeader();
-$buf .= "<$releasefile_uri> a sio:Document .".PHP_EOL;
-$buf .= "<$releasefile_uri> rdfs:label \"Bio2RDF PharmGKB release in RDF/N3 [bio2rdf_file:pharmgkb.n3.tgz]\".".PHP_EOL;
-$buf .= "<$releasefile_uri> rdfs:comment \"RDFized from PharmGKB tab data files\".".PHP_EOL;
-$buf .= "<$releasefile_uri> dc:date \"".date("D M j G:i:s T Y")."\".".PHP_EOL;
-file_put_contents($options['outdir']['value']."pharmgkb-$date.ttl",$buf);
+$header = N3NSHeader();
+$header .= "<$releasefile_uri> a sio:Document .".PHP_EOL;
+$header .= "<$releasefile_uri> rdfs:label \"Bio2RDF PharmGKB release in RDF/N3 [bio2rdf_file:pharmgkb.n3.tgz]\".".PHP_EOL;
+$header .= "<$releasefile_uri> rdfs:comment \"RDFized from PharmGKB tab data files\".".PHP_EOL;
+$header .= "<$releasefile_uri> dc:date \"".date("D M j G:i:s T Y")."\".".PHP_EOL;
+file_put_contents($options['outdir']['value']."pharmgkb-$date.ttl",$header);
 
 foreach($files AS $file) {
 	$indir = $options['indir']['value'];
 	$outdir = $options['outdir']['value'];
 	echo "processing $indir$file.tsv...";	
     $infile = $file.".tsv";
-	$n3file = $file.".ttl";
-	$fp = fopen($indir.$infile,"r");
-	if($fp === FALSE) {
-		trigger_error("Unable to open ".$indir.$file."tsv"." for writing.");
+	$outfile = $file.".ttl";
+	$in = fopen($indir.$infile,"r");
+	if($in === FALSE) {
+		trigger_error("Unable to open ".$indir.$infile." for reading.");
 		exit;
 	}
-	$buf = $file($fp);
-	fclose($fp);
-	
-	
-	$out = fopen($outdir.$n3file,"w");
+	$out = fopen($outdir.$outfile,"w");
 	if($out === FALSE) {
-		trigger_error("Unable to open ".$outdir.$file.".ttl"." for writing.");
+		trigger_error("Unable to open ".$outdir.$outfile." for writing.");
 		exit;
 	}
-		
 	$head = N3NSHeader();
-	fwrite($out,$head.$buf);
+	fwrite($out,$head);
 	
+	$file($in,$out);
+	
+	fclose($in);		
 	fclose($out);
 	echo "done!".PHP_EOL;
 }
@@ -131,12 +129,12 @@ foreach($files AS $file) {
 11 PK	
 12 Has Variant Annotation
 */
-function genes(&$fp)
+function genes(&$in, &$out)
 {
 	global $releasefile_uri;
 	$buf = '';
-	fgets($fp);
-	while($l = fgets($fp,10000)) {
+	fgets($in);
+	while($l = fgets($in,10000)) {
 		$a = explode("\t",$l);
 		
 		$id = "pharmgkb_vocabulary:$a[0]";
@@ -180,7 +178,7 @@ function genes(&$fp)
 		if($a[11] && $a[11] != '-') $buf .= QQuadL($id,"pharmgkb_vocabulary:pharmacokinetics","true");
 		if(trim($a[12]) != '') $buf .= QQuadL($id,"pharmgkb_vocabulary:variant_annotation",trim($a[12]));
 	}
-	return $buf;
+	fwrite($out,$buf);
 }
 
 /*
@@ -190,12 +188,12 @@ Alternate Names
 Type	
 DrugBank Id
 */
-function drugs(&$fp)
+function drugs(&$in, &$out)
 {
 	global $releasefile_uri;
-	fgets($fp);
+	fgets($in);
 	$buf = '';
-	while($l = fgets($fp,200000)) {
+	while($l = fgets($in,200000)) {
 		$a = explode("\t",$l);
 		$id = "pharmgkb:$a[0]";
 
@@ -220,7 +218,7 @@ function drugs(&$fp)
 		}
 		$buf .= QQuad($id,"owl:sameAs","pharmgkb:".md5($a[1]));
 	}
-	return $buf;
+	fwrite($out,$buf);
 }
 
 /*
@@ -228,12 +226,12 @@ function drugs(&$fp)
 1 Name	
 2 Alternate Names
 */
-function diseases(&$fp)
+function diseases(&$in, &$out)
 {
   global $releasefile_uri;
   $buf = '';
-  fgets ($fp);
-  while($l = fgets($fp,10000)) {
+  fgets ($in);
+  while($l = fgets($in,10000)) {
 	$a = explode("\t",$l);
 		
 	$id = "pharmgkb:".$a[0];
@@ -263,8 +261,7 @@ function diseases(&$fp)
 		}	  
 	}
   }
-  return $buf;
-
+  fwrite($out,$buf);
 }
 
 /*
@@ -281,14 +278,14 @@ function diseases(&$fp)
 10 Curation Level	
 11 PharmGKB Accession ID
 */
-function variantAnnotations(&$fp)
+function variantAnnotations(&$in, &$out)
 {
   global $releasefile_uri;
   $buf = '';
-  fgets($fp); // first line is header
+  fgets($in); // first line is header
   
   $hash = ''; // md5 hash list
-  while($l = fgets($fp,10000)) {
+  while($l = fgets($in,10000)) {
 	$a = explode("\t",$l);
 	$id = "pharmgkb:$a[11]";
 
@@ -354,7 +351,7 @@ function variantAnnotations(&$fp)
   foreach($hash AS $h => $label) {
 	$buf .= QQuadL("pharmgkb:$h",'rdfs:label', $label);
   }
-  return $buf;
+  fwrite($out,$buf);
 }
 
 
@@ -368,15 +365,15 @@ Evidence Sources  - Publication,Variant
 Pharmacodynamic	  - Y
 Pharmacokinetic   - Y
 */
-function relationships(&$fp)
+function relationships(&$in, &$out)
 {
   global $releasefile_uri;
 
   $buf = '';
-  fgets($fp); // first line is header
+  fgets($in); // first line is header
   
   $hash = ''; // md5 hash list
-  while($l = fgets($fp,10000)) {
+  while($l = fgets($in,10000)) {
 	$a = explode("\t",$l);
 	
 	ParseQNAME($a[0],$ns,$id1);
@@ -399,7 +396,265 @@ function relationships(&$fp)
 	if($a[7] == 'Y') $buf .= QQuadL($id,'pharmgkb_vocabulary:pharmacokinetic_association',"true");		
   }
   
-  return $buf;  
+  fwrite($out,$buf);
 }
 
+
+/*
+THIS FILE ONLY INCLUDES RSIDs IN GENES
+RSID	Gene IDs	Gene Symbols
+rs8331	PA27674;PA162375713	EGR2;ADO
+*/
+function rsid(&$in,&$out)
+{
+	fgets($in);fgets($in);
+	while($l = fgets($in)) {
+		$a = explode("\t",$l);
+		$rsid = $a[0];
+		$genes = explode(";",$a[1]);
+		$buf .= QQuad("dbsnp:$rsid","rdf:type","pharmgkb_vocabulary:variant");
+		foreach($genes AS $gene) {
+			$buf .= QQuad("dbsnp:$rsid","pharmgkb_vocabulary:gene","pharmgkb:$gene");
+		}
+		fwrite($out,$buf);
+		$buf = '';
+	}
+}
+
+
+function clinical_ann_metadata(&$in,&$out)
+{
+	fgets($in);
+	while($l = fgets($in,20000)) {
+		$a = explode("\t",$l);
+		
+		// [0] => Clinical Annotation Id
+		$id = "pharmgkb:$a[0]";
+		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:clinical_annotation");
+		
+		// [1] => RSID
+		$rsid = "dbsnp:$a[1]";
+		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:variant");
+		$buf .= QQuadL($rsid,"rdfs:label", "rsid:$rsid");
+		
+		// [2] => Variant Names
+		if($a[2]) { 
+			$names = explode(";",$a[2]);
+			foreach($names AS $name) {
+				$buf .= QQuadL($rsid,"pharmgkb_vocabulary:variant_name", addslashes(trim($name)));
+			}
+		}
+		// [3] => Location
+		if($a[3]) { 
+			$buf .= QQuadL($rsid,"pharmgkb_vocabulary:location", $a[3]);
+		}
+		// [4] => Gene
+		if($a[4]){
+			$genes = explode(";",$a[4]);
+			foreach($genes AS $gene) {
+				preg_match("/\(([A-Za-z0-9]+)\)/",$gene,$m);
+				$buf .= QQuad($rsid,"pharmgkb_vocabulary:in", "pharmgkb:$m[1]");
+				$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:gene");
+			}
+		}
+
+		$buf .= QQuadL($id,"rdfs:label", "clinical annotation for $rsid");
+		$buf .= QQuad($id,"pharmgkb_vocabulary:snp", $rsid);
+		// [5] => Evidence Strength
+		if($a[5]) {
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:evidence_strength", $a[5]);
+		}
+		// [6] => Clinical Annotation Types
+		if($a[6]) {
+			$types = explode(";",$a[6]);
+			foreach($types AS $t) {
+				$buf .= QQuadL($id,"pharmgkb_vocabulary:annotation_type", $t);
+				$buf .= QQuad($id,"rdf:type","pharmgkb_resource:".strtolower($t)."_annotation");
+			}
+		}
+		// [7] => Genotype-Phenotypes IDs
+		// [8] => Text
+		if($a[7]) {
+			$gps = explode(";",$a[7]);
+			$gps_texts = explode(";",$a[8]);
+			foreach($gps AS $i => $gp) {
+				$gp = trim($gp);
+				$gp_text = trim($gps_texts[$i]);
+				$buf .= QQuad($id,"pharmgkb_vocabulary:genotype_phenotype", "pharmgkb:$gp");
+				$buf .= QQuadL("pharmgkb:$gp","rdfs:label", $gp_text);
+				$buf .= QQuad("pharmgkb:$gp","rdf:type", "pharmgkb_vocabulary:genotype");
+				$b = explode(":",$gp_text,2);
+				$buf .= QQuadL("pharmgkb:$gp","pharmgkb_vocabulary:genotype",trim($b[0]));
+			}
+		}
+		
+		// [9] => Variant Annotations IDs
+		// [10] => Variant Annotations
+		if($a[9]) {
+			$b = explode(";",$a[9]);
+			$b_texts =  explode(";",$a[10]);
+			foreach($b AS $i => $variant) {
+				$variant = trim($variant);
+				$variant_text = trim ($b_texts[$i]);
+				$buf .= QQuad($id,"pharmgkb_vocabulary:variant", "pharmgkb:$variant");
+				$buf .= QQuadL("pharmgkb:$variant","rdfs:label", $variant_text);
+				$buf .= QQuad("pharmgkb:$variant","rdf:type", "pharmgkb_vocabulary:variant");			
+			}
+		}
+		// [11] => PMIDs
+		if($a[11]) {
+			$b = explode(";",$a[11]);
+			foreach($b AS $i => $pmid) {
+				$pmid = trim($pmid);
+				$buf .= QQuad($id,"pharmgkb_vocabulary:article", "pubmed:$pmid");
+				$buf .= QQuad("pubmed:$pmid","rdf:type", "pharmgkb_vocabulary:article");			
+			}
+		}
+		// [12] => Evidence Count
+		if($a[12]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:evidence_count", $a[12]);
+		}
+		
+		// [13] => # Cases
+		if($a[13]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:cases_count", $a[13]);
+		}
+		// [14] => # Controlled
+		if($a[14]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:controlled_count", $a[14]);
+		}
+		// [15] => Related Genes
+		if($a[15]) {
+			$b = explode(";",$a[15]);
+			foreach($b AS $gene_label) {
+				// find the gene_id from the label
+				$lid = '-1';
+				$buf .= QQuad("pharmgkb:$id","pharmgkb_vocabulary:related_gene", "pharmgkb:$lid");
+			}
+		}
+
+		// [16] => Related Drugs
+		if($a[16]) {
+			$b = explode(";",$a[16]);
+			foreach($b AS $drug_label) {
+				// find the id from the label
+				$lid = '-1';
+				$buf .= QQuad("pharmgkb:$id","pharmgkb_vocabulary:related_drug", "pharmgkb:$lid");
+			}
+		}
+		// [17] => Related Diseases
+		if($a[17]) {
+			$b = explode(";",$a[17]);
+			foreach($b AS $disease_label) {
+				// find the id from the label
+				$lid = '-1';
+				$buf .= QQuad("pharmgkb:$id","pharmgkb_vocabulary:related_disease", "pharmgkb:$lid");
+			}
+		}
+		// [18] => OMB Races
+		if($a[18]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:race", $a[18]);
+		}
+		// [19] => Is Unknown Race
+		if($a[19]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:race", (($a[19] == "TRUE")?"race known":"race unknown"));
+		}
+		// [20] => Is Mixed Population
+		if($a[20]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:mixed", (($a[20] == "TRUE")?"mixed population":"homogeneous population"));
+		}
+		// [21] => Custom Race
+		if($a[21]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:special_source", $a[21]);
+		}
+		
+		
+	}
+	fwrite($out,$buf);
+}
+
+function var_drug_ann(&$in,&$out)
+{
+	fgets($in);
+	while($l = fgets($in,20000)) {
+		$a = explode("\t",$l);
+		//[0] => Annotation ID
+		$id = "pharmgkb:$a[0]";
+		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:variant_drug_annotation");
+		
+		//[1] => RSID
+		$rsid = "dbsnp:$a[1]";
+		$buf .= QQuad($id,"pharmgkb_vocabulary:variant", $rsid);
+		//[2] => Gene
+		//CYP3A (PA27114),CYP3A4 (PA130)
+		if($a[2]) {
+			$genes = explode(",",$a[2]);
+			foreach($genes AS $gene) {
+				preg_match("/\(([A-Za-z0-9]+)\)/",$gene,$m);
+				$buf .= QQuad($id,"pharmgkb_vocabulary:gene", "pharmgkb:$m[1]");
+				$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:gene");
+			}
+		}
+		
+		//[3] => Drug
+		if($a[3]) {
+			$drugs = explode(",",$a[3]);
+			foreach($drugs AS $drug) {
+				preg_match("/\(([A-Za-z0-9]+)\)/",$drug,$m);
+				$buf .= QQuad($id,"pharmgkb_vocabulary:drug", "pharmgkb:$m[1]");
+				$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:drug");
+			}
+		}
+		// [4] => Literature Id
+		if($a[4]) {
+			$b = explode(";",$a[4]);
+			foreach($b AS $i => $pmid) {
+				$pmid = trim($pmid);
+				$buf .= QQuad($id,"pharmgkb_vocabulary:article", "pubmed:$pmid");
+				$buf .= QQuad("pubmed:$pmid","rdf:type", "pharmgkb_vocabulary:article");			
+			}
+		}
+		
+		//[5] => Secondary Category
+		if($a[5]) {
+			$types = explode(";",$a[5]);
+			foreach($types AS $t) {
+				$buf .= QQuadL($id,"pharmgkb_vocabulary:annotation_type", $t);
+				$buf .= QQuad($id,"rdf:type","pharmgkb_resource:".strtolower($t)."_annotation");
+			}
+		}
+		// [6] => Significance
+		if($a[6]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:significant", $a[6]);
+		}
+		// [7] => Notes
+		if($a[7]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:note", addslashes($a[7]));
+		}
+	
+		//[8] => Sentence
+		if($a[8]) {
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:comment", addslashes($a[8]));
+		}
+		//[9] => StudyParameters
+		if($a[9]) {
+			$sps = explode(";",$a[9]);
+			foreach($sps AS $sp) {
+				$t = "pharmgkb:$sp";
+				$buf .= QQuad($id,"pharmgkb_vocabulary:study_parameters", $t);
+				$buf .= QQuad($t,"rdf:type","pharmgkb_resource:study_parameter");
+			}
+		}
+		//[10] => KnowledgeCategories
+		if($a[10]) {
+			$cats = explode(";",$a[10]);
+			foreach($cats AS $cat) {
+				$t = "pharmgkb:$cat";
+				$buf .= QQuad($id,"pharmgkb_vocabulary:categories", $t);
+				$buf .= QQuadL($t,"rdfs:label",$cat);
+			}
+		}	
+	}
+	fwrite($out,$buf);
+}
 ?>

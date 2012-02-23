@@ -1,1 +1,19 @@
+Bio2RDF
+=======
+
+Requirements
+-------------
+
+
+
+Dependencies
+------------
+
+
+Running
+-------
+
+Usage
+-----
 This repository contains the scripts that are used to generate RDF versions of scientific databases using the Bio2RDF URI format.
+

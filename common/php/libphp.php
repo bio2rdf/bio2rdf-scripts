@@ -34,17 +34,26 @@ $gns = array(
   'foaf' => 'http://xmlns.com/foaf/0.1/',
   'sio' => 'http://semanticscience.org/resource/',
   'bio2rdf' => BIO2RDF_URI,
+  'bio2rdf_resource' => BIO2RDF_URI.'bio2rdf_resource:',
   'bio2rdf_vocabulary' => BIO2RDF_URI.'bio2rdf_vocabulary:'
 );
 
 // valid dataset namespaces
-$gdataset_ns = array('afcs', 'apo','bind','biogrid','blastprodom','candida','cas','chebi','coil','ctd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','germonline','go','gp','grid','smart','panther','pfam','pir','tigr','iubmb','intact','ipi','irefindex','mesh','metacyc','mi','mint','mips','geneid','ncbi','refseq','omim','ophid','patternscan','pato','pharmgkb','pir','prf','profilescan','pdb','pubmed','pubchem','reactome','seg','sgd','snomedct','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo','registry','registry_dataset');
+$gdataset_ns = array('afcs', 'apo','bind','biogrid','blastprodom','candida','cas','chebi','coil','ctd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','germonline','go','gp','grid','smart','panther','pfam','pir','tigr','iubmb','intact','ipi','irefindex','mesh','metacyc','mi','mint','mips','geneid','ncbi','refseq','obo','omim','ophid','patternscan','pato','pharmgkb','pir','prf','prodom','profilescan','pdb','pubmed','pubchem','reactome','registry','registry_dataset','seg','sgd','snomedct','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo');
 	
 // add the valid namespaces to the global namespace array
 foreach($gdataset_ns AS $ns) {
+  AddToGlobalNS($ns, true);	
+}
+
+function AddToGlobalNS($ns, $add_voc_and_resource = false)
+{
+  global $gns;
   $gns[$ns] = BIO2RDF_URI.$ns.':';
-  $gns[$ns.'_vocabulary'] = BIO2RDF_URI.$ns.'_vocabulary:';
-  $gns[$ns.'_resource'] = BIO2RDF_URI.$ns.'_resource:';
+  if($add_voc_and_resource) {
+    $gns[$ns.'_vocabulary'] = BIO2RDF_URI.$ns.'_vocabulary:';
+	$gns[$ns.'_resource'] = BIO2RDF_URI.$ns.'_resource:';
+  }
 }
 
 /** Generate the N3 prefix header **/
@@ -67,7 +76,7 @@ function QQuad($subject, $predicate, $object, $graph = null)
 	$o = explode(":",$object);
 	
 	if(!isset($gns[$s[0]])) {trigger_error("Invalid subject qname ".$s[0]); exit;}
-	if(!isset($gns[$p[0]])) {trigger_error("Invalid predicte qname ".$p[0]); exit;}
+	if(!isset($gns[$p[0]])) {trigger_error("Invalid predicate qname ".$p[0]); exit;}
 	if(!isset($gns[$o[0]])) {trigger_error("Invalid object qname ".$o[0]); exit;}
 	
 	return Quad($gns[$s[0]].$s[1], $gns[$p[0]].$p[1], $gns[$o[0]].$o[1]);	
@@ -80,7 +89,7 @@ function QQuadL($subject, $predicate, $literal, $lang = null, $graph = null)
 	$p = explode(":",$predicate);
 	
 	if(!isset($gns[$s[0]])) {trigger_error("Invalid subject qname ".$s[0]); exit;}
-	if(!isset($gns[$p[0]])) {trigger_error("Invalid predicte qname ".$s[0]); exit;}
+	if(!isset($gns[$p[0]])) {trigger_error("Invalid predicate qname ".$s[0]); exit;}
 	
 	return QuadLiteral($gns[$s[0]].$s[1], $gns[$p[0]].$p[1], $literal, $lang, $graph);	
 }
@@ -195,7 +204,7 @@ function copyr($source, $dest)
     return true;
 }
 
-function GetDirFiles($dir,$pattern)
+function GetDirFiles($dir,$pattern = null)
 {
  if(!is_dir($dir)) {
   echo "$dir not a directory".PHP_EOL;
@@ -205,7 +214,13 @@ function GetDirFiles($dir,$pattern)
  $dh = opendir($dir);
  while (($file = readdir($dh)) !== false) {
   if($file == '.' || $file == '..') continue;
-  $files[] = $file;
+  if(isset($pattern)) {
+	if(strstr($file,$pattern)) {
+		$files[] = $file;
+	}
+  } else {
+	$files[] = $file;
+  }
  }
  sort($files);
  closedir($dh);

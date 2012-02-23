@@ -46,12 +46,10 @@ Contains interaction data incorporated into SGD from BioGRID (http://www.thebiog
 		require('../common/php/oboparser.php');
 			
 		/** get the ontology terms **/
-		global $ncbo_dl_dir;
-		global $ncbo_apikey;
-		$file = $ncbo_dl_dir."apo.obo";
-		if(!file_exists($file)) {
-			GetLatestNCBOOntology('1222',$ncbo_apikey,$file);
-		}
+		global $options;
+		
+		$file = "apo.obo";
+		GetLatestNCBOOntology('1222',$options['ncbo_api_key']['value'],$file);
 	
 		$in = fopen($file, "r");
 		if($in === FALSE) {
@@ -80,10 +78,7 @@ Contains interaction data incorporated into SGD from BioGRID (http://www.thebiog
 			
 			$buf .= QQuad("sgd_resource:$id","sgd_vocabulary:bait","sgd:$id1");
 			$buf .= QQuad("sgd_resource:$id","sgd_vocabulary:hit","sgd:$id2");
-			
-			$eid = $id."exp";
-			$buf .= QQuad("sgd_resource:$id","sgd_vocabulary:method","sgd_resource:$eid");
-			$buf .= QQuad("sgd_resource:$eid","rdf:type",strtolower($oid));
+			$buf .= QQuad("sgd_resource:$id","sgd_vocabulary:method", strtolower($oid));
 			
 			if($phenotype) {
 				$buf .= QQuad("sgd_resource:$id","rdf:type",strtolower($exp_type));
