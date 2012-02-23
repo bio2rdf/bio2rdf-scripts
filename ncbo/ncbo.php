@@ -162,8 +162,19 @@ function OBO2TTL($indir,$outdir,$file)
 			$intersection_of .= ")].".PHP_EOL;
 			$obointersection_of = substr($obointersection_of,0,-1)."].".PHP_EOL;
 			$buf .= $intersection_of;
-			$buf .= $obointersection_of;
+			//$buf .= $obointersection_of;
 			unset($intersection_of);
+			unset($obointersection_of);
+		}
+	}
+	if(isset($relationship)) {
+		if($a[0] != "relationship") {
+			$relationship .= ")].".PHP_EOL;
+			$oborelationship = substr($oborelationship,0,-1)."].".PHP_EOL;
+			$buf .= $relationship;
+			//$buf .= $oborelationship;
+			unset($relationship);
+			unset($oborelationship);
 		}
 	}
 
@@ -230,19 +241,7 @@ function OBO2TTL($indir,$outdir,$file)
 				$min .= QQuadL($tid,"dc:description",$t);
 				$buf .= QQuadL($tid,"dc:description",$t);
 			}
-			//relationship "part_of GO:0042274". // followed by optional description
-			if($a[0] == "relationship") {
-				$b = explode(" ",$a[1]);
-				// sometimes have OBO_REL:XXX
-				$header .= SplitNSTerm($b[0],$ns,$id,$nslist,$d);
-				if(!$ns) $ns = 'obo';
-				if(stristr($ns,"obo_rel")) $ns = "obo";
-				AddToGlobalNS($ns);
-				$header .= SplitNSTerm($b[1],$ns2,$id2,$nslist,$d);
-				AddToGlobalNS($ns2);
-				$buf .= QQuad($tid,"$ns:$id","$ns2:$id2");
 
-			}
 			if($a[0] == "property_value") {
 				$b = explode(" ",$a[1]);
 				$buf .= QQuadL($tid,"obo:$b[0]",strtolower($b[1]));
@@ -331,32 +330,56 @@ function OBO2TTL($indir,$outdir,$file)
 				$min .= $t;
 				$is_a = true;
 			} 
-			if($a[0] == "intersection_of") {
-				// generate a blank node
-				if(!isset($intersection_of)) {
-					$intersection_of = "$tid owl:equivalentClass [a owl:Class; owl:intersectionOf (";
-					$obointersection_of = "$tid obo:intersection_of [";
-				}
-				$c = explode(" ",$a[1]);
-				if(count($c) == 1) {
-					preg_match("/(.*) \! (.*)/",$c[0],$m);
-					if(count($m)) $c[0] = $m[0];
-					$header .= SplitNSTerm($c[0], $ns, $id, $nslist, $b);
-					$intersection_of .= "$ns:$id";
-					$obointersection_of .= "a $ns:$id;";
-				} else if(count($c) == 2) {
-					preg_match("/(.*) \! (.*)/",$c[1],$m);
-					if(count($m)) $c[1] = $m[0];
+			
 
-					$rel = $c[0];
-					$obj = $c[1];
-					$header .= SplitNSTerm($c[1], $ns, $id, $nslist, $b);
-					$intersection_of .= " [owl:onProperty obo:$rel; owl:someValuesFrom $ns:$id] ";
-					$obointersection_of .= "obo:$rel $ns:$id;";
+			if($a[0] == "intersection_of") {
+				
+				if(!isset($intersection_of)) {
+					$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
+					$obointersection_of = GetFQURITTL($tid).' '.GetFQURITTL('obo:intersection_of').' [';
 				}
-			} else
-	 		  $buf .= QQuadL($tid,"obo:$a[0]",addslashes(str_replace('"','',stripslashes($a[1]))));
-					
+				
+				/*
+				intersection_of: develops_from VAO:0000092 ! chondrogenic condensation
+				intersection_of: OBO_REL:has_part VAO:0000040 ! cartilage tissue
+				*/
+				$c = explode(" ",$a[1]);
+				if(count($c) == 1) { // just a class					
+					$header .= SplitNSTerm($c[0], $ns, $id, $nslist, $b);
+					$intersection_of .= GetFQURITTL("$ns:$id");
+					$obointersection_of .= GetFQURITTL('rdf:type').' '.GetFQURITTL("$ns:$id").';';
+				} else if(count($c) == 2) { // an expression						
+					$header .= SplitNSTerm($c[0], $pred_ns, $pred_id, $nslist, $b);
+					$header .= SplitNSTerm($c[1], $obj_ns, $obj_id, $nslist, $b);
+					$intersection_of .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
+					$obointersection_of .= GetFQURITTL("obo:$pred_id").' '.GetFQURITTL("$obj_ns:$obj_id").';';
+				}
+			} else if ($a[0] == "relationship") {
+				if(!isset($relationship)) {
+					$relationship = GetFQURITTL($tid).' '.GetFQURITTL('rdfs:subClassOf').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
+					$oborelationship = GetFQURITTL($tid).' '.GetFQURITTL('obo:intersection_of').' [';
+				}
+				
+				/*
+				relationship: develops_from VAO:0000092 ! chondrogenic condensation
+				relationship: OBO_REL:has_part VAO:0000040 ! cartilage tissue
+				*/
+				$c = explode(" ",$a[1]);
+				if(count($c) == 1) { // just a class					
+					$header .= SplitNSTerm($c[0], $ns, $id, $nslist, $b);
+					$relationship .= GetFQURITTL("$ns:$id");
+					$oborelationship .= GetFQURITTL('rdf:type').' '.GetFQURITTL("$ns:$id").';';
+				} else if(count($c) == 2) { // an expression						
+					$header .= SplitNSTerm($c[0], $pred_ns, $pred_id, $nslist, $b);
+					$header .= SplitNSTerm($c[1], $obj_ns, $obj_id, $nslist, $b);
+					$relationship .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
+					$oborelationship.= GetFQURITTL("obo:$pred_id").' '.GetFQURITTL("$obj_ns:$obj_id").';';
+				}
+			
+			} else {
+	 		  // default
+			  $buf .= QQuadL($tid,"obo:$a[0]",addslashes(str_replace('"','',stripslashes($a[1]))));
+			}
 		} else {
 			// in the header
 			//format-version: 1.0
@@ -370,6 +393,7 @@ function OBO2TTL($indir,$outdir,$file)
 		$min = '';$buf ='';$header='';
  }
  if(isset($intersection_of))  $buf .= $intersection_of."].".PHP_EOL;
+ if(isset($relationship))  $buf .= $relationship."].".PHP_EOL;
 
  fclose($in);
  if($options['minimal']['value'] == 'true') fwrite($out,$min);
