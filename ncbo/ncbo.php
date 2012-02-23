@@ -32,7 +32,7 @@ AddOption($options, 'ncbo_api_key',null,'24e19c82-54e0-11e0-9d7b-005056aa3316', 
 AddOption($options, 'download','true|false','false',false);
 AddOption($options, 'overwrite','true|false','true',false);
 AddOption($options, 'minimal','true|false','false',false);
-AddOption($options, 'minimal+',null,'axioms',false);
+AddOption($options, 'minimal+','true|false','false',false);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
 AddOption($options, USE_CONF_FILE,'true|false','false', false);
 
@@ -161,6 +161,7 @@ function OBO2TTL($indir,$outdir,$file)
 		if($a[0] != "intersection_of") {
 			$intersection_of .= ")].".PHP_EOL;
 			$buf .= $intersection_of;
+			if($options['minimal+']['value'] == 'true') $min .= $intersection_of;
 			unset($intersection_of);
 		}
 	}
@@ -168,6 +169,7 @@ function OBO2TTL($indir,$outdir,$file)
 		if($a[0] != "relationship") {
 			$relationship .= ")].".PHP_EOL;
 			$buf .= $relationship;
+			if($options['minimal+']['value'] == 'true') $min .= $relationship;
 			unset($relationship);
 		}
 	}
@@ -372,7 +374,7 @@ function OBO2TTL($indir,$outdir,$file)
 		$buf .= QQuadL($ouri,"obo:$a[0]",str_replace( array('"','\:'), array('\"',':'), isset($a[1])?$a[1]:""));
 	}
 	fwrite($out,$header);
-	if($options['minimal']['value'] == 'true') fwrite($out,$min);
+	if($options['minimal']['value'] == 'true' || $options['minimal+']['value'] == 'true') fwrite($out,$min);
 	else fwrite($out,$buf);
 	$min = '';$buf ='';$header='';
  }
@@ -380,7 +382,7 @@ function OBO2TTL($indir,$outdir,$file)
  if(isset($relationship))  $buf .= $relationship."].".PHP_EOL;
 
  fclose($in);
- if($options['minimal']['value'] == 'true') fwrite($out,$min);
+ if($options['minimal']['value'] == 'true' || $options['minimal+']['value'] == 'true') fwrite($out,$min);
  else fwrite($out,$buf);
  fclose($out);
 }
