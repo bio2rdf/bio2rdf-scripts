@@ -59,6 +59,7 @@ function parse_citations_file($path){
 			echo "Error: unexpected fgets() fail\n";
 		}
 		fclose($handle);	
+	}
 }
 
 function parse_gencode_file($path){
@@ -160,7 +161,7 @@ function parse_nodes_file($path){
 			}
 			if(strlen($genetic_code_id)){
 				$buf .= "<$entryUri> <".$vocab."has_genetic_code_id> \"".$genetic_code_id."\" .\n";
-				$buf .= "<$entryUri> <".$vocab."has_gencode> <http://bio2rdf.org/taxon_resource:gencode_$gencode> .\n";
+				$buf .= "<$entryUri> <".$vocab."has_gencode> <http://bio2rdf.org/taxon_resource:gencode_$genetic_code_id> .\n";
 			}
 			if(strlen($inherited_gc_flag)){
 				$buf .= "<$entryUri> <".$vocab."has_inherited_gc_flag> \"".$inherited_gc_flag."\" .\n";
