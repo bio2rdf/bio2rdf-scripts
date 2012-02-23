@@ -49,11 +49,15 @@ foreach($gdataset_ns AS $ns) {
 function AddToGlobalNS($ns, $add_voc_and_resource = false)
 {
   global $gns;
-  $gns[$ns] = BIO2RDF_URI.$ns.':';
-  if($add_voc_and_resource) {
-    $gns[$ns.'_vocabulary'] = BIO2RDF_URI.$ns.'_vocabulary:';
-	$gns[$ns.'_resource'] = BIO2RDF_URI.$ns.'_resource:';
-  }
+  if(!isset($gns[$ns])) {
+	  $gns[$ns] = BIO2RDF_URI.$ns.':';
+	  if($add_voc_and_resource) {
+		$gns[$ns.'_vocabulary'] = BIO2RDF_URI.$ns.'_vocabulary:';
+		$gns[$ns.'_resource'] = BIO2RDF_URI.$ns.'_resource:';
+	  }
+	  return "@prefix $ns: <http://bio2rdf.org/$ns:> .".PHP_EOL;
+   }
+   return '';   
 }
 
 /** Generate the N3 prefix header **/
