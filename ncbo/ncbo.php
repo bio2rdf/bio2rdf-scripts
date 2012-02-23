@@ -71,8 +71,6 @@ if($options['files']['value']  != 'all') {
 }
 
 
-
-
 function OBO2TTL($indir,$outdir,$file)
 {
  global $gns, $options;
@@ -105,7 +103,7 @@ function OBO2TTL($indir,$outdir,$file)
  $furi = "bio2rdf_resource:file/$file";
  $ouri = "registry:$ontology";
 
- $header = N3NSHeader($nslist);
+ $header = N3NSHeader();
  $buf = QQuad($furi,"rdf:type", "sio:Document");
  $buf .= QQuadL($furi,"rdfs:label","Turtle converted OBO file for $ontology ontology (obtained through NCBO Bioportal) [bio2rdf_resource:$file]");
  $buf .= QQuadL($furi,"dc:creator","Michel Dumontier");
@@ -188,16 +186,9 @@ function OBO2TTL($indir,$outdir,$file)
 			$c = explode(":",$a[1]);
 			if(count($c) == 1) {$ns = "obo";$id=$c[0];}
 			else {$ns = strtolower($c[0]);$id=$c[1];}
-			if(!isset($nslist[$ns])) {
-				$header .= "@prefix $ns: <http://bio2rdf.org/$ns:>.".PHP_EOL;
-				$nslist[$ns] = $ns;
-			}
 			$id = str_replace( array("(",")"), array("_",""), $id);
-
 			$tid = $ns.":".$id;
-			// add this namespace to the global set for validation
-			$gns[$ns] = BIO2RDF_URI.$ns.':';
-			
+			$header .= AddToGlobalNS($ns);
 			$buf .= QQuadL($tid,"dc:identifier",$tid);
 		}
 		if($a[0] == "name") {
@@ -223,11 +214,9 @@ function OBO2TTL($indir,$outdir,$file)
 			}
 			
 			if($a[0] == "id") {	
-				$header .= SplitNSTerm($a[1], $ns, $id, $nslist, $b);
+				ParseQNAME($a[1],$ns,$id);
+				$header .= AddToGlobalNS($ns);
 				$tid = $ns.":".$id;
-				// add this namespace to the global set for validation
-				AddToGlobalNS($ns);				
-				
 				$buf .= QQuad($tid,"rdfs:isDefinedBy",$ouri);
 				$buf .= QQuadL($tid,"dc:identifier",$tid);
 			}
@@ -246,21 +235,33 @@ function OBO2TTL($indir,$outdir,$file)
 				$b = explode(" ",$a[1]);
 				$buf .= QQuadL($tid,"obo:$b[0]",strtolower($b[1]));
 			}
-			// XREF  obo:xref "EC:2.4.1.-".
+			// http://upload.wikimedia.org/wikipedia/commons/3/34/Anatomical_Directions_and_Axes.JPG
+			// Medical Dictionary:http\://www.medterms.com/
+			// KEGG COMPOUND:C02788 "KEGG COMPOUND"
 			if($a[0] == "xref") {
-				if(FALSE !== ($pos = strpos($a[1],":"))) {
-					$nspart = explode(" ",substr($a[1],0,$pos));
-					$idpart = explode(" ",substr($a[1],$pos+1));
-					// identifier can only be the first after
-					$ns = strtolower($nspart[0]);
-					$id = $idpart[0];				
-					$header .= SplitNSTerm($a[1],$ns1,$id1,$nslist,$d);
-					AddToGlobalNS($ns);
-					AddToGlobalNS(strtolower($ns1));
+				// first get the comment
+				if(FALSE !== ($pos = strpos($a[1],'"'))) {
+					$comment = substr($a[1],$pos+1,-1);
+					$identifier = substr($a[1],0,$pos-1);
+				} else {
+					$identifier = $a[1];
+				}
+				// next identify the namespace and identifier
+				if(FALSE !== ($pos = strpos($identifier,":"))) {
+					$id = substr($identifier,$pos+1);
+					$raw_ns = strtolower(substr($identifier,0,$pos));
+				
+					// the raw ns is likely to be very dirty
+					// should map to the registry
+					// but for now, just add this namespace
+					$ns = str_replace(" ","_",$raw_ns);
+					$header .= AddToGlobalNS($ns);
+							
 					if(strstr($id,"http")) {
 						$buf .= Quad(GetFQURI($tid),GetFQURI("rdfs:seeAlso"), stripslashes($id));
-					} else 
-					$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".stripslashes($id));
+					} else {
+						$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".stripslashes($id));
+					}
 				}
 			} 
 			if($a[0] == "synonym") {
@@ -312,19 +313,16 @@ function OBO2TTL($indir,$outdir,$file)
 			if(FALSE !== ($pos = strpos($a[1],"!"))) $a[1] = substr($a[1],0,$pos-1);
 
 			if($a[0] == "alt_id") {
-				$header .= SplitNSTerm($a[1],$ns,$id,$nslist,$d);
+				ParseQNAME($a[1],$ns,$id);
 				if($id != 'curators') {
-					AddToGlobalNS($ns);
-					$header .= SplitNSTerm($tid,$ns2,$id2,$nslist,$d);
-					AddToGlobalNS($ns);
-					
-					$buf .= QQuad("$ns:$id","rdfs:seeAlso","$ns2:$id2");
+					$header .= AddToGlobalNS($ns);	
+					$buf .= QQuad("$ns:$id","rdfs:seeAlso",$tid);
 				}
 			}			
 			if($a[0] == "is_a") {
 				// do subclassing
-				$header .= SplitNSTerm($a[1],$ns,$id,$nslist,$d);
-				AddToGlobalNS($ns);
+				ParseQNAME($a[1],$ns,$id);
+				$header .= AddToGlobalNS($ns);	
 				$t = QQuad($tid,"rdfs:subClassOf","$ns:$id");
 				$buf .= $t;
 				$min .= $t;
@@ -345,12 +343,16 @@ function OBO2TTL($indir,$outdir,$file)
 				*/
 				$c = explode(" ",$a[1]);
 				if(count($c) == 1) { // just a class					
-					$header .= SplitNSTerm($c[0], $ns, $id, $nslist, $b);
+					ParseQNAME($c[0],$ns,$id);
+					$header .= AddToGlobalNS($ns);
 					$intersection_of .= GetFQURITTL("$ns:$id");
 					$obointersection_of .= GetFQURITTL('rdf:type').' '.GetFQURITTL("$ns:$id").';';
 				} else if(count($c) == 2) { // an expression						
-					$header .= SplitNSTerm($c[0], $pred_ns, $pred_id, $nslist, $b);
-					$header .= SplitNSTerm($c[1], $obj_ns, $obj_id, $nslist, $b);
+					ParseQNAME($c[0],$pred_ns,$pred_id);
+					$header .= AddToGlobalNS($pred_ns);
+					ParseQNAME($c[0],$obj_ns,$obj_id);
+					$header .= AddToGlobalNS($obj_ns);
+
 					$intersection_of .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
 					$obointersection_of .= GetFQURITTL("obo:$pred_id").' '.GetFQURITTL("$obj_ns:$obj_id").';';
 				}
@@ -365,13 +367,17 @@ function OBO2TTL($indir,$outdir,$file)
 				relationship: OBO_REL:has_part VAO:0000040 ! cartilage tissue
 				*/
 				$c = explode(" ",$a[1]);
-				if(count($c) == 1) { // just a class					
-					$header .= SplitNSTerm($c[0], $ns, $id, $nslist, $b);
+				if(count($c) == 1) { // just a class	
+					ParseQNAME($c[0],$ns,$id);
+					$header .= AddToGlobalNS($ns);
 					$relationship .= GetFQURITTL("$ns:$id");
 					$oborelationship .= GetFQURITTL('rdf:type').' '.GetFQURITTL("$ns:$id").';';
 				} else if(count($c) == 2) { // an expression						
-					$header .= SplitNSTerm($c[0], $pred_ns, $pred_id, $nslist, $b);
-					$header .= SplitNSTerm($c[1], $obj_ns, $obj_id, $nslist, $b);
+					ParseQNAME($c[0],$pred_ns,$pred_id);
+					$header .= AddToGlobalNS($pred_ns);
+					ParseQNAME($c[1],$obj_ns,$obj_id);
+					$header .= AddToGlobalNS($obj_ns);
+
 					$relationship .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
 					$oborelationship.= GetFQURITTL("obo:$pred_id").' '.GetFQURITTL("$obj_ns:$obj_id").';';
 				}
@@ -402,26 +408,6 @@ function OBO2TTL($indir,$outdir,$file)
  
  //file_put_contents($outfile,$header.$buf);
 }
-
-function SplitNSTerm($term, &$ns, &$id, &$nslist, &$buf) 
-{
- $buf = '';
- $a = explode(" ! ",$term); // get the label out first
- $term = $a[0];
- $a = explode(":",$term);
- if(count($a) == 1) {$ns = '';$id=$a[0];}
- if(count($a) == 2) {
-  $ns = strtolower($a[0]);
-  $id = $a[1];
- }
- $ns = str_replace(" ","_",$ns);
- if($ns && !isset($nslist[$ns])) {
-   $buf = "@prefix $ns: <http://bio2rdf.org/$ns:>.".PHP_EOL;
-   $nslist[$ns] = $ns;
- }
- return $buf;
-}
-
 
 
 function Download($dir)
