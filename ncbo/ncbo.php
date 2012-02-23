@@ -32,6 +32,7 @@ AddOption($options, 'ncbo_api_key',null,'24e19c82-54e0-11e0-9d7b-005056aa3316', 
 AddOption($options, 'download','true|false','false',false);
 AddOption($options, 'overwrite','true|false','true',false);
 AddOption($options, 'minimal','true|false','false',false);
+AddOption($options, 'minimal+','true|false','false',false);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
 AddOption($options, USE_CONF_FILE,'true|false','false', false);
 
@@ -152,36 +153,28 @@ function OBO2TTL($indir,$outdir,$file)
 	// to fix error in obo generator
 	$lt = str_replace("synonym ","synonym: ",$lt);
 	$a = explode(" !", $lt);
+	if(isset($a[1])) $exc = $a[1];
 	$a = explode(": ",$a[0],2);
-	
 
+	// let's go
 	if(isset($intersection_of)) {
 		if($a[0] != "intersection_of") {
 			$intersection_of .= ")].".PHP_EOL;
-			$obointersection_of = substr($obointersection_of,0,-1)."].".PHP_EOL;
 			$buf .= $intersection_of;
-			//$buf .= $obointersection_of;
+			if($options['minimal+']['value'] == 'true') $min .= $intersection_of;
 			unset($intersection_of);
-			unset($obointersection_of);
 		}
 	}
 	if(isset($relationship)) {
 		if($a[0] != "relationship") {
 			$relationship .= ")].".PHP_EOL;
-			$oborelationship = substr($oborelationship,0,-1)."].".PHP_EOL;
 			$buf .= $relationship;
-			//$buf .= $oborelationship;
+			if($options['minimal+']['value'] == 'true') $min .= $relationship;
 			unset($relationship);
-			unset($oborelationship);
 		}
 	}
 
-	if(isset($typedef)) {
-		if($a[0] == "is_obsolete") {
-			$is_deprecated = true;
-			continue;
-		}
-		
+	if(isset($typedef)) {	
 		if($a[0] == "id") {
 			$c = explode(":",$a[1]);
 			if(count($c) == 1) {$ns = "obo";$id=$c[0];}
@@ -190,223 +183,208 @@ function OBO2TTL($indir,$outdir,$file)
 			$tid = $ns.":".$id;
 			$header .= AddToGlobalNS($ns);
 			$buf .= QQuadL($tid,"dc:identifier",$tid);
-		}
-		if($a[0] == "name") {
+		} else if($a[0] == "name") {
 			$buf .= QQuadL($tid,"rdfs:label", addslashes(stripslashes($a[1]))." [$tid]");
-		}
-		if($a[0] == "is_a") {
+		} else if($a[0] == "is_a") {
 			if(FALSE !== ($pos = strpos($a[1],"!"))) $a[1] = substr($a[1],0,$pos-1);
 			$buf .= QQuad($tid,"rdfs:subPropertyOf","obo:".strtolower($a[1]));
-		} 
-
-		if($a[0][0] == "!") $a[0] = substr($a[0],1);
-		$buf .= QQuadL($tid,"obo:$a[0]", str_replace('"','',stripslashes($a[1])));
+		} else if($a[0] == "is_obsolete") {
+			$buf .= QQuad($tid, "rdf:type", "owl:DeprecatedClass");
+			$is_deprecated = true;
+		} else {
+			if($a[0][0] == "!") $a[0] = substr($a[0],1);
+			$buf .= QQuadL($tid,"obo:$a[0]", str_replace('"','',stripslashes($a[1])));
+		}
 
 	} else if(isset($term)) {
-			if($a[0] == "is_obsolete" && $a[1] == "true") {
-				$t = QQuad($tid, "rdf:type", "owl:DeprecatedClass");
-				$t .= QQuad($tid, "rdfs:subClassOf", "owl:DeprecatedClass");
-				// "bio2rdf_vocabulary:Deprecated-Class");
-				$min .= $t;
-				$buf .= $t;
-				$is_deprecated = true;
-				continue;
-			}
+		if($a[0] == "is_obsolete" && $a[1] == "true") {
+			$t = QQuad($tid, "rdf:type", "owl:DeprecatedClass");
+			$t .= QQuad($tid, "rdfs:subClassOf", "owl:DeprecatedClass");
 			
-			if($a[0] == "id") {	
-				ParseQNAME($a[1],$ns,$id);
-				$header .= AddToGlobalNS($ns);
-				$tid = $ns.":".$id;
-				$buf .= QQuad($tid,"rdfs:isDefinedBy",$ouri);
-				$buf .= QQuadL($tid,"dc:identifier",$tid);
-			}
-			if($a[0] == "name") {
-			    $t = QQuadL($tid,"rdfs:label",addslashes(stripslashes($a[1]))." [$tid]");
-				$min .= $t;
-				$buf .= $t;
-			}
-			if($a[0] == "def") {
-				$t = addslashes(stripslashes(str_replace('"','',$a[1])));
-				$min .= QQuadL($tid,"dc:description",$t);
-				$buf .= QQuadL($tid,"dc:description",$t);
-			}
-
-			if($a[0] == "property_value") {
-				$b = explode(" ",$a[1]);
-				$buf .= QQuadL($tid,"obo:$b[0]",strtolower($b[1]));
-			}
-			// http://upload.wikimedia.org/wikipedia/commons/3/34/Anatomical_Directions_and_Axes.JPG
-			// Medical Dictionary:http\://www.medterms.com/
-			// KEGG COMPOUND:C02788 "KEGG COMPOUND"
-			if($a[0] == "xref") {
-				// first get the comment
-				if(FALSE !== ($pos = strpos($a[1],'"'))) {
-					$comment = substr($a[1],$pos+1,-1);
-					$identifier = substr($a[1],0,$pos-1);
-				} else {
-					$identifier = $a[1];
-				}
-				// next identify the namespace and identifier
-				if(FALSE !== ($pos = strpos($identifier,":"))) {
-					$id = substr($identifier,$pos+1);
-					$raw_ns = strtolower(substr($identifier,0,$pos));
-				
-					// the raw ns is likely to be very dirty
-					// should map to the registry
-					// but for now, just add this namespace
-					$ns = str_replace(" ","_",$raw_ns);
-					$header .= AddToGlobalNS($ns);
-							
-					if(strstr($id,"http")) {
-						$buf .= Quad(GetFQURI($tid),GetFQURI("rdfs:seeAlso"), stripslashes($id));
-					} else {
-						$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".stripslashes($id));
-					}
-				}
-			} 
-			if($a[0] == "synonym") {
-				// synonym: "entidades moleculares" RELATED [IUPAC:]
-				// synonym: "molecular entity" EXACT IUPAC_NAME [IUPAC:]
-				// synonym: "Chondrococcus macrosporus" RELATED synonym [NCBITaxonRef:Krzemieniewska_and_Krzemieniewski_1926]
-				
-				$a[1] = str_replace('"','',stripslashes($a[1]));
-				$rel = "SYNONYM";
-				$list = array("EXACT","BROAD","RELATED","NARROW");
-				$found = false;
-				foreach($list AS $keyword) {
-				  // get everything after the keyword up until the bracket [
-				  if(FALSE !== ($k_pos = strpos($a[1],$keyword))) {
-					$str_len = strlen($a[1]);
-					$keyword_len = strlen($keyword);
-					$keyword_end_pos = $k_pos+$keyword_len;
-					$b1_pos = strrpos($a[1],"[");
-					$b2_pos = strrpos($a[1],"]");					
-					$b_text = substr($a[1],$b1_pos+1,$b2_pos-$b1_pos-1);					
-					$diff = $b1_pos-$keyword_end_pos-1;
-					if($diff != 0) {
-  						// then there is more stuff here
-						$k = substr($a[1],$keyword_end_pos+1,$diff);
-						$rel = trim($k);
-					} else {
-						// create the long predicate
-						$rel = $keyword."_SYNONYM";
-					}
-					$found=true;
-					$str = substr($a[1],0,$k_pos-1);
-					break;
-				   }
-				}	
-
-				// check to see if we still haven't found anything
-				if($found === false) {
-					// we didn't find one of the keywords
-					// so take from the start to the bracket
-					$b1_pos = strrpos($a[1],"[");
-					$str = substr($a[1],0,$b1_pos-1);
-				 } 
-				   
-				$rel = str_replace(" ","_",$rel);
-				// $lit = addslashes($str.($b_text?" [".$b_text."]":""));
-				$l = QQuadL($tid,"obo_vocabulary:".strtolower($rel), $str);
-				$buf .= $l;
-			}
-			if(FALSE !== ($pos = strpos($a[1],"!"))) $a[1] = substr($a[1],0,$pos-1);
-
-			if($a[0] == "alt_id") {
-				ParseQNAME($a[1],$ns,$id);
-				if($id != 'curators') {
-					$header .= AddToGlobalNS($ns);	
-					$buf .= QQuad("$ns:$id","rdfs:seeAlso",$tid);
-				}
-			}			
-			if($a[0] == "is_a") {
-				// do subclassing
-				ParseQNAME($a[1],$ns,$id);
-				$header .= AddToGlobalNS($ns);	
-				$t = QQuad($tid,"rdfs:subClassOf","$ns:$id");
-				$buf .= $t;
-				$min .= $t;
-				$is_a = true;
-			} 
+			$min .= $t;
+			$buf .= $t;
+			$is_deprecated = true;
+		} else if($a[0] == "id") {	
+			ParseQNAME($a[1],$ns,$id);
+			$header .= AddToGlobalNS($ns);
+			$tid = $ns.":".$id;
+			$buf .= QQuad($tid,"rdfs:isDefinedBy",$ouri);
+			$buf .= QQuadL($tid,"dc:identifier",$tid);
 			
-
-			if($a[0] == "intersection_of") {
-				
-				if(!isset($intersection_of)) {
-					$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
-					$obointersection_of = GetFQURITTL($tid).' '.GetFQURITTL('obo:intersection_of').' [';
-				}
-				
-				/*
-				intersection_of: develops_from VAO:0000092 ! chondrogenic condensation
-				intersection_of: OBO_REL:has_part VAO:0000040 ! cartilage tissue
-				*/
-				$c = explode(" ",$a[1]);
-				if(count($c) == 1) { // just a class					
-					ParseQNAME($c[0],$ns,$id);
-					$header .= AddToGlobalNS($ns);
-					$intersection_of .= GetFQURITTL("$ns:$id");
-					$obointersection_of .= GetFQURITTL('rdf:type').' '.GetFQURITTL("$ns:$id").';';
-				} else if(count($c) == 2) { // an expression						
-					ParseQNAME($c[0],$pred_ns,$pred_id);
-					$header .= AddToGlobalNS($pred_ns);
-					ParseQNAME($c[0],$obj_ns,$obj_id);
-					$header .= AddToGlobalNS($obj_ns);
-
-					$intersection_of .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
-					$obointersection_of .= GetFQURITTL("obo:$pred_id").' '.GetFQURITTL("$obj_ns:$obj_id").';';
-				}
-			} else if ($a[0] == "relationship") {
-				if(!isset($relationship)) {
-					$relationship = GetFQURITTL($tid).' '.GetFQURITTL('rdfs:subClassOf').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
-					$oborelationship = GetFQURITTL($tid).' '.GetFQURITTL('obo:intersection_of').' [';
-				}
-				
-				/*
-				relationship: develops_from VAO:0000092 ! chondrogenic condensation
-				relationship: OBO_REL:has_part VAO:0000040 ! cartilage tissue
-				*/
-				$c = explode(" ",$a[1]);
-				if(count($c) == 1) { // just a class	
-					ParseQNAME($c[0],$ns,$id);
-					$header .= AddToGlobalNS($ns);
-					$relationship .= GetFQURITTL("$ns:$id");
-					$oborelationship .= GetFQURITTL('rdf:type').' '.GetFQURITTL("$ns:$id").';';
-				} else if(count($c) == 2) { // an expression						
-					ParseQNAME($c[0],$pred_ns,$pred_id);
-					$header .= AddToGlobalNS($pred_ns);
-					ParseQNAME($c[1],$obj_ns,$obj_id);
-					$header .= AddToGlobalNS($obj_ns);
-
-					$relationship .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
-					$oborelationship.= GetFQURITTL("obo:$pred_id").' '.GetFQURITTL("$obj_ns:$obj_id").';';
-				}
+		} else if($a[0] == "name") {
+			$t = QQuadL($tid,"rdfs:label",addslashes(stripslashes($a[1]))." [$tid]");
+			$min .= $t;
+			$buf .= $t;
 			
+		} else if($a[0] == "def") {
+			$t = addslashes(stripslashes(str_replace('"','',$a[1])));
+			$min .= QQuadL($tid,"dc:description",$t);
+			$buf .= QQuadL($tid,"dc:description",$t);
+			
+		} else if($a[0] == "property_value") {
+			$b = explode(" ",$a[1]);
+			$buf .= QQuadL($tid,"obo:$b[0]",strtolower($b[1]));
+			
+		} else if($a[0] == "xref") {
+		// http://upload.wikimedia.org/wikipedia/commons/3/34/Anatomical_Directions_and_Axes.JPG
+		// Medical Dictionary:http\://www.medterms.com/
+		// KEGG COMPOUND:C02788 "KEGG COMPOUND"
+		
+			// first get the comment
+			if(FALSE !== ($pos = strpos($a[1],'"'))) {
+				$comment = substr($a[1],$pos+1,-1);
+				$identifier = substr($a[1],0,$pos-1);
 			} else {
-	 		  // default
-			  $buf .= QQuadL($tid,"obo:$a[0]",addslashes(str_replace('"','',stripslashes($a[1]))));
+				$identifier = $a[1];
+			}
+			// next identify the namespace and identifier
+			if(FALSE !== ($pos = strpos($identifier,":"))) {
+				$id = substr($identifier,$pos+1);
+				$raw_ns = strtolower(substr($identifier,0,$pos));
+			
+				// the raw ns is likely to be very dirty
+				// should map to the registry
+				// but for now, just add this namespace
+				$ns = str_replace(" ","_",$raw_ns);
+				$header .= AddToGlobalNS($ns);
+						
+				if(strstr($id,"http")) {
+					$buf .= Quad(GetFQURI($tid),GetFQURI("rdfs:seeAlso"), stripslashes($id));
+				} else {
+					$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".stripslashes($id));
+				}
+			}	
+			
+		} else if($a[0] == "synonym") {
+			// synonym: "entidades moleculares" RELATED [IUPAC:]
+			// synonym: "molecular entity" EXACT IUPAC_NAME [IUPAC:]
+			// synonym: "Chondrococcus macrosporus" RELATED synonym [NCBITaxonRef:Krzemieniewska_and_Krzemieniewski_1926]
+			
+			$a[1] = str_replace('"','',stripslashes($a[1]));
+			$rel = "SYNONYM";
+			$list = array("EXACT","BROAD","RELATED","NARROW");
+			$found = false;
+			foreach($list AS $keyword) {
+			  // get everything after the keyword up until the bracket [
+			  if(FALSE !== ($k_pos = strpos($a[1],$keyword))) {
+				$str_len = strlen($a[1]);
+				$keyword_len = strlen($keyword);
+				$keyword_end_pos = $k_pos+$keyword_len;
+				$b1_pos = strrpos($a[1],"[");
+				$b2_pos = strrpos($a[1],"]");					
+				$b_text = substr($a[1],$b1_pos+1,$b2_pos-$b1_pos-1);					
+				$diff = $b1_pos-$keyword_end_pos-1;
+				if($diff != 0) {
+					// then there is more stuff here
+					$k = substr($a[1],$keyword_end_pos+1,$diff);
+					$rel = trim($k);
+				} else {
+					// create the long predicate
+					$rel = $keyword."_SYNONYM";
+				}
+				$found=true;
+				$str = substr($a[1],0,$k_pos-1);
+				break;
+			   }
+			}	
+
+			// check to see if we still haven't found anything
+			if($found === false) {
+				// we didn't find one of the keywords
+				// so take from the start to the bracket
+				$b1_pos = strrpos($a[1],"[");
+				$str = substr($a[1],0,$b1_pos-1);
+			 } 
+			   
+			$rel = str_replace(" ","_",$rel);
+			// $lit = addslashes($str.($b_text?" [".$b_text."]":""));
+			$l = QQuadL($tid,"obo_vocabulary:".strtolower($rel), $str);
+			$buf .= $l;
+			
+		} else if($a[0] == "alt_id") {
+			ParseQNAME($a[1],$ns,$id);
+			if($id != 'curators') {
+				$header .= AddToGlobalNS($ns);	
+				$buf .= QQuad("$ns:$id","rdfs:seeAlso",$tid);
+			}
+			
+		} else if($a[0] == "is_a") {
+			// do subclassing
+			ParseQNAME($a[1],$ns,$id);
+			$header .= AddToGlobalNS($ns);	
+			$t = QQuad($tid,"rdfs:subClassOf","$ns:$id");
+			$buf .= $t;
+			$min .= $t;
+			$is_a = true;
+			
+		} else if($a[0] == "intersection_of") {
+			if(!isset($intersection_of)) {
+				$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
+			}
+			
+			/*
+			intersection_of: develops_from VAO:0000092 ! chondrogenic condensation
+			intersection_of: OBO_REL:has_part VAO:0000040 ! cartilage tissue
+			*/
+			$c = explode(" ",$a[1]);
+			if(count($c) == 1) { // just a class					
+				ParseQNAME($c[0],$ns,$id);
+				$header .= AddToGlobalNS($ns);
+				$intersection_of .= GetFQURITTL("$ns:$id");
+			} else if(count($c) == 2) { // an expression						
+				ParseQNAME($c[0],$pred_ns,$pred_id);
+				$header .= AddToGlobalNS($pred_ns);
+				ParseQNAME($c[1],$obj_ns,$obj_id);
+				$header .= AddToGlobalNS($obj_ns);
+
+				$intersection_of .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
+			}
+
+		} else if ($a[0] == "relationship") {
+			if(!isset($relationship)) {
+				$relationship = GetFQURITTL($tid).' '.GetFQURITTL('rdfs:subClassOf').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
+			}
+			
+			/*
+			relationship: develops_from VAO:0000092 ! chondrogenic condensation
+			relationship: OBO_REL:has_part VAO:0000040 ! cartilage tissue
+			*/
+			$c = explode(" ",$a[1]);
+			if(count($c) == 1) { // just a class	
+				ParseQNAME($c[0],$ns,$id);
+				$header .= AddToGlobalNS($ns);
+				$relationship .= GetFQURITTL("$ns:$id");
+
+				} else if(count($c) == 2) { // an expression						
+				ParseQNAME($c[0],$pred_ns,$pred_id);
+				$header .= AddToGlobalNS($pred_ns);
+				ParseQNAME($c[1],$obj_ns,$obj_id);
+				$header .= AddToGlobalNS($obj_ns);
+
+				$relationship .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
 			}
 		} else {
-			// in the header
-			//format-version: 1.0
-			$a = explode(": ",trim($l));
-			
-			$buf .= QQuadL($ouri,"obo:$a[0]",str_replace( array('"','\:'), array('\"',':'), isset($a[1])?$a[1]:""));
+			// default handler
+			$buf .= QQuadL($tid,"obo:$a[0]",addslashes(str_replace('"','',stripslashes($a[1]))));
 		}
-		fwrite($out,$header);
-		if($options['minimal']['value'] == 'true') fwrite($out,$min);
-		else fwrite($out,$buf);
-		$min = '';$buf ='';$header='';
+	} else {
+		//header
+		//format-version: 1.0
+		$a = explode(": ",trim($l));
+		$buf .= QQuadL($ouri,"obo:$a[0]",str_replace( array('"','\:'), array('\"',':'), isset($a[1])?$a[1]:""));
+	}
+	fwrite($out,$header);
+	if($options['minimal']['value'] == 'true' || $options['minimal+']['value'] == 'true') fwrite($out,$min);
+	else fwrite($out,$buf);
+	$min = '';$buf ='';$header='';
  }
  if(isset($intersection_of))  $buf .= $intersection_of."].".PHP_EOL;
  if(isset($relationship))  $buf .= $relationship."].".PHP_EOL;
 
  fclose($in);
- if($options['minimal']['value'] == 'true') fwrite($out,$min);
+ if($options['minimal']['value'] == 'true' || $options['minimal+']['value'] == 'true') fwrite($out,$min);
  else fwrite($out,$buf);
  fclose($out);
- 
- //file_put_contents($outfile,$header.$buf);
 }
 
 
