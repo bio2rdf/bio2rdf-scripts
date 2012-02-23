@@ -113,6 +113,11 @@ function GetFQURI($qname)
 	exit;
 }
 
+function GetFQURITTL($qname)
+{
+	return '<'.GetFQURI($qname).'>';
+}
+
 function ParseQNAME($string,&$ns,&$id)
 {
 	$a = explode(":",$string);
