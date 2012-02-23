@@ -334,25 +334,24 @@ function OBO2TTL($indir,$outdir,$file)
 			if($a[0] == "intersection_of") {
 				// generate a blank node
 				if(!isset($intersection_of)) {
-					$intersection_of = "$tid owl:equivalentClass [a owl:Class; owl:intersectionOf (";
-					$obointersection_of = "$tid obo:intersection_of [";
+					$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
+					$obointersection_of = GetFQURITTL($tid).' '.GetFQURITTL('obo:intersection_of').' [';
 				}
+				
+				/*
+				intersection_of: develops_from VAO:0000092 ! chondrogenic condensation
+				intersection_of: OBO_REL:has_part VAO:0000040 ! cartilage tissue
+				*/
 				$c = explode(" ",$a[1]);
-				if(count($c) == 1) {
-					preg_match("/(.*) \! (.*)/",$c[0],$m);
-					if(count($m)) $c[0] = $m[0];
+				if(count($c) == 1) { // just a class					
 					$header .= SplitNSTerm($c[0], $ns, $id, $nslist, $b);
-					$intersection_of .= "$ns:$id";
-					$obointersection_of .= "a $ns:$id;";
-				} else if(count($c) == 2) {
-					preg_match("/(.*) \! (.*)/",$c[1],$m);
-					if(count($m)) $c[1] = $m[0];
-
-					$rel = $c[0];
-					$obj = $c[1];
-					$header .= SplitNSTerm($c[1], $ns, $id, $nslist, $b);
-					$intersection_of .= " [owl:onProperty obo:$rel; owl:someValuesFrom $ns:$id] ";
-					$obointersection_of .= "obo:$rel $ns:$id;";
+					$intersection_of .= GetFQURITTL("$ns:$id");
+					$obointersection_of .= GetFQURITTL('rdf:type').' '.GetFQURITTL("$ns:$id").';';
+				} else if(count($c) == 2) { // an expression						
+					$header .= SplitNSTerm($c[0], $pred_ns, $pred_id, $nslist, $b);
+					$header .= SplitNSTerm($c[1], $obj_ns, $obj_id, $nslist, $b);
+					$intersection_of .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
+					$obointersection_of .= GetFQURITTL("obo:$pred_id").' '.GetFQURITTL("$obj_ns:$obj_id").';';
 				}
 			} else
 	 		  $buf .= QQuadL($tid,"obo:$a[0]",addslashes(str_replace('"','',stripslashes($a[1]))));
