@@ -61,9 +61,6 @@ foreach($files as $file){
 	parse_goa_file($options['indir']['value'].$infilename, $options['outdir']['value'].$outfilename);
 	echo " ... completed!".PHP_EOL;
 }
-//$path = "/home/jose/tmp/gene_association.goa_dog.gz";
-
-//parse_goa_file($path);
 
 
 function parse_goa_file($inpath, $outpath){
@@ -97,7 +94,7 @@ function parse_goa_file($inpath, $outpath){
 				if(strlen($qualifier)){
 					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_qualifier> \"$qualifier\" . \n";
 				}
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_annotation> <http://bio2rdf.org/go:$go_id> .\n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_annotation> <http://bio2rdf.org/go:".substr($go_id,3)."> .\n";
 				foreach($db_references as $aref){
 					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_source> \"".htmlentities($aref)."\" .\n";
 				}
