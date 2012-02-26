@@ -56,8 +56,8 @@ if($options['download']['value'] == 'true') {
 
 foreach($files as $file){
 	$infilename = "gene_association.goa_".$file.".gz";
-	$outfilename = "gene_association.goa_".$file.".ttl";
-	echo "Generating TTL for $infilename ...".PHP_EOL; 
+	$outfilename = "gene_association.goa_".$file.".nt";
+	echo "Generating N-Triples for $infilename ...".PHP_EOL; 
 	parse_goa_file($options['indir']['value'].$infilename, $options['outdir']['value'].$outfilename);
 	echo " ... completed!".PHP_EOL;
 }
@@ -90,23 +90,23 @@ function parse_goa_file($inpath, $outpath){
 				$entryUri = getdbURI($db_id,$db_object_id);
 				$buf ="";
 				
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_alternative_symbol> \"$db_object_symbol\" .\n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_alternative_symbol> \"".iconv("UTF-8","UTF-8//IGNORE",$db_object_symbol)."\" .\n";
 				if(strlen($qualifier)){
-					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_qualifier> \"$qualifier\" . \n";
+					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_qualifier> \"".iconv("UTF-8","UTF-8//IGNORE",$qualifier)."\" . \n";
 				}
 				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_annotation> <http://bio2rdf.org/go:".substr($go_id,3)."> .\n";
 				foreach($db_references as $aref){
 					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_source> \"".htmlentities($aref)."\" .\n";
 				}
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_evidence_code> <http://bio2rdf.org/goa_vocabulary:".htmlentities($parsedLine[6]).">. \n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_evidence_code> <http://bio2rdf.org/goa_vocabulary:".iconv("UTF-8","UTF-8//IGNORE",htmlentities($parsedLine[6])).">. \n";
 			
 				$type = key($evidence_code);
-				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#label> \"".$evidence_code[$type][0]."\".\n";
+				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#label> \"".iconv("UTF-8","UTF-8//IGNORE",$evidence_code[$type][0])."\".\n";
 				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://bio2rdf.org/goa_vocabulary:has_evidence_code_type> \"".$type."\".\n";
 				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <".$evidence_code[$type][1]."> .\n";
 				
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_aspect_label> \"$aspectLabel\" .\n";
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_gene_product> \"$geneProduct\" .\n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_aspect_label> \"".iconv("UTF-8","UTF-8//IGNORE",$aspectLabel)."\" .\n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_gene_product> \"".iconv("UTF-8","UTF-8//IGNORE",$geneProduct)."\" .\n";
 				
 				foreach($geneSynonyms as $aSyn){
 					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_synonym> \"".htmlentities($aSyn)."\" .\n";
