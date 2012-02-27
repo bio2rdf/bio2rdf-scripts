@@ -106,10 +106,14 @@ function parse_goa_file($inpath, $outpath){
 				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <".$evidence_code[$type][1]."> .\n";
 				
 				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_aspect_label> \"".iconv("UTF-8","UTF-8//IGNORE",str_replace("\"", "", $aspectLabel))."\" .\n";
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_gene_product> \"".iconv("UTF-8","UTF-8//IGNORE",str_replace("\"", "", $geneProduct))."\" .\n";
+				if(strlen($geneProduct)){
+					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_gene_product> \"".iconv("UTF-8","UTF-8//IGNORE",str_replace(array("\/", "\\", "\""), array(";", "", ""), $geneProduct))."\" .\n";
+				}
 				
 				foreach($geneSynonyms as $aSyn){
-					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_synonym> \"".htmlentities(str_replace("\\", "", str_replace("\"", "", $aSyn)))."\" .\n";
+					if(strlen($aSyn)){
+						$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_synonym> \"".htmlentities(str_replace(array("\\", "\""), "", $aSyn))."\" .\n";
+					}
 				}
 				
 				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_taxid> \"".str_replace("\"", "", $taxid)."\" .\n";
@@ -142,6 +146,9 @@ function getdbURI($db_id, $db_object_id){
 	$returnMe = "";
 	if($db_id == "UniProtKB"){
 		$returnMe = $base."uniprot:".$db_object_id;
+	} else if ($db_id == "PDB"){
+		$split_object = explode("_", $db_object_id);
+		$returnMe = $base."pdb:".$split_object[0]."/chain_".$split_object[1];
 	}
 	return $returnMe;
 }
