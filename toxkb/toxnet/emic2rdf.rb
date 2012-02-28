@@ -135,11 +135,12 @@ class Emic
                   @graph << [@doc,@emic_resource.hasAuthor,r]
                 elsif(node.name == "CASRegistryNumber" && node.node_type == 1)
                   node.read
-                  
-                  r = @cas[node.value]
-                  @graph << [r,RDF.type,@emic_resource.CASRegistryNumber]
-                  @graph << [r,RDF.value,RDF::Literal.new("\"#{CGI.escape(node.value)}\"")]
-                  @graph << [@doc,@emic_resource.hasCASRegistryNumber,r]
+                 if(!node.value.include?("NO CASRN")|| && !node.value.include?("NO CAS RN")) 
+                    r = @cas[node.value.strip.chomp]
+                    @graph << [r,RDF.type,@emic_resource.CASRegistryNumber]
+                    @graph << [r,RDF.value,RDF::Literal.new("\"#{CGI.escape(node.value)}\"")]
+                    @graph << [@doc,@emic_resource.hasCASRegistryNumber,r]
+                  end
                 elsif(node.name == "CASRegistryNumberName" && node.node_type == 1)
                   node.read
                   

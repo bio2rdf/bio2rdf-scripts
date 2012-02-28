@@ -1,6 +1,7 @@
   require 'rubygems'
   require 'digest/md5'
   require 'rdfextraction'
+  require 'cgi'
 
 #################################################################################################################
 #HSDB :: Hazardous Substance Data Bank
@@ -262,7 +263,7 @@ stack = Hash.new()
 							     if(node.content.include?("null") == false)
 							        temp_concept = Concept.new("hsdb",Digest::MD5.hexdigest(key +  node.content))
 							          temp_concept.add_statement("rdf","type","hsdb_resource",key)
-							          temp_concept.add_literal("rdfs","label",node.content)
+							          temp_concept.add_literal("rdfs","label","#{CGI.escape(node.content)}")
 							          substance.add_relationship("hsdb_resource","has#{key}",temp_concept)
 							          @outfile << temp_concept.output
 						      end
