@@ -1,6 +1,6 @@
 <?php
 ###############################################################################
-#Copyright (C) 2012 Jose Cruz-Toledo
+#Copyright (C) 2012 Jose Cruz-Toledo, Alison Callahan
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy of
 #this software and associated documentation files (the "Software"), to deal in
@@ -21,16 +21,55 @@
 #SOFTWARE.
 ###############################################################################
 
-$path = "/home/jose/tmp/gene_association.goa_dog.gz";
+require_once (dirname(__FILE__).'/../common/php/libphp.php');
 
-parse_goa_file($path);
+$options = null;
+AddOption($options, 'indir', null, '/data/download/goa/', false);
+AddOption($options, 'outdir',null, '/data/rdf/goa/', false);
+AddOption($options, 'files','all|arabidopsis|chicken|cow|dicty|dog|fly|human|mouse|pdb|pig|rat|uniprot|worm|yeast|zebrafish','',true);
+AddOption($options, 'remote_base_url',null,'ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/', false);
+AddOption($options, 'download','true|false','false', false);
+AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
+AddOption($options, USE_CONF_FILE,'true|false','false', false);
+
+if(SetCMDlineOptions($argv, $options) == FALSE) {
+        PrintCMDlineOptions($argv, $options);
+        exit;
+}
+
+$files = array();
+
+@mkdir($options['indir']['value'],null,true);
+@mkdir($options['outdir']['value'],null,true);
+
+if($options['files']['value'] == 'all') {
+        $files = explode("|",$options['files']['list']);
+        array_shift($files);
+} else {
+        $files = explode("|",$options['files']['value']);
+}
+
+// download the files
+if($options['download']['value'] == 'true') {
+  DownloadGOAFiles($files,$options['indir']['value'],$options['remote_base_url']['value']);
+}
+
+foreach($files as $file){
+	$infilename = "gene_association.goa_".$file.".gz";
+	$outfilename = "gene_association.goa_".$file.".nt";
+	echo "Generating N-Triples for $infilename ...".PHP_EOL; 
+	parse_goa_file($options['indir']['value'].$infilename, $options['outdir']['value'].$outfilename);
+	echo " ... completed!".PHP_EOL;
+}
 
 
-function parse_goa_file($path){
-	$fh = gzopen($path,'r') or die("Cannot open $path !\n");
-	if($fh){
-		while(!gzeof($fh)){
-			$aLine = gzgets($fh, 4096);
+function parse_goa_file($inpath, $outpath){
+	$buf = '';
+	$infh = gzopen($inpath,'r') or die("Cannot open $inpath !\n");
+	$outfh = fopen($outpath, 'w');
+	if($infh){
+		while(!gzeof($infh)){
+			$aLine = gzgets($infh, 4096);
 			$parsedLine = parse_goa_file_line($aLine);
 			if($parsedLine != null){
 				//get the Go id
@@ -51,38 +90,45 @@ function parse_goa_file($path){
 				$entryUri = getdbURI($db_id,$db_object_id);
 				$buf ="";
 				
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_alternative_symbol> \"$db_object_symbol\" .\n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_alternative_symbol> \"".iconv("UTF-8","UTF-8//IGNORE",str_replace("\"", "", $db_object_symbol))."\" .\n";
 				if(strlen($qualifier)){
-					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_qualifier> \"$qualifier\" . \n";
+					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_qualifier> \"".iconv("UTF-8","UTF-8//IGNORE",str_replace("\"", "", $qualifier))."\" . \n";
 				}
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_annotation> <http://bio2rdf.org/go:$go_id> .\n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_annotation> <http://bio2rdf.org/go:".substr($go_id,3)."> .\n";
 				foreach($db_references as $aref){
-					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_source> \"".htmlentities($aref)."\" .\n";
+					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_source> \"".htmlentities(str_replace("\"", "", $aref))."\" .\n";
 				}
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_evidence_code> <http://bio2rdf.org/goa_vocabulary:".htmlentities($parsedLine[6]).">. \n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_evidence_code> <http://bio2rdf.org/goa_vocabulary:".iconv("UTF-8","UTF-8//IGNORE",htmlentities($parsedLine[6])).">. \n";
 			
 				$type = key($evidence_code);
-				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#label> \"".$evidence_code[$type][0]."\".\n";
-				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://bio2rdf.org/goa_vocabulary:has_evidence_code_type> \"".$type."\".\n";
+				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#label> \"".iconv("UTF-8","UTF-8//IGNORE",str_replace("\"", "", $evidence_code[$type][0]))."\".\n";
+				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://bio2rdf.org/goa_vocabulary:has_evidence_code_type> \"".str_replace("\"", "", $type)."\".\n";
 				$buf .= "<http://bio2rdf.org/goa_vocabulary:$parsedLine[6]> <http://www.w3.org/2000/01/rdf-schema#subClassOf> <".$evidence_code[$type][1]."> .\n";
 				
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_aspect_label> \"$aspectLabel\" .\n";
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_gene_product> \"$geneProduct\" .\n";
-				
-				foreach($geneSynonyms as $aSyn){
-					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_synonym> \"".htmlentities($aSyn)."\" .\n";
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_aspect_label> \"".iconv("UTF-8","UTF-8//IGNORE",str_replace("\"", "", $aspectLabel))."\" .\n";
+				if(strlen($geneProduct)){
+					$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_gene_product> \"".iconv("UTF-8","UTF-8//IGNORE",str_replace(array("\/", "\\", "\""), array(";", "", ""), $geneProduct))."\" .\n";
 				}
 				
-				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_taxid> \"$taxid\" .\n";
+				foreach($geneSynonyms as $aSyn){
+					if(strlen($aSyn)){
+						$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_synonym> \"".htmlentities(str_replace(array("\\", "\""), "", $aSyn))."\" .\n";
+					}
+				}
 				
-				echo $buf;
+				$buf .= "<$entryUri> <http://bio2rdf.org/goa_vocabulary:has_taxid> \"".str_replace("\"", "", $taxid)."\" .\n";
+				
+				//write buffer to file
+				fwrite($outfh, $buf);
+				
 			}
 		}
 	}
-	if(!feof($fh)){
+	if(!feof($infh)){
 		echo "Error: unexpected fgetz() fail!\n";
 	}
-	gzclose($fh);
+	gzclose($infh);
+	fclose($outfh);
 }
 
 
@@ -100,6 +146,9 @@ function getdbURI($db_id, $db_object_id){
 	$returnMe = "";
 	if($db_id == "UniProtKB"){
 		$returnMe = $base."uniprot:".$db_object_id;
+	} else if ($db_id == "PDB"){
+		$split_object = explode("_", $db_object_id);
+		$returnMe = $base."pdb:".$split_object[0]."/chain_".$split_object[1];
 	}
 	return $returnMe;
 }
@@ -211,8 +260,21 @@ function getEvidenceCodeLabelArr($aec){
 		return null;
 	}
 	
-	
-	
+}
+
+function DownloadGOAFiles($files, $ldir, $remote_base_url){
+	echo 'Creating local download path '.$ldir.PHP_EOL;
+    @mkdir($ldir,null,true);
+
+	foreach($files as $file){
+		echo "Downloading gene_association.goa_".$file.".gz ...".PHP_EOL;
+		if(!copy($remote_base_url.strtoupper($file)."/gene_association.goa_".$file.".gz",$ldir."gene_association.goa_".$file.".gz")){
+			$errors = error_get_last();
+			echo $errors['type']." : ".$errors['message'].PHP_EOL;
+		} else {
+			echo "gene_association.goa_".$file.".gz copied to $ldir".PHP_EOL;
+		}
+	}//foreach
 }
 
 ?>

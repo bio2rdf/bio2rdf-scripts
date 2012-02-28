@@ -1,1 +1,13 @@
-A parser for GO Annotations
+DESCRIPTION
+===========
+This script will print to STDOUT a Bio2RDF N-Triples version of the files found here ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/
+
+REQUIREMENTS
+============
+PHP 5.1 or above and 200+ GB of HDD space
+
+USAGE
+=====
+$ php goa2ntriple.php indir /path/to/downloaded/files download false
+
+
