@@ -27,7 +27,8 @@ The ruby scripts in scripts/ are used to convert their respective resources into
 Linked Data. A description of each resource is below:
 
 Comparative Toxicogenomics Database(CTD)
-Data source: http://ctdbase.org/ Accession date: 2010-09-10
+Data source: http://ctdbase.org/ 
+Accession date: 2010-09-10
 
 The comparative toxicogenomics database houses curated information related to
 cross species chemical-gene/protein interactions and chemical- and gene-disease
@@ -38,7 +39,9 @@ participants in an association.
 
 U.S Environmental Protection Agency Computational Toxicology Research Program
 (U.S EPA ToxCast)
+
 Data Source: http://www.epa.gov/ncct/toxcast/
+
 Accession Date: 2011-11-10
 
 THE U.S EPA ToxCast program was created to develop to develop strategies to
