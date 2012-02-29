@@ -27,8 +27,7 @@ The ruby scripts in scripts/ are used to convert their respective resources into
 Linked Data. A description of each resource is below:
 
 Comparative Toxicogenomics Database(CTD)
-Data source: http://ctdbase.org/
-Accession date: 2010-09-10
+Data source: http://ctdbase.org/ Accession date: 2010-09-10
 
 The comparative toxicogenomics database houses curated information related to
 cross species chemical-gene/protein interactions and chemical- and gene-disease
