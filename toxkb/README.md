@@ -39,9 +39,7 @@ participants in an association.
 
 U.S Environmental Protection Agency Computational Toxicology Research Program
 (U.S EPA ToxCast)
-
 Data Source: http://www.epa.gov/ncct/toxcast/
-
 Accession Date: 2011-11-10
 
 THE U.S EPA ToxCast program was created to develop to develop strategies to
