@@ -54,16 +54,18 @@ class CcrisDatabase
                raise LoadError,"The file you specified doesn't exist: #{@options.file}" if File.exist?(@options.file) == false
            else
             @log.error "Select a file using -f or --file FILE"
+            exit!
            end
            
            if(@options.output)
                # not going to worry about this one.
            else
             @log.error "No output was specified select using -o or --output"
+            exit!
            end
         rescue LoadError => bam
            @log.error bam
-           exit
+           exit!
         end
            
         return true

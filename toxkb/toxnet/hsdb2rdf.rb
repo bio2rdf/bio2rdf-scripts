@@ -1,8 +1,15 @@
   require 'rubygems'
   require 'digest/md5'
   require 'rdfextraction'
+  require 'cgi'
 
-
+#################################################################################################################
+#HSDB :: Hazardous Substance Data Bank
+#Author :: Dana Klassen
+#Description :: This script takes the HSDB.xml file downloaded from the NLM toxnet archives and coverts it to RDF.
+# The script relies on several gems that are located in the repository this script is stored. These Gems must be
+# installed prior to use
+#################################################################################################################
   settings = {'file' => File.expand_path(File.join(File.dirname(__FILE__),"..","/localfiles/databases/hsdb.xml")),
                 'outpath'  => File.expand_path(File.join(File.dirname(__FILE__),"..","/localfiles/triples/hsdb/")),
                   'default' => "true"}
@@ -16,7 +23,7 @@
                   		@parser = XmlAdaptor.new(settings.fetch('file'))
                   	rescue IOError => e
                     		puts e.backtrace.join("\n")
-                    		kernel.exit
+                    		exit!
                   	end
                   	#validate that a file path was passed in a file can be created.
                   	begin
@@ -256,7 +263,7 @@ stack = Hash.new()
 							     if(node.content.include?("null") == false)
 							        temp_concept = Concept.new("hsdb",Digest::MD5.hexdigest(key +  node.content))
 							          temp_concept.add_statement("rdf","type","hsdb_resource",key)
-							          temp_concept.add_literal("rdfs","label",node.content)
+							          temp_concept.add_literal("rdfs","label","#{CGI.escape(node.content)}")
 							          substance.add_relationship("hsdb_resource","has#{key}",temp_concept)
 							          @outfile << temp_concept.output
 						      end
