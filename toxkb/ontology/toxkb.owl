@@ -129,10 +129,10 @@ ObjectProperty: <http://bio2rdf.org/ctd_resource:organism>
         owl:topObjectProperty
     
     
-ObjectProperty: <http://semanticscience.org/resource/SIO_000128>
+ObjectProperty: <http://semanticscience.org/resource/SIO_000217>
 
     
-ObjectProperty: <http://semanticscience.org/resource/SIO_000217>
+ObjectProperty: <http://semanticscience.org/resource/SIO_000128>
 
     
 ObjectProperty: <http://semanticscience.org/resource/SIO_000310>
@@ -201,6 +201,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000209>
 Class: <http://semanticscience.org/resource/SIO_011125>
 
     
+Class: <http://bio2rdf.org/ccris_resource:Endmi>
+
+    Annotations: 
+        rdfs:label "ccris endmi"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000015>
+    
+    
 Class: <http://bio2rdf.org/ctd_resource:Article>
 
     Annotations: 
@@ -252,6 +261,15 @@ Class: <http://bio2rdf.org/ctd_resource:ChemicalGeneInteraction>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000090>
     
     
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000210>
+
+    Annotations: 
+        rdfs:label "ccris inconclusive experimental outcome"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000151>
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000076>
 
     Annotations: 
@@ -261,13 +279,13 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000076>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000019>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000210>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000075>
 
     Annotations: 
-        rdfs:label "ccris inconclusive experimental outcome"@
+        rdfs:label "immersion"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000151>
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000019>
     
     
 Class: <http://bio2rdf.org/ctd_resource:Disease>
@@ -279,15 +297,6 @@ Class: <http://bio2rdf.org/ctd_resource:Disease>
     SubClassOf: 
         <http://semanticscience.org/resource/SIO_010299>
          and (<http://semanticscience.org/resource/SIO_000212> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000010>)
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000075>
-
-    Annotations: 
-        rdfs:label "immersion"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000019>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000074>
@@ -338,6 +347,15 @@ Class: <http://semanticscience.org/resource/SIO_000485>
 Class: <http://semanticscience.org/resource/SIO_000487>
 
     
+Class: <http://bio2rdf.org/genetox_resource:Spct>
+
+    Annotations: 
+        rdfs:label "genetox species"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000082>
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000207>
 
     Annotations: 
@@ -356,15 +374,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000206>
     
     SubClassOf: 
         <http://semanticscience.org/resource/SIO_010100>
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000205>
-
-    Annotations: 
-        rdfs:label "genetox test organism"@en
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000082>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000204>
@@ -406,17 +415,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000068>
          and (<http://semanticscience.org/resource/SIO_000586> some 
             (<http://semanticscience.org/resource/SIO_000407>
              and (<http://semanticscience.org/resource/SIO_000356> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000078>)))
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000202>
-
-    Annotations: 
-        rdfs:comment "A genetox database record is a database record that is part of the genetox database. Each genetox record holds information regarding experimental assay information regarding a specific chemical as it relates to genotoxicity."@en,
-        rdfs:label "genetox datarecord"@en
-    
-    SubClassOf: 
-        <http://semanticscience.org/resource/SIO_000756>,
-        owl:Thing
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000201>
@@ -525,44 +523,57 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000062>
 Class: owl:Thing
 
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000091>
-
-    Annotations: 
-        rdfs:comment "The CTD uses a controlled vocabulary for these statements."@en,
-        rdfs:comment "The effect or outcome a chemical realizes as part of some interaction relation with a gene. i.e decreases gene expression."@en,
-        rdfs:label "ctd action"@en
-    
-    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000092>
 
     Annotations: 
         rdfs:label "date"@en
     
     
+Class: <http://bio2rdf.org/ccris_resource:DOCNO>
+
+    Annotations: 
+        rdfs:label "ccris docno"@
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000090>
 
     Annotations: 
         rdfs:comment "A relationship stated in the Comparative Toxicogenomics Database between two entities (chemical/gene/diease)."@en,
-        rdfs:label "ctd relation"@
+        rdfs:label "ctd relation"@en
     
     
 Class: <http://semanticscience.org/resource/SIO_010525>
 
+    
+Class: <http://bio2rdf.org/ccris_resource:Tstu>
+
+    Annotations: 
+        rdfs:label "ccris tumor inhibition study"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000011>
+    
+    
+Class: <http://bio2rdf.org/genetox_resource:Tax>
+
+    Annotations: 
+        rdfs:label "genetox tax"@en
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Specm>
+
+    Annotations: 
+        rdfs:label "ccris specm"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000009>
+    
     
 Class: <http://semanticscience.org/resource/SIO_000637>
 
     
 Class: <http://semanticscience.org/resource/SIO_010046>
 
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000096>
-
-    Annotations: 
-        rdfs:label "ctd decreases activity"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000091>
-    
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000095>
 
@@ -592,6 +603,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000093>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000085>
     
     
+Class: <http://bio2rdf.org/ccris_resource:Speci>
+
+    Annotations: 
+        rdfs:label "ccris speci"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000009>
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000099>
 
     Annotations: 
@@ -599,6 +619,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000099>
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000041>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Specc>
+
+    Annotations: 
+        rdfs:label "ccris specc"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000009>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000098>
@@ -618,6 +647,12 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000097>
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000041>,
         <http://semanticscience.org/resource/SIO_000487>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Indcm>
+
+    Annotations: 
+        rdfs:label "ccris indcm"@
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000080>
@@ -649,6 +684,43 @@ Class: <http://bio2rdf.org/ctd_resource:Gene>
     SubClassOf: 
         <http://semanticscience.org/resource/SIO_010100>
          and (<http://semanticscience.org/resource/SIO_000212> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000010>)
+    
+    
+Class: <http://bio2rdf.org/ccris_resoruce:Docai>
+
+    Annotations: 
+        rdfs:label "ccris docai"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Spect>
+
+    Annotations: 
+        rdfs:label "ccris spect"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000009>
+    
+    
+Class: <http://bio2rdf.org/genetox_resource:Rpt>
+
+    Annotations: 
+        rdfs:comment "a panel report is a report evaluating  the  effectiveness of an experimental assay based on realizing the design objective of the experiment."@en,
+        rdfs:label "genetox rpt"@en
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000081>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Endpm>
+
+    Annotations: 
+        rdfs:label "ccris endpm"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000015>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000083>
@@ -710,6 +782,9 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000089>
         rdfs:label "experimental specification"@en
     
     
+Class: <http://semanticscience.org/resource/SIO_010054>
+
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000088>
 
     Annotations: 
@@ -718,9 +793,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000088>
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000086>
     
-    
-Class: <http://semanticscience.org/resource/SIO_010054>
-
     
 Class: <http://bio2rdf.org/ctd_resource:ChemicalDiseaseInteraction>
 
@@ -738,6 +810,26 @@ Class: <http://semanticscience.org/resource/SIO_000756>
 Class: <http://semanticscience.org/resource/SIO_000258>
 
     
+Class: <http://bio2rdf.org/ccris_resource:Doprt>
+
+    Annotations: 
+        rdfs:label "ccris doprt"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Dosec>
+
+    Annotations: 
+        rdfs:comment "The quantity of a known carcinogen administered to an organism."@en,
+        rdfs:comment "The value to specify the amount of a known caricnogen given in a ccris experimental assay."@en,
+        rdfs:label "ccris dosec"@en
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000033>
 
     Annotations: 
@@ -747,29 +839,8 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000033>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000034>
-
-    Annotations: 
-        rdfs:comment "The quantity of a known carcinogen administered to an organism."@en,
-        rdfs:comment "The value to specify the amount of a known caricnogen given in a ccris experimental assay."@en,
-        rdfs:label "ccris carcinogen dose"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
-    
-    
 Class: <http://semanticscience.org/resource/SIO_000154>
 
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000031>
-
-    Annotations: 
-        rdfs:comment "The number of animals sacrificed for the ccris experimental study"@en,
-        rdfs:label "ccris number of animals tested"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000089>
-    
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000032>
 
@@ -791,6 +862,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000030>
          and (<http://semanticscience.org/resource/SIO_000212> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000088>)
     
     
+Class: <http://bio2rdf.org/ccris_resource:Dopri>
+
+    Annotations: 
+        rdfs:label "ccris dopri"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
+    
+    
 Class: <http://semanticscience.org/resource/SIO_000750>
 
     
@@ -801,6 +881,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000039>
     
     SubClassOf: 
         <http://semanticscience.org/resource/SIO_000074>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Dosem>
+
+    Annotations: 
+        rdfs:label "ccris dosem"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000037>
@@ -847,45 +936,34 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000036>
 Class: <http://semanticscience.org/resource/SIO_000747>
 
     
+Class: <http://bio2rdf.org/genetox_resource:Date>
+
+    Annotations: 
+        rdfs:comment "The date the genetox data record was added to the database."@en,
+        rdfs:label "genetox date"@en
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000092>
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000020>
 
     Annotations: 
         rdfs:label "ccris tumor site type of lesion"@
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000021>
+Class: <http://semanticscience.org/resource/SIO_010035>
+
+    
+Class: <http://bio2rdf.org/genetox_resource:Ref>
 
     Annotations: 
-        rdfs:comment "A ccris species is an organism (single or multicelled) used in an ccris experimental assay testing carcinogenicity, mutagenicity, tumor promotion, and tumor inhibition."@en,
-        rdfs:label "ccris test organism"@en
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000082>
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000022>
-
-    Annotations: 
-        rdfs:comment "A reference to a scientific publication that is about some ccris experimental study"@en,
-        rdfs:label "ccris reference"@
+        rdfs:comment "A reference to a scientific publication that is about some genetox experimental assay."@en,
+        rdfs:label "genetox ref"@en
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000081>
     
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000023>
-
-    Annotations: 
-        rdfs:label "ccris data record"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/resource/SIO_000756>
-         and (<http://semanticscience.org/resource/SIO_000332> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000197>),
-        <http://semanticscience.org/resource/SIO_000093> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000005>
-    
-    
-Class: <http://semanticscience.org/resource/SIO_010035>
-
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000028>
 
@@ -906,16 +984,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000029>
          and (<http://semanticscience.org/resource/SIO_000235> some 
             (<http://semanticscience.org/resource/SIO_010355>
              and (<http://semanticscience.org/resource/SIO_000356> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000094>)))
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000024>
-
-    Annotations: 
-        rdfs:comment "The date the ccris record entry was added to the database."@en,
-        rdfs:label "ccris entry date"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000092>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000025>
@@ -947,6 +1015,39 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000027>
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000085>
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000001>
+
+    Annotations: 
+        rdfs:comment "A chemical abstracts service (CAS) identifier is a unique identifier that identifies some chemical substance."@en,
+        rdfs:label "cas registry number"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/resource/SIO_000675>
+    
+    
+Class: <http://semanticscience.org/resource/SIO_000675>
+
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000009>
+
+    Annotations: 
+        rdfs:label "ccris species"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000082>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:DOC>
+
+    Annotations: 
+        rdfs:label "ccris data record"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/resource/SIO_000756>
+         and (<http://semanticscience.org/resource/SIO_000332> some <http://bio2rdf.org/genetox_resource:Gen>),
+        <http://semanticscience.org/resource/SIO_000093> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000005>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000051>
@@ -991,6 +1092,16 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000050>
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000037>
          and (<http://semanticscience.org/resource/SIO_000232> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000047>)
+    
+    
+Class: <http://bio2rdf.org/genetox:CASRegistryNumber>
+
+    Annotations: 
+        rdfs:comment "A genetox cas registry number is a cas registry number found in the genetox database."@en,
+        rdfs:label "genetox cas registry number"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000001>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000055>
@@ -1100,7 +1211,7 @@ Class: <http://bio2rdf.org/ctd_resource:GeneDiseaseInteraction>
 
     Annotations: 
         rdfs:comment "A relationship that exists between a gene and the realization of a disease."@en,
-        rdfs:label "ctd gene disease relation"@
+        rdfs:label "ctd gene disease interaction"@en
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000090>
@@ -1174,13 +1285,13 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000049>
          and (<http://semanticscience.org/resource/SIO_000232> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000147>)
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000104>
+Class: <http://bio2rdf.org/ccris_resource:Ref>
 
     Annotations: 
-        rdfs:label "Sus scrofa"@
+        rdfs:label "ccris ref"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000041>
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000081>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000168>
@@ -1192,14 +1303,13 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000168>
         <http://semanticscience.org/resource/SIO_010100>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000001>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000104>
 
     Annotations: 
-        rdfs:label "genetox record identifier"@
+        rdfs:label "Sus scrofa"@
     
     SubClassOf: 
-        <http://semanticscience.org/resource/SIO_000115>
-         and (<http://semanticscience.org/resource/SIO_000011> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000202>)
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000041>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000167>
@@ -1259,6 +1369,9 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000108>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000043>
     
     
+Class: <http://semanticscience.org/resource/SIO_000407>
+
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000107>
 
     Annotations: 
@@ -1267,9 +1380,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000107>
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000043>
     
-    
-Class: <http://semanticscience.org/resource/SIO_000407>
-
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000106>
 
@@ -1327,7 +1437,7 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000008>
         rdfs:label "Heritable+translocation+test%2C+chromosome+aberrations"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000189>
+        <http://bio2rdf.org/genetox_resource:Ast>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000007>
@@ -1346,15 +1456,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000162>
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000110>
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000006>
-
-    Annotations: 
-        rdfs:label "micronucleus test assay"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000193>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000161>
@@ -1377,23 +1478,13 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000161>
              and (<http://semanticscience.org/resource/SIO_000227> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000182>)))
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000100>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000006>
 
     Annotations: 
-        rdfs:label "cavia porcellus"@
+        rdfs:label "micronucleus test assay"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000041>
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000164>
-
-    Annotations: 
-        <http://semanticscience.org/resource/synonym> "HepG2 human hepatoblastoma"@en,
-        rdfs:label "HepG2"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000172>
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000193>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000005>
@@ -1406,13 +1497,23 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000005>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000086>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000163>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000164>
 
     Annotations: 
-        rdfs:label "Cellumen Phospho-H2AX assay"@en
+        <http://semanticscience.org/resource/synonym> "HepG2 human hepatoblastoma"@en,
+        rdfs:label "HepG2"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000110>
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000172>
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000100>
+
+    Annotations: 
+        rdfs:label "cavia porcellus"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000041>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000004>
@@ -1423,6 +1524,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000004>
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000077>
          and (<http://semanticscience.org/resource/SIO_000212> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000005>)
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000163>
+
+    Annotations: 
+        rdfs:label "Cellumen Phospho-H2AX assay"@en
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000110>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000166>
@@ -1457,14 +1567,13 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000165>
         <http://semanticscience.org/resource/SIO_011125>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000002>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000015>
 
     Annotations: 
-        rdfs:comment "The date the genetox data record was added to the database."@en,
-        rdfs:label "genetox entry date"@
+        rdfs:label "ccris endpoint"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000092>
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000043>
     
     
 Class: <http://bio2rdf.org/geneid:5465>
@@ -1479,13 +1588,13 @@ Class: <http://bio2rdf.org/geneid:5465>
          and (<http://semanticscience.org/resource/SIO_000310> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000066>)
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000010>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000012>
 
     Annotations: 
-        rdfs:label "comparative toxicogenomics database"@en
+        rdfs:label "ccris route"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000086>
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000019>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000113>
@@ -1495,6 +1604,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000113>
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000044>
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000010>
+
+    Annotations: 
+        rdfs:label "comparative toxicogenomics database"@en
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000086>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000112>
@@ -1524,17 +1642,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000115>
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000044>
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000012>
-
-    Annotations: 
-        <http://semanticscience.org/resource/synonym> "A CCRIS carcinogenicity study is an experimental study with the objective of determining if a substance is carcinogenic."@en,
-        rdfs:label "ccris carcinogenicity study"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000011>
-         and (<http://semanticscience.org/resource/SIO_000230> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000009>)
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000011>
@@ -1653,12 +1760,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000171>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000172>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000019>
-
-    Annotations: 
-        rdfs:label "route"@en
-    
-    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000170>
 
     Annotations: 
@@ -1668,6 +1769,12 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000170>
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000168>
          and (<http://semanticscience.org/resource/SIO_000310> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000066>)
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000019>
+
+    Annotations: 
+        rdfs:label "route"@en
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000177>
@@ -1698,36 +1805,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000176>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000146>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000013>
-
-    Annotations: 
-        rdfs:label "ccris tumor inhibition study"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000011>
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000016>
-
-    Annotations: 
-        rdfs:label "ccris carcinogen"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000009>
-         and <http://semanticscience.org/ontology/toxkb.owl:TOX_000079>,
-        (<http://semanticscience.org/resource/SIO_000228> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000173>)
-         and (<http://semanticscience.org/resource/SIO_000231> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000013>)
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000111>
-
-    Annotations: 
-        rdfs:label "Computational"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000044>
-    
-    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000175>
 
     Annotations: 
@@ -1740,13 +1817,43 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000175>
          and (<http://semanticscience.org/resource/SIO_000563> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000157>)
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000015>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000016>
+
+    Annotations: 
+        rdfs:label "ccris carcinogen"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000009>
+         and <http://semanticscience.org/ontology/toxkb.owl:TOX_000079>,
+        (<http://semanticscience.org/resource/SIO_000228> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000173>)
+         and (<http://semanticscience.org/resource/SIO_000231> some <http://bio2rdf.org/ccris_resource:Tstu>)
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000111>
+
+    Annotations: 
+        rdfs:label "Computational"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000044>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Mstu>
 
     Annotations: 
         rdfs:label "ccris mutagenicity study"@
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000011>
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000174>
+
+    Annotations: 
+        rdfs:label "negative control role"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/resource/SIO_010431>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000110>
@@ -1758,15 +1865,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000110>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000080>
          and (<http://semanticscience.org/resource/SIO_000217> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000062>)
          and (<http://semanticscience.org/resource/SIO_000291> some <http://semanticscience.org/resource/SIO_010001>)
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000174>
-
-    Annotations: 
-        rdfs:label "negative control role"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/resource/SIO_010431>
     
     
 Class: <http://semanticscience.org/resource/SIO_000693>
@@ -1782,13 +1880,11 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000109>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000043>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000129>
+Class: <http://bio2rdf.org/genetox_resource:Ccat>
 
     Annotations: 
-        rdfs:label "Luminescence"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
+        rdfs:comment "The generalized chemical classification given to a chemical used in a genetox experiment"@en,
+        rdfs:label "genetox ccat"@en
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000149>
@@ -1804,6 +1900,26 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000149>
     
     SubClassOf: 
         <http://semanticscience.org/resource/SIO_011125>
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000129>
+
+    Annotations: 
+        rdfs:label "Luminescence"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
+    
+    
+Class: <http://bio2rdf.org/genetox_resource:DOC>
+
+    Annotations: 
+        rdfs:comment "A genetox database record is a database record that is part of the genetox database. Each genetox record holds information regarding experimental assay information regarding a specific chemical as it relates to genotoxicity."@en,
+        rdfs:label "genetox DOC"@en
+    
+    SubClassOf: 
+        <http://semanticscience.org/resource/SIO_000756>,
+        owl:Thing
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000128>
@@ -1843,16 +1959,25 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000146>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000083>
     
     
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000125>
+
+    Annotations: 
+        rdfs:label "Computed"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000145>
 
     Annotations: 
         rdfs:label "NCGC"@
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000125>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000124>
 
     Annotations: 
-        rdfs:label "Computed"@
+        rdfs:label "RNase Protection Assay"@
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
@@ -1873,10 +1998,10 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000148>
          and (<http://semanticscience.org/resource/SIO_000291> some <http://semanticscience.org/resource/SIO_010001>)
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000124>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000123>
 
     Annotations: 
-        rdfs:label "RNase Protection Assay"@
+        rdfs:label "SRB Alamar Blue Reduction Microscopy"@
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
@@ -1895,15 +2020,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000147>
             (<http://semanticscience.org/ontology/toxkb.owl:TOX_000139>
              and (<http://semanticscience.org/resource/SIO_000228> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000173>)))
          and (<http://semanticscience.org/resource/SIO_000291> some <http://semanticscience.org/resource/SIO_010001>)
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000123>
-
-    Annotations: 
-        rdfs:label "SRB Alamar Blue Reduction Microscopy"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000142>
@@ -1927,6 +2043,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000122>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
     
     
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000121>
+
+    Annotations: 
+        rdfs:label "Alamar+Blue+Reduction"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000141>
 
     Annotations: 
@@ -1937,10 +2062,21 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000141>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000083>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000121>
+Class: <http://bio2rdf.org/genetox_resource:Ast>
 
     Annotations: 
-        rdfs:label "Alamar+Blue+Reduction"@
+        rdfs:comment ""@en,
+        rdfs:label "genetox experimental assay"@en
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000080>
+         and (<http://semanticscience.org/resource/SIO_000230> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000077>)
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000120>
+
+    Annotations: 
+        rdfs:label "ELISA"@
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
@@ -1969,15 +2105,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000144>
              and (<http://semanticscience.org/resource/SIO_000227> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000150>)))
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000120>
-
-    Annotations: 
-        rdfs:label "ELISA"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
-    
-    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000143>
 
     Annotations: 
@@ -1991,6 +2118,16 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000143>
             (<http://semanticscience.org/ontology/toxkb.owl:TOX_000139>
              and (<http://semanticscience.org/resource/SIO_000228> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000173>)))
          and (<http://semanticscience.org/resource/SIO_000291> some <http://semanticscience.org/resource/SIO_010001>)
+    
+    
+Class: <http://bio2rdf.org/genetox_resource:DOCNO>
+
+    Annotations: 
+        rdfs:label "genetox record identifier"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/resource/SIO_000115>
+         and (<http://semanticscience.org/resource/SIO_000011> some <http://bio2rdf.org/genetox_resource:DOC>)
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000140>
@@ -2009,6 +2146,12 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000140>
          and (<http://semanticscience.org/resource/SIO_000291> some <http://semanticscience.org/resource/SIO_010001>)
     
     
+Class: <http://bio2rdf.org/ccris_resource:NameOfSubstance>
+
+    Annotations: 
+        rdfs:label "ccris name of substance"@
+    
+    
 Class: <http://bio2rdf.org/ctd_resource:Pathway>
 
     Annotations: 
@@ -2018,6 +2161,37 @@ Class: <http://bio2rdf.org/ctd_resource:Pathway>
     SubClassOf: 
         <http://semanticscience.org/resource/SIO_010525>
          and (<http://semanticscience.org/resource/SIO_000212> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000010>)
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Methm>
+
+    Annotations: 
+        rdfs:label "ccris methm"@
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Routm>
+
+    Annotations: 
+        rdfs:label "ccris routm"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000012>
+    
+    
+Class: <http://bio2rdf.org/genetox_resource:Asc>
+
+    Annotations: 
+        rdfs:comment "Assay code - includes result value"@en,
+        rdfs:label "genetox asc"@
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Routc>
+
+    Annotations: 
+        rdfs:label "ccris routc"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000012>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000139>
@@ -2040,6 +2214,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000138>
         <http://semanticscience.org/resource/SIO_011125>
     
     
+Class: <http://bio2rdf.org/ccris_resource:Stsxm>
+
+    Annotations: 
+        rdfs:label "ccris stsxm"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000069>
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000159>
 
     Annotations: 
@@ -2056,15 +2239,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000135>
 
     Annotations: 
         rdfs:label "Fluorescence+-EMS"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000134>
-
-    Annotations: 
-        rdfs:label "HPLC"@
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
@@ -2089,6 +2263,30 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000158>
          and (<http://semanticscience.org/resource/SIO_000355> some 
             (<http://semanticscience.org/resource/SIO_010431>
              and (<http://semanticscience.org/resource/SIO_000227> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000183>)))
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000134>
+
+    Annotations: 
+        rdfs:label "HPLC"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Stsxt>
+
+    Annotations: 
+        rdfs:label "ccris stsxt"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000069>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Commi>
+
+    Annotations: 
+        rdfs:label "ccris commi"@
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000157>
@@ -2142,15 +2340,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000136>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000146>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000131>
-
-    Annotations: 
-        rdfs:label "Fluorescence+Polarization"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
-    
-    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000155>
 
     Annotations: 
@@ -2158,6 +2347,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000155>
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000141>
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000131>
+
+    Annotations: 
+        rdfs:label "Fluorescence+Polarization"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000154>
@@ -2178,6 +2376,13 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000130>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
     
     
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000153>
+
+    Annotations: 
+        rdfs:comment "An agonist is a chemical  that mimics the binding and stimulation of ligand to a cellular receptor protein."@en,
+        rdfs:label "agonist"@
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000133>
 
     Annotations: 
@@ -2187,11 +2392,13 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000133>
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000153>
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000132>
 
     Annotations: 
-        rdfs:comment "An agonist is a chemical  that mimics the binding and stimulation of ligand to a cellular receptor protein."@en,
-        rdfs:label "agonist"@
+        rdfs:label "Colorimetric"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000152>
@@ -2201,15 +2408,6 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000152>
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000141>
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000132>
-
-    Annotations: 
-        rdfs:label "Colorimetric"@
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000045>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000151>
@@ -2230,8 +2428,137 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000150>
         <http://semanticscience.org/resource/SIO_011125>
     
     
+Class: <http://bio2rdf.org/ccris_resource:Rtcat>
+
+    Annotations: 
+        rdfs:label "ccris rtcat"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000012>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Dosrm>
+
+    Annotations: 
+        rdfs:label "ccris dosrm"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
+    
+    
+Class: <http://bio2df.org/ccris_resource:Tttlt>
+
+    Annotations: 
+        rdfs:label "ccris ttlt"@
+    
+    
+Class: <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000049>
+
+    Annotations: 
+        rdfs:label "ccris result"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000083>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Rtcai>
+
+    Annotations: 
+        rdfs:label "ccris rtcai"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000012>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Stsxi>
+
+    Annotations: 
+        rdfs:label "ccris stsxi"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000069>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Date>
+
+    Annotations: 
+        rdfs:comment "The date the ccris record entry was added to the database."@en,
+        rdfs:label "ccris date"@en
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000092>
+    
+    
+Class: <http://bio2rdf.org/genetox_resource:Gen>
+
+    Annotations: 
+        rdfs:comment "An experimental study is the planning, excecution, and realization of a process towards achieving some objective specification."@en,
+        rdfs:label "genetox experimental study"@en
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000087>
+         and (<http://semanticscience.org/resource/SIO_000229> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000083>)
+         and (<http://semanticscience.org/resource/SIO_000230> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000077>)
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Matvm>
+
+    Annotations: 
+        rdfs:label "ccris matvm"@
+    
+    
+Class: <http://bio2rdf.org/genetox_resource:NameOfSubstance>
+
+    Annotations: 
+        rdfs:comment "The genetox name of substance is a field in the genetox database containing a string representation of a substance."@en,
+        rdfs:label "genetox name of substance"@
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:CASRegistryNumber>
+
+    Annotations: 
+        rdfs:label "ccris cas registry number"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000001>
+    
+    
 Class: <http://semanticscience.org/resource/SIO_000027>
 
+    
+Class: <http://bio2rdf.org/ccris_resource:Rtini>
+
+    Annotations: 
+        rdfs:label "ccris rtini"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000012>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Crcni>
+
+    Annotations: 
+        rdfs:label "ccris crcni"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000009>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Endii>
+
+    Annotations: 
+        rdfs:label "ccris endii"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000015>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Noat>
+
+    Annotations: 
+        rdfs:comment "Number of animals used"@en,
+        rdfs:label "ccris noat"@
+    
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000185>
 
@@ -2270,24 +2597,13 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000186>
              and (<http://semanticscience.org/resource/SIO_000008> some <http://semanticscience.org/resource/SIO_000258>)))
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000187>
+Class: <http://bio2rdf.org/ccris_resource:Doini>
 
     Annotations: 
-        rdfs:comment "A reference to a scientific publication that is about some genetox experimental assay."@en,
-        rdfs:label "genetox reference"@en
+        rdfs:label "ccris doini"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000081>
-    
-    
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000188>
-
-    Annotations: 
-        rdfs:comment "a panel report is a report evaluating  the  effectiveness of an experimental assay based on realizing the design objective of the experiment."@en,
-        rdfs:label "genetox panel report"@en
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000081>
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000181>
@@ -2298,6 +2614,12 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000181>
     
     SubClassOf: 
         <http://semanticscience.org/ontology/toxkb.owl:TOX_000172>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Ttli>
+
+    Annotations: 
+        rdfs:label "ccris ttli"@
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000182>
@@ -2325,6 +2647,15 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000183>
          and (<http://semanticscience.org/resource/SIO_000231> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000158>)
     
     
+Class: <http://bio2rdf.org/ccris_resource:Rsltm>
+
+    Annotations: 
+        rdfs:label "ccris rsltm"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000049>
+    
+    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000184>
 
     Annotations: 
@@ -2336,19 +2667,53 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000184>
          and (<http://semanticscience.org/resource/SIO_000231> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000156>)
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000189>
+Class: <http://bio2rdf.org/ccris_resource:Endli>
 
     Annotations: 
-        rdfs:comment ""@en,
-        rdfs:label "genetox experimental assay"@en
+        rdfs:label "ccris endli"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000080>
-         and (<http://semanticscience.org/resource/SIO_000230> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000077>)
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000015>
     
     
 Class: <http://semanticscience.org/resource/SIO_000002>
 
+    
+Class: <http://bio2rdf.org/ccris_resource:Rtprt>
+
+    Annotations: 
+        rdfs:comment "promotor route"@en,
+        rdfs:label "ccris rtprt"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000012>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Cstu>
+
+    Annotations: 
+        <http://semanticscience.org/resource/synonym> "A CCRIS carcinogenicity study is an experimental study with the objective of determining if a substance is carcinogenic."@en,
+        rdfs:label "ccris carcinogenicity study"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000011>
+         and (<http://semanticscience.org/resource/SIO_000230> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000009>)
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Tstlc>
+
+    Annotations: 
+        rdfs:label "ccris tstlc"@
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Rtpri>
+
+    Annotations: 
+        rdfs:label "ccris rtpri"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000012>
+    
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000180>
 
@@ -2398,25 +2763,22 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000196>
          and (<http://semanticscience.org/resource/SIO_000232> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000185>)
     
     
-Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000197>
-
-    Annotations: 
-        rdfs:comment "An experimental study is the planning, excecution, and realization of a process towards achieving some objective specification."@en,
-        rdfs:label "genetox experimental study"@en
-    
-    SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000087>
-         and (<http://semanticscience.org/resource/SIO_000229> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000083>)
-         and (<http://semanticscience.org/resource/SIO_000230> some <http://semanticscience.org/ontology/toxkb.owl:TOX_000077>)
-    
-    
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000194>
 
     Annotations: 
         rdfs:label "DNA effects assay"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000189>
+        <http://bio2rdf.org/genetox_resource:Ast>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Docat>
+
+    Annotations: 
+        rdfs:label "ccris docat"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOX_000018>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000195>
@@ -2425,7 +2787,7 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000195>
         rdfs:label "gene mutation assay"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000189>
+        <http://bio2rdf.org/genetox_resource:Ast>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000192>
@@ -2434,7 +2796,16 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000192>
         rdfs:label "cell transformation assay"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000189>
+        <http://bio2rdf.org/genetox_resource:Ast>
+    
+    
+Class: <http://bio2rdf.org/ccris_resource:Resultc>
+
+    Annotations: 
+        rdfs:label "ccris resultc"@
+    
+    SubClassOf: 
+        <http://semanticscience.org/ontology/toxkb.owl:TOXKB_000049>
     
     
 Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000193>
@@ -2443,7 +2814,7 @@ Class: <http://semanticscience.org/ontology/toxkb.owl:TOX_000193>
         rdfs:label "chromosome aberration assay"@
     
     SubClassOf: 
-        <http://semanticscience.org/ontology/toxkb.owl:TOX_000189>
+        <http://bio2rdf.org/genetox_resource:Ast>
     
     
 Class: <http://bio2rdf.org/ctd_resource:Chemical>
