@@ -62,21 +62,25 @@ if($options['download']['value'] == 'true') {
   foreach($files AS $file) {
    $myfiles[] = $file.".zip";
   }
-  DownloadFiles($options['remote_base_url']['value'],$myfiles,$options['indir']['value']);
+  if($file == 'clinical_ann_metadata' || $file == 'var_drug_ann') {
+	echo "Obtain clinical annotations from PharmGKB (license required)".PHP_EOL;
+  } else {
+		DownloadFiles($options['remote_base_url']['value'],$myfiles,$options['indir']['value']);
   
-  // unzip the files
-  foreach($files AS $file) {
-	$zip = zip_open($options['indir']['value'].$file.".zip");
-	if (is_resource($zip)) {
-      while ($zip_entry = zip_read($zip)) {
-        if (zip_entry_open($zip, $zip_entry, "r")) {
-			echo 'expanding '.zip_entry_name($zip_entry).PHP_EOL;
-            file_put_contents($options['indir']['value'].zip_entry_name($zip_entry), zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
-			zip_entry_close($zip_entry);
-        }
-      }
-      zip_close($zip);
-    }
+	  // unzip the files
+	  foreach($files AS $file) {
+		$zip = zip_open($options['indir']['value'].$file.".zip");
+		if (is_resource($zip)) {
+		  while ($zip_entry = zip_read($zip)) {
+			if (zip_entry_open($zip, $zip_entry, "r")) {
+				echo 'expanding '.zip_entry_name($zip_entry).PHP_EOL;
+				file_put_contents($options['indir']['value'].zip_entry_name($zip_entry), zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
+				zip_entry_close($zip_entry);
+			}
+		  }
+		  zip_close($zip);
+		}
+	  }
   }
 }
 
@@ -182,11 +186,26 @@ function genes(&$in, &$out)
 }
 
 /*
-PharmGKB Accession Id
-Name	
-Alternate Names	
-Type	
-DrugBank Id
+0 PharmGKB Accession Id	
+1 Name	
+2 Generic Names	
+3 Trade Names	
+4 Brand Mixtures	
+5 Type	
+6 Cross References	
+7 SMILES
+8 External Vocabulary
+
+0 PA164748388	
+1 diphemanil methylsulfate
+2 
+3 Prantal		
+4 
+5 Drug/Small Molecule	
+6 drugBank:DB00729,pubChemCompound:6126,pubChemSubstance:149020		
+7 
+8 ATC:A03AB(Synthetic anticholinergics, quaternary ammonium compounds)
+
 */
 function drugs(&$in, &$out)
 {
@@ -201,22 +220,68 @@ function drugs(&$in, &$out)
 
 		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:Drug");
 		$buf .= QQuadL($id,"rdfs:label","$a[1] [$id]");
-		if($a[2] != '') {
-			$b = explode('",',$a[2]);
+		if(trim($a[2])) { 
+			// generic names
+			// Entacapona [INN-Spanish],Entacapone [Usan:Inn],Entacaponum [INN-Latin],entacapone
+			$b = explode(',',trim($a[2]));
 			foreach($b AS $c) {
-				if($c != '') $buf .= QQuadL($id,"pharmgkb_vocabulary:synonym", str_replace('"','',$c));
+				$buf .= QQuadL($id,"pharmgkb_vocabulary:generic_name", str_replace('"','',$c));
 			}
 		}
-		if($a[3]) {
-			$b = explode('",',$a[3]);
+		if(trim($a[3])) { 
+			// trade names
+			//Disorat,OptiPranolol,Trimepranol
+			$b = explode(',',trim($a[3]));
 			foreach($b as $c) {
-				if($c) $buf .= QQuadL($id,"pharmgkb_vocabulary:drugclass", addslashes(str_replace('"','',$c)));
+				$buf .= QQuadL($id,"pharmgkb_vocabulary:trade_name", addslashes(str_replace('"','',$c)));
 			}
 		}
-		if(trim($a[4]) != '') {
-			$buf .= QQuad($id,"owl:sameAs","drugbank:".trim($a[4]));
+		if(trim($a[4])) {
+			// Brand Mixtures	
+			// Benzyl benzoate 99+ %,"Dermadex Crm (Benzoic Acid + Benzyl Benzoate + Lindane + Salicylic Acid + Zinc Oxide + Zinc Undecylenate)",
+			$b = explode(',',trim($a[4]));
+			foreach($b as $c) {
+				$buf .= QQuadL($id,"pharmgkb_vocabulary:brand_mixture", addslashes(str_replace('"','',$c)));
+			}
 		}
-		$buf .= QQuad($id,"owl:sameAs","pharmgkb:".md5($a[1]));
+		if(trim($a[5])) {
+			// Type	
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:drug_class", addslashes(str_replace('"','',$a[5])));
+		}
+		if(trim($a[6])) {
+			// Cross References	
+			// drugBank:DB00789,keggDrug:D01707,pubChemCompound:55466,pubChemSubstance:192903,url:http://en.wikipedia.org/wiki/Gadopentetate_dimeglumine
+			$b = explode(',',trim($a[6]));
+			foreach($b as $c) {
+				ParseQNAME($c,$ns,$id1);
+				$ns = str_replace(array('keggcompound','keggdrug'), array('kegg','kegg'), strtolower($ns));
+				if($ns == "url") {
+					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $id );
+				} else {
+					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $ns.":".$id1);
+				}
+			}
+		}
+		if(trim($a[8])) {
+			// External Vocabulary
+			// ATC:H01AC(Somatropin and somatropin agonists),ATC:V04CD(Tests for pituitary function)
+			$b = explode(',',trim($a[8]));
+			foreach($b as $c) {
+				ParseQNAME($c,$ns,$id1);
+				$ns = strtolower($ns);
+				$pos = strpos($id1,"(");
+				if($pos !== FALSE) {
+					$id1 = substr($id1,0,$pos-1);
+					$label = substr($id1,$pos+1,-1);
+				}
+				if($ns == "url") {
+					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $id );
+				} else {
+					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $ns.":".$id1 );
+				}
+			}
+			
+		}
 	}
 	fwrite($out,$buf);
 }
