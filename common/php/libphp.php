@@ -39,7 +39,7 @@ $gns = array(
 );
 
 // valid dataset namespaces
-$gdataset_ns = array('afcs', 'apo','bind','biogrid','blastprodom','candida','cas','chebi','coil','ctd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','germonline','go','gp','grid','smart','panther','pfam','pir','tigr','iubmb','intact','ipi','irefindex','mesh','metacyc','mi','mint','mips','geneid','ncbi','refseq','obo','omim','ophid','patternscan','pato','pharmgkb','pir','prf','prodom','profilescan','pdb','pubmed','pubchem','reactome','registry','registry_dataset','seg','sgd','snomedct','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo');
+$gdataset_ns = array('afcs', 'apo','atc','bind','biogrid','blastprodom','candida','cas','chebi','coil','ctd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','germonline','go','gp','grid','smart','panther','pfam','pir','tigr','iubmb','intact','ipi','irefindex','iupharligand','mesh','metacyc','mi','mint','mips','geneid','ncbi','refseq','obo','omim','ophid','patternscan','pato','pharmgkb','pir','prf','prodom','profilescan','pdb','pubmed','pubchem','pubchemcompound','pubchemsubstance','reactome','registry','registry_dataset','seg','sgd','snomedct','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo');
 	
 // add the valid namespaces to the global namespace array
 foreach($gdataset_ns AS $ns) {
@@ -124,7 +124,7 @@ function GetFQURITTL($qname)
 
 function ParseQNAME($string,&$ns,&$id)
 {
-	$a = explode(":",$string);
+	$a = explode(":",$string,2);
 	if(count($a) == 1) {
 		$id = $string;
 	} else {
