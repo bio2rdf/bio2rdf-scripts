@@ -265,19 +265,14 @@ function drugs(&$in, &$out)
 		if(trim($a[8])) {
 			// External Vocabulary
 			// ATC:H01AC(Somatropin and somatropin agonists),ATC:V04CD(Tests for pituitary function)
-			$b = explode(',',trim($a[8]));
+			// ATC:D07AB(Corticosteroids, moderately potent (group II)) => this is why you don't use brackets and commas as separators.
+			$b = explode(',',trim($a[8]),2);
 			foreach($b as $c) {
-				ParseQNAME($c,$ns,$id1);
-				$ns = strtolower($ns);
-				$pos = strpos($id1,"(");
-				if($pos !== FALSE) {
-					$id1 = substr($id1,0,$pos-1);
-					$label = substr($id1,$pos+1,-1);
-				}
-				if($ns == "url") {
-					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $id );
-				} else {
-					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $ns.":".$id1 );
+				preg_match_all("/ATC:([A-Z0-9]+)\(/",$c,$m);
+				if(isset($m[1])) {
+					foreach($m[1] AS $atc_code) {
+						$buf .= QQuad($id,"pharmgkb_vocabulary:xref", "atc:$atc_code" );	
+					}
 				}
 			}
 			
