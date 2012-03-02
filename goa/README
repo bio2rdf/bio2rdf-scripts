@@ -10,4 +10,4 @@ USAGE
 =====
 $ php goa2ntriple.php indir /path/to/downloaded/files download false
 
-
+.
