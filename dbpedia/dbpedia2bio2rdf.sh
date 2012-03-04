@@ -23,6 +23,8 @@
 
 #specify the location of the downloaded files
 cd /media/twotb/bio2rdf/data/dbpedia
+#uncompress the file
+bunzip2 infobox_properties_en.nt.bz2
 
 cat infobox_en.nt | grep -e "property/meshnumberProperty>" > meshnumberProperty.nt
 cat infobox_en.nt | grep -e "property/meshid>" > meshid.nt
