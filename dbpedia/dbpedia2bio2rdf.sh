@@ -52,6 +52,6 @@ cat infobox_properties_en.nt | grep -e "property/pubchem>" > pubchem.nt
 cat infobox_properties_en.nt | grep -e "property/refseq>" > refseq.nt
 cat infobox_properties_en.nt | grep -e "property/uniprot>" > uniprot.nt
 cat infobox_properties_en.nt | grep -e "property/drugbank>" > drugbank.nt
-cat *.nt > dbpedia.nt
+cat *.nt > dbpedia_out.nt
 #gzip the file
-gzip -c dbpedia.nt > dbpedia.nt.gz
+gzip -c dbpedia_out.nt > dbpedia_out.nt.gz
