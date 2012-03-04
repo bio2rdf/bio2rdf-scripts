@@ -423,7 +423,7 @@ function CTD_genes_pathways($infp, $outfp)
 		$buf .= QQuadL("$pathway_ns:$pathway_id","dc:identifer","$pathway_ns:$pathway_id");
 		$buf .= QQuadL("$pathway_ns:$pathway_id","rdfs:label","$a[2] [$pathway_ns:$pathway_id]");
 		$buf .= QQuadL("$gene_ns:$gene_id","dc:identifer","$gene_ns:$gene_id");
-		$buf .= QQuadL("$gene_ns:$gene_id","rdfs:label","gene ".addslashes($a[0])." [$gene_ns:$gene_id]");
+		$buf .= QQuadL("$gene_ns:$gene_id","rdfs:label","gene ".str_replace(array("\/", "'"), array("/", "\\\'"), ($a[0]))." [$gene_ns:$gene_id]");
 
 //echo $buf;exit;
 	}
