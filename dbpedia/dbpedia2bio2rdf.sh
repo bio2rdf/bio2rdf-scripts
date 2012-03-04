@@ -26,32 +26,32 @@ cd /media/twotb/bio2rdf/data/dbpedia
 #uncompress the file
 bunzip2 infobox_properties_en.nt.bz2
 
-cat infobox_en.nt | grep -e "property/meshnumberProperty>" > meshnumberProperty.nt
-cat infobox_en.nt | grep -e "property/meshid>" > meshid.nt
-cat infobox_en.nt | grep -e "property/meshname>" > meshname.nt
-cat infobox_en.nt | grep -e "property/meshnumber>" > meshnumber.nt
-cat infobox_en.nt | grep -e "property/iupacname>" > iupacname.nt
-cat infobox_en.nt | grep -e "property/iupacName>" > iupacName.nt
-cat infobox_en.nt | grep -e "property/mgiid>" > mgi.nt
-cat infobox_en.nt | grep -e "property/symbol>" > symbol.nt
-cat infobox_en.nt | grep -e "property/scop>" > scop.n3
-cat infobox_en.nt | grep -e "property/interpro>" > interpro.nt
-cat infobox_en.nt | grep -e "property/hgncid>" > hgnc.nt
-cat infobox_en.nt | grep -e "property/kegg>" > kegg.nt
-cat infobox_en.nt | grep -e "property/pdb>" > pdb.nt
-cat infobox_en.nt | grep -e "property/pfam>" > pfam.nt
-cat infobox_en.nt | grep -e "property/prosite>" > prosite.nt
-cat infobox_en.nt | grep -e "property/inchi>" > inchi.nt
-cat infobox_en.nt | grep -e "property/smiles>" > smiles.nt
-cat infobox_en.nt | grep -e "property/casNumber>" > cas.nt
-cat infobox_en.nt | grep -e "property/chebi>" > chebi.nt
-cat infobox_en.nt | grep -e "property/ecnumber>" > ec.nt
-cat infobox_en.nt | grep -e "property/entrezgene>" > entrezgene.nt
-cat infobox_en.nt | grep -e "property/omim>" > omim.nt
-cat infobox_en.nt | grep -e "property/pubchem>" > pubchem.nt
-cat infobox_en.nt | grep -e "property/refseq>" > refseq.nt
-cat infobox_en.nt | grep -e "property/uniprot>" > uniprot.nt
-cat infobox_en.nt | grep -e "property/drugbank>" > drugbank.nt
+cat infobox_properties_en.nt | grep -e "property/meshnumberProperty>" > meshnumberProperty.nt
+cat infobox_properties_en.nt | grep -e "property/meshid>" > meshid.nt
+cat infobox_properties_en.nt | grep -e "property/meshname>" > meshname.nt
+cat infobox_properties_en.nt | grep -e "property/meshnumber>" > meshnumber.nt
+cat infobox_properties_en.nt | grep -e "property/iupacname>" > iupacname.nt
+cat infobox_properties_en.nt | grep -e "property/iupacName>" > iupacName.nt
+cat infobox_properties_en.nt | grep -e "property/mgiid>" > mgi.nt
+cat infobox_properties_en.nt | grep -e "property/symbol>" > symbol.nt
+cat infobox_properties_en.nt | grep -e "property/scop>" > scop.n3
+cat infobox_properties_en.nt | grep -e "property/interpro>" > interpro.nt
+cat infobox_properties_en.nt | grep -e "property/hgncid>" > hgnc.nt
+cat infobox_properties_en.nt | grep -e "property/kegg>" > kegg.nt
+cat infobox_properties_en.nt | grep -e "property/pdb>" > pdb.nt
+cat infobox_properties_en.nt | grep -e "property/pfam>" > pfam.nt
+cat infobox_properties_en.nt | grep -e "property/prosite>" > prosite.nt
+cat infobox_properties_en.nt | grep -e "property/inchi>" > inchi.nt
+cat infobox_properties_en.nt | grep -e "property/smiles>" > smiles.nt
+cat infobox_properties_en.nt | grep -e "property/casNumber>" > cas.nt
+cat infobox_properties_en.nt | grep -e "property/chebi>" > chebi.nt
+cat infobox_properties_en.nt | grep -e "property/ecnumber>" > ec.nt
+cat infobox_properties_en.nt | grep -e "property/entrezgene>" > entrezgene.nt
+cat infobox_properties_en.nt | grep -e "property/omim>" > omim.nt
+cat infobox_properties_en.nt | grep -e "property/pubchem>" > pubchem.nt
+cat infobox_properties_en.nt | grep -e "property/refseq>" > refseq.nt
+cat infobox_properties_en.nt | grep -e "property/uniprot>" > uniprot.nt
+cat infobox_properties_en.nt | grep -e "property/drugbank>" > drugbank.nt
 cat *.nt > dbpedia.nt
 #gzip the file
 gzip -c dbpedia.nt > dbpedia.nt.gz

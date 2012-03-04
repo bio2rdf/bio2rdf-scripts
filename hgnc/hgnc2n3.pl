@@ -886,7 +886,7 @@ sub printN3{
 			$object =~ s/\\/\\u005c/g;
 			$object =~ s/"/\\u0022/g;
 			$object =~ s/'/\\u0027/g;
-			print "<$subject> <$predicate> ".'"'.$object.'"'."$type .\n";
+			print "<$subject> <$predicate> ".'"'.$object."$type".'"'." .\n";
 		}
 		else{
 			print "<$subject> <$predicate> <$object> .\n";
