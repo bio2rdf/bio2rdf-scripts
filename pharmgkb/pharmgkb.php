@@ -166,7 +166,7 @@ function genes(&$in, &$out)
 		if($a[6]) {
 			$b = explode('",',$a[6]);
 			foreach($b as $c) {
-				if($c) $buf .= QQuadL($id,"pharmgkb_vocabulary:synonym", addslashes(stripslashes(substr($c,1))));
+				if($c) $buf .= QQuadL($id,"pharmgkb_vocabulary:synonym", str_replace(array("'", "\""), array("\\\'", ""), stripslashes(substr($c,1))));
 			}
 		}
 		if($a[7]) {
@@ -233,7 +233,7 @@ function drugs(&$in, &$out)
 			//Disorat,OptiPranolol,Trimepranol
 			$b = explode(',',trim($a[3]));
 			foreach($b as $c) {
-				$buf .= QQuadL($id,"pharmgkb_vocabulary:trade_name", addslashes(str_replace('"','',$c)));
+				$buf .= QQuadL($id,"pharmgkb_vocabulary:trade_name", str_replace(array("'", "\""), array("\\\'", "") ,$c));
 			}
 		}
 		if(trim($a[4])) {
@@ -241,12 +241,12 @@ function drugs(&$in, &$out)
 			// Benzyl benzoate 99+ %,"Dermadex Crm (Benzoic Acid + Benzyl Benzoate + Lindane + Salicylic Acid + Zinc Oxide + Zinc Undecylenate)",
 			$b = explode(',',trim($a[4]));
 			foreach($b as $c) {
-				$buf .= QQuadL($id,"pharmgkb_vocabulary:brand_mixture", addslashes(str_replace('"','',$c)));
+				$buf .= QQuadL($id,"pharmgkb_vocabulary:brand_mixture", str_replace(array("'", "\""),array("\\\'",""), $c));
 			}
 		}
 		if(trim($a[5])) {
 			// Type	
-			$buf .= QQuadL($id,"pharmgkb_vocabulary:drug_class", addslashes(str_replace('"','',$a[5])));
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:drug_class", str_replace(array("'", "\""),array("\\\'",""), $a[5]));
 		}
 		if(trim($a[6])) {
 			// Cross References	
@@ -298,8 +298,8 @@ function diseases(&$in, &$out)
 	$buf .= Quad($releasefile_uri, GetFQURI("dc:subject"), GetFQURI($id));
 
 	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:Disease');
-	$buf .= QQuadL($id,'rdfs:label',addslashes($a[1])." [$id]");
-	$buf .= QQuadL($id,'pharmgkb_vocabulary:name',addslashes($a[1]));
+	$buf .= QQuadL($id,'rdfs:label',str_replace("'", "\\\'", $a[1])." [$id]");
+	$buf .= QQuadL($id,'pharmgkb_vocabulary:name',str_replace("'","\\\'", $a[1]));
 
 	if(!isset($a[2])) continue;
 	if($a[2] != '') {
@@ -317,7 +317,7 @@ function diseases(&$in, &$out)
 		foreach($m AS $n) {
 			$id2 = strtolower($n[1]).':'.$n[2];
 			$buf .= QQuad($id,'rdfs:seeAlso',$id2);
-			if(isset($n[3]) && $n[2] != $n[3]) $buf .= QQuadL($id2,'rdfs:label',str_replace('"','',$n[3]));
+			if(isset($n[3]) && $n[2] != $n[3]) $buf .= QQuadL($id2,'rdfs:label',str_replace(array("\'", "\""),array("\\\'", ""),$n[3]));
 		}	  
 	}
   }
@@ -387,7 +387,7 @@ function variantAnnotations(&$in, &$out)
 		}
 	}
 	if($a[6] != '') { //annotation
-		$buf .= QQuadL($id,'pharmgkb_vocabulary:description', addslashes($a[6]));
+		$buf .= QQuadL($id,'pharmgkb_vocabulary:description', str_replace(array("'", "\\\'", $a[6])));
 	}
 	if($a[7] != '') { //drugs
 		$drugs = explode("; ",$a[7]);

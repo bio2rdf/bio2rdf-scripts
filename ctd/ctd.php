@@ -125,8 +125,8 @@ function CTD_chemicals($infp, $outfp)
 		$name = addslashes($name);
 
 		$buf .= QQuadL("mesh:$mid","dc:identifier", "mesh:$mid");
-		$buf .= QQuadL("mesh:$mid","dc:title",$name);
-		$buf .= QQuadL("mesh:$mid","rdfs:label","$name [mesh:$mid]");
+		$buf .= QQuadL("mesh:$mid","dc:title",str_replace("\'", "\\\'", $name));
+		$buf .= QQuadL("mesh:$mid","rdfs:label",str_replace("\'", "\\\'", $name)." [mesh:$mid]");
 		
 		$buf .= QQuad("mesh:$mid", "rdf:type", "ctd_vocabulary:Chemical");
 		if($casrn) $buf .= QQuad("mesh:$mid","owl:equivalentClass","cas:$casrn");
