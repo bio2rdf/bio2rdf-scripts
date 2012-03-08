@@ -210,13 +210,17 @@ sub MRK_Synonym {
 $line =~ /^(.*)?\t(.*)?\t(.*)?\t(.*)?\t(.*)$/ ;
 $LSID = $1;
 $synonym = $5;
+#$synonym =~ s/^"(.*)"$/$1/;
+$synonym =~ s/"(.*)"/$1/; 
+#$synonym =~ s/"//;
+$synonym =~ s/\\/\\\\/;
 $LSID =~ /(.*?)\s/;
 $LSID = lc($1);
 $LSID2 = "$LSID-$file-$synonym";
 	
 $TEXT = <<EOF;
 <http://bio2rdf.org/$LSID> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Marker> .
-<http://bio2rdf.org/$LSID> <http://bio2rdf.org/ns/bio2rdf#synonym> "$synonym" .
+<http://bio2rdf.org/$LSID> <$vocabulary:synonym> "$synonym" .
 EOF
 }
 
@@ -226,7 +230,7 @@ $lsid = lc($fields[0]);
 
 $TEXT = <<EOF;
 <http://bio2rdf.org/$lsid> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$vocabulary:Marker> .
-<http://bio2rdf.org/$lsid> <http://bio2rdf.org/ns/bio2rdf#xUniProt> <http://bio2rdf.org/uniprot:$fields[6]> .
+<http://bio2rdf.org/$lsid> <$vocabulary:xUniProt> <http://bio2rdf.org/uniprot:$fields[6]> .
 EOF
 }
 
