@@ -212,12 +212,12 @@ function OBO2TTL($indir,$outdir,$file)
 			$buf .= QQuadL($tid,"dc:identifier",$tid);
 			
 		} else if($a[0] == "name") {
-			$t = QQuadL($tid,"rdfs:label",addslashes(stripslashes($a[1]))." [$tid]");
+			$t = QQuadL($tid,"rdfs:label",str_replace(array("\"", "'"), array("","\\\'"), stripslashes($a[1]))." [$tid]");
 			$min .= $t;
 			$buf .= $t;
 			
 		} else if($a[0] == "def") {
-			$t = addslashes(stripslashes(str_replace('"','',$a[1])));
+			$t = str_replace("'", "\\\'", stripslashes(str_replace('"','',$a[1])));
 			$min .= QQuadL($tid,"dc:description",$t);
 			$buf .= QQuadL($tid,"dc:description",$t);
 			
@@ -260,7 +260,15 @@ function OBO2TTL($indir,$outdir,$file)
 			// synonym: "molecular entity" EXACT IUPAC_NAME [IUPAC:]
 			// synonym: "Chondrococcus macrosporus" RELATED synonym [NCBITaxonRef:Krzemieniewska_and_Krzemieniewski_1926]
 			
-			$a[1] = str_replace('"','',stripslashes($a[1]));
+			//grab string inside double quotes			
+			preg_match('/"(.*)"(.*)/', $a[1], $matches);
+			
+			if(!empty($matches)){
+				$a[1] = str_replace(array("\\", "\"", "'"),array("", "", "\\\'"), $matches[1].$matches[2]);
+			} else {
+				$a[1] = str_replace(array("\"", "'"), array("", "\\\'"), $a[1]);
+			}
+			
 			$rel = "SYNONYM";
 			$list = array("EXACT","BROAD","RELATED","NARROW");
 			$found = false;
@@ -365,7 +373,7 @@ function OBO2TTL($indir,$outdir,$file)
 			}
 		} else {
 			// default handler
-			$buf .= QQuadL($tid,"obo:$a[0]",addslashes(str_replace('"','',stripslashes($a[1]))));
+			$buf .= QQuadL($tid,"obo:$a[0]", str_replace(array("\"", "'"), array("", "\\\'") ,stripslashes($a[1])));
 		}
 	} else {
 		//header
