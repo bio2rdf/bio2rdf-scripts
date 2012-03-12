@@ -217,13 +217,13 @@ function OBO2TTL($indir,$outdir,$file)
 			$buf .= $t;
 			
 		} else if($a[0] == "def") {
-			$t = str_replace("'", "\\\'", stripslashes(str_replace('"','',$a[1])));
+			$t = str_replace(array("'", "\"", "\\","\\\'"), array("\\\'", "", "",""), $a[1]);
 			$min .= QQuadL($tid,"dc:description",$t);
 			$buf .= QQuadL($tid,"dc:description",$t);
 			
 		} else if($a[0] == "property_value") {
 			$b = explode(" ",$a[1]);
-			$buf .= QQuadL($tid,"obo:$b[0]",strtolower($b[1]));
+			$buf .= QQuadL($tid,"obo:$b[0]",str_replace("\"", "", strtolower($b[1])));
 			
 		} else if($a[0] == "xref") {
 		// http://upload.wikimedia.org/wikipedia/commons/3/34/Anatomical_Directions_and_Axes.JPG
