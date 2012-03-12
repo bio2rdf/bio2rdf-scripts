@@ -251,7 +251,7 @@ function OBO2TTL($indir,$outdir,$file)
 				if(strstr($id,"http")) {
 					$buf .= Quad(GetFQURI($tid),GetFQURI("rdfs:seeAlso"), stripslashes($id));
 				} else {
-					$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".stripslashes($id));
+					$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".str_replace(" ","&nbsp;",stripslashes($id)));
 				}
 			}	
 			
@@ -386,8 +386,8 @@ function OBO2TTL($indir,$outdir,$file)
 	else fwrite($out,$buf);
 	$min = '';$buf ='';$header='';
  }
- if(isset($intersection_of))  $buf .= $intersection_of."].".PHP_EOL;
- if(isset($relationship))  $buf .= $relationship."].".PHP_EOL;
+ if(isset($intersection_of))  $buf .= $intersection_of.")].".PHP_EOL;
+ if(isset($relationship))  $buf .= $relationship.")].".PHP_EOL;
 
  fclose($in);
  if($options['minimal']['value'] == 'true' || $options['minimal+']['value'] == 'true') fwrite($out,$min);
