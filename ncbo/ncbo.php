@@ -217,14 +217,13 @@ function OBO2TTL($indir,$outdir,$file)
 			$buf .= $t;
 			
 		} else if($a[0] == "def") {
-			$t = str_replace("'", "\\\'", stripslashes(str_replace('"','',$a[1])));
+			$t = str_replace(array("'", "\"", "\\"), array("\\\'", "", ""), $a[1]);
 			$min .= QQuadL($tid,"dc:description",$t);
 			$buf .= QQuadL($tid,"dc:description",$t);
 			
 		} else if($a[0] == "property_value") {
 			$b = explode(" ",$a[1]);
-			$buf .= QQuadL($tid,"obo:$b[0]",strtolower($b[1]));
-			
+			$buf .= QQuadL($tid,"obo_vocabulary:".strtolower($b[0]),str_replace("\"", "", strtolower($b[1])));
 		} else if($a[0] == "xref") {
 		// http://upload.wikimedia.org/wikipedia/commons/3/34/Anatomical_Directions_and_Axes.JPG
 		// Medical Dictionary:http\://www.medterms.com/
@@ -247,7 +246,6 @@ function OBO2TTL($indir,$outdir,$file)
 				// but for now, just add this namespace
 				$ns = str_replace(" ","_",$raw_ns);
 				$header .= AddToGlobalNS($ns);
-						
 				if(strstr($id,"http")) {
 					$buf .= Quad(GetFQURI($tid),GetFQURI("rdfs:seeAlso"), stripslashes($id));
 				} else {
@@ -327,7 +325,7 @@ function OBO2TTL($indir,$outdir,$file)
 			
 		} else if($a[0] == "intersection_of") {
 			if(!isset($intersection_of)) {
-				$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
+				$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf');
 			}
 			
 			/*
@@ -350,7 +348,7 @@ function OBO2TTL($indir,$outdir,$file)
 
 		} else if ($a[0] == "relationship") {
 			if(!isset($relationship)) {
-				$relationship = GetFQURITTL($tid).' '.GetFQURITTL('rdfs:subClassOf').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
+				$relationship = GetFQURITTL($tid).' '.GetFQURITTL('rdfs:subClassOf').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf');
 			}
 			
 			/*
