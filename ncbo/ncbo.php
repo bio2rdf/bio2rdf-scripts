@@ -325,7 +325,7 @@ function OBO2TTL($indir,$outdir,$file)
 			
 		} else if($a[0] == "intersection_of") {
 			if(!isset($intersection_of)) {
-				$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf');
+				$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
 			}
 			
 			/*
@@ -348,7 +348,7 @@ function OBO2TTL($indir,$outdir,$file)
 
 		} else if ($a[0] == "relationship") {
 			if(!isset($relationship)) {
-				$relationship = GetFQURITTL($tid).' '.GetFQURITTL('rdfs:subClassOf').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf');
+				$relationship = GetFQURITTL($tid).' '.GetFQURITTL('rdfs:subClassOf').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
 			}
 			
 			/*
