@@ -217,7 +217,7 @@ function OBO2TTL($indir,$outdir,$file)
 			$buf .= $t;
 			
 		} else if($a[0] == "def") {
-			$t = str_replace(array("'", "\"", "\\"), array("\\\'", "", ""), $a[1]);
+			$t = str_replace(array("'", "\"", "\\","\\\'"), array("\\\'", "", "",""), $a[1]);
 			$min .= QQuadL($tid,"dc:description",$t);
 			$buf .= QQuadL($tid,"dc:description",$t);
 			
@@ -249,7 +249,7 @@ function OBO2TTL($indir,$outdir,$file)
 				if(strstr($id,"http")) {
 					$buf .= Quad(GetFQURI($tid),GetFQURI("rdfs:seeAlso"), stripslashes($id));
 				} else {
-					$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".stripslashes($id));
+					$buf .= QQuad($tid,"rdfs:seeAlso", strtolower($ns).":".str_replace(" ","&nbsp;",stripslashes($id)));
 				}
 			}	
 			
@@ -325,7 +325,7 @@ function OBO2TTL($indir,$outdir,$file)
 			
 		} else if($a[0] == "intersection_of") {
 			if(!isset($intersection_of)) {
-				$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf');
+				$intersection_of = GetFQURITTL($tid).' '.GetFQURITTL('owl:equivalentClass').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
 			}
 			
 			/*
@@ -348,7 +348,7 @@ function OBO2TTL($indir,$outdir,$file)
 
 		} else if ($a[0] == "relationship") {
 			if(!isset($relationship)) {
-				$relationship = GetFQURITTL($tid).' '.GetFQURITTL('rdfs:subClassOf').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf');
+				$relationship = GetFQURITTL($tid).' '.GetFQURITTL('rdfs:subClassOf').' ['.GetFQURITTL('rdf:type').' '.GetFQURITTL('owl:Class').'; '.GetFQURITTL('owl:intersectionOf').' (';
 			}
 			
 			/*
@@ -384,8 +384,8 @@ function OBO2TTL($indir,$outdir,$file)
 	else fwrite($out,$buf);
 	$min = '';$buf ='';$header='';
  }
- if(isset($intersection_of))  $buf .= $intersection_of."].".PHP_EOL;
- if(isset($relationship))  $buf .= $relationship."].".PHP_EOL;
+ if(isset($intersection_of))  $buf .= $intersection_of.")].".PHP_EOL;
+ if(isset($relationship))  $buf .= $relationship.")].".PHP_EOL;
 
  fclose($in);
  if($options['minimal']['value'] == 'true' || $options['minimal+']['value'] == 'true') fwrite($out,$min);
