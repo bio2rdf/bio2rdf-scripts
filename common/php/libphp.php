@@ -39,7 +39,7 @@ $gns = array(
 );
 
 // valid dataset namespaces
-$gdataset_ns = array('afcs', 'apo','atc','bind','biogrid','blastprodom','candida','cas','chebi','coil','ctd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','germonline','go','gp','grid','smart','panther','pfam','pir','tigr','iubmb','intact','ipi','irefindex','iupharligand','mesh','metacyc','mi','mint','mips','geneid','ncbi','refseq','obo','omim','ophid','patternscan','pato','pharmgkb','pir','prf','prodom','profilescan','pdb','pubmed','pubchem','pubchemcompound','pubchemsubstance','reactome','registry','registry_dataset','seg','sgd','snomedct','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo');
+$gdataset_ns = array('afcs', 'apo','atc','bind','biogrid','blastprodom','candida','cas','chebi','coil','corum','ctd','cygd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','geneid','germonline','go','gp','grid','hprd','innatedb','intact','ipi','irefindex','iubmb',"rogid","irogid","rigid","irigid","crigid","crogid","icrogid","icrigid",'iupharligand','matrixdb','mesh','metacyc','mi','mint','mips','mpact','mpi','ncbi','refseq','obo','omim','ophid','patternscan','pato','panther','pfam','pharmgkb','pir','prf','prodom','profilescan','pdb','pubmed','pubchem','pubchemcompound','pubchemsubstance','reactome','registry','registry_dataset','seg','sgd','smart','snomedct','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo');
 	
 // add the valid namespaces to the global namespace array
 foreach($gdataset_ns AS $ns) {
@@ -126,6 +126,7 @@ function ParseQNAME($string,&$ns,&$id)
 {
 	$a = explode(":",$string,2);
 	if(count($a) == 1) {
+		$ns = '';
 		$id = $string;
 	} else {
 		$ns = strtolower($a[0]);
@@ -367,7 +368,7 @@ function PrintCMDlineOptions($argv, $options)
 	    if($a['mandatory'] == true) echo "*";
 		echo $key."=";
 		if($a['list'] != '') echo $a['list'];
-		if($a['default'] != '') echo ' default='.$a['default'];
+		if($a['default'] != '') echo PHP_EOL.'    default='.$a['default'];
 		echo PHP_EOL;
 	}
 	return TRUE;
@@ -377,6 +378,7 @@ function PrintCMDlineOptions($argv, $options)
 function error_handler($level, $message, $file, $line, $context) {
     //Handle user errors, warnings, and notices ourself	
     if($level === E_USER_ERROR || $level === E_USER_WARNING || $level === E_USER_NOTICE) {
+		global $gns; $gns = null;
 		debug_print_backtrace();
        
         return(true); //And prevent the PHP error handler from continuing
