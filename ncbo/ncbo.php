@@ -27,7 +27,7 @@ $options = null;
 AddOption($options, 'indir', null, '/data/download/ncbo/', false);
 AddOption($options, 'outdir',null, '/data/rdf/ncbo/', false);
 AddOption($options, 'files',null,'all|ontology-short-name',true);
-AddOption($options, 'exclude',null,'gaz.obo',false);
+AddOption($options, 'exclude',null,'gaz',false);
 AddOption($options, 'ncbo_api_key',null,'24e19c82-54e0-11e0-9d7b-005056aa3316', false);
 AddOption($options, 'download','true|false','false',false);
 AddOption($options, 'overwrite','true|false','true',false);
@@ -41,35 +41,40 @@ if(SetCMDlineOptions($argv, $options) == FALSE) {
 	exit;
 }
 
+$include_list = explode(",",$options['files']['value']);
 $exclude_list = explode(",",$options['exclude']['value']);
 @mkdir($options['indir']['value'],0777,true);
 @mkdir($options['outdir']['value'],0777,true);
 
 if($options['download']['value'] == 'true') {
-   $files = Download($options['indir']['value']); 
+   $files = Download($options['indir']['value'], $include_list, $exclude_list ); 
 }
+
+// files specified
 if($options['files']['value']  != 'all') {
-	// single file specified
-	OBO2TTL($options['indir']['value'],$options['outdir']['value'],$options['files']['value']);
-} else {	
-	// directory
-	$files = GetDirFiles($options['indir']['value'],".obo");
-	if(isset($files)) {
-		foreach($files AS $f) {
-			if(!in_array($f,$exclude_list)) {
-				if(($options['overwrite']['value'] == 'true')
-					|| !file_exists($options['outdir']['value'].$f.'.ttl')) {
-					OBO2TTL($options['indir']['value'],$options['outdir']['value'],$f);
-				} else {
-					echo "$f exists ... skipping".PHP_EOL;
-				}
-			} 
-		}
-		echo "Done!";
-	} else {
-		echo "No files to process in ".$options['indir']['value'].PHP_EOL;
+	foreach($include_list AS $f) {
+		if(file_exists($options['indir']['value'].$f.".obo")) $files[] = $f.".obo";
 	}
+} else {
+	$files = GetDirFiles($options['indir']['value'],".obo");
 }
+// generate the RDF
+if(isset($files)) {
+	foreach($files AS $f) {
+		if(!in_array($f,$exclude_list)) {
+			if(($options['overwrite']['value'] == 'true')
+				|| !file_exists($options['outdir']['value'].$f.'.ttl')) {
+				OBO2TTL($options['indir']['value'],$options['outdir']['value'],$f);
+			} else {
+				echo "$f exists ... skipping".PHP_EOL;
+			}
+		} 
+	}
+	echo "Done!";
+} else {
+	echo "No files to process in ".$options['indir']['value'].PHP_EOL;
+}
+
 
 
 function OBO2TTL($indir,$outdir,$file)
@@ -394,7 +399,7 @@ function OBO2TTL($indir,$outdir,$file)
 }
 
 
-function Download($dir)
+function Download($dir,$include,$exclude)
 {
  global $options;
  $remote_ontolist = 'http://rest.bioontology.org/bioportal/ontologies?apikey='.$options['ncbo_api_key']['value'];
@@ -427,6 +432,16 @@ function Download($dir)
      $abbv = strtolower($abbv);
 	}
    }
+
+   if($include[0] != 'all') {
+    // echo "trying $label".PHP_EOL;
+	 if( (array_search($abbv,$include) === FALSE)
+	      || (array_search($abbv,$exclude) !== FALSE) ) {
+	   // echo "skipping $abbv".PHP_EOL;
+		continue;
+	 }
+   }
+   
    $format = (string) $d->format;
    if($format == "PROTEGE") continue;
    $suf = strtolower($format);
@@ -436,7 +451,7 @@ function Download($dir)
 	$suf = "zip";
 	continue;  // we can't manage these yet
    }
-
+   
    echo "Downloading $label ($abbv id=$oid) ... ";
    $onto_url = 'http://rest.bioontology.org/bioportal/virtual/download/'.$oid.'?apikey='.$options['ncbo_api_key']['value'];
    $onto = file_get_contents($onto_url);
