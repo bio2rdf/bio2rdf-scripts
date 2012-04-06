@@ -22,7 +22,14 @@
 
 
 #specify the location of the downloaded files
-cd /media/twotb/bio2rdf/data/dbpedia
+DOWNLOAD_DIR=/media/twotb/bio2rdf/data/dbpedia
+#specify the location of the output
+OUTPUT_DIR=/media/twotb/bio2rdf/n3/dbpedia
+
+
+cd $DOWNLOAD_DIR
+
+
 #uncompress the file
 bunzip2 infobox_properties_en.nt.bz2
 
@@ -34,7 +41,7 @@ cat infobox_properties_en.nt | grep -e "property/iupacname>" > iupacname.nt
 cat infobox_properties_en.nt | grep -e "property/iupacName>" > iupacName.nt
 cat infobox_properties_en.nt | grep -e "property/mgiid>" > mgi.nt
 cat infobox_properties_en.nt | grep -e "property/symbol>" > symbol.nt
-cat infobox_properties_en.nt | grep -e "property/scop>" > scop.n3
+cat infobox_properties_en.nt | grep -e "property/scop>" > scop.nt
 cat infobox_properties_en.nt | grep -e "property/interpro>" > interpro.nt
 cat infobox_properties_en.nt | grep -e "property/hgncid>" > hgnc.nt
 cat infobox_properties_en.nt | grep -e "property/kegg>" > kegg.nt
@@ -52,6 +59,10 @@ cat infobox_properties_en.nt | grep -e "property/pubchem>" > pubchem.nt
 cat infobox_properties_en.nt | grep -e "property/refseq>" > refseq.nt
 cat infobox_properties_en.nt | grep -e "property/uniprot>" > uniprot.nt
 cat infobox_properties_en.nt | grep -e "property/drugbank>" > drugbank.nt
-cat *.nt > dbpedia.nt
+cat *.nt > dbpedia_out.nt
 #gzip the file
-gzip -c dbpedia.nt > dbpedia.nt.gz
+gzip -c dbpedia_out.nt > dbpedia_out.nt.gz
+#remove the .nt files
+rm *.nt
+#move the output file
+mv dbpedia_out.nt.gz $OUTPUT_DIR
