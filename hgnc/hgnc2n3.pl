@@ -24,7 +24,7 @@
 
 use strict;
 use Digest::MD5;
-
+use utf8;
 # dc:title      hgnc2n3v2.pl
 #
 # You can contact the Bio2RDF team at bio2rdf@gmail.com
@@ -146,7 +146,7 @@ while ($line = <INPUT>) {
 	my $UCSCID_mappeddatasuppliedbyUCSC = $lines[37];
 	my $MouseGenomeDatabaseID_mappeddatasuppliedbyMGI = $lines[38];
 	my $RatGenomeDatabaseID_mappeddatasuppliedbyRGD = $lines[39];
-	print "--------------------\n";
+
 
 	printN3("$bio2rdf/symbol:$ApprovedSymbol", "$rdf#type", "$bio2rdf/symbol_vocabulary:Symbol", 0, 0);
 	printN3("$bio2rdf/symbol:$ApprovedSymbol", "$dc/identifier", "symbol:$ApprovedSymbol", 1, "^^xsd:string");
@@ -303,12 +303,12 @@ while ($line = <INPUT>) {
 		printN3("$base:$identifier", "$vocabulary:LocusSpecificDatabases", $LocusSpecificDatabases, 1, "^^xsd:string" );
 	}
 
-	if($GDBID_mappeddata !~ /^$/){
-		$uniqueID = generateUniqueURI($GDBID_mappeddata);
-		printN3("$resource:$identifier", "$vocabulary:GDBID_mappeddata", "$resource:$identifier-$uniqueID", 0, 0 );
-		printN3("$resource:$identifier-$uniqueID", "$rdf#type", "$vocabulary:GDBID_mappeddata", 0, 0);
-		GDBID_mappeddata("$base:$identifier-$uniqueID", $GDBID_mappeddata);
-	}
+#	if($GDBID_mappeddata !~ /^$/){
+#		$uniqueID = generateUniqueURI($GDBID_mappeddata);
+#		printN3("$resource:$identifier", "$vocabulary:GDBID_mappeddata", "$resource:$identifier-$uniqueID", 0, 0 );
+#		printN3("$resource:$identifier-$uniqueID", "$rdf#type", "$vocabulary:GDBID_mappeddata", 0, 0);
+#		GDBID_mappeddata("$base:$identifier-$uniqueID", $GDBID_mappeddata);
+#	}
 
 	if($EntrezGeneID_mappeddatasuppliedbyNCBI !~ /^$/){
 		$uniqueID = generateUniqueURI($EntrezGeneID_mappeddatasuppliedbyNCBI);
@@ -359,7 +359,7 @@ while ($line = <INPUT>) {
 		RatGenomeDatabaseID_mappeddatasuppliedbyRGD("$resource:$identifier-$uniqueID", $RatGenomeDatabaseID_mappeddatasuppliedbyRGD);
 	}
 
-	#print "--------------------\n";
+
 
 }
 
@@ -886,7 +886,7 @@ sub printN3{
 			$object =~ s/\\/\\u005c/g;
 			$object =~ s/"/\\u0022/g;
 			$object =~ s/'/\\u0027/g;
-			print "<$subject> <$predicate> ".'"'.$object."$type".'"'." .\n";
+			print "<$subject> <$predicate> ".'"'.utf8::encode($object).'"'." .\n";
 		}
 		else{
 			print "<$subject> <$predicate> <$object> .\n";
