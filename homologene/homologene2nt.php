@@ -43,6 +43,8 @@ function parse_homologene_tab_file($inpath, $outpath){
 		while(($aLine = fgets($infh, 4096)) !== false){
 			$parsed_line = parse_homologene_tab_line($aLine);
 			$buf = "<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_taxid> <".$taxid.$parsed_line["taxid"].">.\n";
+			$buf .= "<$homologene:".$parsed_line["hid"]."> <".$type."> <".$homologene."_vocabulary:HomoloGene_Group>.\n";
+			$buf .= "<$homologene:".$parsed_line["hid"]."> <".$label."> \"HomoloGene Group\".\n";
 			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_geneid> <".$geneid.$parsed_line["geneid"].">.\n";
 			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_geneSymbol> \"".str_replace("\\","", $parsed_line["genesymbol"])."\".\n";
 			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_gi> <".$gi.$parsed_line["gi"].">.\n";
