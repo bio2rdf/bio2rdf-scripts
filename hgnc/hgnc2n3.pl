@@ -1,6 +1,6 @@
 ###############################################################################
-#Copyright (C) 2011 Alison Callahan, Marc-Alexandre Nolin, Francois Belleau
-#
+#Copyright (C) 2011 Alison Callahan, Jose Cruz-Toledo, Marc-Alexandre Nolin, 
+# Francois Belleau
 #Permission is hereby granted, free of charge, to any person obtaining a copy of
 #this software and associated documentation files (the "Software"), to deal in
 #the Software without restriction, including without limitation the rights to
@@ -483,14 +483,14 @@ sub AccessionNumbers{
 		my @list = split(/, /,$content);
 		foreach(@list){
 			printN3("$subject", "$vocabulary:accessionNumber", $_, 1, "^^xsd:string");
-			printN3("$subject", "$vocabulary:xAccession", "$bio2rdf/ncbi:$_", 0, 0);
+			printN3("$subject", "$vocabulary:xAccession", "$bio2rdf/geneid:$_", 0, 0);
 			xRef("ncbi:$_");
 		}
 	}
 	else{
 			printN3("$subject", "$vocabulary:accessionNumber", $content, 1, "^^xsd:string");
-			printN3("$subject", "$vocabulary:xAccession", "$bio2rdf/ncbi:$content", 0, 0);
-			xRef("ncbi:$content");
+			printN3("$subject", "$vocabulary:xAccession", "$bio2rdf/geneid:$content", 0, 0);
+			xRef("geneid:$content");
 	}
 }
 
@@ -618,14 +618,14 @@ sub RefSeqIDs{
 		my @list = split(/, /,$content);
 		foreach(@list){
 			printN3("$subject", "$vocabulary:refSeqID", $_, 1, "^^xsd:string");
-			printN3("$subject", "$vocabulary:xRefSeq", "$bio2rdf/ncbi:$_", 0, 0);
-			xRef("ncbi:$_");
+			printN3("$subject", "$vocabulary:xRefSeq", "$bio2rdf/refseq:$_", 0, 0);
+			xRef("refseq:$_");
 		}
 	}
 	else{
 			printN3("$subject", "$vocabulary:refSeqID", $content, 1, "^^xsd:string");
-			printN3("$subject", "$vocabulary:xRefSeq", "$bio2rdf/ncbi:$content", 0, 0);
-			xRef("ncbi:$content");
+			printN3("$subject", "$vocabulary:xRefSeq", "$bio2rdf/refseq:$content", 0, 0);
+			xRef("refseq:$content");
 	}
 }
 
@@ -747,14 +747,14 @@ sub RefSeq_mappeddatasuppliedbyNCBI{
 		my @list = split(/, /,$content);
 		foreach(@list){
 			printN3("$subject", "$vocabulary:RefSeq", $_, 1, "^^xsd:string");
-			printN3("$subject", "$vocabulary:xRefSeq", "$bio2rdf/ncbi:$_", 0, 0);
-			xRef("ncbi:$_");
+			printN3("$subject", "$vocabulary:xRefSeq", "$bio2rdf/refseq:$_", 0, 0);
+			xRef("refseq:$_");
 		}
 	}
 	else{
 			printN3("$subject", "$vocabulary:RefSeq", $content, 1, "^^xsd:string");
-			printN3("$subject", "$vocabulary:xRefSeq", "$bio2rdf/ncbi:$content", 0, 0);
-			xRef("ncbi:$content");
+			printN3("$subject", "$vocabulary:xRefSeq", "$bio2rdf/refseq:$content", 0, 0);
+			xRef("refseq:$content");
 	}
 }
 
