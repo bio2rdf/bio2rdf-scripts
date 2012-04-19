@@ -170,7 +170,7 @@ function read_dbpedia_properties($inFile, $outFile){
 				}
 			}elseif(count($prosite)){
 				//get the triple
-				$t = getLiteralTripleFromString($iupacname[0]);
+				$t = getLiteralTripleFromString($prosite[0]);
 				if(count($t)==3){
 					//make a valid bio2rdf triple
 					$triple = $t["subject"]." <http://bio2rdf.org/dbpedia_vocabulary:has_prosite_id> ".$t["object"].".\n";
