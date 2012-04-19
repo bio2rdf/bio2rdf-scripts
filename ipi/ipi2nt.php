@@ -148,7 +148,13 @@ function parse_ipi_OSCODE_xref_file($inpath,$outpath){
 			if(count($tair_ids)){
 				foreach($tair_ids as $t){
 					if($t != ""){
-						$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_tair_id> <http://bio2rdf.org/tair:".$t."> .\n";
+						if(!strstr($t,",")){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_tair_id> <http://bio2rdf.org/tair:".$t."> .\n";
+						}else{
+							$x = explode(",",$t);
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_hgnc_id> <http://bio2rdf.org/hgnc:".$x[0]."> .\n";
+							
+						}
 					}
 				}
 			}
