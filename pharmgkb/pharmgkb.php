@@ -254,7 +254,7 @@ function drugs(&$in, &$out)
 			$b = explode(',',trim($a[6]));
 			foreach($b as $c) {
 				ParseQNAME($c,$ns,$id1);
-				$ns = str_replace(array('keggcompound','keggdrug'), array('kegg','kegg'), strtolower($ns));
+				$ns = str_replace(array('keggcompound','keggdrug','drugbank'), array('kegg','kegg','drugbank_drugs'), strtolower($ns));
 				if($ns == "url") {
 					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $id );
 				} else {
