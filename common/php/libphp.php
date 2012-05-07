@@ -39,12 +39,13 @@ $gns = array(
 );
 
 // valid dataset namespaces
-$gdataset_ns = array('afcs', 'apo','atc','bind','biogrid','blastprodom','candida','cas','chebi','coil','corum','ctd','cygd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','geneid','germonline','go','gp','grid','hprd','innatedb','intact','ipi','irefindex','iubmb',"rogid","irogid","rigid","irigid","crigid","crogid","icrogid","icrigid",'iupharligand','matrixdb','mesh','metacyc','mi','mint','mips','mpact','mpi','ncbi','refseq','obo','omim','ophid','patternscan','pato','panther','pfam','pharmgkb','pir','prf','prodom','profilescan','pdb','pubmed','pubchem','pubchemcompound','pubchemsubstance','reactome','registry','registry_dataset','seg','sgd','smart','snomedct','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo');
+$gdataset_ns = array('afcs', 'apo','atc','bind','biogrid','blastprodom','candida','cas','chebi','coil','corum','ctd','cygd','dbsnp','dip','ddbj','drugbank','ec','embl','ensembl','eco','euroscarf','flybase','fprintscan','kegg','gene3d','geneid','germonline','go','gp','grid','hprd','innatedb','intact','ipi','irefindex','iubmb',"rogid","irogid","rigid","irigid","crigid","crogid","icrogid","icrigid",'iupharligand','matrixdb','mesh','metacyc','mi','mint','mips','mpact','mpi','ncbi','refseq','obo','omim','ophid','patternscan','pato','panther','pfam','pharmgkb','pir','prf','prodom','profilescan','pdb','pubmed','pubchem','pubchemcompound','pubchemsubstance','reactome','registry','registry_dataset','seg','sgd','smart','snomed','so','superfamily','swissprot','taxon','tcdb','tigr','tpg','trembl','umls','uniparc','uniprot','uo');
 	
 // add the valid namespaces to the global namespace array
 foreach($gdataset_ns AS $ns) {
   AddToGlobalNS($ns, true);	
 }
+$gns_backup = $gns;
 
 function AddToGlobalNS($ns, $add_voc_and_resource = false)
 {
