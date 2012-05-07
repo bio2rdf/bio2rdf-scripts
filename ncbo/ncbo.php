@@ -27,7 +27,7 @@ $options = null;
 AddOption($options, 'indir', null, '/data/download/ncbo/', false);
 AddOption($options, 'outdir',null, '/data/rdf/ncbo/', false);
 AddOption($options, 'files',null,'all|ontology-short-name',true);
-AddOption($options, 'exclude',null,'gaz',false);
+AddOption($options, 'exclude',null,'gaz,cco',false);
 AddOption($options, 'ncbo_api_key',null,'24e19c82-54e0-11e0-9d7b-005056aa3316', false);
 AddOption($options, 'download','true|false','false',false);
 AddOption($options, 'overwrite','true|false','true',false);
@@ -58,17 +58,21 @@ if($options['files']['value']  != 'all') {
 } else {
 	$files = GetDirFiles($options['indir']['value'],".obo");
 }
+
 // generate the RDF
 if(isset($files)) {
 	foreach($files AS $f) {
-		if(!in_array($f,$exclude_list)) {
-			if(($options['overwrite']['value'] == 'true')
-				|| !file_exists($options['outdir']['value'].$f.'.ttl')) {
-				OBO2TTL($options['indir']['value'],$options['outdir']['value'],$f);
-			} else {
-				echo "$f exists ... skipping".PHP_EOL;
-			}
-		} 
+		foreach($exclude_list AS $exclude) {
+			
+			if(strstr($f,$exclude) === FALSE) {
+				if(($options['overwrite']['value'] == 'true')
+					|| !file_exists($options['outdir']['value'].$f.'.ttl')) {
+					OBO2TTL($options['indir']['value'],$options['outdir']['value'],$f);
+				} else {
+					echo "$f exists ... skipping".PHP_EOL;
+				}
+			} 
+		}
 	}
 	echo "Done!";
 } else {
@@ -79,12 +83,13 @@ if(isset($files)) {
 
 function OBO2TTL($indir,$outdir,$file)
 {
- global $gns, $options;
+ global $gns, $gns_backup, $options;
+ $gns = $gns_backup;
  
  $infile = $indir.$file;
  $outfile = $outdir.$file.'.ttl';
  
- $in = fopen($infile,"r");
+ $in = gzopen($infile,"r");
  if(FALSE === $in) {
 	trigger_error("unable to open ".$infile);
 	exit;
@@ -123,7 +128,7 @@ function OBO2TTL($indir,$outdir,$file)
  $is_a = false;
  $is_deprecated = false;
  $min = $buf;
- while($l = fgets($in)) {
+ while($l = gzgets($in)) {
 	$lt = trim($l);
 	if(strlen($lt) == 0) continue;
 	if($lt[0] == '!') continue;
@@ -157,9 +162,10 @@ function OBO2TTL($indir,$outdir,$file)
 	} 
 	// to fix error in obo generator
 	$lt = str_replace("synonym ","synonym: ",$lt);
+	$lt = preg_replace("/\{.*\} !/"," !",$lt);
 	$a = explode(" !", $lt);
-	if(isset($a[1])) $exc = $a[1];
-	$a = explode(": ",$a[0],2);
+	if(isset($a[1])) $exc = trim($a[1]);
+	$a = explode(": ",trim($a[0]),2);
 
 	// let's go
 	if(isset($intersection_of)) {
@@ -243,7 +249,7 @@ function OBO2TTL($indir,$outdir,$file)
 			}
 			// next identify the namespace and identifier
 			if(FALSE !== ($pos = strpos($identifier,":"))) {
-				$id = substr($identifier,$pos+1);
+				$id = trim(substr($identifier,$pos+1));
 				$raw_ns = strtolower(substr($identifier,0,$pos));
 			
 				// the raw ns is likely to be very dirty
@@ -392,7 +398,7 @@ function OBO2TTL($indir,$outdir,$file)
  if(isset($intersection_of))  $buf .= $intersection_of.")].".PHP_EOL;
  if(isset($relationship))  $buf .= $relationship.")].".PHP_EOL;
 
- fclose($in);
+ gzclose($in);
  if($options['minimal']['value'] == 'true' || $options['minimal+']['value'] == 'true') fwrite($out,$min);
  else fwrite($out,$buf);
  fclose($out);
@@ -437,7 +443,7 @@ function Download($dir,$include,$exclude)
     // echo "trying $label".PHP_EOL;
 	 if( (array_search($abbv,$include) === FALSE)
 	      || (array_search($abbv,$exclude) !== FALSE) ) {
-	   // echo "skipping $abbv".PHP_EOL;
+	    echo "skipping $abbv".PHP_EOL;
 		continue;
 	 }
    }
