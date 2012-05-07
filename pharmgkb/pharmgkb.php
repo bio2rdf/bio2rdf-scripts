@@ -254,7 +254,7 @@ function drugs(&$in, &$out)
 			$b = explode(',',trim($a[6]));
 			foreach($b as $c) {
 				ParseQNAME($c,$ns,$id1);
-				$ns = str_replace(array('keggcompound','keggdrug','drugbank'), array('kegg','kegg','drugbank_drugs'), strtolower($ns));
+				$ns = str_replace(array('keggcompound','keggdrug','drugbank'), array('kegg','kegg','drugbank'), strtolower($ns));
 				if($ns == "url") {
 					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $id );
 				} else {
@@ -315,7 +315,9 @@ function diseases(&$in, &$out)
 	if(isset($a[4]) && trim($a[4]) != '') {	  
 		$d = preg_match_all('/(MeSH|SnoMedCT|UMLS):([A-Z0-9]+)\(([^\)]+)\)/',$a[4],$m, PREG_SET_ORDER);
 		foreach($m AS $n) {
-			$id2 = strtolower($n[1]).':'.$n[2];
+			$n[1] = strtolower($n[1]);
+			if($n[1] == 'snomedct') $n[1] = 'snomed';
+			$id2 = $n[1].':'.$n[2];
 			$buf .= QQuad($id,'rdfs:seeAlso',$id2);
 			if(isset($n[3]) && $n[2] != $n[3]) $buf .= QQuadL($id2,'rdfs:label',str_replace(array("\'", "\""),array("\\\'", ""),$n[3]));
 		}	  
