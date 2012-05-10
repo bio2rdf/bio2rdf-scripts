@@ -23,9 +23,9 @@
 
 
 //Specify the path where the raw IPI files are located
-$input_path = "/tmp/ipi/";
+$input_path = "/media/threetwenty/tmp/ipi/ipi/";
 //Specify the path where the N-Triples files should be created
-$output_path = "/tmp/nt/";
+$output_path = "/media/threetwenty/tmp/ipi/nt/";
 
 //TThe following are the files that this parser can handle
 $species_xrefs = array(
@@ -52,16 +52,140 @@ $gene_xrefs = array(
 /******************/
 //iterate over the $species_xrefs array and generate the ntriple files
 //for each entry
-foreach($species_xrefs as $sp){
+/*foreach($species_xrefs as $sp){
 	parser_ipi_OSCODE_xref_gz_file($input_path, $sp, $output_path);
-}
+}*/
+
+parser_ipi_gene_OSCODE_xref_gz_file($input_path,"ipi.genes.ARATH.xrefs.gz", $output_path);
 
 /*************/
 /* FUNCTIONS */
 /*************/
+
+function parser_ipi_gene_OSCODE_xref_gz_file($anInputPath, $anOSCODEFile, $outputPath){
+	//check if inputpath has a trailing slash
+	if(strrpos($anInputPath, "/") != count($anInputPath)){
+		//no trailing slash
+		$anInputPath .= "/";
+	}
+	if(strrpos($outputPath, "/") != count($outputPath)){
+		//no trailing slash
+		$outputPath .= "/";
+	}
+	
+	$out_fileName = substr($anOSCODEFile, 0, strrpos($anOSCODEFile, "."));
+	$ifh = gzopen($anInputPath.$anOSCODEFile, 'r') or die("Could not open ".$anInputPath.$anOSCODEFile."\n");
+	$outfh = fopen($outputPath.$out_fileName.".nt", 'w') or die ("Could not open file here!\n");
+
+	if($ifh){
+		while(!gzeof($ifh)){
+			$aLine = gzgets($ifh, 4096);
+			$tLine = explode("\t", $aLine);
+			$chromosome = null;
+			$cosmid = array();
+			$start_coord = array();
+			$end_coord = array();
+			$strand = array();
+			$gene_location = array();
+			$ensembl_id = array();
+			$geneid =array();
+			$ipi_ids = array();
+			$uniprotkb_ids = array();
+			$uniprot_tre = array();
+			$ensembl_peptide_id = array();
+			$refseq_ids = array();
+			$tair_ids = array();
+			$hinv_ids = array();
+			$unigene_ids = array();
+			$ccds_ids = array();
+			$refseq_gis = array();
+			$vega_genes = array();
+			$vega_peptides = array();
+			
+			
+			if(count(isset($tLine[0]))){
+				@$chr_arr = readIdentifiers($tLine[0]);
+				if($chr_arr[0] != "Un"){
+					$chromosome = $chr_arr[0];
+				}
+			}
+			echo $chromosome."\n";
+			if(count(isset($tLine[1]))){
+				@$cosmid = readIdentifiers($tLine[1]);
+			}
+			if(count(isset($tLine[2]))){
+				@$start_coord = readIdentifiers($tLine[2]);
+			}
+			if(count(isset($tLine[3]))){
+				@$end_coord = readIdentifiers($tLine[3]);
+			}
+			if(count(isset($tLine[4]))){
+				@$strand = readIdentifiers($tLine[4]);
+			}
+			if(count(isset($tLine[5]))){
+				@$gene_location = readIdentifiers($tLine[5]);
+			}
+			if(count(isset($tLine[6]))){
+				@$ensembl_id = readIdentifiers($tLine[6]);
+			}
+			if(count(isset($tLine[7]))){
+				@$gene_id = array_merge($gene_id, readIdentifiers($tLine[7]));
+			}
+			if(count(isset($tLine[8]))){
+				@$gene_id = array_merge($gene_id, readIdentifiers($tLine[8]));
+			}
+			if(count(isset($tLine[9]))){
+				@$ipi_ids = readIdentifiers($tLine[9]);
+			}
+			if(count(isset($tLine[10]))){
+				@$uniprotkb_ids = readIdentifiers($tLine[10]);
+			}
+			if(count(isset($tLine[11]))){
+				@$uniprot_tre = readIdentifiers($tLine[11]);
+			}
+			if(count(isset($tLine[12]))){
+				@$ensembl_peptide_id = readIdentifiers($tLine[12]);
+			}
+			if(count(isset($tLine[13]))){
+				@$refseq_ids = readIdentifiers($tLine[13]);
+			}
+			if(count(isset($tLine[14]))){
+				@$tair_ids = readIdentifiers($tLine[14]);
+			}
+			if(count(isset($tLine[15]))){
+				@$hinv_ids = readIdentifiers($tLine[15]);
+			}
+			if(count(isset($tLine[16]))){
+				@$unigene_ids = readIdentifiers($tLine[16]);
+			}
+			if(count(isset($tLine[17]))){
+				@$ccds_ids = readIdentifiers($tLine[17]);
+			}
+			if(count(isset($tLine[18]))){
+				@$refseq_gis = readIdentifiers($tLine[18]);
+			}
+			if(count(isset($tLine[19]))){
+				@$vega_genes = readIdentifiers($tLine[19]);
+			}
+			if(count(isset($tLine[20]))){
+				@$refseq_ids = readIdentifiers($tLine[20]);
+			}
+			
+		}//while
+	}//if
+	if(!feof($ifh)){
+		echo "Error: unexpected gzgets() fail!\n";
+	}
+	gzclose($ifh);
+	fclose($outfh);
+	
+}
+
 /*This function reads the $anOSCODEFile found in $anInputPath
  * and create N-Triple files which are to be stored in the
  *  directory specified by $outputPath 
+ * see: http://www.ebi.ac.uk/IPI/xrefs.html
+ * 
  **/ 
 function parser_ipi_OSCODE_xref_gz_file($anInputPath, $anOSCODEFile, $outputPath){
 	//check if inputpath has a trailing slash
@@ -214,7 +338,6 @@ function parser_ipi_OSCODE_xref_gz_file($anInputPath, $anOSCODEFile, $outputPath
 			if(count($sup_uniprots_tre)){
 				foreach ($sup_uniprots_tre as $r){
 					if($r != "" && $r != "\n" && count($r) > 1 && isset($r)){
-
 						$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_uniprot_id> <http://bio2rdf.org/uniprot:".$r."> .\n";
 					}
 				}
@@ -297,10 +420,7 @@ function parser_ipi_OSCODE_xref_gz_file($anInputPath, $anOSCODEFile, $outputPath
 					}
 				}
 			}
-			
 		fwrite($outfh, $buf);
-			
-			
 		}//while
 	}//if
 	if(!feof($ifh)){
