@@ -229,7 +229,7 @@ function parser_ipi_gene_OSCODE_xref_gz_file($anInputPath, $anOSCODEFile, $outpu
 					$entryURI = "http://bio2rdf.org/gene:".$gene_id;
 					$buf = "";
 					//gene symbol
-					$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_gene_symbol> \"$gene_symbol\" .\n";
+					$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_gene_symbol> \"".strtoupper($gene_symbol)."\" .\n";
 					//chromosome
 					$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_chromosome> \"$chromosome\" .\n";
 					//start coord
