@@ -23,9 +23,9 @@
 
 
 //Specify the path where the raw IPI files are located
-$input_path = "/media/threetwenty/tmp/ipi/ipi/";
+$input_path = "/tmp/ipi/ipi/";
 //Specify the path where the N-Triples files should be created
-$output_path = "/media/threetwenty/tmp/ipi/nt/";
+$output_path = "/tmp/ipi/nt/";
 
 //TThe following are the files that this parser can handle
 $species_xrefs = array(
@@ -44,6 +44,8 @@ $gene_xrefs = array(
  "ipi.genes.CHICK.xrefs.gz",
  "ipi.genes.DANRE.xrefs.gz"
 );
+
+$gi2ipi = array("gi2ipi.xrefs.gz");
  
  
  
@@ -52,15 +54,53 @@ $gene_xrefs = array(
 /******************/
 //iterate over the $species_xrefs array and generate the ntriple files
 //for each entry
-/*foreach($species_xrefs as $sp){
+
+foreach($species_xrefs as $sp){
 	parser_ipi_OSCODE_xref_gz_file($input_path, $sp, $output_path);
-}*/
-
-parser_ipi_gene_OSCODE_xref_gz_file($input_path,"ipi.genes.ARATH.xrefs.gz", $output_path);
-
+}
+foreach($gene_xrefs as $sp){
+	parser_ipi_gene_OSCODE_xref_gz_file($input_path,$sp, $output_path);
+}
+parse_gi2ipi($input_path, $gi2ipi[0], $output_path);
 /*************/
 /* FUNCTIONS */
 /*************/
+
+function parse_gi2ipi($anInputPath, $filename, $outputPath){
+	//check if inputpath has a trailing slash
+	if(strrpos($anInputPath, "/") != count($anInputPath)){
+		//no trailing slash
+		$anInputPath .= "/";
+	}
+	if(strrpos($outputPath, "/") != count($outputPath)){
+		//no trailing slash
+		$outputPath .= "/";
+	}
+	
+	$out_fileName = substr($filename, 0, strrpos($filename, "."));
+	$ifh = gzopen($anInputPath.$filename, 'r') or die("Could not open ".$anInputPath.$filename."\n");
+	$outfh = fopen($outputPath.$out_fileName.".nt", 'w') or die ("Could not open file here!\n");
+	
+	if($ifh){
+		while(!gzeof($ifh)){
+			$aLine = gzgets($ifh, 4096);
+			$tLine = explode("\t", $aLine);
+			if(!startsWith($tLine[0], "#")){
+				if(count($tLine) ==2){
+					$entryURI = "http://bio2rdf.org/geneid:".$tLine[0];
+					$buf = "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_ipi> <http://bio2rdf.org/ipi:".trim($tLine[1])."> .\n";
+					fwrite($outfh, $buf);
+				}
+			}//if
+		}//while
+	}//if
+	if(!feof($ifh)){
+		echo "Error: unexpected gzgets() fail!\n";
+	}
+	gzclose($ifh);
+	fclose($outfh);
+	
+}
 
 function parser_ipi_gene_OSCODE_xref_gz_file($anInputPath, $anOSCODEFile, $outputPath){
 	//check if inputpath has a trailing slash
@@ -81,96 +121,205 @@ function parser_ipi_gene_OSCODE_xref_gz_file($anInputPath, $anOSCODEFile, $outpu
 		while(!gzeof($ifh)){
 			$aLine = gzgets($ifh, 4096);
 			$tLine = explode("\t", $aLine);
-			$chromosome = null;
-			$cosmid = array();
-			$start_coord = array();
-			$end_coord = array();
-			$strand = array();
-			$gene_location = array();
-			$ensembl_id = array();
-			$geneid =array();
-			$ipi_ids = array();
-			$uniprotkb_ids = array();
-			$uniprot_tre = array();
-			$ensembl_peptide_id = array();
-			$refseq_ids = array();
-			$tair_ids = array();
-			$hinv_ids = array();
-			$unigene_ids = array();
-			$ccds_ids = array();
-			$refseq_gis = array();
-			$vega_genes = array();
-			$vega_peptides = array();
-			
-			
-			if(count(isset($tLine[0]))){
-				@$chr_arr = readIdentifiers($tLine[0]);
-				if($chr_arr[0] != "Un"){
-					$chromosome = $chr_arr[0];
+			if(!startsWith($tLine[0], "#")){			
+				$chromosome = null;
+				$cosmid = array();
+				$start_coord = null;
+				$gene_symbol = null;
+				$end_coord = null;
+				$strand = array();
+				$gene_location = array();
+				$ensembl_id = array();
+				$gene_id = null;
+				$ipi_ids = array();
+				$uniprotkb_ids = array();
+				$uniprot_tre = array();
+				$ensembl_peptide_id = array();
+				$refseq_ids = array();
+				$tair_ids = array();
+				$hinv_ids = array();
+				$unigene_ids = array();
+				$ccds_ids = array();
+				$refseq_gis = array();
+				$vega_genes = array();
+				$vega_peptides = array();
+				
+				
+				if(count(isset($tLine[0]))){
+					@$chr_arr = readIdentifiers($tLine[0]);
+					if($chr_arr[0] != "Un"){
+						$chromosome = $chr_arr[0];
+					}
 				}
-			}
-			echo $chromosome."\n";
-			if(count(isset($tLine[1]))){
-				@$cosmid = readIdentifiers($tLine[1]);
-			}
-			if(count(isset($tLine[2]))){
-				@$start_coord = readIdentifiers($tLine[2]);
-			}
-			if(count(isset($tLine[3]))){
-				@$end_coord = readIdentifiers($tLine[3]);
-			}
-			if(count(isset($tLine[4]))){
-				@$strand = readIdentifiers($tLine[4]);
-			}
-			if(count(isset($tLine[5]))){
-				@$gene_location = readIdentifiers($tLine[5]);
-			}
-			if(count(isset($tLine[6]))){
-				@$ensembl_id = readIdentifiers($tLine[6]);
-			}
-			if(count(isset($tLine[7]))){
-				@$gene_id = array_merge($gene_id, readIdentifiers($tLine[7]));
-			}
-			if(count(isset($tLine[8]))){
-				@$gene_id = array_merge($gene_id, readIdentifiers($tLine[8]));
-			}
-			if(count(isset($tLine[9]))){
-				@$ipi_ids = readIdentifiers($tLine[9]);
-			}
-			if(count(isset($tLine[10]))){
-				@$uniprotkb_ids = readIdentifiers($tLine[10]);
-			}
-			if(count(isset($tLine[11]))){
-				@$uniprot_tre = readIdentifiers($tLine[11]);
-			}
-			if(count(isset($tLine[12]))){
-				@$ensembl_peptide_id = readIdentifiers($tLine[12]);
-			}
-			if(count(isset($tLine[13]))){
-				@$refseq_ids = readIdentifiers($tLine[13]);
-			}
-			if(count(isset($tLine[14]))){
-				@$tair_ids = readIdentifiers($tLine[14]);
-			}
-			if(count(isset($tLine[15]))){
-				@$hinv_ids = readIdentifiers($tLine[15]);
-			}
-			if(count(isset($tLine[16]))){
-				@$unigene_ids = readIdentifiers($tLine[16]);
-			}
-			if(count(isset($tLine[17]))){
-				@$ccds_ids = readIdentifiers($tLine[17]);
-			}
-			if(count(isset($tLine[18]))){
-				@$refseq_gis = readIdentifiers($tLine[18]);
-			}
-			if(count(isset($tLine[19]))){
-				@$vega_genes = readIdentifiers($tLine[19]);
-			}
-			if(count(isset($tLine[20]))){
-				@$refseq_ids = readIdentifiers($tLine[20]);
-			}
+				
+				if(count(isset($tLine[1]))){
+					@$cosmid = readIdentifiers($tLine[1]);
+				}
+				
+				if(count(isset($tLine[2]))){
+					@$start_coord_t = readIdentifiers($tLine[2]);
+					if(count($start_coord_t) == 1){
+						$start_coord = $start_coord_t[0];
+					}
+				}
+
+				if(count(isset($tLine[3]))){
+					@$end_coord_t = readIdentifiers($tLine[3]);
+					if(count($end_coord_t) == 1){
+						$end_coord = $end_coord_t[0];
+					}
+				}
+				if(count(isset($tLine[4]))){
+					@$strand = readIdentifiers($tLine[4]);
+				}
+				
+				if(count(isset($tLine[5]))){
+					@$gene_location = readIdentifiers($tLine[5]);
+				}
 			
+				if(count(isset($tLine[6]))){
+					@$ensembl_id = readIdentifiers($tLine[6]);
+				}
+				if(count(isset($tLine[8]))){
+					@$gene_id_t = readIdentifiers($tLine[8]);
+					if (count($gene_id_t) == 2){
+						$gene_id  = $gene_id_t[0];
+						$gene_symbol = $gene_id_t[1];
+					}
+				}
+				if(count(isset($tLine[9]))){
+					@$ipi_ids = readIdentifiers($tLine[9]);
+				}
+				if(count(isset($tLine[10]))){
+					@$uniprotkb_ids = readIdentifiers($tLine[10]);
+				}
+				if(count(isset($tLine[11]))){
+					@$uniprot_tre = readIdentifiers($tLine[11]);
+				}
+				if(count(isset($tLine[12]))){
+					@$ensembl_peptide_id = readIdentifiers($tLine[12]);
+				}
+				if(count(isset($tLine[13]))){
+					@$refseq_ids = readIdentifiers($tLine[13]);
+				}
+				if(count(isset($tLine[14]))){
+					@$tair_ids = readIdentifiers($tLine[14]);
+				}
+				if(count(isset($tLine[15]))){
+					@$hinv_ids = readIdentifiers($tLine[15]);
+				}
+				if(count(isset($tLine[16]))){
+					@$unigene_ids = readIdentifiers($tLine[16]);
+				}
+				if(count(isset($tLine[17]))){
+					@$ccds_ids = readIdentifiers($tLine[17]);
+				}
+				if(count(isset($tLine[18]))){
+					@$refseq_gis = readIdentifiers($tLine[18]);
+				}
+				if(count(isset($tLine[19]))){
+					@$vega_genes = readIdentifiers($tLine[19]);
+				}
+				if(count(isset($tLine[20]))){
+					@$refseq_ids = readIdentifiers($tLine[20]);
+				}
+				
+				//lets make some rdf
+				if(count($gene_id)){
+					$entryURI = "http://bio2rdf.org/gene:".$gene_id;
+					$buf = "";
+					//gene symbol
+					$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_gene_symbol> \"$gene_symbol\" .\n";
+					//chromosome
+					$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_chromosome> \"$chromosome\" .\n";
+					//start coord
+					$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_start_coordinate> \"$start_coord\" .\n";
+					//end coord
+					$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_end_coordinate> \"$end_coord\" .\n";
+					//strand
+					if(count($strand)){
+						$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_strand> \"".$strand[0]."\" .\n";
+					}
+					//ensembl id
+					if(count($ensembl_id)){
+						foreach ($ensembl_id as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_ensembl> <http://bio2rdf.org/ensembl:".$x."> .\n";
+						}
+					}
+					//gene location
+					if(count($gene_location)){
+						foreach ($gene_location as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_gene_location> \"$x\" .\n";
+						}
+					}
+					//ipi ids
+					if(count($ipi_ids)){
+						foreach ($ipi_ids as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_ipi_id> <http://bio2rdf.org/ipi:".$x."> .\n";
+						}
+					}
+					//uniprotkb_ids
+					if(count($uniprotkb_ids)){
+						foreach ($uniprotkb_ids as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_uniprot_id> <http://bio2rdf.org/uniprot:".$x."> .\n";
+						}
+					}
+					//uniprot trembl
+					if(count($uniprot_tre)){
+						foreach ($uniprot_tre as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_uniprot_id> <http://bio2rdf.org/uniprot:".$x."> .\n";
+						}
+					}
+					//ensembl peptide
+					if(count($ensembl_peptide_id)){
+						foreach ($ensembl_peptide_id as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_ensembl> <http://bio2rdf.org/ensembl:".$x."> .\n";
+						}
+					}
+					//refseqs
+					if(count($refseq_ids)){
+						foreach ($refseq_ids as $x){
+							if(count($x) != 0 && $x != "\n" && $x != ""){
+								$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_refseq_id> <http://bio2rdf.org/refseq:".$x."> .\n";
+							}
+						}
+					}
+					//tair
+					if(count($tair_ids)){
+						foreach ($tair_ids as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_tair_id> <http://bio2rdf.org/tair:".$x."> .\n";
+						}
+					}
+					//cosmid
+					if(count($cosmid)){
+						foreach ($cosmid as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_cosmid>  \"$x\" .\n";
+						}
+					}
+					//hinv ids
+					if(count($hinv_ids)){
+						foreach ($hinv_ids as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_hinv_id>  <http://bio2rdf.org/hinv:".$x."> .\n";
+						}
+					}
+					//unigene ids
+					if(count($unigene_ids)){
+						foreach ($unigene_ids as $x){
+							$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_unigene_id>  <http://bio2rdf.org/unigene:".$x."> .\n";
+						}
+					}
+					//refseq gis
+					if(count($refseq_gis)){
+						foreach ($refseq_gis as $x){
+							if(count($x) != 0 && $x != "\n" && $x != ""){
+								$buf .= "<$entryURI> <http://bio2rdf.org/ipi_vocabulary:has_refseq_id> <http://bio2rdf.org/refseq:".$x."> .\n";
+							}
+						}
+					}
+					fwrite($outfh, $buf);
+				
+				}//if
+			}//if
 		}//while
 	}//if
 	if(!feof($ifh)){
@@ -278,7 +427,6 @@ function parser_ipi_OSCODE_xref_gz_file($anInputPath, $anOSCODEFile, $outputPath
 			if(count(isset($tLine[7]))){
 				@$sup_tair = readIdentifiers($tLine[7]);
 			}
-			
 			//Supplementary H-Inv Protein entries associated with this IPI entry.
 			if(count(isset($tLine[8]))){
 				@$sup_hinv = readIdentifiers($tLine[8]);
@@ -443,11 +591,26 @@ function readIdentifiers($str){
 				$dirty = substr($str, 0, $pos);
 				$returnMe[] = $dirty;
 			}
+		}else if($ev["SEMICOLON"] == 0 && $ev["COMMA"] > 0 && $ev["COLON"] == 0){
+			$returnMe = explode(",", $str);
 		}else if($ev["SEMICOLON"] == 1 && $ev["COMMA"]==0 && $ev["COLON"] == 1){
 			if($pos = strpos($str, ";")){						
 				$dirty = substr($str, 0, $pos);
 				$a = explode(":", $dirty);
 				$returnMe[] = $a[1];
+			}
+		}else if($ev["SEMICOLON"] > 1 && $ev["COMMA"]==0 && $ev["ALL"] > 1 && $ev["COLON"] == 0){
+			$tmp = explode(";", $str);
+			//remove any empty elements
+			$tmp = removeEmptyElements($tmp);
+			//remove things before the :
+			foreach ($tmp as $x){
+				$a = explode(":", $x);
+				if(count ($a) == 2){
+					$returnMe[] = $a[1];
+				}else{
+					$returnMe[] = $x;
+				}
 			}
 		}else if($ev["SEMICOLON"] > 1 && $ev["COMMA"]==0 && $ev["ALL"] > 1 && $ev["COLON"] > 1){
 			$tmp = explode(";", $str);
@@ -569,5 +732,8 @@ function parse_ipi_gi2ipi($inpath, $outpath){
 	fclose($outfh);
 }
 
-
+function startsWith($haystack, $needle){
+    $length = strlen($needle);
+    return (substr($haystack, 0, $length) === $needle);
+}
 ?>
