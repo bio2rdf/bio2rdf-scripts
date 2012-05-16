@@ -32,7 +32,7 @@ require_once (dirname(__FILE__).'/../common/php/libphp.php');
 $options = null;
 AddOption($options, 'indir', null, '/data/download/pharmgkb/', false);
 AddOption($options, 'outdir',null, '/data/rdf/pharmgkb/', false);
-AddOption($options, 'files','all|drugs|genes|diseases|relationships|rsid|clinical_ann_metadata|var_drug_ann','',true);
+AddOption($options, 'files','all|drugs|genes|diseases|relationships|pathways|rsid|clinical_ann_metadata|var_drug_ann','',true);
 AddOption($options, 'remote_base_url',null,'http://www.pharmgkb.org/commonFileDownload.action?filename=', false);
 AddOption($options, 'download','true|false','false', false);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
@@ -60,16 +60,21 @@ if($options['files']['value'] == 'all') {
 // download the files
 if($options['download']['value'] == 'true') {
   foreach($files AS $file) {
-   $myfiles[] = $file.".zip";
+    if($file == 'pathways') $myfiles[] = $file."-tsv.zip";
+    else $myfiles[] = $file.".zip";
   }
   if($file == 'clinical_ann_metadata' || $file == 'var_drug_ann') {
 	echo "Obtain clinical annotations from PharmGKB (license required)".PHP_EOL;
   } else {
-		DownloadFiles($options['remote_base_url']['value'],$myfiles,$options['indir']['value']);
+	DownloadFiles($options['remote_base_url']['value'],$myfiles,$options['indir']['value']);
   
 	  // unzip the files
 	  foreach($files AS $file) {
-		$zip = zip_open($options['indir']['value'].$file.".zip");
+		if($file == 'pathways') {
+			$zip = zip_open($options['indir']['value'].$file."-tsv.zip");			
+		} else 
+			$zip = zip_open($options['indir']['value'].$file.".zip");
+
 		if (is_resource($zip)) {
 		  while ($zip_entry = zip_read($zip)) {
 			if (zip_entry_open($zip, $zip_entry, "r")) {
@@ -141,7 +146,7 @@ function genes(&$in, &$out)
 	while($l = fgets($in,10000)) {
 		$a = explode("\t",$l);
 		
-		$id = "pharmgkb_vocabulary:$a[0]";
+		$id = "pharmgkb:$a[0]";
 		$buf .= QQuadL($id,"rdfs:label","$a[4] [$id]");
 		$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:Gene");
 		$buf .= Quad($releasefile_uri, GetFQURI("dc:subject"), GetFQURI($id));
@@ -430,7 +435,7 @@ Pharmacokinetic   - Y
 function relationships(&$in, &$out)
 {
   global $releasefile_uri;
-
+  $declared = '';
   $buf = '';
   fgets($in); // first line is header
   
@@ -439,16 +444,36 @@ function relationships(&$in, &$out)
 	$a = explode("\t",$l);
 	
 	ParseQNAME($a[0],$ns,$id1);
+	$type1 = strtolower(str_replace(array("drug class","drug"),array("chemical","chemical"),$ns));
 	ParseQNAME($a[2],$ns,$id2);
+	$type2 = strtolower(str_replace(array("drug class","drug"),array("chemical","chemical"),$ns));
+
+	// order
+	if($type1[0] > $type2[0]) {
+		$t1_type = $type1;
+		$t1_id = $id1;
+		$t2_type = $type2;
+		$t2_id = $id2;
+		$type1 = $t2_type;
+		$id1 = $t2_id;
+		$type2 = $t1_type;
+		$id2 = $t1_id;
+	} 
+
 	$id = "pharmgkb_resource:association_".$id1."_".$id2;
 	$buf .= Quad($releasefile_uri, GetFQURI('dc:subject'), GetFQURI($id));
 	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:Association');
-	$buf .= QQuad($id,'pharmgkb_vocabulary:entity',"pharmgkb:$id1");
-	$buf .= QQuad($id,'pharmgkb_vocabulary:entity',"pharmgkb:$id2");
+	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:'.$type1.'-'.$type2.'-association');
+	$buf .= QQuad($id,'pharmgkb_vocabulary:'.$type1,"pharmgkb:$id1");
+	$buf .= QQuad($id,'pharmgkb_vocabulary:'.$type2,"pharmgkb:$id2");
 	$b = explode(',',$a[4]);
 	foreach($b AS $c) {
 		$d = str_replace(array("PMID","RSID","Pathway"),array("pubmed","dbsnp","pharmgkb"),$c);
-		$buf .= QQuad($id,'pharmgkb_vocabulary:evidence',$d);	
+		$rel = "evidence";
+		if(strstr($d,"pubmed")) $rel = "article";
+		elseif(strstr($d,"dbsnp")) $rel = 'variant';
+		elseif(strstr($d,"pharmgkb")) $rel = 'pathway';
+		$buf .= QQuad($id,'pharmgkb_vocabulary:'.$rel,$d);	
 	}
 	$b = explode(',',$a[5]);
 	foreach($b AS $c) {
@@ -637,6 +662,8 @@ function clinical_ann_metadata(&$in,&$out)
 
 function var_drug_ann(&$in,&$out)
 {
+	$declaration = '';
+	$buf = '';
 	fgets($in);
 	while($l = fgets($in,20000)) {
 		$a = explode("\t",$l);
@@ -663,8 +690,10 @@ function var_drug_ann(&$in,&$out)
 			$drugs = explode(",",$a[3]);
 			foreach($drugs AS $drug) {
 				preg_match("/\(([A-Za-z0-9]+)\)/",$drug,$m);
-				$buf .= QQuad($id,"pharmgkb_vocabulary:drug", "pharmgkb:$m[1]");
-				$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:drug");
+				if(isset($m[1])) {
+					$buf .= QQuad($id,"pharmgkb_vocabulary:drug", "pharmgkb:$m[1]");
+					$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:drug");
+				}
 			}
 		}
 		// [4] => Literature Id
@@ -687,22 +716,22 @@ function var_drug_ann(&$in,&$out)
 		}
 		// [6] => Significance
 		if($a[6]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:significant", $a[6]);
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:significant", $a[6]);
 		}
 		// [7] => Notes
 		if($a[7]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:note", addslashes($a[7]));
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:note", addslashes($a[7]));
 		}
 	
 		//[8] => Sentence
 		if($a[8]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:comment", addslashes($a[8]));
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:comment", addslashes($a[8]));
 		}
 		//[9] => StudyParameters
 		if($a[9]) {
 			$sps = explode(";",$a[9]);
 			foreach($sps AS $sp) {
-				$t = "pharmgkb:$sp";
+				$t = "pharmgkb:".trim($sp);
 				$buf .= QQuad($id,"pharmgkb_vocabulary:study_parameters", $t);
 				$buf .= QQuad($t,"rdf:type","pharmgkb_resource:study_parameter");
 			}
@@ -713,10 +742,44 @@ function var_drug_ann(&$in,&$out)
 			foreach($cats AS $cat) {
 				$t = "pharmgkb:$cat";
 				$buf .= QQuad($id,"pharmgkb_vocabulary:categories", $t);
-				$buf .= QQuadL($t,"rdfs:label",$cat);
+				if(!isset($declaration[$t])) {
+					$declaration[$t] = '';
+					$buf .= QQuadL($t,"rdfs:label",$cat);
+				}
 			}
 		}	
 	}
 	fwrite($out,$buf);
 }
+
+function pathways(&$in,&$out)
+{
+	$entry = false;
+	$buf = '';
+	while($l = fgets($in,20000)) {
+		$a = explode("\t",trim($l));
+		if(strlen(trim($l)) == 0) {
+			// end of entry
+			$entry = false;
+		}
+
+		if($entry == false && isset($a[0][0]) && $a[0][0] == 'P') {
+			// start of entry
+			$entry = true;
+			$pos = strpos($a[0],':');
+			$id = "pharmgkb:".substr($a[0],0,$pos);
+			$title = substr($a[0],$pos+2);
+			$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:pathway");
+			$buf .= QQuadL($id,"rdfs:label",$title);
+		}
+		if($a[0] == 'Gene') {
+			$buf .= QQuad($id,"pharmgkb_vocabulary:protein","pharmgkb:".$a[1]);
+		}
+		if($a[0] == 'Drug') {
+			$buf .= QQuad($id,"pharmgkb_vocabulary:chemical","pharmgkb:".$a[1]);
+		}	
+	}
+	fwrite($out,$buf);
+}
+
 ?>
