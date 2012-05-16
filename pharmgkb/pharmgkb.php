@@ -32,7 +32,7 @@ require_once (dirname(__FILE__).'/../common/php/libphp.php');
 $options = null;
 AddOption($options, 'indir', null, '/data/download/pharmgkb/', false);
 AddOption($options, 'outdir',null, '/data/rdf/pharmgkb/', false);
-AddOption($options, 'files','all|drugs|genes|diseases|relationships|pathways|rsid|clinical_ann_metadata|var_drug_ann','',true);
+AddOption($options, 'files','all|drugs|genes|diseases|relationships|pathways|rsid|clinical_ann_metadata|var_drug_ann|offsides|twosides','',true);
 AddOption($options, 'remote_base_url',null,'http://www.pharmgkb.org/commonFileDownload.action?filename=', false);
 AddOption($options, 'download','true|false','false', false);
 AddOption($options, CONF_FILE_PATH, null,'/bio2rdf-scripts/common/bio2rdf_conf.rdf', false);
@@ -65,6 +65,8 @@ if($options['download']['value'] == 'true') {
   }
   if($file == 'clinical_ann_metadata' || $file == 'var_drug_ann') {
 	echo "Obtain clinical annotations from PharmGKB (license required)".PHP_EOL;
+  } elseif($file == 'twosides' || $file = 'offsides') {
+	echo "Obtain, unzip and rename offsides.tsv and twosides.tsv".PHP_EOL;
   } else {
 	DownloadFiles($options['remote_base_url']['value'],$myfiles,$options['indir']['value']);
   
@@ -778,6 +780,95 @@ function pathways(&$in,&$out)
 		if($a[0] == 'Drug') {
 			$buf .= QQuad($id,"pharmgkb_vocabulary:chemical","pharmgkb:".$a[1]);
 		}	
+	}
+	fwrite($out,$buf);
+}
+
+/*
+stitch_id	drug	umls_id	event	rr	log2rr	t_statistic	pvalue	observed	expected	bg_correction	sider	future_aers	medeffect
+CID000000076	dehydroepiandrosterone	C0000737	abdominal pain	2.25	1.169925001	6.537095128	6.16E-07	9	4	0.002848839	0	0	0
+
+*/
+function offsides(&$in, &$out) 
+{
+	$items = null;$z = 0;
+	$buf = '';
+	fgets($in);
+	while($l = fgets($in,5096)) {
+		list($stitch_id,$drug_name,$umls_id,$event_name,$rr,$log2rr,$t_statistic,$pvalue,$observed,$expected,$bg_correction,$sider,$future_aers,$medeffect) = explode("\t",$l);
+		$z++;
+
+		$id = 'offsides:'.$z;
+		$cid = 'pubchem:'.((int) substr($stitch_id,4,-1));
+		$eid = 'umls:'.str_replace('"','',$umls_id);
+		$drug_name = str_replace('"','',$drug_name);
+		$event_name = str_replace('"','',$event_name);
+		
+		$buf .= QQuadL($id,"rdf:label","$event_name as a predicted side-effect of $drug_name [$id]");
+		$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:side-effect");
+		$buf .= QQuad($id,"pharmgkb_vocabulary:chemical",$cid);
+		if(!isset($items[$cid])) {
+			$items[$cid] = '';
+			$buf .= QQuadL($cid,'rdfs:label',$drug_name);
+			$buf .= QQuad($cid,'rdf:type','pharmgkb_vocabulary:chemical');
+		}
+		$buf .= QQuad($id,"pharmgkb_vocabulary:event",$eid);
+		if(!isset($items[$eid])) {
+			$items[$eid] = '';
+			$buf .= QQuadL($eid,'rdfs:label',$event_name);
+			$buf .= QQuad($eid,'rdf:type','pharmgkb_vocabulary:event');
+		}
+		$buf .= QQuadL($id,"pharmgkb_vocabulary:p-value",$pvalue);
+		$buf .= QQuadL($id,"pharmgkb_vocabulary:in-sider",($sider==0?"true":"false"));
+		$buf .= QQuadL($id,"pharmgkb_vocabulary:in-future-aers",($future_aers==0?"true":"false"));
+		$buf .= QQuadL($id,"pharmgkb_vocabulary:in-medeffect",($medeffect==0?"true":"false"));
+	}
+	fwrite($out,$buf);
+}
+
+function twosides(&$in, &$out)
+{
+	$items = null;
+	$id = 0;
+	$buf = '';
+	fgets($in);
+	while($l = fgets($in)) {
+		$a = explode("\t",$l);
+		$id++;
+		
+		$uid = "twosides:$id";
+		$d1 = "pubchemcompound:".substr($a[0],4);
+		$d1_name = $a[2];
+		$d2 = "pubchemcompound:".substr($a[1],4);
+		$d2_name = $a[3];
+		$e  = "umls:".$a[4];
+		$e_name = $a[5];
+		
+		if(!isset($items[$d1])) {
+			$buf .= QQuadL($d1,"rdf:label",$d1_name);
+			$buf .= QQuad($d1,"rdf:type","pharmgkb_vocabulary:chemical");
+			$items[$d1] = '';
+		}
+		if(!isset($items[$d2])) {
+			$buf .= QQuadL($d2,"rdf:label",$d2_name);
+			$buf .= QQuad($d2,"rdf:type","pharmgkb_vocabulary:chemical");
+			$items[$d2] = '';
+		}
+		if(!isset($items[$e])) {
+			$buf .= QQuadL($e,"rdf:label",$e_name);
+			$buf .= QQuad($e,"rdf:type","pharmgkb_vocabulary:phenotype");
+			$items[$e] = '';	
+		}
+		
+		$buf .= QQuad($uid,"rdf:type","pharmgkb_vocabulary:drug-drug-interaction");
+		$buf .= QQuadL($uid,"rdfs:label","DDI between $d1_name and $d2_name leading to $e_name");
+		$buf .= QQuad($uid,"pharmgkb_vocabulary:chemical",$d1);
+		$buf .= QQuad($uid,"pharmgkb_vocabulary:chemical",$d2);
+		$buf .= QQuad($uid,"pharmgkb_vocabulary:phenotype",$e);
+		$buf .= QQuadL($uid,"pharmgkb_vocabulary:p-value",$a[7]);
+		
+		fwrite($out,$buf);
+		$buf = '';
 	}
 	fwrite($out,$buf);
 }
