@@ -141,7 +141,7 @@ function genes(&$in, &$out)
 	while($l = fgets($in,10000)) {
 		$a = explode("\t",$l);
 		
-		$id = "pharmgkb_vocabulary:$a[0]";
+		$id = "pharmgkb:$a[0]";
 		$buf .= QQuadL($id,"rdfs:label","$a[4] [$id]");
 		$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:Gene");
 		$buf .= Quad($releasefile_uri, GetFQURI("dc:subject"), GetFQURI($id));
@@ -635,6 +635,8 @@ function clinical_ann_metadata(&$in,&$out)
 
 function var_drug_ann(&$in,&$out)
 {
+	$declaration = '';
+	$buf = '';
 	fgets($in);
 	while($l = fgets($in,20000)) {
 		$a = explode("\t",$l);
@@ -661,8 +663,10 @@ function var_drug_ann(&$in,&$out)
 			$drugs = explode(",",$a[3]);
 			foreach($drugs AS $drug) {
 				preg_match("/\(([A-Za-z0-9]+)\)/",$drug,$m);
-				$buf .= QQuad($id,"pharmgkb_vocabulary:drug", "pharmgkb:$m[1]");
-				$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:drug");
+				if(isset($m[1])) {
+					$buf .= QQuad($id,"pharmgkb_vocabulary:drug", "pharmgkb:$m[1]");
+					$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:drug");
+				}
 			}
 		}
 		// [4] => Literature Id
@@ -685,22 +689,22 @@ function var_drug_ann(&$in,&$out)
 		}
 		// [6] => Significance
 		if($a[6]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:significant", $a[6]);
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:significant", $a[6]);
 		}
 		// [7] => Notes
 		if($a[7]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:note", addslashes($a[7]));
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:note", addslashes($a[7]));
 		}
 	
 		//[8] => Sentence
 		if($a[8]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:comment", addslashes($a[8]));
+			$buf .= QQuadL($id,"pharmgkb_vocabulary:comment", addslashes($a[8]));
 		}
 		//[9] => StudyParameters
 		if($a[9]) {
 			$sps = explode(";",$a[9]);
 			foreach($sps AS $sp) {
-				$t = "pharmgkb:$sp";
+				$t = "pharmgkb:".trim($sp);
 				$buf .= QQuad($id,"pharmgkb_vocabulary:study_parameters", $t);
 				$buf .= QQuad($t,"rdf:type","pharmgkb_resource:study_parameter");
 			}
@@ -711,7 +715,10 @@ function var_drug_ann(&$in,&$out)
 			foreach($cats AS $cat) {
 				$t = "pharmgkb:$cat";
 				$buf .= QQuad($id,"pharmgkb_vocabulary:categories", $t);
-				$buf .= QQuadL($t,"rdfs:label",$cat);
+				if(!isset($declaration[$t])) {
+					$declaration[$t] = '';
+					$buf .= QQuadL($t,"rdfs:label",$cat);
+				}
 			}
 		}	
 	}
