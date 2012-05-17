@@ -65,7 +65,7 @@ if($options['download']['value'] == 'true') {
   }
   if($file == 'clinical_ann_metadata' || $file == 'var_drug_ann') {
 	echo "Obtain clinical annotations from PharmGKB (license required)".PHP_EOL;
-  } elseif($file == 'twosides' || $file = 'offsides') {
+  } elseif($file == 'twosides' || $file == 'offsides') {
 	echo "Obtain, unzip and rename offsides.tsv and twosides.tsv".PHP_EOL;
   } else {
 	DownloadFiles($options['remote_base_url']['value'],$myfiles,$options['indir']['value']);
