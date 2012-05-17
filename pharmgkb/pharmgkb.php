@@ -842,7 +842,7 @@ function twosides(&$in, &$out)
 		$d2 = "pubchemcompound:".substr($a[1],4);
 		$d2_name = $a[3];
 		$e  = "umls:".$a[4];
-		$e_name = $a[5];
+		$e_name = strtolower($a[5]);
 		
 		if(!isset($items[$d1])) {
 			$buf .= QQuadL($d1,"rdf:label",$d1_name);
@@ -856,15 +856,15 @@ function twosides(&$in, &$out)
 		}
 		if(!isset($items[$e])) {
 			$buf .= QQuadL($e,"rdf:label",$e_name);
-			$buf .= QQuad($e,"rdf:type","pharmgkb_vocabulary:phenotype");
-			$items[$e] = '';	
+			$buf .= QQuad($e,"rdf:type","pharmgkb_vocabulary:event");
+			$items[$e] = '';
 		}
 		
 		$buf .= QQuad($uid,"rdf:type","pharmgkb_vocabulary:drug-drug-interaction");
-		$buf .= QQuadL($uid,"rdfs:label","DDI between $d1_name and $d2_name leading to $e_name");
+		$buf .= QQuadL($uid,"rdfs:label","DDI between $d1_name and $d2_name leading to $e_name [$uid]");
 		$buf .= QQuad($uid,"pharmgkb_vocabulary:chemical",$d1);
 		$buf .= QQuad($uid,"pharmgkb_vocabulary:chemical",$d2);
-		$buf .= QQuad($uid,"pharmgkb_vocabulary:phenotype",$e);
+		$buf .= QQuad($uid,"pharmgkb_vocabulary:event",$e);
 		$buf .= QQuadL($uid,"pharmgkb_vocabulary:p-value",$a[7]);
 		
 		fwrite($out,$buf);
