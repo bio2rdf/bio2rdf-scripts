@@ -217,6 +217,7 @@ function genes(&$in, &$out)
 function drugs(&$in, &$out)
 {
 	global $releasefile_uri;
+	$declared = '';
 	fgets($in);
 	$buf = '';
 	while($l = fgets($in,200000)) {
@@ -275,10 +276,13 @@ function drugs(&$in, &$out)
 			// ATC:D07AB(Corticosteroids, moderately potent (group II)) => this is why you don't use brackets and commas as separators.
 			$b = explode(',',trim($a[8]),2);
 			foreach($b as $c) {
-				preg_match_all("/ATC:([A-Z0-9]+)\(/",$c,$m);
-				if(isset($m[1])) {
-					foreach($m[1] AS $atc_code) {
-						$buf .= QQuad($id,"pharmgkb_vocabulary:xref", "atc:$atc_code" );	
+				preg_match_all("/ATC:([A-Z0-9]+)\((.*)\)$/",$c,$m);
+				if(isset($m[1][0])) {
+					$atc = "atc:".$m[1][0];
+					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $atc);	
+					if(!isset($declared[$atc])) {
+						$declared[$atc] = '';
+						$buf .= QQuadL($atc,"rdfs:label", $m[2][0] );	
 					}
 				}
 			}
@@ -359,7 +363,7 @@ function variantAnnotations(&$in, &$out)
 	$id = "pharmgkb:$a[11]";
 
 	$buf .= Quad($releasefile_uri, GetFQURI('dc:subject'), GetFQURI($id));
-	$buf .= QQuad($id,'rdf:type','pharmgkb:DrugGeneVariantInteraction');
+	$buf .= QQuad($id,'rdf:type','pharmgkb:Variant-Annotation');
 	$buf .= QQuad($id,'pharmgkb:variant',"dbsnp:$a[1]");
 	//$buf .= "$id rdfs:label \"variant [dbsnp:$a[1]]\"".PHP_EOL;
 	if($a[2] != '') $buf .= QQuadL($id,'pharmgkb:variant_description',addslashes($a[2]));
@@ -465,7 +469,7 @@ function relationships(&$in, &$out)
 	$id = "pharmgkb_resource:association_".$id1."_".$id2;
 	$buf .= Quad($releasefile_uri, GetFQURI('dc:subject'), GetFQURI($id));
 	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:Association');
-	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:'.$type1.'-'.$type2.'-association');
+	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:'.$type1.'-'.$type2.'-Association');
 	$buf .= QQuad($id,'pharmgkb_vocabulary:'.$type1,"pharmgkb:$id1");
 	$buf .= QQuad($id,'pharmgkb_vocabulary:'.$type2,"pharmgkb:$id2");
 	$b = explode(',',$a[4]);
@@ -501,7 +505,7 @@ function rsid(&$in,&$out)
 		$a = explode("\t",$l);
 		$rsid = $a[0];
 		$genes = explode(";",$a[1]);
-		$buf .= QQuad("dbsnp:$rsid","rdf:type","pharmgkb_vocabulary:variant");
+		$buf .= QQuad("dbsnp:$rsid","rdf:type","pharmgkb_vocabulary:Variant");
 		foreach($genes AS $gene) {
 			$buf .= QQuad("dbsnp:$rsid","pharmgkb_vocabulary:gene","pharmgkb:$gene");
 		}
@@ -519,11 +523,11 @@ function clinical_ann_metadata(&$in,&$out)
 		
 		// [0] => Clinical Annotation Id
 		$id = "pharmgkb:$a[0]";
-		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:clinical_annotation");
+		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:Clinical-Annotation");
 		
 		// [1] => RSID
 		$rsid = "dbsnp:$a[1]";
-		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:variant");
+		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:Variant");
 		$buf .= QQuadL($rsid,"rdfs:label", "rsid:$rsid");
 		
 		// [2] => Variant Names
@@ -543,7 +547,7 @@ function clinical_ann_metadata(&$in,&$out)
 			foreach($genes AS $gene) {
 				preg_match("/\(([A-Za-z0-9]+)\)/",$gene,$m);
 				$buf .= QQuad($rsid,"pharmgkb_vocabulary:in", "pharmgkb:$m[1]");
-				$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:gene");
+				$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:Gene");
 			}
 		}
 
@@ -558,7 +562,7 @@ function clinical_ann_metadata(&$in,&$out)
 			$types = explode(";",$a[6]);
 			foreach($types AS $t) {
 				$buf .= QQuadL($id,"pharmgkb_vocabulary:annotation_type", $t);
-				$buf .= QQuad($id,"rdf:type","pharmgkb_resource:".strtolower($t)."_annotation");
+				$buf .= QQuad($id,"rdf:type","pharmgkb_resource:".strtoupper($t)."_annotation");
 			}
 		}
 		// [7] => Genotype-Phenotypes IDs
@@ -571,7 +575,7 @@ function clinical_ann_metadata(&$in,&$out)
 				$gp_text = trim($gps_texts[$i]);
 				$buf .= QQuad($id,"pharmgkb_vocabulary:genotype_phenotype", "pharmgkb:$gp");
 				$buf .= QQuadL("pharmgkb:$gp","rdfs:label", $gp_text);
-				$buf .= QQuad("pharmgkb:$gp","rdf:type", "pharmgkb_vocabulary:genotype");
+				$buf .= QQuad("pharmgkb:$gp","rdf:type", "pharmgkb_vocabulary:Genotype");
 				$b = explode(":",$gp_text,2);
 				$buf .= QQuadL("pharmgkb:$gp","pharmgkb_vocabulary:genotype",trim($b[0]));
 			}
@@ -587,7 +591,7 @@ function clinical_ann_metadata(&$in,&$out)
 				$variant_text = trim ($b_texts[$i]);
 				$buf .= QQuad($id,"pharmgkb_vocabulary:variant", "pharmgkb:$variant");
 				$buf .= QQuadL("pharmgkb:$variant","rdfs:label", $variant_text);
-				$buf .= QQuad("pharmgkb:$variant","rdf:type", "pharmgkb_vocabulary:variant");			
+				$buf .= QQuad("pharmgkb:$variant","rdf:type", "pharmgkb_vocabulary:Variant");			
 			}
 		}
 		// [11] => PMIDs
@@ -596,7 +600,7 @@ function clinical_ann_metadata(&$in,&$out)
 			foreach($b AS $i => $pmid) {
 				$pmid = trim($pmid);
 				$buf .= QQuad($id,"pharmgkb_vocabulary:article", "pubmed:$pmid");
-				$buf .= QQuad("pubmed:$pmid","rdf:type", "pharmgkb_vocabulary:article");			
+				$buf .= QQuad("pubmed:$pmid","rdf:type", "pharmgkb_vocabulary:Article");			
 			}
 		}
 		// [12] => Evidence Count
@@ -618,7 +622,7 @@ function clinical_ann_metadata(&$in,&$out)
 			foreach($b AS $gene_label) {
 				// find the gene_id from the label
 				$lid = '-1';
-				$buf .= QQuad("pharmgkb:$id","pharmgkb_vocabulary:related_gene", "pharmgkb:$lid");
+				$buf .= QQuad("pharmgkb:$id","pharmgkb_vocabulary:related-gene", "pharmgkb:$lid");
 			}
 		}
 
@@ -628,7 +632,7 @@ function clinical_ann_metadata(&$in,&$out)
 			foreach($b AS $drug_label) {
 				// find the id from the label
 				$lid = '-1';
-				$buf .= QQuad("pharmgkb:$id","pharmgkb_vocabulary:related_drug", "pharmgkb:$lid");
+				$buf .= QQuad("pharmgkb:$id","pharmgkb_vocabulary:related-drug", "pharmgkb:$lid");
 			}
 		}
 		// [17] => Related Diseases
@@ -671,7 +675,7 @@ function var_drug_ann(&$in,&$out)
 		$a = explode("\t",$l);
 		//[0] => Annotation ID
 		$id = "pharmgkb:$a[0]";
-		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:variant_drug_annotation");
+		$buf .= QQuad($id,"rdf:type", "pharmgkb_vocabulary:Variant-Drug-Annotation");
 		
 		//[1] => RSID
 		$rsid = "dbsnp:$a[1]";
@@ -683,7 +687,7 @@ function var_drug_ann(&$in,&$out)
 			foreach($genes AS $gene) {
 				preg_match("/\(([A-Za-z0-9]+)\)/",$gene,$m);
 				$buf .= QQuad($id,"pharmgkb_vocabulary:gene", "pharmgkb:$m[1]");
-				$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:gene");
+				$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:Gene");
 			}
 		}
 		
@@ -693,8 +697,8 @@ function var_drug_ann(&$in,&$out)
 			foreach($drugs AS $drug) {
 				preg_match("/\(([A-Za-z0-9]+)\)/",$drug,$m);
 				if(isset($m[1])) {
-					$buf .= QQuad($id,"pharmgkb_vocabulary:drug", "pharmgkb:$m[1]");
-					$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:drug");
+					$buf .= QQuad($id,"pharmgkb_vocabulary:chemical", "pharmgkb:$m[1]");
+					$buf .= QQuad("pharmgkb:$m[1]","rdf:type", "pharmgkb_vocabulary:Drug");
 				}
 			}
 		}
@@ -704,7 +708,7 @@ function var_drug_ann(&$in,&$out)
 			foreach($b AS $i => $pmid) {
 				$pmid = trim($pmid);
 				$buf .= QQuad($id,"pharmgkb_vocabulary:article", "pubmed:$pmid");
-				$buf .= QQuad("pubmed:$pmid","rdf:type", "pharmgkb_vocabulary:article");			
+				$buf .= QQuad("pubmed:$pmid","rdf:type", "pharmgkb_vocabulary:Article");			
 			}
 		}
 		
@@ -713,7 +717,7 @@ function var_drug_ann(&$in,&$out)
 			$types = explode(";",$a[5]);
 			foreach($types AS $t) {
 				$buf .= QQuadL($id,"pharmgkb_vocabulary:annotation_type", $t);
-				$buf .= QQuad($id,"rdf:type","pharmgkb_resource:".strtolower($t)."_annotation");
+				$buf .= QQuad($id,"rdf:type","pharmgkb_resource:".strtoupper($t)."-Annotation");
 			}
 		}
 		// [6] => Significance
@@ -734,8 +738,8 @@ function var_drug_ann(&$in,&$out)
 			$sps = explode(";",$a[9]);
 			foreach($sps AS $sp) {
 				$t = "pharmgkb:".trim($sp);
-				$buf .= QQuad($id,"pharmgkb_vocabulary:study_parameters", $t);
-				$buf .= QQuad($t,"rdf:type","pharmgkb_resource:study_parameter");
+				$buf .= QQuad($id,"pharmgkb_vocabulary:study-parameters", $t);
+				$buf .= QQuad($t,"rdf:type","pharmgkb_resource:Study-Parameter");
 			}
 		}
 		//[10] => KnowledgeCategories
@@ -769,19 +773,30 @@ function pathways(&$in,&$out)
 			// start of entry
 			$entry = true;
 			$pos = strpos($a[0],':');
+	
 			$id = "pharmgkb:".substr($a[0],0,$pos);
 			$title = substr($a[0],$pos+2);
-			$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:pathway");
+			$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:Pathway");
 			$buf .= QQuadL($id,"rdfs:label",$title);
+			$x = substr($a[0],0,$pos);
+			$y = $title;
+			$p2 = strrpos($title," - ");
+			if($p2 !== FALSE) {
+				$y = substr($title,0,$p2);
+				$n = strpos($title, " via Pathway ");
+				$z = substr($title,$p2+4,$n-$p2-4);
+			}
+			$temp .= "$x\t$y\t$z\n";
 		}
 		if($a[0] == 'Gene') {
 			$buf .= QQuad($id,"pharmgkb_vocabulary:protein","pharmgkb:".$a[1]);
 		}
 		if($a[0] == 'Drug') {
 			$buf .= QQuad($id,"pharmgkb_vocabulary:chemical","pharmgkb:".$a[1]);
-		}	
+		}
 	}
 	fwrite($out,$buf);
+	file_put_contents("pathway_list.tab",$temp);
 }
 
 /*
@@ -799,24 +814,24 @@ function offsides(&$in, &$out)
 		$z++;
 
 		$id = 'offsides:'.$z;
-		$cid = 'pubchem:'.((int) substr($stitch_id,4,-1));
+		$cid = 'pubchemcompound:'.((int) substr($stitch_id,4,-1));
 		$eid = 'umls:'.str_replace('"','',$umls_id);
 		$drug_name = str_replace('"','',$drug_name);
 		$event_name = str_replace('"','',$event_name);
 		
 		$buf .= QQuadL($id,"rdf:label","$event_name as a predicted side-effect of $drug_name [$id]");
-		$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:side-effect");
+		$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:Side-Effect");
 		$buf .= QQuad($id,"pharmgkb_vocabulary:chemical",$cid);
 		if(!isset($items[$cid])) {
 			$items[$cid] = '';
 			$buf .= QQuadL($cid,'rdfs:label',$drug_name);
-			$buf .= QQuad($cid,'rdf:type','pharmgkb_vocabulary:chemical');
+			$buf .= QQuad($cid,'rdf:type','pharmgkb_vocabulary:Chemical');
 		}
 		$buf .= QQuad($id,"pharmgkb_vocabulary:event",$eid);
 		if(!isset($items[$eid])) {
 			$items[$eid] = '';
 			$buf .= QQuadL($eid,'rdfs:label',$event_name);
-			$buf .= QQuad($eid,'rdf:type','pharmgkb_vocabulary:event');
+			$buf .= QQuad($eid,'rdf:type','pharmgkb_vocabulary:Event');
 		}
 		$buf .= QQuadL($id,"pharmgkb_vocabulary:p-value",$pvalue);
 		$buf .= QQuadL($id,"pharmgkb_vocabulary:in-sider",($sider==0?"true":"false"));
@@ -846,21 +861,21 @@ function twosides(&$in, &$out)
 		
 		if(!isset($items[$d1])) {
 			$buf .= QQuadL($d1,"rdf:label",$d1_name);
-			$buf .= QQuad($d1,"rdf:type","pharmgkb_vocabulary:chemical");
+			$buf .= QQuad($d1,"rdf:type","pharmgkb_vocabulary:Chemical");
 			$items[$d1] = '';
 		}
 		if(!isset($items[$d2])) {
 			$buf .= QQuadL($d2,"rdf:label",$d2_name);
-			$buf .= QQuad($d2,"rdf:type","pharmgkb_vocabulary:chemical");
+			$buf .= QQuad($d2,"rdf:type","pharmgkb_vocabulary:Chemical");
 			$items[$d2] = '';
 		}
 		if(!isset($items[$e])) {
 			$buf .= QQuadL($e,"rdf:label",$e_name);
-			$buf .= QQuad($e,"rdf:type","pharmgkb_vocabulary:event");
+			$buf .= QQuad($e,"rdf:type","pharmgkb_vocabulary:Event");
 			$items[$e] = '';
 		}
 		
-		$buf .= QQuad($uid,"rdf:type","pharmgkb_vocabulary:drug-drug-interaction");
+		$buf .= QQuad($uid,"rdf:type","pharmgkb_vocabulary:DDI");
 		$buf .= QQuadL($uid,"rdfs:label","DDI between $d1_name and $d2_name leading to $e_name [$uid]");
 		$buf .= QQuad($uid,"pharmgkb_vocabulary:chemical",$d1);
 		$buf .= QQuad($uid,"pharmgkb_vocabulary:chemical",$d2);
