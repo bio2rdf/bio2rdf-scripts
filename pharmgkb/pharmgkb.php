@@ -500,6 +500,7 @@ rs8331	PA27674;PA162375713	EGR2;ADO
 */
 function rsid(&$in,&$out)
 {
+	$buf = '';
 	fgets($in);fgets($in);
 	while($l = fgets($in)) {
 		$a = explode("\t",$l);
@@ -517,6 +518,7 @@ function rsid(&$in,&$out)
 
 function clinical_ann_metadata(&$in,&$out)
 {
+	$buf = '';
 	fgets($in);
 	while($l = fgets($in,20000)) {
 		$a = explode("\t",$l);
@@ -796,7 +798,6 @@ function pathways(&$in,&$out)
 		}
 	}
 	fwrite($out,$buf);
-	file_put_contents("pathway_list.tab",$temp);
 }
 
 /*
