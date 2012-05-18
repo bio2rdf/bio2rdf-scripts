@@ -607,16 +607,16 @@ function clinical_ann_metadata(&$in,&$out)
 		}
 		// [12] => Evidence Count
 		if($a[12]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:evidence_count", $a[12]);
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:evidence-count", $a[12]);
 		}
 		
 		// [13] => # Cases
 		if($a[13]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:cases_count", $a[13]);
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:cases-count", $a[13]);
 		}
 		// [14] => # Controlled
 		if($a[14]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:controlled_count", $a[14]);
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:controlled-count", $a[14]);
 		}
 		// [15] => Related Genes
 		if($a[15]) {
@@ -643,7 +643,7 @@ function clinical_ann_metadata(&$in,&$out)
 			foreach($b AS $disease_label) {
 				// find the id from the label
 				$lid = '-1';
-				$buf .= QQuad("pharmgkb:$id","pharmgkb_vocabulary:related_disease", "pharmgkb:$lid");
+				$buf .= QQuad("pharmgkb:$id","pharmgkb_vocabulary:related-disease", "pharmgkb:$lid");
 			}
 		}
 		// [18] => OMB Races
@@ -660,7 +660,7 @@ function clinical_ann_metadata(&$in,&$out)
 		}
 		// [21] => Custom Race
 		if($a[21]) {
-			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:special_source", $a[21]);
+			$buf .= QQuadL("pharmgkb:$id","pharmgkb_vocabulary:special-source", $a[21]);
 		}
 		
 		
