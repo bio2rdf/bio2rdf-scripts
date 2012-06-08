@@ -450,9 +450,9 @@ function relationships(&$in, &$out)
 	$a = explode("\t",$l);
 	
 	ParseQNAME($a[0],$ns,$id1);
-	$type1 = strtolower(str_replace(array("drug class","drug"),array("chemical","chemical"),$ns));
+	$type1 = ucfirst(strtolower(str_replace(array("drug class","drug"),array("chemical","chemical"),$ns)));
 	ParseQNAME($a[2],$ns,$id2);
-	$type2 = strtolower(str_replace(array("drug class","drug"),array("chemical","chemical"),$ns));
+	$type2 = ucfirst(strtolower(str_replace(array("drug class","drug"),array("chemical","chemical"),$ns)));
 
 	// order
 	if($type1[0] > $type2[0]) {
@@ -788,7 +788,6 @@ function pathways(&$in,&$out)
 				$n = strpos($title, " via Pathway ");
 				$z = substr($title,$p2+4,$n-$p2-4);
 			}
-			$temp .= "$x\t$y\t$z\n";
 		}
 		if($a[0] == 'Gene') {
 			$buf .= QQuad($id,"pharmgkb_vocabulary:protein","pharmgkb:".$a[1]);
