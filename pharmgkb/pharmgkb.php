@@ -820,7 +820,7 @@ function offsides(&$in, &$out)
 		$drug_name = str_replace('"','',$drug_name);
 		$event_name = str_replace('"','',$event_name);
 		
-		$buf .= QQuadL($id,"rdf:label","$event_name as a predicted side-effect of $drug_name [$id]");
+		$buf .= QQuadL($id,"rdfs:label","$event_name as a predicted side-effect of $drug_name [$id]");
 		$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:Side-Effect");
 		$buf .= QQuad($id,"pharmgkb_vocabulary:chemical",$cid);
 		if(!isset($items[$cid])) {
