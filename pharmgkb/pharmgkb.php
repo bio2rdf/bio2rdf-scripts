@@ -429,14 +429,12 @@ function variantAnnotations(&$in, &$out)
 
 
 /*
-Entity1_id        - Gene:PA267
-Entity1_name      - ABCB1
-Entity2_id	      - Drug:PA165110729
-Entity2_name	  - rhodamine 123
-Evidence	      - RSID:rs1045642,RSID:rs1045642,RSID:rs2032582,PMID:..
-Evidence Sources  - Publication,Variant
-Pharmacodynamic	  - Y
-Pharmacokinetic   - Y
+Entity1_id        - PA267, rs5186, Haplotype for PA121
+Entity1_type      - Drug, Gene, VariantLocation, Disease, Haplotype, Association       
+Entity2_id	      - PA267, rs5186, Haplotype for PA121
+Entity2_type	  - Drug, Gene, VariantLocation, Disease, Haplotype, Association       
+Evidence	      - VariantAnnotation, Pathway, VIP, ClinicalAnnotation, DosingGuideline, DrugLabel, Annotation
+
 */
 function relationships(&$in, &$out)
 {
@@ -447,47 +445,52 @@ function relationships(&$in, &$out)
   
   $hash = ''; // md5 hash list
   while($l = fgets($in,10000)) {
-	$a = explode("\t",$l);
+	$a = explode("\t",trim($l));
+	if(count($a) != 6) {
+		trigger_error("Change in number of columns for relationships file");
+		exit;
+	}
 	
-	ParseQNAME($a[0],$ns,$id1);
-	$type1 = ucfirst(strtolower(str_replace(array("drug class","drug"),array("chemical","chemical"),$ns)));
-	ParseQNAME($a[2],$ns,$id2);
-	$type2 = ucfirst(strtolower(str_replace(array("drug class","drug"),array("chemical","chemical"),$ns)));
-
-	// order
+	// id1
+	$ns1 = 'pharmgkb';
+	$id1 = $a[0];
+	$type1 = $a[1];
+	if($id1[0] == 'r') {
+		$ns = 'dbsnp';
+	} else if($id1[0] == 'H') {
+		$ns = 'pharmgkb_resource';
+		$id1 = str_replace(" ","_",$id1);
+	}
+	
+	// id2
+	$ns2 = 'pharmgkb';
+	$id2 = $a[2];
+	$type2 = $a[3];
+	if($id2[0] == 'r') {
+		$ns = 'dbsnp';
+	} else if($id2[0] == 'H') {
+		$ns = 'pharmgkb_resource';
+		$id2 = str_replace(" ","_",$id2);
+	}
+	
+	// let's ignore the duplicated entries
 	if($type1[0] > $type2[0]) {
-		$t1_type = $type1;
-		$t1_id = $id1;
-		$t2_type = $type2;
-		$t2_id = $id2;
-		$type1 = $t2_type;
-		$id1 = $t2_id;
-		$type2 = $t1_type;
-		$id2 = $t1_id;
-	} 
+		continue;
+	}
 
 	$id = "pharmgkb_resource:association_".$id1."_".$id2;
 	$buf .= Quad($releasefile_uri, GetFQURI('dc:subject'), GetFQURI($id));
 	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:Association');
 	$buf .= QQuad($id,'rdf:type','pharmgkb_vocabulary:'.$type1.'-'.$type2.'-Association');
-	$buf .= QQuad($id,'pharmgkb_vocabulary:'.$type1,"pharmgkb:$id1");
-	$buf .= QQuad($id,'pharmgkb_vocabulary:'.$type2,"pharmgkb:$id2");
+	$buf .= QQuad($id,'pharmgkb_vocabulary:'.strtolower($type1),"pharmgkb:$id1");
+	$buf .= QQuad($id,'pharmgkb_vocabulary:'.strtolower($type2),"pharmgkb:$id2");
 	$b = explode(',',$a[4]);
 	foreach($b AS $c) {
-		$d = str_replace(array("PMID","RSID","Pathway"),array("pubmed","dbsnp","pharmgkb"),$c);
-		$rel = "evidence";
-		if(strstr($d,"pubmed")) $rel = "article";
-		elseif(strstr($d,"dbsnp")) $rel = 'variant';
-		elseif(strstr($d,"pharmgkb")) $rel = 'pathway';
-		$buf .= QQuad($id,'pharmgkb_vocabulary:'.$rel,$d);	
-	}
-	$b = explode(',',$a[5]);
-	foreach($b AS $c) {
-		$buf .= QQuadL($id,'pharmgkb_vocabulary:evidence_type',strtolower($c));	
-	}
-	if($a[6] == 'Y') $buf .= QQuadL($id,'pharmgkb_vocabulary:pharmacodynamic_association',"true");	
-	if($a[7] == 'Y') $buf .= QQuadL($id,'pharmgkb_vocabulary:pharmacokinetic_association',"true");		
+		$buf .= QQuadL($id,'pharmgkb_vocabulary:association_type',$c);	
+	}	
+
   }
+ 
   
   fwrite($out,$buf);
 }
