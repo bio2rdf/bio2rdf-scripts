@@ -262,7 +262,7 @@ function drugs(&$in, &$out)
 			$b = explode(',',trim($a[6]));
 			foreach($b as $c) {
 				ParseQNAME($c,$ns,$id1);
-				$ns = str_replace(array('keggcompound','keggdrug','drugbank'), array('kegg','kegg','drugbank'), strtolower($ns));
+				$ns = str_replace(array('keggcompound','keggdrug','drugbank','uniprotkb'), array('kegg','kegg','drugbank', 'uniprot'), strtolower($ns));
 				if($ns == "url") {
 					$buf .= QQuad($id,"pharmgkb_vocabulary:xref", $id );
 				} else {
@@ -474,7 +474,7 @@ function relationships(&$in, &$out)
 	$buf .= QQuad($id,'pharmgkb_vocabulary:'.$type2,"pharmgkb:$id2");
 	$b = explode(',',$a[4]);
 	foreach($b AS $c) {
-		$d = str_replace(array("PMID","RSID","Pathway"),array("pubmed","dbsnp","pharmgkb"),$c);
+		$d = str_replace(array("PMID","RSID","Pathway","VariantAnnotation"),array("pubmed","dbsnp","pharmgkb","pharmgkb_vocabulary:VariantAnnotation"),$c);
 		$rel = "evidence";
 		if(strstr($d,"pubmed")) $rel = "article";
 		elseif(strstr($d,"dbsnp")) $rel = 'variant';
