@@ -854,9 +854,9 @@ function twosides(&$in, &$out)
 		$id++;
 		
 		$uid = "twosides:$id";
-		$d1 = "pubchemcompound:".substr($a[0],4);
+		$d1 = "pubchemcompound:".((int) substr($a[0],4));
 		$d1_name = $a[2];
-		$d2 = "pubchemcompound:".substr($a[1],4);
+		$d2 = "pubchemcompound:".((int) substr($a[1],4));
 		$d2_name = $a[3];
 		$e  = "umls:".$a[4];
 		$e_name = strtolower($a[5]);
