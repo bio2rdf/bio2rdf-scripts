@@ -84,7 +84,7 @@ foreach($files AS $file) {
 			exit;
 		}
 	}
-	
+	// expand the zip file
 	if($zipfile) {
 		$zip = zip_open($indir.$file);
 		if (is_resource($zip)) {
