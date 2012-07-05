@@ -132,7 +132,7 @@ function iRefIndex2RDF(&$in, &$out)
 	while($l = fgets($in,100000)) {
 		$a = explode("\t",$l);
 		
-		$iid = "irefindex:".$a[44];
+		$iid = "irefindex:".$a[50]; //icrigid This identifier serves to group together evidence for interactions that involve the same set (or a related set) of proteins.
 		
 		$buf .= Quad  ($releasefile_uri, GetFQURI("dc:subject"), GetFQURI($iid));
 		
