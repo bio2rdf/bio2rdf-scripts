@@ -101,17 +101,16 @@ class NDCParser extends RDFFactory
 				exit;
 			}
 			
-			$this->$file($fpin,$zout);
+			$this->$file($fpin);
 			gzwrite($gzout,$this->GetRDF());
 			gzclose($gzout);
 			$this->DeleteRDF();
 			echo "done!".PHP_EOL;
 		}
-		exit;
 	}
 	
 	/* a relation between a product and it's packaging */
-	function package($fpin,$fout)
+	function package($fpin)
 	{
 		$types='';
 		// PRODUCTNDC	NDCPACKAGECODE	PACKAGEDESCRIPTION
@@ -164,45 +163,76 @@ class NDCParser extends RDFFactory
 	16 DEASCHEDULE
 	*/
 	// 0002-1200	HUMAN PRESCRIPTION DRUG	Amyvid		Florbetapir F 18	INJECTION, SOLUTION	INTRAVENOUS	20120601		NDA	NDA202008	Eli Lilly and Company	FLORBETAPIR F-18	51	mCi/mL		
-	function product($fpin,$fout)
+	function product($fpin)
 	{
 		$list = '';
 		fgets($fpin); // header
-		while($l = fgets($fpin, 4096)) {
+		while($l = fgets($fpin, 10000)) {
 			$a = explode("\t",$l);
 			$ndc_product = "ndc:$a[0]";
 			// tradename + suffix + dosageform + strength + unit
-			$label = $a[2] + " ".$a[3]." (".$a[13]." ".$a[14]." ".strtolower($a[12]);
-			$this->AddRDF($this->QQuadL($ndc_product, "rdfs:label",$label." [$ndc_product]")); // tradename +
+			$label = $a[2];
+			 
+			$this->AddRDF($this->QQuadL($ndc_product, "dc:identifier", $ndc_product));
 			$this->AddRDF($this->QQuad($ndc_product,  "rdf:type",  "ndc_vocabulary:Product"));
 			$this->AddRDF($this->QQuad($ndc_product,  "rdf:type",  "ndc_vocabulary:".str_replace(" ","-",strtolower($a[1]))));
 			$this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:trade-name", $a[2]));
-			if($a[3]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:trade-name-suffix", $a[3]));
-			if($a[4]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:non-proprietary-name", $a[4]));
-			if($a[5]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:dosage-form", $a[5]));
-			if($a[6]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:route", $a[6]));
+			if($a[3]) {
+				$this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:trade-name-suffix", $a[3]));
+				$label .= " ".$a[3];
+			}
+			if($a[4]) { // MV
+				$b = explode(";",$a[4]);
+				foreach($b AS $c) {
+					$this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:non-proprietary-name", trim($c)));
+				}
+			}
+			if($a[5]) {
+				$dosageform = strtolower($a[5]);
+				$dosageform_id = "ndc_vocabulary:".md5($dosageform);
+				if(!isset($list[$dosageform_id])) {
+					$list[$dosageform_id] = '';
+					$this->AddRDF($this->QQuadL($dosageform_id,  "rdfs:label", $dosageform." [$dosageform_id]"));
+					$this->AddRDF($this->QQuad($dosageform_id,  "rdfs:subClassOf", "ndc_vocabulary:Dosage-Form"));
+				}
+				$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:dosage-form", $dosageform_id));
+			}
+			if($a[6]) { //  MV
+				$b = explode("; ",$a[6]);
+				foreach($b AS $c) {
+					$route = strtolower(trim($c));
+					$route_id = "ndc_vocabulary:".md5($route);
+					if(!isset($list[$route_id])) {
+						$list[$route_id] = '';
+						$this->AddRDF($this->QQuadL($route_id,  "rdfs:label", $route." [$route_id]"));
+						$this->AddRDF($this->QQuad($route_id,  "rdfs:subClassOf", "ndc_vocabulary:Route"));
+					}
+					$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:route", $route_id));
+				}
+			}
 			if($a[7]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:start-marketing-date", $a[7]));
 			if($a[8]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:end-marketing-date", $a[8]));
 			if($a[9]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:marketing-category", $a[9]));
-			if($a[10]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:application-number", $a[10]));
+			if($a[10]) $this->AddRDF($this->QQuadL($ndc_product, "ndc_vocabulary:application-number", $a[10]));
 			
 			// create a labeller node
 			if($a[11]) {
 				$labeller_id = "ndc_resource:".md5($a[11]);
 				if(!isset($list[$labeller_id])) {
 					$list[$labeller_id] = '';
+					$this->AddRDF($this->QQuadL($labeller_id,  "rdfs:label", addslashes($a[11])));
 					$this->AddRDF($this->QQuad($labeller_id,  "rdf:type", "ndc_vocabulary:Labeller"));
-					$this->AddRDF($this->QQuadL($labeller_id,  "rdfs:label", $a[11]));
 				}
 				$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:labeller", $labeller_id));
 			}
 			
 			// the next three are together
-			if($a[12]) {
+			if($a[12]) { // MV
 				$substances = explode(";",$a[12]);
 				$strengths  = explode(";",$a[13]);
 				$units      = explode(";",$a[14]);
 				
+				$l = '';
 				foreach($substances AS $i => $substance) {
 					// list the active ingredient
 					$ingredient_label = strtolower($substance);
@@ -212,33 +242,51 @@ class NDCParser extends RDFFactory
 					$ingredient_id = "ndc_resource:".md5($ingredient_label);
 					if(!isset($list[$ingredient_id])) {
 						$list[$ingredient_id] = '';
-						$this->AddRDF($this->QQuad($ingredient_id, "rdf:type", "ndc_vocabulary:Ingredient"));
 						$this->AddRDF($this->QQuadL($ingredient_id, "rdfs:label", $ingredient_label." [$ingredient_id]"));
+						$this->AddRDF($this->QQuad($ingredient_id, "rdf:type", "ndc_vocabulary:Ingredient"));
 					}
 					$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:ingredient", $ingredient_id));
 					
 					// describe the substance composition
 					$substance_label = "$strength $unit $ingredient_label";
+					
 					$substance_id = "ndc_resource:".md5($label);
 					if(!isset($list[$substance_id])) {
 						$list[$substance_id] = '';
-						$this->AddRDF($this->QQuad($substance_id, "rdf:type", "ndc_vocabulary:Substance"));
 						$this->AddRDF($this->QQuadL($substance_id, "rdfs:label", $substance_label." [$substance_id]"));
+						$this->AddRDF($this->QQuad($substance_id, "rdf:type", "ndc_vocabulary:Substance"));
 						$this->AddRDF($this->QQuadL($substance_id, "ndc_vocabulary:amount", $strength));
-						$this->AddRDF($this->QQuadL($substance_id, "ndc_vocabulary:amount_unit", $unit));
+						
+						$unit_id = "ndc_vocabulary:".md5($unit);
+						if(!isset($list[$unit_id])) {
+							$list[$unit_id] = '';
+							$this->AddRDF($this->QQuadL($unit_id, "rdfs:label", $unit." [$unit_id]"));
+							$this->AddRDF($this->QQuad($unit_id, "rdfs:subClassOf", "ndc_vocabulary:Unit"));
+						}
+						$this->AddRDF($this->QQuad($substance_id, "ndc_vocabulary:amount_unit", $unit_id));
 					}
 					$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:has-part", $substance_id));
+					
+					$l .= $substance_label.", ";
 				}
+				$label .= " (".substr($l,0,-2).")";
 			}	
 			
-			if($a[15]) {
+			if($a[15]) { // MV
 				$b = explode(", ",$a[15]);
 				foreach($b AS $c) {
-					$this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:pharmagocological-class", $c));
+					$cat_id = 'ndc_vocabulary:'.md5($c);
+					if(!isset($list[$cat_id])) {
+						$list[$cat_id] = '';
+						$this->AddRDF($this->QQuadL($cat_id, "rdfs:label", $c." [$unit_id]"));
+						$this->AddRDF($this->QQuad($cat_id, "rdfs:subClassOf", "ndc_vocabulary:Pharmacological-Class"));
+					}
+					$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:pharmagocological-class", $cat_id));
 				}
 			}	
-
-//			echo $this->GetRDF();exit;
+			$this->AddRDF($this->QQuadL($ndc_product, "rdfs:label", $label." [$ndc_product]"));
+			
+			//echo $this->GetRDF();exit;
 		}
 	}
 	
@@ -247,4 +295,4 @@ class NDCParser extends RDFFactory
 $parser = new NDCParser($argv);
 $parser->Run();
 
-exit;
+?>
