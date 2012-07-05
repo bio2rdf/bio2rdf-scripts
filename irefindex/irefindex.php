@@ -61,31 +61,37 @@ $header .= "<$releasefile_uri> a sio:Document .".PHP_EOL;
 $header .= "<$releasefile_uri> rdfs:label \"Bio2RDF iRefIndex release in RDF/N3 [bio2rdf_file:irefindex.tgz]\".".PHP_EOL;
 $header .= "<$releasefile_uri> rdfs:comment \"RDFized from iRefIndex psi-mi tab data files\".".PHP_EOL;
 $header .= "<$releasefile_uri> dc:date \"".date("D M j G:i:s T Y")."\".".PHP_EOL;
-file_put_contents($options['outdir']['value']."pharmgkb-$date.ttl",$header);
+file_put_contents($options['outdir']['value']."irefindex-$date.ttl",$header);
 
 foreach($files AS $file) {
 	$indir = $options['indir']['value'];
 	$outdir = $options['outdir']['value'];
 	
-	$infile = substr($file,0,strpos($file,".zip"));
+	$infile = $file;
 	$outfile = $infile.".ttl";
+	
+	$zipfile = false;
+	if(($pos = strpos($file,".zip")) !== FALSE) {
+		$infile = substr($file,0,$pos);
+		$zipfile = true;
+	}
 
-	// download the files
-	if(!file_exists($indir.$file) || $options['download']['value'] == 'true') {
+	// download the zip file if it doesn't exist, or have been mandated to do so
+	if((!file_exists($indir.$file) && $zipfile) || $options['download']['value'] == 'true') {
 		DownloadFiles($options['remote_base_url']['value'],array($file),$options['indir']['value']);
 		if(!file_exists($indir.$file)) {
 			trigger_error("error in downloading file");
 			exit;
 		}
 	}
-	
-	if(!file_exists($indir.$infile) || $options['download']['value'] == 'true') {
-		$zip = zip_open($options['indir']['value'].$file);
+	// expand the zip file
+	if($zipfile) {
+		$zip = zip_open($indir.$file);
 		if (is_resource($zip)) {
 			while ($zip_entry = zip_read($zip)) {
 				if (zip_entry_open($zip, $zip_entry, "r")) {
 					echo 'expanding '.zip_entry_name($zip_entry).PHP_EOL;
-					$fp = fopen($options['indir']['value'].zip_entry_name($zip_entry),"w");
+					$fp = fopen($indir.zip_entry_name($zip_entry),"w");
 					$total_size = zip_entry_filesize($zip_entry);
 					$max_read_size = "100000000"; // 100MB
 					do {
@@ -98,6 +104,7 @@ foreach($files AS $file) {
 			zip_close($zip);
 		}
 	}
+
 
 	$in = fopen($indir.$infile,"r");
 	if($in === FALSE) {
@@ -176,6 +183,9 @@ function iRefIndex2RDF(&$in, &$out)
 					if($ns == "lpr" || $ns == "hpr" || $ns == "np") {
 						$buf .= QQuadL($iid, "irefindex_vocabulary:".$ns, $id);
 						continue;
+					}
+					if($ns=="geneid" && ($header[$k] == "aliasA" || $header[$k] == "aliasB")) {
+						$ns = "symbol";
 					}
 					$id = str_replace(" ","-",$id);
 					$buf .= QQuad($iid, "irefindex_vocabulary:".strtolower($header[$k]), $ns.":".$id);
