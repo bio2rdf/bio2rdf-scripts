@@ -135,7 +135,7 @@ class NDCParser extends RDFFactory
 				if(!isset($types[$type_uri])) {
 					$types[$type_uri] = '';
 					$this->AddRDF($this->QQuadL($type_uri, "rdfs:label", $type_label));
-					$this->AddRDF($this->QQuadL($type_uri, "rdfs:subClassOf", "ndc_vocabulary:Package"));
+					$this->AddRDF($this->QQuad($type_uri, "rdfs:subClassOf", "ndc_vocabulary:Package"));
 				}
 				if($i == 0) $this->AddRDF($this->QQuad($ndc_package, "rdf:type", $type_uri));
 				else $this->AddRDF($this->QQuad($ndc_package, "ndc_vocabulary:has-part", $type_uri));
