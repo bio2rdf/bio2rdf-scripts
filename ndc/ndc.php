@@ -135,7 +135,7 @@ class NDCParser extends RDFFactory
 				if(!isset($types[$type_uri])) {
 					$types[$type_uri] = '';
 					$this->AddRDF($this->QQuadL($type_uri, "rdfs:label", $type_label));
-					$this->AddRDF($this->QQuadL($type_uri, "rdfs:subClassOf", "ndc_vocabulary:Package"));
+					$this->AddRDF($this->QQuad($type_uri, "rdfs:subClassOf", "ndc_vocabulary:Package"));
 				}
 				if($i == 0) $this->AddRDF($this->QQuad($ndc_package, "rdf:type", $type_uri));
 				else $this->AddRDF($this->QQuad($ndc_package, "ndc_vocabulary:has-part", $type_uri));
@@ -165,9 +165,11 @@ class NDCParser extends RDFFactory
 	// 0002-1200	HUMAN PRESCRIPTION DRUG	Amyvid		Florbetapir F 18	INJECTION, SOLUTION	INTRAVENOUS	20120601		NDA	NDA202008	Eli Lilly and Company	FLORBETAPIR F-18	51	mCi/mL		
 	function product($fpin)
 	{
+		$z = 0;
 		$list = '';
 		fgets($fpin); // header
 		while($l = fgets($fpin, 10000)) {
+			//if($z++ == 10) break;
 			$a = explode("\t",$l);
 			$ndc_product = "ndc:$a[0]";
 			// tradename + suffix + dosageform + strength + unit
@@ -210,10 +212,10 @@ class NDCParser extends RDFFactory
 					$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:route", $route_id));
 				}
 			}
-			if($a[7]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:start-marketing-date", $a[7]));
-			if($a[8]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:end-marketing-date", $a[8]));
-			if($a[9]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:marketing-category", $a[9]));
-			if($a[10]) $this->AddRDF($this->QQuadL($ndc_product, "ndc_vocabulary:application-number", $a[10]));
+			if($a[7])  $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:start-marketing-date", $a[7]));
+			if($a[8])  $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:end-marketing-date", $a[8]));
+			if($a[9])  $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:marketing-category", $a[9]));
+			if($a[10]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:application-number", $a[10]));
 			
 			// create a labeller node
 			if($a[11]) {
@@ -221,7 +223,7 @@ class NDCParser extends RDFFactory
 				if(!isset($list[$labeller_id])) {
 					$list[$labeller_id] = '';
 					$this->AddRDF($this->QQuadL($labeller_id,  "rdfs:label", addslashes($a[11])));
-					$this->AddRDF($this->QQuad($labeller_id,  "rdf:type", "ndc_vocabulary:Labeller"));
+					$this->AddRDF($this->QQuad ($labeller_id,  "rdf:type", "ndc_vocabulary:Labeller"));
 				}
 				$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:labeller", $labeller_id));
 			}
@@ -250,7 +252,7 @@ class NDCParser extends RDFFactory
 					// describe the substance composition
 					$substance_label = "$strength $unit $ingredient_label";
 					
-					$substance_id = "ndc_resource:".md5($label);
+					$substance_id = "ndc_resource:".md5($substance_label);
 					if(!isset($list[$substance_id])) {
 						$list[$substance_id] = '';
 						$this->AddRDF($this->QQuadL($substance_id, "rdfs:label", $substance_label." [$substance_id]"));
