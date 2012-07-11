@@ -48,8 +48,6 @@ class NDCParser extends RDFFactory
 		return TRUE;
 	}
 	
-	
-	
 	function Run()
 	{
 		$zinfile = 'UCM070838.zip';
