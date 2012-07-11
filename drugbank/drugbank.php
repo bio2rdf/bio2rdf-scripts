@@ -39,7 +39,7 @@ class DrugBankParser extends RDFFactory
 	function __construct($argv) {
 		parent::__construct();
 		// set and print application parameters
-		$this->AddParameter('files',true,'all|drugbank.xml.zip|drugbank_sample.xml','all','files to process');
+		$this->AddParameter('files',true,'all|drugbank.xml.zip','all','files to process');
 		$this->AddParameter('indir',false,null,'/data/download/drugbank/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/drugbank/','directory to place rdfized files');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
