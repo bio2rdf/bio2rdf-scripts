@@ -54,9 +54,9 @@ class NDCParser extends RDFFactory
 	{
 		$zinfile = 'UCM070838.zip';
 		$ldir = $this->GetParameterValue('indir');
-		@mkdir($ldir,null,true);
+		@mkdir($ldir,'0755',true);
 		$odir = $this->GetParameterValue('outdir');
-		@mkdir($odir,null,true);
+		@mkdir($odir,'0755',true);
 		$rfile = $this->GetParameterValue('download_url');
 		
 		// check if exists
@@ -238,7 +238,8 @@ class NDCParser extends RDFFactory
 				foreach($substances AS $i => $substance) {
 					// list the active ingredient
 					$ingredient_label = strtolower($substance);
-					$strength = $strengths[$i];
+					$strength = '';
+					if(isset($strengths[$i])) $strength= $strengths[$i];
 					$unit = $units[$i];
 					
 					$ingredient_id = "ndc_resource:".md5($ingredient_label);
