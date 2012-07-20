@@ -22,10 +22,10 @@ SOFTWARE.
 */
 
 /**
- * OMIM RDFizer
+ * OMIM RDFizer (API version)
  * @version 1.0
  * @author Michel Dumontier
- * @description http://www.fda.gov/Drugs/InformationOnDrugs/ucm142454.htm
+ * @description http://www.omim.org/help/api
 */
 require('../../php-lib/rdfapi.php');
 class OMIMParser extends RDFFactory 
@@ -54,15 +54,26 @@ class OMIMParser extends RDFFactory
 	function Run()
 	{	// create directories
 		$ldir = $this->GetParameterValue('indir');
-		@mkdir($ldir,'0755',true);
+		if(!is_dir($ldir)) {
+			if(@mkdir($ldir,'0755',true) === FALSE) {
+				trigger_error("Unable to create $ldir");
+				exit;
+			}
+		}
 		$odir = $this->GetParameterValue('outdir');
-		@mkdir($odir,'0755',true);
-				
-		// get the list of entries
-		$list = trim($this->GetParameterValue('files'));
-		if($list == 'all') {
-			$entries = $this->GetListOfEntries($ldir);
-		} else {
+		if(!is_dir($odir)) {
+			if(@mkdir($odir,'0755',true) === FALSE) {
+				trigger_error("Unable to create $odir");
+				exit;
+			}
+		}
+		
+		// get the list of mim2gene entries
+		$entries = $this->GetListOfEntries($ldir);
+		
+		// now what did we want?
+		$list = trim($this->GetParameterValue('files'));		
+		if($list != 'all') {
 			// check if a hyphenated list was provided
 			if(($pos = strpos($list,"-")) !== FALSE) {
 				$start_range = substr($list,0,$pos);
@@ -71,17 +82,23 @@ class OMIMParser extends RDFFactory
 				// get the whole list
 				$full_list = $this->GetListOfEntries($ldir);
 				// now intersect
-				foreach($full_list AS $e) {
-					if($e >= $start_range && $e <= $end_range) 
-						$entries[] = $e;
+				foreach($full_list AS $e => $type) {
+					if($e >= $start_range && $e <= $end_range) {
+						$myentries[$e] = $type;
+					}
 				}
+				$entries = $myentries;
 			} else {
 				// for comma separated list
-				$entries = explode(",",$this->GetParameterValue('files'));
+				$b = explode(",",$this->GetParameterValue('files'));
+				foreach($b AS $e) {
+					$myentries[$e] = '';
+				}
+				$entries = array_intersect_key ($entries,$myentries);
 			}		
 		}
 		
-		// prepare one of two output files
+		// prepare one of two output files based on whether gzipped or not
 		$outfile = $odir.'omim.ttl';
 		if($this->GetParameterValue('gzip')) {
 			$outfile .= '.gz';
@@ -93,20 +110,22 @@ class OMIMParser extends RDFFactory
 			$file_write_func = 'fwrite';
 			$file_close_func = 'fclose';
 		}
-	
 		
 		// open the file
 		if (($out = $file_open_func($outfile,"w"))=== FALSE) {
 			trigger_error("Unable to open $odir.$outfile");
 			exit;
 		}
-		// write the names of the mapping methods
+		// declare the mapping method types
 		$this->get_method_type(null,true);
 		
+		// iterate over the entries
+		$i = 0;
 		$total = count($entries);
-		foreach($entries AS $i => $omim_id) {
-			echo "processing ".($i+1)." of $total - ";
+		foreach($entries AS $omim_id => $type) {
+			echo "processing ".(++$i)." of $total - omim# ";
 			$download_file = $ldir.$omim_id.".json";
+			// download if the file doesn't exist or we are told to
 			if(!file_exists($download_file) || $this->GetParameterValue('download') == 'true') {
 				// download using the api
 				$url = $this->GetParameterValue('api_url').'&apiKey='.$this->GetParameterValue('api_key').'&mimNumber='.$omim_id;
@@ -120,9 +139,9 @@ class OMIMParser extends RDFFactory
 			// load and parse
 			$entry = json_decode(file_get_contents($download_file), true);
 			echo $entry["omim"]["entryList"][0]["entry"]['mimNumber'];
-			$this->ParseEntry($entry);
+			$this->ParseEntry($entry,$type);
 			$file_write_func($out,$this->GetRDF());
-			$this->DeleteRDF();
+			$this->DeleteRDF(); // clear the buffer
 			echo "\n";
 		}
 		$file_close_func($out);
@@ -168,12 +187,13 @@ class OMIMParser extends RDFFactory
 		}
 
 		// parse the mim2gene file for the entries
+		// # Mim Number    Type    Gene IDs        Approved Gene Symbols
 		$fp = fopen($ldir.$file,"r");
 		fgets($fp);
 		while($l = fgets($fp)) {
 			$a = explode("\t",$l);
 			if($a[1] != "moved/removed")
-				$list[] = $a[0];
+				$list[$a[0]] = $a[1];
 		}
 		fclose($fp);
 		return $list;
@@ -256,11 +276,15 @@ class OMIMParser extends RDFFactory
 	
 	
 
-	function ParseEntry($obj)
+	function ParseEntry($obj, $type)
 	{
 		$o = $obj["omim"]["entryList"][0]["entry"];
 		$omim_id = $o['mimNumber'];
 		$omim_uri = "omim:".$o['mimNumber'];
+		// add the type info
+		$this->AddRDF($this->QQuad($omim_uri, "rdf:type", "omim_vocabulary:".str_replace("/","-", ucfirst($type))));
+		
+		// parse titles
 		$titles = $o['titles'];
 		if(isset($titles['preferredTitle'])) {
 			$this->AddRDF($this->QQuadText($omim_uri, "rdfs:label", $titles['preferredTitle']." [$omim_uri]"));
@@ -270,6 +294,7 @@ class OMIMParser extends RDFFactory
 			$this->AddRDF($this->QQuadText($omim_uri, "omim_vocabulary:alternative-title", $titles['alternativeTitles']));
 		}		
 		
+		// parse text sections
 		if(isset($o['textSectionList'])) {
 			foreach($o['textSectionList'] AS $i => $section) {
 			
@@ -437,7 +462,7 @@ class OMIMParser extends RDFFactory
 				$ids = explode(",",$id);
 				foreach($ids AS $id) {
 					if($ns) {
-						$b = explode(";;",$id); // ids separated by name
+						$b = explode(";;",$id); // multiple ids//names
 						foreach($b AS $c) {
 							if(is_numeric($c) == TRUE) {
 								$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:xref", $ns.':'.$c)); 
