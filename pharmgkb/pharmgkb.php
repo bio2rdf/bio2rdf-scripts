@@ -43,13 +43,8 @@ if(SetCMDlineOptions($argv, $options) == FALSE) {
 	exit;
 }
 
-$date = date("d-m-y"); 
-$releasefile_uri = "pharmgkb-$date.ttl";
-$releasefile_uri = "http://download.bio2rdf.org/pharmgkb/".$releasefile_uri;
-
-
-@mkdir($options['indir']['value'],null,true);
-@mkdir($options['outdir']['value'],null,true);
+@mkdir($options['indir']['value'],'0755',true);
+@mkdir($options['outdir']['value'],'0755',true);
 if($options['files']['value'] == 'all') {
 	$files = explode("|",$options['files']['list']);
 	array_shift($files);
@@ -91,13 +86,17 @@ if($options['download']['value'] == 'true') {
   }
 }
 
+$date = date("d-m-y"); 
+$releasefile      = "pharmgkb-release.ttl";
+$releasefile_uri  = "http://download.bio2rdf.org/pharmgkb/pharmgkb-release-$date.ttl";
 
 $header = N3NSHeader();
 $header .= "<$releasefile_uri> a sio:Document .".PHP_EOL;
-$header .= "<$releasefile_uri> rdfs:label \"Bio2RDF PharmGKB release in RDF/N3 [bio2rdf_file:pharmgkb.n3.tgz]\".".PHP_EOL;
+$header .= "<$releasefile_uri> rdfs:label \"Bio2RDF PharmGKB release in RDF/N3\".".PHP_EOL;
 $header .= "<$releasefile_uri> rdfs:comment \"RDFized from PharmGKB tab data files\".".PHP_EOL;
+$header .= "<$releasefile_uri> dc:creator <http://bio2rdf.org> .".PHP_EOL;
 $header .= "<$releasefile_uri> dc:date \"".date("D M j G:i:s T Y")."\".".PHP_EOL;
-file_put_contents($options['outdir']['value']."pharmgkb-$date.ttl",$header);
+file_put_contents($options['outdir']['value'].$releasefile,$header);
 
 foreach($files AS $file) {
 	$indir = $options['indir']['value'];
@@ -434,6 +433,12 @@ Entity1_type      - Drug, Gene, VariantLocation, Disease, Haplotype, Association
 Entity2_id	      - PA267, rs5186, Haplotype for PA121
 Entity2_type	  - Drug, Gene, VariantLocation, Disease, Haplotype, Association       
 Evidence	      - VariantAnnotation, Pathway, VIP, ClinicalAnnotation, DosingGuideline, DrugLabel, Annotation
+Evidence Sources        - Publication
+Pharmacodynamic 	- Y
+Pharmacokinetic		- Y
+
+Entity1_id      Entity1_type    Entity2_id      Entity2_type    Evidence        Association     PK      PD      PMIDs
+PA445738        Disease PA134866404     Gene    VariantAnnotation       associated              PD      21912425
 
 */
 function relationships(&$in, &$out)
@@ -445,8 +450,8 @@ function relationships(&$in, &$out)
   
   $hash = ''; // md5 hash list
   while($l = fgets($in,10000)) {
-	$a = explode("\t",trim($l));
-	if(count($a) != 6) {
+	$a = explode("\t",$l);
+	if(count($a) != 9) {
 		trigger_error("Change in number of columns for relationships file");
 		exit;
 	}
@@ -487,7 +492,18 @@ function relationships(&$in, &$out)
 	$b = explode(',',$a[4]);
 	foreach($b AS $c) {
 		$buf .= QQuadL($id,'pharmgkb_vocabulary:association_type',$c);	
-	}	
+	}
+	
+	if($a[6]) $buf .= QQuadL($id,'pharmgkb_vocabulary:pk_relationship',"true");
+	if($a[7]) $buf .= QQuadL($id,'pharmgkb_vocabulary:pd_relationship',"true");
+	$a[8] = trim($a[8]);
+	if($a[8]) {
+		$b = explode(',',$a[8]);
+		foreach($b AS $pubmed_id) {
+			$buf .= QQuad($id,'pharmgkb_vocabulary:article',"pubmed:".$pubmed_id);
+		}
+	}
+	//echo $buf;exit;
   }
  
   
@@ -816,7 +832,7 @@ function offsides(&$in, &$out)
 		$z++;
 
 		$id = 'offsides:'.$z;
-		$cid = 'pubchemcompound:'.((int) substr($stitch_id,4,-1));
+		$cid = 'pubchemcompound:'.((int) sprintf("%d", substr($stitch_id,4,-1)));
 		$eid = 'umls:'.str_replace('"','',$umls_id);
 		$drug_name = str_replace('"','',$drug_name);
 		$event_name = str_replace('"','',$event_name);
@@ -854,13 +870,13 @@ function twosides(&$in, &$out)
 		$id++;
 		
 		$uid = "twosides:$id";
-		$d1 = "pubchemcompound:".((int) substr($a[0],4));
+		$d1 = "pubchemcompound:".((int) sprintf("%d",substr($a[0],4)));
 		$d1_name = $a[2];
-		$d2 = "pubchemcompound:".((int) substr($a[1],4));
+		$d2 = "pubchemcompound:".((int) sprintf("%d",substr($a[1],4)));
 		$d2_name = $a[3];
 		$e  = "umls:".$a[4];
 		$e_name = strtolower($a[5]);
-		
+
 		if(!isset($items[$d1])) {
 			$buf .= QQuadL($d1,"rdf:label",$d1_name);
 			$buf .= QQuad($d1,"rdf:type","pharmgkb_vocabulary:Chemical");
