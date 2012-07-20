@@ -582,7 +582,7 @@ function clinical_ann_metadata(&$in,&$out)
 			$types = explode(";",$a[6]);
 			foreach($types AS $t) {
 				$buf .= QQuadL($id,"pharmgkb_vocabulary:annotation_type", $t);
-				$buf .= QQuad($id,"rdf:type","pharmgkb_resource:".strtoupper($t)."_annotation");
+				$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:".strtoupper($t)."-Annotation");
 			}
 		}
 		// [7] => Genotype-Phenotypes IDs
@@ -737,7 +737,7 @@ function var_drug_ann(&$in,&$out)
 			$types = explode(";",$a[5]);
 			foreach($types AS $t) {
 				$buf .= QQuadL($id,"pharmgkb_vocabulary:annotation_type", $t);
-				$buf .= QQuad($id,"rdf:type","pharmgkb_resource:".strtoupper($t)."-Annotation");
+				$buf .= QQuad($id,"rdf:type","pharmgkb_vocabulary:".strtoupper($t)."-Annotation");
 			}
 		}
 		// [6] => Significance
