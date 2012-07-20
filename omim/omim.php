@@ -94,24 +94,20 @@ class OMIMParser extends RDFFactory
 			$file_close_func = 'fclose';
 		}
 	
-	 $this->get_method_type(null,true);
-	echo $this->GetRDF();
-		exit;
-
 		
 		// open the file
 		if (($out = $file_open_func($outfile,"w"))=== FALSE) {
 			trigger_error("Unable to open $odir.$outfile");
 			exit;
 		}
-	
-		
+		// write the names of the mapping methods
+		$this->get_method_type(null,true);
 		
 		$total = count($entries);
 		foreach($entries AS $i => $omim_id) {
 			echo "processing ".($i+1)." of $total - ";
 			$download_file = $ldir.$omim_id.".json";
-			if(!file_exists($download_file) || $options['download'] == 'true') {
+			if(!file_exists($download_file) || $this->GetParameterValue('download') == 'true') {
 				// download using the api
 				$url = $this->GetParameterValue('api_url').'&apiKey='.$this->GetParameterValue('api_key').'&mimNumber='.$omim_id;
 				$buf = file_get_contents($url);
@@ -148,9 +144,19 @@ class OMIMParser extends RDFFactory
 				$host = 'grcf.jhmi.edu';
 				echo "connecting to $host ...";
 				$ftp = ftp_connect($host);
-				ftp_login($ftp, 'anonymous', 'bio2rdf@gmail.com');
-				echo "success!".PHP_EOL;			
+				if(!$ftp) {
+					echo "Unable to connect to $host".PHP_EOL;
+					die;
+				}
+				ftp_pasv ($ftp, true) ;				
+				$login = ftp_login($ftp, 'anonymous', 'bio2rdf@gmail.com');
+				if ((!ftp) || (!$login)) { 
+					echo "FTP-connect failed!"; die; 
+				} else {
+					echo "Connected".PHP_EOL;
+				}
 			}
+				
 			// download
 			echo "Downloading $file ...";
 			if(ftp_get($ftp, $ldir.$file, 'omim/'.$file, FTP_BINARY) === FALSE) {
@@ -302,8 +308,8 @@ class OMIMParser extends RDFFactory
 						$this->AddRDF($this->QQuadL($uri,"omim_vocabulary:alternative-names",$name));				
 					}
 				}
-				$this->AddRDF($this->QQuadText($uri,"dc:description",$v['text']));
-				$this->AddRDF($this->QQuadText($uri,"omim_vocabulary:mutation",$v['mutations']));				
+				if(isset($v['text'])) $this->AddRDF($this->QQuadText($uri,"dc:description",$v['text']));
+				if(isset($v['mutations'])) $this->AddRDF($this->QQuadText($uri,"omim_vocabulary:mutation",$v['mutations']));				
 				if(isset($v['dbSnps'])) {
 					$this->AddRDF($this->QQuad($uri, "omim_vocabulary:dbsnp", "dbsnp:".$v['dbSnps']));
 				}
@@ -358,9 +364,9 @@ class OMIMParser extends RDFFactory
 			if(isset($map['phenotypeMapList'])) {
 				foreach($map['phenotypeMapList'] AS $phenotypeMap) {
 					$phenotypeMap = $phenotypeMap['phenotypeMap'];
-				
-					$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:phenotype", "omim:".$phenotypeMap['phenotypeMimNumber']));
-					
+					if(isset($phenotypeMap['phenotypeMimNumber']))			
+						$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:phenotype", "omim:".$phenotypeMap['phenotypeMimNumber']));
+						
 					// $pmmt = get_phenotype_mapping_method_type($phenotype_map['phenotypeMappingKey']
 				}
 			}		
