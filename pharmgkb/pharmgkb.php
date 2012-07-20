@@ -832,7 +832,7 @@ function offsides(&$in, &$out)
 		$z++;
 
 		$id = 'offsides:'.$z;
-		$cid = 'pubchemcompound:'.((int) substr($stitch_id,4,-1));
+		$cid = 'pubchemcompound:'.((int) sprintf("%d", substr($stitch_id,4,-1)));
 		$eid = 'umls:'.str_replace('"','',$umls_id);
 		$drug_name = str_replace('"','',$drug_name);
 		$event_name = str_replace('"','',$event_name);
@@ -870,13 +870,13 @@ function twosides(&$in, &$out)
 		$id++;
 		
 		$uid = "twosides:$id";
-		$d1 = "pubchemcompound:".((int) substr($a[0],4));
+		$d1 = "pubchemcompound:".((int) sprintf("%d",substr($a[0],4)));
 		$d1_name = $a[2];
-		$d2 = "pubchemcompound:".((int) substr($a[1],4));
+		$d2 = "pubchemcompound:".((int) sprintf("%d",substr($a[1],4)));
 		$d2_name = $a[3];
 		$e  = "umls:".$a[4];
 		$e_name = strtolower($a[5]);
-		
+
 		if(!isset($items[$d1])) {
 			$buf .= QQuadL($d1,"rdf:label",$d1_name);
 			$buf .= QQuad($d1,"rdf:type","pharmgkb_vocabulary:Chemical");
