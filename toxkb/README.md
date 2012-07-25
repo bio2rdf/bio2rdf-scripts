@@ -17,6 +17,13 @@ of the gemfile is accomplished using bundle in the project directory:
 
 > bundle install
 
+or to install gems to the local directory run:
+
+> bundle install --path=<path to desired location>
+
+This will intall the required gems to a specific directory. Usually this 
+directory should be set to the project root.
+
 Additional outdated gems may be required to support older scripts. These gems
 are located in the outdated_gems directory. They can be installed using the
 rubygems package manager.
