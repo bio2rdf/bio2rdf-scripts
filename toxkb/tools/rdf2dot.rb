@@ -1,6 +1,11 @@
-# Title:: RDFGRaph
-# Description :: Takes RDF statements and converts into GraphViz Object. 
-#! /usr/bin/ruby
+#! /usr/bin/env ruby
+
+# todo:
+# *scale node size according to # of resouces in that namespace
+# *scale path size accrounding to # of predicates in that namespace between two resource types
+# *implement summary ability to script i.e include ability to summarize number of triples 
+#     number of triples for a given resource type
+#     number of unique predicates going from one resource to another.
 
 require 'rubygems'
 require 'graphviz'
@@ -18,8 +23,11 @@ gem 'addressable', '>= 2.2.4'
 require 'addressable/uri'
 require 'addressable/template'
 
-
-#"%06x" % (rand * 0xffffff
+#===================================================================================================
+# Title :: Rdf2Dot
+# Description :: Convert RDF to svg map using DOT graphiviz library
+# Author :: Dana Klassen
+#==================================================================================================
 module RDFVisualGraph
   class Rdf2Dot
     
@@ -93,7 +101,7 @@ module RDFVisualGraph
       def edge(resource,node1,node2)    
           label = fetch_fragment(resource) if(@options.showedges)
           color = colour_map(resource) if (@options.colour_code)
-          @root.add_edge(node1,node2,:label=>label,:color=>color)
+          @root.add_edges(node1,node2,:label=>label,:color=>color)
       end
       
       # color code RDF namespaces 
@@ -109,6 +117,7 @@ module RDFVisualGraph
           end
         return color
       end
+
       # create a graph node.
       # params [GraphViz::Graph] the graph the node is going to be added to
       # params [RDF::URI]  the uri the node will represent
@@ -116,7 +125,7 @@ module RDFVisualGraph
       def node(resource)
           color = colour_map(resource) if (@options.colour_code)
           label = fetch_fragment(resource) if(@options.nodelabels)
-          @root.add_node(resource.to_s,:label=>label, :size=>@options.nodesize, :shape=>@options.nodeshape,:fillcolor=>color,:style=>@options.nodestyle)
+          @root.add_nodes(resource.to_s,:label=>label, :size=>@options.nodesize, :shape=>@options.nodeshape,:fillcolor=>color,:style=>@options.nodestyle)
       end
 
       # get the namespace of the URI passed in.
@@ -182,16 +191,16 @@ module RDFVisualGraph
         i=0
         while(i<l.size)
            
-            ns    = legend.add_node(l[i],:label=>l[i])
-            value = legend.add_node(l[i+1],:label=>"",:fillcolor=>l[i+1])
-            legend.add_edge(ns,value,:len=>0)
-            
+            ns    = legend.add_nodes(l[i],:label=>l[i])
+            value = legend.add_nodes(l[i+1],:label=>"",:fillcolor=>l[i+1])
+
+           # legend.add_edges(ns,value)      
           if(i+3<l.size)  
-            nextns    = legend.add_node(l[i+2], :label=>l[i+2])
-            nextvalue = legend.add_node(l[i+3],:label=>"",:fillcolor=>l[i+3])
-            legend.add_edge(nextvalue,ns)
-            legend.add_edge(ns,nextns)
-            legend.add_edge(value,nextvalue)
+            nextns    = legend.add_nodes(l[i+2], :label=>l[i+2])
+            nextvalue = legend.add_nodes(l[i+3],:label=>"",:fillcolor=>l[i+3])
+            legend.add_edges(nextvalue,ns)
+            legend.add_edges(ns,nextns)
+            legend.add_edges(value,nextvalue)
           end
             i+=2
         end 
@@ -221,7 +230,8 @@ class App
         if (process_arguments && arguments_valid?)
             RDFVisualGraph::Rdf2Dot.new(@options)
         else
-            @log.error "Unable to run program:"
+            @log.error "Unable to run program."
+            exit!
         end
     end
     
@@ -271,11 +281,11 @@ class App
             
             
             rescue LoadError => bam
-            @log.error bam
-            exit!
+              @log.error bam
+              exit!
             rescue DirectoryError => boom
-            @log.error boom
-            exit!
+              @log.error boom
+              exit!
         end
         
         return true
