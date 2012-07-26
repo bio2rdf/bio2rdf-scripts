@@ -560,7 +560,7 @@ function write_unique_subject_predicate_unique_object_counts($fh, $counts){
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_predicate_unique_subject_unique_object_count", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred."predicate_subject_object_count")));
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred."predicate_subject_object_count"), "http://bio2rdf.org/dataset_vocabulary:has_predicate", $pred));
 			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred."predicate_subject_object_count"), "http://bio2rdf.org/dataset_vocabulary:has_subject_count", $count["count"]["subject_count"]));
-			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred."predicate_subject_object_count"), "http://bio2rdf.org/dataset_vocabulary:has_literal_count", $count["count"]["object_count"]));
+			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred."predicate_subject_object_count"), "http://bio2rdf.org/dataset_vocabulary:has_object_count", $count["count"]["object_count"]));
 		}
 	}
 }
