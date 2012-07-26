@@ -39,9 +39,6 @@ class DssToxCarcPotencyDatabaseSD
     rescue SystemExit  => bam
       @log.error bam.backtrace.join("\n")
       exit!
-    #rescue StandardError => bam
-    #  puts "d"
-    #  puts bam.backtrace.join("\n")
     end
 
   end
@@ -129,11 +126,7 @@ class DssToxCarcPotencyDatabaseSD
         
         # sets the local file to be used. we will only be parsing the SDF files.
         opts.on('-f','--file FILE','use the following local file') {|f| @options.file = f}
-        
-        # sets the output file of the parser. default is same directory
         opts.on('-o','--output FILE','store the output in the following file.') {|f| @options.output = f }
-  
-        
         opts.on('-d','--download','download the files') {@options.download = true}
         # prints the help          
         opts.on('-h','--help') do 

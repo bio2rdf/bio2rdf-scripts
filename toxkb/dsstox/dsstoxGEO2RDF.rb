@@ -113,8 +113,6 @@ class DssToxCarcPotencyDatabaseSD
                       graph << [record_uri,@dsstox_resource["has#{data_header}"],subject]
                     end
                   end
-    
-                 
                 end
                
                   graph.each_statement do |statement|
@@ -133,18 +131,9 @@ class DssToxCarcPotencyDatabaseSD
   def process_arguments()
     opts_parse = OptionParser.new do |opts|
         
-        # sets the local file to be used. we will only be parsing the SDF files.
         opts.on('-f','--file FILE','use the following local file') {|f| @options.file = f}
-        
-        # sets the output file of the parser. default is same directory
-        opts.on('-o','--output FILE','store the output in the following file.') do |f|
-              @options.output = f 
-        end 
-        
-        # sets the download flag to true if the flag was set
-        opts.on('-d','--download','download the file from the dsstox servers') do
-          @options.download = true
-        end
+        opts.on('-o','--output FILE','store the output in the following file.'){|f| @options.output = f }
+        opts.on('-d','--download','download the file from the dsstox servers'){ @options.download = true }
        
         # prints the help          
         opts.on('-h','--help') do 
