@@ -11,6 +11,8 @@ require 'cgi'
 include RDF
 # =============================================================================================================
 # Title :: DSSTox Carcinogenicity Potency Database Summary Tables - All Species (CPDBAS)
+# Author :: Dana Klassen
+# Description :: Parser for DSSTOX files that link to the Carcinogenicity Potency Database
 # =============================================================================================================
 class DssToxCarcPotencyDatabaseSD
  RECORD_END  = "$$$$"
@@ -22,7 +24,7 @@ class DssToxCarcPotencyDatabaseSD
     @arguments = args
     @options   = OpenStruct.new()
     @log = Logger.new(STDOUT)
-    @source = "CPDBAS_v5d_1547_20Nov2008.sdf"
+    @source = "ftp://ftp.epa.gov/dsstoxftp/DSSTox_CurrentFiles/CPDBAS_DownloadFiles/CPDBAS_v5d_1547_20Nov2008.zip"
     @dsstox = RDF::Vocabulary.new("http://bio2rdf.org/dsstox:")
     @dsstox_resource = RDF::Vocabulary.new("http://bio2rdf.org/dsstox_resource:")
     @cas    = RDF::Vocabulary.new("http://bio2rdf.org/cas:")
@@ -35,10 +37,8 @@ class DssToxCarcPotencyDatabaseSD
       check_arguments
       process_file()
     rescue SystemExit  => bam
-      puts bam.backtrace.join("\n")
-    #rescue StandardError => bam
-    #  puts "d"
-    #  puts bam.backtrace.join("\n")
+      @log.error bam.backtrace.join("\n")
+      exit!
     end
 
   end
@@ -46,12 +46,10 @@ class DssToxCarcPotencyDatabaseSD
   # process each file recursively
   def process_file
     # write everything to the file 
-    RDF::Writer.open(@options.output) do |writer|
+    RDF::Writer.for(:ntriples).open(@options.output) do |writer|
               record = []
               
               # shoudl make graph root be the dataset name with description of dataset
-              
-              
               File.open(@options.file,"r").each_line do |line|
       
                record << line
@@ -128,12 +126,8 @@ class DssToxCarcPotencyDatabaseSD
         
         # sets the local file to be used. we will only be parsing the SDF files.
         opts.on('-f','--file FILE','use the following local file') {|f| @options.file = f}
-        
-        # sets the output file of the parser. default is same directory
-        opts.on('-o','--output FILE','store the output in the following file.') do |f|
-              @options.output = f 
-        end 
-        
+        opts.on('-o','--output FILE','store the output in the following file.') {|f| @options.output = f }
+        opts.on('-d','--download','download the files') {@options.download = true}
         # prints the help          
         opts.on('-h','--help') do 
              puts opts
@@ -156,16 +150,23 @@ class DssToxCarcPotencyDatabaseSD
         @log.info "Output the file to: #{@options.output}"
        # @options.output = File.new(@options.output,"w+")
       else
-        raise LoadError,"Did not specify output file using --output"
+        @log.error "Did not specify output file using --output"
+        exit!
       end
       
       if(@options.file)
         @log.info "Reading: #{@options.file}"
-        raise LoadError,"The file doesn't exist (download first)" if (!File.exists?(@options.file))
+        @log.error "The file doesn't exist (download first)" if (!File.exists?(@options.file))
         #raise FormatError, "This file is not in the proper SDF format" if(!File.basename(@options.file).include?("sdf"))
-      end
-    
+        elsif(!@options.file && @options.download)
+        @log.info "Downloading file from #{@source}"
+          system("curl -o ~/Downloads/dsstox_cpdbas.zip #{@source} > /dev/null")
+          system("mkdir ~/Downloads/dsstox_cpdbas/")
+          system("unzip ~/Downloads/dsstox_cpdbas.zip -d ~/Downloads/dsstox_cpdbas/")
 
+          @options.file =  Dir.glob(File.join(File.expand_path("~/Downloads/dsstox_cpdbas"),"*.sdf")).first
+          @log.info "Processing :" + @options.file
+      end
     
     rescue Exception => bam
       puts bam.backtrace.join("\n")
