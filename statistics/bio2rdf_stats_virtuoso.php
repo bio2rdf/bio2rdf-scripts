@@ -23,8 +23,9 @@ SOFTWARE.
 */
 
 /** 
- * Script to query a specified Bio2RDF SPARQL endpoint for dataset statistics
- * and serialize statistics in RDF
+ * Script to query a specified Bio2RDF Virtuoso SPARQL endpoint 
+ * (identified by endpoint URL but accessed via its iSQL port) 
+ * for dataset statistics and serialize statistics in RDF
 */
 
 //path to isql executable
