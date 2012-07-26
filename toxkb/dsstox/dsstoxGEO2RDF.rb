@@ -12,6 +12,7 @@ include RDF
 # =============================================================================================================
 # Title :: DSSTox GEO accession Files
 # Author :: Dana Klassen
+# Description :: Parser for DSSTOX files that link to Gene Expression Omnibus 
 # =============================================================================================================
 class DssToxCarcPotencyDatabaseSD
  RECORD_END  = "$$$$"
@@ -23,7 +24,7 @@ class DssToxCarcPotencyDatabaseSD
     @arguments = args
     @options   = OpenStruct.new()
     @log       = Logger.new(STDOUT)
-    @source    = "http://www.epa.gov/ncct/dsstox/StructureDataFiles/ARYEXP_DownloadFiles/ARYEXP_v2a_958_06Mar2009.zip"
+    @source    = "ftp://ftp.epa.gov/dsstoxftp/DSSTox_CurrentFiles/ARYEXP_DownloadFiles/ARYEXP_v2a_958_06Mar2009.zip"
     @dsstox    = RDF::Vocabulary.new("http://bio2rdf.org/dsstox_geo:")
     @dsstox_resource = RDF::Vocabulary.new("http://bio2rdf.org/dsstox_geo_resource:")
     @cas             = RDF::Vocabulary.new("http://bio2rdf.org/cas:")
@@ -167,7 +168,8 @@ class DssToxCarcPotencyDatabaseSD
         @log.info "Output the file to: #{@options.output}"
        # @options.output = File.new(@options.output,"w+")
       else
-        raise LoadError,"Did not specify output file using --output"
+        @log.error "Did not specify output file using --output"
+        exit!
       end
       
       if(@options.file)
