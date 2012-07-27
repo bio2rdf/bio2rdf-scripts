@@ -275,7 +275,6 @@ class OMIMParser extends RDFFactory
 	}	
 	
 	
-
 	function ParseEntry($obj, $type)
 	{
 		$o = $obj["omim"]["entryList"][0]["entry"];
@@ -289,22 +288,25 @@ class OMIMParser extends RDFFactory
 		// parse titles
 		$titles = $o['titles'];
 		if(isset($titles['preferredTitle'])) {
-			$this->AddRDF($this->QQuadText($omim_uri, "rdfs:label", $titles['preferredTitle']." [$omim_uri]"));
-			$this->AddRDF($this->QQuadText($omim_uri, "omim_vocabulary:preferred-title", $titles['preferredTitle']));
+			$this->AddRDF($this->QQuadL($omim_uri, "rdfs:label", $this->SafeLiteral($titles['preferredTitle'])." [$omim_uri]"));
+			$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:preferred-title", $this->SafeLiteral($titles['preferredTitle'])));
 		}
 		if(isset($titles['alternativeTitles'])) {
-			$this->AddRDF($this->QQuadText($omim_uri, "omim_vocabulary:alternative-title", $titles['alternativeTitles']));
-		}		
-		
+			$b = explode(";;",$titles['alternativeTitles']);
+			foreach($b AS $title) {
+				$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:alternative-title", $this->SafeLiteral(trim($title))));
+			}
+		}	
+
 		// parse text sections
 		if(isset($o['textSectionList'])) {
 			foreach($o['textSectionList'] AS $i => $section) {
 			
 				if($section['textSection']['textSectionTitle'] == "Description") {
-					$this->AddRDF($this->QQuadText($omim_uri, "dc:description", $section['textSection']['textSectionContent']));	
+					$this->AddRDF($this->QQuadL($omim_uri, "dc:description", $this->SafeLiteral($section['textSection']['textSectionContent'])));	
 				} else {
 					$p = str_replace(" ","-", strtolower($section['textSection']['textSectionTitle']));
-					$this->AddRDF($this->QQuadText($omim_uri, "omim_vocabulary:$p", $section['textSection']['textSectionContent']));	
+					$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:$p", $this->SafeLiteral($section['textSection']['textSectionContent'])));	
 				}
 				
 				// parse the omim references
@@ -316,7 +318,7 @@ class OMIMParser extends RDFFactory
 				}				
 			}
 		}
-		
+		return;
 		
 		// allelic variants
 		if(isset($o['allelicVariantList'])) {
