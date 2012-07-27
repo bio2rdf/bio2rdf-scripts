@@ -108,9 +108,6 @@ class PathwaycommonsParser extends RDFFactory
 			$this->WriteRDFBufferToWriteFile();
 			$this->GetWriteFile()->Close();
 			
-			// clear the buffer
-			$this->DeleteRDF(); 
-			
 			echo PHP_EOL;
 		}
 		return TRUE;
