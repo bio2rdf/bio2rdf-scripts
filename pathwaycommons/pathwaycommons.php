@@ -81,9 +81,7 @@ class PathwaycommonsParser extends RDFFactory
 		}
 		
 		// prepare one of two output files based on whether gzipped or not
-		$outfile = $odir.'pathwaycommons.ttl';
 		if($this->GetParameterValue('gzip') == 'true') {
-			$outfile .= '.gz';
 			$this->file_open_func = 'gzopen';
 			$this->file_write_func = 'gzwrite';
 			$this->file_close_func = 'gzclose';
@@ -91,13 +89,6 @@ class PathwaycommonsParser extends RDFFactory
 			$this->file_open_func = 'fopen';
 			$this->file_write_func = 'fwrite';
 			$this->file_close_func = 'fclose';
-		}
-
-		// open the output file
-		$fnx = $this->file_open_func;
-		if (($this->out = $fnx($outfile,"w"))=== FALSE) {
-			trigger_error("Unable to open $odir.$outfile");
-			exit;
 		}
 
 		// iterate over the requested sources
@@ -114,16 +105,27 @@ class PathwaycommonsParser extends RDFFactory
 				echo "downloading..";
 				file_put_contents($lfile, file_get_contents($rfile));
 			}
+
+			// open the output file
+			$outfile = $odir.$source.'ttl';
+			if($this->GetParameterValue('gzip') == 'true') $outfile .= '.gz';
+			$fnx = $this->file_open_func;
+			if (($this->out = $fnx($outfile,"w"))=== FALSE) {
+				trigger_error("Unable to open $odir.$outfile");
+				exit;
+			}
+
 			
 			// load and parse
 			$this->Parse($lfile,$source.".owl");
 			$fnx = $this->file_write_func;
 			$fnx($this->out,$this->GetRDF());
 			$this->DeleteRDF(); // clear the buffer
+
+			$fnx = $this->file_close_func;
+			$fnx($this->out);
 			echo "\n";
 		}
-		$fnx = $this->file_close_func;
-		$fnx($this->out);
 		return true;
 	}
 	
