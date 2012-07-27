@@ -33,21 +33,23 @@ require('../../php-lib/rdfapi.php');
 
 class DrugBankParser extends RDFFactory 
 {
-	private $ns = null;
-	private $named_entries = array();
-	
 	function __construct($argv) {
 		parent::__construct();
 		// set and print application parameters
 		$this->AddParameter('files',true,'all|drugbank.xml.zip','all','files to process');
 		$this->AddParameter('indir',false,null,'/data/download/drugbank/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/drugbank/','directory to place rdfized files');
+		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'http://www.drugbank.ca/system/downloads/current/');
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
 		}
+		
+		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
+		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
+		
 		return TRUE;
 	}
 	
@@ -63,32 +65,36 @@ class DrugBankParser extends RDFFactory
 
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
-		@mkdir($odir,null,true);
 		$rdir = $this->GetParameterValue('download_url');
 		foreach($files AS $file) {
 			// check if exists
-			if(!file_exists($ldir.$file)) {
-				trigger_error($ldir.$file." not found. Will attempt to download. ", E_USER_NOTICE);
+			$lfile = $ldir.$file;
+			if(!file_exists($lfile)) {
+				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$this->SetParameterValue('download',true);
 			}
 			
 			// download
-			if($this->GetParameterValue('download') == true) {  
-				trigger_error("Downloading $file from $rdir.$file");
+			if($this->GetParameterValue('download') == true) { 
+				$rfile = $rdir.$file;
+				trigger_error("Downloading $file from $rfile", E_USER_NOTICE);
 				if(Utils::Download($rdir,array($file),$ldir) === FALSE) {
 					trigger_error("Unable to download $file. skipping", E_USER_WARNING);
 					continue;
 				}
 			}
-
-			// process
-			$this->outfp = Utils::OpenWriteFile($odir.$file.".ttl");
-			$this->Parse($ldir,$file,$odir.$file.".ttl");
+			
+			// set the write file, parse, write and close
+			$outfile = $odir.'drugbank.ttl'; $gz=false;
+			if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
+			$this->SetWriteFile($outfile, $gz);
+			$this->Parse($ldir,$file);
+			$this->GetWriteFile()->Close();
 		}
 	}
 
 
-	function Parse($ldir,$infile,$outfile)
+	function Parse($ldir,$infile)
 	{
 		$i = 0;
 		$xml = new CXML($ldir,$infile);
@@ -97,6 +103,7 @@ class DrugBankParser extends RDFFactory
 			//if($i++ == 10) break;
 		}
 		unset($xml);
+		$this->WriteRDFBufferToWriteFile();
 		
 		$xml = new CXML($ldir,$infile);
 		while($xml->Parse("drug") == TRUE) {
@@ -104,6 +111,7 @@ class DrugBankParser extends RDFFactory
 			//if($i++ == 10) break;
 		}
 		unset($xml);
+		$this->WriteRDFBufferToWriteFile();
 	}
 	
 	function ParsePartnerEntry(&$xml)
@@ -168,7 +176,6 @@ class DrugBankParser extends RDFFactory
 				
 			}
 		}
-		$this->WriteRDF($this->outfp);
 	}
 
 	function ParseDrugEntry(&$xml)
@@ -478,14 +485,7 @@ class DrugBankParser extends RDFFactory
 			}
 		}
 		$this->AddRDF($this->QQuadO_URL($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid));
-      
-	  
-	  
-		// echo $this->GetRDF();
-		$this->WriteRDF($this->outfp);
-		// Utils::CloseFile($this->outfp);
-		
-		// record - created, updated,version
+  
 	}
 	
 	function NSMap($source)
