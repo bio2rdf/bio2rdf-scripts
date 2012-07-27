@@ -28,16 +28,20 @@ SOFTWARE.
  * @description http://www.pathwaycommons.org
 */
 require('../../php-lib/rdfapi.php');
-include_once("/code/arc2/ARC2.php");
+include_once('../../arc2/ARC2.php'); // available on git @ https://github.com/semsol/arc2.git
 class PathwaycommonsParser extends RDFFactory 
 {
 	private $ns = null;
 	private $named_entries = array();
+	private $file_open_func = null;
+	private $file_close_func = null;
+	private $file_write_func = null;
+	private $out = null;
 		
 	function __construct($argv) {
 		parent::__construct();
 		// set and print application parameters
-		$this->AddParameter('files',true,null,'all|a|biogrid|cell-map|hprd|humancyc|imid|intact|mint|nci-nature|reactome','biopax OWL files to process');
+		$this->AddParameter('files',true,'all|biogrid|cell-map|hprd|humancyc|imid|intact|mint|nci-nature|reactome','all','biopax OWL files to process');
 		$this->AddParameter('indir',false,null,'/data/download/pathwaycommons/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/pathwaycommons/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
@@ -54,14 +58,14 @@ class PathwaycommonsParser extends RDFFactory
 	{	// create directories
 		$ldir = $this->GetParameterValue('indir');
 		if(!is_dir($ldir)) {
-			if(@mkdir($ldir,'0755',true) === FALSE) {
+			if(@mkdir($ldir,0777,true) === FALSE) {
 				trigger_error("Unable to create $ldir");
 				exit;
 			}
 		}
 		$odir = $this->GetParameterValue('outdir');
 		if(!is_dir($odir)) {
-			if(@mkdir($odir,'0755',true) === FALSE) {
+			if(@mkdir($odir,0777,true) === FALSE) {
 				trigger_error("Unable to create $odir");
 				exit;
 			}
@@ -69,7 +73,7 @@ class PathwaycommonsParser extends RDFFactory
 		
 		// now what did we want?
 		if($this->GetParameterValue('files') == 'all') {
-			$sources = explode("|",$this->GetParameterList['files']);
+			$sources = explode("|",$this->GetParameterList('files'));
 			array_shift($sources);
 		} else {
 			// comma separated list
@@ -77,24 +81,16 @@ class PathwaycommonsParser extends RDFFactory
 		}
 		
 		// prepare one of two output files based on whether gzipped or not
-		$outfile = $odir.'pathwaycommons.ttl';
 		if($this->GetParameterValue('gzip') == 'true') {
-			$outfile .= '.gz';
-			$file_open_func = 'gzopen';
-			$file_write_func = 'gzwrite';
-			$file_close_func = 'gzclose';
+			$this->file_open_func = 'gzopen';
+			$this->file_write_func = 'gzwrite';
+			$this->file_close_func = 'gzclose';
 		} else {
-			$file_open_func = 'fopen';
-			$file_write_func = 'fwrite';
-			$file_close_func = 'fclose';
+			$this->file_open_func = 'fopen';
+			$this->file_write_func = 'fwrite';
+			$this->file_close_func = 'fclose';
 		}
 
-		// open the output file
-		if (($out = $file_open_func($outfile,"w"))=== FALSE) {
-			trigger_error("Unable to open $odir.$outfile");
-			exit;
-		}
-				
 		// iterate over the requested sources
 		foreach($sources AS $source) {
 			echo "processing $source...";
@@ -109,14 +105,27 @@ class PathwaycommonsParser extends RDFFactory
 				echo "downloading..";
 				file_put_contents($lfile, file_get_contents($rfile));
 			}
+
+			// open the output file
+			$outfile = $odir.$source.'ttl';
+			if($this->GetParameterValue('gzip') == 'true') $outfile .= '.gz';
+			$fnx = $this->file_open_func;
+			if (($this->out = $fnx($outfile,"w"))=== FALSE) {
+				trigger_error("Unable to open $odir.$outfile");
+				exit;
+			}
+
 			
 			// load and parse
 			$this->Parse($lfile,$source.".owl");
-			$file_write_func($out,$this->GetRDF());
+			$fnx = $this->file_write_func;
+			$fnx($this->out,$this->GetRDF());
 			$this->DeleteRDF(); // clear the buffer
+
+			$fnx = $this->file_close_func;
+			$fnx($this->out);
 			echo "\n";
 		}
-		$file_close_func($out);
 		return true;
 	}
 	
@@ -137,18 +146,32 @@ class PathwaycommonsParser extends RDFFactory
 		}
 		fclose($fpin);
 		
-	echo 'parsing...'.PHP_EOL;
+	echo 'parsing...';
 		$parser = ARC2::getRDFParser();
 		$parser->parse('http://pathwaycommons.org', $data);
-		$index = $parser->getSimpleIndex($triples, false) ;
-		
+	echo 'building index...';
+		$triples = $parser->getTriples();
+		foreach($triples AS $i => $a) {
+			$o['value'] = $a['o'];
+			$o['type'] = $a['o_type'];
+			$o['datatype'] = $a['o_datatype'];
+			$index[$a['s']][$a['p']][] = $o;
+		}
+
 		$biopax = 'http://www.biopax.org/release/biopax-level2.owl#';
 		$cpath  = 'http://cbio.mskcc.org/cpath#';
 
 		$nso = $this->GetNS();
-		
+	echo 'processing...';
+		$total = count($index);
 		$z = 0;
-		foreach($index AS $s => $p_list) {	
+		foreach($index AS $s => $p_list) {
+			if($z++ % 10000 == 0) {
+				echo "$z of $total".PHP_EOL;
+				$fnx = $this->file_write_func;
+				$fnx($this->out,$this->GetRDF());
+				$this->DeleteRDF();
+			}	
 			$s_uri = str_replace(
 				array($biopax,$cpath),
 				array("http://bio2rdf.org/biopaxl2:","http://bio2rdf.org/cpath:"),
