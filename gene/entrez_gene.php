@@ -49,8 +49,11 @@ class EntrezGeneParser extends RDFFactory{
 			"gene_refseq_uniprotkb_collab" => "gene_refseq_uniprotkb_collab.gz",
 			"go_process" => "go_process.xml"			
 		);
-		
-		private static 
+		private  $bio2rdf_base = "http://bio2rdf.org/";
+		private  $gene_vocab ="http://bio2rdf.org/entrezgene_vocabulary:";
+		private  $gene_resource = "http://bio2rdf.org/entrezgene_resource:";
+		private  $geneid = "http://bio2rdf.org/gene:";
+	
 		
 		function __construct($argv) {
 			parent::__construct();
@@ -67,6 +70,7 @@ class EntrezGeneParser extends RDFFactory{
 		return TRUE;
 	  }//constructor
 	  
+	  //TODO: add an ifelse foreach option in the package map
 	  function Run(){
 		//set/test input and output directories
 		$ldir = $this->GetParameterValue('indir');
@@ -79,7 +83,7 @@ class EntrezGeneParser extends RDFFactory{
 		 //what files are to be converted?
 		 $selectedPackage = $this->GetParameterValue('files');
 		
-		 //TODO: add an ifelse foreach option in the package map
+		 
 		if($selectedPackage == 'all') {
 			$files = $this->getPackageMap();
 		} else if($selectedPackage == 'gene_info_all') {
@@ -96,59 +100,6 @@ class EntrezGeneParser extends RDFFactory{
 		}
 		
 		
-		
-		/*
-		
-
-		// check if exists
-		if(!file_exists($ldir.$zinfile)) {
-			trigger_error($ldir.$zinfile." not found. Will attempt to download. ", E_USER_NOTICE);
-			$this->SetParameterValue('download',true);
-		}
-
-		// download
-		if($this->GetParameterValue('download') == true) {
-			trigger_error("Downloading $rfile");
-			file_put_contents($ldir.$zinfile, file_get_contents($rfile));
-		}
-
-		$zin = new ZipArchive();
-		if ($zin->open($ldir.$zinfile) === FALSE) {
-			trigger_error("Unable to open $ldir.$zinfile");
-			exit;
-		}
-
-		// get the file list
-		if($this->GetParameterValue('files') == 'all') {
-			$files = explode("|",$this->GetParameterList('files'));
-			array_shift($files);
-		} else {
-			$files = explode("|",$this->GetParameterValue('files'));
-		}
-
-		print_r($files);
-		* /
-		// now go through each item in the zip file and process
-		/*foreach($files AS $file) {
-			echo "Processing $file ...";
-			$fpin = $zin->getStream($file.".txt");
-			if(!$fpin) {
-				trigger_error("Unable to get pointer to $file in $zinfile");
-				exit("failed\n");
-			}
-
-			$gzoutfile = $odir.$file.".ttl.gz";
-			if (($gzout = gzopen($gzoutfile,"w"))=== FALSE) {
-				trigger_error("Unable to open $odir.$gzoutfile");
-				exit;
-			}
-
-			$this->$file($fpin);
-			gzwrite($gzout,$this->GetRDF());
-			gzclose($gzout);
-			$this->DeleteRDF();
-			echo "done!".PHP_EOL;
-		}*/
 	}//run
 	
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
@@ -162,7 +113,7 @@ class EntrezGeneParser extends RDFFactory{
 			
 			$splitLine = explode("\t", $aLine);
 			$taxid = $splitLine[0];
-			$geneid = $splitLine[1];
+			$aGeneId = $splitLine[1];
 			$symbol =  $splitLine[2];
 			$locusTag = $splitLine[3];
 			$symbols_arr = explode("|",$splitLine[4]);
@@ -177,6 +128,14 @@ class EntrezGeneParser extends RDFFactory{
 			$other_designations = $splitLine[13];
 			$mod_date = date_parse($splitLine[14]);
 			
+			$this->AddRDF($this->QQuad($this->geneid.$aGeneId, 
+						$this->gene_vocab."has_taxid", 
+						$this->bio2rdf_base."taxon:".$taxid ));
+						
+						
+			print_r($this->GetRDF());
+			exit;
+			
 		}
 	}
 	
@@ -184,12 +143,13 @@ class EntrezGeneParser extends RDFFactory{
 		return self::$packageMap;
 	}
 	
+
 	
 }
 
 
 
-$parser = new GeneInfoParser($argv);
+$parser = new EntrezGeneParser($argv);
 $parser-> Run();
 
 ?>
