@@ -141,75 +141,108 @@ class PharmGKBParser extends RDFFactory
 		return TRUE;
 	}
  
-
+//PharmGKB Accession Id   Entrez Id       Ensembl Id      Name    Symbol  Alternate Names Alternate Symbols       Is VIP  Has Variant Annotation  Cross-references
 	/*
 	0 PharmGKB Accession Id	
 	1 Entrez Id	
 	2 Ensembl Id	
-	3 UniProt Id	
-	4 Name	
-	5 Symbol	
-	6 Alternate Names	
-	7 Alternate Symbols	
-	8 Is Genotyped	
+	3 Name	
+	4 Symbol	
+	5 Alternate Names	
+	6 Alternate Symbols	
+	7 Is Genotyped	
 	9 Is VIP	
-	10 PD	
-	11 PK	
 	12 Has Variant Annotation
 	*/
 	function genes()
 	{
-		$buf = '';
-		while($l = $this->GetReadFile()->Read(10000)) {
+		if(($n = count(explode("\t",$this->GetReadFile()->Read()))) != 10) {
+			trigger_error("Found $n columns in gene file - expecting 10!");
+			return FALSE;
+		}
+		while($l = $this->GetReadFile()->Read(200000)) {
 			$a = explode("\t",$l);
 			
 			$id = "pharmgkb:$a[0]";
-			$this->AddRDF($this->QQuadL($id,"rdfs:label","$a[4] [$id]"));
+			$this->AddRDF($this->QQuadL($id,"rdfs:label","$a[3] [$id]"));
 			$this->AddRDF($this->QQuadL($id,"dc:identifier",$id));
 			$this->AddRDF($this->QQuad($id,"rdf:type","pharmgkb_vocabulary:Gene"));
-			$this->AddRDF($this->Quad($this->GetNS()->getFQURI($id),$this->GetNS()->getFQURI("rdfs:seeAlso"),"http://pharmgkb.org/gene/".$a[0]));
 			
+			// link to release				
 			$this->AddRDF($this->Quad($this->GetNS()->getFQURI($id), "bio2rdf_vocabulary:version", $this->GetReleaseFileURI()));
 			$this->AddRDF($this->Quad($this->GetReleaseFileURI(), $this->GetNS()->getFQURI("dc:subject"), $this->GetNS()->getFQURI($id)));
 			
+			// link data
+			$this->AddRDF($this->Quad($this->GetNS()->getFQURI($id),$this->GetNS()->getFQURI("rdfs:seeAlso"),"http://pharmgkb.org/gene/".$a[0]));
+			$this->AddRDF($this->Quad($this->GetNS()->getFQURI($id),$this->GetNS()->getFQURI("owl:sameAs"),"http://www4.wiwiss.fu-berlin.de/diseasome/resource/genes/$a[0]"));
+			$this->AddRDF($this->Quad($this->GetNS()->getFQURI($id),$this->GetNS()->getFQURI("owl:sameAs"),"http://dbpedia.org/resource/$a[0]"));
+			$this->AddRDF($this->Quad($this->GetNS()->getFQURI($id),$this->GetNS()->getFQURI("owl:sameAs"),"http://purl.org/net/tcm/tcm.lifescience.ntu.edu.tw/id/gene/$a[0]"));
+			
 			if($a[1]) $this->AddRDF($this->QQuad($id,"owl:sameAs","geneid:$a[1]"));
 			if($a[2]) $this->AddRDF($this->QQuad($id,"owl:sameAs","ensembl:$a[2]"));
-			if($a[3]) $this->AddRDF($this->QQuad($id,"rdfs:seeAlso","uniprot:$a[3]"));
-			if($a[4]) $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:name",$a[4]));
+			if($a[3]) $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:name",$a[3]));
+			if($a[4]) $this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:symbol","symbol:$a[4]"));
 			if($a[5]) {
-				$this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:symbol","symbol:$a[5]"));
-				$aid = "pharmgkb:$a[5]";
-				$this->AddRDF($this->QQuad($id,"owl:sameAs",$aid));
-				$this->AddRDF($this->QQuadL($aid,"dc:identifier",$a[5]));
-				$this->AddRDF($this->QQuadL($aid,"rdfs:label","$a[5] [pharmgkb:$a[5]]"));
-
-				// link data
-				$this->AddRDF($this->Quad($this->GetNS()->getFQURI($aid),$this->GetNS()->getFQURI("owl:sameAs"),"http://www4.wiwiss.fu-berlin.de/diseasome/resource/genes/$a[5]"));
-				$this->AddRDF($this->Quad($this->GetNS()->getFQURI($aid),$this->GetNS()->getFQURI("owl:sameAs"),"http://dbpedia.org/resource/$a[5]"));
-				$this->AddRDF($this->Quad($this->GetNS()->getFQURI($aid),$this->GetNS()->getFQURI("owl:sameAs"),"http://purl.org/net/tcm/tcm.lifescience.ntu.edu.tw/id/gene/$a[5]"));
+				$b = explode('","',substr($a[5],1,-2));
+				foreach($b AS $alt_name) {
+					$this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:alternative-name",$this->SafeLiteral($alt_name)));
+				}
 			}
 			if($a[6]) {
-				$b = explode('",',$a[6]);
-				foreach($b as $c) {
-					if($c) $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:synonym", str_replace(array("'", "\""), array("\\\'", ""), stripslashes(substr($c,1)))));
+				$b = explode('","',substr($a[6],1,-2));
+				foreach($b as $alt_symbol) {
+					$this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:alternate-symbol", "symbol:".$alt_symbol));
 				}
 			}
-			if($a[7]) {
-				$b = explode('",',$a[7]);
-				foreach($b as $c) {
-					if($c) $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:alternate_symbol",str_replace('"','',$c)));
+		
+			if($a[7]) $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:is-vip",$a[7]));
+			if($a[8]) $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:is-genotyped",$a[8]));
+			if($a[9]) {
+				$b = explode(",",$a[9]);
+				foreach($b AS $xref) {
+					$xref = trim($xref);
+					if(!$xref) continue;
+					
+					$url = false;
+					$x = $this->MapXrefs($xref, $url);
+					if($url == true) {
+						$this->AddRDF($this->QQuadO_URL($id,"pharmgkb_vocabulary:xref",$x));
+					} else {
+						$this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:xref",$x));
+					}
 				}
 			}
-			
-			if($a[8]) $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:is_genotyped",$a[8]));
-			if($a[9]) $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:is_vip",$a[9]));
-			if($a[10] && $a[10] != '-') $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:pharmacodynamics","true"));
-			if($a[11] && $a[11] != '-') $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:pharmacokinetics","true"));
-			if(trim($a[12]) != '') $this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:variant_annotation",trim($a[12])));
 		}
 		return TRUE;
 	}
 
+	function MapXrefs($xref, &$url = false)
+	{
+		$xrefs = array(
+			"humancycgene" => "humancyc",
+			"entrezgene" => "geneid",
+			"refseqdna" => "refseq",
+			"refseqprotein" => "refseq",
+			"refseqrna" => "refseq",
+			"ucscgenomebrowser" => "refseq",
+			"uniprotkb" => "uniprot",
+			'genecard'=>'genecards'
+		);
+		$this->GetNS()->ParsePrefixedName($xref,$ns,$id);
+		if(isset($xrefs[$ns])) {
+			$ns = $xrefs[$ns];
+		}
+		$url = false;
+		if($ns == "url") {
+			$url = true;
+			return $id;
+		}
+		$this->GetNS()->ParsePrefixedName($id,$ns2,$id2);
+		if($ns2) {
+			$id = $id2;
+		}
+		return $ns.":".$id;
+	}
 	/*
 	0 PharmGKB Accession Id	
 	1 Name	
