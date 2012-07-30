@@ -78,9 +78,7 @@ class EntrezGeneParser extends RDFFactory{
 		$odir = $this->GetParameterValue('outdir');
 		@mkdir($odir,'0755',true);
 		$rfile = $this->GetParameterValue('download_url');
-		
 
-		 
 		 //what files are to be converted?
 		 $selectedPackage = $this->GetParameterValue('files');
 		
@@ -112,14 +110,65 @@ class EntrezGeneParser extends RDFFactory{
 				echo "file $gzoutfile already there!\nPlease remove file and try again\n";
 				exit;
 			}
-		}
-		
-		
+		}		
 	}//run
-	
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2go($aFp,$outputPointer){
+		while(!gzeof($aFp)){
+			$aLine = gzgets($aFp, 4096);
+			preg_match("/^#.*/", $aLine, $matches);
+			if(count($matches)){
+				continue;
+			}
+			$splitLine = explode("\t",$aLine);
+			$taxid = $splitLine[0];
+			$aGeneId = $splitLine[1];
+			$goid = $splitline[2];
+			$evidenceCode = $splitLine[3];
+			$qualifier = $splitLine[4];
+			$golabel = $splitLine[5];
+			$pmid_arr = explode("|", $splitline[6]);
+			$goCategory = $splitLine[7];
+			
+			//taxid
+			$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+					"geneid_vocabulary:has_taxid",
+					"taxon:".$taxid));
+			//goid
+			$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+					"geneid_vocabulary:has_goid",
+					"go:".$goid));
+			//go label
+			if($golabel != "-"){
+				$this->AddRDF($this->QQuadL("go:".$goid,
+					"rdfs:label",
+					$golabel));
+			}
+			//evidence code
+			if($evidenceCode != "-"){
+				$this->AddRDF($this->QQuadL("go:".$goid,
+					"geneid_vocabulary:has_go_evidence_code",
+					$evidenceCode));
+			}
+			//go category 
+			if($goCategory != "-"){
+				$this->AddRDF($this->QQuadL("go:".$goid,
+					"geneid_vocabulary:has_go_category",
+					$goCategory));
+			}
+			if(count($pmid_arr)){
+				foreach ($pmid_arr as $aP){
+					$this->AddRDF($this->QQuad("go:".$goid,
+					"geneid_vocabulary:has_evidence",
+					"pubmed:"$aP));
+				}
+			}
+			gzwrite($ouputPointer, $this->GetRDF());
+			$this->DeleteRDF();			
+		}//while
+	}
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene_info_all($aFp, $ouputPointer){
-		$test = 0;
 		while(!gzeof($aFp)){
 			$aLine = gzgets($aFp, 4096);
 			preg_match("/^#.*/", $aLine, $matches);
@@ -235,15 +284,8 @@ class EntrezGeneParser extends RDFFactory{
 								"geneid_vocabulary:modification_date", 
 								$mod_date["month"]."-".$mod_date["day"]."-".$mod_date["year"]));
 				}
-				
-				
 				gzwrite($ouputPointer, $this->GetRDF());
 				$this->DeleteRDF();
-				$test++;
-				if($test == 200){
-					break;
-				}
-				
 			}			
 		}
 	}
