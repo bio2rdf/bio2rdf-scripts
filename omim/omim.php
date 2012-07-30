@@ -29,10 +29,7 @@ SOFTWARE.
 */
 require('../../php-lib/rdfapi.php');
 class OMIMParser extends RDFFactory 
-{
-	private $ns = null;
-	private $named_entries = array();
-		
+{		
 	function __construct($argv) {
 		parent::__construct();
 		// set and print application parameters
@@ -48,30 +45,22 @@ class OMIMParser extends RDFFactory
 			$this->PrintParameters($argv);
 			exit;
 		}
+		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
+		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
+		
 		return TRUE;
 	}
 	
 	function Run()
-	{	// create directories
+	{	
+		// directory shortcuts
 		$ldir = $this->GetParameterValue('indir');
-		if(!is_dir($ldir)) {
-			if(@mkdir($ldir,'0755',true) === FALSE) {
-				trigger_error("Unable to create $ldir");
-				exit;
-			}
-		}
 		$odir = $this->GetParameterValue('outdir');
-		if(!is_dir($odir)) {
-			if(@mkdir($odir,'0755',true) === FALSE) {
-				trigger_error("Unable to create $odir");
-				exit;
-			}
-		}
-		
+
 		// get the list of mim2gene entries
 		$entries = $this->GetListOfEntries($ldir);
 		
-		// now what did we want?
+		// get the work specified
 		$list = trim($this->GetParameterValue('files'));		
 		if($list != 'all') {
 			// check if a hyphenated list was provided
@@ -98,24 +87,14 @@ class OMIMParser extends RDFFactory
 			}		
 		}
 		
-		// prepare one of two output files based on whether gzipped or not
-		$outfile = $odir.'omim.ttl';
+		// set the write file
+		$outfile = $odir.'omim.ttl'; $gz=false;
 		if($this->GetParameterValue('gzip')) {
 			$outfile .= '.gz';
-			$file_open_func = 'gzopen';
-			$file_write_func = 'gzwrite';
-			$file_close_func = 'gzclose';
-		} else {
-			$file_open_func = 'fopen';
-			$file_write_func = 'fwrite';
-			$file_close_func = 'fclose';
+			$gz = true;
 		}
+		$this->SetWriteFile($outfile, $gz);
 		
-		// open the file
-		if (($out = $file_open_func($outfile,"w"))=== FALSE) {
-			trigger_error("Unable to open $odir.$outfile");
-			exit;
-		}
 		// declare the mapping method types
 		$this->get_method_type(null,true);
 		
@@ -136,15 +115,15 @@ class OMIMParser extends RDFFactory
 				}
 			}
 			
-			// load and parse
+			// load entry, parse and write to file
 			$entry = json_decode(file_get_contents($download_file), true);
 			echo $entry["omim"]["entryList"][0]["entry"]['mimNumber'];
 			$this->ParseEntry($entry,$type);
-			$file_write_func($out,$this->GetRDF());
-			$this->DeleteRDF(); // clear the buffer
-			echo "\n";
+			$this->WriteRDFBufferToWriteFile();
+		
+			echo PHP_EOL;
 		}
-		$file_close_func($out);
+		$this->GetWriteFile()->Close();
 		return true;
 	}
 	
