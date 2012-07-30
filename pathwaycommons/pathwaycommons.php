@@ -29,15 +29,9 @@ SOFTWARE.
 */
 require('../../php-lib/rdfapi.php');
 include_once('../../arc2/ARC2.php'); // available on git @ https://github.com/semsol/arc2.git
+
 class PathwaycommonsParser extends RDFFactory 
-{
-	private $ns = null;
-	private $named_entries = array();
-	private $file_open_func = null;
-	private $file_close_func = null;
-	private $file_write_func = null;
-	private $out = null;
-		
+{		
 	function __construct($argv) {
 		parent::__construct();
 		// set and print application parameters
@@ -51,101 +45,78 @@ class PathwaycommonsParser extends RDFFactory
 			$this->PrintParameters($argv);
 			exit;
 		}
+		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
+		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
+		
 		return TRUE;
 	}
 	
 	function Run()
-	{	// create directories
-		$ldir = $this->GetParameterValue('indir');
-		if(!is_dir($ldir)) {
-			if(@mkdir($ldir,0777,true) === FALSE) {
-				trigger_error("Unable to create $ldir");
-				exit;
-			}
-		}
-		$odir = $this->GetParameterValue('outdir');
-		if(!is_dir($odir)) {
-			if(@mkdir($odir,0777,true) === FALSE) {
-				trigger_error("Unable to create $odir");
-				exit;
-			}
-		}
-		
-		// now what did we want?
+	{			
+		// get the work
 		if($this->GetParameterValue('files') == 'all') {
 			$sources = explode("|",$this->GetParameterList('files'));
 			array_shift($sources);
 		} else {
 			// comma separated list
 			$sources = explode(",",$this->GetParameterValue('files'));
-		}
-		
-		// prepare one of two output files based on whether gzipped or not
-		if($this->GetParameterValue('gzip') == 'true') {
-			$this->file_open_func = 'gzopen';
-			$this->file_write_func = 'gzwrite';
-			$this->file_close_func = 'gzclose';
-		} else {
-			$this->file_open_func = 'fopen';
-			$this->file_write_func = 'fwrite';
-			$this->file_close_func = 'fclose';
-		}
+		}					
 
-		// iterate over the requested sources
+		// iterate over the requested data
 		foreach($sources AS $source) {
 			echo "processing $source...";
 			
+			// set the remote and input files
+			$file  = $source.".owl";
 			$zfile = $source.".owl.zip";
 			$rfile = $this->GetParameterValue('download_url').$zfile;
-			$lfile = $ldir.$zfile;
+			$lfile = $this->GetParameterValue('indir').$zfile;
 
-			// download if the file doesn't exist or we are told to
+			// download if if the file doesn't exist locally or we are told to
 			if(!file_exists($lfile) || $this->GetParameterValue('download') == 'true') {
 				// download 
 				echo "downloading..";
 				file_put_contents($lfile, file_get_contents($rfile));
 			}
-
-			// open the output file
-			$outfile = $odir.$source.'ttl';
-			if($this->GetParameterValue('gzip') == 'true') $outfile .= '.gz';
-			$fnx = $this->file_open_func;
-			if (($this->out = $fnx($outfile,"w"))=== FALSE) {
-				trigger_error("Unable to open $odir.$outfile");
+			
+			// extract the file out of the ziparchive
+			// and load into a buffer
+			echo 'extracting...';
+			$zin = new ZipArchive();
+			if ($zin->open($lfile) === FALSE) {
+				trigger_error("Unable to open $lfile");
 				exit;
 			}
+			$data = '';
+			$fpin = $zin->getStream($file);
+			while($l = fgets($fpin)) $data .= $l;
+			fclose($fpin);
 
+			// set the output file
+			$outfile = $this->GetParameterValue('outdir').$source.'ttl';
+			$gz = false;
+			if($this->GetParameterValue('gzip') == 'true') {
+				$outfile .= '.gz';
+				$gz = true;
+			}
+			$this->SetWriteFile($outfile, $gz);
 			
-			// load and parse
-			$this->Parse($lfile,$source.".owl");
-			$fnx = $this->file_write_func;
-			$fnx($this->out,$this->GetRDF());
-			$this->DeleteRDF(); // clear the buffer
-
-			$fnx = $this->file_close_func;
-			$fnx($this->out);
-			echo "\n";
+			// parse
+			$this->Parse($data);
+			
+			// write to output
+			$this->WriteRDFBufferToWriteFile();
+			$this->GetWriteFile()->Close();
+			
+			echo PHP_EOL;
 		}
-		return true;
+		return TRUE;
 	}
 	
 	
 
-	function Parse($zfile, $file)
+	function Parse($data)
 	{
-	echo 'extracting...';
-		$zin = new ZipArchive();
-		if ($zin->open($zfile) === FALSE) {
-			trigger_error("Unable to open $zfile");
-			exit;
-		}
-		$data = '';
-		$fpin = $zin->getStream($file);
-		while($l = fgets($fpin)) {
-			$data .= $l;
-		}
-		fclose($fpin);
-		
 	echo 'parsing...';
 		$parser = ARC2::getRDFParser();
 		$parser->parse('http://pathwaycommons.org', $data);
@@ -164,14 +135,13 @@ class PathwaycommonsParser extends RDFFactory
 		$nso = $this->GetNS();
 	echo 'processing...';
 		$total = count($index);
+		$interval = (int) (.25*$total);
 		$z = 0;
 		foreach($index AS $s => $p_list) {
-			if($z++ % 10000 == 0) {
+			if($z++ % $interval == 0) {
 				echo "$z of $total".PHP_EOL;
-				$fnx = $this->file_write_func;
-				$fnx($this->out,$this->GetRDF());
-				$this->DeleteRDF();
-			}	
+				$this->WriteRDFBufferToWriteFile();
+			}
 			$s_uri = str_replace(
 				array($biopax,$cpath),
 				array("http://bio2rdf.org/biopaxl2:","http://bio2rdf.org/cpath:"),
@@ -238,6 +208,7 @@ class PathwaycommonsParser extends RDFFactory
 			
 		}
 	
+	echo 'done!'.PHP_EOL;
 	} // end parse
 	
 	function MapDB($db)

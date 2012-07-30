@@ -30,59 +30,59 @@ SOFTWARE.
 require('../../php-lib/rdfapi.php');
 class NDCParser extends RDFFactory 
 {
-	private $ns = null;
-	private $named_entries = array();
-	
 	function __construct($argv) {
 		parent::__construct();
 		// set and print application parameters
 		$this->AddParameter('files',true,'all|product|package','all','files to process');
 		$this->AddParameter('indir',false,null,'/data/download/ndc/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/ndc/','directory to place rdfized files');
+		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'http://www.fda.gov/downloads/Drugs/DevelopmentApprovalProcess/UCM070838.zip');
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
 		}
+		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
+		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
+		
 		return TRUE;
 	}
 	
 	function Run()
 	{
-		$zinfile = 'UCM070838.zip';
+		
 		$ldir = $this->GetParameterValue('indir');
-		@mkdir($ldir,'0755',true);
 		$odir = $this->GetParameterValue('outdir');
-		@mkdir($odir,'0755',true);
 		$rfile = $this->GetParameterValue('download_url');
+		$lfile = substr($rfile, strrpos($rfile,"/")+1);
 		
 		// check if exists
-		if(!file_exists($ldir.$zinfile)) {
-			trigger_error($ldir.$zinfile." not found. Will attempt to download. ", E_USER_NOTICE);
+		if(!file_exists($lfile)) {
+			trigger_error($lfile." not found. Will attempt to download. ", E_USER_NOTICE);
 			$this->SetParameterValue('download',true);
 		}
 		
 		// download
 		if($this->GetParameterValue('download') == true) {
-			trigger_error("Downloading $rfile");
-			file_put_contents($ldir.$zinfile, file_get_contents($rfile));
+			trigger_error("Downloading $rfile", E_USER_NOTICE);
+			file_put_contents($lfile, file_get_contents($rfile));
 		}
 
+		// make sure we have the zip archive
 		$zin = new ZipArchive();
-		if ($zin->open($ldir.$zinfile) === FALSE) {
-			trigger_error("Unable to open $ldir.$zinfile");
+		if ($zin->open($lfile) === FALSE) {
+			trigger_error("Unable to open $lfile");
 			exit;
 		}
 		
-		// get the file list
+		// get the work
 		if($this->GetParameterValue('files') == 'all') {
 			$files = explode("|",$this->GetParameterList('files'));
 			array_shift($files);
 		} else {
 			$files = explode("|",$this->GetParameterValue('files'));
 		}
-
 		
 		// now go through each item in the zip file and process
 		foreach($files AS $file) {
@@ -93,16 +93,21 @@ class NDCParser extends RDFFactory
 				exit("failed\n");
 			}
 			
-			$gzoutfile = $odir.$file.".ttl.gz";
-			if (($gzout = gzopen($gzoutfile,"w"))=== FALSE) {
-				trigger_error("Unable to open $odir.$gzoutfile");
-				exit;
+			// set the write file
+			$outfile = $odir.$file.'.ttl'; $gz=false;
+			if($this->GetParameterValue('gzip')) {
+				$outfile .= '.gz';
+				$gz = true;
 			}
+			$this->SetWriteFile($outfile, $gz);
 			
+			// process
 			$this->$file($fpin);
-			gzwrite($gzout,$this->GetRDF());
-			gzclose($gzout);
-			$this->DeleteRDF();
+			
+			// write to file
+			$this->WriteRDFBufferToWriteFile();
+			$this->GetWriteFile()->Close();
+			
 			echo "done!".PHP_EOL;
 		}
 	}
@@ -290,9 +295,9 @@ class NDCParser extends RDFFactory
 			//echo $this->GetRDF();exit;
 		}
 	}
-	
 }
 
+set_error_handler('error_handler');
 $parser = new NDCParser($argv);
 $parser->Run();
 
