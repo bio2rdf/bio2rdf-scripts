@@ -59,7 +59,7 @@ class PharmGKBParser extends RDFFactory
 			$files = explode("|",$this->GetParameterList('files'));
 			array_shift($files);
 		} else {
-			$files = explode("|",$this->GetParameterValue('files'));
+			$files = explode(",",$this->GetParameterValue('files'));
 		}
 
 		$ldir = $this->GetParameterValue('indir');
@@ -185,13 +185,13 @@ class PharmGKBParser extends RDFFactory
 			if($a[5]) {
 				$b = explode('","',substr($a[5],1,-2));
 				foreach($b AS $alt_name) {
-					$this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:alternative-name",$this->SafeLiteral($alt_name)));
+					$this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:alternative-name",$this->SafeLiteral(trim(stripslashes($alt_name)))));
 				}
 			}
-			if($a[6]) {
+			if($a[6]) { // these are not hgnc symbols
 				$b = explode('","',substr($a[6],1,-2));
 				foreach($b as $alt_symbol) {
-					$this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:alternate-symbol", "symbol:".$alt_symbol));
+					$this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:alternate-symbol", trim($alt_symbol)));
 				}
 			}
 		
@@ -502,23 +502,24 @@ class PharmGKBParser extends RDFFactory
 			// id1
 			$ns1 = 'pharmgkb';
 			$id1 = $a[0];
+			$id1 = str_replace(" ","_",$id1);
 			$type1 = $a[1];
 			if($id1[0] == 'r') {
 				$ns = 'dbsnp';
 			} else if($id1[0] == 'H') {
 				$ns = 'pharmgkb_resource';
-				$id1 = str_replace(" ","_",$id1);
 			}
 
 			// id2
 			$ns2 = 'pharmgkb';
 			$id2 = $a[2];
+			$id2 = str_replace(" ","_",$id2);
+
 			$type2 = $a[3];
 			if($id2[0] == 'r') {
 				$ns = 'dbsnp';
 			} else if($id2[0] == 'H') {
 				$ns = 'pharmgkb_resource';
-				$id2 = str_replace(" ","_",$id2);
 			}
 
 			// let's ignore the duplicated entries
