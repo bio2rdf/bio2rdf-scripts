@@ -34,7 +34,7 @@ class PharmGKBParser extends RDFFactory
 	function __construct($argv) {
 		parent::__construct();
 		// set and print application parameters
-		$this->AddParameter('files',true,'all|drugs|genes|diseases|relationships|pathways|rsid|variant_annotations|offsides|twosides','all','files to process');
+		$this->AddParameter('files',true,'all|drugs|genes|diseases|relationships|pathways|rsid|variant_annotations|offsides|twosides','all','all or comma-separated list of files to process');
 		$this->AddParameter('indir',false,null,'/data/download/pharmgkb/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/pharmgkb/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
