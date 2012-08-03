@@ -165,7 +165,6 @@ class PharmGKBParser extends RDFFactory
 			
 			$id = "pharmgkb:$a[0]";
 			$this->AddRDF($this->QQuadL($id,"rdfs:label","$a[3] [$id]"));
-			$this->AddRDF($this->QQuadL($id,"dc:identifier",$id));
 			$this->AddRDF($this->QQuad($id,"rdf:type","pharmgkb_vocabulary:Gene"));
 			
 			// link to release				
@@ -273,10 +272,10 @@ class PharmGKBParser extends RDFFactory
 			$a = explode("\t",$l);
 			$id = "pharmgkb:$a[0]";
 
-			$this->AddRDF($this->Quad($this->GetReleaseFileURI(), $this->GetNS()->getFQURI("dc:subject"), $this->GetNS()->getFQURI($id)));
-
-			$this->AddRDF($this->QQuad($id,"rdf:type", "pharmgkb_vocabulary:Drug"));
 			$this->AddRDF($this->QQuadL($id,"rdfs:label","$a[1] [$id]"));
+			$this->AddRDF($this->QQuad($id,"rdf:type", "pharmgkb_vocabulary:Drug"));
+
+			$this->AddRDF($this->Quad($this->GetReleaseFileURI(), $this->GetNS()->getFQURI("dc:subject"), $this->GetNS()->getFQURI($id)));
 			
 			if(trim($a[2])) { 
 				// generic names
@@ -354,10 +353,10 @@ class PharmGKBParser extends RDFFactory
 		$a = explode("\t",$l);
 			
 		$id = "pharmgkb:".$a[0];
+		$this->AddRDF($this->QQuadL($id,'rdfs:label',str_replace("'", "\\\'", $a[1])." [$id]"));
+		$this->AddRDF($this->QQuad($id,'rdf:type','pharmgkb_vocabulary:Disease'));
 		$this->AddRDF($this->Quad($this->GetReleaseFileURI(), $this->GetNS()->getFQURI("dc:subject"), $this->GetNS()->getFQURI($id)));
 
-		$this->AddRDF($this->QQuad($id,'rdf:type','pharmgkb_vocabulary:Disease'));
-		$this->AddRDF($this->QQuadL($id,'rdfs:label',str_replace("'", "\\\'", $a[1])." [$id]"));
 		$this->AddRDF($this->QQuadL($id,'pharmgkb_vocabulary:name',str_replace("'","\\\'", $a[1])));
 
 		if(!isset($a[2])) continue;
@@ -408,10 +407,12 @@ class PharmGKBParser extends RDFFactory
 			$a = explode("\t",$l);
 			$id = "pharmgkb:$a[11]";
 
-			$this->AddRDF($this->Quad($this->GetReleaseFileURI(), $this->GetNS()->getFQURI('dc:subject'), $this->GetNS()->getFQURI($id)));
+			$this->AddRDF($this->QQuadL($id,'rdfs:label',"variant annotation for $a[1] [$id]"));
 			$this->AddRDF($this->QQuad($id,'rdf:type','pharmgkb:Variant-Annotation'));
+			$this->AddRDF($this->Quad($this->GetReleaseFileURI(), $this->GetNS()->getFQURI('dc:subject'), $this->GetNS()->getFQURI($id)));
+
 			$this->AddRDF($this->QQuad($id,'pharmgkb:variant',"dbsnp:$a[1]"));
-			//$this->AddRDF("$id rdfs:label \"variant [dbsnp:$a[1]]\"".PHP_EOL;
+
 			if($a[2] != '') $this->AddRDF($this->QQuadL($id,'pharmgkb:variant_description',addslashes($a[2])));
 
 			if($a[3] != '' && $a[3] != '-') {
@@ -528,9 +529,13 @@ class PharmGKBParser extends RDFFactory
 			}
 
 			$id = "pharmgkb_resource:association_".$id1."_".$id2;
-			$this->AddRDF($this->Quad($this->GetReleaseFileURI(), $this->GetNS()->getFQURI('dc:subject'), $this->GetNS()->getFQURI($id)));
+			$association = $type1.' '.$type2.' Association';
+			$this->AddRDF($this->QQuadL($id,'rdfs:label',"$association [$id]"));
 			$this->AddRDF($this->QQuad($id,'rdf:type','pharmgkb_vocabulary:Association'));
-			$this->AddRDF($this->QQuad($id,'rdf:type','pharmgkb_vocabulary:'.$type1.'-'.$type2.'-Association'));
+			$this->AddRDF($this->QQuad($id,'rdf:type','pharmgkb_vocabulary:'.str_replace(" ","-",$association)));
+
+			$this->AddRDF($this->Quad($this->GetReleaseFileURI(), $this->GetNS()->getFQURI('dc:subject'), $this->GetNS()->getFQURI($id)));
+
 			$this->AddRDF($this->QQuad($id,'pharmgkb_vocabulary:'.strtolower($type1),"pharmgkb:$id1"));
 			$this->AddRDF($this->QQuad($id,'pharmgkb_vocabulary:'.strtolower($type2),"pharmgkb:$id2"));
 			$b = explode(',',$a[4]);
@@ -567,11 +572,12 @@ class PharmGKBParser extends RDFFactory
 				$this->WriteRDFBufferToWriteFile();
 			}
 			$a = explode("\t",$l);
-			$rsid = $a[0];
+			$rsid = "dbsnp:".$a[0];
 			$genes = explode(";",$a[1]);
-			$this->AddRDF($this->QQuad("dbsnp:$rsid","rdf:type","pharmgkb_vocabulary:Variant"));
+			$this->AddRDF($this->QQuadL($rsid,"rdfs:label","[$rsid]"));
+			$this->AddRDF($this->QQuad($rsid,"rdf:type","pharmgkb_vocabulary:Variant"));
 			foreach($genes AS $gene) {
-				$this->AddRDF($this->QQuad("dbsnp:$rsid","pharmgkb_vocabulary:gene","pharmgkb:$gene"));
+				$this->AddRDF($this->QQuad($rsid,"pharmgkb_vocabulary:gene","pharmgkb:$gene"));
 			}
 		}
 		return TRUE;
@@ -582,15 +588,16 @@ class PharmGKBParser extends RDFFactory
 		$this->GetReadFile()->Read();
 		while($l = $this->GetReadFile()->Read(20000)) {
 			$a = explode("\t",$l);
+			$rsid = "dbsnp:$a[1]";
 			
 			// [0] => Clinical Annotation Id
 			$id = "pharmgkb:$a[0]";
+			$this->AddRDF($this->QQuadL($id,"rdfs:label", "clinical annotation for $rsid [$id]"));
 			$this->AddRDF($this->QQuad($id,"rdf:type", "pharmgkb_vocabulary:Clinical-Annotation"));
+
 			
 			// [1] => RSID
-			$rsid = "dbsnp:$a[1]";
-			$this->AddRDF($this->QQuad($id,"rdf:type", "pharmgkb_vocabulary:Variant"));
-			$this->AddRDF($this->QQuadL($rsid,"rdfs:label", "$rsid"));
+			$this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:variant", $rsid));
 			
 			// [2] => Variant Names
 			if($a[2]) { 
@@ -615,8 +622,6 @@ class PharmGKBParser extends RDFFactory
 				}
 			}
 
-			$this->AddRDF($this->QQuadL($id,"rdfs:label", "clinical annotation for $rsid [$id]"));
-			$this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:snp", $rsid));
 			// [5] => Evidence Strength
 			if($a[5]) {
 				$this->AddRDF($this->QQuadL($id,"pharmgkb_vocabulary:evidence-strength", $a[5]));
@@ -638,7 +643,7 @@ class PharmGKBParser extends RDFFactory
 					$gp = trim($gp);
 					$gp_text = trim($gps_texts[$i]);
 					$this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:genotype_phenotype", "pharmgkb:$gp"));
-					$this->AddRDF($this->QQuadL("pharmgkb:$gp","rdfs:label", $gp_text));
+					$this->AddRDF($this->QQuadL("pharmgkb:$gp","rdfs:label", $gp_text." [pharmgkb:$gp]"));
 					$this->AddRDF($this->QQuad("pharmgkb:$gp","rdf:type", "pharmgkb_vocabulary:Genotype"));
 					$b = explode(":",$gp_text,2);
 					$this->AddRDF($this->QQuadL("pharmgkb:$gp","pharmgkb_vocabulary:genotype",trim($b[0])));
@@ -654,8 +659,8 @@ class PharmGKBParser extends RDFFactory
 					$variant = trim($variant);
 					$variant_text = trim ($b_texts[$i]);
 					$this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:variant", "pharmgkb:$variant"));
-					$this->AddRDF($this->QQuadL("pharmgkb:$variant","rdfs:label", $variant_text));
-					$this->AddRDF($this->QQuad("pharmgkb:$variant","rdf:type", "pharmgkb_vocabulary:Variant"));			
+					$this->AddRDF($this->QQuadL("pharmgkb:$variant","rdfs:label", $variant_text, "[pharmgkb:$variant]"));
+					$this->AddRDF($this->QQuad("pharmgkb:$variant","rdf:type", "pharmgkb_vocabulary:Variant"));		
 				}
 			}
 			// [11] => PMIDs
@@ -736,7 +741,7 @@ class PharmGKBParser extends RDFFactory
 			$a = explode("\t",$l);
 			//[0] => Annotation ID
 			$id = "pharmgkb:$a[0]";
-			$this->AddRDF($this->QQuad($id,"rdf:type", "pharmgkb_vocabulary:Variant-Drug-Annotation"));
+			$this->AddRDF($this->QQuad($id,"rdf:type", "pharmgkb_vocabulary:Variant-Annotation"));
 			
 			//[1] => RSID
 			$rsid = "dbsnp:$a[1]";
@@ -800,7 +805,7 @@ class PharmGKBParser extends RDFFactory
 				foreach($sps AS $sp) {
 					$t = "pharmgkb:".trim($sp);
 					$this->AddRDF($this->QQuad($id,"pharmgkb_vocabulary:study-parameters", $t));
-					$this->AddRDF($this->QQuad($t,"rdf:type","pharmgkb_resource:Study-Parameter"));
+					$this->AddRDF($this->QQuad($t,"rdf:type","pharmgkb_vocabulary:Study-Parameter"));
 				}
 			}
 			//[10] => KnowledgeCategories
@@ -838,7 +843,7 @@ class PharmGKBParser extends RDFFactory
 				$id = "pharmgkb:".substr($a[0],0,$pos);
 				$title = substr($a[0],$pos+2);
 				$this->AddRDF($this->QQuad($id,"rdf:type","pharmgkb_vocabulary:Pathway"));
-				$this->AddRDF($this->QQuadL($id,"rdfs:label",$title));
+				$this->AddRDF($this->QQuadL($id,"rdfs:label",$title." [$id]"));
 				$x = substr($a[0],0,$pos);
 				$y = $title;
 				$p2 = strrpos($title," - ");
