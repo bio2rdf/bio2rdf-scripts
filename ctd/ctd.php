@@ -34,7 +34,7 @@ class CTDParser extends RDFFactory
 	function __construct($argv) { //
 		parent::__construct();
 		// set and print application parameters
-		$this->AddParameter('files',true,'all|chem_gene_ixns|chemicals_diseases|chem_pathways_enriched|diseases_pathways|genes_diseases|genes_pathways|chem_go_enriched|chemicals|diseases|genes|pathways|chem_gene_ixn_types','all','all or comma-separated list of files to process');
+		$this->AddParameter('files',true,'all|chem_gene_ixns|chem_gene_ixn_types|chemicals_diseases|chem_go_enriched|chem_pathways_enriched|genes_diseases|genes_pathways|diseases_pathways|chemicals|diseases|genes|pathways','all','all or comma-separated list of files to process');
 		$this->AddParameter('indir',false,null,'/data/download/ctd/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/ctd/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
