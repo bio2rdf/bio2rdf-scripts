@@ -114,32 +114,59 @@ class iREFINDEXParser extends RDFFactory
 	function Parse()
 	{
 		$l = $this->GetReadFile()->Read(100000);
-		$header = explode("\t",$l);
+		$header = explode("\t",trim(substr($l,1)));
 		if(($c = count($header)) != 54) {
 			trigger_erorr("Expecting 54 columns, found $c!");
 			return FALSE;
 		}
+
+		$describe = array(
+		  'irogida' => array('label' => 'taxon-seq-identical-entity', 'description' => 'SHA-1 digest of aa seq + NCBI taxonomy'),
+		  'irogidb' => array('label' => 'taxon-seq-identical-entity', 'description' => 'SHA-1 digest of aa seq + NCBI taxonomy'),
+		  'irigid' => array('label' => 'taxon-seq-identical-interaction', 'description' => 'interaction involving same interactors (seq+taxon)'),
+		  'icrogida' =>array('label' => 'taxon-seq-similar-entity','description'=>'canonical grouping of similar sequences from the same taxon'),
+		  'icrogidb' =>array('label' => 'taxon-seq-similar-entity','description'=>'canonical grouping of similar sequences from the same taxon'),
+		  'icrigid' =>array('label' => 'taxon-seq-similar-interaction','description' => 'interactions involving similar interactors')
+		);
 		// check # of columns
 		while($l = $this->GetReadFile()->Read(100000)) {
 			$a = explode("\t",$l);
-			
-			$iid = "irefindex:".$a[50]; //icrigid This identifier serves to group together evidence for interactions that involve the same set (or a related set) of proteins.
+
+			// 13 is the original identifier
+			$ids = explode("|",$a[13],2);
+			$this->GetNS()->ParsePrefixedName($ids[0],$ns,$str);
+			$this->Parse4IDLabel($str,$id,$label);
+			$iid = $this->GetNSMap(strtolower($ns)).":".$id;
 			
 			// get the type
-			if($a[52] == "C") $type = "Complex";
-			else $type = "Interaction";
+			if($a[52] == "X") {
+				$label = "Pairwise interaction between $a[0] and $a[1]";
+				$type = "Pairwise-Interaction";
+			} else if($a[52] == "C") {
+				$label = $a[53]." component complex";
+				$type = "Multimeric-Complex";
+			} else if($a[52] == "Y") {
+				$label = "homomeric complex composed of $a[0]";  
+				$type = "Homopolymeric-Complex";
+			}
 			$this->AddRDF($this->QQuad($iid,"rdf:type","irefindex_vocabulary:$type"));
 			
 			// generate the label
 			// interaction type[52] by method[6]
 			$this->GetNS()->ParsePrefixedName($a[6],$ns,$str);
 			$this->Parse4IDLabel($str,$id,$method);
-			$this->AddRDF($this->QQuadL($iid,"rdfs:label","$type by $method [$iid]"));
+
+			$this->AddRDF($this->QQuadL($iid,"rdfs:label","$label identified by $method [$iid]"));
+			$this->AddRDF($this->QQuadO_URL($iid,"rdfs:seeAlso","http://wodaklab.org/iRefWeb/interaction/show/".$a[50]));
 			
 			foreach($a AS $k => $v) {
 				$list = explode("|",trim($v));
 				if($list[0][0] == "-") continue;
 				foreach($list AS $item) {
+
+					// we're going to ignore the hash entries and edgetype
+					if(in_array($header[$k], array("crogida","crogidb","crigid","edgetype"))) continue;
+
 					$this->GetNS()->ParsePrefixedName($item,$ns,$str);
 					$this->Parse4IDLabel($str,$id,$label);
 					$ns = trim($ns);
@@ -147,22 +174,19 @@ class iREFINDEXParser extends RDFFactory
 					
 					if($ns) {
 						$ns = $this->getNSMap(strtolower($ns));
-					
-						if($ns == "edgetype") continue;
+						if($ns == "edgetype") continue;					
 						if($ns == "lpr" || $ns == "hpr" || $ns == "np") {
 							$this->AddRDF($this->QQuadL($iid, "irefindex_vocabulary:".$ns, $id));
 							continue;
 						}
-						if($ns=="geneid" && ($header[$k] == "aliasA" || $header[$k] == "aliasB")) {
-							$ns = "symbol";
-						}
 						$id = str_replace(" ","-",$id);
-						if($ns) $this->AddRDF($this->QQuad($iid, "irefindex_vocabulary:".strtolower($header[$k]), $ns.":".$id));
+						if($ns) $this->AddRDF($this->QQuad($iid, "irefindex_vocabulary:".$header[$k], $ns.":".$id));
 					} else {
-						$this->AddRDF($this->QQuadL($iid, "irefindex_vocabulary:".strtolower($header[$k]), $id));
+						$this->AddRDF($this->QQuadL($iid, "irefindex_vocabulary:".$header[$k], $id));
 					}
 				}
 			}
+//echo $this->GetRDF();
 			$this->WriteRDFBufferToWriteFile();
 		}
 	}
@@ -222,7 +246,7 @@ class iREFINDEXParser extends RDFFactory
 			'crogid'   => 'irefindex_crogid',
 			'crogida'  => 'irefindex_crogid',
 			'crogidb'  => 'irefindex_crogid',
-					
+			'other' => '',					
 			'xx' => '',
 		);
 		if(isset($nsmap[$ns])) return $nsmap[$ns];
