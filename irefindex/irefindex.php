@@ -70,7 +70,7 @@ class iREFINDEXParser extends RDFFactory
 			$base_file = ucfirst($file).".mitab.".$this->GetParameterValue("version").".txt";
 			$zip_file  = $base_file.".zip";
 			$lfile = $ldir.$zip_file;
-			$outfile = $odir.$file.".ttl.gz";
+			$outfile = $odir."irefindex-".$file.".ttl.gz";
 			if(!file_exists($lfile)) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$this->SetParameterValue('download',true);
@@ -120,23 +120,15 @@ class iREFINDEXParser extends RDFFactory
 			return FALSE;
 		}
 
-		$describe = array(
-		  'irogida' => array('label' => 'taxon-seq-identical-entity', 'description' => 'SHA-1 digest of aa seq + NCBI taxonomy'),
-		  'irogidb' => array('label' => 'taxon-seq-identical-entity', 'description' => 'SHA-1 digest of aa seq + NCBI taxonomy'),
-		  'irigid' => array('label' => 'taxon-seq-identical-interaction', 'description' => 'interaction involving same interactors (seq+taxon)'),
-		  'icrogida' =>array('label' => 'taxon-seq-similar-entity','description'=>'canonical grouping of similar sequences from the same taxon'),
-		  'icrogidb' =>array('label' => 'taxon-seq-similar-entity','description'=>'canonical grouping of similar sequences from the same taxon'),
-		  'icrigid' =>array('label' => 'taxon-seq-similar-interaction','description' => 'interactions involving similar interactors')
-		);
 		// check # of columns
 		while($l = $this->GetReadFile()->Read(100000)) {
-			$a = explode("\t",$l);
+			$a = explode("\t",trim($l));
 
 			// 13 is the original identifier
 			$ids = explode("|",$a[13],2);
 			$this->GetNS()->ParsePrefixedName($ids[0],$ns,$str);
 			$this->Parse4IDLabel($str,$id,$label);
-			$iid = $this->GetNSMap(strtolower($ns)).":".$id;
+			$iid = $this->GetNSMap(strtolower($ns)).":".str_replace('"','',$id);
 			
 			// get the type
 			if($a[52] == "X") {
@@ -150,45 +142,160 @@ class iREFINDEXParser extends RDFFactory
 				$type = "Homopolymeric-Complex";
 			}
 			$this->AddRDF($this->QQuad($iid,"rdf:type","irefindex_vocabulary:$type"));
-			
+
 			// generate the label
 			// interaction type[52] by method[6]
-			$this->GetNS()->ParsePrefixedName($a[6],$ns,$str);
-			$this->Parse4IDLabel($str,$id,$method);
+			$this->ParseString($a[6],$ns,$id,$method);
+			if($ns) $this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:method","$ns:$id"));
 
-			$this->AddRDF($this->QQuadL($iid,"rdfs:label","$label identified by $method [$iid]"));
+			$method_label = '';
+			if($method != 'NA' && $method != '-1') $method_label = " identified by $method ";
+			$this->AddRDF($this->QQuadL($iid,"rdfs:label","$label".$method_label."[$iid]"));
 			$this->AddRDF($this->QQuadO_URL($iid,"rdfs:seeAlso","http://wodaklab.org/iRefWeb/interaction/show/".$a[50]));
-			
-			foreach($a AS $k => $v) {
-				$list = explode("|",trim($v));
-				if($list[0][0] == "-") continue;
+
+			// set the interators
+			for($i=0;$i<=1;$i++) {
+				$p = 'a';
+				if($i == 1) $p = 'b';
+
+				$this->ParseString($a[$i],$ns,$id,$label);
+				$interactor = "$ns:$id";
+				$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:interactor_$p",$interactor));
+
+				// biological role
+				$role = $a[16+$i];
+				if($role != '-') {
+					$this->ParseString($role,$ns,$id,$label);
+					if("$ns:$id" != "mi:0000") $this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:interactor_$p"."_biological_role","$ns:$id"));
+				}
+				// experimental role
+				$role = $a[18+$i];
+				if($role != '-') {
+					$this->ParseString($role,$ns,$id,$label);
+					if("$ns:$id" != "mi:0000") $this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:interactor_$p"."_experimental_role","$ns:$id"));
+				}
+				// interactor type
+				$type = $a[20+$i];
+				if($type != '-') {
+					$this->ParseString($type,$ns,$id,$label);
+					$this->AddRDF($this->QQuad($interactor,"rdf:type","$ns:$id"));
+				}
+			}
+
+			// add the alternatives through the taxon + seq redundant group
+			for($i=2;$i<=3;$i++) {
+				$taxid = '';
+				$irogid = "irefindex_irogid:".$a[42+($i-2)];
+				if(!isset($defined[$irogid])) {
+					$defined[$irogid] = '';
+					$this->AddRDF($this->QQuadL($irogid,"rdfs:label","[$irogid]"));			
+					$this->AddRDF($this->QQuad($irogid,"rdf:type","irefindex_vocabulary:Taxon-Sequence-Identical-Group"));
+					$tax = $a[9+($i-2)];
+					if($tax != '-') {
+						$this->ParseString($tax,$ns,$id,$label);
+						$taxid = "$ns:$id";
+						$this->AddRDF($this->QQuad($irogid,"irefindex_vocabulary:taxon",$taxid));
+					}
+				}
+
+				$list = explode("|",$a[3]);
 				foreach($list AS $item) {
+					$this->ParseString($item,$ns,$id,$label);
+					if($ns != 'irefindex_rogid' && $ns != 'irefindex_irogid') {
+						if($ns) $this->AddRDF($this->QQuad("$ns:$id","irefindex_vocabulary:taxon-sequence-identical-group",$irogid));	
+						if($taxid) $this->AddRDF($this->QQuad("$ns:$id","irefindex_vocabulary:taxon",$taxid));
+					}
+				}
+			}	
+			// add the aliases through the canonical group
+			for($i=4;$i<=5;$i++) {
+				$icrogid = "irefindex_icrogid:".$a[49+($i-4)];
+				if(!isset($defined[$icrogid])) {
+					$defined[$icrogid] = '';
+					$this->AddRDF($this->QQuadL($icrogid,"rdfs:label","[$icrogid]"));			
+					$this->AddRDF($this->QQuad($icrogid,"rdf:type","irefindex_vocabulary:Taxon-Sequence-Similar-Group"));			
+				}
 
-					// we're going to ignore the hash entries and edgetype
-					if(in_array($header[$k], array("crogida","crogidb","crigid","edgetype"))) continue;
-
-					$this->GetNS()->ParsePrefixedName($item,$ns,$str);
-					$this->Parse4IDLabel($str,$id,$label);
-					$ns = trim($ns);
-					$id = trim($id);
-					
-					if($ns) {
-						$ns = $this->getNSMap(strtolower($ns));
-						if($ns == "edgetype") continue;					
-						if($ns == "lpr" || $ns == "hpr" || $ns == "np") {
-							$this->AddRDF($this->QQuadL($iid, "irefindex_vocabulary:".$ns, $id));
-							continue;
-						}
-						$id = str_replace(" ","-",$id);
-						if($ns) $this->AddRDF($this->QQuad($iid, "irefindex_vocabulary:".$header[$k], $ns.":".$id));
-					} else {
-						$this->AddRDF($this->QQuadL($iid, "irefindex_vocabulary:".$header[$k], $id));
+				$list = explode("|",$a[3]);
+				foreach($list AS $item) {
+					$this->ParseString($item,$ns,$id,$label);
+					if($ns != 'crogid' && $ns != 'icrogid') {
+						if($ns) $this->AddRDF($this->QQuad($ns.':'.$id,"irefindex_vocabulary:taxon-sequence-similar-group",$icrogid));	
 					}
 				}
 			}
-//echo $this->GetRDF();
+
+			// publications
+			$list = explode("|",$a[8]);
+			foreach($list AS $item) {
+				if($item == '-') continue;
+				$this->ParseString($item,$ns,$id,$label);
+				$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:article","$ns:$id"));
+			}
+			
+			// MI interaction type
+			if($a[11] != '-' && $a[11] != 'NA') {
+				$this->ParseString($a[11],$ns,$id,$label);
+				$this->AddRDF($this->QQuad($iid,"rdf:type","$ns:$id"));
+				if(!isset($defined["$ns:$id"])) {
+					$defined["$ns:$id"] = '';
+					$this->AddRDF($this->QQuadL("$ns:$id","rdfs:label","$label [$ns:$id]"));
+				}
+			}
+			
+			// source
+			if($a[12] != '-') {
+				$this->ParseString($a[12],$ns,$id,$label);
+				$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:source","$ns:$id"));
+			}
+		
+			// confidence
+			$list = explode("|",$a[14]);
+			foreach($list AS $item) {
+				$this->ParseString($item,$ns,$id,$label);
+				if($ns == 'lpr') {
+					//  lowest number of distinct interactions that any one article reported
+					$this->AddRDF($this->QQuadL($iid,"irefindex_vocabulary:minimum-number-interactions-reported",$id));
+				} else if($ns == "hpr") {
+					//  higher number of distinct interactions that any one article reports
+					$this->AddRDF($this->QQuadL($iid,"irefindex_vocabulary:maximum-number-interactions-reported",$id));
+				} else if($ns = 'hp') {
+					//  total number of unique PMIDs used to support the interaction 
+					$this->AddRDF($this->QQuadL($iid,"irefindex_vocabulary:number-supporting-articles",$id));				
+				}
+			}
+
+			// expansion method
+			if($a[15]) {
+				$this->AddRDF($this->QQuadL($iid,"irefindex_vocabulary:expansion-method",$a[15]));
+			}
+
+			// host organism
+			if($a[28] != '-') {
+				$this->ParseString($a[28],$ns,$id,$label);
+				$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:host-organism","$ns:$id"));
+			}
+
+			// created
+			$this->AddRDF($this->QQuadL($iid,"dc:created", $a[30]));
+
+			// taxon-sequence identical interaction group
+			$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:taxon-sequence-identical-interaction-group", "irefindex_irigid:".$a[44]));
+
+			// taxon-sequence similar interaction group
+			$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:taxon-sequence-similar-interaction-group", "irefindex_crigid:".$a[50]));
+
 			$this->WriteRDFBufferToWriteFile();
 		}
+	}
+
+	function ParseString($string,&$ns,&$id,&$label)
+	{
+		$this->GetNS()->ParsePrefixedName($string,$ns,$str);
+		$this->Parse4IDLabel($str,$id,$label);
+		$ns = $this->getNSMap(strtolower(trim($ns)));
+		$id = trim($id);
+		$label = trim($label);
 	}
 
 	function Parse4IDLabel($str,&$id,&$label)
