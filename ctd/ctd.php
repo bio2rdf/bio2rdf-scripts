@@ -180,7 +180,7 @@ function CTD_chem_gene_ixns()
 		$uri  = "ctd_resource:$mesh_id$gene_id";  // should taxon be part of the ID?
 		
 		$this->AddRDF($this->QQuadL($uri,"rdfs:label","interaction between $a[3] (geneid:$gene_id) and $a[0] (mesh:$mesh_id) [$uri]"));
-		$this->AddRDF($this->QQuad($uri,"rdf:type","ctd_vocabulary:Chemical-Gene-Interaction"));
+		$this->AddRDF($this->QQuad($uri,"rdf:type","ctd_vocabulary:Chemical-Gene-Association"));
 		
 		$this->AddRDF($this->QQuadL($uri,"rdfs:comment","$a[7]"));
 		$this->AddRDF($this->QQuad($uri,"ctd_vocabulary:gene","geneid:$gene_id"));
@@ -231,7 +231,7 @@ function CTD_chemicals_diseases()
 		$uri = "ctd_resource:$uid";
 		
 		$this->AddRDF($this->QQuadL($uri, 'rdfs:label',"interaction between $chemical_name ($chemical_id) and disease $disease_name ($disease_ns:$disease_id) [$uri]"));
-		$this->AddRDF($this->QQuad($uri, 'rdf:type', 'ctd_vocabulary:Chemical-Disease-Interaction'));
+		$this->AddRDF($this->QQuad($uri, 'rdf:type', 'ctd_vocabulary:Chemical-Disease-Association'));
 		$this->AddRDF($this->QQuad($uri, 'ctd_vocabulary:chemical', "mesh:$chemical_id"));
 		$this->AddRDF($this->QQuad($uri, 'ctd_vocabulary:disease', "$disease_ns:$disease_id"));
 		
@@ -443,7 +443,7 @@ function CTD_genes_pathways()
 		$gene_ns = 'geneid';
 		$gene_id = $a[1];
 		$this->GetNS()->ParsePrefixedName($a[3],$pathway_ns,$pathway_id);
-		$kegg_id = strtolower($a[3]);
+		$pathway_id = trim($pathway_id);
 		if($pathway_ns == "react") $pathway_ns = "reactome";
 
 		$this->AddRDF($this->QQuad("$gene_ns:$gene_id","ctd_vocabulary:pathway","$pathway_ns:$pathway_id"));
@@ -479,6 +479,7 @@ function CTD_Pathways()
 		if($pathway_ns == "react") $pathway_ns = "reactome";		
 		
 		$this->AddRDF($this->QQuadL("$pathway_ns:$pathway_id","rdfs:label","$a[0] [$pathway_ns:$pathway_id]"));
+		$this->AddRDF($this->QQuadL("$pathway_ns:$pathway_id","rdf:type","ctd_vocabulary:Pathway"));
 	}	
 	return TRUE;
 }
@@ -506,13 +507,13 @@ function CTD_Genes()
 			$first = false;
 		}
 		
-		$symbol = str_replace("\\/",'|',$a[0]);
+		$symbol = str_replace(array("\\/"),array('|'),$a[0]);
 		$label = str_replace("\\+/",'+',$a[1]);
 		$geneid = $a[2];
 		
 		$this->AddRDF($this->QQuadL("geneid:$geneid","rdfs:label","$label [geneid:$geneid]"));
 		$this->AddRDF($this->QQuad("geneid:$geneid","rdf:type","ctd_vocabulary:Gene"));
-		$this->AddRDF($this->QQuad("geneid:$geneid","ctd_vocabulary:symbol","symbol:$symbol"));
+		$this->AddRDF($this->QQuadL("geneid:$geneid","ctd_vocabulary:gene-symbol",$symbol));
 	}	
 	return TRUE;
 }
