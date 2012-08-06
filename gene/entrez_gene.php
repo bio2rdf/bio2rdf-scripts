@@ -61,41 +61,50 @@ class EntrezGeneParser extends RDFFactory{
 			$this->AddParameter('files',true,'all|gene_info_all|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega|gene_group|gene_refseq_uniprotkb_collab|go_process','','files to process');
 			$this->AddParameter('indir',false,null,'/tmp/download/gene/','directory to download into and parse from');
 			$this->AddParameter('outdir',false,null,'/tmp/rdf/gene/','directory to place rdfized files');
+			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 			$this->AddParameter('download',false,'true|false','false','set true to download files');
 			$this->AddParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/gene/DATA/');
 			if($this->SetParameters($argv) == FALSE) {
 				$this->PrintParameters($argv);
 				exit;
 			}
+			if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
+			if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
+			$this->SetReleaseFileURI("gene");
 		return TRUE;
 	  }//constructor
 	  
-	  //TODO: add an ifelse foreach option in the package map
-	  function Run(){
-		//set/test input and output directories
+	 function Run(){
 		$ldir = $this->GetParameterValue('indir');
-		@mkdir($ldir,'0755',true);
 		$odir = $this->GetParameterValue('outdir');
-		@mkdir($odir,'0755',true);
-		$rfile = $this->GetParameterValue('download_url');
 
 		 //what files are to be converted?
-		 $selectedPackage = $this->GetParameterValue('files');
-		
-		 
+		 $selectedPackage = trim($this->GetParameterValue('files'));		 
 		if($selectedPackage == 'all') {
 			$files = $this->getPackageMap();
-		} else if($selectedPackage == 'gene_info_all') {
-			$files = $this->getPackageMap();
-			$files = array("gene_info_all"=>$files[$selectedPackage]);
-		}else {}
-		  
+		}else {
+			$sel_arr = explode(",",$selectedPackage);
+			$pm = $this->getPackageMap();
+			$files = array();
+			foreach($sel_arr as $a){
+				if(array_key_exists($a, $pm)){
+					$files[$a] = $pm[$a];
+				}
+			}	
+		}
 		//now iterate over the files array
 		foreach ($files as $k => $aFile){
 			//create a file pointer
 			$fp = gzopen($ldir.$aFile, "r") or die("Could not open file ".$aFile."!\n");
 			//make the output file
-			$gzoutfile = $odir.$k.".nt.gz";
+			$gzoutfile = $odir.$k.".ttl";
+			$gz=false;
+			if($this->GetParameterValue('gzip')){
+				$outfile .= '.gz';
+				$gz = true;
+			}
+			$this->SetWriteFile($gzoutfile, $gz);
+			$this->SetReadFile($
 			//first check if the file is there
 			if(!file_exists($gzoutfile)){
 				if (($gzout = gzopen($gzoutfile,"a"))=== FALSE) {
@@ -159,14 +168,15 @@ class EntrezGeneParser extends RDFFactory{
 			if(count($pmid_arr)){
 				foreach ($pmid_arr as $aP){
 					$this->AddRDF($this->QQuad("go:".$goid,
-					"geneid_vocabulary:has_evidence",
-					"pubmed:"$aP));
+					"geneid_vocabulary:has_evidence",	"pubmed:".$aP));
 				}
 			}
 			gzwrite($ouputPointer, $this->GetRDF());
 			$this->DeleteRDF();			
 		}//while
 	}
+	
+	
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene_info_all($aFp, $ouputPointer){
 		while(!gzeof($aFp)){
