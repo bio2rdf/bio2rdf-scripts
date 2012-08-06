@@ -297,7 +297,6 @@ class OMIMParser extends RDFFactory
 				}				
 			}
 		}
-		return;
 		
 		// allelic variants
 		if(isset($o['allelicVariantList'])) {
@@ -324,6 +323,7 @@ class OMIMParser extends RDFFactory
 				$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:variant", $uri));
 			}
 		}
+		
 		// clinical synopsis
 		if(isset($o['clinicalSynopsis'])) {
 			$cs = $o['clinicalSynopsis'];
@@ -335,12 +335,54 @@ class OMIMParser extends RDFFactory
 			foreach($cs AS $k => $v) {
 				if(!strstr($k,"Exists")) {
 					// ignore provenance for now
-					if(!in_array($k, array('contributors','creationDate','editHistory','epochCreated','dateCreated','epochUpdated','dateUpdated'))) {
+					if(in_array($k, array('contributors','creationDate','editHistory','epochCreated','dateCreated','epochUpdated','dateUpdated'))) continue;
+					
+
+					if(!is_array($v)) {
+						$this->AddRDF($this->QQuadText($uri, "omim_vocabulary:".$k, $v));
+						// parse out the vocab references
+						preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$v,$m);
+						if(isset($m[0][0])) {
+							foreach($m[0] AS $qname) {
+								$this->GetNS()->ParsePrefixedName($qname,$ns,$id);
+								$ns = str_replace(array("icd10cm","icd9cm","snomedct"), array("icd10","icd9","snomed"), $ns);
+								$this->AddRDF($this->QQuad($uri, "omim_vocabulary:refers-to", $ns.":".$id));
+							}
+						}
 						
-						if(!is_array($v)) {
-							$this->AddRDF($this->QQuadText($uri, "omim_vocabulary:".$k, $v));
+					} else {
+						foreach($v AS $k1 => $v1) {
+							if($k == "oldFormat") {
+								$phenotypes = explode("; ",$v1);
+								foreach($phenotypes AS $coded_phenotype) {
+									// parse out the codes
+									$phenotype = preg_replace("/\{[0-9A-Za-z \:\-]+\}|;/","",$coded_phenotype);
+									$phenotype_id = "omim_resource:".md5(trim($phenotype));
+									
+									$this->AddRDF($this->QQuad($uri, "omim_vocabulary:abnormality", $phenotype_id));
+									$this->AddRDF($this->QQuadL($phenotype_id, "rdfs:label", "$phenotype [$phenotype_id]"));
+									$this->AddRDF($this->QQuad($phenotype_id, "rdf:type", 'omim_vocabulary:Characteristic'));
+									
+									$entity_id = "omim_resource:".$k1;
+									$this->AddRDF($this->QQuadL($entity_id, "rdfs:label", "$k1 [$entity_id]"));
+									$this->AddRDF($this->QQuad($entity_id, "rdf:type", "omim_vocabulary:Entity"));
+									$this->AddRDF($this->QQuad($phenotype_id, "omim_vocabulary:characteristic-of", $entity_id));
+									
+									// parse out the vocab references
+									preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$coded_phenotype,$m);
+									if(isset($m[0][0])) {
+										foreach($m[0] AS $qname) {
+											$this->GetNS()->ParsePrefixedName($qname,$ns,$id);
+											$ns = str_replace(array("icd10cm","icd9cm","snomedct"), array("icd10","icd9","snomed"), $ns);
+											$this->AddRDF($this->QQuad($phenotype_id, "rdfs:seeAlso", $ns.":".$id));
+										}
+									}
+								}		
+							} else {
+								$this->AddRDF($this->QQuadText($uri, "omim_vocabulary:".$k."-".strtolower($k1), $v1));
+							}
 							// parse out the vocab references
-							preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$v,$m);
+							preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$v1,$m);
 							if(isset($m[0][0])) {
 								foreach($m[0] AS $qname) {
 									$this->GetNS()->ParsePrefixedName($qname,$ns,$id);
@@ -348,27 +390,12 @@ class OMIMParser extends RDFFactory
 									$this->AddRDF($this->QQuad($uri, "omim_vocabulary:refers-to", $ns.":".$id));
 								}
 							}
-							
-						} else {
-							foreach($v AS $k1 => $v1) {
-								$this->AddRDF($this->QQuadText($uri, "omim_vocabulary:".$k."-".strtolower($k1), $v1));
-								// parse out the vocab references
-								preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$v1,$m);
-								if(isset($m[0][0])) {
-									foreach($m[0] AS $qname) {
-										$this->GetNS()->ParsePrefixedName($qname,$ns,$id);
-										$ns = str_replace(array("icd10cm","icd9cm","snomedct"), array("icd10","icd9","snomed"), $ns);
-										$this->AddRDF($this->QQuad($uri, "omim_vocabulary:refers-to", $ns.":".$id));
-									}
-								}
-					
-							}
+				
 						}
-					}
-					
+					}				
 					
 
-				}
+				} // exists
 			}
 		} // clinical synopsis
 		
@@ -426,7 +453,6 @@ class OMIMParser extends RDFFactory
 			}		
 		}
 		
-		
 		// references
 		if(isset($o['referenceList'])) {
 			foreach($o['referenceList'] AS $i => $r) {
@@ -439,9 +465,7 @@ class OMIMParser extends RDFFactory
 				}
 			}
 		}
-		
-		
-		
+	
 		// external ids
 		if(isset($o['externalLinks'])) {
 			foreach($o['externalLinks'] AS $k => $id) {
