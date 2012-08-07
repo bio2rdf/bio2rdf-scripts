@@ -59,8 +59,8 @@ class EntrezGeneParser extends RDFFactory{
 			parent::__construct();
 			// set and print application parameters
 			$this->AddParameter('files',true,'all|gene_info_all|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega|gene_group|gene_refseq_uniprotkb_collab|go_process','','files to process');
-			$this->AddParameter('indir',false,null,'/tmp/download/gene/','directory to download into and parse from');
-			$this->AddParameter('outdir',false,null,'/tmp/rdf/gene/','directory to place rdfized files');
+			$this->AddParameter('indir',false,null,'/media/twotb/bio2rdf/data/gene/','directory to download into and parse from');
+			$this->AddParameter('outdir',false,null,'/media/twotb/bio2rdf/n3/gene/','directory to place rdfized files');
 			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 			$this->AddParameter('download',false,'true|false','false','set true to download files');
 			$this->AddParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/gene/DATA/');
@@ -78,8 +78,8 @@ class EntrezGeneParser extends RDFFactory{
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
 
-		 //what files are to be converted?
-		 $selectedPackage = trim($this->GetParameterValue('files'));		 
+		//which files are to be converted?
+		$selectedPackage = trim($this->GetParameterValue('files'));		 
 		if($selectedPackage == 'all') {
 			$files = $this->getPackageMap();
 		}else {
@@ -95,34 +95,43 @@ class EntrezGeneParser extends RDFFactory{
 		//now iterate over the files array
 		foreach ($files as $k => $aFile){
 			//create a file pointer
-			$fp = gzopen($ldir.$aFile, "r") or die("Could not open file ".$aFile."!\n");
+			//inputfilename
+			$inputFilename = $ldir.$aFile;
+			$fp = gzopen($inputFilename, "r") or die("Could not open file ".$aFile."!\n");
 			//make the output file
 			$gzoutfile = $odir.$k.".ttl";
 			$gz=false;
 			if($this->GetParameterValue('gzip')){
-				$outfile .= '.gz';
+				$gzoutfile .= '.gz';
 				$gz = true;
 			}
-			$this->SetWriteFile($gzoutfile, $gz);
-			$this->SetReadFile($
+			$this->SetReadFile($inputFilename);
+			
+			$this->GetReadFile()->SetFilePointer($fp);
+			$this->SetWriteFile($gzoutfile);
+			
+			
 			//first check if the file is there
 			if(!file_exists($gzoutfile)){
 				if (($gzout = gzopen($gzoutfile,"a"))=== FALSE) {
 					trigger_error("Unable to open $odir.$gzoutfile");
 					exit;
 				}
-				$this->$k($fp, $gzout);
-				gzclose($fp);
-				gzclose($gzout);
-				echo "done processing $aFile!\n";
+				echo "processing $aFile...";
+				
+				$this->$k();
+				
+				echo "\n";
 			}else{
 				echo "file $gzoutfile already there!\nPlease remove file and try again\n";
 				exit;
 			}
-		}		
+		}//foreach
+		$this->GetWriteFile()->Close();		
+		return TRUE;
 	}//run
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
-	private function gene2go($aFp,$outputPointer){
+	private function gene2go($aFp){
 		while(!gzeof($aFp)){
 			$aLine = gzgets($aFp, 4096);
 			preg_match("/^#.*/", $aLine, $matches);
@@ -171,21 +180,22 @@ class EntrezGeneParser extends RDFFactory{
 					"geneid_vocabulary:has_evidence",	"pubmed:".$aP));
 				}
 			}
-			gzwrite($ouputPointer, $this->GetRDF());
-			$this->DeleteRDF();			
+			$this->WriteRDFBufferToWriteFile();
 		}//while
 	}
 	
 	
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
-	private function gene_info_all($aFp, $ouputPointer){
-		while(!gzeof($aFp)){
-			$aLine = gzgets($aFp, 4096);
+	private function gene_info_all(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^#.*/", $aLine, $matches);
 			if(count($matches)){
 				continue;
 			}
 			$splitLine = explode("\t", $aLine);
+			//echo "**\ncount:".count($splitLine)."\t".$aLine."\n";
+			if(count($splitLine) == 15){
+			
 			$taxid = $splitLine[0];
 			$aGeneId = $splitLine[1];
 			$symbol =  $splitLine[2];
@@ -294,10 +304,13 @@ class EntrezGeneParser extends RDFFactory{
 								"geneid_vocabulary:modification_date", 
 								$mod_date["month"]."-".$mod_date["day"]."-".$mod_date["year"]));
 				}
-				gzwrite($ouputPointer, $this->GetRDF());
-				$this->DeleteRDF();
-			}			
-		}
+			}
+			}//if
+			else{
+				echo $aLine;
+			}
+			$this->WriteRDFBufferToWriteFile();
+		}//while
 	}
 	
 	public function getPackageMap(){
