@@ -131,6 +131,27 @@ class EntrezGeneParser extends RDFFactory{
 		return TRUE;
 	}//run
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2pubmed(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 3){
+				$taxid = $splitLine[0];
+				$aGeneId = $splitLine[1];
+				$pubmedId = $splitLine[2];
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_taxid",
+						"taxon:".$taxid));
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_pubmed_id",
+						"pubmed:".$pubmedId));
+			}//if
+			$this->WriteRDFBufferToWriteFile();	
+		}//while
+	}
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2refseq(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^#.*/", $aLine, $matches);
