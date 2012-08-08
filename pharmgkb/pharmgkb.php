@@ -104,7 +104,7 @@ class PharmGKBParser extends RDFFactory
 			}
 			if($file == "variant_annotations")
 				$zipentries = array('clinical_ann_metadata.tsv','var_drug_ann.tsv','var_pheno_ann.tsv','var_fa_ann.tsv'); //'study_parameters.tsv'
-			else if($file == "relationships") $zipentries = array("relationships/$file.tsv");
+			else if($file == "relationships") $zipentries = array("relationships.tsv");
 			else if($file == 'offsides') $zipentries = array('3003377s-offsides.tsv');
 			else if($file == 'twosides') $zipentries = array('3003377s-twosides.tsv');
 			else $zipentries = array($file.".tsv");
