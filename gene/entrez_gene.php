@@ -52,7 +52,7 @@ class EntrezGeneParser extends RDFFactory{
 		private  $bio2rdf_base = "http://bio2rdf.org/";
 		private  $gene_vocab ="entrezgene_vocabulary:";
 		private  $gene_resource = "entrezgene_resource:";
-		private  $geneid = "http://bio2rdf.org/gene:";
+		private  $geneid = "http://bio2rdf.org/geneid:";
 	
 		
 		function __construct($argv) {
@@ -130,6 +130,24 @@ class EntrezGeneParser extends RDFFactory{
 		$this->GetWriteFile()->Close();		
 		return TRUE;
 	}//run
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2sts(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 2){
+				$aGeneId = $splitLine[0];
+				$uniStsId = $splitLine[1];
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_unists_id",
+						"unists:".$uniStsId));
+			}//if
+		}//while
+	}
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2unigene(){
+		
+	}
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2pubmed(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
