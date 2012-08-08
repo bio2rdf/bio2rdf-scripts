@@ -4,7 +4,7 @@ This Git repository holds all of the RDF converter scripts used to generate Bio2
 
 Requirements
 -------------
-The mayority of these scripts were created so as to run on Linux servers. Depending on the script you wish to run you will need:
+The majority of these scripts were created so as to run on Linux servers. Depending on the script you wish to run you will need:
 * PHP5
 * Perl 6
 * Ruby(1.9.3)
@@ -15,7 +15,7 @@ The Bio2RDF API should be installed in the root directory of the project tree (i
 
 Usage
 -----
-Each script is ran independently. See README files inside each script directory.
+Each script is run independently. See README files inside each script directory.
 
 
 Contact Us
