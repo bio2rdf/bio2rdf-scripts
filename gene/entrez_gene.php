@@ -43,22 +43,16 @@ class EntrezGeneParser extends RDFFactory{
 			"gene2refseq" => "gene2refseq.gz",
 			"gene2sts" => "gene2sts",
 			"gene2unigene" => "gene2unigene",
-			"gene_group" => "gene_group.gz",
-			"gene2vega" => "gene2vega.gz",
-			"gene_info" => "gene_info.gz",
-			"gene_refseq_uniprotkb_collab" => "gene_refseq_uniprotkb_collab.gz",
-			"go_process" => "go_process.xml"			
+			"gene2vega" => "gene2vega.gz",					
 		);
 		private  $bio2rdf_base = "http://bio2rdf.org/";
 		private  $gene_vocab ="entrezgene_vocabulary:";
-		private  $gene_resource = "entrezgene_resource:";
-		private  $geneid = "http://bio2rdf.org/geneid:";
-	
+		private  $gene_resource = "entrezgene_resource:";	
 		
 		function __construct($argv) {
 			parent::__construct();
 			// set and print application parameters
-			$this->AddParameter('files',true,'all|gene_info_all|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega|gene_group|gene_refseq_uniprotkb_collab|go_process','','files to process');
+			$this->AddParameter('files',true,'all|gene_info_all|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega','','files to process');
 			$this->AddParameter('indir',false,null,'/media/twotb/bio2rdf/data/gene/','directory to download into and parse from');
 			$this->AddParameter('outdir',false,null,'/media/twotb/bio2rdf/n3/gene/','directory to place rdfized files');
 			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
@@ -131,6 +125,55 @@ class EntrezGeneParser extends RDFFactory{
 		return TRUE;
 	}//run
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2vega(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 7){
+				$taxid = $splitLine[0];
+				$aGeneId = $splitLine[1];
+				$vegaGeneId = $splitLine[2];
+				$rnaNucleotideAccession = $splitLine[3];
+				$vegaRnaIdentifier = $splitLine[4];
+				$proteinAccession = $splitLine[5];
+				$vegaProteinId = $splitLine[6];
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_taxid",
+						"taxon:".$taxid));
+				//vega gene identifier
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_vega_gene",
+						"vega:".$vegaGeneId));
+				//rna nucleotide accession
+				if($rnaNucleotideAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_rna_nucleotide_accession",
+						"refseq:".$rnaNucleotideAccession));
+				}
+				//vega rna id
+				if($vegaRnaIdentifier != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_vega_rna_id",
+						"vega:".$vegaRnaIdentifier));
+				}
+				//protein accession
+				if($proteinAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_protein_accession",
+						"refseq:".$proteinAccession));
+				}
+				//vega protein
+				if($vegaProteinId != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_vega_protein_id",
+						"vega:".$vegaProteinId));
+				}
+			}//if
+			$this->WriteRDFBufferToWriteFile();	
+		}//while
+	}
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2sts(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^#.*/", $aLine, $matches);
@@ -142,11 +185,23 @@ class EntrezGeneParser extends RDFFactory{
 						"geneid_vocabulary:has_unists_id",
 						"unists:".$uniStsId));
 			}//if
+			$this->WriteRDFBufferToWriteFile();	
 		}//while
 	}
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2unigene(){
-		
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 2){
+				$aGeneId = $splitLine[0];
+				$unigene_cluster = $splitLine[1];
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_unigene_cluster",
+						"unigene:".$unigene_cluster));
+			}//if
+			$this->WriteRDFBufferToWriteFile();	
+		}//while
 	}
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2pubmed(){
