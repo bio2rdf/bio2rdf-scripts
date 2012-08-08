@@ -186,7 +186,7 @@ class AppCommand
         assay_file.each_line do |line|
           ic = Iconv.new("UTF-8//IGNORE","UTF-8")
           line = ic.iconv(line)
-           line = line.strip.chomp.split("\t")
+          line = line.strip.chomp.split("\t")
             
 
             # everything is in the file is a description of the assay component
