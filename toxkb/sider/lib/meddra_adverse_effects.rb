@@ -57,7 +57,7 @@ module Sider2Rdf
           row = line.strip.chomp.split("\t")
           
           # convert the STICH id to pubchem (see NOTES)
-          pubchem = @pubchem[row[1].to_i.abs.to_s]
+          pubchem = @pubchem_compound[row[1].to_i.abs.to_s]
           writer << [pubchem,RDF.type,@sider_vocabulary['Drug'],record]
           writer << [pubchem,DC.title,row[3],record]
           writer << [pubchem,DC.identifier,"pubchem:#{row[1].to_i.abs.to_s}",record]
