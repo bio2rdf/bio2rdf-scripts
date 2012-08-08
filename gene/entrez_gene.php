@@ -130,7 +130,97 @@ class EntrezGeneParser extends RDFFactory{
 		$this->GetWriteFile()->Close();		
 		return TRUE;
 	}//run
-	
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2refseq(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 13){
+				$taxid = $splitLine[0];
+				$aGeneId = $splitLine[1];
+				$status = $splitLine[2];
+				$rnaNucleotideAccession = $splitLine[3];
+				$rnaNucleotideGi = $splitLine[4];
+				$proteinAccession = $splitLine[5];
+				$proteinGi = $splitLine[6];
+				$genomicNucleotideAcession = $splitLine[7];
+				$genomicNucleotideGi = $splitLine[8];
+				$startPositionOnGenomicAccession = $splitLine[9];
+				$endPositionOnGenomicAccession = $splitLine[10];
+				$orientation = $splitLine[11];
+				$assembly = $splitLine[12];
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_taxid",
+						"taxon:".$taxid));
+				//status
+				$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
+						"geneid_vocabulary:has_status",
+						$status));
+				//RNA nucleotide accession
+				if($rnaNucleotideAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_rna_nucleotide_accession",
+						"refseq:".$rnaNucleotideAccession));
+				}
+				//RNA nucleotide gi
+				if($rnaNucleotideGi != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_rna_nucleotide_gi",
+						"refseq:".$rnaNucleotideGi));
+				}
+				//protein accession
+				if($proteinAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_protein_accession",
+						"refseq:".$proteinAccession));
+				}
+				//protein gi
+				if($proteinGi != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_protein_accession",
+						"refseq:".$proteinGi));
+				}				
+				// genomic nucleotide accession
+				if($genomicNucleotideAcession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_genomic_nucleotide_accession",
+						"refseq:".$genomicNucleotideAcession));
+				}
+				//genomic nucleotide gi
+				if($genomicNucleotideGi != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_genomic_nucleotide_gi",
+						"gi:".$genomicNucleotideGi));
+				}
+				//start position on the genomic accession
+				if(($startPositionOnGenomicAccession != "-") && ($genomicNucleotideAcession != "-")){
+					$this->AddRDF($this->QQuadL("refseq:".$genomicNucleotideAcession,
+						"geneid_vocabulary:has_start_position",
+						$startPositionOnGenomicAccession));
+				}
+				//end position on the genomic accession
+				if(($endPositionOnGenomicAccession != "-") && ($genomicNucleotideAcession != "-")){
+					$this->AddRDF($this->QQuadL("refseq:".$genomicNucleotideAcession,
+						"geneid_vocabulary:has_end_position",
+						$endPositionOnGenomicAccession));
+				}
+				//orientation
+				if($orientation != "?"){
+					$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
+						"geneid_vocabulary:has_orientation",
+						$orientation));
+				}
+				//assembly
+				if($assembly != "-"){
+					$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
+						"geneid_vocabulary:has_assembly",
+						$assembly));
+				}
+			}//if count
+			$this->WriteRDFBufferToWriteFile();		
+		}//while
+	}
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2ensembl(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
@@ -241,15 +331,15 @@ class EntrezGeneParser extends RDFFactory{
 						"gi:".$genomicNucleotideGi));
 				}
 				//start position on the genomic accession
-				if($startPositionOnGenomicAccession != "-"){
-					$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
-						"geneid_vocabulary:has_start_position_on_genomic_accession",
+				if(($startPositionOnGenomicAccession != "-")&&($genomicNucleotideAcession != "-")){
+					$this->AddRDF($this->QQuadL("refseq:".$genomicNucleotideAcession,
+						"geneid_vocabulary:has_start_position",
 						$startPositionOnGenomicAccession));
 				}
 				//end position on the genomic accession
-				if($endPositionOnGenomicAccession != "-"){
-					$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
-						"geneid_vocabulary:has_end_position_on_genomic_accession",
+				if(($endPositionOnGenomicAccession != "-")&&($genomicNucleotideAcession != "-")){
+					$this->AddRDF($this->QQuadL("refseq:".$genomicNucleotideAcession,
+						"geneid_vocabulary:has_end_position",
 						$endPositionOnGenomicAccession));
 				}
 				//orientation
