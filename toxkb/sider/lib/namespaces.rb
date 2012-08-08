@@ -16,6 +16,7 @@ module NameSpaces
     @ctd_vocabulary  = RDF::Vocabulary.new("#{host}/ctd_vocabulary:")
     @pubmed          = RDF::Vocabulary.new("http://www.ncbi.nlm.nih.gov/pubmed/")
     @pubchem         = RDF::Vocabulary.new("#{host}/pubchem:")
+    @pubchem_compound  = RDF::Vocabulary.new("#{host}/pubchem_compound:")
     @geneid          = RDF::Vocabulary.new("#{host}/geneid:")
     @mesh            = RDF::Vocabulary.new("#{host}/mesh:")
     @taxon           = RDF::Vocabulary.new("#{host}/taxon:")

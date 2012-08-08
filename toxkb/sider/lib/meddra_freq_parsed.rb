@@ -65,7 +65,7 @@ module Sider2Rdf
           buf =""
           
           l = "<#{sider}label_#{Digest::MD5.hexdigest(row[2])}> "
-          drug  = "<#{host}/pubchem:#{row[1].to_i.abs.to_s}> "
+          drug  = "<#{host}/pubchem_compound:#{row[1].to_i.abs.to_s}> "
           
           buf << l+type+"<#{sider_v}Drug_Information_Label> " + record + eol
           buf << l+"<#{sider_v}involves_drug> " + drug + record + eol
