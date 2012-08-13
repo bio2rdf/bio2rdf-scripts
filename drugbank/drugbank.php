@@ -317,6 +317,20 @@ class DrugBankParser extends RDFFactory
 			}
 		}
 		
+		// calculated-properties
+		if(isset($x->{"calculated-properties"})) {
+			foreach($x->{"calculated-properties"} AS $properties) {
+				foreach($properties AS $property) {
+					$type = $property->kind;
+					$value = $property->value;
+					//$source = $property->source;
+					
+					$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:".str_replace(" ","-",$type),$value));
+				}
+			}
+		}
+		
+		
 		//$this->AddComplexResource($x,$did,"experimental-properties","property");
 		//echo $this->GetRDF();exit;
 		
