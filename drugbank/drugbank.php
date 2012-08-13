@@ -321,11 +321,11 @@ class DrugBankParser extends RDFFactory
 		if(isset($x->{"calculated-properties"})) {
 			foreach($x->{"calculated-properties"} AS $properties) {
 				foreach($properties AS $property) {
-					$type = $property->kind;
-					$value = $property->value;
+					$type = strtolower(str_replace(" ","-",$property->kind));
+					$value = addslashes($property->value);
 					//$source = $property->source;
 					
-					$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:".str_replace(" ","-",$type),$value));
+					$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:".$type,$value));
 				}
 			}
 		}
