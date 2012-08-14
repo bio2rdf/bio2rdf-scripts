@@ -36,7 +36,7 @@ class DrugBankParser extends RDFFactory
 	function __construct($argv) {
 		parent::__construct();
 		// set and print application parameters
-		$this->AddParameter('files',true,'all|drugbank.xml|drugbank.xml.zip','all','files to process');
+		$this->AddParameter('files',true,'all|drugbank.xml.zip','all','files to process');
 		$this->AddParameter('indir',false,null,'/data/download/drugbank/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/drugbank/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
@@ -407,19 +407,22 @@ class DrugBankParser extends RDFFactory
 					$source = $property->source;			
 					
 					$id = "drugbank_resource:".$dbid."_".($counter++);
-					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:experimental-property",$id));
+					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:calculated-property",$id));
 					$this->AddRDF($this->QQuadL($id,"rdfs:label",$property->kind.": $value".($property->source == ''?'':" from ".$property->source)." [$id]"));
 
 					// value
+					if($type == "InChIKey") {
+						$value = substr($value,strpos($value,"=")+1);
+					}
 					$this->AddRDF($this->QQuadL($id,"drugbank_vocabulary:value",$value));					
 
 					// type
-					$tid = "drugbank_resource:".md5($type);
-					$this->AddRDF($this->QQuad($id,"rdf:type","drugbank_vocabulary:$tid"));
+					$tid = "drugbank_vocabulary:".md5($type);
+					$this->AddRDF($this->QQuad($id,"rdf:type",$tid));
 					if(!isset($defined[$tid])) {
 						$defined[$tid] = '';
 						$this->AddRDF($this->QQuadL($tid,"rdfs:label","$type [$tid]"));
-						$this->AddRDF($this->QQuad($tid,"rdfs:subClassOf","drugbank_vocabulary:Experimental-Property"));
+						$this->AddRDF($this->QQuad($tid,"rdfs:subClassOf","drugbank_vocabulary:Calculated-Property"));
 					}
 					
 					// source
@@ -592,7 +595,7 @@ class DrugBankParser extends RDFFactory
 						$ddi_id = "drugbank_resource:".$dbid."_".$ddi->drug;
 						$this->AddRDF($this->QQuad("drugbank:".$ddi->drug,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
 						$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
-						$this->AddRDF($this->QQuadText($ddi_id,"rdfs:label","DDI between $name and ".$ddi->name." - ".trim($ddi->description)));
+						$this->AddRDF($this->QQuadText($ddi_id,"rdfs:label","DDI between $name and ".$ddi->name." - ".trim($ddi->description)." [$ddi_id]"));
 						$this->AddRDF($this->QQuad($ddi_id,"rdf:type","drugbank_vocabulary:Drug-Drug-Interaction"));
 					}
 				}
