@@ -36,7 +36,7 @@ class DrugBankParser extends RDFFactory
 	function __construct($argv) {
 		parent::__construct();
 		// set and print application parameters
-		$this->AddParameter('files',true,'all|drugbank.xml|drugbank.xml.zip','all','files to process');
+		$this->AddParameter('files',true,'all|drugbank.xml.zip','all','files to process');
 		$this->AddParameter('indir',false,null,'/data/download/drugbank/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/drugbank/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
@@ -185,13 +185,13 @@ class DrugBankParser extends RDFFactory
 		
 		$x = $xml->GetXMLRoot();
 		$dbid = $x->{"drugbank-id"};
-		//if($dbid != "DB00246") return;  //////
-		
+//if($dbid != "DB02128") return;  
+
 		$did = "drugbank:".$dbid;
 		$name = (string)$x->name; 
 		
 		$this->AddRDF($this->QQuadL($did,"rdfs:label","$name [$did]","en"));
-		if(isset($x->description)) {
+		if(isset($x->description) && $x->description != '') {
 			$this->AddRDF($this->QQuadText($did,"dc:description",addslashes(trim((string)$x->description)),"en"));
 		}		
 		$this->AddRDF($this->QQuadO_URL($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid));
@@ -205,6 +205,7 @@ class DrugBankParser extends RDFFactory
 		
 		$this->AddLinkedResource($x,$did,"atc-codes","atc-code","atc");
 		$this->AddLinkedResource($x,$did,"ahfs-codes","ahfs-code","ahfs");
+		$this->AddLinkedResource($x,$did,"pdb-entries","pdb-entry","pdb");
 		
 		// taxonomy
 		$this->AddText($x,$did,"taxonomy","kingdom","drugbank_vocabulary:kingdom");
@@ -254,7 +255,7 @@ class DrugBankParser extends RDFFactory
 						if(!isset($defined[$pid])) {
 							$defined[$pid] = '';
 							$this->AddRDF($this->QQuadL($pid,"rdfs:label",$this->SafeLiteral($item->name." [$pid]"))); 
-							$this->AddRDF($this->QQuadO_URL($pid,"rdfs:seeAlso",$item->url));
+							if(strstr($item->url,"http://") && $item->url != "http://BASF Corp.") $this->AddRDF($this->QQuadO_URL($pid,"rdfs:seeAlso",$item->url));
 						}
 					}
 				}
@@ -273,8 +274,8 @@ class DrugBankParser extends RDFFactory
 				$this->AddRDF($this->QQuad($pid,"rdf:type","drugbank_vocabulary:Pharmaceutical"));
 				$this->AddRDF($this->QQuadL($pid,"drugbank_vocabulary:price", $product->cost));
 				
-				$uid = "drugbank_vocabulary:".$product->unit;
-				$this->AddRDF($this->QQuadL($uid,"drugbank_vocabulary:form", $uid));
+				$uid = "drugbank_vocabulary:".md5($product->unit);
+				$this->AddRDF($this->QQuadL($pid,"drugbank_vocabulary:form", $uid));
 				
 				if(!isset($defined[$uid])) {
 					$defined[$uid] = '';
@@ -313,17 +314,17 @@ class DrugBankParser extends RDFFactory
 		}	
 		
 		//indication
-		if(isset($x->indication)) {
-			$this->AddRDF($this->QQuadText($did,"drugbank_vocabulary:indication",trim($x->indication)));
+		if(isset($x->indication) && $x->indication != '') {
+			$this->AddRDF($this->QQuadText($did,"drugbank_vocabulary:indication",$this->SafeLiteral(trim(stripslashes($x->indication)))));
 		}
 		
 		//pharmacology
-		if(isset($x->pharmacology)) {
+		if(isset($x->pharmacology) && $x->pharmacology != '') {
 			$this->AddRDF($this->QQuadText($did,"drugbank_vocabulary:pharmacology",$x->pharmacology));
 		}
 		//mechanism-of-action
-		if(isset($x->{"mechanism-of-action"})) {
-			$this->AddRDF($this->QQuadText($did,"drugbank_vocabulary:mechanism-of-action",$x->{"mechanism-of-action"}));
+		if(isset($x->{"mechanism-of-action"})  && $x->{'mechanism-of-action'} != '') {
+			$this->AddRDF($this->QQuadText($did,"drugbank_vocabulary:mechanism-of-action",$this->SafeLiteral($x->{"mechanism-of-action"})));
 		}
 		//toxicity
 		if(isset($x->toxicity) && $x->toxicity != '') {
@@ -406,19 +407,22 @@ class DrugBankParser extends RDFFactory
 					$source = $property->source;			
 					
 					$id = "drugbank_resource:".$dbid."_".($counter++);
-					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:experimental-property",$id));
+					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:calculated-property",$id));
 					$this->AddRDF($this->QQuadL($id,"rdfs:label",$property->kind.": $value".($property->source == ''?'':" from ".$property->source)." [$id]"));
 
 					// value
+					if($type == "InChIKey") {
+						$value = substr($value,strpos($value,"=")+1);
+					}
 					$this->AddRDF($this->QQuadL($id,"drugbank_vocabulary:value",$value));					
 
 					// type
-					$tid = "drugbank_resource:".md5($type);
-					$this->AddRDF($this->QQuad($id,"rdf:type","drugbank_vocabulary:$tid"));
+					$tid = "drugbank_vocabulary:".md5($type);
+					$this->AddRDF($this->QQuad($id,"rdf:type",$tid));
 					if(!isset($defined[$tid])) {
 						$defined[$tid] = '';
 						$this->AddRDF($this->QQuadL($tid,"rdfs:label","$type [$tid]"));
-						$this->AddRDF($this->QQuad($tid,"rdfs:subClassOf","drugbank_vocabulary:Experimental-Property"));
+						$this->AddRDF($this->QQuad($tid,"rdfs:subClassOf","drugbank_vocabulary:Calculated-Property"));
 					}
 					
 					// source
@@ -591,7 +595,7 @@ class DrugBankParser extends RDFFactory
 						$ddi_id = "drugbank_resource:".$dbid."_".$ddi->drug;
 						$this->AddRDF($this->QQuad("drugbank:".$ddi->drug,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
 						$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
-						$this->AddRDF($this->QQuadText($ddi_id,"rdfs:label","DDI between $name and ".$ddi->name." - ".trim($ddi->description)));
+						$this->AddRDF($this->QQuadText($ddi_id,"rdfs:label","DDI between $name and ".$ddi->name." - ".trim($ddi->description)." [$ddi_id]"));
 						$this->AddRDF($this->QQuad($ddi_id,"rdf:type","drugbank_vocabulary:Drug-Drug-Interaction"));
 					}
 				}
@@ -603,7 +607,7 @@ class DrugBankParser extends RDFFactory
 		$this->AddText($x,$did,"affected-organisms","affected-organism","drugbank_vocabulary:affected-organism");
 		
 		// cas
-		if(isset($x->{'cas-number'})) {
+		if(isset($x->{'cas-number'}) && $x->{'cas-number'} != '') {
 			$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:xref","cas:".$x->{'cas-number'}));
 		}
 		
