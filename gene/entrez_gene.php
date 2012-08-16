@@ -43,22 +43,16 @@ class EntrezGeneParser extends RDFFactory{
 			"gene2refseq" => "gene2refseq.gz",
 			"gene2sts" => "gene2sts",
 			"gene2unigene" => "gene2unigene",
-			"gene_group" => "gene_group.gz",
-			"gene2vega" => "gene2vega.gz",
-			"gene_info" => "gene_info.gz",
-			"gene_refseq_uniprotkb_collab" => "gene_refseq_uniprotkb_collab.gz",
-			"go_process" => "go_process.xml"			
+			"gene2vega" => "gene2vega.gz",					
 		);
 		private  $bio2rdf_base = "http://bio2rdf.org/";
 		private  $gene_vocab ="entrezgene_vocabulary:";
-		private  $gene_resource = "entrezgene_resource:";
-		private  $geneid = "http://bio2rdf.org/gene:";
-	
+		private  $gene_resource = "entrezgene_resource:";	
 		
 		function __construct($argv) {
 			parent::__construct();
 			// set and print application parameters
-			$this->AddParameter('files',true,'all|gene_info_all|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega|gene_group|gene_refseq_uniprotkb_collab|go_process','','files to process');
+			$this->AddParameter('files',true,'all|gene_info_all|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega','','files to process');
 			$this->AddParameter('indir',false,null,'/media/twotb/bio2rdf/data/gene/','directory to download into and parse from');
 			$this->AddParameter('outdir',false,null,'/media/twotb/bio2rdf/n3/gene/','directory to place rdfized files');
 			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
@@ -77,12 +71,13 @@ class EntrezGeneParser extends RDFFactory{
 	 function Run(){
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
+		$rdir = $this->GetParameterValue('download_url');
 
 		//which files are to be converted?
 		$selectedPackage = trim($this->GetParameterValue('files'));		 
 		if($selectedPackage == 'all') {
 			$files = $this->getPackageMap();
-		}else {
+		} else {
 			$sel_arr = explode(",",$selectedPackage);
 			$pm = $this->getPackageMap();
 			$files = array();
@@ -93,35 +88,62 @@ class EntrezGeneParser extends RDFFactory{
 			}	
 		}
 		//now iterate over the files array
-		foreach ($files as $k => $aFile){
+		foreach ($files as $k => $aFile){	
+			//ensure that there is a slash between directory name and filename
+			if(substr($ldir, -1) == "/"){
+				$lfile = $ldir.$aFile;
+			} else {
+				$lfile = $ldir."/".$aFile;
+			}
+			
+			// download
+			if($this->GetParameterValue('download') == true) { 
+				$rfile = $rdir.$aFile;
+				echo "downloading $aFile... ";
+				
+				//don't use subdirectory GENE_INFO for saving local version of All_data.gene_info.gz
+				if($aFile == "GENE_INFO/All_Data.gene_info.gz"){
+					if(substr($ldir, -1) == "/"){
+						$lfile = $ldir."All_Data.gene_info.gz";
+					} else {
+						$lfile = $ldir."/"."All_Data.gene_info.gz";
+					}
+				}
+				file_put_contents($lfile,file_get_contents($rfile));
+			}
+			
 			//create a file pointer
-			//inputfilename
-			$inputFilename = $ldir.$aFile;
-			$fp = gzopen($inputFilename, "r") or die("Could not open file ".$aFile."!\n");
+			$fp = gzopen($lfile, "r") or die("Could not open file ".$aFile."!\n");
 			//make the output file
-			$gzoutfile = $odir.$k.".ttl";
+			
+			//ensure that there is a slash between directory name and filename
+			if(substr($odir, -1) == "/"){
+				$gzoutfile = $odir.$k.".ttl";
+			} else {
+				$gzoutfile = $odir."/".$k.".ttl";
+			}
 			$gz=false;
+
 			if($this->GetParameterValue('gzip')){
 				$gzoutfile .= '.gz';
 				$gz = true;
 			}
-			$this->SetReadFile($inputFilename);
 			
+			$this->SetReadFile($lfile);
 			$this->GetReadFile()->SetFilePointer($fp);
-			$this->SetWriteFile($gzoutfile);
-			
-			
+			$this->SetWriteFile($gzoutfile, $gz);
+						
 			//first check if the file is there
 			if(!file_exists($gzoutfile)){
 				if (($gzout = gzopen($gzoutfile,"a"))=== FALSE) {
 					trigger_error("Unable to open $odir.$gzoutfile");
 					exit;
 				}
-				echo "processing $aFile...";
+				echo "processing $aFile... ";
 				
 				$this->$k();
 				
-				echo "\n";
+				echo "done!\n";
 			}else{
 				echo "file $gzoutfile already there!\nPlease remove file and try again\n";
 				exit;
@@ -131,53 +153,384 @@ class EntrezGeneParser extends RDFFactory{
 		return TRUE;
 	}//run
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
-	private function gene2go($aFp){
-		while(!gzeof($aFp)){
-			$aLine = gzgets($aFp, 4096);
+	private function gene2vega(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 7){
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$vegaGeneId = trim($splitLine[2]);
+				$rnaNucleotideAccession = trim($splitLine[3]);
+				$vegaRnaIdentifier = trim($splitLine[4]);
+				$proteinAccession = trim($splitLine[5]);
+				$vegaProteinId = trim($splitLine[6]);
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_taxid",
+						"taxon:".$taxid));
+				//vega gene identifier
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_vega_gene",
+						"vega:".$vegaGeneId));
+				//rna nucleotide accession
+				if($rnaNucleotideAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_rna_nucleotide_accession",
+						"refseq:".$rnaNucleotideAccession));
+				}
+				//vega rna id
+				if($vegaRnaIdentifier != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_vega_rna_id",
+						"vega:".$vegaRnaIdentifier));
+				}
+				//protein accession
+				if($proteinAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_protein_accession",
+						"refseq:".$proteinAccession));
+				}
+				//vega protein
+				if($vegaProteinId != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_vega_protein_id",
+						"vega:".$vegaProteinId));
+				}
+			}//if
+			$this->WriteRDFBufferToWriteFile();	
+		}//while
+	}
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2sts(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 2){
+				$aGeneId = trim($splitLine[0]);
+				$uniStsId = trim($splitLine[1]);
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_unists_id",
+						"unists:".$uniStsId));
+			}//if
+			$this->WriteRDFBufferToWriteFile();	
+		}//while
+	}
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2unigene(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 2){
+				$aGeneId = trim($splitLine[0]);
+				$unigene_cluster = trim($splitLine[1]);
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_unigene_cluster",
+						"unigene:".$unigene_cluster));
+			}//if
+			$this->WriteRDFBufferToWriteFile();	
+		}//while
+	}
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2pubmed(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 3){
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$pubmedId = trim($splitLine[2]);
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_taxid",
+						"taxon:".$taxid));
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_pubmed_id",
+						"pubmed:".$pubmedId));
+			}//if
+			$this->WriteRDFBufferToWriteFile();	
+		}//while
+	}
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2refseq(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 13){
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$status = trim($splitLine[2]);
+				$rnaNucleotideAccession = trim($splitLine[3]);
+				$rnaNucleotideGi = trim($splitLine[4]);
+				$proteinAccession = trim($splitLine[5]);
+				$proteinGi = trim($splitLine[6]);
+				$genomicNucleotideAcession = trim($splitLine[7]);
+				$genomicNucleotideGi = trim($splitLine[8]);
+				$startPositionOnGenomicAccession = trim($splitLine[9]);
+				$endPositionOnGenomicAccession = trim($splitLine[10]);
+				$orientation = trim($splitLine[11]);
+				$assembly = trim($splitLine[12]);
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_taxid",
+						"taxon:".$taxid));
+				//status
+				$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
+						"geneid_vocabulary:has_status",
+						$status));
+				//RNA nucleotide accession
+				if($rnaNucleotideAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_rna_nucleotide_accession",
+						"refseq:".$rnaNucleotideAccession));
+				}
+				//RNA nucleotide gi
+				if($rnaNucleotideGi != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_rna_nucleotide_gi",
+						"refseq:".$rnaNucleotideGi));
+				}
+				//protein accession
+				if($proteinAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_protein_accession",
+						"refseq:".$proteinAccession));
+				}
+				//protein gi
+				if($proteinGi != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_protein_accession",
+						"refseq:".$proteinGi));
+				}				
+				// genomic nucleotide accession
+				if($genomicNucleotideAcession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_genomic_nucleotide_accession",
+						"refseq:".$genomicNucleotideAcession));
+				}
+				//genomic nucleotide gi
+				if($genomicNucleotideGi != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_genomic_nucleotide_gi",
+						"gi:".$genomicNucleotideGi));
+				}
+				//start position on the genomic accession
+				if(($startPositionOnGenomicAccession != "-") && ($genomicNucleotideAcession != "-")){
+					$this->AddRDF($this->QQuadL("refseq:".$genomicNucleotideAcession,
+						"geneid_vocabulary:has_start_position",
+						$startPositionOnGenomicAccession));
+				}
+				//end position on the genomic accession
+				if(($endPositionOnGenomicAccession != "-") && ($genomicNucleotideAcession != "-")){
+					$this->AddRDF($this->QQuadL("refseq:".$genomicNucleotideAcession,
+						"geneid_vocabulary:has_end_position",
+						$endPositionOnGenomicAccession));
+				}
+				//orientation
+				if($orientation != "?"){
+					$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
+						"geneid_vocabulary:has_orientation",
+						$orientation));
+				}
+				//assembly
+				if($assembly != "-"){
+					$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
+						"geneid_vocabulary:has_assembly",
+						$assembly));
+				}
+			}//if count
+			$this->WriteRDFBufferToWriteFile();		
+		}//while
+	}
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2ensembl(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 7){
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$ensemblGeneIdentifier = trim($splitLine[2]);
+				$rnaNucleotideAccession = trim($splitLine[3]);
+				$ensemblRnaIdentifier = trim($splitLine[4]);
+				$proteinAccession = trim($splitLine[5]);
+				$ensemblProteinIdentifier = trim($splitLine[6]);
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_taxid",
+						"taxon:".$taxid));
+				//ensembl_gene_identifier
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_ensembl_gene_identifier",
+						"ensembl:".$ensemblGeneIdentifier));
+				//ensemblRnaIdentifier
+				if($rnaNucleotideAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_rna_ensemble_identifier",
+						"ensembl:".$ensemblRnaIdentifier));
+				}
+				//proteinAccession
+				if($proteinAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_protein_accession",
+						"genbank:".$proteinAccession));
+				}
+				//ensemblProtein identifier
+				if($ensemblProteinIdentifier != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_ensembl_protein_identifier",
+						"ensembl:".$ensemblProteinIdentifier));
+				}
+			}//if
+			$this->WriteRDFBufferToWriteFile();		
+		}//while
+	}
+	
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2accession(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^#.*/", $aLine, $matches);
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 13){
+				$taxid =  trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$status = trim($splitLine[2]);
+				$rnaNucleotideAccession = trim($splitLine[3]);
+				$rnaNucleotideGi = trim($splitLine[4]);
+				$proteinAccession = trim($splitLine[5]);
+				$proteinGi = trim($splitLine[6]);
+				$genomicNucleotideAcession = trim($splitLine[7]);
+				$genomicNucleotideGi = trim($splitLine[8]);
+				$startPositionOnGenomicAccession = trim($splitLine[9]);
+				$endPositionOnGenomicAccession = trim($splitLine[10]);
+				$orientation = trim($splitLine[11]);
+				$assembly = trim($splitLine[12]);
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_taxid",
+						"taxon:".$taxid));
+				//status
+				if($status != "-"){
+					$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
+						"geneid_vocabulary:has_status",
+						$status));
+				}
+				//rna nucleotide accession version
+				if($rnaNucleotideAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_rna_nucleotide_genbank_accession",
+						"genbank:".$rnaNucleotideAccession));
+				}
+				//rna nucleotide gi
+				if($rnaNucleotideGi != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_rna_gi",
+						"gi:".$rnaNucleotideGi));
+				}
+				//protein accession
+				if($proteinAccession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_protein_accession",
+						"genbank:".$proteinAccession));
+				}
+				//protein gi
+				if($proteinGi != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_protein_gi",
+						"gi:".$proteinGi));
+				}
+				//genomic nucleotide accession
+				if($genomicNucleotideAcession != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_genomic_nucleotide_accession",
+						"refseq:".$genomicNucleotideAcession));
+				}
+				//genomic nucleotide gi
+				if($genomicNucleotideGi != "-"){
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_genomic_nucleotide_gi",
+						"gi:".$genomicNucleotideGi));
+				}
+				//start position on the genomic accession
+				if(($startPositionOnGenomicAccession != "-")&&($genomicNucleotideAcession != "-")){
+					$this->AddRDF($this->QQuadL("refseq:".$genomicNucleotideAcession,
+						"geneid_vocabulary:has_start_position",
+						$startPositionOnGenomicAccession));
+				}
+				//end position on the genomic accession
+				if(($endPositionOnGenomicAccession != "-")&&($genomicNucleotideAcession != "-")){
+					$this->AddRDF($this->QQuadL("refseq:".$genomicNucleotideAcession,
+						"geneid_vocabulary:has_end_position",
+						$endPositionOnGenomicAccession));
+				}
+				//orientation
+				if($orientation != "?"){
+					$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
+						"geneid_vocabulary:has_orientation",
+						$orientation));
+				}
+				//assembly
+				if($assembly != "-"){
+					$this->AddRDF($this->QQuadL("geneid:".$aGeneId,
+						"geneid_vocabulary:has_assembly_name",
+						$assembly));
+				}
+			}//if	
+			$this->WriteRDFBufferToWriteFile();		
+		}//while
+	}
+	
+	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
+	private function gene2go(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^#.*/", $aLine, $matches);
 			if(count($matches)){
 				continue;
 			}
-			$splitLine = explode("\t",$aLine);
-			$taxid = $splitLine[0];
-			$aGeneId = $splitLine[1];
-			$goid = $splitline[2];
-			$evidenceCode = $splitLine[3];
-			$qualifier = $splitLine[4];
-			$golabel = $splitLine[5];
-			$pmid_arr = explode("|", $splitline[6]);
-			$goCategory = $splitLine[7];
 			
-			//taxid
-			$this->AddRDF($this->QQuad("geneid:".$aGeneId,
-					"geneid_vocabulary:has_taxid",
-					"taxon:".$taxid));
-			//goid
-			$this->AddRDF($this->QQuad("geneid:".$aGeneId,
-					"geneid_vocabulary:has_goid",
-					"go:".$goid));
-			//go label
-			if($golabel != "-"){
-				$this->AddRDF($this->QQuadL("go:".$goid,
-					"rdfs:label",
-					$golabel));
-			}
-			//evidence code
-			if($evidenceCode != "-"){
-				$this->AddRDF($this->QQuadL("go:".$goid,
-					"geneid_vocabulary:has_go_evidence_code",
-					$evidenceCode));
-			}
-			//go category 
-			if($goCategory != "-"){
-				$this->AddRDF($this->QQuadL("go:".$goid,
-					"geneid_vocabulary:has_go_category",
-					$goCategory));
-			}
-			if(count($pmid_arr)){
-				foreach ($pmid_arr as $aP){
-					$this->AddRDF($this->QQuad("go:".$goid,
-					"geneid_vocabulary:has_evidence",	"pubmed:".$aP));
+			$splitLine = explode("\t",$aLine);
+			if(count($splitLine) == 8){
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$goid = trim($splitLine[2]);
+				$evidenceCode = trim($splitLine[3]);
+				$qualifier = trim($splitLine[4]);
+				$golabel = trim($splitLine[5]);
+				$pmid_arr = explode("|", $splitLine[6]);
+				$goCategory = trim($splitLine[7]);
+				
+				//taxid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_taxid",
+						"taxon:".$taxid));
+				//goid
+				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
+						"geneid_vocabulary:has_goid",
+						"go:".$goid));
+				//go label
+				if($golabel != "-"){
+					$this->AddRDF($this->QQuadL("go:".$goid,
+						"rdfs:label",
+						$golabel));
+				}
+				//evidence code
+				if($evidenceCode != "-"){
+					$this->AddRDF($this->QQuadL("go:".$goid,
+						"geneid_vocabulary:has_go_evidence_code",
+						$evidenceCode));
+				}
+				//go category 
+				if($goCategory != "-"){
+					$this->AddRDF($this->QQuadL("go:".$goid,
+						"geneid_vocabulary:has_go_category",
+						$goCategory));
+				}
+				if(count($pmid_arr)){
+					foreach ($pmid_arr as $aP){
+						$this->AddRDF($this->QQuad("go:".$goid,
+						"geneid_vocabulary:has_evidence",	"pubmed:".$aP));
+					}
 				}
 			}
 			$this->WriteRDFBufferToWriteFile();
@@ -196,21 +549,21 @@ class EntrezGeneParser extends RDFFactory{
 			//echo "**\ncount:".count($splitLine)."\t".$aLine."\n";
 			if(count($splitLine) == 15){
 			
-			$taxid = $splitLine[0];
-			$aGeneId = $splitLine[1];
-			$symbol =  $splitLine[2];
-			$locusTag = $splitLine[3];
+			$taxid = trim($splitLine[0]);
+			$aGeneId = trim($splitLine[1]);
+			$symbol =  trim($splitLine[2]);
+			$locusTag = trim($splitLine[3]);
 			$symbols_arr = explode("|",$splitLine[4]);
 			$dbxrefs_arr = explode("|",$splitLine[5]);
-			$chromosome = $splitLine[6];
-			$map_location = $splitLine[7];
-			$description = $splitLine[8];
-			$type_of_gene = $splitLine[9];
-			$symbol_authority = $splitLine[10];
-			$symbol_auth_full_name = $splitLine[11];
-			$nomenclature_status = $splitLine[12];
-			$other_designations = $splitLine[13];
-			$mod_date = date_parse($splitLine[14]);
+			$chromosome = trim($splitLine[6]);
+			$map_location = trim($splitLine[7]);
+			$description = trim($splitLine[8]);
+			$type_of_gene = trim($splitLine[9]);
+			$symbol_authority = trim($splitLine[10]);
+			$symbol_auth_full_name = trim($splitLine[11]);
+			$nomenclature_status = trim($splitLine[12]);
+			$other_designations = trim($splitLine[13]);
+			$mod_date = date_parse(trim($splitLine[14]));
 			//check for a valid symbol
 			if($symbol != "NEWENTRY"){
 				//taxid
@@ -305,9 +658,6 @@ class EntrezGeneParser extends RDFFactory{
 								$mod_date["month"]."-".$mod_date["day"]."-".$mod_date["year"]));
 				}
 			}
-			}//if
-			else{
-				echo $aLine;
 			}
 			$this->WriteRDFBufferToWriteFile();
 		}//while
@@ -317,8 +667,6 @@ class EntrezGeneParser extends RDFFactory{
 		return self::$packageMap;
 	}	
 }
-
-
 
 $parser = new EntrezGeneParser($argv);
 $parser-> Run();
