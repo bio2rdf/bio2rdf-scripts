@@ -60,7 +60,7 @@ class HomologeneParser extends RDFFactory{
 		if($download == 'true'){
 			$file = $this->GetParameterValue('download_url');
 			$l = $ldir.'homologene.data';
-			echo "Downloading ".$file." to ".$infile;
+			echo "Downloading ".$file." to ".$infile."\n";
 			copy($file,$infile);
 			echo "-> done <-\n";
 		}
@@ -71,13 +71,13 @@ class HomologeneParser extends RDFFactory{
 		
 		// check there is no outfile that exists
 		if(!file_exists($outfile)){
-			$outfile = gzopen($outfile,"a") or die("Could not open file $outfile");
+			$this->SetWriteFile($outfile,true);
 		}else{
-			$force = $this->GetParameterValue("force");
+			$force = $this->GetParameterValue('force');
 			if($force == true){
 				echo "Removing existing ".$outfile."\n";
 				unlink($outfile);
-				$outfile = gzopen($outfile,"a") or die("Could not open file $outfile");
+				$this->SetWriteFile($outfile,true);
 			}else{
 				echo "file $outfile already exists.\n Please remove the file and try again\n";
 				exit;
@@ -85,7 +85,7 @@ class HomologeneParser extends RDFFactory{
 		}
 
 		if(file_exists($infile)){
-			$infile = fopen($infile,"r") or die("Could not open file $infile");
+			$this->SetReadFile($infile, true);
 		}else{
 			echo "the infile does not exist. You may need to download it first.";
 			exit;
@@ -94,11 +94,11 @@ class HomologeneParser extends RDFFactory{
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
 	
-		$this->parse_homologene_tab_file($infile,$outfile);		
+		$this->parse_homologene_tab_file();		
 		return TRUE;
 	}//run
 	
-	function parse_homologene_tab_file($infile,$outfile){
+	function parse_homologene_tab_file(){
 		$homologene = "http://bio2rdf.org/homologene";
 		$taxid = "http://bio2rdf.org/taxon:";
 		$geneid = "http://bio2rdf.org/geneid:";
@@ -111,25 +111,21 @@ class HomologeneParser extends RDFFactory{
 		//$infh = fopen($inpath, 'r') or die("Cannot open $inpath!\n");
 		//$outfh = fopen($outpath, 'w') or die("Cannot open $outpath\n");
 		
-		if($infile){
-			while(($aLine = fgets($infile, 4096)) !== false){
-				$parsed_line = $this->parse_homologene_tab_line($aLine);
-				$buf = "<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_taxid> <".$taxid.$parsed_line["taxid"].">.\n";
-				$buf .= "<$homologene:".$parsed_line["hid"]."> <".$type."> <".$homologene."_vocabulary:HomoloGene_Group>.\n";
-				$buf .= "<$homologene:".$parsed_line["hid"]."> <".$label."> \"HomoloGene Group\".\n";
-				$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_geneid> <".$geneid.$parsed_line["geneid"].">.\n";
-				$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_geneSymbol> \"".str_replace("\\","", $parsed_line["genesymbol"])."\".\n";
-				$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_gi> <".$gi.$parsed_line["gi"].">.\n";
-				$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_refseq> <".$refseq.$parsed_line["refseq"].">.\n";
-				gzwrite($outfile, utf8_encode($buf));
-				
-			}
-			if(!feof($infile)){
-				echo "Error : unexpected fgets() fail\n";
-			}
+		while($aLine = $this->GetReadFile()->Read()){
+			$parsed_line = $this->parse_homologene_tab_line($aLine);
+			$buf = "<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_taxid> <".$taxid.$parsed_line["taxid"].">.\n";
+			$buf .= "<$homologene:".$parsed_line["hid"]."> <".$type."> <".$homologene."_vocabulary:HomoloGene_Group>.\n";
+			$buf .= "<$homologene:".$parsed_line["hid"]."> <".$label."> \"HomoloGene Group\".\n";
+			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_geneid> <".$geneid.$parsed_line["geneid"].">.\n";
+			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_geneSymbol> \"".str_replace("\\","", $parsed_line["genesymbol"])."\".\n";
+			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_gi> <".$gi.$parsed_line["gi"].">.\n";
+			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_refseq> <".$refseq.$parsed_line["refseq"].">.\n";
+			
+			$this->GetWriteFile()->Write($buf);
 		}
-		fclose($infile);
-		gzclose($outfile);
+
+		$this->GetReadFile()->Close();
+		$this->GetWriteFile()->Close();
 	}
 
 	function parse_homologene_tab_line($aLine){
