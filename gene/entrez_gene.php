@@ -100,6 +100,15 @@ class EntrezGeneParser extends RDFFactory{
 			if($this->GetParameterValue('download') == true) { 
 				$rfile = $rdir.$aFile;
 				echo "downloading $aFile... ";
+				
+				//don't use subdirectory GENE_INFO for saving local version of All_data.gene_info.gz
+				if($aFile == "GENE_INFO/All_Data.gene_info.gz"){
+					if(substr($ldir, -1) == "/"){
+						$lfile = $ldir."All_Data.gene_info.gz";
+					} else {
+						$lfile = $ldir."/"."All_Data.gene_info.gz";
+					}
+				}
 				file_put_contents($lfile,file_get_contents($rfile));
 			}
 			
@@ -658,8 +667,6 @@ class EntrezGeneParser extends RDFFactory{
 		return self::$packageMap;
 	}	
 }
-
-
 
 $parser = new EntrezGeneParser($argv);
 $parser-> Run();
