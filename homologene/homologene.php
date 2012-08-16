@@ -28,8 +28,8 @@ class HomologeneParser extends RDFFactory{
 	private $named_entries = array();
 
 	private $bio2rdf_base = "http://bio2rdf.org/";
-	private $homogene_vocab = "homogene_vocabulary:";
-	private $homogene_resource = "homogene_resource:";
+	private $homogene_vocab = "homologene_vocabulary:";
+	private $homogene_resource = "homologene_resource:";
 
 	function __construct($argv){
 		parent::__construct();
