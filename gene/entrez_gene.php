@@ -71,12 +71,13 @@ class EntrezGeneParser extends RDFFactory{
 	 function Run(){
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
+		$rdir = $this->GetParameterValue('download_url');
 
 		//which files are to be converted?
 		$selectedPackage = trim($this->GetParameterValue('files'));		 
 		if($selectedPackage == 'all') {
 			$files = $this->getPackageMap();
-		}else {
+		} else {
 			$sel_arr = explode(",",$selectedPackage);
 			$pm = $this->getPackageMap();
 			$files = array();
@@ -87,35 +88,53 @@ class EntrezGeneParser extends RDFFactory{
 			}	
 		}
 		//now iterate over the files array
-		foreach ($files as $k => $aFile){
+		foreach ($files as $k => $aFile){	
+			//ensure that there is a slash between directory name and filename
+			if(substr($ldir, -1) == "/"){
+				$lfile = $ldir.$aFile;
+			} else {
+				$lfile = $ldir."/".$aFile;
+			}
+			
+			// download
+			if($this->GetParameterValue('download') == true) { 
+				$rfile = $rdir.$aFile;
+				echo "downloading $aFile... ";
+				file_put_contents($lfile,file_get_contents($rfile));
+			}
+			
 			//create a file pointer
-			//inputfilename
-			$inputFilename = $ldir.$aFile;
-			$fp = gzopen($inputFilename, "r") or die("Could not open file ".$aFile."!\n");
+			$fp = gzopen($lfile, "r") or die("Could not open file ".$aFile."!\n");
 			//make the output file
-			$gzoutfile = $odir.$k.".ttl";
+			
+			//ensure that there is a slash between directory name and filename
+			if(substr($odir, -1) == "/"){
+				$gzoutfile = $odir.$k.".ttl";
+			} else {
+				$gzoutfile = $odir."/".$k.".ttl";
+			}
 			$gz=false;
+
 			if($this->GetParameterValue('gzip')){
 				$gzoutfile .= '.gz';
 				$gz = true;
 			}
-			$this->SetReadFile($inputFilename);
 			
+			$this->SetReadFile($lfile);
 			$this->GetReadFile()->SetFilePointer($fp);
 			$this->SetWriteFile($gzoutfile, $gz);
-			
-			
+						
 			//first check if the file is there
 			if(!file_exists($gzoutfile)){
 				if (($gzout = gzopen($gzoutfile,"a"))=== FALSE) {
 					trigger_error("Unable to open $odir.$gzoutfile");
 					exit;
 				}
-				echo "processing $aFile...";
+				echo "processing $aFile... ";
 				
 				$this->$k();
 				
-				echo "\n";
+				echo "done!\n";
 			}else{
 				echo "file $gzoutfile already there!\nPlease remove file and try again\n";
 				exit;
@@ -130,13 +149,13 @@ class EntrezGeneParser extends RDFFactory{
 			preg_match("/^#.*/", $aLine, $matches);
 			$splitLine = explode("\t",$aLine);
 			if(count($splitLine) == 7){
-				$taxid = $splitLine[0];
-				$aGeneId = $splitLine[1];
-				$vegaGeneId = $splitLine[2];
-				$rnaNucleotideAccession = $splitLine[3];
-				$vegaRnaIdentifier = $splitLine[4];
-				$proteinAccession = $splitLine[5];
-				$vegaProteinId = $splitLine[6];
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$vegaGeneId = trim($splitLine[2]);
+				$rnaNucleotideAccession = trim($splitLine[3]);
+				$vegaRnaIdentifier = trim($splitLine[4]);
+				$proteinAccession = trim($splitLine[5]);
+				$vegaProteinId = trim($splitLine[6]);
 				//taxid
 				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 						"geneid_vocabulary:has_taxid",
@@ -179,8 +198,8 @@ class EntrezGeneParser extends RDFFactory{
 			preg_match("/^#.*/", $aLine, $matches);
 			$splitLine = explode("\t",$aLine);
 			if(count($splitLine) == 2){
-				$aGeneId = $splitLine[0];
-				$uniStsId = $splitLine[1];
+				$aGeneId = trim($splitLine[0]);
+				$uniStsId = trim($splitLine[1]);
 				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 						"geneid_vocabulary:has_unists_id",
 						"unists:".$uniStsId));
@@ -194,8 +213,8 @@ class EntrezGeneParser extends RDFFactory{
 			preg_match("/^#.*/", $aLine, $matches);
 			$splitLine = explode("\t",$aLine);
 			if(count($splitLine) == 2){
-				$aGeneId = $splitLine[0];
-				$unigene_cluster = $splitLine[1];
+				$aGeneId = trim($splitLine[0]);
+				$unigene_cluster = trim($splitLine[1]);
 				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 						"geneid_vocabulary:has_unigene_cluster",
 						"unigene:".$unigene_cluster));
@@ -209,9 +228,9 @@ class EntrezGeneParser extends RDFFactory{
 			preg_match("/^#.*/", $aLine, $matches);
 			$splitLine = explode("\t",$aLine);
 			if(count($splitLine) == 3){
-				$taxid = $splitLine[0];
-				$aGeneId = $splitLine[1];
-				$pubmedId = $splitLine[2];
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$pubmedId = trim($splitLine[2]);
 				//taxid
 				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 						"geneid_vocabulary:has_taxid",
@@ -230,19 +249,19 @@ class EntrezGeneParser extends RDFFactory{
 			preg_match("/^#.*/", $aLine, $matches);
 			$splitLine = explode("\t",$aLine);
 			if(count($splitLine) == 13){
-				$taxid = $splitLine[0];
-				$aGeneId = $splitLine[1];
-				$status = $splitLine[2];
-				$rnaNucleotideAccession = $splitLine[3];
-				$rnaNucleotideGi = $splitLine[4];
-				$proteinAccession = $splitLine[5];
-				$proteinGi = $splitLine[6];
-				$genomicNucleotideAcession = $splitLine[7];
-				$genomicNucleotideGi = $splitLine[8];
-				$startPositionOnGenomicAccession = $splitLine[9];
-				$endPositionOnGenomicAccession = $splitLine[10];
-				$orientation = $splitLine[11];
-				$assembly = $splitLine[12];
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$status = trim($splitLine[2]);
+				$rnaNucleotideAccession = trim($splitLine[3]);
+				$rnaNucleotideGi = trim($splitLine[4]);
+				$proteinAccession = trim($splitLine[5]);
+				$proteinGi = trim($splitLine[6]);
+				$genomicNucleotideAcession = trim($splitLine[7]);
+				$genomicNucleotideGi = trim($splitLine[8]);
+				$startPositionOnGenomicAccession = trim($splitLine[9]);
+				$endPositionOnGenomicAccession = trim($splitLine[10]);
+				$orientation = trim($splitLine[11]);
+				$assembly = trim($splitLine[12]);
 				//taxid
 				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 						"geneid_vocabulary:has_taxid",
@@ -321,13 +340,13 @@ class EntrezGeneParser extends RDFFactory{
 			preg_match("/^#.*/", $aLine, $matches);
 			$splitLine = explode("\t",$aLine);
 			if(count($splitLine) == 7){
-				$taxid = $splitLine[0];
-				$aGeneId = $splitLine[1];
-				$ensemblGeneIdentifier = $splitLine[2];
-				$rnaNucleotideAccession = $splitLine[3];
-				$ensemblRnaIdentifier = $splitLine[4];
-				$proteinAccession = $splitLine[5];
-				$ensemblProteinIdentifier = $splitLine[6];
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$ensemblGeneIdentifier = trim($splitLine[2]);
+				$rnaNucleotideAccession = trim($splitLine[3]);
+				$ensemblRnaIdentifier = trim($splitLine[4]);
+				$proteinAccession = trim($splitLine[5]);
+				$ensemblProteinIdentifier = trim($splitLine[6]);
 				//taxid
 				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 						"geneid_vocabulary:has_taxid",
@@ -365,19 +384,19 @@ class EntrezGeneParser extends RDFFactory{
 			preg_match("/^#.*/", $aLine, $matches);
 			$splitLine = explode("\t",$aLine);
 			if(count($splitLine) == 13){
-				$taxid =  $splitLine[0];
-				$aGeneId = $splitLine[1];
-				$status = $splitLine[2];
-				$rnaNucleotideAccession = $splitLine[3];
-				$rnaNucleotideGi = $splitLine[4];
-				$proteinAccession = $splitLine[5];
-				$proteinGi = $splitLine[6];
-				$genomicNucleotideAcession = $splitLine[7];
-				$genomicNucleotideGi = $splitLine[8];
-				$startPositionOnGenomicAccession = $splitLine[9];
-				$endPositionOnGenomicAccession = $splitLine[10];
-				$orientation = $splitLine[11];
-				$assembly = $splitLine[12];
+				$taxid =  trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$status = trim($splitLine[2]);
+				$rnaNucleotideAccession = trim($splitLine[3]);
+				$rnaNucleotideGi = trim($splitLine[4]);
+				$proteinAccession = trim($splitLine[5]);
+				$proteinGi = trim($splitLine[6]);
+				$genomicNucleotideAcession = trim($splitLine[7]);
+				$genomicNucleotideGi = trim($splitLine[8]);
+				$startPositionOnGenomicAccession = trim($splitLine[9]);
+				$endPositionOnGenomicAccession = trim($splitLine[10]);
+				$orientation = trim($splitLine[11]);
+				$assembly = trim($splitLine[12]);
 				//taxid
 				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 						"geneid_vocabulary:has_taxid",
@@ -463,14 +482,14 @@ class EntrezGeneParser extends RDFFactory{
 			
 			$splitLine = explode("\t",$aLine);
 			if(count($splitLine) == 8){
-				$taxid = $splitLine[0];
-				$aGeneId = $splitLine[1];
-				$goid = $splitLine[2];
-				$evidenceCode = $splitLine[3];
-				$qualifier = $splitLine[4];
-				$golabel = $splitLine[5];
+				$taxid = trim($splitLine[0]);
+				$aGeneId = trim($splitLine[1]);
+				$goid = trim($splitLine[2]);
+				$evidenceCode = trim($splitLine[3]);
+				$qualifier = trim($splitLine[4]);
+				$golabel = trim($splitLine[5]);
 				$pmid_arr = explode("|", $splitLine[6]);
-				$goCategory = $splitLine[7];
+				$goCategory = trim($splitLine[7]);
 				
 				//taxid
 				$this->AddRDF($this->QQuad("geneid:".$aGeneId,
@@ -521,21 +540,21 @@ class EntrezGeneParser extends RDFFactory{
 			//echo "**\ncount:".count($splitLine)."\t".$aLine."\n";
 			if(count($splitLine) == 15){
 			
-			$taxid = $splitLine[0];
-			$aGeneId = $splitLine[1];
-			$symbol =  $splitLine[2];
-			$locusTag = $splitLine[3];
+			$taxid = trim($splitLine[0]);
+			$aGeneId = trim($splitLine[1]);
+			$symbol =  trim($splitLine[2]);
+			$locusTag = trim($splitLine[3]);
 			$symbols_arr = explode("|",$splitLine[4]);
 			$dbxrefs_arr = explode("|",$splitLine[5]);
-			$chromosome = $splitLine[6];
-			$map_location = $splitLine[7];
-			$description = $splitLine[8];
-			$type_of_gene = $splitLine[9];
-			$symbol_authority = $splitLine[10];
-			$symbol_auth_full_name = $splitLine[11];
-			$nomenclature_status = $splitLine[12];
-			$other_designations = $splitLine[13];
-			$mod_date = date_parse($splitLine[14]);
+			$chromosome = trim($splitLine[6]);
+			$map_location = trim($splitLine[7]);
+			$description = trim($splitLine[8]);
+			$type_of_gene = trim($splitLine[9]);
+			$symbol_authority = trim($splitLine[10]);
+			$symbol_auth_full_name = trim($splitLine[11]);
+			$nomenclature_status = trim($splitLine[12]);
+			$other_designations = trim($splitLine[13]);
+			$mod_date = date_parse(trim($splitLine[14]));
 			//check for a valid symbol
 			if($symbol != "NEWENTRY"){
 				//taxid
