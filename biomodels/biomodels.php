@@ -153,6 +153,31 @@ class BiomodelsParser extends RDFFactory
 				array($base_uri),
 				$s);
 			
+			if( isset($p_list['http://www.biopax.org/release/biopax-level3.owl#db'])
+			 && isset($p_list['http://www.biopax.org/release/biopax-level3.owl#id'])) {
+
+				$db = $p_list['http://www.biopax.org/release/biopax-level3.owl#db'][0]['value'];
+				$id = $p_list['http://www.biopax.org/release/biopax-level3.owl#id'][0]['value'];
+				
+				if(!$db || !$id) continue;
+				
+				// sometimes we see stupid stuff like go:XXXXXX in the id
+				$this->GetNS()->ParsePrefixedName($id,$ns2,$id2);
+				if($ns2) $id = $id2;
+				
+				$qname = $this->MapDB($db).":".$id;
+				$o_uri = $this->GetNS()->getFQURI($qname);
+				$this->AddRDF($this->QuadL($s_uri,$this->GetNS()->GetFQURI("rdfs:label"), $qname));
+				$type = $p_list['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0]['value'];
+				if($type == 'http://www.biopax.org/release/biopax-level3.owl#UnificationXref') {
+					$this->AddRDF($this->Quad($s_uri,$this->GetNS()->GetFQURI("owl:sameAs"),$o_uri));
+				} elseif($type == 'http://www.biopax.org/release/biopax-level3.owl#RelationshipXref') {
+					$this->AddRDF($this->Quad($s_uri,$this->GetNS()->GetFQURI("biopaxl2:relationshipXref"),$o_uri));
+				}
+				//echo $this->GetRDF();exit;
+				// continue;
+			}
+			
 			// make the original uri the same as the bio2rdf uri
 			// $this->AddRDF($this->Quad($s_uri,$nso->GetFQURI("owl:sameAs"),$s));
 			
@@ -185,6 +210,48 @@ class BiomodelsParser extends RDFFactory
 		}
 		
 		
+	}
+	
+	function MapDB($db)
+	{
+		$ns_map = array(
+		"BioModels Database"=> array('identifiers.org'=>'biomodels.db','bio2rdf.org'=>'biomodels'),
+		"Brenda Tissue Ontology"=> array('identifiers.org'=>'obo.bto','bio2rdf.org'=>'bto'),
+		"Cell Type Ontology" => array('identifiers.org'=>'obo.cto','bio2rdf.org'=>'cto'),
+		"Cell Cycle Ontology" => array('identifiers.org'=>'obo.cco','bio2rdf.org'=>'cco'),
+		"ChEBI" => array('identifiers.org'=>'chebi','bio2rdf.org'=>'chebi'),
+		"DOI"=>array('identifiers.org'=>'doi','bio2rdf.org'=>'doi'),
+		"Ensembl"=> array('identifiers.org'=>'ensembl','bio2rdf.org'=>'ensembl'),
+		"Enzyme Nomenclature"=> array('identifiers.org'=>'ec-code','bio2rdf.org'=>'ec'),
+		"FMA"=> array('identifiers.org'=>'obo.fma','bio2rdf.org'=>'fma'),
+		"Gene Ontology"=> array('identifiers.org'=>'obo.go','bio2rdf.org'=>'go'),
+		"Human Disease Ontology"=> array('identifiers.org'=>'obo.do','bio2rdf.org'=>'do'),
+		"ICD"=> array('identifiers.org'=>'icd','bio2rdf.org'=>'icd9'),
+		"IntAct"=>array('identifiers.org'=>'intact','bio2rdf.org'=>'intact'),
+		"InterPro"=> array('identifiers.org'=>'interpro','bio2rdf.org'=>'interpro'),
+
+		"KEGG Compound"=> array('identifiers.org'=>'kegg.compound','bio2rdf.org'=>'kegg'),
+		"KEGG Pathway"=> array('identifiers.org'=>'kegg.pathway','bio2rdf.org'=>'kegg'),
+		"KEGG Reaction"=> array('identifiers.org'=>'kegg.reaction','bio2rdf.org'=>'kegg'),		
+
+		"NARCIS"=> array('identifiers.org'=>'narcis','bio2rdf.org'=>'narcis'),
+		
+		"OMIM" => array('identifiers.org'=>'omim','bio2rdf.org'=>'omim'),
+		"PATO" => array('identifiers.org'=>'obo.pato','bio2rdf.org'=>'pato'),
+		"PIRSF"=> array('identifiers.org'=>'pirsf','bio2rdf.org'=>'pirsf'),
+		"Protein Modification Ontology"=> array('identifiers.org'=>'obo.psi-mod','bio2rdf.org'=>'psi-mod'),
+		"PubMed"=> array('identifiers.org'=>'pubmed','bio2rdf.org'=>'pubmed'),
+
+		"Reactome"=> array('identifiers.org'=>'reactome','bio2rdf.org'=>'reactome'),
+		"Taxonomy"=> array('identifiers.org'=>'taxonomy','bio2rdf.org'=>'taxon'),
+		"UniProt"=> array('identifiers.org'=>'uniprot','bio2rdf.org'=>'uniprot')
+	);
+		if(isset($ns_map[$db])) {
+			return $ns_map[$db]['bio2rdf.org'];
+		} else {
+			echo "could not find $db in mapping file";
+			return $db;
+		}
 	}
 }
 
