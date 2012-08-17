@@ -47,7 +47,7 @@ class CTDParser extends RDFFactory
 		
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		$this->SetReleaseFileURI("pharmgkb");
+		$this->SetReleaseFileURI("ctd");
 		
 		return TRUE;
 	}
