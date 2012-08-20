@@ -23,7 +23,7 @@ SOFTWARE.
 
 /**
  * Entrez Gene RDFizer
- * @version 0.2
+ * @version 0.2.1
  * @author Jose Cruz-Toledo
  * @contributor Michel Dumontier
  * @description ftp://ftp.ncbi.nih.gov/gene/DATA/
