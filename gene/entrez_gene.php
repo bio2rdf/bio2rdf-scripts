@@ -155,8 +155,7 @@ class EntrezGeneParser extends RDFFactory{
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2vega(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^#.*/", $aLine, $matches);
-			if(count($matches)){
+			 if((preg_match("/#.*/", $aLine) !== 1)){
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 7){
 					$taxid = trim($splitLine[0]);
@@ -199,15 +198,14 @@ class EntrezGeneParser extends RDFFactory{
 							"vega:".$vegaProteinId));
 					}
 				}//if
-			}
+			}//if
 			$this->WriteRDFBufferToWriteFile();	
 		}//while
 	}
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2sts(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^#.*/", $aLine, $matches);
-			if(count($matches)){
+			if((preg_match("/#.*/", $aLine) !== 1)){
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 2){
 					$aGeneId = trim($splitLine[0]);
@@ -216,15 +214,14 @@ class EntrezGeneParser extends RDFFactory{
 							"geneid_vocabulary:has_unists_id",
 							"unists:".$uniStsId));
 				}//if
-			}
-			$this->WriteRDFBufferToWriteFile();	
+				$this->WriteRDFBufferToWriteFile();
+			}//if	
 		}//while
 	}
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2unigene(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^#.*/", $aLine, $matches);
-			if(count($matches)){
+			 if((preg_match("/#.*/", $aLine) !== 1)){	
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 2){
 					$aGeneId = trim($splitLine[0]);
@@ -240,8 +237,7 @@ class EntrezGeneParser extends RDFFactory{
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2pubmed(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^#.*/", $aLine, $matches);
-			if(count($matches)){
+			 if((preg_match("/#.*/", $aLine) !== 1)){	
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 3){
 					$taxid = trim($splitLine[0]);
@@ -263,8 +259,7 @@ class EntrezGeneParser extends RDFFactory{
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2refseq(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^#.*/", $aLine, $matches);
-			if(count($matches)){
+			 if((preg_match("/#.*/", $aLine) !== 1)){	
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 13){
 					$taxid = trim($splitLine[0]);
@@ -356,9 +351,7 @@ class EntrezGeneParser extends RDFFactory{
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2ensembl(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^#.*/", $aLine, $matches);
-			if(count($matches)){
-
+			 if((preg_match("/#.*/", $aLine) !== 1)){
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 7){
 					$taxid = trim($splitLine[0]);
@@ -403,8 +396,7 @@ class EntrezGeneParser extends RDFFactory{
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2accession(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^#.*/", $aLine, $matches);
-			if(count($matches)){
+			 if((preg_match("/#.*/", $aLine) !== 1)){	
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 13){
 					$taxid =  trim($splitLine[0]);
@@ -499,8 +491,7 @@ class EntrezGeneParser extends RDFFactory{
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2go(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^#.*/", $aLine, $matches);
-			if(count($matches)){
+			 if((preg_match("/#.*/", $aLine) !== 1)){	
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 8){
 					$taxid = trim($splitLine[0]);
@@ -554,9 +545,7 @@ class EntrezGeneParser extends RDFFactory{
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene_info_all(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^#.*/", $aLine, $matches);
-			if(count($matches)){
-				
+			 if((preg_match("/#.*/", $aLine) !== 1)){	
 				$splitLine = explode("\t", $aLine);
 				//echo "**\ncount:".count($splitLine)."\t".$aLine."\n";
 				if(count($splitLine) == 15){
