@@ -86,7 +86,20 @@ class OMIMParser extends RDFFactory
 				$entries = array_intersect_key ($entries,$myentries);
 			}		
 		}
+		// generate the dataset release file
+		$f = $this->GetBio2RDFDatasetFile("omim");
+		$this->SetWriteFile($odir.$f);
+		$d = $this->GetBio2RDFDatasetDescription(
+			"omim", 
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/omim/omim.php", 
+			"omim.ttl.gz", 
+			"http://omim.org", 
+			array("use","no-commercial"), 
+			"http://omim.org/downloads");
+		$this->GetWriteFile()->Write($d);
+		$this->GetWriteFile()->Close();
 		
+		exit;
 		// set the write file
 		$outfile = $odir.'omim.ttl'; $gz=false;
 		if($this->GetParameterValue('gzip')) {
@@ -148,7 +161,7 @@ class OMIMParser extends RDFFactory
 				}
 				ftp_pasv ($ftp, true) ;				
 				$login = ftp_login($ftp, 'anonymous', 'bio2rdf@gmail.com');
-				if ((!ftp) || (!$login)) { 
+				if ((!$ftp) || (!$login)) { 
 					echo "FTP-connect failed!"; die; 
 				} else {
 					echo "Connected".PHP_EOL;
