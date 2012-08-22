@@ -38,39 +38,39 @@ class MeshParser extends RDFFactory{
 			"supplentary_records" => "c2012.bin"					
 		);
 	private static $descriptor_data_elements = array(
-	"AN" =>	"annotation",
-	"AQ" =>	"allowable-topical-qualifiers",
-	"CATSH" => "cataloging-subheadings-list-name",
-	"CX"	=> "consider-also-xref",
-	"DA"	=>	"date-of-entry",
-	"DC"	=> "descriptor-class",
-	"DE"	=> "descriptor-entry-version",
-	"DS"	=>	"descriptor-sort-version",	
-	"DX"	=>	"date-major-descriptor-established",
-	"EC"	=>	"entry-combination",
-	"PRINT ENTRY"	=> "entry-term",
-	"ENTRY"	=> "entry-term",
-	"FX" =>	"forward-xref",
-	"GM" =>	"grateful-med-note",
-	"HN" => "history-note",
-	"MED" => "backfile-posting",
-	"MH" =>	"mesh-heading",
-	"MH_TH" =>	"mesh-heading-thesaurus-id",
-	"MN" =>	"mesh-tree-number",
-	"MR" =>	"major-revision-date",
-	"MS" =>	"mesh-scope-note",
-	"N1" => "cas-type-1-name",
-	"OL" =>	"online-note",
-	"PA" =>	"pharmacological-action",
-	"PI" =>	"previous-indexing", 
-	"PM" =>	"public-mesh-note",
-	"PX" =>	"pre-explosion",
-	"RECTYPE" =>	"record-type",
-	"RH" =>	"running-head",
-	"RN" => "cas-registry-number-or-ec-number",
-	"RR" =>	"related-cas-registry-number",
-	"ST" =>	"semantic-type",
-	"UI" =>	"unique-identifier"
+		"AN" =>	"annotation",
+		"AQ" =>	"allowable-topical-qualifiers",
+		"CATSH" => "cataloging-subheadings-list-name",
+		"CX"	=> "consider-also-xref",
+		"DA"	=>	"date-of-entry",
+		"DC"	=> "descriptor-class",
+		"DE"	=> "descriptor-entry-version",
+		"DS"	=>	"descriptor-sort-version",	
+		"DX"	=>	"date-major-descriptor-established",
+		"EC"	=>	"entry-combination",
+		"PRINT ENTRY"	=> "entry-term",
+		"ENTRY"	=> "entry-term",
+		"FX" =>	"forward-xref",
+		"GM" =>	"grateful-med-note",
+		"HN" => "history-note",
+		"MED" => "backfile-posting",
+		"MH" =>	"mesh-heading",
+		"MH_TH" =>	"mesh-heading-thesaurus-id",
+		"MN" =>	"mesh-tree-number",
+		"MR" =>	"major-revision-date",
+		"MS" =>	"mesh-scope-note",
+		"N1" => "cas-type-1-name",
+		"OL" =>	"online-note",
+		"PA" =>	"pharmacological-action",
+		"PI" =>	"previous-indexing", 
+		"PM" =>	"public-mesh-note",
+		"PX" =>	"pre-explosion",
+		"RECTYPE" =>	"record-type",
+		"RH" =>	"running-head",
+		"RN" => "cas-registry-number-or-ec-number",
+		"RR" =>	"related-cas-registry-number",
+		"ST" =>	"semantic-type",
+		"UI" =>	"unique-identifier"
 	);
 
 	private static $qualifier_data_elements = array(
@@ -237,6 +237,13 @@ class MeshParser extends RDFFactory{
 				"rdf:type", 
 				"mesh_vocabulary:descriptor_record"
 				));
+		//iterate over the remaining properties
+		foreach($desc_record_arr as $k =>$v){
+			if(array_key_exists($k, $this->getDescriptorDataElements())){
+				
+			}//if
+			$this->WriteRDFBufferToWriteFile();
+		}//foreach
 	}
 	/**
 	* add an RDF representation of the incoming param to the model.
@@ -420,6 +427,10 @@ class MeshParser extends RDFFactory{
 
 	public function getQualifierDataElements(){
 		return self::$qualifier_data_elements;
+	}
+
+	public function getDescriptorDataElements(){
+		return self::$descriptor_data_elements;
 	}
 }
 
