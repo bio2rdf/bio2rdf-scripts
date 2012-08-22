@@ -99,7 +99,6 @@ class OMIMParser extends RDFFactory
 		$this->GetWriteFile()->Write($d);
 		$this->GetWriteFile()->Close();
 		
-		exit;
 		// set the write file
 		$outfile = $odir.'omim.ttl'; $gz=false;
 		if($this->GetParameterValue('gzip')) {
@@ -276,6 +275,7 @@ class OMIMParser extends RDFFactory
 		$this->AddRDF($this->QQuad($omim_uri, "rdf:type", "omim_vocabulary:".str_replace("/","-", ucfirst($type))));
 		
 		$this->AddRDF($this->QQuadO_URL($omim_uri, "rdfs:seeAlso", "http://omim.org/entry/".$omim_id));
+		$this->AddRDF($this->QQuad($omim_uri,"void:inDataset",$this->GetDatasetURI()));
 		
 		// parse titles
 		$titles = $o['titles'];
