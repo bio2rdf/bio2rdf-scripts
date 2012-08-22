@@ -99,7 +99,6 @@ class OMIMParser extends RDFFactory
 		$this->GetWriteFile()->Write($d);
 		$this->GetWriteFile()->Close();
 		
-		exit;
 		// set the write file
 		$outfile = $odir.'omim.ttl'; $gz=false;
 		if($this->GetParameterValue('gzip')) {
