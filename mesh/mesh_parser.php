@@ -39,24 +39,25 @@ class MeshParser extends RDFFactory{
 		);
 
 	private static $qualifier_data_elements = array(
-		"AN"=>"has_annotation";
-		"DA"=> "has_date_of_entry",
-		"DQ"=> "has_date_qualifier_established",
-		"GM"=>"has_grateful_med_note",
-		"HN"=>"has_histrory_note",
-		"MR"=>"has_major_revision_date",
-		"MS"=> "has_mesh_scope_note",
-		"OL"=> "has_online_note",
-		"QA"=> "has_topical_qualifier_abbreviation",
-		"QA"=>	"has_topical_qualifier_abbreviation",
-		"QE"=>	"has_qualifier_entry_version",
-		"QS"=>	"has_qualifier_sort_version",
-		"QT"=>	"has_qualifier_type",
-		"QX"=>	"has_qualifier_cross_reference",
-		"RECTYPE"	=>"has_record_type",
-		"SH"=>	"has_subheading",
-		"TN"=>	"has_tree_node_allowed",
-		"UI"=>	"has_unique_identifier"
+		"AN"=> "mesh-annotation",
+		"DA"=> "mesh-date-of-entry",
+		"DQ"=> "mesh-date-qualifier-established",
+		"GM"=>"mesh-grateful-med-note",
+		"HN"=>"mesh-histrory-note",
+		"MR"=>"mesh-major-revision-date",
+		"MS"=> "mesh-scope-note",
+		"OL"=> "mesh-online-note",
+		"QA"=> "mesh-topical-qualifier-abbreviation",
+		"QA"=>	"mesh-topical-qualifier-abbreviation",
+		"QE"=>	"mesh-qualifier-entry-version",
+		"QS"=>	"mesh-qualifier-sort-version",
+		"QT"=>	"mesh-qualifier-type",
+		"QX"=>	"mesh-qualifier-cross-reference",
+		"RECTYPE"	=>"mesh-record-type",
+		"SH"=>	"mesh-subheading",
+		"TN"=>	"mesh-tree-node-allowed",
+		"UI"=>	"mesh-unique-identifier",
+		"MED" => "mesh-backfile-posting"
 
 	);
 
@@ -136,15 +137,15 @@ class MeshParser extends RDFFactory{
 				echo "processing $aFile... ";
 
 				$this->$k();
-
 				echo "done!\n";
+				$this->GetReadFile()->Close();
+				$this->GetWriteFile()->Close();
 			}else{
 				echo "file $gzoutfile already there!\nPlease remove file and try again\n";
 				exit;
 			}
 
 		}//foreach
-		$this->GetWriteFile()->Close();		
 		return TRUE;
 	}//run
 
@@ -154,7 +155,8 @@ class MeshParser extends RDFFactory{
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
 			if(count($matches)){
-				echo $qualifier_record;
+				$qR = $this->readQualifierRecord($qualifier_record);
+				$this->makeQualifierRecordRDF($qR);
 				$qualifier_record = "";
 				continue;
 			}
@@ -163,6 +165,179 @@ class MeshParser extends RDFFactory{
 				$qualifier_record .= $aLine;
 			}			
 		}
+	}
+	/**
+	* add an RDF representation of the incoming param to the model.
+	* @$qual_record_arr is an assoc array with the contents of one qualifier record
+	*/
+	private function makeQualifierRecordRDF($qual_record_arr){
+		//First make sure that there is a unique identifer
+		$q_ui = "";
+		//first get the qualifier record unique identifier
+		if(array_key_exists("UI", $qual_record_arr)){
+			$q_ui = $qual_record_arr["UI"][0];
+			unset($qual_record_arr["UI"]);
+		}else{
+			return ;
+		}
+		//create a resource for a mesh qualifier record and type it as such
+		$this->AddRDF($this->QQuad("mesh:".$q_ui, 
+						"rdf:type", 
+						"mesh_vocabulary:qualifier_record"
+						));
+		foreach($qual_record_arr as $k => $v){
+			if(array_key_exists($k, $this->getQualifierDataElements())){
+				//add allowed tree nodes
+				if($k == "TN"){
+					$x = $this->getQualifierDataElements();
+					foreach($v as $kv => $vv){
+						$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+							"mesh_vocabulary:".$x["TN"], 
+							$vv
+						));
+					}//foreach
+				}//if
+				//add qualifier cross reference
+				if($k == "QX"){
+					$x = $this->getQualifierDataElements();
+					foreach($v as $kv => $vv){
+						$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+							"mesh_vocabulary:".$x["QX"], 
+							$vv
+						));
+					}//foreach
+				}//if
+				//add qualifier sort version
+				if($k == "QS"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["QS"], 
+						$v[0]
+					));
+				}//if
+				//add online note
+				if($k == "ON"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["ON"], 
+						$v[0]
+					));
+				}//if
+				//add major revision date 
+				if($k == "MR"){
+					$date = date_parse($v[0]);
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["MR"], 
+						$date["month"]."-".$date["day"]."-".$date["year"]
+					));
+				}//if
+				//add backfile postings
+				if($k == "MED" || $k == "M94" || $k == "M90" || $k == "M85" || $k == "M80" || $k == "75" || $k == "M66"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["MED"], 
+						$v[0]));
+				}
+				//add history note
+				if($k == "HN"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["HN"], 
+						$v[0]
+					));
+				}//if
+				//add date qualifier established
+				if($k == "DQ"){
+					$date = date_parse($v[0]);
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["DQ"], 
+						$date["month"]."-".$date["day"]."-".$date["year"]
+					));
+				}//if
+				//add date of entry
+				if($k == "DA"){
+					$date = date_parse($v[0]);
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["DA"], 
+						$date["month"]."-".$date["day"]."-".$date["year"]
+					));
+				}//if
+				//add annotation
+				if($k == "AN"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["AN"], 
+						$v[0]
+					));
+				}//if
+				//add qualifier type
+				if($k == "QT"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["QT"], 
+						$v[0]
+					));
+				}//if
+				//Add  topical qualifier abbreviation
+				if($k == "QA"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["QA"], 
+						$v[0]
+					));
+				}//if
+				//add mesh scope note
+				if($k == "MS"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["MS"], 
+						$v[0]
+					));
+				}//if
+				//add the label
+				if($k == "SH"){
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"rdfs:label", 
+						$v[0]." [mesh:".$q_ui."]"
+					));
+				}//if
+				//add qualifier entry version
+				if($k == "QE"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						"mesh_vocabulary:".$x["QE"], 
+						$v[0]
+					));
+				}
+			}//if
+			$this->WriteRDFBufferToWriteFile();
+		}//foreach
+
+	}//makeQualifierRecord
+
+	/**
+	* Return an assoc array with the contents of the qualifier record
+	*/
+	private function readQualifierRecord($aRecord){
+		$returnMe = array();
+		$recArr = explode("\n", $aRecord);
+		foreach($recArr as $ar){
+			$al = explode(" = ", $ar);
+			if(count($al) == 2){
+				if(!array_key_exists($al[0], $returnMe)){
+					$returnMe[$al[0]] = array($al[1]);
+				}else{
+					$b = $returnMe[$al[0]];
+					$returnMe[$al[0]] = $b;
+					$returnMe[$al[0]][] = $al[1];
+				}
+			}
+			
+		}
+		return $returnMe;
 	}
 
 	public function getPackageMap(){
