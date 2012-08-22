@@ -37,27 +37,62 @@ class MeshParser extends RDFFactory{
 			"qualifier_records" => "q2012.bin",
 			"supplentary_records" => "c2012.bin"					
 		);
+	private static $descriptor_data_elements = array(
+	"AN" =>	"annotation",
+	"AQ" =>	"allowable-topical-qualifiers",
+	"CATSH" => "cataloging-subheadings-list-name",
+	"CX"	=> "consider-also-xref",
+	"DA"	=>	"date-of-entry",
+	"DC"	=> "descriptor-class",
+	"DE"	=> "descriptor-entry-version",
+	"DS"	=>	"descriptor-sort-version",	
+	"DX"	=>	"date-major-descriptor-established",
+	"EC"	=>	"entry-combination",
+	"PRINT ENTRY"	=> "entry-term",
+	"ENTRY"	=> "entry-term",
+	"FX" =>	"forward-xref",
+	"GM" =>	"grateful-med-note",
+	"HN" => "history-note",
+	"MED" => "backfile-posting",
+	"MH" =>	"mesh-heading",
+	"MH_TH" =>	"mesh-heading-thesaurus-id",
+	"MN" =>	"mesh-tree-number",
+	"MR" =>	"major-revision-date",
+	"MS" =>	"mesh-scope-note",
+	"N1" => "cas-type-1-name",
+	"OL" =>	"online-note",
+	"PA" =>	"pharmacological-action",
+	"PI" =>	"previous-indexing", 
+	"PM" =>	"public-mesh-note",
+	"PX" =>	"pre-explosion",
+	"RECTYPE" =>	"record-type",
+	"RH" =>	"running-head",
+	"RN" => "cas-registry-number-or-ec-number",
+	"RR" =>	"related-cas-registry-number",
+	"ST" =>	"semantic-type",
+	"UI" =>	"unique-identifier"
+	);
 
 	private static $qualifier_data_elements = array(
-		"AN"=> "mesh-annotation",
-		"DA"=> "mesh-date-of-entry",
-		"DQ"=> "mesh-date-qualifier-established",
-		"GM"=>"mesh-grateful-med-note",
-		"HN"=>"mesh-histrory-note",
-		"MR"=>"mesh-major-revision-date",
-		"MS"=> "mesh-scope-note",
-		"OL"=> "mesh-online-note",
-		"QA"=> "mesh-topical-qualifier-abbreviation",
-		"QA"=>	"mesh-topical-qualifier-abbreviation",
-		"QE"=>	"mesh-qualifier-entry-version",
-		"QS"=>	"mesh-qualifier-sort-version",
-		"QT"=>	"mesh-qualifier-type",
-		"QX"=>	"mesh-qualifier-cross-reference",
-		"RECTYPE"	=>"mesh-record-type",
-		"SH"=>	"mesh-subheading",
-		"TN"=>	"mesh-tree-node-allowed",
-		"UI"=>	"mesh-unique-identifier",
-		"MED" => "mesh-backfile-posting"
+		"AN"=> "annotation",
+		"DA"=> "date-of-entry",
+		"DQ"=> "date-qualifier-established",
+		"GM"=>"grateful-med-note",
+		"HN"=>"histrory-note",
+		"MR"=>"major-revision-date",
+		"MS"=> "scope-note",
+		"OL"=> "online-note",
+		"QA"=> "topical-qualifier-abbreviation",
+		"QA"=>	"topical-qualifier-abbreviation",
+		"QE"=>	"qualifier-entry-version",
+		"QS"=>	"qualifier-sort-version",
+		"QT"=>	"qualifier-type",
+		"QX"=>	"qualifier-cross-reference",
+		"RECTYPE"	=>"record-type",
+		"SH"=>	"subheading",
+		"TN"=>	"tree-node-allowed",
+		"UI"=>	"unique-identifier",
+		"MED" => "backfile-posting"
 
 	);
 
@@ -149,13 +184,30 @@ class MeshParser extends RDFFactory{
 		return TRUE;
 	}//run
 
+	private function descriptor_records(){
+		$descriptor_record = "";
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			preg_match("/^\n$/", $aLine, $matches);
+			if(count($matches)){
+				$dR = $this->readRecord($qualifier_record);
+				$this->makeDescriptorRecord($dR);
+				exit;
+				$qualifier_record = "";
+				continue;
+			}
+			preg_match("/\*NEWRECORD/", $aLine, $matches);
+			if(count($matches) == 0){
+				$qualifier_record .= $aLine;
+			}			
+		}
+	}
 
 	private function qualifier_records(){
 		$qualifier_record = "";
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
 			if(count($matches)){
-				$qR = $this->readQualifierRecord($qualifier_record);
+				$qR = $this->readRecord($qualifier_record);
 				$this->makeQualifierRecordRDF($qR);
 				$qualifier_record = "";
 				continue;
@@ -165,6 +217,26 @@ class MeshParser extends RDFFactory{
 				$qualifier_record .= $aLine;
 			}			
 		}
+	}
+	/**
+	* add an RDF representation of the incoming param to the model.
+	* @$qual_record_arr is an assoc array with the contents of one qualifier record
+	*/
+	private function makeDescriptorRecord($desc_record_arr){
+		//First make sure that there is a unique identifer
+		$q_ui = "";
+		//first get the qualifier record unique identifier
+		if(array_key_exists("UI", $desc_record_arr)){
+			$q_ui = $desc_record_arr["UI"][0];
+			unset($desc_record_arr["UI"]);
+		}else{
+			return ;
+		}
+		//create a resource for a mesh qualifier record and type it as such
+		$this->AddRDF($this->QQuad("mesh:".$q_ui, 
+				"rdf:type", 
+				"mesh_vocabulary:descriptor_record"
+				));
 	}
 	/**
 	* add an RDF representation of the incoming param to the model.
@@ -182,9 +254,10 @@ class MeshParser extends RDFFactory{
 		}
 		//create a resource for a mesh qualifier record and type it as such
 		$this->AddRDF($this->QQuad("mesh:".$q_ui, 
-						"rdf:type", 
-						"mesh_vocabulary:qualifier_record"
-						));
+				"rdf:type", 
+				"mesh_vocabulary:qualifier_record"
+				));
+		//iterate over the remaining properties
 		foreach($qual_record_arr as $k => $v){
 			if(array_key_exists($k, $this->getQualifierDataElements())){
 				//add allowed tree nodes
@@ -318,10 +391,11 @@ class MeshParser extends RDFFactory{
 
 	}//makeQualifierRecord
 
+
 	/**
 	* Return an assoc array with the contents of the qualifier record
 	*/
-	private function readQualifierRecord($aRecord){
+	private function readRecord($aRecord){
 		$returnMe = array();
 		$recArr = explode("\n", $aRecord);
 		foreach($recArr as $ar){
