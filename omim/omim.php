@@ -346,68 +346,54 @@ class OMIMParser extends RDFFactory
 			$this->AddRDF($this->QQuad($uri, "rdf:type", "omim_vocabulary:Clinical-Synopsis"));
 					
 			foreach($cs AS $k => $v) {
-				if(!strstr($k,"Exists")) {
+				if(!strstr($k,"Exists")) { // ignore the boolean assertion.
+					
 					// ignore provenance for now
 					if(in_array($k, array('contributors','creationDate','editHistory','epochCreated','dateCreated','epochUpdated','dateUpdated'))) continue;
 					
-
-					if(!is_array($v)) {
-						$this->AddRDF($this->QQuadText($uri, "omim_vocabulary:".$k, $v));
-						// parse out the vocab references
-						preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$v,$m);
-						if(isset($m[0][0])) {
-							foreach($m[0] AS $qname) {
-								$this->GetNS()->ParsePrefixedName($qname,$ns,$id);
-								$ns = str_replace(array("icd10cm","icd9cm","snomedct"), array("icd10","icd9","snomed"), $ns);
-								$this->AddRDF($this->QQuad($uri, "omim_vocabulary:refers-to", $ns.":".$id));
-							}
-						}
-						
-					} else {
-						foreach($v AS $k1 => $v1) {
-							if($k == "oldFormat") {
-								$phenotypes = explode("; ",$v1);
-								foreach($phenotypes AS $coded_phenotype) {
-									// parse out the codes
-									$phenotype = preg_replace("/\{[0-9A-Za-z \:\-]+\}|;/","",$coded_phenotype);
-									$phenotype_id = "omim_resource:".md5(trim($phenotype));
-									
-									$this->AddRDF($this->QQuad($uri, "omim_vocabulary:abnormality", $phenotype_id));
-									$this->AddRDF($this->QQuadL($phenotype_id, "rdfs:label", "$phenotype [$phenotype_id]"));
-									$this->AddRDF($this->QQuad($phenotype_id, "rdf:type", 'omim_vocabulary:Characteristic'));
-									
-									$entity_id = "omim_resource:".$k1;
-									$this->AddRDF($this->QQuadL($entity_id, "rdfs:label", "$k1 [$entity_id]"));
-									$this->AddRDF($this->QQuad($entity_id, "rdf:type", "omim_vocabulary:Entity"));
-									$this->AddRDF($this->QQuad($phenotype_id, "omim_vocabulary:characteristic-of", $entity_id));
-									
-									// parse out the vocab references
-									preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$coded_phenotype,$m);
-									if(isset($m[0][0])) {
-										foreach($m[0] AS $qname) {
-											$this->GetNS()->ParsePrefixedName($qname,$ns,$id);
-											$ns = str_replace(array("icd10cm","icd9cm","snomedct"), array("icd10","icd9","snomed"), $ns);
-											$this->AddRDF($this->QQuad($phenotype_id, "rdfs:seeAlso", $ns.":".$id));
-										}
-									}
-								}		
-							} else {
-								$this->AddRDF($this->QQuadText($uri, "omim_vocabulary:".$k."-".strtolower($k1), $v1));
-							}
+					if(!is_array($v)) $v = array($k=>$v);
+					foreach($v AS $k1 => $v1) {
+						$phenotypes = explode(";",$v1);
+						foreach($phenotypes AS $coded_phenotype) {
+							// parse out the codes
+							$coded_phenotype = trim($coded_phenotype);
+							$phenotype = preg_replace("/\{.*\}/","",$coded_phenotype);
+							$phenotype_id = "omim_resource:".md5($phenotype);
+							
+							$this->AddRDF($this->QQuad($uri, "omim_vocabulary:feature", $phenotype_id));
+							$this->AddRDF($this->QQuadL($phenotype_id, "rdfs:label", "$phenotype [$phenotype_id]"));
+							$this->AddRDF($this->QQuad($phenotype_id, "rdf:type", 'omim_vocabulary:Characteristic'));
+							
+							$entity_id = "omim_resource:".$k1;
+							$this->AddRDF($this->QQuadL($entity_id, "rdfs:label", "$k1 [$entity_id]"));
+							$this->AddRDF($this->QQuad($entity_id, "rdf:type", "omim_vocabulary:Entity"));
+							$this->AddRDF($this->QQuad($phenotype_id, "omim_vocabulary:characteristic-of", $entity_id));
+							
 							// parse out the vocab references
-							preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$v1,$m);
-							if(isset($m[0][0])) {
-								foreach($m[0] AS $qname) {
-									$this->GetNS()->ParsePrefixedName($qname,$ns,$id);
-									$ns = str_replace(array("icd10cm","icd9cm","snomedct"), array("icd10","icd9","snomed"), $ns);
-									$this->AddRDF($this->QQuad($uri, "omim_vocabulary:refers-to", $ns.":".$id));
-								}
-							}
-				
-						}
-					}				
-					
-
+							preg_match_all("/\{([0-9A-Za-z \:\-\.]+)\}|;/",$coded_phenotype,$codes);
+							//preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$coded_phenotype,$m);
+							if(isset($codes[1][0])) {
+								foreach($codes[1] AS $entry) {
+									$entries = explode(" ",trim($entry));
+									foreach($entries AS $e) {
+										$this->GetNS()->ParsePrefixedName($e,$ns,$id);
+										if(!isset($ns)) {
+											if($id == "HPO") continue;
+											$b = explode(".",$id);
+											if(count($b) == 2) {
+												$ns = "omim"; 
+												$id = $b[0];
+											}
+										} else {
+											$ns = str_replace(array("icd10cm","icd9cm","snomedct"), array("icd10","icd9","snomed"), $ns);
+										}
+										$this->AddRDF($this->QQuad($phenotype_id, "rdfs:seeAlso", $ns.":".$id));
+										$this->AddRDF($this->QQuad($uri, "omim_vocabulary:refers-to", $ns.":".$id));										
+									} // foreach
+								} // foreach
+							} // codes
+						} //foreach			
+					} // foreach
 				} // exists
 			}
 		} // clinical synopsis
