@@ -30,6 +30,8 @@ require('../../php-lib/rdfapi.php');
 */
 class CTDParser extends RDFFactory 
 {
+	private $version = null;
+
 	function __construct($argv) { //
 		parent::__construct();
 		$this->SetDefaultNamespace("ctd");
@@ -73,7 +75,7 @@ class CTDParser extends RDFFactory
 
 		foreach($files AS $file) {
 			$lfile = $ldir.$file.$gz_suffix;
-			$ofile = $file.".ttl";
+			$ofile = $file.".nt";
 			$gz = false;
 			if($this->GetParameterValue('gzip') == "true") {
 				$gz = true;
