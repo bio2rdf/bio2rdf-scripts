@@ -59,6 +59,8 @@ if($options['files']['value']  != 'all') {
 	$files = GetDirFiles($options['indir']['value'],".obo");
 }
 
+global $gns;
+$lns = $gns;
 // generate the RDF
 if(isset($files)) {
 	foreach($files AS $f) {
@@ -68,6 +70,8 @@ if(isset($files)) {
 				if(($options['overwrite']['value'] == 'true')
 					|| !file_exists($options['outdir']['value'].$f.'.ttl')) {
 					OBO2TTL($options['indir']['value'],$options['outdir']['value'],$f);
+					
+					$gns = $lns;
 				} else {
 					echo "$f exists ... skipping".PHP_EOL;
 				}
