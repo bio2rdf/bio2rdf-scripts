@@ -365,7 +365,7 @@ class OMIMParser extends RDFFactory
 							$coded_phenotype = trim($coded_phenotype);
 							if(!$coded_phenotype) continue;
 							$phenotype = preg_replace("/\{.*\}/","",$coded_phenotype);
-							$phenotype_id = "omim_resource:".md5($phenotype);
+							$phenotype_id = "omim_resource:".md5(strtolower($phenotype));
 							
 							$this->AddRDF($this->QQuad($uri, "omim_vocabulary:feature", $phenotype_id));
 							$this->AddRDF($this->QQuadL($phenotype_id, "rdfs:label", $this->SafeLiteral($phenotype)." [$phenotype_id]"));
