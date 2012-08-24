@@ -21,21 +21,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+require('../../php-lib/biopax2bio2rdf.php');
+
 /**
  * BioModels RDFizer
  * @version 1.0
  * @author Michel Dumontier
  * @description http://www.ebi.ac.uk/biomodels-main/
 */
-require('../../php-lib/rdfapi.php');
 class BiomodelsParser extends RDFFactory 
-{		
+{	
+	private $version = null;
+	
 	function __construct($argv) {
 		parent::__construct();
+		$this->SetDefaultNamespace("biomodels");
+		
 		// set and print application parameters
 		$this->AddParameter('files',true,null,'all|curated|biomodel#|start#-end#','entries to process: comma-separated list or hyphen-separated range');
-		$this->AddParameter('indir',false,null,'/data/download/biomodels/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/biomodels/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
+		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
+		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'http://www.ebi.ac.uk/biomodels/models-main/publ/');
@@ -45,6 +51,7 @@ class BiomodelsParser extends RDFFactory
 		}
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
+		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));		
 		
 		return TRUE;
 	}
@@ -59,28 +66,39 @@ class BiomodelsParser extends RDFFactory
 		$list = trim($this->GetParameterValue('files'));
 		if($list == 'all') {
 			// call the getAllModelsId webservice
-			try {  
-				$x = @new SoapClient("http://www.ebi.ac.uk/biomodels-main/services/BioModelsWebServices?wsdl");  
-			} catch (Exception $e) {  
-				echo $e->getMessage(); 
-			} 
-			$entries = $x->getAllModelsId();
+			$file = $ldir."all_models.json";
+			if(!file_exists($file)) {
+				try {  
+					$x = @new SoapClient("http://www.ebi.ac.uk/biomodels-main/services/BioModelsWebServices?wsdl");  
+				} catch (Exception $e) {  
+					echo $e->getMessage(); 
+				} 
+				$entries = $x->getAllModelsId();
+				file_put_contents(json_encode($entries));
+			} else {
+				$entries = json_decode(file_get_contents($file));
+			}
 		} elseif($list == 'curated') {
 			// call the getAllCuratedModelsId webservice
-			try {  
-				$x = @new SoapClient("http://www.ebi.ac.uk/biomodels-main/services/BioModelsWebServices?wsdl");  
-			} catch (Exception $e) {  
-				echo $e->getMessage(); 
-			} 
-			$entries = $x->getAllCuratedModelsId();
-			
+			$file = $ldir."curated_models.json";
+			if(!file_exists($file)) {
+				try {  
+					$x = @new SoapClient("http://www.ebi.ac.uk/biomodels-main/services/BioModelsWebServices?wsdl");  
+				} catch (Exception $e) {  
+					echo $e->getMessage(); 
+				} 
+				$entries = $x->getAllCuratedModelsId();
+				file_put_contents(json_encode($entries));
+			} else {
+				$entries = json_decode(file_get_contents($file));
+			}			
 		} else {
 			// check if a hyphenated list was provided
 			if(($pos = strpos($list,"-")) !== FALSE) {
 				$start_range = substr($list,0,$pos);
 				$end_range = substr($list,$pos+1);
 				for($i=$start_range;$i<=$end_range;$i++) {
-					$entries[] = $i;					
+					$entries[] = $i;
 				}
 			} else {
 				// for comma separated list
@@ -92,12 +110,14 @@ class BiomodelsParser extends RDFFactory
 		}
 		
 		// set the write file
-		$outfile = $odir.'biomodels.ttl'; $gz=false;
+		$outfile = 'biomodels.nt'; $gz=false;
 		if($this->GetParameterValue('gzip')) {
 			$outfile .= '.gz';
 			$gz = true;
 		}
-		$this->SetWriteFile($outfile, $gz);
+		$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$outfile; 
+		
+		$this->SetWriteFile($odir.$outfile, $gz);
 		
 		// iterate over the entries
 		$i = 0;
@@ -119,27 +139,43 @@ class BiomodelsParser extends RDFFactory
 			
 			// load entry, parse and write to file
 			echo " - parsing";
-			$this->SetReadFile($download_file,true);
-			$this->Parse($id);
-			$this->GetReadFile()->Close();
+			// $this->SetReadFile($download_file,true);
+			$buf = file_get_contents("compress.zlib://".$download_file);
 			
+			$converter = new BioPAX2Bio2RDF();
+			$converter->SetBuffer($buf)->SetBioPAXVersion(3)->SetBaseNamespace("http://identifiers.org/biomodels.db/$id/")->SetBio2RDFNamespace("http://bio2rdf.org/biomodels:");
+			$this->AddRDF($converter->Parse());
 			$this->WriteRDFBufferToWriteFile();
 		
 			echo PHP_EOL;
 		}
 		$this->GetWriteFile()->Close();
+
+		// generate the release file
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/biomodels/biomodels.php", 
+			$bio2rdf_download_files,
+			"http://www.ebi.ac.uk/biomodels-main/",
+			array("use-share-modify"),
+			null, // license
+			$this->GetParameterValue('download_url'),
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
+		
 		return true;
 	}
 	
 	function Parse($id)
 	{
 		$buf = '';
-		while($l = $this->GetReadFile()->Read()) {
-			$buf .= $l;
-		}
+		while($l = $this->GetReadFile()->Read()) $buf .= $l;
 	
 		// read into rdf model
-		require_once('../../arc2/ARC2.php');
+		require('../../arc2/ARC2.php');
 		$parser = ARC2::getRDFXMLParser();
 		$parser->parse('http://bio2rdf.org/',$buf);
 		
@@ -189,8 +225,13 @@ class BiomodelsParser extends RDFFactory
 						$o_uri = str_replace(
 							array("http://bio2rdf.org/"),
 							array($base_uri),
-							$o['value']);						
+							$o['value']);					
 						$this->AddRDF($this->Quad($s_uri,$p_uri,$o_uri));
+						
+						if(strstr($o_uri,"http://identifiers.org")) {
+							// this is a reference to identifiers.org xref
+							$mylist[$s_uri][] = $o_uri;
+						}	
 					} else {
 						// literal
 						$literal = $this->SafeLiteral($o['value']);
@@ -258,4 +299,3 @@ class BiomodelsParser extends RDFFactory
 set_error_handler('error_handler');
 $parser = new BiomodelsParser($argv);
 $parser->Run();
-

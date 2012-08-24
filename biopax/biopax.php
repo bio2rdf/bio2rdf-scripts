@@ -32,6 +32,7 @@ class BioPAXParser extends RDFFactory
 {		
 	function __construct($argv) {
 		parent::__construct();
+		
 		// set and print application parameters
 		$this->AddParameter('files',true,null,'all','entries to process: comma-separated list or hyphen-separated range');
 		$this->AddParameter('indir',false,null,'/data/download/biopax/','directory to download into and parse from');
