@@ -218,7 +218,7 @@ class DrugBankParser extends RDFFactory
 		$this->AddRDF($this->QQuadL($did,"rdfs:label","$name [$did]","en"));
 		$this->AddRDF($this->QQuad($did,"rdf:type","drugbank_vocabulary:Drug"));
 		$this->AddRDF($this->QQuad($did,"void:inDataset",$this->GetDatasetURI()));
-		$this->AddRDF($this->QQuadO_URL($did,"owl:sameAs", "http://identifers.org/drugbank/".$omim_id));
+		$this->AddRDF($this->QQuadO_URL($did,"owl:sameAs", "http://identifers.org/drugbank/".$dbid));
 		$this->AddRDF($this->QQuadO_URL($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid));
 		
 		if(isset($x->description) && $x->description != '') {
