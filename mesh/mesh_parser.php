@@ -189,15 +189,14 @@ class MeshParser extends RDFFactory{
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
 			if(count($matches)){
-				$dR = $this->readRecord($qualifier_record);
+				$dR = $this->readRecord($descriptor_record);
 				$this->makeDescriptorRecord($dR);
-				exit;
-				$qualifier_record = "";
+				$descriptor_record = "";
 				continue;
 			}
 			preg_match("/\*NEWRECORD/", $aLine, $matches);
 			if(count($matches) == 0){
-				$qualifier_record .= $aLine;
+				$descriptor_record .= $aLine;
 			}			
 		}
 	}
@@ -223,24 +222,129 @@ class MeshParser extends RDFFactory{
 	* @$qual_record_arr is an assoc array with the contents of one qualifier record
 	*/
 	private function makeDescriptorRecord($desc_record_arr){
-		//First make sure that there is a unique identifer
-		$q_ui = "";
-		//first get the qualifier record unique identifier
-		if(array_key_exists("UI", $desc_record_arr)){
-			$q_ui = $desc_record_arr["UI"][0];
-			unset($desc_record_arr["UI"]);
+		
+		//I will use the mesh heading as the 
+		//seed of the md5 hash for the uri
+		//see: http://www.nlm.nih.gov/mesh/dtype.html
+		if(array_key_exists("MH", $desc_record_arr)){
+			$tqa = $desc_record_arr["MH"][0];
+			unset($desc_record_arr["MH"]);
 		}else{
 			return ;
 		}
+		$dr_id = md5($tqa);
+
+		
 		//create a resource for a mesh qualifier record and type it as such
-		$this->AddRDF($this->QQuad("mesh:".$q_ui, 
+		$this->AddRDF($this->QQuad("mesh:".$dr_id, 
 				"rdf:type", 
 				"mesh_vocabulary:descriptor_record"
 				));
 		//iterate over the remaining properties
 		foreach($desc_record_arr as $k =>$v){
 			if(array_key_exists($k, $this->getDescriptorDataElements())){
-				
+				//add annotations
+				if($k == "AN"){
+					$x = $this->getDescriptorDataElements();
+					foreach($v as $kv => $vv){
+						$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+								"mesh_vocabulary:".$x["AN"],
+								addslashes($vv)
+								));
+					}//foreach
+				}//if
+				//add allowable topical qualifiers
+				if($k == "AQ"){
+					$x = $this->getDescriptorDataElements();
+					foreach($v as $kv => $vv){
+						$vvrar = explode(" ", $vv);
+						foreach($vvrar as $aq){
+							$this->AddRDF($this->QQuad("mesh:".$dr_id, 
+									"mesh_vocabulary:".$x["AQ"],
+									"mesh:".md5($aq)
+									));
+						}//foreach
+					}//foreach
+				}//if
+				//add CATALOGING SUBHEADINGS LIST NAME
+				if($k == "CATSH"){
+					$x = $this->getDescriptorDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+						"mesh_vocabulary:".$x["CATSH"], 
+						addslashes($v[0])
+					));					
+				}//if
+				//add CONSIDER ALSO XREF
+				if($k == "CX"){
+					$x = $this->getDescriptorDataElements();
+					$tmp = explode("consider also terms at", $v[0]);
+					$gmp = $tmp[1];
+					$gmpa = explode(",",$gmp);
+					foreach($gmpa as $g){
+						$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+							"mesh_vocabulary:".$x["CX"], 
+							$g
+						));	
+					}				
+				}//if
+				//add date of entry
+				if($k == "DA"){
+					$date = date_parse($v[0]);
+					$x = $this->getDescriptorDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+						"mesh_vocabulary:".$x["DA"], 
+						$date["month"]."-".$date["day"]."-".$date["year"]
+					));
+				}//if
+				//descriptor class
+				if($k == "DC"){
+					$x = $this->getDescriptorDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+						"mesh_vocabulary:".$x["DC"], 
+						addslashes($v[0])
+					));
+				}//if
+				//descriptor entry version
+				if($k == "DE"){
+					$x = $this->getDescriptorDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+						"mesh_vocabulary:".$x["DE"], 
+						addslashes($v[0])
+					));
+				}//if
+				//descriptor sort version
+				if($k == "DS"){
+					$x = $this->getDescriptorDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+						"mesh_vocabulary:".$x["DS"], 
+						addslashes($v[0])
+					));
+				}//if
+
+				//date major descriptor established 
+				if($k == "DX"){
+					$date = date_parse($v[0]);
+					$x = $this->getDescriptorDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+						"mesh_vocabulary:".$x["DX"], 
+						$date["month"]."-".$date["day"]."-".$date["year"]
+					));
+				}//if
+
+				//entry combination
+				if($k == "EC"){
+					$x = $this->getDescriptorDataElements();
+					foreach ($v as $kv => $vv){
+						$y = explode(":", $vv);
+						if(count($y) == 2 || count($y) == 3){
+							$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+								"mesh_vocabulary:".$x["EC"], 
+								md5($y[1])
+							));
+						}
+					}
+				}//if
+
 			}//if
 			$this->WriteRDFBufferToWriteFile();
 		}//foreach
@@ -250,17 +354,17 @@ class MeshParser extends RDFFactory{
 	* @$qual_record_arr is an assoc array with the contents of one qualifier record
 	*/
 	private function makeQualifierRecordRDF($qual_record_arr){
-		//First make sure that there is a unique identifer
-		$q_ui = "";
-		//first get the qualifier record unique identifier
-		if(array_key_exists("UI", $qual_record_arr)){
-			$q_ui = $qual_record_arr["UI"][0];
-			unset($qual_record_arr["UI"]);
+		//I will use the topical qualifier abbreviation as the 
+		//seed of the md5 hash for the uri
+		//see: http://www.nlm.nih.gov/mesh/qtype.html
+		if(array_key_exists("QA", $qual_record_arr)){
+			$tqa = $qual_record_arr["QA"][0];
 		}else{
 			return ;
 		}
+		$qr_id = md5($tqa);
 		//create a resource for a mesh qualifier record and type it as such
-		$this->AddRDF($this->QQuad("mesh:".$q_ui, 
+		$this->AddRDF($this->QQuad("mesh:".$qr_id, 
 				"rdf:type", 
 				"mesh_vocabulary:qualifier_record"
 				));
@@ -271,7 +375,7 @@ class MeshParser extends RDFFactory{
 				if($k == "TN"){
 					$x = $this->getQualifierDataElements();
 					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 							"mesh_vocabulary:".$x["TN"], 
 							$vv
 						));
@@ -281,7 +385,7 @@ class MeshParser extends RDFFactory{
 				if($k == "QX"){
 					$x = $this->getQualifierDataElements();
 					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+						$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 							"mesh_vocabulary:".$x["QX"], 
 							$vv
 						));
@@ -290,7 +394,7 @@ class MeshParser extends RDFFactory{
 				//add qualifier sort version
 				if($k == "QS"){
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["QS"], 
 						$v[0]
 					));
@@ -298,7 +402,7 @@ class MeshParser extends RDFFactory{
 				//add online note
 				if($k == "ON"){
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["ON"], 
 						$v[0]
 					));
@@ -307,7 +411,7 @@ class MeshParser extends RDFFactory{
 				if($k == "MR"){
 					$date = date_parse($v[0]);
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["MR"], 
 						$date["month"]."-".$date["day"]."-".$date["year"]
 					));
@@ -315,14 +419,14 @@ class MeshParser extends RDFFactory{
 				//add backfile postings
 				if($k == "MED" || $k == "M94" || $k == "M90" || $k == "M85" || $k == "M80" || $k == "75" || $k == "M66"){
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["MED"], 
 						$v[0]));
 				}
 				//add history note
 				if($k == "HN"){
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["HN"], 
 						$v[0]
 					));
@@ -331,7 +435,7 @@ class MeshParser extends RDFFactory{
 				if($k == "DQ"){
 					$date = date_parse($v[0]);
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["DQ"], 
 						$date["month"]."-".$date["day"]."-".$date["year"]
 					));
@@ -340,7 +444,7 @@ class MeshParser extends RDFFactory{
 				if($k == "DA"){
 					$date = date_parse($v[0]);
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["DA"], 
 						$date["month"]."-".$date["day"]."-".$date["year"]
 					));
@@ -348,7 +452,7 @@ class MeshParser extends RDFFactory{
 				//add annotation
 				if($k == "AN"){
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["AN"], 
 						$v[0]
 					));
@@ -356,7 +460,7 @@ class MeshParser extends RDFFactory{
 				//add qualifier type
 				if($k == "QT"){
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["QT"], 
 						$v[0]
 					));
@@ -364,7 +468,7 @@ class MeshParser extends RDFFactory{
 				//Add  topical qualifier abbreviation
 				if($k == "QA"){
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["QA"], 
 						$v[0]
 					));
@@ -372,22 +476,31 @@ class MeshParser extends RDFFactory{
 				//add mesh scope note
 				if($k == "MS"){
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["MS"], 
 						$v[0]
 					));
 				}//if
 				//add the label
 				if($k == "SH"){
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"rdfs:label", 
-						$v[0]." [mesh:".$q_ui."]"
+						$v[0]." [mesh:".$qr_id."]"
 					));
 				}//if
+				//add unique identifier
+				//add qualifier entry version
+				if($k == "UI"){
+					$x = $this->getQualifierDataElements();
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
+						"mesh_vocabulary:".$x["UI"], 
+						$v[0]
+					));
+				}
 				//add qualifier entry version
 				if($k == "QE"){
 					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$q_ui, 
+					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["QE"], 
 						$v[0]
 					));
@@ -395,7 +508,6 @@ class MeshParser extends RDFFactory{
 			}//if
 			$this->WriteRDFBufferToWriteFile();
 		}//foreach
-
 	}//makeQualifierRecord
 
 
@@ -420,6 +532,7 @@ class MeshParser extends RDFFactory{
 		}
 		return $returnMe;
 	}
+
 
 	public function getPackageMap(){
 		return self::$packageMap;
