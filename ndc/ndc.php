@@ -30,7 +30,7 @@ require('../../php-lib/rdfapi.php');
 */
 class NDCParser extends RDFFactory 
 {
-	private version = null;
+	private $version = null;
 	
 	function __construct($argv) {
 		parent::__construct();
@@ -124,12 +124,12 @@ class NDCParser extends RDFFactory
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ndc/ndc.php", 
 			$bio2rdf_download_files,
 			"http://www.fda.gov/Drugs/InformationOnDrugs/ucm142438.htm",
-			array("use","no-commercial"),
+			array("use-share"),
 			null, //license
 			$this->GetParameterValue('download_url'),
 			$this->version
 		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFDatasetFile($this->GetNamespace()));
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
 		$this->GetWriteFile()->Write($desc);
 		$this->GetWriteFile()->Close();
 	}
