@@ -303,7 +303,7 @@ class DrugBankParser extends RDFFactory
 				$this->AddRDF($this->QQuadL($pid,"drugbank_vocabulary:price", $product->cost));
 				
 				$uid = "drugbank_vocabulary:".md5($product->unit);
-				$this->AddRDF($this->QQuadL($pid,"drugbank_vocabulary:form", $uid));
+				$this->AddRDF($this->QQuad($pid,"drugbank_vocabulary:form", $uid));
 				
 				if(!isset($defined[$uid])) {
 					$defined[$uid] = '';
