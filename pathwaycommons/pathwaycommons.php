@@ -21,23 +21,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+require('../../php-lib/biopax2bio2rdf.php');
+
 /**
  * Pathwaycommons RDFizer 
  * @version 1.0
  * @author Michel Dumontier
  * @description http://www.pathwaycommons.org
 */
-require('../../php-lib/rdfapi.php');
-include_once('../../arc2/ARC2.php'); // available on git @ https://github.com/semsol/arc2.git
-
 class PathwaycommonsParser extends RDFFactory 
 {		
 	function __construct($argv) {
 		parent::__construct();
+		$this->SetDefaultNamespace("pathwaycommons");
+		
 		// set and print application parameters
 		$this->AddParameter('files',true,'all|biogrid|cell-map|hprd|humancyc|imid|intact|mint|nci-nature|reactome','all','biopax OWL files to process');
-		$this->AddParameter('indir',false,null,'/data/download/pathwaycommons/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/pathwaycommons/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
+		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
+		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'http://www.pathwaycommons.org/pc-snapshot/current-release/biopax/by_source/');
@@ -47,6 +49,7 @@ class PathwaycommonsParser extends RDFFactory
 		}
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
+		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));		
 		
 		return TRUE;
 	}
@@ -117,6 +120,25 @@ class PathwaycommonsParser extends RDFFactory
 
 	function Parse($data)
 	{
+		$endpoint = "http://s4.semanticscience.org:8010/sparql";
+		// query the endpoint
+		$sparql = 'SELECT *
+WHERE {
+ ?x <http://www.biopax.org/release/biopax-level2.owl#xref> ?xref .
+ ?xref <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type .
+ ?xref <http://www.biopax.org/release/biopax-level2.owl#db> ?db .
+ ?xref <http://www.biopax.org/release/biopax-level2.owl#id> ?id .
+}
+LIMIT 1
+';
+	$a = json_decode(file_get_contents($endpoint.'?query='.urlencode($sparql).'&format=json'));
+	foreach($a->results->bindings AS $r) {
+		print_r($r);exit;
+	}
+	
+	
+	
+	
 	echo 'parsing...';
 		$parser = ARC2::getRDFParser();
 		$parser->parse('http://pathwaycommons.org', $data);
@@ -256,7 +278,7 @@ class PathwaycommonsParser extends RDFFactory
 			case "MINT": return "mint";
 			case "NCBI TAXONOMY": return "taxon";
 			case "NCBI_TAXONOMY": return "taxon";
-			case "NCI": return "ncit";
+			case "NCI": return "pid";
 			case "NEWT": return "newt";
 			case 'PDB': return 'pdb';
 			case 'PDBE': return 'pdb';
