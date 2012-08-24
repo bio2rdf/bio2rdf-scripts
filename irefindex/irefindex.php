@@ -33,11 +33,14 @@ class iREFINDEXParser extends RDFFactory
 {
 	function __construct($argv) { //
 		parent::__construct();
+		$this->SetDefaultNamespace("irefindex");
+		
 		// set and print application parameters
 		$this->AddParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|other','all','all or comma-separated list of files to process');
 		$this->AddParameter('indir',false,null,'/data/download/irefindex/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/irefindex/','directory to place rdfized files');
 		$this->AddParameter('version',false,null,'10182011','dated version of files to download');
+		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'ftp://ftp.no.embnet.org/irefindex/data/current/psimi_tab/MITAB2.6/');
@@ -48,7 +51,7 @@ class iREFINDEXParser extends RDFFactory
 		
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		$this->SetReleaseFileURI("irefindex");
+		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
 		
 		return TRUE;
 	}
@@ -70,7 +73,15 @@ class iREFINDEXParser extends RDFFactory
 			$base_file = ucfirst($file).".mitab.".$this->GetParameterValue("version").".txt";
 			$zip_file  = $base_file.".zip";
 			$lfile = $ldir.$zip_file;
-			$outfile = $odir."irefindex-".$file.".ttl.gz";
+			
+			$ofile = "irefindex-".$file.".nt";
+			$gz = false;
+			if($this->GetParameterValue("gzip") == "true") {
+				$gz = true;
+				$ofile .= ".gz";
+			}
+			$download_files[] = $ofile;
+			
 			if(!file_exists($lfile)) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$this->SetParameterValue('download',true);
@@ -97,7 +108,7 @@ class iREFINDEXParser extends RDFFactory
 				
 			
 			echo "Processing ".$file." ...";
-			$this->SetWriteFile($outfile, true);
+			$this->SetWriteFile($odir.$ofile, true);
 	
 			if($this->Parse() === FALSE) {
 				trigger_error("Parsing Error");
@@ -109,6 +120,23 @@ class iREFINDEXParser extends RDFFactory
 			$zin->close();
 			echo "Done!".PHP_EOL;
 		}
+		
+		// generate the release file
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/irefindex/irefindex.php", 
+			$download_files,
+			"http://irefindex.uio.no", 
+			array("use","by-attribution","no-commercial"), 
+			"http://irefindex.uio.no/wiki/README_MITAB2.6_for_iRefIndex#License",
+			$this->GetParameterValue('download_url'),
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
+		
+		return TRUE;
 	}
 
 	function Parse()
@@ -128,8 +156,11 @@ class iREFINDEXParser extends RDFFactory
 			$ids = explode("|",$a[13],2);
 			$this->GetNS()->ParsePrefixedName($ids[0],$ns,$str);
 			$this->Parse4IDLabel($str,$id,$label);
-			$iid = $this->GetNSMap(strtolower($ns)).":".str_replace('"','',$id);
-			
+			$id = str_replace('"','',$id);
+			$iid = $this->GetNSMap(strtolower($ns)).":$id";
+
+			$this->AddRDF($this->QQuad($iid,"void:inDataset",$this->GetDatasetURI()));
+
 			// get the type
 			if($a[52] == "X") {
 				$label = "Pairwise interaction between $a[0] and $a[1]";

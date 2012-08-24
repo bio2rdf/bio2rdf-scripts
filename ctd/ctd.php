@@ -21,22 +21,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+require('../../php-lib/rdfapi.php');
+
 /** 
  * Parser for CTD: The Comparative Toxicogenomics Database (http://ctd.mdibl.org/)
  * documentation: http://ctdbase.org/downloads
  * download pattern: http://ctd.mdibl.org/reports/XXXX.tsv.gz
 */
-
-
-require('../../php-lib/rdfapi.php');
 class CTDParser extends RDFFactory 
 {
+	private $version = null;
+
 	function __construct($argv) { //
 		parent::__construct();
+		$this->SetDefaultNamespace("ctd");
+		
 		// set and print application parameters
 		$this->AddParameter('files',true,'all|chem_gene_ixns|chem_gene_ixn_types|chemicals_diseases|chem_go_enriched|chem_pathways_enriched|genes_diseases|genes_pathways|diseases_pathways|chemicals|diseases|genes|pathways','all','all or comma-separated list of files to process');
 		$this->AddParameter('indir',false,null,'/data/download/ctd/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/ctd/','directory to place rdfized files');
+		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'http://ctd.mdibl.org/reports/');
@@ -47,7 +51,9 @@ class CTDParser extends RDFFactory
 		
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		$this->SetReleaseFileURI("ctd");
+		if($this->GetParameterValue('graph_uri')) {
+			$this->SetGraphURI($this->GetParameterValue('graph_uri'));
+		}
 		
 		return TRUE;
 	}
@@ -65,11 +71,18 @@ class CTDParser extends RDFFactory
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
 		$rdir = $this->GetParameterValue('download_url');
-		$gz_suffix = ".gz";
+		$gz_suffix = ".gz";		
 
 		foreach($files AS $file) {
 			$lfile = $ldir.$file.$gz_suffix;
-			$outfile = $odir.$file.".ttl.gz";
+			$ofile = $file.".nt";
+			$gz = false;
+			if($this->GetParameterValue('gzip') == "true") {
+				$gz = true;
+				$ofile .= ".gz";
+			}
+			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$ofile;
+			
 			if(!file_exists($lfile)) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$this->SetParameterValue('download',true);
@@ -81,16 +94,22 @@ class CTDParser extends RDFFactory
 				else $suffix = ".tsv.gz";
 				
 				$rfile = $rdir.'CTD_'.$file.$suffix;
-				if($suffix == ".tsv.gz") copy($rfile,$lfile);
-				else {
+				if($suffix == ".tsv.gz") {
+					if(FALSE === copy($rfile,$lfile)) {
+						exit(-1);
+					}
+				} else {
 					$buf = file_get_contents($rfile);
-					file_put_contents("compress.zlib://".$lfile, $buf);
+					$e = file_put_contents("compress.zlib://".$lfile, $buf);
+					if($e === FALSE) {
+						exit(-1);
+					}
 				}
 			}
 			
 			echo "Processing ".$file." ...";
 			$this->SetReadFile($lfile, true);
-			$this->SetWriteFile($outfile, true);
+			$this->SetWriteFile($odir.$ofile, $gz);
 	
 			$fnx = "CTD_".$file;
 			if($this->$fnx() === FALSE) {
@@ -102,6 +121,23 @@ class CTDParser extends RDFFactory
 			$this->GetWriteFile()->Close();
 			echo "Done!".PHP_EOL;
 		}
+		
+		// generate the release file
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ctd/ctd.php", 
+			$bio2rdf_download_files,
+			"http://ctdbase.org", 
+			array("use","no-commercial"), 
+			"http://ctdbase.org/about/legal.jsp",
+			$this->GetParameterValue('download_url'),
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
+		
+		return TRUE;
 	}
 
 
@@ -181,6 +217,7 @@ function CTD_chem_gene_ixns()
 		
 		$this->AddRDF($this->QQuadL($uri,"rdfs:label","interaction between $a[3] (geneid:$gene_id) and $a[0] (mesh:$mesh_id) [$uri]"));
 		$this->AddRDF($this->QQuad($uri,"rdf:type","ctd_vocabulary:Chemical-Gene-Association"));
+		$this->AddRDF($this->QQuad($uri,"void:inDataset",$this->GetDatasetURI()));
 		
 		$this->AddRDF($this->QQuadL($uri,"rdfs:comment","$a[7]"));
 		$this->AddRDF($this->QQuad($uri,"ctd_vocabulary:gene","geneid:$gene_id"));
@@ -232,6 +269,8 @@ function CTD_chemicals_diseases()
 		
 		$this->AddRDF($this->QQuadL($uri, 'rdfs:label',"interaction between $chemical_name ($chemical_id) and disease $disease_name ($disease_ns:$disease_id) [$uri]"));
 		$this->AddRDF($this->QQuad($uri, 'rdf:type', 'ctd_vocabulary:Chemical-Disease-Association'));
+		$this->AddRDF($this->QQuad($uri,"void:inDataset",$this->GetDatasetURI()));
+		
 		$this->AddRDF($this->QQuad($uri, 'ctd_vocabulary:chemical', "mesh:$chemical_id"));
 		$this->AddRDF($this->QQuad($uri, 'ctd_vocabulary:disease', "$disease_ns:$disease_id"));
 		
@@ -399,6 +438,7 @@ function CTD_genes_diseases()
 		
 		$this->AddRDF($this->QQuadL($uri,"rdfs:label","$gene_name (geneid:$gene_id) - $disease_name ($disease_ns:$disease_id) association [$uri]"));
 		$this->AddRDF($this->QQuad($uri,"rdf:type","ctd_vocabulary:Gene-Disease-Association"));
+		$this->AddRDF($this->QQuad($uri,"void:inDataset",$this->GetDatasetURI()));		
 		
 		$this->AddRDF($this->QQuad($uri,"ctd_vocabulary:gene","geneid:$gene_id"));
 		$this->AddRDF($this->QQuad($uri,"ctd_vocabulary:disease","$disease_ns:$disease_id"));
