@@ -156,6 +156,17 @@ class MeshParser extends RDFFactory{
 				}
 			}	
 		}
+
+		$drf = $this->GetBio2RDFDatasetFile("mesh");
+		$this->SetWriteFile($odir.$drf);
+		$d = $this->GetBio2RDFDatasetDescription(
+			"mesh",
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mesh/mesh_parser.php",
+			"",
+			"http://www.nlm.nih.gov/mesh/",
+			array("use"),
+			"http://www.nlm.nih.gov/databases/download.html"
+			);
 	  
 	  //now iterate over the files array
 		foreach ($files as $k => $aFile){	
@@ -275,6 +286,7 @@ class MeshParser extends RDFFactory{
 				"rdfs:label",
 				"$tqa [mesh:".$sr_id."]"
 				));
+		$this->AddRDF($this->QQuad($sr_id, "void:inDataset", $this->getDatasetURI()));
 		foreach($sup_record_arr as $k => $v){
 			if(array_key_exists($k, $this->getSupplementaryConceptRecords())){
 				//date of entry
@@ -419,7 +431,6 @@ class MeshParser extends RDFFactory{
 						addslashes($v[0])
 					));
 				}//if
-
 			}//if
 			$this->WriteRDFBufferToWriteFile();
 		}//foreach
@@ -449,6 +460,8 @@ class MeshParser extends RDFFactory{
 				"rdfs:label",
 				"$tqa [mesh:".$dr_id."]"
 				));
+		$this->AddRDF($this->QQuad($dr_id, "void:inDataset", $this->getDatasetURI()));
+
 		//iterate over the remaining properties
 		foreach($desc_record_arr as $k =>$v){
 			if(array_key_exists($k, $this->getDescriptorDataElements())){
@@ -767,6 +780,8 @@ class MeshParser extends RDFFactory{
 				"rdf:type", 
 				"mesh_vocabulary:qualifier_record"
 				));
+		$this->AddRDF($this->QQuad($qr_id, "void:inDataset", $this->getDatasetURI()));
+
 		//iterate over the remaining properties
 		foreach($qual_record_arr as $k => $v){
 			if(array_key_exists($k, $this->getQualifierDataElements())){
