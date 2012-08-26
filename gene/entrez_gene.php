@@ -32,8 +32,7 @@ require('../../php-lib/rdfapi.php');
 
 class EntrezGeneParser extends RDFFactory{
 
-		private $ns = null;
-		private $named_entries = array();
+		private $version = null;
 		
 		private static $packageMap = array(
 			"geneinfo" => "GENE_INFO/All_Data.gene_info.gz",
@@ -49,10 +48,13 @@ class EntrezGeneParser extends RDFFactory{
 		
 		function __construct($argv) {
 			parent::__construct();
+			$this->SetDefaultNamespace("geneid");
+			
 			// set and print application parameters
 			$this->AddParameter('files',true,'all|geneinfo|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega','','files to process');
 			$this->AddParameter('indir',false,null,'/data/download/gene/','directory to download into and parse from');
 			$this->AddParameter('outdir',false,null,'/data/rdf/gene/','directory to place rdfized files');
+			$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 			$this->AddParameter('download',false,'true|false','false','set true to download files');
 			$this->AddParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/gene/DATA/');
@@ -62,7 +64,8 @@ class EntrezGeneParser extends RDFFactory{
 			}
 			if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 			if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-			$this->SetReleaseFileURI("gene");
+			if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
+			
 		return TRUE;
 	  }//constructor
 	  
@@ -104,7 +107,7 @@ class EntrezGeneParser extends RDFFactory{
 				file_put_contents($lfile,file_get_contents($rfile));
 			}
 			
-			$writefile = $odir.$id.".ttl";
+			$writefile = $odir.$id.".nt";
 			$gz=false;
 			if($this->GetParameterValue('gzip')){
 				$writefile .= '.gz';
@@ -117,7 +120,25 @@ class EntrezGeneParser extends RDFFactory{
 			echo 'done.'.PHP_EOL;
 			$this->GetReadFile()->Close();
 			$this->GetWriteFile()->Close();
+			
+			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$writefile;
 		}//foreach
+		
+		// generate the release file
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/gene/entrez_gene.php", 
+			$bio2rdf_download_files,
+			"http://www.ncbi.nlm.nih.gov/gene",
+			array("use-share-modify"),
+			"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
+			"ftp://ftp.ncbi.nih.gov/gene/",
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
+		
 		return TRUE;
 	}//run
 
@@ -478,6 +499,7 @@ class EntrezGeneParser extends RDFFactory{
 
 						$this->AddRDF($this->QQuadL($eid,"rdfs:label", "$geneid-$goid association [$eid]"));
 						$this->AddRDF($this->QQuad($eid,"rdf:type", "geneid_vocabulary:Gene-GO-Association"));
+						$this->AddRDF($this->QQuad($eid,"void:inDataset",$this->GetDatasetURI()));
 						$this->AddRDF($this->QQuad($eid,"geneid_vocabulary:evidence","eco:$evidenceCode"));
 
 						foreach ($pmids as $pmid){
@@ -517,6 +539,7 @@ class EntrezGeneParser extends RDFFactory{
 				if($symbol != "NEWENTRY"){
 					$this->AddRDF($this->QQuadL($geneid, "rdfs:label", "$description ($symbolid,$taxid) [$geneid]"));
 					$this->AddRDF($this->QQuad($geneid, "rdf:type", "geneid:vocabulary:Gene"));
+					$this->AddRDF($this->QQuad($geneid,"void:inDataset",$this->GetDatasetURI()));
 					if($type_of_gene != '-') {
 						$this->AddRDF($this->QQuad($geneid, "rdf:type", "geneid:vocabulary:".$type_of_gene."-gene"));
 					} 
