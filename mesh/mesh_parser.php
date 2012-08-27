@@ -297,7 +297,9 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["DA"], 
-						$date["month"]."-".$date["day"]."-".$date["year"]
+						$date["month"]."-".$date["day"]."-".$date["year"],
+						null,
+						"xsd:date"
 					));
 				}//if
 				//frequency
@@ -332,7 +334,9 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["MR"], 
-						$date["month"]."-".$date["day"]."-".$date["year"]
+						$date["month"]."-".$date["day"]."-".$date["year"],
+						null,
+						"xsd:date"
 					));
 				}//if
 				//CAS TYPE 1 NAME
@@ -519,7 +523,9 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["DA"], 
-						$date["month"]."-".$date["day"]."-".$date["year"]
+						$date["month"]."-".$date["day"]."-".$date["year"],
+						null,
+						"xsd:date"
 					));
 				}//if
 				//descriptor class
@@ -553,7 +559,9 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["DX"], 
-						$date["month"]."-".$date["day"]."-".$date["year"]
+						$date["month"]."-".$date["day"]."-".$date["year"],
+						null,
+						"xsd:date"
 					));
 				}//if
 
@@ -656,7 +664,9 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["MR"], 
-						$date["month"]."-".$date["day"]."-".$date["year"]
+						$date["month"]."-".$date["day"]."-".$date["year"],
+						null,
+						"xsd:date"
 					));
 				}//if
 				//mesh scope note
@@ -831,7 +841,9 @@ class MeshParser extends RDFFactory{
 					$x = $this->getQualifierDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["MR"], 
-						$date["month"]."-".$date["day"]."-".$date["year"]
+						$date["month"]."-".$date["day"]."-".$date["year"],
+						null,
+						"xsd:date"
 					));
 				}//if
 				//add backfile postings
@@ -855,7 +867,9 @@ class MeshParser extends RDFFactory{
 					$x = $this->getQualifierDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["DQ"], 
-						$date["month"]."-".$date["day"]."-".$date["year"]
+						$date["month"]."-".$date["day"]."-".$date["year"],
+						null,
+						"xsd:date"
 					));
 				}//if
 				//add date of entry
@@ -864,7 +878,9 @@ class MeshParser extends RDFFactory{
 					$x = $this->getQualifierDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["DA"], 
-						$date["month"]."-".$date["day"]."-".$date["year"]
+						$date["month"]."-".$date["day"]."-".$date["year"],
+						null,
+						"xsd:date"
 					));
 				}//if
 				//add annotation
