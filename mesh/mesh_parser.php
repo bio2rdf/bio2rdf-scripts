@@ -888,7 +888,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getQualifierDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["AN"], 
-						$v[0]
+						utf8_encode(htmlspecialchars($v[0]))
 					));
 				}//if
 				//add qualifier type
@@ -904,7 +904,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getQualifierDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["QA"], 
-						$v[0]
+						utf8_encode(htmlspecialchars($v[0]))
 					));
 				}//if
 				//add mesh scope note
@@ -912,7 +912,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getQualifierDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["MS"], 
-						$v[0]
+						utf8_encode(htmlspecialchars($v[0]))
 					));
 				}//if
 				//add the label
@@ -936,7 +936,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getQualifierDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
 						"mesh_vocabulary:".$x["QE"], 
-						$v[0]
+						utf8_encode(htmlspecialchars($v[0]))
 					));
 				}
 			}//if
