@@ -122,11 +122,13 @@ class MeshParser extends RDFFactory{
 	private  $mesh_resource = "mesh_resource:";
 	function __construct($argv) {
 			parent::__construct();
+			$this->SetDefaultNamespace("mesh");
 			// set and print application parameters
-			$this->AddParameter('files',true,'all|descriptor_records|qualifier_records|supplementary_records','','files to process');
+			$this->AddParameter('files',true,null,'all|descriptor_records|qualifier_records|supplementary_records','','files to process');
 			$this->AddParameter('indir',false,null,'/home/jose/tmp/mesh/','directory to download into and parse from');
 			$this->AddParameter('outdir',false,null,'/home/jose/tmp/mesh/n3','directory to place rdfized files');
 			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
+			$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 			$this->AddParameter('download',false,'true|false','false','set true to download files');
 			$this->AddParameter('download_url',false,null,'http://www.nlm.nih.gov/cgi/request.meshdata');
 			if($this->SetParameters($argv) == FALSE) {
@@ -135,7 +137,7 @@ class MeshParser extends RDFFactory{
 			}
 			if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 			if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-			$this->SetReleaseFileURI("mesh");
+			if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
 		return TRUE;
 	  }//constructor
 
@@ -156,17 +158,6 @@ class MeshParser extends RDFFactory{
 				}
 			}	
 		}
-
-		$drf = $this->GetBio2RDFDatasetFile("mesh");
-		$this->SetWriteFile($odir.$drf);
-		$d = $this->GetBio2RDFDatasetDescription(
-			"mesh",
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mesh/mesh_parser.php",
-			"",
-			"http://www.nlm.nih.gov/mesh/",
-			array("use"),
-			"http://www.nlm.nih.gov/databases/download.html"
-			);
 	  
 	  //now iterate over the files array
 		foreach ($files as $k => $aFile){	
@@ -213,6 +204,19 @@ class MeshParser extends RDFFactory{
 			}
 
 		}//foreach
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mesh/mesh_parser.php", 
+			$bio2rdf_download_files,
+			"http://www.nlm.nih.gov/mesh/",
+			array("use"),
+			"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
+			"http://www.nlm.nih.gov/databases/download.html",
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
 		return TRUE;
 	}//run
 
