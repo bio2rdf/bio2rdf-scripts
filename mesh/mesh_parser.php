@@ -33,10 +33,10 @@ SOFTWARE.
 require('../../php-lib/rdfapi.php');
 class MeshParser extends RDFFactory{
 	private static $packageMap = array(
-			"descriptor_records" => "d2012.bin",
-			"qualifier_records" => "q2012.bin",
-			"supplementary_records" => "c2012.bin"					
-		);
+		"descriptor_records" => "d2012.bin",
+		"qualifier_records" => "q2012.bin",
+		"supplementary_records" => "c2012.bin"					
+	);
 	private static $descriptor_data_elements = array(
 		"AN" =>	"annotation",
 		"AQ" =>	"allowable-topical-qualifiers",
@@ -114,19 +114,19 @@ class MeshParser extends RDFFactory{
 		"TH" => "thesaurus-id",
 		"UI" => "unique-identifier"
 	);
-
-
-
 	private  $bio2rdf_base = "http://bio2rdf.org/";
 	private  $mesh_vocab ="mesh_vocabulary:";
 	private  $mesh_resource = "mesh_resource:";
+	private $version = 0.1;
 	function __construct($argv) {
 			parent::__construct();
+			$this->SetDefaultNamespace("mesh");
 			// set and print application parameters
-			$this->AddParameter('files',true,'all|descriptor_records|qualifier_records|supplementary_records','','files to process');
+			$this->AddParameter('files',true,null,'all|descriptor_records|qualifier_records|supplementary_records','','files to process');
 			$this->AddParameter('indir',false,null,'/home/jose/tmp/mesh/','directory to download into and parse from');
 			$this->AddParameter('outdir',false,null,'/home/jose/tmp/mesh/n3','directory to place rdfized files');
 			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
+			$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 			$this->AddParameter('download',false,'true|false','false','set true to download files');
 			$this->AddParameter('download_url',false,null,'http://www.nlm.nih.gov/cgi/request.meshdata');
 			if($this->SetParameters($argv) == FALSE) {
@@ -135,7 +135,7 @@ class MeshParser extends RDFFactory{
 			}
 			if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 			if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-			$this->SetReleaseFileURI("mesh");
+			if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
 		return TRUE;
 	  }//constructor
 
@@ -156,17 +156,6 @@ class MeshParser extends RDFFactory{
 				}
 			}	
 		}
-
-		$drf = $this->GetBio2RDFDatasetFile("mesh");
-		$this->SetWriteFile($odir.$drf);
-		$d = $this->GetBio2RDFDatasetDescription(
-			"mesh",
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mesh/mesh_parser.php",
-			"",
-			"http://www.nlm.nih.gov/mesh/",
-			array("use"),
-			"http://www.nlm.nih.gov/databases/download.html"
-			);
 	  
 	  //now iterate over the files array
 		foreach ($files as $k => $aFile){	
@@ -213,6 +202,19 @@ class MeshParser extends RDFFactory{
 			}
 
 		}//foreach
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mesh/mesh_parser.php", 
+			$this->GetBio2RDFDownloadURL($this->GetNamespace()),
+			"http://www.nlm.nih.gov/mesh/",
+			array("use"),
+			"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
+			"http://www.nlm.nih.gov/databases/download.html",
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
 		return TRUE;
 	}//run
 
@@ -286,7 +288,7 @@ class MeshParser extends RDFFactory{
 				"rdfs:label",
 				"$tqa [mesh:".$sr_id."]"
 				));
-		$this->AddRDF($this->QQuad($sr_id, "void:inDataset", $this->getDatasetURI()));
+		$this->AddRDF($this->QQuad("mesh:".$sr_id, "void:inDataset", $this->getDatasetURI()));
 		foreach($sup_record_arr as $k => $v){
 			if(array_key_exists($k, $this->getSupplementaryConceptRecords())){
 				//date of entry
@@ -450,17 +452,19 @@ class MeshParser extends RDFFactory{
 			return ;
 		}
 		$dr_id = md5($tqa);
+	
 		//create a resource for a mesh descriptor record and type it as such
 		$this->AddRDF($this->QQuad("mesh:".$dr_id, 
 				"rdf:type", 
 				"mesh_vocabulary:descriptor_record"
 				));
+
 		//add the lablel
 		$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 				"rdfs:label",
 				"$tqa [mesh:".$dr_id."]"
 				));
-		$this->AddRDF($this->QQuad($dr_id, "void:inDataset", $this->getDatasetURI()));
+		$this->AddRDF($this->QQuad("mesh:".$dr_id, "void:inDataset", $this->getDatasetURI()));
 
 		//iterate over the remaining properties
 		foreach($desc_record_arr as $k =>$v){
@@ -780,7 +784,7 @@ class MeshParser extends RDFFactory{
 				"rdf:type", 
 				"mesh_vocabulary:qualifier_record"
 				));
-		$this->AddRDF($this->QQuad($qr_id, "void:inDataset", $this->getDatasetURI()));
+		$this->AddRDF($this->QQuad("mesh:".$qr_id, "void:inDataset", $this->getDatasetURI()));
 
 		//iterate over the remaining properties
 		foreach($qual_record_arr as $k => $v){
