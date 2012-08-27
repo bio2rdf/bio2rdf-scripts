@@ -589,9 +589,9 @@ class MeshParser extends RDFFactory{
 				//forward cross reference
 				if($k == "FX"){
 					$x = $this->getDescriptorDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
+					$this->AddRDF($this->QQuad("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["FX"], 
-						md5($v[0])
+						"mesh:".md5($v[0])
 					));
 				}//if
 				//grateful med note
