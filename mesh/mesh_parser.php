@@ -307,7 +307,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["FR"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//heading mapped to
@@ -315,7 +315,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["HM"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//indexing information
@@ -324,7 +324,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 							"mesh_vocabulary:".$x["II"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -344,7 +344,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["N1"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//name of substance
@@ -352,7 +352,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["NM_TH"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//note
@@ -360,7 +360,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["NO"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//pharmacological action
@@ -368,7 +368,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["PA"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//previous index
@@ -377,7 +377,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 							"mesh_vocabulary:".$x["PI"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -386,7 +386,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["RN"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//related cas registry number
@@ -395,7 +395,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 							"mesh_vocabulary:".$x["RR"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -405,7 +405,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 							"mesh_vocabulary:".$x["SO"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -415,7 +415,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 							"mesh_vocabulary:".$x["SY"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -425,7 +425,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 							"mesh_vocabulary:".$x["ST"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -434,7 +434,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getSupplementaryConceptRecords();
 					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
 						"mesh_vocabulary:".$x["UI"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 			}//if
@@ -479,7 +479,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 								"mesh_vocabulary:".$x["AN"],
-								addslashes($vv)
+								htmlspecialchars($vv)
 								));
 					}//foreach
 				}//if
@@ -491,7 +491,7 @@ class MeshParser extends RDFFactory{
 						foreach($vvrar as $aq){
 							$this->AddRDF($this->QQuad("mesh:".$dr_id, 
 									"mesh_vocabulary:".$x["AQ"],
-									"mesh:".md5($aq)
+									"mesh:".md5(trim($aq))
 									));
 						}//foreach
 					}//foreach
@@ -501,7 +501,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["CATSH"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));					
 				}//if
 				//add CONSIDER ALSO XREF
@@ -533,7 +533,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["DC"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//descriptor entry version
@@ -541,7 +541,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["DE"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//descriptor sort version
@@ -549,7 +549,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["DS"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 
@@ -583,7 +583,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["PRINT ENTRY"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//entry
@@ -591,7 +591,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["ENTRY"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//forward cross reference
@@ -615,7 +615,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["HN"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//backfile postings
@@ -627,7 +627,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["MED"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//mesh heading 
@@ -635,7 +635,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["HN"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//mesh heading thesaurus id
@@ -644,7 +644,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 							"mesh_vocabulary:".$x["MH_TH"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -674,7 +674,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["MS"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//CAS TYPE 1 NAME
@@ -682,7 +682,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["N1"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//online note
@@ -690,7 +690,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["OL"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//pharmacological action
@@ -698,7 +698,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["PA"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//previous index
@@ -707,7 +707,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 							"mesh_vocabulary:".$x["PI"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -716,7 +716,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["PM"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//pre explosion
@@ -724,7 +724,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["PX"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//running head, mesh tree structures
@@ -732,7 +732,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["RH"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//cas registry number/ ec number
@@ -740,7 +740,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["RN"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 				//related cas registry number
@@ -749,7 +749,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 							"mesh_vocabulary:".$x["RR"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -759,7 +759,7 @@ class MeshParser extends RDFFactory{
 					foreach($v as $kv => $vv){
 						$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 							"mesh_vocabulary:".$x["ST"], 
-							addslashes($vv)
+							htmlspecialchars($vv)
 						));
 					}
 				}//if
@@ -768,7 +768,7 @@ class MeshParser extends RDFFactory{
 					$x = $this->getDescriptorDataElements();
 					$this->AddRDF($this->QQuadL("mesh:".$dr_id, 
 						"mesh_vocabulary:".$x["UI"], 
-						addslashes($v[0])
+						htmlspecialchars($v[0])
 					));
 				}//if
 			}//if
