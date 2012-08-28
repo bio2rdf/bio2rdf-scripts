@@ -184,3 +184,4 @@ class BiomodelsParser extends RDFFactory
 set_error_handler('error_handler');
 $parser = new BiomodelsParser($argv);
 $parser->Run();
+?>
