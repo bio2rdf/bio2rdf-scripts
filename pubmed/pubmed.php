@@ -170,7 +170,7 @@ class PubmedParser extends RDFFactory
 			$pubmodel = $citation->Article['PubModel'];
 
 			$id = "pubmed:".$pmid;
-			$this->AddRDF($this->QQuadL($id, "rdfs:label", "$articleTitle [pubmed:$id]"));
+			$this->AddRDF($this->QQuadL($id, "rdfs:label", "$articleTitle [$id]"));
 			$this->AddRDF($this->QQuad($id, "rdf:type", "pubmed_vocabulary:PubMedRecord"));
 			$this->AddRDF($this->QQuad($id, "dc:identifier", "pubmed:$pmid"));
 			$this->AddRDF($this->QQuad($id,"void:inDataset",$this->GetDatasetURI()));
