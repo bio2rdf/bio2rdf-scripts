@@ -74,7 +74,7 @@ class BiomodelsParser extends RDFFactory
 					echo $e->getMessage(); 
 				} 
 				$entries = $x->getAllModelsId();
-				file_put_contents(json_encode($entries));
+				file_put_contents($file,json_encode($entries));
 			} else {
 				$entries = json_decode(file_get_contents($file));
 			}
@@ -88,7 +88,7 @@ class BiomodelsParser extends RDFFactory
 					echo $e->getMessage(); 
 				} 
 				$entries = $x->getAllCuratedModelsId();
-				file_put_contents(json_encode($entries));
+				file_put_contents($file,json_encode($entries));
 			} else {
 				$entries = json_decode(file_get_contents($file));
 			}			
@@ -98,13 +98,13 @@ class BiomodelsParser extends RDFFactory
 				$start_range = substr($list,0,$pos);
 				$end_range = substr($list,$pos+1);
 				for($i=$start_range;$i<=$end_range;$i++) {
-					$entries[] = $i;
+					$entries[] = $this->GeneratedBIOMD($i);
 				}
 			} else {
 				// for comma separated list
 				$b = explode(",",$this->GetParameterValue('files'));
 				foreach($b AS $e) {
-					$entries[] = $e;
+					$entries[] = $this->GeneratedBIOMD($e);
 				}
 			}		
 		}
@@ -143,7 +143,10 @@ class BiomodelsParser extends RDFFactory
 			$buf = file_get_contents("compress.zlib://".$download_file);
 			
 			$converter = new BioPAX2Bio2RDF();
-			$converter->SetBuffer($buf)->SetBioPAXVersion(3)->SetBaseNamespace("http://identifiers.org/biomodels.db/$id/")->SetBio2RDFNamespace("http://bio2rdf.org/biomodels:");
+			$converter->SetBuffer($buf)
+				->SetBioPAXVersion(3)
+				->SetBaseNamespace("http://identifiers.org/biomodels.db/$id/")
+				->SetBio2RDFNamespace("http://bio2rdf.org/biomodels:");
 			$this->AddRDF($converter->Parse());
 			$this->WriteRDFBufferToWriteFile();
 		
@@ -167,135 +170,18 @@ class BiomodelsParser extends RDFFactory
 		$this->GetWriteFile()->Close();
 		
 		return true;
-	}
+	}	
 	
-	function Parse($id)
+	function GeneratedBIOMD($id)
 	{
-		$buf = '';
-		while($l = $this->GetReadFile()->Read()) $buf .= $l;
-	
-		// read into rdf model
-		require('../../arc2/ARC2.php');
-		$parser = ARC2::getRDFXMLParser();
-		$parser->parse('http://bio2rdf.org/',$buf);
-		
-		$index = $parser->getSimpleIndex(0);
-		$base_uri = 'http://bio2rdf.org/biomodels:'.$id.'_';
-		
-		// print_r($index);
-		foreach($index AS $s => $p_list) {
-			$s_uri = str_replace(
-				array('http://bio2rdf.org/'),
-				array($base_uri),
-				$s);
-			
-			if( isset($p_list['http://www.biopax.org/release/biopax-level3.owl#db'])
-			 && isset($p_list['http://www.biopax.org/release/biopax-level3.owl#id'])) {
-
-				$db = $p_list['http://www.biopax.org/release/biopax-level3.owl#db'][0]['value'];
-				$id = $p_list['http://www.biopax.org/release/biopax-level3.owl#id'][0]['value'];
-				
-				if(!$db || !$id) continue;
-				
-				// sometimes we see stupid stuff like go:XXXXXX in the id
-				$this->GetNS()->ParsePrefixedName($id,$ns2,$id2);
-				if($ns2) $id = $id2;
-				
-				$qname = $this->MapDB($db).":".$id;
-				$o_uri = $this->GetNS()->getFQURI($qname);
-				$this->AddRDF($this->QuadL($s_uri,$this->GetNS()->GetFQURI("rdfs:label"), $qname));
-				$type = $p_list['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'][0]['value'];
-				if($type == 'http://www.biopax.org/release/biopax-level3.owl#UnificationXref') {
-					$this->AddRDF($this->Quad($s_uri,$this->GetNS()->GetFQURI("owl:sameAs"),$o_uri));
-				} elseif($type == 'http://www.biopax.org/release/biopax-level3.owl#RelationshipXref') {
-					$this->AddRDF($this->Quad($s_uri,$this->GetNS()->GetFQURI("biopaxl2:relationshipXref"),$o_uri));
-				}
-				//echo $this->GetRDF();exit;
-				// continue;
-			}
-			
-			// make the original uri the same as the bio2rdf uri
-			// $this->AddRDF($this->Quad($s_uri,$nso->GetFQURI("owl:sameAs"),$s));
-			
-			foreach($p_list AS $p => $o_list) {
-				$p_uri = $p;
-				
-				foreach($o_list AS $o) {
-					if($o['type'] == 'uri') {
-						$o_uri = str_replace(
-							array("http://bio2rdf.org/"),
-							array($base_uri),
-							$o['value']);					
-						$this->AddRDF($this->Quad($s_uri,$p_uri,$o_uri));
-						
-						if(strstr($o_uri,"http://identifiers.org")) {
-							// this is a reference to identifiers.org xref
-							$mylist[$s_uri][] = $o_uri;
-						}	
-					} else {
-						// literal
-						$literal = $this->SafeLiteral($o['value']);
-						$datatype = null;
-						if(isset($o['datatype'])) {
-							if(strstr($o['datatype'],"http://")) {
-								$datatype = $o['datatype'];
-							} else {
-								$datatype = $nso->GetFQURI($o['datatype']);
-							}
-						}
-						$this->AddRDF($this->QuadL($s_uri,$p_uri,$literal,null,$datatype));
-					}
-				}
-			}
-		
-		}
-		
-		
-	}
-	
-	function MapDB($db)
-	{
-		$ns_map = array(
-		"BioModels Database"=> array('identifiers.org'=>'biomodels.db','bio2rdf.org'=>'biomodels'),
-		"Brenda Tissue Ontology"=> array('identifiers.org'=>'obo.bto','bio2rdf.org'=>'bto'),
-		"Cell Type Ontology" => array('identifiers.org'=>'obo.cto','bio2rdf.org'=>'cto'),
-		"Cell Cycle Ontology" => array('identifiers.org'=>'obo.cco','bio2rdf.org'=>'cco'),
-		"ChEBI" => array('identifiers.org'=>'chebi','bio2rdf.org'=>'chebi'),
-		"DOI"=>array('identifiers.org'=>'doi','bio2rdf.org'=>'doi'),
-		"Ensembl"=> array('identifiers.org'=>'ensembl','bio2rdf.org'=>'ensembl'),
-		"Enzyme Nomenclature"=> array('identifiers.org'=>'ec-code','bio2rdf.org'=>'ec'),
-		"FMA"=> array('identifiers.org'=>'obo.fma','bio2rdf.org'=>'fma'),
-		"Gene Ontology"=> array('identifiers.org'=>'obo.go','bio2rdf.org'=>'go'),
-		"Human Disease Ontology"=> array('identifiers.org'=>'obo.do','bio2rdf.org'=>'do'),
-		"ICD"=> array('identifiers.org'=>'icd','bio2rdf.org'=>'icd9'),
-		"IntAct"=>array('identifiers.org'=>'intact','bio2rdf.org'=>'intact'),
-		"InterPro"=> array('identifiers.org'=>'interpro','bio2rdf.org'=>'interpro'),
-
-		"KEGG Compound"=> array('identifiers.org'=>'kegg.compound','bio2rdf.org'=>'kegg'),
-		"KEGG Pathway"=> array('identifiers.org'=>'kegg.pathway','bio2rdf.org'=>'kegg'),
-		"KEGG Reaction"=> array('identifiers.org'=>'kegg.reaction','bio2rdf.org'=>'kegg'),		
-
-		"NARCIS"=> array('identifiers.org'=>'narcis','bio2rdf.org'=>'narcis'),
-		
-		"OMIM" => array('identifiers.org'=>'omim','bio2rdf.org'=>'omim'),
-		"PATO" => array('identifiers.org'=>'obo.pato','bio2rdf.org'=>'pato'),
-		"PIRSF"=> array('identifiers.org'=>'pirsf','bio2rdf.org'=>'pirsf'),
-		"Protein Modification Ontology"=> array('identifiers.org'=>'obo.psi-mod','bio2rdf.org'=>'psi-mod'),
-		"PubMed"=> array('identifiers.org'=>'pubmed','bio2rdf.org'=>'pubmed'),
-
-		"Reactome"=> array('identifiers.org'=>'reactome','bio2rdf.org'=>'reactome'),
-		"Taxonomy"=> array('identifiers.org'=>'taxonomy','bio2rdf.org'=>'taxon'),
-		"UniProt"=> array('identifiers.org'=>'uniprot','bio2rdf.org'=>'uniprot')
-	);
-		if(isset($ns_map[$db])) {
-			return $ns_map[$db]['bio2rdf.org'];
-		} else {
-			echo "could not find $db in mapping file";
-			return $db;
-		}
+		$n = strlen($id);
+		$pad = '';
+		for($i=0;$i<(10-$n);$i++) {$pad .= '0';}
+		return 'BIOMD'.$pad.$id;					
 	}
 }
 
 set_error_handler('error_handler');
 $parser = new BiomodelsParser($argv);
 $parser->Run();
+?>
