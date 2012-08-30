@@ -25,7 +25,7 @@ require('../../php-lib/biopax2bio2rdf.php');
 
 /**
  * BioModels RDFizer
- * @version 1.0
+ * @version 1.0 
  * @author Michel Dumontier
  * @description http://www.ebi.ac.uk/biomodels-main/
 */
