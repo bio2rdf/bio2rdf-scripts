@@ -252,19 +252,19 @@ class DrugBankParser extends RDFFactory
 		// <mixtures><mixture><name>Cauterex</name><ingredients>dornase alfa + fibrinolysin + gentamicin sulfate</ingredients></mixture>
 		if(isset($x->mixtures)) {
 			$id = 0;
-			foreach($x->mixtures AS $item) {
-				if(isset($item->mixture)) {
-					$o = $item->mixture;
+			foreach($x->mixtures->mixture AS $item) {
+				if(isset($item)) {
+					$o = $item;
 					$mid = "drugbank_resource:".str_replace(" ","-",$o->name);
 					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:mixture",$mid));
 					$this->AddRDF($this->QQuad($mid,"rdf:type","drugbank_vocabulary:Mixture"));
-					$this->AddRDF($this->QQuadL($mid,"rdfs:label",$o->name));
+					$this->AddRDF($this->QQuadL($mid,"rdfs:label",$o->name." [$mid]"));
 					$this->AddRDF($this->QQuadText($mid,"drugbank_vocabulary:ingredients",$o->ingredients));
 					$a = explode(" + ",$o->ingredients);
 					foreach($a AS $b) {
 						$b = trim($b);
 						$iid = "drugbank_resource:".str_replace(" ","-",$b);
-						$this->AddRDF($this->QQuadL($iid,"rdfs:label",$b));
+						$this->AddRDF($this->QQuadL($iid,"rdfs:label",$b." [$iid]"));
 						$this->AddRDF($this->QQuad($mid,"drugbank_vocabulary:ingredient",$iid));
 					}
 				}

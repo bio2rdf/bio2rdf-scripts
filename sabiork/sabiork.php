@@ -42,6 +42,7 @@ class SABIORKParser extends RDFFactory
 		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
 		$this->AddParameter('download',false,'true|false','false','Force data download');
+		$this->AddParameter('download_url',false,null,'http://sabiork.h-its.org/sabioRestWebServices/','Download API');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		if($this->SetParameters($argv) == FALSE) {
@@ -59,7 +60,28 @@ class SABIORKParser extends RDFFactory
 	{
 		$idir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
-		
+		$files = $this->GetParameterValue('files');
+	
+		// set the work
+		if($files != 'all') {
+			// check if comma-separated, or hyphen-range
+			$list = explode(",",$files);
+			if(count($list) == 1) {
+				// try hyphen separated
+				$range = explode("-",$files);
+				if(count($range) == 2) {
+					for($i=$range[0];$i<=$range[1];$i++) {
+						$myfiles[] = $i;
+					}
+				} else {
+					// must a single entry
+					$myfiles[] = $files;					
+				}
+			} else {
+				$myfiles = $list;
+			}
+		}
+
 		$rest_uri = 'http://sabiork.h-its.org/sabioRestWebServices/';
 		$getReactionIds_url = $rest_uri."suggestions/SABIOReactionIDs";
 		
@@ -75,8 +97,15 @@ class SABIORKParser extends RDFFactory
 		}
 		
 		$xml = simplexml_load_file($reaction_list_file);
+		$total = count($xml->SABIOReactionID);
+		if(isset($myfiles)) $total = count($myfiles);
+		$i = 0;
 		foreach($xml->SABIOReactionID AS $rid) {
-			echo "Reaction $rid ";
+			if(isset($myfiles)) {
+				if(!in_array($rid,$myfiles)) continue;
+			}
+			$i++;
+			echo "$i / $total : reaction $rid";
 			$reaction_file = $idir."reaction_".$rid.".owl.gz";
 			if(!file_exists($reaction_file) || $this->GetParameterValue('download') == 'true') {
 				$url = $rest_uri.'searchKineticLaws/biopax?q=SabioReactionID:'.$rid;
@@ -93,7 +122,10 @@ class SABIORKParser extends RDFFactory
 	
 			// send for parsing
 			$p = new BioPAX2Bio2RDF();
-			$p->SetBuffer($buf)->SetBioPAXVersion(3)->SetBaseNamespace("http://sabio.h-its.org/biopax#")->SetBio2RDFNamespace("http://bio2rdf.org/sabiork:");
+			$p->SetBuffer($buf)
+				->SetBioPAXVersion(3)
+				->SetBaseNamespace("http://sabio.h-its.org/biopax#")
+				->SetBio2RDFNamespace("http://bio2rdf.org/sabiork:");
 			$rdf = $p->Parse();
 			
 			$ofile = "sabiork_$rid.owl";
@@ -107,9 +139,10 @@ class SABIORKParser extends RDFFactory
 			$this->GetWriteFile()->Close();
 			
 			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$ofile; 
+			echo PHP_EOL;
 		}
 			
-			
+
 		// generate the release file
 		$desc = $this->GetBio2RDFDatasetDescription(
 			$this->GetNamespace(),
@@ -130,3 +163,5 @@ class SABIORKParser extends RDFFactory
 set_error_handler('error_handler');
 $parser = new SABIORKParser($argv);
 $parser->Run();
+?>
+
