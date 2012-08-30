@@ -98,13 +98,13 @@ class BiomodelsParser extends RDFFactory
 				$start_range = substr($list,0,$pos);
 				$end_range = substr($list,$pos+1);
 				for($i=$start_range;$i<=$end_range;$i++) {
-					$entries[] = $this->GeneratedBIOMD($i);
+					$entries[] =  "BIOMD".str_pad($i,10,"0",STR_PAD_LEFT);
 				}
 			} else {
 				// for comma separated list
 				$b = explode(",",$this->GetParameterValue('files'));
 				foreach($b AS $e) {
-					$entries[] = $this->GeneratedBIOMD($e);
+					$entries[] = "BIOMD".str_pad($e,10,"0",STR_PAD_LEFT);
 				}
 			}		
 		}
@@ -171,14 +171,7 @@ class BiomodelsParser extends RDFFactory
 		
 		return true;
 	}	
-	
-	function GeneratedBIOMD($id)
-	{
-		$n = strlen($id);
-		$pad = '';
-		for($i=0;$i<(10-$n);$i++) {$pad .= '0';}
-		return 'BIOMD'.$pad.$id;					
-	}
+
 }
 
 set_error_handler('error_handler');
