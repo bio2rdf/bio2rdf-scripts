@@ -179,14 +179,13 @@ class iREFINDEXParser extends RDFFactory
 			// generate the label
 			// interaction type[52] by method[6]
 			if($a[6] != '-') {
-				$this->ParseString($a[6],$ns,$id,$method);
-				$qname = $this->GetNS()->MapQName("$ns:$id");
-				$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:method",$qname));
+				$qname = $this->ParseString($a[6],$ns,$id,$method);
+				if($qname) $this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:method",$qname));
 			}
 
 			$method_label = '';
 			if($method != 'NA' && $method != '-1') $method_label = " identified by $method ";
-			$this->AddRDF($this->QQuadL($iid,"rdfs:label","$label".$method_label."[$iid]"));
+			$this->AddRDF($this->QQuadL($iid,"rdfs:label","$label".$method_label." [$iid]"));
 			$this->AddRDF($this->QQuadO_URL($iid,"rdfs:seeAlso","http://wodaklab.org/iRefWeb/interaction/show/".$a[50]));
 
 			// set the interators
@@ -194,29 +193,25 @@ class iREFINDEXParser extends RDFFactory
 				$p = 'a';
 				if($i == 1) $p = 'b';
 
-				$this->ParseString($a[$i],$ns,$id,$label);
-				$interactor = $this->GetNS()->MapQName("$ns:$id");
+				$interactor = $this->ParseString($a[$i],$ns,$id,$label);
 				$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:interactor_$p",$interactor));
 
 				// biological role
 				$role = $a[16+$i];
 				if($role != '-') {
-					$this->ParseString($role,$ns,$id,$label);
-					$qname = $this->GetNS()->MapQName("$ns:$id");
+					$qname = $this->ParseString($role,$ns,$id,$label);
 					if($qname != "mi:0000") $this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:interactor_$p"."_biological_role",$qname));
 				}
 				// experimental role
 				$role = $a[18+$i];
 				if($role != '-') {
-					$this->ParseString($role,$ns,$id,$label);
-					$qname = $this->GetNS()->MapQName("$ns:$id");
+					$qname = $this->ParseString($role,$ns,$id,$label);
 					if($qname != "mi:0000") $this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:interactor_$p"."_experimental_role",$qname));
 				}
 				// interactor type
 				$type = $a[20+$i];
 				if($type != '-') {
-					$this->ParseString($type,$ns,$id,$label);
-					$qname = $this->GetNS()->MapQName("$ns:$id");
+					$qname = $this->ParseString($type,$ns,$id,$label);
 					$this->AddRDF($this->QQuad($interactor,"rdf:type",$qname));
 				}
 			}
@@ -231,18 +226,16 @@ class iREFINDEXParser extends RDFFactory
 					$this->AddRDF($this->QQuad($irogid,"rdf:type","irefindex_vocabulary:Taxon-Sequence-Identical-Group"));
 					$tax = $a[9+($i-2)];
 					if($tax != '-') {
-						$this->ParseString($tax,$ns,$id,$label);
-						$taxid = $this->GetNS()->MapQName("$ns:$id");
+						$taxid = $this->ParseString($tax,$ns,$id,$label);
 						$this->AddRDF($this->QQuad($irogid,"irefindex_vocabulary:taxon",$taxid));
 					}
 				}
 
 				$list = explode("|",$a[3]);
 				foreach($list AS $item) {
-					$this->ParseString($item,$ns,$id,$label);
-					if($ns != 'irefindex_rogid' && $ns != 'irefindex_irogid') {
-						$qname = $this->GetNS()->MapQName("$ns:$id");
-						if($ns) $this->AddRDF($this->QQuad($qname,"irefindex_vocabulary:taxon-sequence-identical-group",$irogid));	
+					$qname = $this->ParseString($item,$ns,$id,$label);
+					if($ns && $ns != 'irefindex_rogid' && $ns != 'irefindex_irogid') {
+						$this->AddRDF($this->QQuad($qname,"irefindex_vocabulary:taxon-sequence-identical-group",$irogid));	
 						if($taxid) $this->AddRDF($this->QQuad($qname,"irefindex_vocabulary:taxon",$taxid));
 					}
 				}
@@ -258,10 +251,9 @@ class iREFINDEXParser extends RDFFactory
 
 				$list = explode("|",$a[3]);
 				foreach($list AS $item) {
-					$this->ParseString($item,$ns,$id,$label);
-					$qname = $this->GetNS()->MapQName("$ns:$id");
-					if($ns != 'crogid' && $ns != 'icrogid') {
-						if($ns) $this->AddRDF($this->QQuad($qname,"irefindex_vocabulary:taxon-sequence-similar-group",$icrogid));	
+					$qname = $this->ParseString($item,$ns,$id,$label);
+					if($ns && $ns != 'crogid' && $ns != 'icrogid') {
+						$this->AddRDF($this->QQuad($qname,"irefindex_vocabulary:taxon-sequence-similar-group",$icrogid));	
 					}
 				}
 			}
@@ -270,15 +262,13 @@ class iREFINDEXParser extends RDFFactory
 			$list = explode("|",$a[8]);
 			foreach($list AS $item) {
 				if($item == '-') continue;
-				$this->ParseString($item,$ns,$id,$label);
-				$qname = $this->GetNS()->MapQName("$ns:$id");
+				$qname = $this->ParseString($item,$ns,$id,$label);
 				$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:article",$qname));
 			}
 			
 			// MI interaction type
 			if($a[11] != '-' && $a[11] != 'NA') {
-				$this->ParseString($a[11],$ns,$id,$label);
-				$qname = $this->GetNS()->MapQName("$ns:$id");
+				$qname = $this->ParseString($a[11],$ns,$id,$label);
 				$this->AddRDF($this->QQuad($iid,"rdf:type",$qname));
 				if(!isset($defined[$qname])) {
 					$defined[$qname] = '';
@@ -288,15 +278,14 @@ class iREFINDEXParser extends RDFFactory
 			
 			// source
 			if($a[12] != '-') {
-				$this->ParseString($a[12],$ns,$id,$label);
-				$qname = $this->GetNS()->MapQName("$ns:$id");
+				$qname = $this->ParseString($a[12],$ns,$id,$label);
 				$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:source",$qname));
 			}
 		
 			// confidence
 			$list = explode("|",$a[14]);
 			foreach($list AS $item) {
-				$this->ParseString($item,$ns,$id,$label);
+				$qname = $this->ParseString($item,$ns,$id,$label);
 				if($ns == 'lpr') {
 					//  lowest number of distinct interactions that any one article reported
 					$this->AddRDF($this->QQuadL($iid,"irefindex_vocabulary:minimum-number-interactions-reported",$id));
@@ -316,8 +305,7 @@ class iREFINDEXParser extends RDFFactory
 
 			// host organism
 			if($a[28] != '-') {
-				$this->ParseString($a[28],$ns,$id,$label);
-				$qname = $this->GetNS()->MapQName("$ns:$id");
+				$qname = $this->ParseString($a[28],$ns,$id,$label);
 				$this->AddRDF($this->QQuad($iid,"irefindex_vocabulary:host-organism",$qname));
 			}
 
@@ -338,9 +326,14 @@ class iREFINDEXParser extends RDFFactory
 	{
 		$this->GetNS()->ParsePrefixedName($string,$ns,$str);
 		$this->Parse4IDLabel($str,$id,$label);
-		if($ns == 'complex') $ns = 'rogid';
-		$id = trim($id);
 		$label = trim($label);
+		$id = trim($id);
+		if($ns == 'other' || $ns == 'xx') $ns = '';
+		if($ns == 'complex') $ns = 'rogid';
+		if($ns) {
+			return $this->GetNS()->MapQName("$ns:$id");
+		} else return '';
+
 	}
 
 	function Parse4IDLabel($str,&$id,&$label)
@@ -355,16 +348,6 @@ class iREFINDEXParser extends RDFFactory
 		}
 	}
 	
-	function getNSMap($ns)
-	{
-		$nsmap = array(
-			'complex' => '',
-			'other' => '',					
-			'xx' => '',
-		);
-		if(isset($nsmap[$ns])) return $nsmap[$ns];
-		return $ns;
-	}
 }
 
 set_error_handler('error_handler');
