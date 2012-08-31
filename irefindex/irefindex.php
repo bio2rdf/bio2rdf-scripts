@@ -285,7 +285,7 @@ class iREFINDEXParser extends RDFFactory
 			// confidence
 			$list = explode("|",$a[14]);
 			foreach($list AS $item) {
-				$qname = $this->ParseString($item,$ns,$id,$label);
+				$this->ParseString($item,$ns,$id,$label);
 				if($ns == 'lpr') {
 					//  lowest number of distinct interactions that any one article reported
 					$this->AddRDF($this->QQuadL($iid,"irefindex_vocabulary:minimum-number-interactions-reported",$id));
@@ -330,6 +330,8 @@ class iREFINDEXParser extends RDFFactory
 		$id = trim($id);
 		if($ns == 'other' || $ns == 'xx') $ns = '';
 		if($ns == 'complex') $ns = 'rogid';
+		if($ns == 'hpr' || $ns == 'lpr' || $ns == 'hp' || $ns == 'np') return '';
+		
 		if($ns) {
 			return $this->GetNS()->MapQName("$ns:$id");
 		} else return '';
