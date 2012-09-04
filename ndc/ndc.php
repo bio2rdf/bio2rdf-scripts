@@ -63,21 +63,21 @@ class NDCParser extends RDFFactory
 		$lfile = substr($rfile, strrpos($rfile,"/")+1);
 		
 		// check if exists
-		if(!file_exists($lfile)) {
-			trigger_error($lfile." not found. Will attempt to download. ", E_USER_NOTICE);
+		if(!file_exists($ldir.$lfile)) {
+			trigger_error($ldir.$lfile." not found. Will attempt to download. ", E_USER_NOTICE);
 			$this->SetParameterValue('download',true);
 		}
 		
 		// download
 		if($this->GetParameterValue('download') == true) {
 			trigger_error("Downloading $rfile", E_USER_NOTICE);
-			file_put_contents($lfile, file_get_contents($rfile));
+			file_put_contents($ldir.$lfile, file_get_contents($rfile));
 		}
 
 		// make sure we have the zip archive
 		$zin = new ZipArchive();
-		if ($zin->open($lfile) === FALSE) {
-			trigger_error("Unable to open $lfile");
+		if ($zin->open($ldir.$lfile) === FALSE) {
+			trigger_error("Unable to open $ldir$lfile");
 			exit;
 		}
 		
@@ -99,7 +99,7 @@ class NDCParser extends RDFFactory
 			}
 			
 			// set the write file
-			$outfile = $file.'.ttl'; $gz=false;
+			$outfile = $file.'.nt'; $gz=false;
 			if($this->GetParameterValue('gzip')) {
 				$outfile .= '.gz';
 				$gz = true;
@@ -119,6 +119,7 @@ class NDCParser extends RDFFactory
 		
 		
 		// generate the release file
+		$this->DeleteBio2RDFReleaseFiles($odir);
 		$desc = $this->GetBio2RDFDatasetDescription(
 			$this->GetNamespace(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ndc/ndc.php", 
