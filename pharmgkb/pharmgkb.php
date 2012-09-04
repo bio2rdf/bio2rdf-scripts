@@ -190,10 +190,6 @@ class PharmGKBParser extends RDFFactory
 			$this->AddRDF($this->QQuad($id,"rdf:type","pharmgkb_vocabulary:Gene"));
 			$this->AddRDF($this->QQuad($id,"void:inDataset",$this->GetDatasetURI()));
 			
-			// link to release				
-			$this->AddRDF($this->Quad($this->GetNS()->getFQURI($id), "bio2rdf_vocabulary:version", $this->GetBio2RDFReleaseFile($this->GetNamespace())));
-			$this->AddRDF($this->Quad($this->GetBio2RDFReleaseFile($this->GetNamespace()), $this->GetNS()->getFQURI("dc:subject"), $this->GetNS()->getFQURI($id)));
-			
 			// link data
 			$this->AddRDF($this->Quad($this->GetNS()->getFQURI($id),$this->GetNS()->getFQURI("rdfs:seeAlso"),"http://pharmgkb.org/gene/".$a[0]));
 			$this->AddRDF($this->Quad($this->GetNS()->getFQURI($id),$this->GetNS()->getFQURI("owl:sameAs"),"http://www4.wiwiss.fu-berlin.de/diseasome/resource/genes/$a[0]"));
