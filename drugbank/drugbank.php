@@ -402,8 +402,8 @@ class DrugBankParser extends RDFFactory
 					$this->AddRDF($this->QQuadL($id,"drugbank_vocabulary:value",$value));					
 
 					// type
-					$tid = "drugbank_resource:".md5($type);
-					$this->AddRDF($this->QQuad($id,"rdf:type","drugbank_vocabulary:$tid"));
+					$tid = "drugbank_vocabulary:".md5($type);
+					$this->AddRDF($this->QQuad($id,"rdf:type",$tid));
 					if(!isset($defined[$tid])) {
 						$defined[$tid] = '';
 						$this->AddRDF($this->QQuadL($tid,"rdfs:label","$type [$tid]"));
