@@ -33,12 +33,17 @@ require('../../php-lib/rdfapi.php');
 
 class DrugBankParser extends RDFFactory 
 {
+	private $version = null;
+	
 	function __construct($argv) {
 		parent::__construct();
+		$this->SetDefaultNamespace("drugbank");
+		
 		// set and print application parameters
 		$this->AddParameter('files',true,'all|drugbank.xml.zip','all','files to process');
-		$this->AddParameter('indir',false,null,'/data/download/drugbank/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/drugbank/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
+		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
+		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'http://www.drugbank.ca/system/downloads/current/');
@@ -49,6 +54,7 @@ class DrugBankParser extends RDFFactory
 		
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
+		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
 		
 		return TRUE;
 	}
@@ -66,31 +72,48 @@ class DrugBankParser extends RDFFactory
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
 		$rdir = $this->GetParameterValue('download_url');
-		foreach($files AS $file) {
-			// check if exists
-			$lfile = $ldir.$file;
-			if(!file_exists($lfile)) {
-				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
-				$this->SetParameterValue('download',true);
-			}
-			
-			// download
-			if($this->GetParameterValue('download') == true) { 
-				$rfile = $rdir.$file;
-				trigger_error("Downloading $file from $rfile", E_USER_NOTICE);
-				if(Utils::Download($rdir,array($file),$ldir) === FALSE) {
-					trigger_error("Unable to download $file. skipping", E_USER_WARNING);
-					continue;
-				}
-			}
-			
-			// set the write file, parse, write and close
-			$outfile = $odir.'drugbank.ttl'; $gz=false;
-			if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
-			$this->SetWriteFile($outfile, $gz);
-			$this->Parse($ldir,$file);
-			$this->GetWriteFile()->Close();
+		
+		// check if exists
+		$file = $files[0];
+		$lfile = $ldir.$file;
+		if(!file_exists($lfile)) {
+			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
+			$this->SetParameterValue('download',true);
 		}
+		
+		// download
+		if($this->GetParameterValue('download') == true) { 
+			$rfile = $rdir.$file;
+			trigger_error("Downloading $file from $rfile", E_USER_NOTICE);
+			if(Utils::Download($rdir,array($file),$ldir) === FALSE) {
+				trigger_error("Unable to download $file. skipping", E_USER_WARNING);
+				continue;
+			}
+		}
+		
+		// set the write file, parse, write and close
+		$ofile = 'drugbank.nt'; $gz=false;
+		if($this->GetParameterValue('gzip')) {$ofile .= '.gz';$gz = true;}
+		$this->SetWriteFile($odir.$ofile, $gz);
+		$this->Parse($ldir,$file);
+		$this->GetWriteFile()->Close();
+		
+		// generate the release file
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/drugbank/drugbank.php", 
+			$this->GetBio2RDFDownloadURL($this->GetNamespace()).$ofile,
+			"http://drugbank.ca", 
+			array("use","no-commercial"), 
+			"http://www.drugbank.ca/about",
+			$this->GetParameterValue('download_url'),
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
+		
+		return TRUE;
 	}
 
 
@@ -124,6 +147,7 @@ class DrugBankParser extends RDFFactory
 		
 		$this->AddRDF($this->QQuadL($pid,"rdfs:label","$name [$pid]","en"));
 		$this->AddRDF($this->QQuad ($pid,"rdf:type", "drugbank_vocabulary:Target"));
+		$this->AddRDF($this->QQuad ($pid,"void:inDataset",$this->GetDatasetURI()));
 		
 		// iterate over all the child nodes
 		foreach($x->children() AS $k => $v) {
@@ -190,14 +214,18 @@ class DrugBankParser extends RDFFactory
 		$did = "drugbank:".$dbid;
 		$name = (string)$x->name; 
 		
+		// minimal
 		$this->AddRDF($this->QQuadL($did,"rdfs:label","$name [$did]","en"));
+		$this->AddRDF($this->QQuad($did,"rdf:type","drugbank_vocabulary:Drug"));
+		$this->AddRDF($this->QQuad($did,"void:inDataset",$this->GetDatasetURI()));
+		$this->AddRDF($this->QQuadO_URL($did,"owl:sameAs", "http://identifers.org/drugbank/".$dbid));
+		$this->AddRDF($this->QQuadO_URL($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid));
+		
 		if(isset($x->description) && $x->description != '') {
 			$this->AddRDF($this->QQuadText($did,"dc:description",addslashes(trim((string)$x->description)),"en"));
 		}		
-		$this->AddRDF($this->QQuadO_URL($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid));
 		
-		// types
-		$this->AddRDF($this->QQuad($did,"rdf:type","drugbank_vocabulary:Drug"));
+		// additional type
 		$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:category",ucfirst($x->attributes()->type)));
 
 		$this->AddText($x,$did,"groups","group","drugbank_vocabulary:category");
@@ -224,19 +252,19 @@ class DrugBankParser extends RDFFactory
 		// <mixtures><mixture><name>Cauterex</name><ingredients>dornase alfa + fibrinolysin + gentamicin sulfate</ingredients></mixture>
 		if(isset($x->mixtures)) {
 			$id = 0;
-			foreach($x->mixtures AS $item) {
-				if(isset($item->mixture)) {
-					$o = $item->mixture;
+			foreach($x->mixtures->mixture AS $item) {
+				if(isset($item)) {
+					$o = $item;
 					$mid = "drugbank_resource:".str_replace(" ","-",$o->name);
 					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:mixture",$mid));
 					$this->AddRDF($this->QQuad($mid,"rdf:type","drugbank_vocabulary:Mixture"));
-					$this->AddRDF($this->QQuadL($mid,"rdfs:label",$o->name));
+					$this->AddRDF($this->QQuadL($mid,"rdfs:label",$o->name." [$mid]"));
 					$this->AddRDF($this->QQuadText($mid,"drugbank_vocabulary:ingredients",$o->ingredients));
 					$a = explode(" + ",$o->ingredients);
 					foreach($a AS $b) {
 						$b = trim($b);
 						$iid = "drugbank_resource:".str_replace(" ","-",$b);
-						$this->AddRDF($this->QQuadL($iid,"rdfs:label",$b));
+						$this->AddRDF($this->QQuadL($iid,"rdfs:label",$b." [$iid]"));
 						$this->AddRDF($this->QQuad($mid,"drugbank_vocabulary:ingredient",$iid));
 					}
 				}
@@ -275,7 +303,7 @@ class DrugBankParser extends RDFFactory
 				$this->AddRDF($this->QQuadL($pid,"drugbank_vocabulary:price", $product->cost));
 				
 				$uid = "drugbank_vocabulary:".md5($product->unit);
-				$this->AddRDF($this->QQuadL($pid,"drugbank_vocabulary:form", $uid));
+				$this->AddRDF($this->QQuad($pid,"drugbank_vocabulary:form", $uid));
 				
 				if(!isset($defined[$uid])) {
 					$defined[$uid] = '';
@@ -366,7 +394,7 @@ class DrugBankParser extends RDFFactory
 					$type = $property->kind;
 					$value = $property->value;
 				
-					$id = "drugbank_resource:".$dbid."_".($counter++);
+					$id = "drugbank_resource:experimental_property_".$dbid."_".($counter++);
 					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:experimental-property",$id));
 					$this->AddRDF($this->QQuadL($id,"rdfs:label",$property->kind.": $value".($property->source == ''?'':" from ".$property->source)." [$id]"));
 
@@ -374,8 +402,8 @@ class DrugBankParser extends RDFFactory
 					$this->AddRDF($this->QQuadL($id,"drugbank_vocabulary:value",$value));					
 
 					// type
-					$tid = "drugbank_resource:".md5($type);
-					$this->AddRDF($this->QQuad($id,"rdf:type","drugbank_vocabulary:$tid"));
+					$tid = "drugbank_vocabulary:".md5($type);
+					$this->AddRDF($this->QQuad($id,"rdf:type",$tid));
 					if(!isset($defined[$tid])) {
 						$defined[$tid] = '';
 						$this->AddRDF($this->QQuadL($tid,"rdfs:label","$type [$tid]"));
@@ -406,7 +434,7 @@ class DrugBankParser extends RDFFactory
 					$value = addslashes($property->value);
 					$source = $property->source;			
 					
-					$id = "drugbank_resource:".$dbid."_".($counter++);
+					$id = "drugbank_resource:calculated_property_".$dbid."_".($counter++);
 					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:calculated-property",$id));
 					$this->AddRDF($this->QQuadL($id,"rdfs:label",$property->kind.": $value".($property->source == ''?'':" from ".$property->source)." [$id]"));
 

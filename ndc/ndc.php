@@ -21,21 +21,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+require('../../php-lib/rdfapi.php');
 /**
  * NDC RDFizer
  * @version 1.0
  * @author Michel Dumontier
  * @description http://www.fda.gov/Drugs/InformationOnDrugs/ucm142454.htm
 */
-require('../../php-lib/rdfapi.php');
 class NDCParser extends RDFFactory 
 {
+	private $version = null;
+	
 	function __construct($argv) {
 		parent::__construct();
+		$this->SetDefaultNamespace("ndc");
+		
 		// set and print application parameters
 		$this->AddParameter('files',true,'all|product|package','all','files to process');
 		$this->AddParameter('indir',false,null,'/data/download/ndc/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/ndc/','directory to place rdfized files');
+		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'http://www.fda.gov/downloads/Drugs/DevelopmentApprovalProcess/UCM070838.zip');
@@ -45,34 +50,34 @@ class NDCParser extends RDFFactory
 		}
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
+		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
 		
 		return TRUE;
 	}
 	
 	function Run()
 	{
-		
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
 		$rfile = $this->GetParameterValue('download_url');
 		$lfile = substr($rfile, strrpos($rfile,"/")+1);
 		
 		// check if exists
-		if(!file_exists($lfile)) {
-			trigger_error($lfile." not found. Will attempt to download. ", E_USER_NOTICE);
+		if(!file_exists($ldir.$lfile)) {
+			trigger_error($ldir.$lfile." not found. Will attempt to download. ", E_USER_NOTICE);
 			$this->SetParameterValue('download',true);
 		}
 		
 		// download
 		if($this->GetParameterValue('download') == true) {
 			trigger_error("Downloading $rfile", E_USER_NOTICE);
-			file_put_contents($lfile, file_get_contents($rfile));
+			file_put_contents($ldir.$lfile, file_get_contents($rfile));
 		}
 
 		// make sure we have the zip archive
 		$zin = new ZipArchive();
-		if ($zin->open($lfile) === FALSE) {
-			trigger_error("Unable to open $lfile");
+		if ($zin->open($ldir.$lfile) === FALSE) {
+			trigger_error("Unable to open $ldir$lfile");
 			exit;
 		}
 		
@@ -94,12 +99,13 @@ class NDCParser extends RDFFactory
 			}
 			
 			// set the write file
-			$outfile = $odir.$file.'.ttl'; $gz=false;
+			$outfile = $file.'.nt'; $gz=false;
 			if($this->GetParameterValue('gzip')) {
 				$outfile .= '.gz';
 				$gz = true;
 			}
-			$this->SetWriteFile($outfile, $gz);
+			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$outfile;
+			$this->SetWriteFile($odir.$outfile, $gz);
 			
 			// process
 			$this->$file($fpin);
@@ -110,6 +116,23 @@ class NDCParser extends RDFFactory
 			
 			echo "done!".PHP_EOL;
 		}
+		
+		
+		// generate the release file
+		$this->DeleteBio2RDFReleaseFiles($odir);
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ndc/ndc.php", 
+			$bio2rdf_download_files,
+			"http://www.fda.gov/Drugs/InformationOnDrugs/ucm142438.htm",
+			array("use-share"),
+			null, //license
+			$this->GetParameterValue('download_url'),
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
 	}
 	
 	/* a relation between a product and it's packaging */
@@ -125,6 +148,7 @@ class NDCParser extends RDFFactory
 			$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:package", $ndc_package));
 			$this->AddRDF($this->QQuadL($ndc_package, "rdfs:label",$a[2]." [$ndc_package]"));
 			$this->AddRDF($this->QQuad($ndc_package,  "rdf:type",  "ndc_vocabulary:Package"));
+			$this->AddRDF($this->QQuad($ndc_package,  "void:inDataset",$this->GetDatasetURI()));
 			
 			// now parse out the types
 			// multi-level packaging
@@ -181,6 +205,8 @@ class NDCParser extends RDFFactory
 			$this->AddRDF($this->QQuadL($ndc_product, "dc:identifier", $ndc_product));
 			$this->AddRDF($this->QQuad($ndc_product,  "rdf:type",  "ndc_vocabulary:Product"));
 			$this->AddRDF($this->QQuad($ndc_product,  "rdf:type",  "ndc_vocabulary:".str_replace(" ","-",strtolower($a[1]))));
+			$this->AddRDF($this->QQuad($ndc_product,"void:inDataset",$this->GetDatasetURI()));
+			
 			$this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:trade-name", $a[2]));
 			if($a[3]) {
 				$this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:trade-name-suffix", $a[3]));
