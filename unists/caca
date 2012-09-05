@@ -1,0 +1,169 @@
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_ctg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_wgs.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_pat.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_est.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_phs2.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_refm.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_geno.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_htc.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_phs1.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_mrna.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_bes.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/dr_refg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Danio_rerio/README... Array
+(
+    [0] => dr_bes.epcr UniSTS.sts vs. zebrafish BAC-end sequences
+    [1] => dr_ctg.epcr UniSTS.sts vs. zebrafish genomic contig sequences
+    [2] => dr_est.epcr UniSTS.sts vs. zebrafish EST sequences
+    [3] => dr_geno.epcr UniSTS.sts vs. zebrafish genomic sequences in the GenBank  Vertebrates division
+    [4] => dr_htc.epcr UniSTS.sts vs. zebrafish high-throughput cDNA sequences in the GenBank HTC division
+    [5] => dr_mrna.epcr UniSTS.sts vs. zebrafish mRNA sequences including RefSeq mRNAs
+    [6] => dr_phs1.epcr UniSTS.sts vs. zebrafish phase 1 sequences in the GenBank HTG division
+    [7] => dr_phs2.epcr UniSTS.sts vs. zebrafish phase 2 sequences in the GenBank HTG division
+    [8] => dr_refm.epcr UniSTS.sts vs. zebrafish RefSeq mRNA sequences
+    [9] => dr_wgs.epcr UniSTS.sts vs. zebrafish whole-genome shotgut sequences
+)
+done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_refm.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_ctg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_bes.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/_phs2.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/_phs1.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_pat.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/_geno.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_geno.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_refg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_wgs.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_phs1.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/_refm.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_mrna.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/_mrna.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/_ctg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/_est.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_htc.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/_wgs.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_phs2.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/gga_est.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Gallus_gallus/README... Array
+(
+    [0] => gga_bes.epcr UniSTS.sts vs. chicken BAC-end sequences
+    [1] => gga_ctg.epcr UniSTS.sts vs. chicken genomic contig sequences
+    [2] => gga_est.epcr UniSTS.sts vs. chicken EST sequences
+    [3] => gga_geno.epcr UniSTS.sts vs. chicken genomic sequences in the GenBank  Vertebrates division
+    [4] => gga_htc.epcr UniSTS.sts vs. chicken high-throughput cDNA sequences in the GenBank HTC division
+    [5] => gga_mrna.epcr UniSTS.sts vs. chicken mRNA sequences including RefSeq mRNAs
+    [6] => gga_phs1.epcr UniSTS.sts vs. chicken phase 1 sequences in the GenBank HTG division
+    [7] => gga_phs2.epcr UniSTS.sts vs. chicken phase 2 sequences in the GenBank HTG division
+    [8] => gga_refm.epcr UniSTS.sts vs. chicken RefSeq mRNA sequences
+    [9] => gga_wgs.epcr UniSTS.sts vs. chicken whole-genome shotgut sequences
+)
+done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_refm.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_phs1.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_pat.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_ctg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_est.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_mrna.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_htc.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_refg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_wgs.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_geno.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_bes.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/dm_phs2.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Drosophila_melanogaster/README... Array
+(
+    [0] => dm_bes.epcr UniSTS.sts vs. fruit fly BAC-end sequences
+    [1] => dm_ctg.epcr UniSTS.sts vs. fruit fly genomic contig sequences
+    [2] => dm_est.epcr UniSTS.sts vs. fruit fly EST sequences
+    [3] => dm_geno.epcr UniSTS.sts vs. fruit fly genomic sequences in the GenBank  Invertebrates division
+    [4] => dm_htc.epcr UniSTS.sts vs. fruit fly high-throughput cDNA sequences in the GenBank HTC division
+    [5] => dm_mrna.epcr UniSTS.sts vs. fruit fly mRNA sequences including RefSeq mRNAs
+    [6] => dm_phs1.epcr UniSTS.sts vs. fruit fly phase 1 sequences in the GenBank HTG division
+    [7] => dm_phs2.epcr UniSTS.sts vs. fruit fly phase 2 sequences in the GenBank HTG division
+    [8] => dm_refm.epcr UniSTS.sts vs. fruit fly RefSeq mRNA sequences
+    [9] => dm_wgs.epcr UniSTS.sts vs. fruit fly whole-genome shotgut sequences
+)
+done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_mrna.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_phs0.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_est.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bta_mrna.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_ctg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_wgs.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bta_est.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_refm.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_pat.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_bes.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_refg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_phs1.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_htc.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_geno.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bta_geno.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/bt_phs2.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Bos_taurus/README... Array
+(
+    [0] => bt_bes.epcr UniSTS.sts vs. cattle BAC-end sequences
+    [1] => bt_ctg.epcr UniSTS.sts vs. cattle genomic contig sequences
+    [2] => bt_est.epcr UniSTS.sts vs. cattle EST sequences
+    [3] => bt_geno.epcr UniSTS.sts vs. cattle genomic sequences in the GenBank  Mammals division
+    [4] => bt_htc.epcr UniSTS.sts vs. cattle high-throughput cDNA sequences in the GenBank HTC division
+    [5] => bt_mrna.epcr UniSTS.sts vs. cattle mRNA sequences including RefSeq mRNAs
+    [6] => bt_phs0.epcr UniSTS.sts vs. cattle phase 0 sequences in the GenBank HTG division 
+    [7] => bt_phs1.epcr UniSTS.sts vs. cattle phase 1 sequences in the GenBank HTG division
+    [8] => bt_phs2.epcr UniSTS.sts vs. cattle phase 2 sequences in the GenBank HTG division
+    [9] => bt_refm.epcr UniSTS.sts vs. cattle RefSeq mRNA sequences
+    [10] => bt_wgs.epcr UniSTS.sts vs. cattle whole-genome shotgut sequences
+)
+done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_est.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_bes.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_phs1.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_phs2.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_geno.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_ctg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_phs0.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_pat.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_refg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_phs3.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_htc.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/hs_mrna.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Homo_sapiens/README... Array
+(
+    [0] => hs_bes.epcr UniSTS.sts vs. human BAC-end sequences
+    [1] => hs_ctg.epcr UniSTS.sts vs. human genomic contig sequences
+    [2] => hs_est.epcr UniSTS.sts vs. human EST sequences
+    [3] => hs_geno.epcr UniSTS.sts vs. human genomic sequences in the GenBank  Primates division
+    [4] => hs_htc.epcr UniSTS.sts vs. human high-throughput cDNA sequences in the GenBank HTC division
+    [5] => hs_mrna.epcr UniSTS.sts vs. human mRNA sequences including RefSeq mRNAs
+    [6] => hs_phs0.epcr UniSTS.sts vs. human phase 0 sequences in the GenBank HTG division 
+    [7] => hs_phs1.epcr UniSTS.sts vs. human phase 1 sequences in the GenBank HTG division
+    [8] => hs_phs2.epcr UniSTS.sts vs. human phase 2 sequences in the GenBank HTG division
+    [9] => hs_phs3.epcr UniSTS.sts vs. human phase 3 seqeunces in the GenBank Primates division
+    [10] => hs_refm.epcr UniSTS.sts vs. human RefSeq mRNA sequences
+    [11] => hs_wgs.epcr UniSTS.sts vs. human whole-genome shotgut sequences
+)
+done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_geno.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_phs1.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_wgs.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_htc.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_refm.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_phs2.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_ctg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_est.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_mrna.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/cfa_refg.epcr... done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/Canis_familiaris/README... Array
+(
+    [0] => cfa_ctg.epcr UniSTS.sts vs. dog genomic contig sequences
+    [1] => cfa_est.epcr UniSTS.sts vs. dog EST sequences
+    [2] => cfa_geno.epcr UniSTS.sts vs. dog genomic sequences in the GenBank  Mammals division
+    [3] => cfa_htc.epcr UniSTS.sts vs. dog high-throughput cDNA sequences in the GenBank HTC division
+    [4] => cfa_mrna.epcr UniSTS.sts vs. dog mRNA sequences including RefSeq mRNAs
+    [5] => cfa_phs1.epcr UniSTS.sts vs. dog phase 1 sequences in the GenBank HTG division
+    [6] => cfa_phs2.epcr UniSTS.sts vs. dog phase 2 sequences in the GenBank HTG division
+    [7] => cfa_refm.epcr UniSTS.sts vs. dog RefSeq mRNA sequences
+    [8] => cfa_wgs.epcr UniSTS.sts vs. dog whole-genome shotgut sequences
+)
+done!
+processing /home/jose/tmp/unists/ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/README... done!

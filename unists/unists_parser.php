@@ -36,9 +36,12 @@ class UniSTSParser extends RDFFactory{
 
 	private static $packageMap = array(
 		"markers" =>  "UniSTS.sts",
+		"aliases" => "UniSTS.aliases",
 		"map_reports" => "ftp.ncbi.nlm.nih.gov/repository/UniSTS/UniSTS_MapReports/",
-		"pcr_reports" => "ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/"
+		//"pcr_reports" => "ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/"
 	);
+
+	
 
 	function __construct($argv) {
 		parent::__construct();
@@ -79,15 +82,14 @@ class UniSTSParser extends RDFFactory{
 				}
 			}	
 		}
-
 		foreach ($files as $key => $value) {
-			if($key == "markers"){
-				//ensure that there is a slash between directory name and filename
-				if(substr($ldir, -1) == "/"){
-					$lfile = $ldir.$value;
-				} else {
-					$lfile = $ldir."/".$value;
-				}
+			//ensure that there is a slash between directory name and filename
+			if(substr($ldir, -1) == "/"){
+				$lfile = $ldir.$value;
+			} else {
+				$lfile = $ldir."/".$value;
+			}
+			if($key == "markers" || $key == "aliases"){		
 				//create a file pointer
 				$fp = gzopen($lfile, "r") or die("Could not open file ".$value."!\n");
 				//ensure that there is a slash between directory name and filename
@@ -119,14 +121,84 @@ class UniSTSParser extends RDFFactory{
 					echo "file $gzoutfile already there!\nPlease remove file and try again\n";
 					exit;
 				}
-			}//if key == markers
-			elseif($key == "map_reports"){
-				//ensure that there is a slash between directory name and filename
-				if(substr($ldir, -1) == "/"){
-					$lfile = $ldir.$value;
-				} else {
-					$lfile = $ldir."/".$value;
+			}//if key == markers || aliases
+			elseif($key == "pcr_reports"){
+				$f_arr = $this->getFileR($lfile);
+				foreach ($f_arr as $k => $v) {
+					$q = rand();
+					//create a file pointer
+					$fp = gzopen($v, "r") or die("Could not open file($v)!\n");
+					$pi = pathinfo($v);
+					//get name of parent folder
+					$pfn = utf8_encode(htmlspecialchars((substr(strrchr($pi['dirname'], "/"),1))));
+					//get file name
+					$fn = $pi["filename"];
+					$fnt = explode(".epcr", $fn);
+					$fn_no_ext = $fnt[0];
+					//ignore readme files
+					if($fn_no_ext == "README"){
+						//ensure that there is a slash between directory name and filename
+						if(substr($odir, -1) == "/"){
+							$gzoutfile = $odir.$pfn.$q."-".$fn_no_ext .".ttl";
+						} else {
+							$gzoutfile = $odir."/".$pfn.$q."-".$fn_no_ext.".ttl";
+						}
+						$gz=false;
+						if($this->GetParameterValue('gzip')){
+							$gzoutfile .= '.gz';
+							$gz = true;
+						}
+						$this->SetReadFile($lfile);
+						$this->GetReadFile()->SetFilePointer($fp);
+						$this->SetWriteFile($gzoutfile, $gz);
+						if(!file_exists($gzoutfile)){
+							if (($gzout = gzopen($gzoutfile,"a"))=== FALSE) {
+								trigger_error("Unable to open $odir.$gzoutfile");
+								exit;
+							}
+							echo "processing $v... ";
+							$this->pcr_readme();
+							echo "done!\n";
+							$this->GetReadFile()->Close();
+							$this->GetWriteFile()->Close();
+						}else{
+							echo "file $gzoutfile already there!\nPlease remove file and try again\n";
+							exit;
+						}
+					}
+					elseif($fn_no_ext != "README" && $fn_no_ext != "README~" ){
+						//ensure that there is a slash between directory name and filename
+						if(substr($odir, -1) == "/"){
+							$gzoutfile = $odir.$pfn.$q."-".$fn_no_ext .".ttl";
+						} else {
+							$gzoutfile = $odir."/".$pfn.$q."-".$fn_no_ext.".ttl";
+						}
+						$gz=false;
+						if($this->GetParameterValue('gzip')){
+							$gzoutfile .= '.gz';
+							$gz = true;
+						}
+						$this->SetReadFile($lfile);
+						$this->GetReadFile()->SetFilePointer($fp);
+						$this->SetWriteFile($gzoutfile, $gz);
+						if(!file_exists($gzoutfile)){
+							if (($gzout = gzopen($gzoutfile,"a"))=== FALSE) {
+								trigger_error("Unable to open $odir.$gzoutfile");
+								exit;
+							}
+							echo "processing $v... ";
+							$this->pcr_reports();
+							echo "done!\n";
+							$this->GetReadFile()->Close();
+							$this->GetWriteFile()->Close();
+						}else{
+							echo "file $gzoutfile already there!\nPlease remove file and try again\n";
+							exit;
+						}
+					}//if
 				}
+			}
+			elseif($key == "map_reports"){
 				//get a list of files to process
 				$f_arr = $this->getFileR($lfile);
 				foreach ($f_arr as $k => $v) {
@@ -145,7 +217,7 @@ class UniSTSParser extends RDFFactory{
 						//echo $species_name_dir."\t".$fn_no_ext."\n";
 						//ensure that there is a slash between directory name and filename
 						if(substr($odir, -1) == "/"){
-							$gzoutfile = $odir.$species_name_dir.$q."-".$fn_no_ext.".ttl";
+							$gzoutfile = $odir.$species_name_dir.$q."-".$fn_no_ext .".ttl";
 						} else {
 							$gzoutfile = $odir."/".$species_name_dir.$q."-".$fn_no_ext.".ttl";
 						}
@@ -193,6 +265,41 @@ class UniSTSParser extends RDFFactory{
 		return TRUE;
 	  }//run
 
+	  /*private function pcr_reports(){
+
+	  }*/
+
+	  private function pcr_readme(){
+	  	$buf = "";
+	  	while($aLine = $this->GetReadFile()->Read(200000)){
+	  		$buf .= $aLine;
+	  	}
+	  	//now split up the file
+	  	$ba = explode("list of files:", $buf);
+	  	if(isset($ba[1])){
+	  		$ba2 = explode("\n\n", trim($ba[1]));
+	  		$readme_info = $ba2[0];
+	  		$readme_info = explode("\n", $readme_info);
+	  		foreach ($readme_info as $v) {	
+	  			$v = explode(".epcr", $v);
+	  			$fn = $v[0].".epcr";
+	  			$lbl = $v[1];
+	  			//create a resource for the epcr map report
+	  			$this->AddRDF($this->QQuad(
+	  				"unists_resource:".md5($fn),
+	  				"rdf:type",
+	  				"unists_vocabulary:ePCR_Report"
+	  			));
+	  			$this->AddRDF($this->QQuad(
+	  				"unists_resource:".md5($fn),
+	  				"rdfs:label",
+	  				utf8_encode(htmlspecialchars($lbl))
+	  			));
+	  		}
+	  		$this->WriteRDFBufferToWriteFile();
+	  	}
+	  }
+
 	  private function map_reports(){
 	  	$map_metadata = "";
 	  	$map_complete_record = array();
@@ -216,6 +323,12 @@ class UniSTSParser extends RDFFactory{
 
 	  private function processMapRecord($record_metadata, $map_record_rows){
 	  	$r = rand();
+	  	$this->AddRDF($this->QQuad(
+	  		"unists_resource:".md5($r.$record_metadata["Total_Length"].$record_metadata["Taxonomic_ID"].$record_metadata["Map_Name"]), 
+	  		"void:inDataset", 
+	  		$this->getDatasetURI()
+	  	));
+
 		//create a resource for the map record <. .>
 		$this->AddRDF($this->QQuad(
 			"unists_resource:".md5($r.$record_metadata["Total_Length"].$record_metadata["Taxonomic_ID"].$record_metadata["Map_Name"]),
@@ -266,11 +379,13 @@ class UniSTSParser extends RDFFactory{
 					"pubmed:".$record_metadata["PMID"]
 				));
 		}
-		
-		
-
 		//iterate over the map record rows and link them to the map report
 		foreach ($map_record_rows as $key => $value) {			
+				$this->AddRDF($this->QQuad(
+			  		"unists_resource:".md5($value["unists_id"].$value["marker_name"].$value["chromosome"].$value["coordinate"]), 
+			  		"void:inDataset", 
+			  		$this->getDatasetURI()
+			  	));
 				//create an sts mapping with the info on this row
 				$this->AddRDF($this->QQuad(
 					"unists_resource:".md5($value["unists_id"].$value["marker_name"].$value["chromosome"].$value["coordinate"]),
@@ -331,6 +446,26 @@ class UniSTSParser extends RDFFactory{
 		}
 	}
 
+	private function aliases(){
+		$this->GetReadFile()->Read(200000);
+	  	while($aLine = $this->GetReadFile()->Read(200000)){
+	  		$la = explode("\t", $aLine);
+	  		$unique_id = trim($la[0]);
+	  		$this->AddRDF($this->QQuad("unists:".$unique_id, "void:inDataset", $this->getDatasetURI()));
+	  		$ala = explode(";",$la[1]);
+	  		foreach ($ala as $anAlias) {
+	  			$this->AddRDF($this->QQuad(
+	  				"unists:".$unique_id,
+	  				"owl:sameAs",
+	  				"unists:".$anAlias
+	  			));
+	  			$this->AddRDF($this->QQuad("unists:".$anAlias, "void:inDataset", $this->getDatasetURI()));
+	  			$this->WriteRDFBufferToWriteFile();
+	  		}//foreach
+	  	}//while
+	  	
+	}//aliases
+
 	  private function markers(){
 	  	$this->GetReadFile()->Read(200000);
 	  	while($aLine = $this->GetReadFile()->Read(200000)){
@@ -343,6 +478,7 @@ class UniSTSParser extends RDFFactory{
 	  		$chr_number = $line_arr[5];
 	  		$acc_number = $line_arr[6];
 	  		$species_name = trim($line_arr[7]);
+	  		$this->AddRDF($this->QQuad("unists:".$unique_id, "void:inDataset", $this->getDatasetURI()));
 	  		//create a unique resource using $unique_id
 	  		$this->AddRDF($this->QQuad(
 	  			"unists:".$unique_id,
@@ -539,7 +675,7 @@ class UniSTSParser extends RDFFactory{
 		return self::$packageMap;
 	}
 	//get all files from directory recursively
-	private function getFileR($directory, $recursive=true) {
+	public function getFileR($directory, $recursive=true) {
 		$array_items = array();
 		if ($handle = opendir($directory)) {
 			while (false !== ($file = readdir($handle))) {
@@ -565,6 +701,19 @@ class UniSTSParser extends RDFFactory{
 		return $array_items;
 	}//getFileR
 
+	public function filterByExtension($anArrOfFilenames, $anExtension){
+		$r = array();
+		foreach ($anArrOfFilenames as $afn) {
+			$p = pathinfo($afn);
+			if(isset($p["extension"])){
+				if($p["extension"] == $anExtension){
+					$r[] =$afn;
+				}
+			}
+		}
+		return $r;
+	}
+
 
 
 	//makes an assoc array from the metadata of each map record
@@ -582,5 +731,7 @@ class UniSTSParser extends RDFFactory{
 }//class
 
 $p = new UniSTSParser($argv);
+//$a = $p->getFileR("/tmp",true);
+//$b = $p->filterByExtension($a, "txt");
 $p->Run();
 ?>
