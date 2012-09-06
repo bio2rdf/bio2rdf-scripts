@@ -55,7 +55,7 @@ class NCBITaxonomyParser extends RDFFactory{
 				"gi_taxid_prot" => "gi_taxid_prot.dmp",
 			)
 		) ,
-		"gi2taxid_nucleotide" array(
+		"gi2taxid_nucleotide" => array(
 			"filename" => "gi_taxid_nucl.zip",
 			"contents" => array(
 				"gi_taxid_nucl" => "gi_taxid_nucl.dmp",
