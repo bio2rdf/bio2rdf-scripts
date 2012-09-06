@@ -27,6 +27,10 @@ SOFTWARE.
  * @author Jose Cruz-Toledo
  * @description ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump_readme.txt
 */
+/**
+*   ***RELEASE NOTES***
+* -the files merged.dmp and delnodes.dmp are not parsed by this version
+**/
 require("../../php-lib/rdfapi.php");
 class NCBITaxonomyParser extends RDFFactory{
 	private $bio2rdf_base = "http://bio2rdf.org/";
@@ -45,9 +49,18 @@ class NCBITaxonomyParser extends RDFFactory{
 				"division" => "division.dmp"
 			)
 		),
-		"gi2taxid_protein" => "gi_taxid_prot.zip",
-		"gi2taxid_nucleotide" => "gi_taxid_nucl.zip"
-
+		"gi2taxid_protein" => array(
+			"filename" => "gi_taxid_prot.zip",
+			"contents" => array(
+				"gi_taxid_prot" => "gi_taxid_prot.dmp",
+			)
+		) ,
+		"gi2taxid_nucleotide" array(
+			"filename" => "gi_taxid_nucl.zip",
+			"contents" => array(
+				"gi_taxid_nucl" => "gi_taxid_nucl.dmp",
+			)
+		) 
 	);
 
 	function __construct($argv) {
@@ -95,7 +108,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			} else {
 				$lfile = $ldir."/".$value;
 			}
-			if($key == "taxdmp"){
+			if($key == "taxdmp" || $key == "gi2taxid_protein" || $key == "gi2taxid_nucleotide"){
 				//get the name of the zip archive
 				$lfile = $value["filename"];
 				// make sure we have the zip archive
@@ -106,7 +119,9 @@ class NCBITaxonomyParser extends RDFFactory{
 				}
 				//now iterate over the files in the ziparchive
 				foreach($value["contents"] as $k => $fn){
-					if($k == "names" || $k == "nodes" || $k == "citations" || $k == "gencode" || $k == "division"){
+					if($k == "names" || $k == "nodes" || $k == "citations" 
+						|| $k == "gencode" || $k == "division" 
+						|| $k == "gi2taxid_protein" || $k == "gi2taxid_nucleotide"){
 						$fpin = $zin->getStream($fn);
 						if(!$fpin){
 							trigger_error("Unable to get pointer to $fn in $zinfile");
@@ -143,10 +158,50 @@ class NCBITaxonomyParser extends RDFFactory{
 						}//else
 					}//if $k
 				}//foreach
+				// generate the release file
+				$desc = $this->GetBio2RDFDatasetDescription(
+					$this->GetNamespace(),
+					"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/ncbi_taxonomy_parser.php", 
+					$bio2rdf_download_files,
+					"http://www.ncbi.nlm.nih.gov/taxon",
+					array("use-share-modify"),
+					"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
+					"ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip",
+					$this->version
+				);
+				$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
 			}//if key taxdmp
 		}
 	}//run
 
+	private function gi2taxid_protein(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			$a = explode("\t", $aLine);
+			$gi = trim($a[0]);
+			$txid = trim($a[1]);
+			$this->AddRDF($this->QQuad(
+				"gi:".$gi,
+				"taxon_vocabulary:has_taxid",
+				"taxon:"$txid
+			));
+			$this->AddRDF($this->QQuad("gi:".$gi, "void:inDataset", $this->getDatasetURI()));
+			$this->WriteRDFBufferToWriteFile();
+		}//while
+	}
+	private function gi2taxid_nucleotide(){
+		while($aLine = $this->GetReadFile()->Read(200000)){
+			$a = explode("\t", $aLine);
+			$gi = trim($a[0]);
+			$txid = trim($a[1]);
+			$this->AddRDF($this->QQuad(
+				"gi:".$gi,
+				"taxon_vocabulary:has_taxid",
+				"taxon:"$txid
+			));
+			$this->AddRDF($this->QQuad("gi:".$gi, "void:inDataset", $this->getDatasetURI()));
+			$this->WriteRDFBufferToWriteFile();
+		}//while
+	}
 	private function names(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			$a = explode("|", $aLine);
@@ -160,6 +215,7 @@ class NCBITaxonomyParser extends RDFFactory{
 				"rdfs:label",
 				str_replace("\"","",utf8_encode($name))."[taxon:".$taxid."]"
 			));
+			$this->AddRDF($this->QQuad("taxon:".$taxid, "void:inDataset", $this->getDatasetURI()));
 			//type it
 			$this->AddRDF($this->QQuad(
 				"taxon:".$taxid,
@@ -195,7 +251,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			$embl_code = str_replace("\t","",trim($a[3]));
 			$division_id = str_replace("\t","",trim($a[4]));
 			$inherited_div_flag = str_replace("\t","",trim($a[5]));
-			$genetic_code_id = str_replace("\t","",trim($a[6]));
+			$gencode_id = str_replace("\t","",trim($a[6]));
 			$inherited_gc_flag = str_replace("\t","",trim($a[7]));
 			$mitochondrial_genetic_code_id = str_replace("\t","",trim($a[8]));
 			$inherited_mgc_flag = str_replace("\t","",trim($a[9]));
@@ -203,12 +259,12 @@ class NCBITaxonomyParser extends RDFFactory{
 			$hidden_st_root_flag = str_replace("\t","",trim($a[11]));
 			$comments = str_replace("\t","",trim($a[12]));
 			//create a resource
-			//create a resource
 			$this->AddRDF($this->QQuadL(
 				"taxon:".$taxid,
 				"rdfs:label",
 				"taxon [taxon:".$taxid."]"
 			));
+			$this->AddRDF($this->QQuad("taxon:".$taxid, "void:inDataset", $this->getDatasetURI()));
 			//type it
 			$this->AddRDF($this->QQuad(
 				"taxon:".$taxid,
@@ -240,7 +296,7 @@ class NCBITaxonomyParser extends RDFFactory{
 				$this->AddRDF($this->QQuad(
 					"taxon:".$taxid,
 					"taxon_vocabulary:has_division",
-					"taxon_resource:division_id_".$division_id
+					"taxon_resource:".md5("division_id_".$division_id)
 				));
 			}
 			if($inherited_div_flag != ""){
@@ -250,11 +306,11 @@ class NCBITaxonomyParser extends RDFFactory{
 					str_replace("\"","",utf8_encode($inherited_div_flag))
 				));
 			}
-			if($genetic_code_id != ""){
+			if($gencode_id != ""){
 				$this->AddRDF($this->QQuad(
 					"taxon:".$taxid,
 					"taxon_vocabulary:has_genetic_code",
-					"taxon_resource:genecode_id_".$genetic_code_id
+					"taxon_resource:".md5("gencode_id_".$gencode_id)
 				));
 			}
 			if($inherited_gc_flag != ""){
@@ -312,26 +368,27 @@ class NCBITaxonomyParser extends RDFFactory{
 			$comments = str_replace("\t","",trim($a[3]));
 			//create a resource
 			$this->AddRDF($this->QQuadL(
-				"taxon_resource:division_id_".$division_id,
+				"taxon_resource:".md5("division_id_".$division_id),
 				"rdfs:label",
 				str_replace("\"","",utf8_encode($name))."[taxon_resource:".$division_id."]"
 			));
+			$this->AddRDF($this->QQuad("taxon_resource:".md5("division_id_".$division_id), "void:inDataset", $this->getDatasetURI()));
 			//type it
 			$this->AddRDF($this->QQuad(
-				"taxon_resource:".$division_id,
+				"taxon_resource:".md5("division_id_".$division_id),
 				"rdf:type",
 				"taxon_vocabulary:division"	
 			));
 			//add division code
 			$this->AddRDF($this->QQuadL(
-				"taxon_resource:".$division_id,
+				"taxon_resource:".md5("division_id_".$division_id),
 				"taxon_vocabulary:has_division_code",
 				str_replace("\"","",utf8_encode($division_code))
 			));
 			//add comments
 			if($comments != ""){
 				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".$division_id,
+					"taxon_resource:".md5("division_id_".$division_id),
 					"taxon_vocabulary:has_comments",
 					str_replace("\"","",utf8_encode($comments))
 				));
@@ -350,33 +407,35 @@ class NCBITaxonomyParser extends RDFFactory{
 			$start_codons = str_replace("\t","",trim($a[4]));
 			//create resource
 			$this->AddRDF($this->QQuadL(
-				"taxon_resource:gencode_id_".$gencode,
+				"taxon_resource:".md5("gencode_id_".$gencode),
 				"rdfs:label",
 				str_replace("\"","",utf8_encode($name))."[taxon_resource:".$gencode."]"
 			));
+			$this->AddRDF($this->QQuad("taxon_resource:".md5("gencode_id_".$gencode), "void:inDataset", $this->getDatasetURI()));
+
 			//type it
 			$this->AddRDF($this->QQuad(
-				"taxon_resource:".$gencode,
+				"taxon_resource:".md5("gencode_id_".$gencode),
 				"rdf:type",
 				"taxon_vocabulary:genetic_code"
 			));
 			if($abbr != ""){
 				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".$gencode,
+					"taxon_resource:".md5("gencode_id_".$gencode),
 					"taxon_vocabulary:has_abbreviation",
 					str_replace("\"","",utf8_encode($abbr))
 				));
 			}
 			if ($translation_table != "") {
 				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".$gencode,
+					"taxon_resource:".md5("gencode_id_".$gencode),
 					"taxon_vocabulary:has_translation_table",
 					str_replace("\"","",utf8_encode($translation_table))
 				));
 			}
 			if ($start_codons != "") {
 				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".$gencode,
+					"taxon_resource:".md5("gencode_id_".$gencode),
 					"taxon_vocabulary:has_start_codons",
 					str_replace("\"","",utf8_encode($start_codons))
 				));
@@ -396,40 +455,42 @@ class NCBITaxonomyParser extends RDFFactory{
 			$taxid_list = explode(" ", str_replace("\t","",trim($a[6])));
 			//create a resource
 			$this->AddRDF($this->QQuadL(
-				"taxon_resource:citation_id_".$cit_id,
+				"taxon_resource:".md5("citation_id_".$cit_id),
 				"rdfs:label",
 				"citation [taxon_resource:citation_id_".$cit_id."]"
 			));
+			$this->AddRDF($this->QQuad("taxon_resource:".md5("citation_id_".$cit_id), "void:inDataset", $this->getDatasetURI()));
+
 			//type it
 			$this->AddRDF($this->QQuad(
-				"taxon_resource:citation_id_".$cit_id,
+				"taxon_resource:".md5("citation_id_".$cit_id),
 				"rdf:type",
 				"taxon_vocabulary:citation"
 			));
 			if($cit_key != ""){
 				$this->AddRDF($this->QQuadL(
-					"taxon_resource:citation_id_".$cit_id,
+					"taxon_resource:".md5("citation_id_".$cit_id),
 					"taxon_vocabulary:has_citation_key",
 					str_replace("\"","",utf8_encode($cit_key))
 				));
 			}
 			if ($pubmed_id != 0 && $pubmed_id != "") {
 				$this->AddRDF($this->QQuad(
-					"taxon_resource:citation_id_".$cit_id,
+					"taxon_resource:".md5("citation_id_".$cit_id),
 					"taxon_vocabulary:has_pubmed",
 					"pubmed:".$pubmed_id
 				));
 			}
 			if($url != 0 && $url != ""){
 				$this->AddRDF($this->QQuadO_URL(
-					"taxon_resource:citation_id_".$cit_id,
+					"taxon_resource:".md5("citation_id_".$cit_id),
 					"rdfs:seeAlso",
 					$url
 				));
 			}
 			if($text != 0 && $text != ""){
 				$this->AddRDF($this->QQuadL(
-					"taxon_resource:citation_id_".$cit_id,
+					"taxon_resource:".md5("citation_id_".$cit_id),
 					"taxon_vocabulary:has_text",
 					str_replace("\"","",utf8_encode($text))
 				));
@@ -440,7 +501,7 @@ class NCBITaxonomyParser extends RDFFactory{
 					$this->AddRDF($this->QQuad(
 						"taxon:".$aTxid,
 						"taxon_vocabulary:has_citation",
-						"taxon_resource:citation_id_".$cit_id
+						"taxon_resource:".md5("citation_id_".$cit_id)
 					));
 				}
 			}
