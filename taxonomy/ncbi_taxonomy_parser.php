@@ -172,7 +172,7 @@ class NCBITaxonomyParser extends RDFFactory{
 				);
 				$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
 			}//if key taxdmp
-		}
+		}e
 	}//run
 
 	private function gi_taxid_prot(){
@@ -182,7 +182,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			$txid = trim($a[1]);
 			$this->AddRDF($this->QQuad(
 				"gi:".$gi,
-				"taxon_vocabulary:has_taxid",
+				"taxon_vocabulary:x_taxid",
 				"taxon:".$txid
 			));
 			$this->AddRDF($this->QQuad("gi:".$gi, "void:inDataset", $this->getDatasetURI()));
@@ -196,7 +196,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			$txid = trim($a[1]);
 			$this->AddRDF($this->QQuad(
 				"gi:".$gi,
-				"taxon_vocabulary:has_taxid",
+				"taxon_vocabulary:x_taxid",
 				"taxon:".$txid
 			));
 			$this->AddRDF($this->QQuad("gi:".$gi, "void:inDataset", $this->getDatasetURI()));
@@ -227,18 +227,21 @@ class NCBITaxonomyParser extends RDFFactory{
 			if($unique_name != "" && $unique_name != null){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_unique_name",
+					"taxon_vocabulary:unique_name",
 					str_replace("\"","",utf8_encode($unique_name))
 				));
 			}
+			
+			
 			//add name class
 			if($name_class != "" && $name_class != null){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_name_class",
+					"taxon_vocabulary:name_class",
 					str_replace("\"","",utf8_encode($name_class))
 				));
 			}
+			//type it
 			$this->WriteRDFBufferToWriteFile();
 		}//while
 	}//names
@@ -275,77 +278,77 @@ class NCBITaxonomyParser extends RDFFactory{
 			if($parent_taxid != ""){
 				$this->AddRDF($this->QQuad(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_parent",
+					"taxon_vocabulary:parent",
 					"taxon:".$parent_taxid
 				));
 			}
 			if($rank != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_rank",
+					"taxon_vocabulary:rank",
 					str_replace("\"","",utf8_encode($rank))
 				));
 			}
 			if($embl_code != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_embl_code",
+					"taxon_vocabulary:embl_code",
 					str_replace("\"","",utf8_encode($rank))
 				));
 			}
 			if($division_id != ""){
 				$this->AddRDF($this->QQuad(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_division",
+					"taxon_vocabulary:division",
 					"taxon_resource:".md5("division_id_".$division_id)
 				));
 			}
 			if($inherited_div_flag != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_inherited_division_flag",
+					"taxon_vocabulary:inherited_division_flag",
 					str_replace("\"","",utf8_encode($inherited_div_flag))
 				));
 			}
 			if($gencode_id != ""){
 				$this->AddRDF($this->QQuad(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_genetic_code",
+					"taxon_vocabulary:genetic_code",
 					"taxon_resource:".md5("gencode_id_".$gencode_id)
 				));
 			}
 			if($inherited_gc_flag != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_inherited_gc_flag",
+					"taxon_vocabulary:inherited_gc_flag",
 					str_replace("\"","",utf8_encode($inherited_gc_flag))
 				));
 			}
 			if($mitochondrial_genetic_code_id != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_mitochondrial_genetic_code_id",
+					"taxon_vocabulary:mitochondrial_genetic_code_id",
 					str_replace("\"","",utf8_encode($mitochondrial_genetic_code_id))
 				));
 			}
 			if($inherited_mgc_flag != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_inherited_mgc_flag",
+					"taxon_vocabulary:inherited_mgc_flag",
 					str_replace("\"","",utf8_encode($inherited_mgc_flag))
 				));
 			}
 			if($genbank_hidden_flag != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_genbank_hidden_flag",
+					"taxon_vocabulary:genbank_hidden_flag",
 					str_replace("\"","",utf8_encode($genbank_hidden_flag))
 				));
 			}
 			if($hidden_st_root_flag != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
-					"taxon_vocabulary:has_hidden_st_root_flag",
+					"taxon_vocabulary:hidden_st_root_flag",
 					str_replace("\"","",utf8_encode($hidden_st_root_flag))
 				));
 			}
@@ -383,14 +386,14 @@ class NCBITaxonomyParser extends RDFFactory{
 			//add division code
 			$this->AddRDF($this->QQuadL(
 				"taxon_resource:".md5("division_id_".$division_id),
-				"taxon_vocabulary:has_division_code",
+				"taxon_vocabulary:division_code",
 				str_replace("\"","",utf8_encode($division_code))
 			));
 			//add comments
 			if($comments != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon_resource:".md5("division_id_".$division_id),
-					"taxon_vocabulary:has_comments",
+					"taxon_vocabulary:comments",
 					str_replace("\"","",utf8_encode($comments))
 				));
 			}
@@ -423,21 +426,21 @@ class NCBITaxonomyParser extends RDFFactory{
 			if($abbr != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon_resource:".md5("gencode_id_".$gencode),
-					"taxon_vocabulary:has_abbreviation",
+					"taxon_vocabulary:abbreviation",
 					str_replace("\"","",utf8_encode($abbr))
 				));
 			}
 			if ($translation_table != "") {
 				$this->AddRDF($this->QQuadL(
 					"taxon_resource:".md5("gencode_id_".$gencode),
-					"taxon_vocabulary:has_translation_table",
+					"taxon_vocabulary:translation_table",
 					str_replace("\"","",utf8_encode($translation_table))
 				));
 			}
 			if ($start_codons != "") {
 				$this->AddRDF($this->QQuadL(
 					"taxon_resource:".md5("gencode_id_".$gencode),
-					"taxon_vocabulary:has_start_codons",
+					"taxon_vocabulary:start_codons",
 					str_replace("\"","",utf8_encode($start_codons))
 				));
 			}
@@ -471,14 +474,14 @@ class NCBITaxonomyParser extends RDFFactory{
 			if($cit_key != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon_resource:".md5("citation_id_".$cit_id),
-					"taxon_vocabulary:has_citation_key",
+					"taxon_vocabulary:citation_key",
 					str_replace("\"","",utf8_encode($cit_key))
 				));
 			}
 			if ($pubmed_id != 0 && $pubmed_id != "") {
 				$this->AddRDF($this->QQuad(
 					"taxon_resource:".md5("citation_id_".$cit_id),
-					"taxon_vocabulary:has_pubmed",
+					"taxon_vocabulary:x_pubmed",
 					"pubmed:".$pubmed_id
 				));
 			}
@@ -492,7 +495,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			if($text != 0 && $text != ""){
 				$this->AddRDF($this->QQuadL(
 					"taxon_resource:".md5("citation_id_".$cit_id),
-					"taxon_vocabulary:has_text",
+					"taxon_vocabulary:text",
 					str_replace("\"","",utf8_encode($text))
 				));
 			}
@@ -501,7 +504,7 @@ class NCBITaxonomyParser extends RDFFactory{
 					$aTxid = trim($aTxid);
 					$this->AddRDF($this->QQuad(
 						"taxon:".$aTxid,
-						"taxon_vocabulary:has_citation",
+						"taxon_vocabulary:citation",
 						"taxon_resource:".md5("citation_id_".$cit_id)
 					));
 				}
