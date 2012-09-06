@@ -47,19 +47,22 @@ class NCBITaxonomyParser extends RDFFactory{
 				"citations" => "citations.dmp",
 				"gencode" => "gencode.dmp",
 				"division" => "division.dmp"
-			)
+			),
+			"file_url" => "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip"
 		),
 		"gi2taxid_protein" => array(
 			"filename" => "gi_taxid_prot.zip",
 			"contents" => array(
 				"gi_taxid_prot" => "gi_taxid_prot.dmp",
-			)
+			),
+			"file_url" => "ftp://ftp.ncbi.nih.gov/pub/taxonomy/gi_taxid_nucl.zip"
 		) ,
 		"gi2taxid_nucleotide" => array(
 			"filename" => "gi_taxid_nucl.zip",
 			"contents" => array(
 				"gi_taxid_nucl" => "gi_taxid_nucl.dmp",
-			)
+			),
+			"file_url" => "ftp://ftp.ncbi.nih.gov/pub/taxonomy/gi_taxid_nucl.zip"
 		) 
 	);
 
@@ -108,6 +111,19 @@ class NCBITaxonomyParser extends RDFFactory{
 			} else {
 				$lfile = $ldir."/".$value;
 			}
+
+			if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
+				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
+				$this->SetParameterValue('download',true);
+			}
+
+			//download all files [except mapping file]
+			if($this->GetParameterValue('download') == true) {
+				$rfile = $value["file_url"];
+				echo "downloading ".var_dump($value["file_url"])." ... ";
+				file_put_contents($lfile,file_get_contents($rfile));
+			}
+
 			if($key == "taxdmp" || $key == "gi2taxid_protein" || $key == "gi2taxid_nucleotide"){
 				//get the name of the zip archive
 				$lfile = $value["filename"];
@@ -172,7 +188,7 @@ class NCBITaxonomyParser extends RDFFactory{
 				);
 				$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
 			}//if key taxdmp
-		}e
+		}
 	}//run
 
 	private function gi_taxid_prot(){
