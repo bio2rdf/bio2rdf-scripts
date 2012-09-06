@@ -66,7 +66,8 @@ class HomologeneParser extends RDFFactory{
 
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
-	
+		$rdir = $this->GetParameterValue('download_url');
+		
 		//make sure directories end with slash
 		if(substr($ldir, -1) !== "/"){
 			$ldir = $ldir."/";
