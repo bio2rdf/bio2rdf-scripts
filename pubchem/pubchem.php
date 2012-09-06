@@ -196,7 +196,7 @@ class PubChemParser extends RDFFactory{
 		$dir = $this->getParameterValue('indir')."/bioactivity" ;
 		if($this->CreateDirectory($dir) === FALSE) exit;
 
-		echo "syncing substances directory with remote\n";
+		echo "syncing bioactivity directory with remote\n";
 		exec("rsync -r -t -v --progress --include='*/' --include='*.zip' --exclude='*' ".$this->getParameterValue('workspace')."/Bioassay/XML/ ".$dir);
 	}
 	/**
