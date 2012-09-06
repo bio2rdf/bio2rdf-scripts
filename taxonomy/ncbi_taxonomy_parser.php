@@ -121,8 +121,9 @@ class NCBITaxonomyParser extends RDFFactory{
 				foreach($value["contents"] as $k => $fn){
 					if($k == "names" || $k == "nodes" || $k == "citations" 
 						|| $k == "gencode" || $k == "division" 
-						|| $k == "gi2taxid_protein" || $k == "gi2taxid_nucleotide"){
+						|| $k == "gi_taxid_prot" || $k == "gi_taxid_nucl"){
 						$fpin = $zin->getStream($fn);
+
 						if(!$fpin){
 							trigger_error("Unable to get pointer to $fn in $zinfile");
 							exit("failed\n");
@@ -174,7 +175,7 @@ class NCBITaxonomyParser extends RDFFactory{
 		}
 	}//run
 
-	private function gi2taxid_protein(){
+	private function gi_taxid_prot(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			$a = explode("\t", $aLine);
 			$gi = trim($a[0]);
@@ -188,7 +189,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			$this->WriteRDFBufferToWriteFile();
 		}//while
 	}
-	private function gi2taxid_nucleotide(){
+	private function gi_taxid_nucl(){
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			$a = explode("\t", $aLine);
 			$gi = trim($a[0]);
