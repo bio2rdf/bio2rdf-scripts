@@ -162,7 +162,7 @@ class NCBITaxonomyParser extends RDFFactory{
 				$desc = $this->GetBio2RDFDatasetDescription(
 					$this->GetNamespace(),
 					"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/ncbi_taxonomy_parser.php", 
-					$bio2rdf_download_files,
+					$this->GetBio2RDFDownloadURL($this->GetNamespace()),
 					"http://www.ncbi.nlm.nih.gov/taxon",
 					array("use-share-modify"),
 					"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
@@ -182,7 +182,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			$this->AddRDF($this->QQuad(
 				"gi:".$gi,
 				"taxon_vocabulary:has_taxid",
-				"taxon:"$txid
+				"taxon:".$txid
 			));
 			$this->AddRDF($this->QQuad("gi:".$gi, "void:inDataset", $this->getDatasetURI()));
 			$this->WriteRDFBufferToWriteFile();
@@ -196,7 +196,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			$this->AddRDF($this->QQuad(
 				"gi:".$gi,
 				"taxon_vocabulary:has_taxid",
-				"taxon:"$txid
+				"taxon:".$txid
 			));
 			$this->AddRDF($this->QQuad("gi:".$gi, "void:inDataset", $this->getDatasetURI()));
 			$this->WriteRDFBufferToWriteFile();
