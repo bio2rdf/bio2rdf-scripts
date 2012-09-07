@@ -15,13 +15,13 @@ servers and local directory:
 
 ###Installation
 
-Ubuntu
+####Ubuntu
 
 	> sudo apt-get install curlftpfs
 
 This command will install all the necessary packages to run the script
 
-Mac 
+####Mac 
 
 The easiest way to install fuze4x on a mac (tested on 10.8) is to use the 
 homebrew package manager (link). Once installed run:
@@ -43,3 +43,14 @@ check that no FUSE-based filesystems are running:
 Unmount all FUSE filesystems and then unload the kernel extension:
 
   > sudo kextunload -b org.fuse4x.kext.fuse4x
+
+###Running the Program
+
+
+Checkout the program options:
+
+> php pubchem.php 
+
+If you want to do it all use this:
+
+> php pubchem.php sync=true files=all indir=/path/to/indir/pubchem/ outdir=/path/to/data/pubchem/

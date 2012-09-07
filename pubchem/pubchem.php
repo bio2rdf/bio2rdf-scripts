@@ -308,14 +308,13 @@ class PubChemParser extends RDFFactory{
 
 		$assay_descriptions = $root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_description/PC-AssayDescription_description_E');
 		foreach($assay_descriptions as $assay_description) {
-			$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$assay_description));
+			if($assay_description != "") $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$assay_description));
 		}
 
 		$assay_comments = $root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_comment/PC-AssayDescription_comment_E');
 		foreach($assay_comments as $assay_comment) {
 			$comment = explode(":",$assay_comment);
-
-
+			
 			if(count($comment) <= 1) continue;
 			
 			$key   = $comment[0];
@@ -458,7 +457,6 @@ class PubChemParser extends RDFFactory{
 			}
 		}
 	}
-
 
 	/**
 	*	Function to start the conversion of the local copy of the pubchem
