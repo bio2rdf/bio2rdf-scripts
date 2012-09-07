@@ -620,7 +620,7 @@ class PubChemParser extends RDFFactory{
 				echo "Processing file: ".$substances_dir.$file."\n";
 				$outfile = realpath($this->getParameterValue('outdir'))."/substances/".basename($file,".xml.gz").".nt";
 				if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
-				echo "-> to ".$outfile;
+				echo "-> to ".$outfile."\n";
 
 				$this->setWriteFile($outfile,$gz);
 				$this->parse_substance_file($substances_dir,$file);
@@ -663,13 +663,13 @@ class PubChemParser extends RDFFactory{
 		$pc_compounds = $root->xpath('//PC-Substance_compound/PC-Compounds/PC-Compound');
 		foreach($pc_compounds as $compound) {
 			$cid = "pubchemcompound:".array_shift($compound->xpath('./PC-Compound_id/PC-CompoundType_id_cid'));
-			$cid_type = array_shift($compound->xpath('./PC-CompoundType/PC-CompoundType_type'));
+			$cid_type = array_shift($compound->xpath('./PC-Compound_id/PC-CompoundType/PC-CompoundType_type'));
 
 			$pcrel = "pubchemsubstance:compound_relation_".md5($cid.$cid_type);
 
 			$this->AddRDF($this->QQuad($psid,"pubchemsubstance_vocabulary:hasCompoundRelation",$pcrel));
 			$this->AddRDF($this->QQuad($pcrel,"pubchemsubstance_vocabulary:hasCompound",$cid));
-			$this->AddRDF($this->QQuadl($pcrel,"pubchemsubstance_vocabulary:hasCompoundType",$cid_type));
+			$this->AddRDF($this->QQuadl($pcrel,"pubchemsubstance_vocabulary:hasCompoundType",$cid_type->attributes()->value));
 		}
 		// database cross references (xref)
 

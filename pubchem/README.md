@@ -46,7 +46,6 @@ Unmount all FUSE filesystems and then unload the kernel extension:
 
 ###Running the Program
 
-
 Checkout the program options:
 
 > php pubchem.php 
@@ -54,3 +53,11 @@ Checkout the program options:
 If you want to do it all use this:
 
 > php pubchem.php sync=true files=all indir=/path/to/indir/pubchem/ outdir=/path/to/data/pubchem/
+
+running the above command will setup a the pubchem remote volume in the default workspace directory. Remote files will be 
+sync with the local directories setup in the indir (/path/to/indir/pubchem/) compound, substance, and bioactivity.
+
+/path/to/indir/pubchem
+	./compound
+	./substance
+	./bioactivity
