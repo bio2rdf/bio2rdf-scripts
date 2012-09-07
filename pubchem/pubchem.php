@@ -54,7 +54,6 @@ class PubChemParser extends RDFFactory{
 	function __construct($argv){
 		parent::__construct();
 
-
 		$this->AddParameter('sync',false,'true|false','false','update all files or just download ones not present');
 		$this->AddParameter('files',true,'all|compounds|substances|bioactivity','all','files to process');
 		$this->AddParameter('indir',false,null,'../../download/pubchem/','directory to download into and parse from');
@@ -66,16 +65,15 @@ class PubChemParser extends RDFFactory{
 			$this->PrintParameters($argv);
 			exit;
 		}
+
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
 		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
 		
 		return TRUE;
 	}
-	// Things to do:
-	//	1. figure out which release to download
-	//	2. get list of files to download
-	//	3. Compare list with list of files in indir either remove all files from indir or download missing
+
+
 	function Run(){
 
 		//check requirements
@@ -122,7 +120,6 @@ class PubChemParser extends RDFFactory{
 
 	/**
 	* check that the requirements to run the script are met
-	* 	1. check if programs are installed 
 	**/
 	function checkRequirements(){
 		echo "Checking script requirements:";
@@ -150,7 +147,6 @@ class PubChemParser extends RDFFactory{
 			exit;
 		}
 
-		//mount remote pubchem server
 		echo "Setting up FTP mount:\n";
 		exec("curlftpfs ".$this->getParameterValue('remote_server')." ".$this->getParameterValue('workspace'));
 	}
@@ -221,7 +217,61 @@ class PubChemParser extends RDFFactory{
 		exec("rsync -r -t -v --progress --include='*/' --include='*.xml.gz' --exclude='*' ".$this->getParameterValue('workspace')."/Compound/CURRENT-Full/XML/ ".$compounds_dir);
 	}
 
+	/**
+	*	process the local copy of the pubchem bioactivity directory
+	**/
+	function parse_bioactivity(){
 
+		$this->SetDefaultNameSpace("pubchembioactivity");
+
+		$ignore = array(".","..");
+		$input_dir = $this->getParameterValue('indir')."/bioactivity" ; $gz=false;
+		$tmp = '/tmp/pubchem';
+		$this->CreateDirectory($tmp);
+		$this->CreateDirectory($this->getParameterValue('outdir')."/bioactivity/");
+
+		if($handle = opendir($input_dir)){
+			while(false !== ($dir = readdir($handle))){
+				if(in_array($dir, $ignore)) continue;
+				$zip = new ZipArchive;
+
+				if($zip->open($input_dir."/".$dir) === TRUE) {
+					$zip->extractTo($tmp);
+					$this->CreateDirectory($this->getParameterValue('outdir')."/bioactivity/".array_shift(explode(".",$dir)));
+
+					$read_dir = $tmp."/".array_shift(explode(".",$dir))."/";
+					if($files = opendir($read_dir)){
+						while(false != ($file = readdir($files))){
+							if(in_array($file, $ignore))continue;
+
+							echo "processing file:".$file."\n";
+							$outfile = realpath($this->getParameterValue('outdir'))."/bioactivity/".array_shift(explode(".",$dir))."/".basename($file,".xml.gz").".nt";
+				
+							if($this->GetParameterValue('gzip')){$outfile .= '.gz';$gz = true;}
+							echo "-> to ".$outfile."\n";
+
+							$this->setWriteFile($outfile,$gz);
+							$this->parse_bioactivity_file($read_dir,$file);
+							$this->getWriteFile()->close();
+						}
+					rmdir($tmp);
+					}else{
+						echo "unable to open directory to read files.\n";
+					}
+
+					$zip->close();
+				}
+			}
+			closedir($handle);
+		}else{
+			echo "unable to read directory contents: ".$substances_dir."\n";
+			exit;
+		}
+	}
+
+	/**
+	*	process a single pubchem bioactivity file
+	**/
 	function parse_bioactivity_file($indir,$file){
 		$xml = new CXML($indir,$file);
 		while($xml->Parse("PC-AssaySubmit") == TRUE) {
@@ -230,7 +280,9 @@ class PubChemParser extends RDFFactory{
 		}
 	}
 
-	// 
+	/**
+	* 	process a single pubchem bioactivity record
+	**/
 	function parse_bioactivity_record(&$xml) {
 		$root    = $xml->GetXMLRoot();
 		
@@ -262,8 +314,14 @@ class PubChemParser extends RDFFactory{
 		$assay_comments = $root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_comment/PC-AssayDescription_comment_E');
 		foreach($assay_comments as $assay_comment) {
 			$comment = explode(":",$assay_comment);
-			$key = $comment[0];
+
+
+			if(count($comment) <= 1) continue;
+			
+			$key   = $comment[0];
 			$value = $comment[1];
+
+			if($value == "") continue;
 
 			switch($key) {
 				case "Putative Target":
@@ -381,12 +439,16 @@ class PubChemParser extends RDFFactory{
 		}
 	}
 
-	// create a unique id for a result type	
+	/**
+	* Create unique id for a result id
+	**/
 	function result_type_id($tid) {
 		return "pubchembioactivity:result_type_".$tid;
 	}
 
-	// convert xml of xrefs into RDF
+	/**
+	* Convert XML <xrefs> section into RDF
+	**/
 	function db_xrefs($pid,$xrefs,$vocab){
 
 		if($xrefs != null) {
@@ -397,6 +459,42 @@ class PubChemParser extends RDFFactory{
 		}
 	}
 
+
+	/**
+	*	Function to start the conversion of the local copy of the pubchem
+	*	compound directory.
+	**/
+	function parse_compounds(){
+
+		$this->SetDefaultNameSpace("pubchemcompound");
+
+		$ignore = array(".","..");
+		$compounds_dir = $this->getParameterValue('indir')."/compounds/" ; $gz=false;
+		$this->CreateDirectory($this->getParameterValue('outdir')."/compounds/");
+
+		if($handle = opendir($compounds_dir)){
+			while(false !== ($file = readdir($handle))){
+				if(in_array($file, $ignore))continue;
+				echo "Processing file: ".$compounds_dir.$file;
+				$outfile = realpath($this->getParameterValue('outdir'))."/compounds/".basename($file,".xml.gz").".nt";
+				
+				if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
+				echo "-> to ".$outfile;
+
+				$this->setWriteFile($outfile,$gz);
+				$this->parse_compound_file($compounds_dir,$file);
+				$this->getWriteFile()->close();
+			}
+			closedir($handle);
+		}else{
+			echo "unable to read directory contents: ".$compounds_dir."\n";
+			exit;
+		}
+	}
+
+	/**
+	*	Begin parsing a single compound XML file
+	**/
 	function parse_compound_file($indir,$file){
 		$xml = new CXML($indir,$file);
 		while($xml->Parse("PC-Compound") == TRUE) {
@@ -405,39 +503,10 @@ class PubChemParser extends RDFFactory{
 		}
 	}
 
-	function parse_substance_record(&$xml){
-		$root        = $xml->GetXMLRoot();
-		$compound_type = array_shift($root->xpath('//PC-Substance_compound/PC-Compounds'));
-
-		// pubchem identifier and version
-		$sid         = array_shift($root->xpath('//PC-Substance_sid/PC-ID/PC-ID_id'));
-		$sid_version = array_shift($root->xpath('//PC-Substance_sid/PC-ID/PC-ID_version'));
-		$psid        = "pubchemsubstance:".$sid;
-
-		$this->AddRDF($this->QQuad($psid,"rdf:type","pubchemsubstance_vocabulary:Substance"));
-		$this->AddRDF($this->QQuadL($psid,"dc:identifier",$sid,"en"));
-		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:has_version",$sid_version));
-
-		// source identifier
-		$source_id   = array_shift($root->xpath('//PC-Substance_source/PC-Source/PC-Source_db/PC-DBTracking/PC-DBTracking_source-id/Object-id/Object-id_str'));
-		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:source_identifier",$source_id));
-
-		// synonyms
-		$synonyms    = array_shift($root->xpath('//PC-Substance_synonyms/PC-Substance_synonyms_E'));
-
-		foreach($synonyms as $synonym){
-			$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:synonyms",$synonym));
-		}
-
-		//comment
-		$comments     = $root->xpath('//PC-Substance_comment/PC-Substance_comment_E');
-		foreach($comments as $comment) {
-			$this->AddRDF($this->QQuadL($psid,"rdfs:comment",$comment,"en"));
-		}
-
-
-	}
-
+	/**
+	*	Parse a single compound record from the compound xml file
+	* 	handles the conversion of the raw XML to RDF.
+	**/
 	function parse_compound_record(&$xml){
 		
 		$root = $xml->GetXMLRoot();
@@ -512,21 +581,21 @@ class PubChemParser extends RDFFactory{
 	}
 
 	/**
-	* generate atom ID for a given compound or substance
+	* Generate atom ID for a given compound or substance
 	**/
 	function atom_id($id,$aid){
 		return $id."_pcatomid_".$aid;
 	}
 
 	/**
-	* generate bond ID for a given compound or substance
+	* Generate bond ID for a given compound or substance
 	**/
 	function bond_id($id,$aid1,$aid2) {
 		return $id."_pcbondid_".$bid;
 	}
 
 	/**
-	*	generate a unique id for a property of a compound
+	*	Generate a unique id for a property of a compound
 	*   we do this using a MD5 hash of the chemical identifier and xml record of the 
 	*	property being identified.
 	*/
@@ -534,35 +603,9 @@ class PubChemParser extends RDFFactory{
 		return md5($cid.$info);
 	}
 
-	function parse_compounds(){
 
-		$this->SetDefaultNameSpace("pubchemcompound");
-
-		$ignore = array(".","..");
-		$compounds_dir = $this->getParameterValue('indir')."/compounds/" ; $gz=false;
-		$this->CreateDirectory($this->getParameterValue('outdir')."/compounds/");
-
-		if($handle = opendir($compounds_dir)){
-			while(false !== ($file = readdir($handle))){
-				if(in_array($file, $ignore))continue;
-				echo "Processing file: ".$compounds_dir.$file;
-				$outfile = realpath($this->getParameterValue('outdir'))."/compounds/".basename($file,".xml.gz").".nt";
-				
-				if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
-				echo "-> to ".$outfile;
-
-				$this->setWriteFile($outfile,$gz);
-				$this->parse_compound_file($compounds_dir,$file);
-				$this->getWriteFile()->close();
-			}
-			closedir($handle);
-		}else{
-			echo "unable to read directory contents: ".$compounds_dir."\n";
-			exit;
-		}
-	}
 	/**
-	* read the files from the substances directory and process
+	*  Function to begin parsing the local copy of the pubchem substances directory
 	**/
 	function parse_substances(){
 
@@ -591,6 +634,9 @@ class PubChemParser extends RDFFactory{
 		}
 	}
 
+	/**
+	*  parse an individual pubchem substance file
+	**/
 	function parse_substance_file($indir,$file){
 		$xml = new CXML($indir,$file);
 		while($xml->Parse("PC-Substance") == TRUE) {
@@ -599,56 +645,37 @@ class PubChemParser extends RDFFactory{
 		}
 	}
 
-	// unzip folder
-	// gunzip file
-	// parse file
-	//
-	function parse_bioactivity(){
+	/**
+	*	Convert pubchem substance XML record to RDF
+	**/
+	function parse_substance_record(&$xml){
+		$root        = $xml->GetXMLRoot();
+		$compound_type = array_shift($root->xpath('//PC-Substance_compound/PC-Compounds'));
 
-		$this->SetDefaultNameSpace("pubchembioactivity");
+		// pubchem identifier and version
+		$sid         = array_shift($root->xpath('//PC-Substance_sid/PC-ID/PC-ID_id'));
+		$sid_version = array_shift($root->xpath('//PC-Substance_sid/PC-ID/PC-ID_version'));
+		$psid        = "pubchemsubstance:".$sid;
 
-		$ignore = array(".","..");
-		$input_dir = $this->getParameterValue('indir')."/bioactivity" ; $gz=false;
-		$tmp = '/tmp/pubchem';
-		$this->CreateDirectory($tmp);
-		$this->CreateDirectory($this->getParameterValue('outdir')."/bioactivity/");
+		$this->AddRDF($this->QQuad($psid,"rdf:type","pubchemsubstance_vocabulary:Substance"));
+		$this->AddRDF($this->QQuadL($psid,"dc:identifier",$sid,"en"));
+		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:has_version",$sid_version));
 
-		if($handle = opendir($input_dir)){
-			while(false !== ($dir = readdir($handle))){
-				if(in_array($dir, $ignore)) continue;
-				$zip = new ZipArchive;
+		// source identifier
+		$source_id   = array_shift($root->xpath('//PC-Substance_source/PC-Source/PC-Source_db/PC-DBTracking/PC-DBTracking_source-id/Object-id/Object-id_str'));
+		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:source_identifier",$source_id));
 
-				if($zip->open($input_dir."/".$dir) === TRUE) {
-					$zip->extractTo($tmp);
-					$this->CreateDirectory($this->getParameterValue('outdir')."/bioactivity/".array_shift(explode(".",$dir)));
+		// synonyms
+		$synonyms    = array_shift($root->xpath('//PC-Substance_synonyms/PC-Substance_synonyms_E'));
 
-					$read_dir = $tmp."/".array_shift(explode(".",$dir))."/";
-					if($files = opendir($read_dir)){
-						while(false != ($file = readdir($files))){
-							if(in_array($file, $ignore))continue;
+		foreach($synonyms as $synonym){
+			$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:synonyms",$synonym));
+		}
 
-							echo "processing file:".$file."\n";
-							$outfile = realpath($this->getParameterValue('outdir'))."/bioactivity/".array_shift(explode(".",$dir))."/".basename($file,".xml.gz").".nt";
-				
-							if($this->GetParameterValue('gzip')){$outfile .= '.gz';$gz = true;}
-							echo "-> to ".$outfile."\n";
-
-							$this->setWriteFile($outfile,$gz);
-							$this->parse_bioactivity_file($read_dir,$file);
-							$this->getWriteFile()->close();
-						}
-					unlink($tmp);
-					}else{
-						echo "unable to open directory to read files.\n";
-					}
-
-					$zip->close();
-				}
-			}
-			closedir($handle);
-		}else{
-			echo "unable to read directory contents: ".$substances_dir."\n";
-			exit;
+		//comment
+		$comments     = $root->xpath('//PC-Substance_comment/PC-Substance_comment_E');
+		foreach($comments as $comment) {
+			$this->AddRDF($this->QQuadL($psid,"rdfs:comment",$comment,"en"));
 		}
 	}
 }
