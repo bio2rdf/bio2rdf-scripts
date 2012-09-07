@@ -649,7 +649,6 @@ class PubChemParser extends RDFFactory{
 	**/
 	function parse_substance_record(&$xml){
 		$root        = $xml->GetXMLRoot();
-		$compound_type = array_shift($root->xpath('//PC-Substance_compound/PC-Compounds'));
 
 		// pubchem identifier and version
 		$sid         = array_shift($root->xpath('//PC-Substance_sid/PC-ID/PC-ID_id'));
@@ -659,6 +658,20 @@ class PubChemParser extends RDFFactory{
 		$this->AddRDF($this->QQuad($psid,"rdf:type","pubchemsubstance_vocabulary:Substance"));
 		$this->AddRDF($this->QQuadL($psid,"dc:identifier",$sid,"en"));
 		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:has_version",$sid_version));
+
+		// reference to pubchem compounds
+		$pc_compounds = $root->xpath('//PC-Substance_compound/PC-Compounds/PC-Compound');
+		foreach($pc_compounds as $compound) {
+			$cid = "pubchemcompound:".array_shift($compound->xpath('./PC-Compound_id/PC-CompoundType_id_cid'));
+			$cid_type = array_shift($compound->xpath('./PC-CompoundType/PC-CompoundType_type'));
+
+			$pcrel = "pubchemsubstance:compound_relation_".md5($cid.$cid_type);
+
+			$this->AddRDF($this->QQuad($psid,"pubchemsubstance_vocabulary:hasCompoundRelation",$pcrel));
+			$this->AddRDF($this->QQuad($pcrel,"pubchemsubstance_vocabulary:hasCompound",$cid));
+			$this->AddRDF($this->QQuadl($pcrel,"pubchemsubstance_vocabulary:hasCompoundType",$cid_type));
+		}
+		// database cross references (xref)
 
 		// source identifier
 		$source_id   = array_shift($root->xpath('//PC-Substance_source/PC-Source/PC-Source_db/PC-DBTracking/PC-DBTracking_source-id/Object-id/Object-id_str'));
