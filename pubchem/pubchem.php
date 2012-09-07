@@ -256,6 +256,7 @@ class PubChemParser extends RDFFactory{
 						}
 					rmdir($tmp);
 					}else{
+
 						echo "unable to open directory to read files.\n";
 					}
 
@@ -664,7 +665,7 @@ class PubChemParser extends RDFFactory{
 		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:source_identifier",$source_id));
 
 		// synonyms
-		$synonyms    = array_shift($root->xpath('//PC-Substance_synonyms/PC-Substance_synonyms_E'));
+		$synonyms   = $root->xpath('//PC-Substance_synonyms/PC-Substance_synonyms_E');
 
 		foreach($synonyms as $synonym){
 			$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:synonyms",$synonym));
