@@ -38,8 +38,8 @@ class HGNCParser extends RDFFactory {
 		$this->SetDefaultNamespace("hgnc");
 		
 		// set and print application parameters
-		$this->AddParameter('indir',true,null,'/data/download/hgnc/','directory to download into and parse from');
-		$this->AddParameter('outdir',true,null,'/data/rdf/hgnc/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/hgnc/','directory to download into and parse from');
+		$this->AddParameter('outdir',false,null,'/data/rdf/hgnc/','directory to place rdfized files');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download file');
@@ -206,7 +206,7 @@ class HGNCParser extends RDFFactory {
 			if(!empty($previous_names)){
 				$previous_names = explode(", ", $previous_names);
 				foreach($previous_names as $previous_name){
-					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:previous_name", $previous_name));
+					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:previous_name", $this->SafeLiteral($previous_name)));
 				}
 			}
 
@@ -220,7 +220,7 @@ class HGNCParser extends RDFFactory {
 			if(!empty($name_aliases)){
 				$name_aliases = explode(", ", $name_aliases);
 				foreach ($name_aliases as $name_alias) {
-					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:name_alias", "$name_alias"));
+					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:name_alias", $this->SafeLiteral($name_alias)));
 				}
 			}
 
@@ -283,14 +283,14 @@ class HGNCParser extends RDFFactory {
 			if(!empty($pubmed_ids)){
 				$pubmed_ids = explode(", ", $pubmed_ids);
 				foreach ($pubmed_ids as $pubmed_id) {
-					$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:x-pubmed", "pubmed:".$pubmed_id));
+					$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:x-pubmed", "pubmed:".trim($pubmed_id)));
 				}
 			}
 
 			if(!empty($refseq_ids)){
 				$refseq_ids = explode(", ", $refseq_ids);
 				foreach ($refseq_ids as $refseq_id) {
-					$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:x-refseq", "refseq:".$refseq_id));
+					$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:x-refseq", "refseq:".trim($refseq_id)));
 				}
 			}
 
@@ -299,7 +299,7 @@ class HGNCParser extends RDFFactory {
 			}
 
 			if(!empty($record_type)){
-				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:record_type", "$record_type"));
+				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:record_type", $this->SafeLiteral($record_type)));
 			}
 
 			if(!empty($primary_ids)){

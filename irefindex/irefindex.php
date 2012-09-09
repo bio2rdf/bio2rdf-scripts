@@ -225,7 +225,7 @@ class iREFINDEXParser extends RDFFactory
 					$this->AddRDF($this->QQuadL($irogid,"rdfs:label","[$irogid]"));			
 					$this->AddRDF($this->QQuad($irogid,"rdf:type","irefindex_vocabulary:Taxon-Sequence-Identical-Group"));
 					$tax = $a[9+($i-2)];
-					if($tax != '-') {
+					if($tax && $tax != '-' && $tax != '-1') {
 						$taxid = $this->ParseString($tax,$ns,$id,$label);
 						$this->AddRDF($this->QQuad($irogid,"irefindex_vocabulary:taxon",$taxid));
 					}
@@ -236,7 +236,7 @@ class iREFINDEXParser extends RDFFactory
 					$qname = $this->ParseString($item,$ns,$id,$label);
 					if($ns && $ns != 'irefindex_rogid' && $ns != 'irefindex_irogid') {
 						$this->AddRDF($this->QQuad($qname,"irefindex_vocabulary:taxon-sequence-identical-group",$irogid));	
-						if($taxid) $this->AddRDF($this->QQuad($qname,"irefindex_vocabulary:taxon",$taxid));
+						if($taxid && $taxid != '-' && $taxid != '-1') $this->AddRDF($this->QQuad($qname,"irefindex_vocabulary:taxon",$taxid));
 					}
 				}
 			}	
