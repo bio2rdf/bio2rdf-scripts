@@ -1,8 +1,6 @@
 <?php
-//require (dirname(__FILE__).'/../common/php/lipphp.php')
-require('../../php-lib/rdfapi.php');
 ###############################################################################
-#Copyright (C) 2011 Jose Cruz-Toledo, Alison Callahan
+#Copyright (C) 2012 Jose Cruz-Toledo, Alison Callahan
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy of
 #this software and associated documentation files (the "Software"), to deal in
@@ -23,109 +21,132 @@ require('../../php-lib/rdfapi.php');
 #SOFTWARE.
 ###############################################################################
 
-class HomologeneParser extends RDFFactory{
-	private $ns = null;
-	private $named_entries = array();
+/**
+ * An RDF generator for Homologene (http://www.genenames.org/)
+ * @version 1.0
+ * @author Alison Callahan
+ * @author Jose Cruz-Toledo
+*/
 
-	private $bio2rdf_base = "http://bio2rdf.org/";
-	private $homogene_vocab = "homologene_vocabulary:";
-	private $homogene_resource = "homologene_resource:";
+require('../../php-lib/rdfapi.php');
+
+class HomologeneParser extends RDFFactory{
+	
+	private $version = null;
 
 	function __construct($argv){
 		parent::__construct();
 
+		$this->SetDefaultNamespace("homologene");
+
 		//set and print the application options
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('indir',false,null,'/media/twotb/bio2rdf/data/homolgene','directory to download files');
+		$this->AddParameter('indir',false,null,'/media/twotb/bio2rdf/data/homologene','directory to download files');
 		$this->AddParameter('outdir',false,null,'/media/twotb/bio2rdf/n3/gene/','directory to place rdfized files');
+		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('force',false,'true|false','true','remove old files and copy over');
-		$this->AddParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/pub/HomoloGene/current/homologene.data');
+		$this->AddParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/pub/HomoloGene/current/');
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
 		}
 
-		return TRUE;
-	}
-
- function Run(){
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		$infile = $ldir."/homologene.data";
-		$outfile = $odir."/homologene.nt";
-		
-		//download necessary files
-		$download = $this->GetParameterValue('download');
-		if($download == 'true'){
-			$file = $this->GetParameterValue('download_url');
-			$l = $ldir.'homologene.data';
-			echo "Downloading ".$file." to ".$infile."\n";
-			copy($file,$infile);
-			echo "-> done <-\n";
-		}
-
-		if($this->GetParameterValue('gzip')){
-			$outfile.='.gz';
-		}
-		
-		// check there is no outfile that exists
-		if(!file_exists($outfile)){
-			$this->SetWriteFile($outfile,true);
-		}else{
-			$force = $this->GetParameterValue('force');
-			if($force == true){
-				echo "Removing existing ".$outfile."\n";
-				unlink($outfile);
-				$this->SetWriteFile($outfile,true);
-			}else{
-				echo "file $outfile already exists.\n Please remove the file and try again\n";
-				exit;
-			}
-		}
-
-		if(file_exists($infile)){
-			$this->SetReadFile($infile, true);
-		}else{
-			echo "the infile does not exist. You may need to download it first.";
-			exit;
-		}
 		//create necessary directories if they don't exist			
 		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
 		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-	
-		$this->parse_homologene_tab_file();		
+		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
+
+		return TRUE;
+	}
+
+ 	function Run(){
+
+ 		$file = "homologene.data";
+
+		$ldir = $this->GetParameterValue('indir');
+		$odir = $this->GetParameterValue('outdir');
+		$rdir = $this->GetParameterValue('download_url');
+		
+		//make sure directories end with slash
+		if(substr($ldir, -1) !== "/"){
+			$ldir = $ldir."/";
+		}
+		
+		if(substr($odir, -1) !== "/"){
+			$odir = $odir."/";
+		}
+		
+		$lfile = $ldir.$file;
+		
+		if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
+				trigger_error($file." not found. Will attempt to download.", E_USER_NOTICE);
+				$this->SetParameterValue('download',true);
+		}
+
+		//download
+		if($this->GetParameterValue('download') == true){
+			$rfile = $rdir.$file;
+			echo "downloading $file ... ";
+			file_put_contents($lfile,file_get_contents($rfile));
+		}
+
+		$ofile = $odir.$file.'.ttl'; 
+		$gz=false;
+		
+		if($this->GetParameterValue('gzip')) {
+			$ofile .= '.gz';
+			$gz = true;
+		}
+			
+		$this->SetReadFile($lfile);
+		$this->SetWriteFile($ofile, $gz);
+
+		echo "processing $file... ";
+		$this->process();	
+		echo "done!".PHP_EOL;
+		$this->GetWriteFile()->Close();
+
+		// generate the dataset release file
+		echo "generating dataset release file... ";
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/homologene/homologene.php", 
+			$this->GetBio2RDFDownloadURL($this->GetNamespace()),
+			"http://www.genenames.org",
+			array("use"),
+			"http://www.genenames.org/about/overview",
+			$this->GetParameterValue('download_url'),
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
+		echo "done!".PHP_EOL;
+
 		return TRUE;
 	}//run
 	
-	function parse_homologene_tab_file(){
-		$homologene = "http://bio2rdf.org/homologene";
-		$taxid = "http://bio2rdf.org/taxon:";
-		$geneid = "http://bio2rdf.org/geneid:";
-		$gi = "http://bio2rdf.org/gi:";
-		$refseq = "http://bio2rdf.org/refseq:";
-		$label = "http://www.w3.org/2000/01/rdf-schema#label";
-		$type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-		
-		
-		//$infh = fopen($inpath, 'r') or die("Cannot open $inpath!\n");
-		//$outfh = fopen($outpath, 'w') or die("Cannot open $outpath\n");
-		
-		while($aLine = $this->GetReadFile()->Read()){
+	function process(){		
+		while($aLine = $this->GetReadFile()->Read(4096)){
 			$parsed_line = $this->parse_homologene_tab_line($aLine);
-			$buf = "<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_taxid> <".$taxid.$parsed_line["taxid"].">.\n";
-			$buf .= "<$homologene:".$parsed_line["hid"]."> <".$type."> <".$homologene."_vocabulary:HomoloGene_Group>.\n";
-			$buf .= "<$homologene:".$parsed_line["hid"]."> <".$label."> \"HomoloGene Group\".\n";
-			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_geneid> <".$geneid.$parsed_line["geneid"].">.\n";
-			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_geneSymbol> \"".str_replace("\\","", $parsed_line["genesymbol"])."\".\n";
-			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_gi> <".$gi.$parsed_line["gi"].">.\n";
-			$buf .="<$homologene:".$parsed_line["hid"]."> <".$homologene."_vocabulary:has_refseq> <".$refseq.$parsed_line["refseq"].">.\n";
+			$hid = "homologene:".$parsed_line["hid"];
+			$geneid = "geneid:".$parsed_line["geneid"];
+			$taxid = "taxon:".$parsed_line["taxid"];
+			$gi = "gi:".$parsed_line["gi"];
+			$genesymbol = str_replace("\\", "", $parsed_line["genesymbol"]);
+			$refseq = "refseq:".$parsed_line["refseq"];
+			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_taxid",  $taxid));
+			$this->AddRDF($this->QQuad($hid, "rdf:type", "homologene_vocabulary:HomoloGene_Group"));
+			$this->AddRDF($this->QQuadL($hid, "rdfs:label", "HomoloGene Group [".$hid."]"));
+			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_gene", $geneid));
+			$this->AddRDF($this->QQuadL($hid, "homologene_vocabulary:has_gene_symbol", $genesymbol));
+			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_gi", $gi));
+			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_refseq", $refseq));
 			
-			$this->GetWriteFile()->Write($buf);
+			$this->WriteRDFBufferToWriteFile();
 		}
 
-		$this->GetReadFile()->Close();
-		$this->GetWriteFile()->Close();
 	}
 
 	function parse_homologene_tab_line($aLine){

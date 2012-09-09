@@ -230,7 +230,10 @@ class PharmGKBParser extends RDFFactory
 					}
 				}
 			}
+			$this->WriteRDFBufferToWriteFile();
 		}
+
+
 		return TRUE;
 	}
 
