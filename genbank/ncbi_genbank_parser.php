@@ -111,42 +111,15 @@ $gb_fields = array(
 		"description" => " may give a local pointer to the sequence start, usually involving an experimentally determined restriction cleavage site or the genetic locus (if available). This information is present only in older records."
 	)
 );
-function parseRecordFromString($aGenbank_str){
-	global $gb_fields;
-	$nl_arr = explode("\n", $aGenbank_str);
-	$fields = "";
-	foreach(array_keys($gb_fields) as $af){
-		$fields .= $af."|";
-	}
-	$fileds = substr($fields, 0, -1)."\n";
 
-	foreach ($nl_arr as $aLine) {
-		
-		preg_match("/(LOCUS\s+.*$)|(DEFINITION\s+.*$)/", $aLine, $matches);
-		if(count($matches)){
-			echo $aLine."\n";
-			print_r($matches);
-			echo "----\n";
-		}
-		/*$re = '/^(\w+)\s+.*|^(\w+)$/';
-		preg_match($re, $aLine, $matches);
-		if(count($matches)){
-			//get the heading
-			$heading = "";
-			if(count($matches) == 2){
-				$heading = $matches[1];
-			}elseif (count($matches) == 3) {
-				$heading = $matches[2];
-			}
-			echo $heading."\n";
-			//if locus
-		}//if count*/
-		
-		
-	}
+
+function extractLocusName($gb_str){
+	$rm = null;
+	$p = "/LOCUS\s+(.*?)\s+GI:(.*)/";
+
+	return $rm;
+	
 }
-
-
 
 function extractGI($gb_str){
 	$rm = null;
@@ -168,6 +141,39 @@ function extractVersion($gb_str){
 	return $rm;
 }
 
+function extractLocusLine($gb_str){
+	$la = explode("\n", $gb_str);
+	$line = trim($la[0]);
+	$rm = null;
+	$re1='((?:[a-z][a-z]+))';	# Word 1
+	$re2='.*?';	# Non-greedy match on filler
+	$re3='((?:[a-z][a-z]*[0-9]+[a-z0-9]*))';	# Alphanum 1
+	$re4='.*?';	# Non-greedy match on filler
+	$re5='(\\d+)';	# Integer Number 1
+	$re6='.*?';	# Non-greedy match on filler
+	$re7='(?:[a-z][a-z]+)';	# Uninteresting: word
+	$re8='.*?';	# Non-greedy match on filler
+	$re9='((?:[a-z][a-z]+))';	# Word 2
+	$re10='.*?';	# Non-greedy match on filler
+	$re11='((?:[a-z][a-z]+))';	# Word 3
+	$re12='.*?';	# Non-greedy match on filler
+	$re13='((?:(?:[0-2]?\\d{1})|(?:[3][01]{1}))[-:\\/.](?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Sept|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[-:\\/.](?:(?:[1]{1}\\d{1}\\d{1}\\d{1})|(?:[2]{1}\\d{3})))(?![\\d])';	# DDMMMYYYY 1
+
+	if ($c=preg_match_all ("/".$re1.$re2.$re3.$re4.$re5.$re6.$re7.$re8.$re9.$re10.$re11.$re12.$re13."/is", $line, $matches)){
+		
+		$locus_name=$matches[2][0];
+		$seq_len=$matches[3][0];
+		$mol_type=$matches[4][0];
+		$gb_div=$matches[5][0];
+		$mod_date=$matches[6][0];
+		$rm["locus_name"] =  $locus_name;
+		$rm["seq_len"] = $seq_len;
+		$rm["mol_type"] = $mol_type;
+		$rm["mod_date"] = $mod_date;
+
+	}
+	return $rm;
+}
 function extractAccession($gb_str){
 	$rm = null;
 	$p = "/ACCESSION\s+(.*)\n/";
@@ -200,8 +206,8 @@ function extractDefinition($gb_str){
 	$rm = null;
 	$p = "/DEFINITION\s+(.*?)/";
 	$p1 = preg_split($p, $gb_str);
-	$p = "/ACCESSION\s+(.*?)/";
 	if(isset($p1[1])){
+		$p = "/ACCESSION\s+(.*?)/";
 		$p2 = preg_split($p, $p1[1]);
 		$rm = $p2[0];
 		$rm = preg_replace("/\s\s+/", " ", $rm);
@@ -211,9 +217,44 @@ function extractDefinition($gb_str){
 	
 }
 
+function extractOrigin($gb_str){
+	$rm = null;
+	$p = "/ORIGIN\s+.*?/";
+	$p1 = preg_split($p, $gb_str);
+	if(isset($p1[1])){
+		$p = "/\/\/.*?/";
+		$p2 = preg_split($p, $p1[1]);
+		$rm = $p2[0];
+		//remove numbers
+		$rm = str_replace(range(0, 9), "", $rm);
+		//remove newlines
+		$rm = trim(str_replace("\n", "", $rm));
+		//remove spaces
+		$rm = preg_replace("/\s\s+/", "", $rm);
+		$rm = preg_replace("/\s/", "", $rm);
+		$rm = strtoupper($rm);
+	}
+	return $rm;
+}
+
+
+function extractFeaturesRaw($gb_str){
+	$rm = null;
+	$p = "/FEATURES\s+.*?/";
+	$p1 = preg_split($p, $gb_str);
+	if(isset($p1[1])){
+		$p = "/ORIGIN\s+.*?/";
+		$p2 = preg_split($p, $p1[1]);
+		$rm = $p2[0];
+	}
+	return $rm;
+}
+
+
 $str = file_get_contents("/home/jose/tmp/genbank/tmp.gb");
 
-$x = extractKeywords($str);
+
+$x = extractFeaturesRaw($str);
 print_r($x);
 //parseRecordFromString($str);
 //print_r($gb_fields);
