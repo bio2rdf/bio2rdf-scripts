@@ -71,8 +71,8 @@ class NCBITaxonomyParser extends RDFFactory{
 		$this->SetDefaultNamespace("taxon");
 		// set and print application parameters
 		$this->AddParameter('files',true,null,'all|taxdmp|gi2taxid_nucleotide|gi2taxid_protein','','files to process');
-		$this->AddParameter('indir',false,null,'/home/jose/tmp/taxonomy/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/home/jose/tmp/n3/taxonomy/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/taxonomy/','directory to download into and parse from');
+		$this->AddParameter('outdir',false,null,'/data/rdf/taxonomy/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
@@ -107,9 +107,9 @@ class NCBITaxonomyParser extends RDFFactory{
 		}
 		foreach ($files as $key => $value) {
 			if(substr($ldir, -1) == "/"){
-				$lfile = $ldir.$value;
+				$lfile = $ldir.$value['filename'];
 			} else {
-				$lfile = $ldir."/".$value;
+				$lfile = $ldir."/".$value['filename'];
 			}
 
 			if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
@@ -159,22 +159,14 @@ class NCBITaxonomyParser extends RDFFactory{
 						$this->SetReadFile($ldir.$lfile);
 						$this->GetReadFile()->SetFilePointer($fpin);
 						$this->SetWriteFile($gzoutfile, $gz);
-						if(!file_exists($gzoutfile)){
-							if (($gzout = gzopen($gzoutfile,"a"))=== FALSE) {
-								trigger_error("Unable to open $odir.$gzoutfile");
-								exit;
-							}
-							echo "processing $fn...\n";
-							//process
-							$this->$k();
-							$this->GetWriteFile()->Close();
-							echo "done!".PHP_EOL;
-						}else{
-							echo "file $gzoutfile already there!\nPlease remove file and try again\n";
-							exit;
-						}//else
+						
+						echo "processing $fn...\n";
+						$this->$k();
+						$this->GetWriteFile()->Close();
+						echo "done!".PHP_EOL;
 					}//if $k
 				}//foreach
+
 				// generate the release file
 				$desc = $this->GetBio2RDFDatasetDescription(
 					$this->GetNamespace(),
