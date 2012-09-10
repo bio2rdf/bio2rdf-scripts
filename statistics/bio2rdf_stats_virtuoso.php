@@ -29,7 +29,7 @@ SOFTWARE.
 */
 
 //path to isql executable
-$isql = "/opt/virtuoso/bin/isql";
+$isql = "/usr/local/virtuoso-opensource/bin/isql";
 
 //command line options
 $options = array(
@@ -70,15 +70,25 @@ if($options['port'] == 'isql_port'){
 $cmd_pre = "$isql -S ".$options['port']." -U ".$options['user']." -P ".$options['pass']." verbose=on banner=off prompt=off echo=ON errors=stdout exec="."'SPARQL "; 
 $cmd_post = "'";
 
+echo '# of triples'.PHP_EOL;
 $triples = get_number_of_triples();
+echo '# of unique subjects'.PHP_EOL;
 $subjects = get_unique_subject_count();
+echo '# of unique predicates'.PHP_EOL;
 $predicates = get_unique_predicate_count();
+echo '# of unique objects'.PHP_EOL;
 $objects = get_unique_object_count();
+echo '# of types'.PHP_EOL;
 $types = get_type_counts();
+echo '# of predicate-literals'.PHP_EOL;
 $pred_literals = get_predicate_literal_counts();
+echo '# of preidcate-objects'.PHP_EOL;
 $pred_objects = get_predicate_object_counts();
+echo '# of unique subject-predicate-literals'.PHP_EOL;
 $pred_subj_literals = get_unique_subject_predicate_unique_object_literal_counts();
+echo '# of unique subject-predicate-objects'.PHP_EOL;
 $pred_subj_objects = get_unique_subject_predicate_unique_object_counts();
+echo '# of type-relation-types'.PHP_EOL;
 $type_relations = get_type_relation_type_counts();
 
 //create file for writing
