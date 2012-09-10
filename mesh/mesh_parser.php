@@ -123,8 +123,8 @@ class MeshParser extends RDFFactory{
 			$this->SetDefaultNamespace("mesh");
 			// set and print application parameters
 			$this->AddParameter('files',true,null,'all|descriptor_records|qualifier_records|supplementary_records','','files to process');
-			$this->AddParameter('indir',false,null,'/home/jose/tmp/mesh/','directory to download into and parse from');
-			$this->AddParameter('outdir',false,null,'/home/jose/tmp/mesh/n3','directory to place rdfized files');
+			$this->AddParameter('indir',false,null,'/data/download/mesh/','directory to download into and parse from');
+			$this->AddParameter('outdir',false,null,'/data/rdf/mesh/','directory to place rdfized files');
 			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 			$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 			$this->AddParameter('download',false,'true|false','false','set true to download files');
