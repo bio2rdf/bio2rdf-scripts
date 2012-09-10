@@ -475,7 +475,7 @@ class EntrezGeneParser extends RDFFactory{
 	private function gene2go(){
 		$this->GetReadFile()->Read(200000);
 		while($aLine = $this->GetReadFile()->Read(200000)){
-			$id = 1;
+				$id = 1;
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 8){
 					$taxid = "taxon:".trim($splitLine[0]);
@@ -485,22 +485,24 @@ class EntrezGeneParser extends RDFFactory{
 					$qualifier = trim($splitLine[4]);
 					$golabel = trim($splitLine[5]);
 					$pmids = explode("|", $splitLine[6]);
-					$goCategory = trim($splitLine[7]);
+					$goCategory = strtolower(trim($splitLine[7]));
 					
 					$geneid = "geneid:$aGeneId";
 					// $this->AddRDF($this->QQuad($geneid,"geneid_vocabulary:has_taxid",$taxid));
-					$this->AddRDF($this->QQuad($geneid,"geneid_vocabulary:".strtolower($goCategory),$goid));
+					$this->AddRDF($this->QQuad($geneid,"geneid_vocabulary:".$goCategory,$goid));
+					$i = substr($goid,3);
 
 					//evidence
 					if($evidenceCode != "-"){
 						// create an evidence object
-						$eid = "geneid_resource:".$aGeneId."_".($id++);
-						$this->AddRDF($this->QQuad($geneid,"geneid_vocabulary:gene-go-association",$eid));
+						$eid = "geneid_resource:".$aGeneId."_".$i;
+						$this->AddRDF($this->QQuad($geneid,"geneid_vocabulary:gene-$goCategory-association",$eid));
 
 						$this->AddRDF($this->QQuadL($eid,"rdfs:label", "$geneid-$goid association [$eid]"));
-						$this->AddRDF($this->QQuad($eid,"rdf:type", "geneid_vocabulary:Gene-GO-Association"));
+						$this->AddRDF($this->QQuad($eid,"rdf:type", "geneid_vocabulary:Gene-$goCategory-Association"));
 						$this->AddRDF($this->QQuad($eid,"void:inDataset",$this->GetDatasetURI()));
 						$this->AddRDF($this->QQuad($eid,"geneid_vocabulary:evidence","eco:$evidenceCode"));
+						$this->AddRDF($this->QQuad($eid,"geneid_vocabulary:term",$goid));
 
 						foreach ($pmids as $pmid){
 							if($pmid != '-') $this->AddRDF($this->QQuad($eid,"geneid_vocabulary:publication","pubmed:$pmid"));
