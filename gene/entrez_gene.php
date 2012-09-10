@@ -502,7 +502,9 @@ class EntrezGeneParser extends RDFFactory{
 						$this->AddRDF($this->QQuad($eid,"rdf:type", "geneid_vocabulary:Gene-$goCategory-Association"));
 						$this->AddRDF($this->QQuad($eid,"void:inDataset",$this->GetDatasetURI()));
 						$this->AddRDF($this->QQuad($eid,"geneid_vocabulary:evidence","eco:$evidenceCode"));
-						$this->AddRDF($this->QQuad($eid,"geneid_vocabulary:term",$goid));
+						$this->AddRDF($this->QQuad($eid,"geneid_vocabulary:gene",$geneid));
+						$this->AddRDF($this->QQuadL($eid,"geneid_vocabulary:go_category",$goCategory));
+						$this->AddRDF($this->QQuad($eid,"geneid_vocabulary:go_term",$goid));
 
 						foreach ($pmids as $pmid){
 							if($pmid != '-') $this->AddRDF($this->QQuad($eid,"geneid_vocabulary:publication","pubmed:$pmid"));
