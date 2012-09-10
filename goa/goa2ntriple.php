@@ -39,8 +39,8 @@ if(SetCMDlineOptions($argv, $options) == FALSE) {
 
 $files = array();
 
-@mkdir($options['indir']['value'],null,true);
-@mkdir($options['outdir']['value'],null,true);
+@mkdir($options['indir']['value'],0777,true);
+@mkdir($options['outdir']['value'],0777,true);
 
 if($options['files']['value'] == 'all') {
         $files = explode("|",$options['files']['list']);
@@ -66,7 +66,7 @@ foreach($files as $file){
 function parse_goa_file($inpath, $outpath){
 	$buf = '';
 	$infh = gzopen($inpath,'r') or die("Cannot open $inpath !\n");
-	$outfh = fopen($outpath, 'w');
+	$outfh = fopen($outpath, 'w') or die("Can't open $outpath");
 	if($infh){
 		while(!gzeof($infh)){
 			$aLine = gzgets($infh, 4096);
