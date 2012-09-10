@@ -38,8 +38,8 @@ class IProClassParser extends RDFFactory{
 		$this->SetDefaultNamespace("iproclass");
 		
 		// set and print application parameters
-		$this->AddParameter('indir',true,null,'/data/download/iproclass/','directory to download into and parse from');
-		$this->AddParameter('outdir',true,null,'/data/rdf/iproclass/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/iproclass/','directory to download into and parse from');
+		$this->AddParameter('outdir',false,null,'/data/rdf/iproclass/','directory to place rdfized files');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
@@ -58,7 +58,7 @@ class IProClassParser extends RDFFactory{
 
 	function Run(){
 
-		$file = "iproclass.tb";
+		$file = "iproclass.tb.gz";
 
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
@@ -87,7 +87,7 @@ class IProClassParser extends RDFFactory{
 			file_put_contents($lfile,file_get_contents($rfile));
 		}
 
-		$ofile = $odir.$file.'.ttl'; 
+		$ofile = $odir.'iproclass.nt'; 
 		$gz = false;
 		
 		if($this->GetParameterValue('gzip')) {
@@ -95,7 +95,7 @@ class IProClassParser extends RDFFactory{
 			$gz = true;
 		}
 		
-		$this->SetReadFile($lfile, FALSE);
+		$this->SetReadFile($lfile, true);
 		$this->SetWriteFile($ofile, $gz);
 
 		echo "processing $file... ";
