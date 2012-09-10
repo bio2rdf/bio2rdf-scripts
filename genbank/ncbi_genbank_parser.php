@@ -113,14 +113,6 @@ $gb_fields = array(
 );
 
 
-function extractLocusName($gb_str){
-	$rm = null;
-	$p = "/LOCUS\s+(.*?)\s+GI:(.*)/";
-
-	return $rm;
-	
-}
-
 function extractGI($gb_str){
 	$rm = null;
 	$p = "/VERSION\s+(.*?)\s+GI:(.*)/";
@@ -141,6 +133,8 @@ function extractVersion($gb_str){
 	return $rm;
 }
 
+
+
 function extractLocusLine($gb_str){
 	$la = explode("\n", $gb_str);
 	$line = trim($la[0]);
@@ -160,16 +154,16 @@ function extractLocusLine($gb_str){
 	$re13='((?:(?:[0-2]?\\d{1})|(?:[3][01]{1}))[-:\\/.](?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Sept|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[-:\\/.](?:(?:[1]{1}\\d{1}\\d{1}\\d{1})|(?:[2]{1}\\d{3})))(?![\\d])';	# DDMMMYYYY 1
 
 	if ($c=preg_match_all ("/".$re1.$re2.$re3.$re4.$re5.$re6.$re7.$re8.$re9.$re10.$re11.$re12.$re13."/is", $line, $matches)){
-		
 		$locus_name=$matches[2][0];
 		$seq_len=$matches[3][0];
 		$mol_type=$matches[4][0];
 		$gb_div=$matches[5][0];
 		$mod_date=$matches[6][0];
-		$rm["locus_name"] =  $locus_name;
-		$rm["seq_len"] = $seq_len;
-		$rm["mol_type"] = $mol_type;
-		$rm["mod_date"] = $mod_date;
+		$rm["Locus Name"] =  $locus_name;
+		$rm["Sequence Length"] = $seq_len;
+		$rm["Molecule Type"] = $mol_type;
+		$rm["Genbank Division"] = $gb_div;
+		$rm["Modification Date"] = $mod_date;
 
 	}
 	return $rm;
@@ -179,7 +173,10 @@ function extractAccession($gb_str){
 	$p = "/ACCESSION\s+(.*)\n/";
 	preg_match($p, $gb_str, $matches);
 	if(isset($matches[1])){
-		$rm = $matches[1];
+		$y = preg_split("/\s+|\t+/", $matches[1]);
+		if(count($y)){
+			$rm = $y;
+		}
 	}
 	return $rm;
 }
@@ -209,9 +206,10 @@ function extractDefinition($gb_str){
 	if(isset($p1[1])){
 		$p = "/ACCESSION\s+(.*?)/";
 		$p2 = preg_split($p, $p1[1]);
-		$rm = $p2[0];
-		$rm = preg_replace("/\s\s+/", " ", $rm);
-		$rm = trim(str_replace("\n", "", $rm));
+		$y = $p2[0];
+		$y = preg_replace("/\s\s+/", " ", $y);
+		$y = trim(str_replace("\n", "", $y));
+		$rm["DEFINITION"] = $y;
 	}
 	return $rm;
 	
@@ -254,7 +252,7 @@ function extractFeaturesRaw($gb_str){
 $str = file_get_contents("/home/jose/tmp/genbank/tmp.gb");
 
 
-$x = extractFeaturesRaw($str);
+$x = extractVersion($str);
 print_r($x);
 //parseRecordFromString($str);
 //print_r($gb_fields);
