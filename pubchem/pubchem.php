@@ -58,6 +58,7 @@ class PubChemParser extends RDFFactory{
 		$this->AddParameter('files',true,'all|compounds|substances|bioactivity','all','files to process');
 		$this->AddParameter('indir',false,null,'../../download/pubchem/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'../../data/pubchem','directory to place rdfized files');
+		$this->AddParameter('graph_uri',false,null,null,'provide a graph uri to generate n-quads');
 		$this->AddParameter('workspace',false,null,'../../workspace/pubchem/','directory to mount pubchem FTP server');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('remote_server',false,null,'ftp.ncbi.nlm.nih.gov/pubchem/');
