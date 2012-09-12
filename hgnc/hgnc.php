@@ -87,7 +87,7 @@ class HGNCParser extends RDFFactory {
 			file_put_contents($lfile,file_get_contents($rfile));
 		}
 
-		$ofile = $odir.$file.'.ttl'; 
+		$ofile = $odir.$file.'.nt'; 
 		$gz=false;
 		
 		if($this->GetParameterValue('gzip')) {
@@ -111,7 +111,7 @@ class HGNCParser extends RDFFactory {
 		echo "generating dataset release file... ";
 		$desc = $this->GetBio2RDFDatasetDescription(
 			$this->GetNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sgd/sgd.php", 
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/hgnc/hgnc.php", 
 			$this->GetBio2RDFDownloadURL($this->GetNamespace()),
 			"http://www.genenames.org",
 			array("use"),
@@ -138,8 +138,8 @@ class HGNCParser extends RDFFactory {
 			$locus_group = $fields[5];
 			$previous_symbols = $fields[6];
 			$previous_names = $fields[7];
-			$aliases = $fields[8];
-			$name_aliases = $fields[9];
+			$synonyms = $fields[8];
+			$name_synonyms = $fields[9];
 			$chromosome = $fields[10];
 			$date_approved = $fields[11];
 			$date_modified = $fields[12];
@@ -155,25 +155,25 @@ class HGNCParser extends RDFFactory {
 			$pubmed_ids = $fields[22];
 			$refseq_ids = $fields[23];
 			$gene_family_tag = $fields[24];
-			$record_type = $fields[25];
-			$primary_ids = $fields[26];
-			$secondary_ids = $fields [27];
-			$ccd_ids = $fields[28];
-			$vega_ids = $fields[29];
-			$locus_specific_databases = $fields[30];
-			$gdb_id_mappeddata = $fields[31];
-			$entrez_gene_id_mappeddatasuppliedbyNCBI = $fields[32];
-			$omim_id_mappeddatasuppliedbyNCBI = $fields[33];
-			$refseq_mappeddatasuppliedbyNCBI = $fields[34];
-			$uniprot_id_mappeddatasuppliedbyUniProt = $fields[35];
-			$ensembl_id_mappeddatasuppliedbyEnsembl = $fields[36];
-			$ucsc_id_mappeddatasuppliedbyUCSC = $fields[37];
-			$mouse_genome_database_id_mappeddatasuppliedbyMGI = $fields[38];
-			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[39];
+			$gene_family_description = $fields[25];
+			$record_type = $fields[26];
+			$primary_ids = $fields[27];
+			$secondary_ids = $fields [28];
+			$ccd_ids = $fields[29];
+			$vega_ids = $fields[23];
+			$locus_specific_databases = $fields[31];
+			$gdb_id_mappeddata = $fields[32];
+			$entrez_gene_id_mappeddatasuppliedbyNCBI = $fields[33];
+			$omim_id_mappeddatasuppliedbyNCBI = $fields[34];
+			$refseq_mappeddatasuppliedbyNCBI = $fields[35];
+			$uniprot_id_mappeddatasuppliedbyUniProt = $fields[36];
+			$ensembl_id_mappeddatasuppliedbyEnsembl = $fields[37];
+			$ucsc_id_mappeddatasuppliedbyUCSC = $fields[38];
+			$mouse_genome_database_id_mappeddatasuppliedbyMGI = $fields[39];
+			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[40];
 
-				
 			$this->AddRDF($this->QQuad($id, "rdf:type", "hgnc_vocabulary:GeneSymbol"));
-
+			$this->AddRDF($this->QQuad($id, "void:inDataset", $this->GetDatasetURI()));
 			$this->AddRDF($this->QQuadL($id, "dc:identifier", "$id"));
 
 			if(!empty($approved_symbol)){
@@ -210,17 +210,17 @@ class HGNCParser extends RDFFactory {
 				}
 			}
 
-			if(!empty($aliases)){
-				$aliases = explode(", ", $aliases);
-				foreach ($aliases as $alias) {
-					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:alias", "$alias"));
+			if(!empty($synonyms)){
+				$synonyms = explode(", ", $synonyms);
+				foreach ($synonyms as $synonym) {
+					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:synonym", "$synonym"));
 				}
 			}
 
-			if(!empty($name_aliases)){
-				$name_aliases = explode(", ", $name_aliases);
-				foreach ($name_aliases as $name_alias) {
-					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:name_alias", "$name_alias"));
+			if(!empty($name_synonyms)){
+				$name_synonyms = explode(", ", $name_synonyms);
+				foreach ($name_synonyms as $name_synonym) {
+					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:name_synonym", "$name_synonym"));
 				}
 			}
 
@@ -267,6 +267,9 @@ class HGNCParser extends RDFFactory {
 			}
 
 			if(!empty($mouse_genome_database_id)){
+				if(strpos($mouse_genome_database_id, "MGI:") !== FALSE){
+					$mouse_genome_database_id = substr($mouse_genome_database_id, 4);
+				}
 				$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:x-mgi", "mgi:$mouse_genome_database_id"));
 			}
 
@@ -296,6 +299,11 @@ class HGNCParser extends RDFFactory {
 
 			if(!empty($gene_family_tag)){
 				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:gene_family_tag", "$gene_family_tag"));
+			}
+
+			if(!empty($gene_family_description)){
+				$gene_family_description = str_replace("\"", "", $gene_family_description);
+				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:gene_family_description", "$gene_family_description"));
 			}
 
 			if(!empty($record_type)){
@@ -392,21 +400,24 @@ class HGNCParser extends RDFFactory {
 			if(!empty($mouse_genome_database_id_mappeddatasuppliedbyMGI)){
 				$mouse_genome_database_id_mappeddatasuppliedbyMGI = explode(", ", $mouse_genome_database_id_mappeddatasuppliedbyMGI);
 				foreach ($mouse_genome_database_id_mappeddatasuppliedbyMGI as $mgi_id) {
+					if(strpos($mgi_id, "MGI:") !== FALSE){
+						$mgi_id = substr($mgi_id, 4);
+					}
 					$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:x-mgi", "mgi:".$mgi_id));
 				}
 			}
 
 			if(!empty($rat_genome_database_id_mappeddatasuppliedbyRGD)){
-				$rat_genome_database_id_mappeddatasuppliedbyRGD = explode(", ", $rat_genome_database_id_mappeddatasuppliedbyRGD);
+				$rat_genome_database_id_mappeddatasuppliedbyRGD = explode(", ", trim($rat_genome_database_id_mappeddatasuppliedbyRGD));
 				foreach ($rat_genome_database_id_mappeddatasuppliedbyRGD as $rgd_id) {
-					$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:x-rgd", strtolower($rgd_id)));
+					$rgd_id = trim($rgd_id);
+					if(!empty($rgd_id)){
+						$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:x-rgd", strtolower($rgd_id)));
+					}
 				}
 			}
-
 			//write RDF to file
 			$this->WriteRDFBufferToWriteFile();
-
-		
 		}//while
 	}//process
 }//HGNCParser
