@@ -41,8 +41,8 @@ class HomologeneParser extends RDFFactory{
 
 		//set and print the application options
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('indir',false,null,'/media/twotb/bio2rdf/data/homologene','directory to download files');
-		$this->AddParameter('outdir',false,null,'/media/twotb/bio2rdf/n3/gene/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/homologene','directory to download files');
+		$this->AddParameter('outdir',false,null,'/data/rdf/homologene/','directory to place rdfized files');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('force',false,'true|false','true','remove old files and copy over');
@@ -66,7 +66,8 @@ class HomologeneParser extends RDFFactory{
 
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
-	
+		$rdir = $this->GetParameterValue('download_url');
+		
 		//make sure directories end with slash
 		if(substr($ldir, -1) !== "/"){
 			$ldir = $ldir."/";
@@ -137,7 +138,7 @@ class HomologeneParser extends RDFFactory{
 			$refseq = "refseq:".$parsed_line["refseq"];
 			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_taxid",  $taxid));
 			$this->AddRDF($this->QQuad($hid, "rdf:type", "homologene_vocabulary:HomoloGene_Group"));
-			$this->AddRDF($this->QQuadL($hid, "rdfs:label", "HomoloGene Group [".$hid."]"));
+			$this->AddRDF($this->QQuadL($hid, "rdfs:label", "HomoloGene Group $hid [".$hid."]"));
 			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_gene", $geneid));
 			$this->AddRDF($this->QQuadL($hid, "homologene_vocabulary:has_gene_symbol", $genesymbol));
 			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_gi", $gi));
