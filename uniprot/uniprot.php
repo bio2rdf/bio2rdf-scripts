@@ -5,188 +5,14 @@ require('../../php-lib/rdfapi.php');
 class UniProtParser extends RDFFactory {
 	private $version = null;
 
-	private $nslist = array(
-		"2dbase-ecoli" => "2dbaseecoli",
-		"aarhus_ghent_2dpage" => "aarhus_ghent_2dpage",
-		"aarhus-ghent-2dpage" => "aarhus_ghent_2dpage",
-		"database/Aarhus" => "aarhus_ghent_2dpage",
-		"agd" => "agd",
-		"agricola" => "agricola",
-		"allergome" => "allergome",
-		"anu-2dpage" => "anu2dpage",
-		"arac-xyls" => "aracxyls",
-		"arachnoserver" => "arachnoserver",
-		"arrayexpress" => "arrayexpress",
-		"bgee" => "bgee",
-		"bindingdb" => "bindingdb",
-		"biocyc" => "biocyc",
-		"brenda" => "brenda",
-		"cazy" => "cazy",
-		"cgd" => "cgd",
-		"citations" => "pubmed",
-		"cleanex" => "cleanex",
-		"compluyeast-2dpage" => "compluyeast2dpage",
-		"conoserver" => "conoserver",
-		"cornea-2dpage" => "cornea2dpage",
-		"ctd" => "ctd",
-		"cygd" => "cygd",
-		"dbsnp" => "dbsnp",
-		"ddbj" => "ddbj",
-		"dictybase" => "dictybase",
-		"dip" => "dip",
-		"disprot" => "disprot",
-		"dmdm" => "dmdm",
-		"dnasu" => "dnasu",
-		"dosac-cobs-2dpage" => "dosaccobs2dpage",
-		"drugbank" => "drugbank",
-		"echobase" => "echobase",
-		"eco2dbase" => "eco2dbase",
-		"ecogene" => "ecogene",
-		"eggnog" => "eggnog",
-		"embl" => "embl",
-		"embl-cds" => "embl",
-		"embl_con" => "embl",
-		"embl_tpa" => "embl",
-		"emblwgs" => "embl",
-		"ensembl" => "ensembl",
-		"ensemblbacteria" => "ensembl",
-		"ensemblfungi" => "ensembl",
-		"ensemblmetazoa" => "ensembl",
-		"ensemblplants" => "ensembl",
-		"ensemblprotists" => "ensembl",
-		"enzyme" => "ec",
-		"epo" => "epo_prt",
-		"euhcvdb" => "euhcvdb",
-		"eupathdb" => "eupathdb",
-		"evolutionarytrace" => "evolutionarytrace",
-		"flybase" => "flybase",
-		"genatlas" => "genatlas",
-		"gene3d" => "gene3d",
-		"genecards" => "genecards",
-		"genefarm" => "genefarm",
-		"geneid" => "geneid",
-		"genetree" => "genetree",
-		"genevestigator" => "genevestigator",
-		"genolist" => "genolist",
-		"genomereviews" => "genomereviews",
-		"genomernai" => "genomernai",
-		"germonline" => "germonline",
-		"glycosuitedb" => "glycosuitedb",
-		"go" => "go",
-		"goa-projects" => "goa",
-		"gpcrdb" => "gpcrdb",
-		"gramene" => "gramene",
-		"h_inv" => "hinvdb",
-		"h-invdb" => "hinvdb",
-		"hamap" => "hamap",
-		"hgnc" => "hgnc",
-		"hogenom" => "hogenom",
-		"hovergen" => "hovergen",
-		"hpa" => "hpa",
-		"hssp" => "hssp",
-		"huge" => "huge",
-		"imgt" => "imgt",
-		"intact" => "intact",
-		"interpro" => "interpro",
-		"inparanoid" => "inparanoid",
-		"ipi" => "ipi",
-		"isoforms" => "uniprot",
-		"jpo" => "jpo_prt",
-		"kegg" => "kegg",
-		"kipo" => "kipo_prt",
-		"ko" => "ko",
-		"legiolist" => "legiolist",
-		"leproma" => "leproma",
-		"maizegdb" => "maizegdb",
-		"medline" => "pubmed",
-		"merops" => "merops",
-		"mgi" => "mgi",
-		"micado" => "micado",
-		"mim" => "omim",
-		"mint" => "mint",
-		"modbase" => "modbase",
-		"nextbio" => "nextbio",
-		"nextprot" => "nexprot",
-		"ogp" => "ogp",
-		"oma" => "oma",
-		"orphanet" => "orphanet",
-		"orthodb" => "orthodb",
-		"panther" => "panther",
-		"pathway-interaction-db" => "pathway_interaction_db",
-		"patric" => "patric",
-		"pdb" => "pdb",
-		"pdbj" => "pdb",
-		"pdbsum" => "pdb",
-		"peptideatlas" => "peptideatlas",
-		"peroxibase" => "peroxibase",
-		"pfam" => "pfam",
-		"pharmgkb" => "pharmgkb",
-		"phci-2dpage" => "phci2dpage",
-		"phosphosite" => "phosphosite",
-		"phossite" => "phossite",
-		"phylomedb" => "phylomedb",
-		"pir" => "pir",
-		"pirsf" => "pirsf",
-		"pmap-cutdb" => "pmapcutdb",
-		"pmma-2dpage" => "pmma2dpage",
-		"pombase" => "pombase",
-		"pptasedb" => "pptasedb",
-		"pride" => "pride",
-		"prf" => "prf",
-		"prints" => "prints",
-		"prodom" => "prodom",
-		"promex" => "promex",
-		"prosite" => "prosite",
-		"protclustdb" => "protclustdb",
-		"proteinmodelportal" => "proteinmodelportal",
-		"protonet" => "protonet",
-		"pseudocap" => "pseudocap",
-		"pubmed" => "pubmed",
-		"rat-heart-2dpage" => "ratheart2dpage",
-		"reactome" => "reactome",
-		"rebase" => "rebase",
-		"refseq" => "refseq",
-		"reproduction-2dpage" => "reproduction2dpage",
-		"rgd" => "rgd",
-		"rouge" => "rouge",
-		"sbkb" => "sbkb",
-		"sgd" => "sgd",
-		"siena-2dpage" => "siena2dpage",
-		"smart" => "smart",
-		"smr" => "smr",
-		"source" => "source",
-		"string" => "string",
-		"supfam" => "supfam",
-		"swiss-2dpage" => "swiss2dpage",
-		"tair" => "tair",
-		"tair_arabidopsis" => "tair",
-		"tcdb" => "tcdb",
-		"tigr" => "tigr",
-		"tigrfams" => "tigrfams",
-		"trome" => "trome",
-		"tuberculist" => "tuberculist",
-		"ucd-2dpage" => "ucd2dpage",
-		"ucsc" => "ucsc",
-		"unigene" => "unigene",
-		"unimes" => "unimes",
-		"unipathway" => "unipathway",
-		"uspto" => "uspto_prt",
-		"vectorbase" => "vectorbase",
-		"vega" => "vega",
-		"world-2dpage" => "world2dpage",
-		"wormbase" => "wormbase",
-		"xenbase" => "xenbase",
-		"zfin" => "zfin",
-	);
-
 	function __construct($argv) {
 		parent::__construct();
 		$this->SetDefaultNamespace("uniprot");
 
 		// set and print application parameters
 		$this->AddParameter('files',true,'all|citations|keywords|locations|taxonomy|tissues|uniprot|uniparc|uniref','all','all or comma-separated list of files to process');
-		$this->AddParameter('indir',false,null,'/data/download/sgd/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/sgd/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/uniprot/','directory to download into and parse from');
+		$this->AddParameter('outdir',false,null,'/data/rdf/uniprot/','directory to place rdfized files');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
@@ -251,7 +77,7 @@ class UniProtParser extends RDFFactory {
 				file_put_contents($lfile,file_get_contents($rfile));
 			}
 
-			$ofile = $odir.$file.'.ttl'; 
+			$ofile = $odir.$file.'.nt'; 
 			$gz=false;
 
 			if($this->GetParameterValue('gzip')) {
@@ -293,16 +119,20 @@ class UniProtParser extends RDFFactory {
 	}//Run
 
 	function process($random_number){
+
+		$namespace = $this->GetNS();
+
 		while($l = $this->GetReadFile()->Read(4096)) {
+
+			$subject = null;
+			$predicate = null;
+			$object = null;
+
 			preg_match("/<(.*?)> <(.*?)> <(.*)> \.$/", $l, $matches);
 			if(!empty($matches)){
 				$subject_tmp = $matches[1];
 				$predicate_tmp = $matches[2];
 				$object_tmp = $matches[3];
-
-				$subject = null;
-				$predicate = null;
-				$object = null;
 
 				preg_match("/http:\\/\\/purl\\.uniprot\\.org\\/uniprot\\/(.*)/", $subject_tmp, $subj_matches);
 				preg_match("/http:\\/\\/purl\\.uniprot\\.org\\/core\\/(.*)/", $predicate_tmp, $pred_matches);
@@ -310,22 +140,21 @@ class UniProtParser extends RDFFactory {
 
 				if(!empty($subj_matches)){
 					$subject = "http://bio2rdf.org/uniprot:".$subj_matches[1];
-					$this->AddRDF($this->Quad($subject, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $subject_tmp));
 				} else {
 					preg_match("/http:\\/\\/purl\\.uniprot\\.org\\/(.*)\\/(.*)/", $subject_tmp, $subj_matches);
 					if(!empty($subj_matches)){
-						if(!array_key_exists($subj_matches[1], $this->nslist)){
-							if($subj_matches[1] == "citations"){
-								$subject = "http://bio2rdf.org/pubmed:".$subj_matches[2];
-							} elseif($subj_matches[2] == "taxonomy"){
-								$subject = "http://bio2rdf.org/taxon:".$subj_matches[2];
-							} else {
-								$subject = "http://bio2rdf.org/uniprot_resource:".$subj_matches[1]."_".$subj_matches[2];
-							}
+						$sns = $subj_matches[1];
+						$sid = $subj_matches[2];
+						if($sns == "citations"){
+							$subject = "http://bio2rdf.org/pubmed:".$sid;
+						} elseif($sns == "taxonomy"){
+							$subject = "http://bio2rdf.org/taxon:".$sid;
+						} elseif($sns == "annotation" || $sns == "database"|| $sns == "isoforms" || $sns == "keywords" || $sns == "locations" || $sns == "patents" || $sns == "tissues"){
+							$subject = "http://bio2rdf.org/uniprot_resource:".$sns."_".$sid;
 						} else {
-							$subject = "http://bio2rdf.org/".$this->nslist[$subj_matches[1]].":".$subj_matches[2];
+							$sqname = $namespace->MapQName($sns.":".$sid); //get canonical namespace from ns.php
+							$subject = "http://bio2rdf.org/".$sqname;
 						}
-						$this->AddRDF($this->Quad($subject, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $subject_tmp));
 					} else {
 						preg_match("/#_(.*)/", $subject_tmp, $bn_matches);
 						if(!empty($bn_matches)){
@@ -350,17 +179,18 @@ class UniProtParser extends RDFFactory {
 					} else {
 						preg_match("/http:\\/\\/purl\\.uniprot\\.org\\/(.*)\\/(.*)/", $object_tmp, $obj_matches);
 						if(!empty($obj_matches)){
-							if(!array_key_exists($obj_matches[1], $this->nslist)){
-								if($obj_matches[1] == "citations"){
-									$object = "http://bio2rdf.org/pubmed:".$obj_matches[2];
-								} elseif($obj_matches[2] == "taxonomy"){
-									$object = "http://bio2rdf.org/taxon:".$obj_matches[2];
-								} else {
-									$object = "http://bio2rdf.org/uniprot_resource:".$obj_matches[1]."_".$obj_matches[2];
-								}
+							$ons = $obj_matches[1];
+							$oid = $obj_matches[2];
+							if($ons == "citations"){
+								$object = "http://bio2rdf.org/pubmed:".$oid;
+							} elseif($ons == "taxonomy"){
+								$object = "http://bio2rdf.org/taxon:".$oid;
+							} elseif($ons == "annotation" || $ons == "database"|| $ons == "isoforms" || $ons == "keywords" || $ons == "locations" || $ons == "patents" || $ons == "tissues"){
+								$object = "http://bio2rdf.org/uniprot_resource:".$ons."_".$oid;
 							} else {
-								$object = "http://bio2rdf.org/".$this->nslist[$obj_matches[1]].":".$obj_matches[2];
-							}							
+								$oqname = $namespace->MapQName($ons.":".$oid); //get canonical namespace from ns.php
+								$object = "http://bio2rdf.org/".$oqname;
+							}
 							$this->AddRDF($this->Quad($object, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $object_tmp));
 						} else {
 							$object = $object_tmp;
@@ -368,7 +198,6 @@ class UniProtParser extends RDFFactory {
 					}
 				}
 				$this->AddRDF($this->Quad($subject, $predicate, $object));
-				$this->AddRDF($this->Quad($subject, "http://rdfs.org/ns/void#inDataset", "http://bio2rdf.org/".$this->GetDatasetURI()));
 			} else {
 				preg_match("/<(.*?)> <(.*?)> \"(.*)\" \.$/", $l, $matches);
 				if(!empty($matches)){
@@ -379,28 +208,23 @@ class UniProtParser extends RDFFactory {
 					preg_match("/http:\\/\\/purl\\.uniprot\\.org\\/uniprot\\/(.*)/", $subject_tmp, $subj_matches);
 					preg_match("/http:\\/\\/purl\\.uniprot\\.org\\/core\\/(.*)/", $predicate_tmp, $pred_matches);
 
-					$subject = null;
-					$predicate = null;
-					$literal = null;
-
 					if(!empty($subj_matches)){
 						$subject = "http://bio2rdf.org/uniprot:".$subj_matches[1];
-						$this->AddRDF($this->Quad($subject, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $subject_tmp));
 					} else {
 						preg_match("/http:\\/\\/purl\\.uniprot\\.org\\/(.*)\\/(.*)/", $subject_tmp, $subj_matches);
 						if(!empty($subj_matches)){
-							if(!array_key_exists($subj_matches[1], $this->nslist)){
-								if($subj_matches[1] == "citations"){
-									$subject = "http://bio2rdf.org/pubmed:".$subj_matches[2];
-								} elseif($subj_matches[2] == "taxonomy"){
-									$subject = "http://bio2rdf.org/taxon:".$subj_matches[2];
-								} else {
-									$subject = "http://bio2rdf.org/uniprot_resource:".$subj_matches[1]."_".$subj_matches[2];
-								}
+							$sns = $subj_matches[1];
+							$sid = $subj_matches[2];
+							if($sns == "citations"){
+								$subject = "http://bio2rdf.org/pubmed:".$sid;
+							} elseif($sns == "taxonomy"){
+								$subject = "http://bio2rdf.org/taxon:".$sid;
+							} elseif($sns == "annotation" || $sns == "database"|| $sns == "isoforms" || $sns == "keywords" || $sns == "locations" || $sns == "patents" || $sns == "tissues"){
+								$subject = "http://bio2rdf.org/uniprot_resource:".$sns."_".$sid;
 							} else {
-								$subject = "http://bio2rdf.org/".$this->nslist[$subj_matches[1]].":".$subj_matches[2];
+								$sqname = $namespace->MapQName($sns.":".$sid); //get canonical namespace from ns.php
+								$subject = "http://bio2rdf.org/".$sqname;
 							}
-							$this->AddRDF($this->Quad($subject, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $subject_tmp));
 						} else {
 							preg_match("/#_(.*)/", $subject_tmp, $bn_matches);
 							if(!empty($bn_matches)){
@@ -415,11 +239,11 @@ class UniProtParser extends RDFFactory {
 						$predicate = $predicate_tmp;
 					}
 
-					$literal = $literal_tmp;
-
-					$this->AddRDF($this->QuadL($subject, $predicate, $literal));
-					$this->AddRDF($this->Quad($subject, "http://rdfs.org/ns/void#inDataset", "http://bio2rdf.org/".$this->GetDatasetURI()));
+					$object = $literal_tmp;
+					$this->AddRDF($this->QuadL($subject, $predicate, $object));
 				}
+				$this->AddRDF($this->Quad($subject, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $subject_tmp));
+				$this->AddRDF($this->Quad($subject, "http://rdfs.org/ns/void#inDataset", "http://bio2rdf.org/".$this->GetDatasetURI()));
 			}
 			$this->WriteRDFBufferToWriteFile();
 		}
