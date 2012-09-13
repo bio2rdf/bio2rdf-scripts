@@ -146,7 +146,8 @@ class BiomodelsParser extends RDFFactory
 			$converter->SetBuffer($buf)
 				->SetBioPAXVersion(3)
 				->SetBaseNamespace("http://identifiers.org/biomodels.db/$id/")
-				->SetBio2RDFNamespace("http://bio2rdf.org/biomodels:".$id."_");
+				->SetBio2RDFNamespace("http://bio2rdf.org/biomodels:".$id."_")
+				->SetDatasetURI($this->GetDatasetURI());
 			$this->AddRDF($converter->Parse());
 			$this->WriteRDFBufferToWriteFile();
 		
@@ -155,6 +156,7 @@ class BiomodelsParser extends RDFFactory
 		$this->GetWriteFile()->Close();
 
 		// generate the release file
+		$this->DeleteBio2RDFReleaseFiles($odir);
 		$desc = $this->GetBio2RDFDatasetDescription(
 			$this->GetNamespace(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/biomodels/biomodels.php", 
