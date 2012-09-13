@@ -47,7 +47,7 @@ class SGDParser extends RDFFactory {
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'http://downloads.yeastgenome.org/');
 		$this->AddParameter('ncbo_api_key', false, null, '24e19c82-54e0-11e0-9d7b-005056aa3316');
-		$this->AddParameter('ncbo_download_dir', false, null, '/bio2rdf/data/ncbo', 'directory of ncbo ontologies');
+		$this->AddParameter('ncbo_download_dir', false, null, '/data/download/ncbo', 'directory of ncbo ontologies');
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
@@ -580,7 +580,7 @@ class SGDParser extends RDFFactory {
 
 			// now for the GO annotation
 			$goa = "sgd_resource:goa_".$id."_".$term;
-			$this->AddRDF($this->QQuad($goa,"rdf:type","sgd_vocabulary:GOAnnotation"));
+			$this->AddRDF($this->QQuad($goa,"rdf:type","sgd_vocabulary:GO-Annotation"));
 			$this->AddRDF($this->QQuad($goa, "void:inDataset", $this->GetDatasetURI()));
 			$this->AddRDF($this->QQuad($goa,"rdf:subject",$subject));
 			$this->AddRDF($this->QQuad($goa,"rdf:predicate",$predicate));
@@ -737,9 +737,8 @@ class SGDParser extends RDFFactory {
 		BuildNamespaceSearchList($terms,$searchlist);
 
 		while($l = $this->GetReadFile()->Read(96000)) {
-			if(trim($l) == '') continue;		
+			if(trim($l) == '') continue;
 			$a = explode("\t",$l);
-				
 			$eid =  md5($a[3].$a[5].$a[6].$a[9]);
 			
 			$label = "$a[0] - $a[5] experiment with $a[6] resulting in phenotype of $a[9]";

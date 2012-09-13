@@ -58,6 +58,7 @@ class PubChemParser extends RDFFactory{
 		$this->AddParameter('files',true,'all|compounds|substances|bioactivity','all','files to process');
 		$this->AddParameter('indir',false,null,'../../download/pubchem/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'../../data/pubchem','directory to place rdfized files');
+		$this->AddParameter('graph_uri',false,null,null,'provide a graph uri to generate n-quads');
 		$this->AddParameter('workspace',false,null,'../../workspace/pubchem/','directory to mount pubchem FTP server');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('remote_server',false,null,'ftp.ncbi.nlm.nih.gov/pubchem/');
@@ -256,6 +257,7 @@ class PubChemParser extends RDFFactory{
 						}
 					rmdir($tmp);
 					}else{
+
 						echo "unable to open directory to read files.\n";
 					}
 
@@ -619,7 +621,7 @@ class PubChemParser extends RDFFactory{
 				echo "Processing file: ".$substances_dir.$file."\n";
 				$outfile = realpath($this->getParameterValue('outdir'))."/substances/".basename($file,".xml.gz").".nt";
 				if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
-				echo "-> to ".$outfile;
+				echo "-> to ".$outfile."\n";
 
 				$this->setWriteFile($outfile,$gz);
 				$this->parse_substance_file($substances_dir,$file);
@@ -648,7 +650,6 @@ class PubChemParser extends RDFFactory{
 	**/
 	function parse_substance_record(&$xml){
 		$root        = $xml->GetXMLRoot();
-		$compound_type = array_shift($root->xpath('//PC-Substance_compound/PC-Compounds'));
 
 		// pubchem identifier and version
 		$sid         = array_shift($root->xpath('//PC-Substance_sid/PC-ID/PC-ID_id'));
@@ -659,12 +660,26 @@ class PubChemParser extends RDFFactory{
 		$this->AddRDF($this->QQuadL($psid,"dc:identifier",$sid,"en"));
 		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:has_version",$sid_version));
 
+		// reference to pubchem compounds
+		$pc_compounds = $root->xpath('//PC-Substance_compound/PC-Compounds/PC-Compound');
+		foreach($pc_compounds as $compound) {
+			$cid = "pubchemcompound:".array_shift($compound->xpath('./PC-Compound_id/PC-CompoundType_id_cid'));
+			$cid_type = array_shift($compound->xpath('./PC-Compound_id/PC-CompoundType/PC-CompoundType_type'));
+
+			$pcrel = "pubchemsubstance:compound_relation_".md5($cid.$cid_type);
+
+			$this->AddRDF($this->QQuad($psid,"pubchemsubstance_vocabulary:hasCompoundRelation",$pcrel));
+			$this->AddRDF($this->QQuad($pcrel,"pubchemsubstance_vocabulary:hasCompound",$cid));
+			$this->AddRDF($this->QQuadl($pcrel,"pubchemsubstance_vocabulary:hasCompoundType",$cid_type->attributes()->value));
+		}
+		// database cross references (xref)
+
 		// source identifier
 		$source_id   = array_shift($root->xpath('//PC-Substance_source/PC-Source/PC-Source_db/PC-DBTracking/PC-DBTracking_source-id/Object-id/Object-id_str'));
 		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:source_identifier",$source_id));
 
 		// synonyms
-		$synonyms    = array_shift($root->xpath('//PC-Substance_synonyms/PC-Substance_synonyms_E'));
+		$synonyms   = $root->xpath('//PC-Substance_synonyms/PC-Substance_synonyms_E');
 
 		foreach($synonyms as $synonym){
 			$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:synonyms",$synonym));
