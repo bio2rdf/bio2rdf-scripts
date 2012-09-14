@@ -156,9 +156,9 @@ class UniProtParser extends RDFFactory {
 							$subject = "http://bio2rdf.org/".$sqname;
 						}
 					} else {
-						preg_match("/#_(.*)/", $subject_tmp, $bn_matches);
-						if(!empty($bn_matches)){
-							$subject = "http://bio2rdf.org/uniprot_resource:".$random_number."_".$bn_matches[1];
+						preg_match("/#_(.*)/", $subject_tmp, $sbn_matches);
+						if(!empty($sbn_matches)){
+							$subject = "http://bio2rdf.org/uniprot_resource:".$random_number."_".$sbn_matches[1];
 						}
 					}
 				}
@@ -171,7 +171,6 @@ class UniProtParser extends RDFFactory {
 
 				if(!empty($obj_matches)){
 					$object = "http://bio2rdf.org/uniprot:".$obj_matches[1];
-					$this->AddRDF($this->Quad($object, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $object_tmp));
 				} else {
 					preg_match("/http:\\/\\/purl\\.uniprot\\.org\\/core\\/(.*)/", $object_tmp, $obj_matches);
 					if(!empty($obj_matches)){
@@ -191,11 +190,18 @@ class UniProtParser extends RDFFactory {
 								$oqname = $namespace->MapQName($ons.":".$oid); //get canonical namespace from ns.php
 								$object = "http://bio2rdf.org/".$oqname;
 							}
-							$this->AddRDF($this->Quad($object, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $object_tmp));
 						} else {
-							$object = $object_tmp;
+							preg_match("/#_(.*)/", $object_tmp, $obn_matches);
+							if(!empty($obn_matches)){
+								$object = "http://bio2rdf.org/uniprot_resource:".$random_number."_".$obn_matches[1];
+							} else {
+								$object = $object_tmp;
+							}
 						}
 					}
+				}
+				if(preg_match("/#_(.*)/", $object_tmp) == "0"){
+					$this->AddRDF($this->Quad($object, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $object_tmp));
 				}
 				$this->AddRDF($this->Quad($subject, $predicate, $object));
 			} else {
@@ -226,9 +232,9 @@ class UniProtParser extends RDFFactory {
 								$subject = "http://bio2rdf.org/".$sqname;
 							}
 						} else {
-							preg_match("/#_(.*)/", $subject_tmp, $bn_matches);
-							if(!empty($bn_matches)){
-								$subject = "http://bio2rdf.org/uniprot_resource:".$random_number."_".$bn_matches[1];
+							preg_match("/#_(.*)/", $subject_tmp, $sbn_matches);
+							if(!empty($sbn_matches)){
+								$subject = "http://bio2rdf.org/uniprot_resource:".$random_number."_".$sbn_matches[1];
 							}
 						}
 					}
@@ -238,10 +244,11 @@ class UniProtParser extends RDFFactory {
 					} else {
 						$predicate = $predicate_tmp;
 					}
-
 					$object = $literal_tmp;
 					$this->AddRDF($this->QuadL($subject, $predicate, $object));
 				}
+			}
+			if(!empty($subject)){
 				$this->AddRDF($this->Quad($subject, "http://www.w3.org/2000/01/rdf-schema#seeAlso", $subject_tmp));
 				$this->AddRDF($this->Quad($subject, "http://rdfs.org/ns/void#inDataset", "http://bio2rdf.org/".$this->GetDatasetURI()));
 			}
