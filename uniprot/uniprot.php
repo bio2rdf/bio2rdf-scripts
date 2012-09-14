@@ -149,7 +149,7 @@ class UniProtParser extends RDFFactory {
 							$subject = "http://bio2rdf.org/pubmed:".$sid;
 						} elseif($sns == "taxonomy"){
 							$subject = "http://bio2rdf.org/taxon:".$sid;
-						} elseif($sns == "annotation" || $sns == "database"|| $sns == "isoforms" || $sns == "keywords" || $sns == "locations" || $sns == "patents" || $sns == "tissues"){
+						} elseif($sns == "annotation" || $sns == "database"|| $sns == "isoforms" || $sns == "keywords" || $sns == "locations" || $sns == "patents" || $sns == "rulebase" || $sns == "saas" || $sns == "tissues"){
 							$subject = "http://bio2rdf.org/uniprot_resource:".$sns."_".$sid;
 						} else {
 							$sqname = $namespace->MapQName($sns.":".$sid); //get canonical namespace from ns.php
@@ -185,7 +185,7 @@ class UniProtParser extends RDFFactory {
 								$object = "http://bio2rdf.org/pubmed:".$oid;
 							} elseif($ons == "taxonomy"){
 								$object = "http://bio2rdf.org/taxon:".$oid;
-							} elseif($ons == "annotation" || $ons == "database"|| $ons == "isoforms" || $ons == "keywords" || $ons == "locations" || $ons == "patents" || $ons == "tissues"){
+							} elseif($ons == "annotation" || $ons == "database"|| $ons == "isoforms" || $ons == "keywords" || $ons == "locations" || $ons == "patents" || $ons == "rulebase" || $ons == "saas" || $ons == "tissues"){
 								$object = "http://bio2rdf.org/uniprot_resource:".$ons."_".$oid;
 							} else {
 								$oqname = $namespace->MapQName($ons.":".$oid); //get canonical namespace from ns.php
@@ -219,7 +219,7 @@ class UniProtParser extends RDFFactory {
 								$subject = "http://bio2rdf.org/pubmed:".$sid;
 							} elseif($sns == "taxonomy"){
 								$subject = "http://bio2rdf.org/taxon:".$sid;
-							} elseif($sns == "annotation" || $sns == "database"|| $sns == "isoforms" || $sns == "keywords" || $sns == "locations" || $sns == "patents" || $sns == "tissues"){
+							} elseif($sns == "annotation" || $sns == "database"|| $sns == "isoforms" || $sns == "keywords" || $sns == "locations" || $sns == "patents" || $sns == "rulebase" || $sns == "saas" || $sns == "tissues"){
 								$subject = "http://bio2rdf.org/uniprot_resource:".$sns."_".$sid;
 							} else {
 								$sqname = $namespace->MapQName($sns.":".$sid); //get canonical namespace from ns.php
