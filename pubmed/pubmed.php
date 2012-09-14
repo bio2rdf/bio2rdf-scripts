@@ -274,6 +274,7 @@ class PubmedParser extends RDFFactory
 			if(!empty($dataBankList)){
 				foreach($dataBankList->DataBank as $dataBank){
 					$accessionNumberList = $dataBank->AccessionNumberList;
+					$dataBankName = utf8_encode(str_replace("\"", "", $dataBank->DataBankName));
 					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:databank", $this->SafeLiteral($dataBankName)));
 					if($accessionNumberList !== NULL){
 						foreach($accessionNumberList->AccessionNumber as $acc){
@@ -289,6 +290,8 @@ class PubmedParser extends RDFFactory
 					$grantNumber++;
 					$grantIdentifier = "pubmed_resource:".$pmid."_GRANT_".$grantNumber;
 					$grantId = $grant->GrantID;//optional
+					$grantAgency = $grant->Agency;
+					$grantCountry = $grant->Country;
 
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:grant", $grantIdentifier));
 					$this->AddRDF($this->QQuad($grantIdentifier, "rdf:type", "pubmed_vocabulary:Grant"));
