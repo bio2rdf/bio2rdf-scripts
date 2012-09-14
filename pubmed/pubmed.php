@@ -327,6 +327,8 @@ class PubmedParser extends RDFFactory
 				foreach($meshHeadingList->MeshHeading as $meshHeading){
 					$meshHeadingNumber++;
 					$meshHeadingIdentifier = "pubmed_resource:".$pmid."_MESH_HEADING_".$meshHeadingNumber;
+					$descriptorName = $meshHeading->DescriptorName;
+					$qualifierName = $meshHeading->QualifierName;
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:mesh_heading", $meshHeadingIdentifier));
 					$this->AddRDF($this->QQuad($meshHeadingIdentifier, "rdf:type", "pubmed_vocabulary:MeshHeading"));
 					$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "pubmed_vocabulary:mesh_descriptor_name", $this->SafeLiteral($descriptorName)));
@@ -341,6 +343,7 @@ class PubmedParser extends RDFFactory
 			if(!empty($chemicals)){
 				$chemicalNumber = 0;
 				foreach($chemicals->Chemical as $chemical){
+					$chemicalName = $chemical->NameOfSubstance;
 					$registryNumber = $chemical->RegistryNumber;
 					$chemicalNumber++;
 					$chemicalIdentifier = "pubmed_resource:".$pmid."_CHEMICAL_".$chemicalNumber;
