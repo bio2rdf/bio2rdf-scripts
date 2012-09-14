@@ -40,8 +40,8 @@ class PubmedParser extends RDFFactory
 			$this->SetDefaultNamespace("pubmed");
 
 			// set and print application parameters
-			$this->AddParameter('indir',true,null,'/path/to/indir/','directory to download into and parse from');
-			$this->AddParameter('outdir',true,null,'/path/to/outdir/','directory to place rdfized files');
+			$this->AddParameter('indir',true,null,'/data/download/pubmed/','directory to download into and parse from');
+			$this->AddParameter('outdir',true,null,'/data/rdf/pubmed/','directory to place rdfized files');
 			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 			$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 			$this->AddParameter('download_url',false,null,null);
@@ -91,7 +91,7 @@ class PubmedParser extends RDFFactory
 				if ($lfilename != "." && $lfilename != "..") {
 
 					$lfile = $ldir.$lfilename;
-					$ofile = $odir.$lfilename.".ttl";
+					$ofile = $odir.$lfilename.".nt";
 				
 					if($this->GetParameterValue('gzip')) {
 						$ofile .= '.gz';
@@ -161,7 +161,7 @@ class PubmedParser extends RDFFactory
 			$affiliation = $citation->Article->Affiliation;//optional
 
 			$vernacularTitle = $citation->Article->VernacularTitle; //optional
-			$copyright = $citation->Article->Abstract->CopyrightInformation; //optional		
+			$copyright = $citation->Article->Abstract->CopyrightInformation;//optional		
 			$articleDate = $citation->Article->ArticleDate;//optional
 			$authorList = $citation->Article->AuthorList;//optional
 			
@@ -170,33 +170,33 @@ class PubmedParser extends RDFFactory
 			$pubmodel = $citation->Article['PubModel'];
 
 			$id = "pubmed:".$pmid;
-			$this->AddRDF($this->QQuadL($id, "rdfs:label", "$articleTitle [$id]"));
+			$this->AddRDF($this->QQuadL($id, "rdfs:label", $this->SafeLiteral("$articleTitle [$id]")));
 			$this->AddRDF($this->QQuad($id, "rdf:type", "pubmed_vocabulary:PubMedRecord"));
-			$this->AddRDF($this->QQuad($id, "dc:identifier", "pubmed:$pmid"));
-			$this->AddRDF($this->QQuad($id,"void:inDataset",$this->GetDatasetURI()));
+			$this->AddRDF($this->QQuadL($id, "dc:identifier", "$pmid"));
+			$this->AddRDF($this->QQuad($id, "void:inDataset", $this->GetDatasetURI()));
 
 			if(!empty($citationOwner)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:owner", "$citationOwner"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:owner", $this->SafeLiteral($citationOwner)));
 
 			}
 
 			if(!empty($citationStatus)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:status", "$citationStatus"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:status", $this->SafeLiteral($citationStatus)));
 			}
 
 			if(!empty($citationVersionID)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:version_id", "$citationVersionID"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:version_id", $this->SafeLiteral($citationVersionID)));
 			}
 
 			if(!empty($citationVersionDate)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:version_date", "$citationVersionDate"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:version_date", $this->SafeLiteral($citationVersionDate)));
 			}
 
-			$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:publication_model", "$pubmodel"));
+			$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:publication_model", $this->SafeLiteral($pubmodel)));
 
 			foreach($citation->OtherID as $otherID){
-				if($otherID !== NULL && $otherID !== ""){
-					$this->AddRDF($this->QQuadL($id,"pubmed_vocabulary:other_id","$otherID"));
+				if(!empty($otherID)){
+					$this->AddRDF($this->QQuadL($id,"pubmed_vocabulary:other_id",$this->SafeLiteral($otherID)));
 					$this->AddRDF($this->QQuadL($id,"pubmed_vocabulary:other_id_source", $otherID['Source']));
 				}
 			}
@@ -214,11 +214,10 @@ class PubmedParser extends RDFFactory
 			}
 
 			foreach($publicationTypeList->PublicationType as $publicationType){
-				$publicationType = str_replace(" ", "", $publicationType);
-				$this->AddRDF($this->QQuadL($id,"pubmed_vocabulary:publication_type","$publicationType"));
+				$this->AddRDF($this->QQuadL($id,"pubmed_vocabulary:publication_type",$this->SafeLiteral($publicationType)));
 			}
 
-			$this->AddRDF($this->QQuadL($id, "dc:title", "$articleTitle"));
+			$this->AddRDF($this->QQuadL($id, "dc:title", $this->SafeLiteral($articleTitle)));
 			
 			if(!empty($abstract)){
 				$abstractIdentifier = "pubmed_resource:".$pmid."_ABSTRACT";
@@ -228,10 +227,11 @@ class PubmedParser extends RDFFactory
 				foreach($abstract->AbstractText as $text){
 					$abstractText .= " ".$text;
 					if(!empty($text['Label']) && $text['Label'] !== "UNLABELLED"){
-						$this->AddRDF($this->QQuadL($abstractIdentifier, "pubmed_vocabulary:abstract_".strtolower($text['NlmCategory']), "$text"));
+						$nlmCategory = utf8_encode(str_replace("\"", "", $text['NlmCategory']));
+						$this->AddRDF($this->QQuadL($abstractIdentifier, "pubmed_vocabulary:abstract_".strtolower($nlmCategory), $this->SafeLiteral($text)));
 					}
 				}
-				$this->AddRDF($this->QQuadL($abstractIdentifier, "pubmed_vocabulary:abstract_text", $abstractText));
+				$this->AddRDF($this->QQuadL($abstractIdentifier, "pubmed_vocabulary:abstract_text", $this->SafeLiteral($abstractText)));
 			}
 
 			$otherAbstractNumber = 0;
@@ -245,39 +245,39 @@ class PubmedParser extends RDFFactory
 					foreach($otherAbstract->AbstractText as $otherText){
 						$otherAbstractText .= " ".$otherText;
 						if(!empty($otherText['Label']) && $otherText['Label'] !== "UNLABELLED"){
-							$this->AddRDF($this->QQuadL($otherAbstractIdentifier, "pubmed_vocabulary:abstract_".strtolower($otherText['Category']), "$otherText"));
+							$otherTextCategory = utf8_encode(str_replace("\"", "", $otherText['Category']));
+							$this->AddRDF($this->QQuadL($otherAbstractIdentifier, "pubmed_vocabulary:abstract_".strtolower($otherTextCategory), $this->SafeLiteral($otherText)));
 						}
 					}
-					$this->AddRDF($this->QQuadL($otherAbstractIdentifier, "pubmed_vocabulary:abstract_text", $otherAbstractText));
+					$this->AddRDF($this->QQuadL($otherAbstractIdentifier, "pubmed_vocabulary:abstract_text", $this->SafeLiteral($otherAbstractText)));
 				}
 			}
 			
 			foreach($citation->Article->Language as $language){
 				if(!empty($language)){
-					$this->AddRDF($this->QQuadL($id, "dc:language", "$language"));
+					$this->AddRDF($this->QQuadL($id, "dc:language", $this->SafeLiteral($language)));
 				}
 			}
 
 			if(!empty($keywordList)){
 				foreach($keywordList->Keyword as $keyword){
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:keyword", "$keyword"));
+					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:keyword", $this->SafeLiteral($keyword)));
 				}
 			}
 
 			if(!empty($geneSymbolList)){
 				foreach($geneSymbolList->GeneSymbol as $geneSymbol){
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:gene_symbol", "hgnc:".$geneSymbol));
+					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:gene_symbol", $this->SafeLiteral($geneSymbol)));
 				}
 			}
 
 			if(!empty($dataBankList)){
 				foreach($dataBankList->DataBank as $dataBank){
 					$accessionNumberList = $dataBank->AccessionNumberList;
-					$dataBankName = $dataBank->DataBankName;
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:databank", "$dataBankName"));
+					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:databank", $this->SafeLiteral($dataBankName)));
 					if($accessionNumberList !== NULL){
 						foreach($accessionNumberList->AccessionNumber as $acc){
-							$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:x-".strtolower($dataBankName), "$acc"));
+							$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:x-".strtolower($dataBankName), $this->SafeLiteral($acc)));
 						}
 					}
 				}
@@ -289,40 +289,37 @@ class PubmedParser extends RDFFactory
 					$grantNumber++;
 					$grantIdentifier = "pubmed_resource:".$pmid."_GRANT_".$grantNumber;
 					$grantId = $grant->GrantID;//optional
-					$grantAcronym = $grant->Acronym;//optional
-					$grantAgency = $grant->Agency;
-					$grantCountry = $grant->Country;
 
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:grant", $grantIdentifier));
 					$this->AddRDF($this->QQuad($grantIdentifier, "rdf:type", "pubmed_vocabulary:Grant"));
 					
 					if(!empty($grantId)){
-						$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_identifier", "$grantId"));
+						$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_identifier", $this->SafeLiteral($grantId)));
 					}
 					
 					if(!empty($grantAcronym)){
-						$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_acronym", "$grantAcronym"));
+						$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_acronym", $this->SafeLiteral($grantAcronym)));
 					}
 
-					$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_agency", "$grantAgency"));
-					$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_country", "$grantCountry"));
+					$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_agency", $this->SafeLiteral($grantAgency)));
+					$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_country", $this->SafeLiteral($grantCountry)));
 				}
 			}
 
 			if(!empty($affiliation)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:affiliation", "$affiliation"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:affiliation", $this->SafeLiteral($affiliation)));
 			}
 
 			if(!empty($numberOfReferences)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:number_of_references", "$numberOfReferences"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:number_of_references", $this->SafeLiteral($numberOfReferences)));
 			}
 
 			if(!empty($vernacularTitle)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:vernacular_title", "$vernacularTitle"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:vernacular_title", $this->SafeLiteral($vernacularTitle)));
 			}
 
 			if(!empty($copyright)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:copyright_information", "$copyright"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:copyright_information", $this->SafeLiteral($copyright)));
 			}
 
 			if(!empty($meshHeadingList)){
@@ -334,11 +331,11 @@ class PubmedParser extends RDFFactory
 					$qualifierName = $meshHeading->QualifierName;
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:mesh_heading", $meshHeadingIdentifier));
 					$this->AddRDF($this->QQuad($meshHeadingIdentifier, "rdf:type", "pubmed_vocabulary:MeshHeading"));
-					$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "pubmed_vocabulary:mesh_descriptor_name", "$descriptorName"));
-					$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "rdfs:label", "$descriptorName"));
+					$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "pubmed_vocabulary:mesh_descriptor_name", $this->SafeLiteral($descriptorName)));
+					$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "rdfs:label", $this->SafeLiteral($descriptorName)));
 
 					if(!empty($qualifierName)){
-						$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "pubmed_vocabulary:mesh_qualifier_name", "$qualifierName"));
+						$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "pubmed_vocabulary:mesh_qualifier_name", $this->SafeLiteral($qualifierName)));
 					}
 				}
 			}
@@ -346,14 +343,14 @@ class PubmedParser extends RDFFactory
 			if(!empty($chemicals)){
 				$chemicalNumber = 0;
 				foreach($chemicals->Chemical as $chemical){
-					$registryNumber = $chemical->RegistryNumber;
 					$chemicalName = $chemical->NameOfSubstance;
+					$registryNumber = $chemical->RegistryNumber;
 					$chemicalNumber++;
 					$chemicalIdentifier = "pubmed_resource:".$pmid."_CHEMICAL_".$chemicalNumber;
 					
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:chemical", $chemicalIdentifier));
 					$this->AddRDF($this->QQuad($chemicalIdentifier, "rdf:type", "pubmed_vocabulary:Chemical"));
-					$this->AddRDF($this->QQuadL($chemicalIdentifier, "rdfs:label", "$chemicalName"));
+					$this->AddRDF($this->QQuadL($chemicalIdentifier, "rdfs:label", $this->SafeLiteral($chemicalName)));
 
 					if($registryNumber !== "0"){
 						$this->AddRDF($this->QQuadL($chemicalIdentifier,"pubmed_vocabulary:cas_registry_number", "$registryNumber"));
@@ -369,14 +366,14 @@ class PubmedParser extends RDFFactory
 					$supplMeshIdentifier = "pubmed_resource:".$pmid."SUPPL_MESH_HEADING_".$supplMeshNumber;
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:suppl_mesh_heading", $supplMeshIdentifier));
 					$this->AddRDF($this->QQuad($supplMeshIdentifier, "rdf:type", "pubmed_vocabulary:MeshHeading"));
-					$this->AddRDF($this->QQuadL($supplMeshIdentifier, "pubmed_vocabulary:mesh_descriptor_name", "$supplMeshName"));
-					$this->AddRDF($this->QQuadL($supplMeshIdentifier, "rdfs:label", "$supplMeshName"));
+					$this->AddRDF($this->QQuadL($supplMeshIdentifier, "pubmed_vocabulary:mesh_descriptor_name", $this->SafeLiteral($supplMeshName)));
+					$this->AddRDF($this->QQuadL($supplMeshIdentifier, "rdfs:label", $this->SafeLiteral($supplMeshName)));
 				}
 			}
 
 			foreach($citation->CitationSubset as $citationSubset){
 				if(!empty($citationSubset)){
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:citation_subset", "$citationSubset"));
+					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:citation_subset", $this->SafeLiteral($citationSubset)));
 				}
 			}
 
@@ -384,8 +381,7 @@ class PubmedParser extends RDFFactory
 				$ccNumber = 0;
 				foreach($commentsCorrectionsList->CommentsCorrections as $commentCorrection){
 					$ccNumber++;
-					$ccRefType = $commentCorrection['RefType'];
-					$ccRefSource = $commentCorrection->RefSource;
+					$ccRefType = utf8_encode(str_replace("\"", "", $commentCorrection['RefType']));
 					$ccPmid = $commentCorrection->PMID;//optional
 					$ccNote = $commentCorrection->Note;//optional
 
@@ -394,19 +390,19 @@ class PubmedParser extends RDFFactory
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:comment_correction", $ccIdentifier));
 					$this->AddRDF($this->QQuad($ccIdentifier, "rdf:type", "pubmed_vocabulary:".$ccRefType));
 					$this->AddRDF($this->QQuad($ccIdentifier, "rdf:type", "pubmed_vocabulary:CommentCorrection"));
-					$this->AddRDF($this->QQuadL($ccIdentifier, "pubmed_vocabulary:ref_source", "$ccRefSource"));
+					$this->AddRDF($this->QQuadL($ccIdentifier, "pubmed_vocabulary:ref_source", $this->SafeLiteral($ccRefSource)));
 					if(!empty($ccPmid)){
 						$this->AddRDF($this->QQuad($ccIdentifier, "pubmed_vocabulary:pmid", "pubmed:".$pmid));
 					}
 
 					if(!empty($ccNote)){
-						$this->AddRDF($this->QQuadL($ccIdentifier, "pubmed_vocabulary:note", "$ccNote"));
+						$this->AddRDF($this->QQuadL($ccIdentifier, "pubmed_vocabulary:note", $this->SafeLiteral($ccNote)));
 					}	
 				}
 			}
 
 			if(!empty($generalNote)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:general_note", "$generalNote"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:general_note", $this->SafeLiteral($generalNote)));
 			}
 
 			if(!empty($articleDate)){
@@ -428,22 +424,22 @@ class PubmedParser extends RDFFactory
 					$authorIdentifier = "pubmed_resource:".$pmid."_AUTHOR_".$authorNumber;
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:author", $authorIdentifier));
 					$this->AddRDF($this->QQuad($authorIdentifier, "rdf:type", "pubmed_vocabulary:Author"));
-					$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:last_name", "$authorLastName"));
+					$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:last_name", $this->SafeLiteral($authorLastName)));
 					if(!empty($authorForeName)){
-						$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:fore_name", "$authorForeName"));
+						$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:fore_name", $this->SafeLiteral($authorForeName)));
 					}
 
 					if(!empty($authorInitials)){
-						$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:initials", "$authorInitials"));
+						$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:initials", $this->SafeLiteral($authorInitials)));
 					}
 
 					if(!empty($authorCollectiveName)){
-						$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:collective_name", "$authorCollectiveName"));
+						$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:collective_name", $this->SafeLiteral($authorCollectiveName)));
 					}
 
 					foreach($author->NameID as $authorNameId){
 						if(!empty($authorNameId)){
-							$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:name_id", "$authorNameId"));
+							$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:name_id", $this->SafeLiteral($authorNameId)));
 						}
 					}
 				}
@@ -451,7 +447,7 @@ class PubmedParser extends RDFFactory
 
 			foreach($citation->SpaceFlightMission as $spaceFlightMission){
 				if(!empty($spaceFlightMission)){
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:space_flight_mission", "$spaceFlightMission"));
+					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:space_flight_mission", $this->SafeLiteral($spaceFlightMission)));
 				}
 			}
 
@@ -468,19 +464,23 @@ class PubmedParser extends RDFFactory
 
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:investigator", $iIdentifier));
 					$this->AddRDF($this->QQuad($iIdentifier, "rdf:type", "pubmed_vocabulary:Investigator"));
-					$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:last_name", "$iLastName"));
+					$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:last_name", $this->SafeLiteral($iLastName)));
 					
 					if(!empty($iForeName)){
-						$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:fore_name", "$iForeName"));
+						$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:fore_name", $this->SafeLiteral($iForeName)));
 					}
 
 					if(!empty($iInitials)){
-						$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:affiliation", "$iAffiliation"));
+						$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:initials", $this->SafeLiteral($iInitials)));
+					}
+
+					if(!empty($iAffiliation)){
+						$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:affiliation", $this->SafeLiteral($iAffiliation)));
 					}
 
 					foreach($investigator->NameID as $iNameId){
 						if(!empty($iNameId)){
-							$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:name_id", "$iNameId"));
+							$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:name_id", $this->SafeLiteral($iNameId)));
 						}	
 					}
 				}
@@ -498,18 +498,18 @@ class PubmedParser extends RDFFactory
 					$pnsSuffix = $personalNameSubject->Suffix;//optional
 
 					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:personal_name_subject", $pnsIdentifier));
-					$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:last_name", "$pnsLastName"));
+					$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:last_name", $this->SafeLiteral($pnsLastName)));
 					
 					if(!empty($pnsForeName)){
-						$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:fore_name", "$pnsForeName"));
+						$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:fore_name", $this->SafeLiteral($pnsForeName)));
 					}
 
 					if(!empty($pnsInitials)){
-						$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:initials", "$pnsInitials"));
+						$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:initials", $this->SafeLiteral($pnsInitials)));
 					}
 
 					if(!empty($pnsSuffix)){
-						$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:suffix", "$pnsSuffix"));
+						$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:suffix", $this->SafeLiteral($pnsSuffix)));
 					}
 
 				}
@@ -528,7 +528,7 @@ class PubmedParser extends RDFFactory
 			$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:journal", $journalId));
 			$this->AddRDF($this->QQuad($journalId, "rdf:type", "pubmed_vocabulary:Journal"));
 			if(!empty($journalNlmID)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_nlm_identifier", "$journalNlmID"));
+				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_nlm_identifier", $this->SafeLiteral($journalNlmID)));
 			}
 
 			if(!empty($journalPubDate)){
@@ -546,42 +546,42 @@ class PubmedParser extends RDFFactory
 					} else {
 						$journalSeason = $journalPubDate->Season;
 						if(!empty($journalSeason)){
-							$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:publication_season", "$journalSeason"));
+							$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:publication_season", $this->SafeLiteral($journalSeason)));
 						}
 						
 					}
 				} else {
 					$journalMedlineDate = $journalPubDate->MedlineDate;
 					if(!empty($journalMedlineDate)){
-						$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:publication_date", "$journalMedlineDate"));
+						$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:publication_date", $this->SafeLiteral($journalMedlineDate)));
 					}
 				}
 				
 			}
 
 			if(!empty($journalTitle)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_title", "$journalTitle"));
+				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_title", $this->SafeLiteral($journalTitle)));
 			}
 
 			if(!empty($journalAbbrev)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_abbreviation", "$journalAbbrev"));
+				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_abbreviation", $this->SafeLiteral($journalAbbrev)));
 			}
 
 			if(!empty($journalVolume)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_volume", "$journalVolume"));
+				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_volume", $this->SafeLiteral($journalVolume)));
 			}
 
 			if(!empty($journalIssueIssue)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_issue", "$journalIssueIssue"));
+				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_issue", $this->SafeLiteral($journalIssueIssue)));
 			}
 
 			if(!empty($pagination)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:pagination", "$pagination"));
+				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:pagination", $this->SafeLiteral($pagination)));
 			}
 
 			foreach($citation->Article->ELocation as $eLocation){
 				if(!empty($eLocation)){
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:elocation", "$eLocation"));
+					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:elocation", $this->SafeLiteral($eLocation)));
 				}
 			}
 		}
