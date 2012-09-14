@@ -112,7 +112,7 @@ class SGDParser extends RDFFactory {
 			//download all files [except mapping file]
 			if($this->GetParameterValue('download') == true && $file !== "mapping") {
 				$rfile = $rdir.$rfiles[$file];
-				echo "downloading $lfile ... ";
+				echo "downloading $file ... ";
 				file_put_contents($lfile,file_get_contents($rfile));
 			}
 
