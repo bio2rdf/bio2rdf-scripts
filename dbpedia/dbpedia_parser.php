@@ -34,19 +34,26 @@ class DBpedia extends RDFFactory{
 	private  $bio2rdf_base = "http://bio2rdf.org/";
 	private  $dbpedia_vocab ="dbpedia_vocab:";
 	private  $dbpedia_resource = "dbpedia_resource:";
-	private $version = 3.8;
+	private static $version = 3.8;
+
+	private static $packageMap = array(
+		"infobox_properties_en" => array(
+			"filename" => "infobox_properties_en.nt",
+			"file_url" => "http://downloads.dbpedia.org/3.8/en/infobox_properties_en.nt.bz2"
+			)
+		);
 
 	function __construct($argv) {
 			parent::__construct();
 			$this->SetDefaultNamespace("dbpedia");
 			// set and print application parameters
-			$this->AddParameter('files',true,null,'all|descriptor_records|qualifier_records|supplementary_records','','files to process');
-			$this->AddParameter('indir',false,null,'/home/jose/tmp/mesh/','directory to download into and parse from');
-			$this->AddParameter('outdir',false,null,'/home/jose/tmp/mesh/n3','directory to place rdfized files');
+			$this->AddParameter('files',true,null,'all','','files to process');
+			$this->AddParameter('indir',false,null,'/data/download/dbpedia/','directory to download into and parse from');
+			$this->AddParameter('outdir',false,null,'/data/rdf/dbpedia/','directory to place rdfized files');
 			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 			$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 			$this->AddParameter('download',false,'true|false','false','set true to download files');
-			$this->AddParameter('download_url',false,null,'http://www.nlm.nih.gov/cgi/request.meshdata');
+			$this->AddParameter('download_url',false,null,'http://downloads.dbpedia.org/3.8/en/infobox_properties_en.nt.bz2');
 			if($this->SetParameters($argv) == FALSE) {
 				$this->PrintParameters($argv);
 				exit;
@@ -57,6 +64,88 @@ class DBpedia extends RDFFactory{
 		return TRUE;
 	}//constructor
 
+	public function Run(){
+		$ldir = $this->GetParameterValue('indir');
+		$odir = $this->GetParameterValue('outdir');
+
+		$selectedPackage = trim($this->GetParameterValue('files'));
+		if($selectedPackage == 'all'){
+			$files = $this->getPackageMap();
+		}else{
+			echo "Invalid package selection\n";
+			exit;
+		}
+		foreach ($files as $key => $value) {
+			if(substr($ldir, -1) == "/"){
+				$lfile = $ldir.$value;
+			} else {
+				$lfile = $ldir."/".$value;
+			}
+
+			if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
+				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
+				$this->SetParameterValue('download',true);
+			}
+
+			if($this->GetParameterValue('download') == true) {
+				$rfile = $value["file_url"];
+				echo "downloading ".var_dump($value["file_url"])." ... ";
+				file_put_contents($lfile,file_get_contents($rfile));
+			}
+
+			if($key == "all"){
+				$lfile = $value["filename"];
+				$bzin = bzopen($ldir.$lfile, "r") or die("Could not open ".$ldir.$lfile."\n");
+
+			}
+
+			//ensure that there is a slash between directory name and filename
+			if(substr($odir, -1) == "/"){
+				$gzoutfile = $odir.$k.".ttl";
+			} else {
+				$gzoutfile = $odir."/".$k.".ttl";
+			}
+			//set the write file
+			$gz=false;
+			if($this->GetParameterValue('gzip')) {
+				$gzoutfile .= '.gz';
+				$gz = true;
+			}
+			$this->SetReadFile($ldir.$lfile);
+			$this->GetReadFile()->SetFilePointer($fpin);
+			$this->SetWriteFile($gzoutfile, $gz);
+			if(!file_exists($gzoutfile)){
+				if (($gzout = gzopen($gzoutfile,"a"))=== FALSE) {
+					trigger_error("Unable to open $odir.$gzoutfile");
+					exit;
+				}
+				echo "processing $fn...\n";
+				//process
+				$this->$k();
+				$this->GetWriteFile()->Close();
+				echo "done!".PHP_EOL;
+			}else{
+				echo "file $gzoutfile already there!\nPlease remove file and try again\n";
+				exit;
+			}//else
+
+		}
+
+
+	}
+
+	private function infobox_properties_en(){
+		echo "hello world\n";
+	}
+
+	public function getPackageMap(){
+		return self::$packageMap;
+	}//getpackagemap
 }
+
+$p = new DBpedia($argv);
+$p->Run();
+
+
 
 ?>
