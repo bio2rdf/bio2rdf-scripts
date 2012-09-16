@@ -37,7 +37,7 @@ class UniSTSParser extends RDFFactory{
 	private static $packageMap = array(
 		"markers" =>  "UniSTS.sts",
 		"aliases" => "UniSTS.aliases",
-		"map_reports" => "ftp.ncbi.nlm.nih.gov/repository/UniSTS/UniSTS_MapReports/",
+		//"map_reports" => "ftp.ncbi.nlm.nih.gov/repository/UniSTS/UniSTS_MapReports/",
 		//"pcr_reports" => "ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/"
 	);
 
