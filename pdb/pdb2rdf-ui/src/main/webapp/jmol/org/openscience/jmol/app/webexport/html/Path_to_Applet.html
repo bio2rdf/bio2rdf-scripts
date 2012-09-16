@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Specifying Path to Jmol Applet</title>
+  <meta content="J. Gutow" name="author">
+  <meta content="Instructions on relative paths" name="description">
+</head>
+<body>
+<hr>
+      <table style="text-align: left; width: 100%;" border="0"
+ cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr valign="top">
+            <td><small>Page Templates</small></td>
+            <td><small>Set Up</small></td>
+          </tr>
+          <tr valign="top">
+            <td><small>&gt; <a
+ href="pop_in_instructions.html">Pop-In</a><br>
+            <br>
+&gt; <a href="script_button_instructions.html">Scriptbutton</a><br>
+            </small></td>
+            <td><small>&gt;
+Path to Jmol<br>
+&gt; <a href="Installing_Applet.html">Jmol on your server</a><br>
+&gt; <a href="Testing_Pages_Locally.html">Testing locally (no server)</a><br>
+            </small></td>
+          </tr>
+        </tbody>
+      </table>
+<hr>
+      <p style="text-align: center; font-weight: bold;">The
+Path to the Jmol Applet
+      </p>
+      <p><b>Relative server path to jar files.</b><br>
+      Designate the relative path for your SERVER to
+the Jmol applet files (JmolApplet0*.jar and Jmol.js) from the directory containing the HTML file. 
+	  </p>
+      <p><b>Relative local path to jar files.</b><br>
+      Designate the relative path for a LOCAL HARD DRIVE to
+the Jmol applet files (JmolApplet0*.jar and Jmol.js) from the directory containing the HTML file. 
+	  </p>
+	  <p>Do not forget to account for the fact that the page produced by this program is inside a
+folder (directory) that you will be adding to your web site.&nbsp;
+	</p>
+	<p>Server Example: Jmol jar files and Jmol.js are in directory /www/applets/java/jmol on the server, and 
+you will be creating directory /www/yourname/thispage to hold the HTML files.
+The correct path to the Jmol applet is then <b>../../applets/java/jmol</b>
+	</p>
+	<p>Local Example: Jmol jar files and Jmol.js are in directory C:/temp/jmol, and 
+you will be creating directory /temp/jmol/thispage to hold the HTML files. (Note that on a local 
+drive the JAR files MUST be somewhere on the path to the directory containing the model files, 
+which in this case is the directory you designate for the HTML file.
+The correct path to the Jmol applet is then just <b>../</b>
+	</p>
+
+</body>
+</html>

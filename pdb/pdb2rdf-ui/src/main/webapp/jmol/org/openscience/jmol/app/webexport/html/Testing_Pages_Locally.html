@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Testing Pages Locally</title>
+  <meta content="J. Gutow" name="author">
+  <meta
+ content="How to test pages made by Jmol Web Page Maker on your local machine"
+ name="description">
+</head>
+<body>
+<hr>
+      <table style="text-align: left; width: 100%;" border="0"
+ cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr valign="top">
+            <td><small>Page Templates</small></td>
+            <td><small>Set Up</small></td>
+          </tr>
+          <tr valign="top">
+            <td><small>&gt; <a
+ href="pop_in_instructions.html">Pop-In</a><br>
+            <br>
+&gt; <a href="script_button_instructions.html">Scriptbutton</a><br>
+            </small></td>
+            <td><small>&gt; <a
+ href="Path_to_Applet.html">Path to Jmol</a><br>
+&gt; <a href="Installing_Applet.html">Jmol on your server</a><br>
+&gt; Testing locally (no server)<br>
+            </small></td>
+          </tr>
+        </tbody>
+      </table>
+<hr>
+      <p style="text-align: center; font-weight: bold;">Testing
+Web Pages Created by Jmol Web Page Maker on Your Local Machine
+      </p>
+	<p>(Does not work for the ScriptButton template if you use FireFox under
+MacOSX, works with Safari on MacOSX and FireFox under Linux and
+Windows.&nbsp; It appears MacOS FireFox is passing absolute instead of
+relative paths.)
+	</p>
+      <p>The javascript built into the
+pages checks to see whether the page is being loaded from a server or
+the local machine.&nbsp; If it is being loaded from your local machine
+the path to Jmol used is the relative path specified in the local path 
+text box.  The directory containing the page to be tested must be a
+subdirectory of the one containing the Jmol applet on the local machine.
+So, to test pages
+made by Jmol Web Page Maker on your local machine follow the steps
+below.
+	</p>
+      <ol>
+        <li>Create a directory (folder) named something like "tests"
+inside the directory on your local machine that contains the Jmol
+applet.</li>
+		<li>Specify the local path to Jmol as "../../" when you create the
+		page in Jmol Web Page Maker.</li>
+        <li>Copy or move the directory (not just its contents)
+containing the .html, .spt, .png and .js files for the page of interest
+into the directory created in step 1.</li>
+        <li>Open the .html file in the browser you want to use for
+testing.&nbsp; The page should work just like it would on a server.</li>
+      </ol>
+
+</body>
+</html>

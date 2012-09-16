@@ -1,0 +1,889 @@
+<html>
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <title>Jmol History</title>
+   </head>
+   <body bgcolor="#ffffff">
+      <center><img src="../images/Jmol_logo.jpg" alt="Jmol logo"></center>
+      <h2>List of changes to Jmol:</h2>
+      <p>Contributors:</p>
+      <blockquote>
+         MTH = Miguel Howard
+         (<a href="mailto:miguel@jmol.org">miguel@jmol.org</a>)<br>
+         EW = Egon Willighagen
+         (<a href="mailto:egonw@sci.kun.nl">egonw@sci.kun.nl</a>)<br>
+         TD = Tim Driscoll
+         (<a href="mailto:driscoll@molvisions.com">driscoll@molvisions.com</a>)<br>
+         NV = Nicolas Vervelle
+         (<a href="mailto:nvervell@club-internet.fr">nvervell@club-internet.fr</a>)<br>
+         ST = Simon Tyrrell
+         (<a href="mailto:smt40@cam.ac.uk">smt40@cam.ac.uk</a>)<br>
+         OS = Oliver Stuker
+         (<a href="mailto:revilo@oc38.uni-paderborn.de">revilo@oc38.uni-paderborn.de</a>)<br>
+         RK = Rene Kanters
+         (<a href="mailto:rkanters@richmond.edu">rkanters@richmond.edu</a>)<br>
+         RH = Bob Hanson
+         (<a href="mailto:hansonr@stolaf.edu">hansonr@stolaf.edu</a>)<br>
+         JR = Jan Reichert
+         (<a href="mailto:jr@imb-jena.de">jr@imb-jena.de</a>)<br>
+         FD = Fabian Dortu
+         (<a href="mailto:fabian.dortu@wanadoo.be">fabian.dortu@wanadoo.be</a>)<br>
+         BS = Bradley A. Smith
+         (<a href="mailto:bradley@baysmith.com">bradley@baysmith.com</a>)<br>
+         DG = Dan Gezelter
+         (<a href="mailto:gezelter@openscience.org">gezelter@openscience.org</a>)<br>
+         CS = Christoph Steinbeck
+         (<a href="mailto:steinbeck@ice.mpg.de">steinbeck@ice.mpg.de</a>)<br>
+         TG = Tom Grey
+         (<a href="mailto:t.grey@ic.ac.uk">t.grey@ic.ac.uk</a>)<br>
+         CF = Charles Fulton
+         (<a href="mailto:fultoncr@ucarb.com">fultoncr@ucarb.com</a>)<br>
+         MB = Mike Beachy
+         (<a href="mailto:beachy@alum.mit.edu">beachy@alum.mit.edu</a>)<br>
+         HG = Hugo Garcia
+         (<a href="mailto:elhugo@objectchemistry.org">elhugo@objectchemistry.org</a>)<br>
+         MM = Matthew Meinek
+         (<a href="mailto:mmeineke@nd.edu">mmeineke@nd.edu</a>)<br>
+         JJ = Jochen Junker
+         (<a href="mailto:jochen.junker@yale.edu">jochen.junker@yale.edu</a>)<br>
+         CR = Christian Ribeaud
+         (<a href="mailto:christian.ribeaud@genedata.com">christian.ribeaud@genedata.com</a>)<br>
+         JRK = Jonathan C. Rienstra-Kiracofe
+         (<a href="mailto:jrienst@emory.edu">jrienst@emory.edu</a>)<br>
+         CR2 = Carl Resnikoff
+         (<a href="mailto:carl@resnikoff.net">carl@resnikoff.net</a>)<br>
+         AS = Agust&iacute; S&aacute;nchez
+         (<a href="mailto:asanc@users.sourceforge.net">asanc@users.sourceforge.net</a>)<br>
+         CPY = Chih-Peng Yang
+         (<a href="mailto:cpyang@siraya.net">cpyang@siraya.net</a>)<br>
+         RG = Rajarshi Guha
+         (<a href="mailto:rxg218@psu.edu">rxg218@psu.edu</a>)<br>
+         TIM = Tache Ionut Madalin
+         (<a href="mailto:madalin@notme.org">madalin@notme.org</a>)<br>
+         FL = Friedmann L&iacute;via
+         (<a href="mailto:semper_fi@galamb.net">semper_fi@galamb.net</a>)<br>
+         IS = Ivo Sarak
+         (<a href="mailto:ivo@vendomar.ee">ivo@vendomar.ee</a>)<br>
+         CPN = Clodoaldo Pinto Neto
+         (<a href="mailto:clodoaldo.pinto@gmail.com">clodoaldo.pinto@gmail.com</a>)<br>
+         PV = Peter Vanwing
+         (<a href="mailto:gagaman@gmail.com">gagaman@gmail.com</a>)<br>
+         AH = Angel Herr&aacute;ez
+         (<a href="mailto:angel.herraez@uah.es">angel.herraez@uah.es</a>)<br>
+         TOHW = Toby White
+         (<a href="mailto:tow21@cam.ac.uk">tow21@cam.ac.uk</a>)<br>
+         
+      </blockquote>
+      <h3>jmol-10.??</h3>
+      <ul>
+         <li>
+                Altered CmlReader.java adapter to allow cml input to applet by reading DOM nodes from the browser.
+              (TOHW)
+         </li>
+         <li>
+                Completed much of the CdkJmolAdapter: PDB properties are now supported, and 
+                ChemSequence/ChemModel is mapped to AtomSetCollection/AtomSet.
+              (EW)
+         </li>
+         <li>
+                Added reading of input structures from Mopac files.
+              (EW)
+         </li>
+         <li>
+                Added Folding@Home (folding.stanford.edu) current.xyz files reader.
+              (NV)
+         </li>
+         <li>
+                Added Unicode support in scripts.
+              (MTH)
+         </li>
+         <li>
+                Added rendering of mesh surfaces.
+              
+         </li>
+         <li>
+                Added rendering of polyhedrals.
+              (MTH)
+         </li>
+         <li>
+                Added Drag-and-Drop to the application for JVM 1.5 and better.
+              (ST)
+         </li>
+         <li>
+                Added the DADMLBrowser plugin allowing retrieving chemical information from
+                the internet by queries on indices and URIs like dadml://any/pdbid?1CRN.
+              (EW)
+         </li>
+         <li>
+                Added support for Spartan '04 smol files.
+              (EW)
+         </li>
+         <li>
+                Added substructure command for SMILES pattern matching.
+              (NV)
+         </li>
+         <li>
+                Dutch, Estonian, Hungarian, Portuguese, Romanian
+                translations of Folding@Home webpage.
+              (PV,IS,FL,CPN,TIM)
+         </li>
+         <li>
+                Spanish translation of Application, Applet and website.
+              (AH)
+         </li>
+         <li>
+                Estonian translation of Application and Applet.
+              (IS)
+         </li>
+      </ul>
+      <h3>jmol-10</h3>
+      <ul>
+         <li>
+                Rearchitected and reimplemented Jmol core
+              (MTH)
+         </li>
+         <li>
+                Architected and implemented org.jmol.g3d graphics rendering engine for
+                high-performance 3D rendering of molecules without hardware support
+              (MTH)
+         </li>
+         <li>
+                Architected and implemented org.jmol.viewer core data structures
+              (MTH)
+         </li>
+         <li>
+                Architected and implemented support for protein secondary structures
+              (MTH)
+         </li>
+         <li>
+                Rearchitected and reimplemented file io system
+              (MTH)
+         </li>
+         <li>
+            	Architected org.jmol.api.JmolAdapter api to separate
+            	file IO from graphics rendering
+              (MTH)
+         </li>
+         <li>
+                Wrote org.jmol.adapter.smarter.Resolver to provide automatic
+                identification of file types
+              (MTH)
+         </li>
+         <li>
+                Implemented most file types within org.jmol.adapter.smarter, including
+                xyz, mol, pdb, cif/mmCif, gaussian, jaguar, shelx, etc.
+              (MTH)
+         </li>
+         <li>
+                Wrote Jmol.js JavaScript library to facilitate development of web
+                applications.
+              (MTH)
+         </li>
+         <li>
+                Wrote JmolAppletControl mechanism to support browsers without JavaScript
+              (MTH)
+         </li>
+         <li>
+                Extended and ensured portability of core JmolApplet to web browsers with
+                Java 1.1, including Netscape 4.7 and Internet Explorer on both Win32
+                and Mac OS 9
+              (MTH)
+         </li>
+         <li>
+                CmlReader, CdkModelAdapter, cdk integeration, wiki,
+                general project administration
+              (EW)
+         </li>
+         <li>
+                Provided significant support and testing in the areas of polymer
+                definitions, web application development, JavaScript, and
+                Mac OS X portability.
+              (TD)
+         </li>
+         <li>
+                French translation, code cleanup, JavaDoc, readers
+              (NV)
+         </li>
+         <li>
+                AtomSetChooser mechanism, improved Gaussian reader,
+                implemented NWChem reader
+              (RK)
+         </li>
+         <li>
+                Assistance in areas of multiple models, insertion codes,
+                polymer definitions, applet testing
+              (JR)
+         </li>
+         <li>
+                wiki.jmol.org
+              (OS)
+         </li>
+         <li>
+                Interactive scripting tutorial, applet testing
+              (RH)
+         </li>
+      </ul>
+      <h3>jmol-9</h3>
+      <ul>
+         <li>
+                Activated a plugin architecture for CDK plugins.
+              (EW)
+         </li>
+         <li>
+                Fixed a number of IO bugs (closes #783663, #823957 and #826934)
+              (EW)
+         </li>
+         <li>
+                Fixed run target in Ant build.xml.
+              (EW)
+         </li>
+         <li>
+                Added feedback on memory usage to statusbar.
+              (EW)
+         </li>
+         <li>
+                Added reader and writer for HIN (HyperChem) format
+              (RG)
+         </li>
+         <li>
+                Added help button in script window.
+              (EW)
+         </li>
+         <li>
+                Added license item in help menu.
+              (EW)
+         </li>
+         <li>
+                Fixed calculation of unit cell angles in crystal property box
+                (closes #865393 and #863644).
+              (EW)
+         </li>
+         <li>
+                Fixed reading of unit cell angles from ShelX files.
+              (EW)
+         </li>
+      </ul>
+      <h3>jmol-8</h3>
+      <ul>
+         <li>
+                Made detection of MDL mol files more flexible, allowing v2000 with lower case too.
+              (EW)
+         </li>
+         <li>
+                Auto-decompress gzipped files.
+              (MTH)
+         </li>
+         <li>
+                Corrected documentation to state that J2SE 1.4 is required (closes #769822).
+              (EW)
+         </li>
+         <li>
+                Implemented a script command history.
+              (AS)
+         </li>
+         <li>
+                Fixed ReaderFactory buffer.reset() problem (closes #799963)
+              (MTH)
+         </li>
+         <li>
+                Fixed reading of CML2 style crystal data (closes #792091), and detection of CML
+                files without the XML declaration.
+              (EW)
+         </li>
+         <li>
+                Repaired Recent Files, add double Click to select, fixed window Title.
+              (MTH)
+         </li>
+         <li>
+                Added a --help option to the command line.
+              (EW)
+         </li>
+         <li>
+                Added JmolAppletProxy to allow applets to fetch remote files.
+              (MTH)
+         </li>
+         <li>
+                Added Chinese GUI translation.
+              (CPY)
+         </li>
+         <li>
+                Added CIF/mmCIF reader with minimal features. Reads unit cell parameters, and atomic
+                coordinates, but not space group symmetry operations (effectively only P1 correctly).
+              (EW)
+         </li>
+      </ul>
+      <h3>jmol-7</h3>
+      <ul>
+         <li>
+                Reimplementation of rebonding algorithm using BST.
+              (MTH)
+         </li>
+         <li>
+                Added VASP reader.
+              (FD)
+         </li>
+         <li>
+                Added Gaussian 03 reader.
+              (JRK)
+         </li>
+         <li>
+                Fixed reading of frequencies in Jaguar 4.2.77 output files (bug #749430).
+              (EW)
+         </li>
+         <li>
+                Fixed reading of frequencies in AcesII output files (bug #740967).
+              (EW)
+         </li>
+         <li>
+                Added new window option (feature #743640).
+              (CR2)
+         </li>
+         <li>
+                Fixed reading of some ABINIT output files (feature #746494).
+              (FD)
+         </li>
+         <li>
+                Fixed some JavaDoc.
+              (EW)
+         </li>
+      </ul>
+      <h3>jmol-6</h3>
+      <ul>
+         <li>
+                Reimplementation of rendering with perspective depth support
+                and performance improvements. 
+              (MTH)
+         </li>
+         <li>
+                Moved IO classes into separate package.
+              (EW)
+         </li>
+         <li>
+                Moved rendering classes into separate package.
+              (MTH)
+         </li>
+         <li>
+                Jmol is now based on CDK (Chemistry Development Kit).
+              (EW)
+         </li>
+         <li>
+                Added Spanish translation. 
+              (MTH)
+         </li>
+         <li>
+                Display speed can be displayed in milliseconds and in frames per second.
+              (EW)
+         </li>
+         <li>
+                Reimplementation of scripting functinality with support for most
+                RasMol/Chime scripting commands. 
+              (MTH)
+         </li>
+      </ul>
+      <h3>jmol-5</h3>
+      <ul>
+         <li>
+                Internationalized Jmol and added Dutch translation.
+              (EW)
+         </li>
+         <li>
+                Fix for reading some of MOPAC 2002 files. (Files without a blank line after
+                the coordinates.)
+              (BS)
+         </li>
+         <li>
+                Fix reading of large PDB files. Multiple models are read into separate
+                frames.
+              (BS)
+         </li>
+         <li>
+                Improved reading of PDB atom types by using element from first two columns
+                of atom name.
+              (BS)
+         </li>
+         <li>
+                Temporary removal of defective parsing CONECT fields by PDB reader. Once
+                fixed, the feature will be reinstated.
+              (BS)
+         </li>
+         <li>
+                Crystal properties dialog, and unit cell visualization has been added.
+              (FD)
+         </li>
+         <li>
+                ABINIT energy data reading is added.
+              (FD)
+         </li>
+         <li>
+                Added reader for ShelX97 files containing a crystal structure.
+              (EW)
+         </li>
+         <li>
+                Translated the Jmol GUI into Spanish. 
+              (MTH)
+         </li>
+         <li>
+                Fixed the PropertyGraph. Data is no longer duplicated on reopening the dialog
+                and data of previous file is deleted when opening a new one.
+              (EW)
+         </li>
+         <li>
+                Fixed NullPointerException in deleting atom, and bug in determining wether
+                the ChemFrameRenderer should update its cache.
+              (EW)
+         </li>
+      </ul>
+      <h3>jmol-4</h3>
+      <ul>
+         <li>
+                Reading of MOPAC 97 and 2002 files. Formerly, only MOPAC 7 files worked.
+              (BS)
+         </li>
+         <li>
+                Jmol can now also read files in non-CML with the command "jmol &lt;filename&gt;".
+                (feature #555462).
+              (EW)
+         </li>
+         <li>
+                The PDB reader now also parses CONECT fields and implements Rasmol's perception of
+                bond orders.
+              (EW)
+         </li>
+         <li>
+                Atoms can now also be colored by their partial atomic charge.
+                (feature #552476)
+              (EW)
+         </li>
+         <li>
+                Addition of a ABINIT reader.
+              (FD)
+         </li>
+         <li>
+                PDF export. (feature #533212)
+              (BS)
+         </li>
+      </ul>
+      <h3>jmol-3</h3>
+      <ul>
+         <li>
+                Export of BMP and PNG images.
+              (CR)
+         </li>
+         <li>
+                Rendering of multiple bonds.
+              (BS, JJ)
+         </li>
+         <li>
+                Scaling of vector arrowheads by magnitude which shows significant
+                vectors more clearly.
+              (BS)
+         </li>
+         <li>
+                Fixed bugs 547574 and 548591.
+              (BS)
+         </li>
+         <li>
+                Adjustable scaling of vector length from -2.0 to 2.0 times length.
+              (BS)
+         </li>
+         <li>
+                Import of Ghemical MM files.
+              (EW)
+         </li>
+         <li>
+                Automatic file type determination used for all loading of files.
+              (BS)
+         </li>
+      </ul>
+      <h3>jmol-2</h3>
+      <ul>
+         <li>
+                Relicensed as LGPL.
+              
+         </li>
+         <li>
+                Simplified interface by combining toolbars and removing unimplemented
+                menu items.
+              (BS)
+         </li>
+         <li>
+                Improved interface to POV-Ray.
+              (MM)
+         </li>
+         <li>
+                Fixed vector rendering.
+              (BS)
+         </li>
+         <li>
+                MDL file reader.
+              (JJ)
+         </li>
+         <li>
+                Fixed reading certain GAMESS and Dalton files. (bug #529999)
+              
+         </li>
+         <li>
+                Major update CML import.
+              
+         </li>
+      </ul>
+      <h3>jmol-1.2</h3>
+      <ul>
+         <li>
+                Fixed line separator for XYZ output. (bug #519101)
+              
+         </li>
+         <li>
+                Added rudimentary PDB output. (bug #519100)
+              
+         </li>
+      </ul>
+      <h3>jmol-1.1</h3>
+      <ul>
+         <li>
+                Bugfix release
+              
+         </li>
+         <li>
+                Fixed PDB reading. (bug #496332)
+              
+         </li>
+         <li>
+                Fixed jmol script to work on Solaris. (bug #425925)
+              
+         </li>
+         <li>
+                Added workaround for precompiled Jmol on Solaris. (bugs #426229, #508364)
+              
+         </li>
+         <li>
+                Removed infinite loops. (bug #426679)
+              
+         </li>
+         <li>
+                Fixed problems with file type setting
+              
+         </li>
+         <li>
+                Added cancel button to RecentFiles dialog
+              
+         </li>
+         <li>
+                Bond computation is now really setable. (bug #431146)
+              
+         </li>
+      </ul>
+      <h3>jmol-1</h3>
+      <ul>
+         <li>
+                Reads output files from Jaguar, Dalton, MOPAC, and Gaussian 90/95.
+              (BS)
+         </li>
+         <li>
+                Migrated development to SourceForge.net
+              
+         </li>
+         <li>
+                New versioning scheme
+              
+         </li>
+         <li>
+                Maintenance
+              
+         </li>
+      </ul>
+      <h3>jmol-0.6.1</h3>
+      <ul>
+         <li>
+                Many minor bugfixes
+              (DG)
+         </li>
+         <li>
+                Progress on JmolApplet
+              (TG,BS)
+         </li>
+         <li>
+                JmolFileFilter
+              (TG)
+         </li>
+         <li>
+                Bug fix in Animate
+              (DG)
+         </li>
+         <li>
+                Splash screen now has a status line
+              (TG)
+         </li>
+         <li>
+                DisplaySettings no longer used as static
+              (BS)
+         </li>
+         <li>
+                CMLReader replaces CMLFile
+              (BS)
+         </li>
+         <li>
+                Fewer dependencies on jmol.home property
+              (BS)
+         </li>
+      </ul>
+      <h3>jmol-0.6</h3>
+      <ul>
+         <li> New ChemFileReader/ReaderFactory architecture(BS)</li>
+         <li> Can now read files from the following ab initio
+              quantum chemistry programs: GAMESS, Gaussian92,
+              Gaussian94, Gaussian98, Amsterdam Density Functional (ADF),
+              Advanced Concepts in Electronic Structure II (ACES2)(BS)
+         </li>
+         <li> Animation of pre-computed Normal Mode Vibrations via the Extras -&gt;
+              Vibrate command(BS)
+         </li>
+         <li> Entirely new distance, angle, and dihedral measurement
+              architecture(DG)
+         </li>
+         <li> Choice of smoother animation using interpolated frames
+              (EW)
+         </li>
+         <li> Wireframe rotation code and menu choices(TG,DG)</li>
+         <li> Jmol console to capture stdout and stderr(CF,BS)</li>
+         <li> DisplaySettings moved out of various classes and into a single 
+              class (BS)
+         </li>
+         <li> Split of AtomType functionality into BaseAtomType(BS)</li>
+         <li> Test Classes for various other classes(BS)</li>
+      </ul>
+      <h3>jmol-0.5</h3>
+      <ul>
+         <li> Numerous small bug fixes.(DG)</li>
+         <li> FileSaver, XYZSaver and CMLSaver classes are new.  You can now 
+              save the current structure to either XYZ or CML formats.(DG,EW)
+         </li>
+         <li> Package name is now org.openscience.jmol.(DG)</li>
+         <li> Modifications to the CML parsing routines to use the new
+              CML-1999-05-15.dtd (EW)
+         </li>
+         <li> DTD resolver that allows us to embed the current DTD in the
+              jar file. (DG)
+         </li>
+         <li> Rewrite of file-I/O routines.  They all implement ChemFile now.
+              (DG)
+         </li>
+      </ul>
+      <h3>jmol-0.4</h3>
+      <ul>
+         <li> Jmol can now parse Chemical Markup Language (CML) files
+              thanks to E.L. Willighagen(EW)
+         </li>
+         <li> Many internal changes in the AtomType JTable supporting
+              classes to reverse some stupid decisions I made early on. (DG)
+         </li>
+         <li> AtomTypeTable now stores the AtomType information as a
+              resource (DG)
+         </li>
+         <li> Changes in AtomTypeTable headers to support multiple line
+              headers (DG)
+         </li>
+         <li> StatusBar is now a 3-wide set of JLabels that post more
+              useful information (DG,CS)
+         </li>
+         <li> Swing 1.1.1 Beta 2 (HTML labels if we want to use them)(DG)</li>
+      </ul>
+      <h3>jmol-0.3</h3>
+      <ul>
+         <li> PhysicalProperties (Charges, NMRShieldings, Vectors,
+              etc.) can be set by the file readers.  Christoph Steinbeck 
+              asked for this originally when he wrote GaussianFile.  It was 
+              a good idea, and was worth the extensive rewrite. (DG)
+         </li>
+         <li> Swing 1.1.1 Beta 1 (fixes some annoying bugs for Java 1.1 
+              users) (DG)
+         </li>
+         <li> The GaussianFile class has been updated to read general 
+              Gaussian files (not just G98) and to automatically compute 
+              chemical shifts using stored ab initio values for 
+              tetramethyl silane's chemical shift. (CS)
+         </li>
+         <li> Some bug fixes.(DG)</li>
+         <li> Shaded bonds that look like cylinders.  Well, at least they look
+              a little bit like cylinders. End caps would be a nice addition, but
+              I've been a bit busy lately.(DG)
+         </li>
+         <li> FileTyper and ImageTyper accessories for JFileChooser make
+              choosing file types more sensible than just using the filename
+              filter.  These classes were rationalized after 0.2 had
+              already been released.  They also listen to the JFileChooser
+              to try to guess what kind of file you just selected (only
+              if UseFileExtensions is set).(DG)
+         </li>
+      </ul>
+      <h3>jmol-0.2</h3>
+      <ul>
+         <li>Many internal changes.</li>
+         <li>Jmol has moved to a new home.  I've been working on a web
+              site called "The OpenScience Project", and have registered a
+              domain for it, so Jmol is the first of the software projects
+              that is housed at www.openscience.org (DG)
+         </li>
+         <li> Christoph Steinbeck contributed a new input filter for
+              Gaussian 98 log files, complete with a parser for NMR chemical
+              shifts.(CS)
+         </li>
+         <li>The file readers now subclass a more general (but very
+              simple) ChemFile class.  This should make addition of other file
+              readers easier.(DG)
+         </li>
+         <li>File Type selection is no longer dependent on the file's
+              extension.  You can select a "*.jnk" file and explicitly 
+              tell Jmol what kind of file it is when opening the file. (DG)
+         </li>
+         <li>There is a strange interaction between fillPolygon in jdk1.2
+              and the X server under Solaris x86.  (And circles under jdk1.2
+              look lumpy on many architectures.)  I've built a workaround into
+              Jmol which involves talking directly to the Graphics2D object
+              underlying the display panel to set some Rendering hints.  This
+              workaround has the benefit of making some really nice
+              pictures when you want high quality (but lower speed).  If you
+              have jdk1.2, turn on AntiAliasing in the Preferences to see the
+              difference.  An unfortunate side effect is that you now need the
+              jdk1.2 classes to compile (but not run) Jmol. (DG)
+         </li>
+         <li>A Jpeg encoder has been added. The JpegEncoder and its
+              associated classes are Copyright (c) 1998, James R. Weeks and
+              BioElectroMech.  This software is based in part on the work of
+              the Independent JPEG Group.(DG)
+         </li>
+         <li>Build process now uses a Makefile.(DG)</li>
+         <li>The Makefile now has the ability to create javadocs of 
+              the source code.(HG)
+         </li>
+      </ul>
+      <h3>jmol-0.1.1</h3>
+      <ul>
+         <li>Removed the extra double-buffering that resulted from not
+              understanding that Swing components are automatically
+              double-buffered. This resulted in substantial performance
+              improvements.(DG)
+         </li>
+         <li>Fixed some depth strangeness in the drawn atom
+              sizes.(DG)
+         </li>
+         <li>Fixed the bonds so that they render more realistically as
+              the molecule is being rotated.  End caps for the bonds are
+              still in progress.(DG)
+         </li>
+         <li>Reordered the toolbar buttons and added a button for
+              molecule deformations that will eventually do something
+              useful. (DG)
+         </li>
+      </ul>
+      <h3>jmol-0.1</h3>
+      <ul>
+         <li>There are some major new features, so the minor version number 
+              has been incremented. (DG)
+         </li>
+         <li>Atom Types are now editable using "Atom Properties" in the
+              Edit Menu.  This added a large chunk of interface code to do the
+              JTable and cell editors and column sorters.  The edited atom
+              types are saved in the .jmol directory under the user's home
+              directory.(DG)
+         </li>
+         <li>The Preferences dialog now saves preference info in the 
+              .jmol directory under the user's home directory.(DG)
+         </li>
+         <li>Reorganization of classes into a jar file.(DG)</li>
+         <li>An atom selection mechanism now is working.(DG)</li>
+         <li>Reorganization of source: BondTypeTable is gone, BondType is
+              now replaced by Bond.  Many other changes for new
+              AtomTypeTable. (DG)
+         </li>
+         <li>Silly little Splash screen, but it makes startup feel faster
+              when there is something popped up on the screen almost
+              immediately.
+         </li>
+         <li>There is now a "Front" item in the View menu.  The View 
+              menu actions are not intuitive yet, so they will be changing 
+              in a future version. Don't get used to them.(DG)
+         </li>
+         <li>There is a new "fast forward" button in the Animate dialog 
+              that takes the animation to the last frame.(DG)
+         </li>
+         <li>The Rewind, FastForward, Next, and Previous buttons in the
+              Animate dialog now stop the animation when they are pushed. 
+              (DG)
+         </li>
+         <li>Swing version incremented to 1.1</li>
+      </ul>
+      <h3>jmol-0.0.4</h3>
+      <ul>
+         <li>
+                Now using swing-1.1beta3, with all of the associated package name changes
+                from com.sun.java.swing to javax.swing
+              (DG)
+         </li>
+         <li>
+                Fixed bug in jmol.bat script
+              (DG)
+         </li>
+         <li>
+                "What's New" menu item in "Help" menu displays a dialog with the
+                contents of this file
+              (DG)
+         </li>
+         <li>
+                "doc" subdirectory, empty for now, but it's the thought that counts
+              (DG)
+         </li>
+      </ul>
+      <h3>jmol-0.0.3</h3>
+      <ul>
+         <li>
+                Image encoders courtesy Jef Poskanzer were used to export GIF and PPM
+                files
+              (DG)
+         </li>
+         <li>
+                New "Display" Menu with submenus for atoms, bonds, and labels
+              (DG)
+         </li>
+         <li>
+                New Icons courtesy Dean Jones were used whenever possible
+              (DG)
+         </li>
+      </ul>
+      <h3>jmol-0.0.2</h3>
+      <ul>
+         <li>
+                Atom Labels
+              (DG)
+         </li>
+         <li>
+                multi-frame XYZ file-reads
+              (DG)
+         </li>
+         <li>
+                Animation
+              (DG)
+         </li>
+         <li>
+                Preferences dialog
+              (DG)
+         </li>
+      </ul>
+      <h3>jmol-0.0.1</h3>
+      <ul>
+         <li>
+                Everything
+              (DG)
+         </li>
+         <li>
+                Sensible polygon vertexes for QuickDraw Bonds
+              (MB)
+         </li>
+         <li>
+                single-frame XYZ file reads
+              (DG)
+         </li>
+      </ul>
+   </body>
+</html>

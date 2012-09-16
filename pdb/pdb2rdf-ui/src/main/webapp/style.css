@@ -1,0 +1,140 @@
+body {
+	margin: 0;
+	padding: 11px;
+	text-align: justify;
+}
+
+body, div, a, p, td, th{
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	line-height: 1.3em;
+}
+
+table{
+	border-collapse: collapse;
+}
+
+table td{
+	vertical-align: top;
+	padding: 5px;
+}
+
+.pdb2rdf-tableHeader td{
+	font-weight: bold;
+	text-align: center;
+}
+
+
+.pdb2rdf-title{
+	font-size: 2em;
+	font-weight: bold;
+}
+
+.pdb2rdf-download{
+	text-align: right;
+	
+}
+
+.pdb2rdf-download img{
+	margin-right: 5px;
+	vertical-align: middle;
+}
+
+.pdb2rdf-visulization{
+	background-color: #eeeeee;
+	border: 1px solid #454545;
+	padding: 2px;
+	height: 300px;
+}
+
+.pdb2rdf-content{
+	width: 1013px;
+}
+
+.pdb2rdf-rightSide{
+	margin-top: 11px;
+	width:  300px;
+	margin-left: auto;
+}
+
+.pdb2rdf-leftSide{
+	margin-top: 11px;
+	width: 700px;
+	float: left;
+	margin-right: 6px;
+	padding-right: 6px;
+	
+}
+
+.pdb2rdf-horizontalBar {
+	background: #0077A7 url(images/img3.gif) repeat-x left top;
+	padding: 11px 20px 11px 20px;
+	font-size: 100%;
+	color: #FFFFFF;
+	background-color:#00628a;
+	margin-bottom: 11px;
+}
+
+.hide{
+	display: none;
+}
+
+/*------ rink style ------*/
+.rink-comment{
+	background-color: #f1f1f1;
+	border: 1px solid #e0e0e0;
+	padding: 8px 12px 8px 12px;
+	margin-top: 2em;
+	margin-left: 8em;
+	margin-right: 8em; 
+}
+
+.rink-propertyTable{
+	margin-top: 2em;
+	border: 1px solid #e0e0e0;
+	border-collapse: collapse;
+	border-spacing: 0px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+.rink-propertyTable td{
+	background-color: #e0e0e0;
+	padding: 4px;
+	text-align: left;
+	border: 1px #fff solid;
+	font-size: 85%;
+}
+
+.rink-propertyTable  tr.triple:hover td{
+	background-color: #f1f1f1;
+}
+
+.rink-propertyTable .header{
+	background-color: #00628a;
+	color:white;
+	padding: 4px 4px 6px 6px;
+	text-align: left;
+	border-bottom: 2px #fff solid;
+	font-weight: bold;
+}
+
+.bigger{
+	font-size:140%;
+	color:black;
+	padding-left:4em;
+}
+
+.smaller{
+	font-size:80%;
+	text-align:right;
+}
+
+.smaller p{
+	text-align:right;
+	padding: 0 0 0 0;
+}
+
+.uriTitle{
+	color:#00628a;
+}

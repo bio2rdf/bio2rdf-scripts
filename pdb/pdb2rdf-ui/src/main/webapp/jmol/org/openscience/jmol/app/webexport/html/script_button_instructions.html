@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  <meta content="text/html; charset=iso-8859-1" http-equiv="content-type">
+  
+  <title>ScriptButton Instructions</title><meta content="J. Gutow" name="author">
+  <meta content="Instructions for the script button tab in Jmol_Web_Page_Maker" name="description"></head>
+
+<body>
+<hr>
+      <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr valign="top">
+            <td><small>Page Templates</small></td>
+            <td><small>Set Up</small></td>
+          </tr>
+          <tr valign="top">
+            <td><small>&gt; <a href="pop_in_instructions.html">Pop-In</a><br>
+            <br>
+&gt; Scriptbutton<br>
+&gt;&gt;<a href="#Description">Description</a><br>
+&gt;&gt;<a href="#Page_Cartoon">Page Cartoon</a><br>
+&gt;&gt;<a href="#Instructions">Step-by-step</a><br>
+            </small></td>
+            <td><small>&gt; <a href="Path_to_Applet.html">Path to Jmol</a><br>
+&gt; <a href="Installing_Applet.html">Jmol on your server</a><br>
+&gt; <a href="Testing_Pages_Locally.html">Testing locally (no server)</a><br>
+            </small></td>
+          </tr>
+        </tbody>
+      </table>
+<hr>
+      <p style="text-align: center; font-weight: bold;">The
+ScriptButton Template
+      </p>
+      <p><a name="Description"></a>This tab is
+designed to produce
+a web page that displays a single Jmol applet alongside a
+scrolling pane
+containing Jmol script buttons. The buttons change what is
+displayed in the Jmol applet. What the buttons do is defined by setting
+up
+Jmol
+with the view you want the user to see. You can add explanatory text
+using a standard web editor.&nbsp; This panel can be opened once
+and
+returned to anytime. An example picture of such a page is shown below:<br>
+      <img style="border: 1px solid ; width: 250px; height: 199px;" alt="picture of a Resizable web page" src="script_button.png"><a name="Page_Cartoon"></a></p>
+      <p><a name="Instructions"></a><b><i>Instructions</i></b> </p>
+      <p>1) Set the relative path to the Jmol applet on your web site from where
+you
+will put the folder (directory) containing the files created by this
+program. (<a href="Path_to_Applet.html">more...</a>)</p>
+      <p>2) Put your name(s) in the Author space. This will add you as
+the
+author
+in the page meta data that is used for searching.</p>
+      <p>3) Add the title you want to appear in the browser window
+title bar.
+This
+does not have to be the same as the title you will use for the page.</p>
+      <p>4) Set the percentage of the window width that you want Jmol
+to
+occupy.</p>
+      <p>5)&nbsp;If not already done, open the first file you want to appear
+in your
+page using the File..Open.. menu in the Jmol viewer. If you will be
+using
+more than one model, open the models one at a time (occasionally you
+might need to use "load
+append" or the "append models" checkbox to allow displaying more than
+one model simultaneously), and follow steps (6) &amp; (7) for each
+individual view.</p>
+      <p>6) Set the state of the model (zoom, rotate, select, change colors, add
+orbitals, set the molecule spinning, etc.)exactly the way you want it
+to
+appear on the web page.</p>
+      <p>7) Click on the "Add Present Jmol State as Instance" button.</p>
+      <p>8) Repeat for as many different displays as you wish. A button will be
+added
+to the web page that will create each display when the user clicks the
+button.
+You do not need to load a new file each time if you are just modifying
+the
+way the previous one is displayed.</p>
+      <p>9) When you are done, click on "Save HTML as..." Provide either the
+name of a
+new directory for this page or the name of the HTML file (.htm or
+.html) you
+want to create or replace. All necessary files will be created in the
+same
+directory. These include the HTML page itself, the JavaScript file
+JmolPopin.js, and three files for each view: a data file, a Jmol
+script, and
+a PNG image. If a new directory is indicated, the HTML file will be
+created
+in that directory and have the same name, with ".html" appended.</p>
+      <p>10) Open the HTML file in your favorite web editor and add your
+explanatory
+text and anything else you wish. As long as you do not alter the inside
+of
+the tables where Jmol and its buttons will be displayed, you should be
+able to change
+the
+page without disrupting the JavaScript that controls the behavior of
+Jmol. </p>
+
+</body></html>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:javaee="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+  <context-param>
+    <param-name>org.restlet.clients</param-name>
+    <param-value>HTTP HTTPS</param-value>
+  </context-param>
+  <context-param>
+    <param-name>org.restlet.application</param-name>
+    <param-value>  
+         com.dumontierlab.capac.rink.server.RinkApplication 
+    </param-value>
+  </context-param>
+  <servlet>
+    <servlet-name>RestletServlet</servlet-name>
+    <servlet-class>  
+         org.restlet.ext.servlet.ServerServlet 
+      </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>RestletServlet</servlet-name>
+    <url-pattern>/service/*</url-pattern>
+  </servlet-mapping>
+  
+  <!-- Proxy -->
+	<servlet>
+		<servlet-name>RestProxy</servlet-name>
+		<servlet-class>com.jsos.restproxy.RestProxyServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>RestProxy</servlet-name>
+		<url-pattern>/proxy</url-pattern>
+	</servlet-mapping>
+</web-app>

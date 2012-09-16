@@ -1,0 +1,1 @@
+var rinkConfig = { "serverUrl" : "http://quebec.pdb.bio2rdf.org/sparql", "base" : "rink.html" };

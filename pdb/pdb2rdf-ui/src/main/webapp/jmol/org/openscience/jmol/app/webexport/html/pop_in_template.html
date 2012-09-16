@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+      "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!--/*	Allows to open Jmol models on request, in a div
+	Available from  http://biomodel.uah.es/Jmol/  and  http://wiki.jmol.org/ 
+	Author: Angel Herráez.  Version 2007.04.23
+	Modified by Jonathan Gutow Version 2007.07.17
+
+	This template is offered freely for anyone to use or adapt it, 
+	according to Creative Commons Attribution-ShareAlike 3.0 License,
+	http://creativecommons.org/licenses/by-sa/3.0/
+*/-->
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=iso-8859-1" />
+  <meta name="generator" content="Jmol, see http://www.jmol.org" />
+  <meta name ="author" content = "@AUTHOR@"/>
+  <meta name ="keywords" content = "generated_by_Jmol_Webexport"/>
+  <title>@TITLE@</title>
+  <style type="text/css">
+.JmolDiv { padding:0.3em 0.5ex; font-size:0.9em; background-repeat:no-repeat; background-position:center;}
+.floatRightDiv { padding:0.3em 0.5ex; font-size:0.9em; float:right;}
+.floatLeftDiv { padding:0.3em 0.5ex; font-size:0.9em; float:left;}
+  </style>
+  <script src="JmolPopIn.js" type="text/javascript"></script>
+  <script type="text/javascript">
+	var jmoljarpath = "@REMOTEAPPLETPATH@"; // where Jmol.jar is to be found on a server
+    var jmoljspath = "@REMOTEAPPLETPATH@";  // where Jmol.js is to be found on a server
+	var jmollocaljarpath = "@LOCALAPPLETPATH@"; // where Jmol.jar is to be found locally
+    var jmollocaljspath = "@LOCALAPPLETPATH@";  // where Jmol.js is to be found locally
+    var jmoljarfile = "JmolApplet.jar";  // "JmolApplet.jar" is everything in one file 
+ 	var dataDir = ".";                // where the model AND .spt files are to be found.
+ 	changePathIfLocal();
+  </script>
+  
+  <script type="text/javascript">
+    addJavaScript(jmoljspath, "Jmol.js");
+  </script>
+
+<script type="text/javascript">
+	jmolInitialize(jmoljarpath, jmoljarfile);
+	jmolSetDocument(false);
+</script>
+</head>
+<body>
+<div id="introdiv" style="text-align: left;">
+<div id="titlediv" style="text-align: center;">
+GT_pop_in_template.html_INSERTTITLE
+<br />
+</div>
+GT_pop_in_template.html_INSERTINTRO
+</div>
+
+@APPLETINFO@
+
+<table style  = "width: 100%;" border="0" cellpadding="0" cellspacing="0">
+<tbody>
+@APPLETDEFS@
+</tbody></table>
+
+<div style="margin:0; padding:0;">&nbsp;</div>
+
+<div id="authordiv" style="text-align: right;">
+@AUTHORDATA@
+</div>
+<div id="creationdiv" style="text-align: right;">
+@CREATIONDATA@
+</div>
+<div id="logdiv" style="text-align: right; display:none">
+@LOGDATA@
+</div>
+
+</body>
+</html>
