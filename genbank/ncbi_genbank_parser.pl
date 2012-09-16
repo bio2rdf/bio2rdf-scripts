@@ -50,6 +50,31 @@ while(my $seq = $stream->next_seq){
 sub printSeqFeatures{
 	$seq = $_[0];
 	$accession = $seq->accession_number;
+	for my $feat_object ($seq_object->get_SeqFeatures) {          
+		print "primary tag: ", $feat_object->primary_tag, "\n";          
+		for my $tag ($feat_object->get_all_tags) {             
+			print "  tag: ", $tag, "\n";             
+			for my $value ($feat_object->get_tag_values($tag)) {                
+				print "    value: ", $value, "\n";             
+			}          
+		}       
+	}
+
+
+}#printSeqFeatures
+
+	
+
+=comment1
+	for my $feature ($seq->get_SeqFeatures){
+		if ( $feature->location->isa('Bio::Location::SplitLocationI'))  {
+			print "primary tag:".$feature->primary_tag."\n";
+			for my $location ( $feature->location->sub_Location ) {
+				print $location->start . ".." . $location->end . "\n";
+			}
+		}
+	}
+
 	@feat_array = $seq->get_all_SeqFeatures;
 	$num_feat = $seq->feature_count;
 	$counter = 1;
@@ -65,22 +90,24 @@ sub printSeqFeatures{
 		#create resource
 		$fr = $genbank_resource;
 		$fr .= md5_base64($accession."-".$counter);
+		print "primary_tag:".$feat->primary_tag."\n";
 		foreach $tag ($feat->get_all_tags){
 			foreach $val ($feat->get_tag_values($tag)) {
 				print "tag:\t".$tag;
 				print "\tval:\t".$val."\n";
 			}
 		}
-		print "primary tag:".$primary_tag."*****\n";
+		print "display_name:".$display_name."*****\n";
 		print "source tag:".$source_tag."*****\n";
 		print "feature id:".$feature_id.."*****\n";
 		print "start:".$start."*****\n";
 		print "end:".$end."*****\n";
 		print "strand:".$strand."*****\n";
 		print "gff:".$feat->gff_string."*****\n";
-		print "has_tag:".$feat->has_tag."*****\n";
 		print "primary_id:".$primary_id."*****\n";
 		print "**************************\n";
+
+=cut
 		#print "<".$genbank_base.$accession."> <".$genbank_vocabulary."_feature> <".$fr."> .\n";
 =comment
 		print "<".$fr."> <".$rdf."type> <http://bio2rdf.org/ontology/ncbi:$primary_tag> .\n";
@@ -317,9 +344,10 @@ sub printSeqFeatures{
 			}
 		}
 	}
-=cut
 	$counter++;
 }
+=cut
+
 
 }
 
@@ -346,7 +374,7 @@ sub printComments{
 	$accession = $seq->accession_number;
 	$counter = 1;
 	foreach $ann ($ac->get_Annotations('comment')){
-		$txt = Encode::encode("UTF-8", $ann->display_text);
+		$txt = Encode::encode("utf8", $ann->display_text);
 		#create a resource for each commenbt
 		$cr = $genbank_resource;
 		$cr .= md5_base64($accession."-".$counter);
@@ -363,10 +391,10 @@ sub printReferences{
 	$accession = $seq->accession_number;
 	$counter = 1;
 	foreach $ann ($ac->get_Annotations('reference')){
-		$authors = Encode::encode("UTF-8",$ann->authors);
+		$authors = Encode::encode("utf8",$ann->authors);
 		$authors =~ s/"/'/g;
 		$pubmed = $ann->pubmed;
-		$title = Encode::encode("UTF-8",$ann->title);
+		$title = Encode::encode("utf8",$ann->title);
 		$title =~ s/"/'/g;
 		$source_db = $ann->database;
 		$consortium = $ann->consortium;
@@ -390,15 +418,18 @@ sub printReferences{
 
 sub printRecordFeatures{
 	$seq = $_[0];
+	$gi_url_base = "http://www.ncbi.nlm.nih.gov/nuccore/";
 	$sequence_length = $seq->length;
 	$accession = $seq->accession_number;
-	$definition = Encode::encode("UTF-8", $seq->desc);
+	$definition = Encode::encode("utf8", $seq->desc);
 	$definition =~ s/"/'/g;
 	$gi = $seq->primary_id;
 	$version = $seq->seq_version;
 	$alphabet = $seq->alphabet;
 	$division = $seq->division;
 	$molecule_type = $seq->molecule;
+	$species_name = Encode::encode("utf8", $seq->species->node_name);
+	
 
 	print "<".$genbank_resource.$accession."> <".$rdf."type> <".$genbank_vocabulary."genbank_record> .\n"; 
 	print "<".$genbank_resource.$accession."> <".$rdfs."label> \"".$definition." [genbank:".$accession."]\" .\n";
@@ -406,10 +437,13 @@ sub printRecordFeatures{
 	if($definition =~ m/.+/){print "<".$genbank_resource.$accession."> <".$genbank_vocabulary."_definition> \"".$definition."\".\n";} 
 	if($alphabet =~ m/.+/){print "<".$genbank_resource.$accession."> <".$genbank_vocabulary."_alphabet> \"".$alphabet."\" .\n";}
 	if($sequence_length =~ m/.+/){print "<".$genbank_resource.$accession."> <".$genbank_vocabulary."_sequence_length> \"".$sequence_length."\" .\n";}
+	if($species_name =~ m/.+/){print "<".$genbank_resource.$accession."> <".$genbank_vocabulary."_species_name> \"".$species_name."\" .\n";}
 	if($version != ""){
 		print "<".$genbank_resource.$accession.".".$version."> <".$genbank_vocabulary."_version_of> <".$bio2rdf_base."genbank:".$accession."> .\n";
 		print "<".$bio2rdf_base."genbank:".$accession."> <".$genbank_vocabulary."_version> <".$genbank_resource.$accession.".".$version."> .\n";
 		print "<".$genbank_resource.$accession.".".$version."> <".$owl."sameAs> <".$bio2rdf_base."gi:".$gi."> .\n";
+		#add url to fasta file
+		print "<".$genbank_resource.$accession.".".$version."> <".$rdfs."seeAlso> <".$gi_url_base.$gi."> .\n";
 	}
 }#printRecordFeatures
 
@@ -726,7 +760,8 @@ while ( my $seq = $stream->next_seq() ) {
 		$counter++;
 	}
 
-}=cut
+}
+=cut
 
 
 
