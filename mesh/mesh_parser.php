@@ -117,7 +117,7 @@ class MeshParser extends RDFFactory{
 	private  $bio2rdf_base = "http://bio2rdf.org/";
 	private  $mesh_vocab ="mesh_vocabulary:";
 	private  $mesh_resource = "mesh_resource:";
-	private $version = 0.1;
+	private $version = 2012;
 	function __construct($argv) {
 			parent::__construct();
 			$this->SetDefaultNamespace("mesh");

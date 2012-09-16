@@ -32,24 +32,22 @@ class UniSTSParser extends RDFFactory{
 	private $bio2rdf_base = "http://bio2rdf.org/";
 	private $unists_vocab = "unists_vocabulary:";
 	private $unists_resource = "unists_resource:";
-	private $version = 0.1;
+	private $version = 1;
 
 	private static $packageMap = array(
 		"markers" =>  "UniSTS.sts",
 		"aliases" => "UniSTS.aliases",
-		"map_reports" => "ftp.ncbi.nlm.nih.gov/repository/UniSTS/UniSTS_MapReports/",
+		//"map_reports" => "ftp.ncbi.nlm.nih.gov/repository/UniSTS/UniSTS_MapReports/",
 		//"pcr_reports" => "ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/"
 	);
-
-	
 
 	function __construct($argv) {
 		parent::__construct();
 		$this->SetDefaultNamespace("unists");
 		// set and print application parameters
 		$this->AddParameter('files',true,null,'all|markers|map_reports|pcr_reports','','files to process');
-		$this->AddParameter('indir',false,null,'/home/jose/tmp/unists/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/home/jose/tmp/n3/unists/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/unists/','directory to download into and parse from');
+		$this->AddParameter('outdir',false,null,'/data/rdf/unists/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');

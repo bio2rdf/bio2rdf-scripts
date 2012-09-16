@@ -1,0 +1,53 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>pdb2rdf</artifactId>
+    <groupId>com.dumontierlab</groupId>
+    <version>0.0.10</version>
+  </parent>
+  <groupId>com.dumontierlab</groupId>
+  <artifactId>pdb2rdf-service</artifactId>
+  <version>0.0.10</version>
+  <packaging>war</packaging>
+  
+  <dependencies>
+  	<dependency>  
+   		<groupId>org.restlet</groupId>  
+   		<artifactId>org.restlet</artifactId>  
+	</dependency>  
+	<dependency>  
+   		<groupId>org.restlet</groupId>  
+   		<artifactId>org.restlet.ext.servlet</artifactId>  
+	</dependency>
+	<dependency>
+		<groupId>com.dumontierlab</groupId>
+		<artifactId>pdb2rdf-parser</artifactId>
+		<version>${project.version}</version>
+	</dependency>
+  </dependencies>
+  
+  
+  <build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+       			<groupId>org.codehaus.mojo</groupId>
+        		<artifactId>tomcat-maven-plugin</artifactId>
+        		<version>1.0-beta-1</version>
+        		<configuration>
+              	  <url>http://codemonkey.dumontierlab.com:8181/manager</url>
+              	  <server>codemonkey-tomcat</server>
+        		</configuration>
+			</plugin>  
+		</plugins>
+	</build>
+	
+	
+</project>

@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  <meta content="text/html; charset=iso-8859-1" http-equiv="content-type">
+  
+  <title>Pop-In Jmol Instructions</title><meta content="J. Gutow" name="author"></head>
+
+<body>
+<hr>
+      <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr valign="top">
+            <td><small>Page Templates</small></td>
+            <td><small>Set Up</small></td>
+          </tr>
+          <tr valign="top">
+            <td><small>&gt;
+Pop-In<br>
+            &gt;&gt;<a href="#Description">Description</a><br>
+&gt;&gt;<a href="#Page_Cartoon">Page Cartoon</a><br>
+&gt;&gt;<a href="#Instructions">Step-by-step</a><br>
+            <br>
+            &gt; <a href="script_button_instructions.html">Scriptbutton</a><br>
+            </small></td>
+            <td><small>&gt; <a href="Path_to_Applet.html">Path to Jmol</a><br>
+&gt; <a href="Installing_Applet.html">Jmol on your server</a><br>
+&gt; <a href="Testing_Pages_Locally.html">Testing locally (no server)</a><br>
+            </small></td>
+          </tr>
+        </tbody>
+      </table>
+<hr>
+      <p style="text-align: center; font-weight: bold;">The
+Pop-In Template
+      </p>
+      <p><a name="Description"></a>This tab is designed to produce a web
+page that displays images of Jmol graphics, each of which can be
+converted to a
+live Jmol display by the user.&nbsp; This makes initial loading of the
+page
+faster.&nbsp; The image will match the initial Jmol setup for each occurrence which
+is chosen by
+setting up the Jmol viewer the way you wish.&nbsp; You add the text
+later in your
+favorite web editor. This panel can be opened once and returned to
+anytime.
+An example picture of such a page is shown below:<br>
+      <img style="border: 1px solid ; width: 250px; height: 268px;" alt="picture of a pop in web page" src="pop_in.png"><a name="Page_Cartoon"></a></p>
+      <p><a name="Instructions"></a><b><i>Instructions</i></b> </p>
+      <p>1) Set the relative path to the Jmol applet on you web site from where
+you
+will put the folder (directory) containing the files created by this
+program.&nbsp; (<a href="Path_to_Applet.html">more...</a>)</p>
+      <p>2) Put your name(s) in the Author space. This will add you as
+the author
+in the page meta data that is used for searching.</p>
+      <p>3) Add the title you want to appear in the browser window
+title bar. This
+does not have to be the same as the title you will use for the page.</p>
+      <p>4)
+If not already done, open the first file you want to appear
+in your
+page using the File..Open.. menu in the Jmol viewer. If you will be
+using
+more than one model, open the models one at a time (occasionally you
+might need to use "load
+append" or the "append models" checkbox to allow displaying more than
+one model simultaneously), and follow steps (5) - (7) for each
+individual model.</p>
+      <p>5) Set the state of the model (zoom, rotate, select, change colors, add
+orbitals, set the molecule spinning, etc.) exactly the way you want it
+to
+appear on the web page.</p>
+      <p>6) Set the width and height for the model on this tab. There is no need
+to
+resize the application window itself.</p>
+      <p>7) Click on the "Add Present Jmol State as Instance" button and select
+a name
+for this applet instance.</p>
+      <p>8) Repeat for as many different displays as you wish. Because of the
+memory
+constraints of web browsers, it is probably best to limit yourself to
+no more
+than a few instances of Jmol on a single web page. The larger the
+applet
+size, the more of a problem this will be. However, you can certainly
+create a
+page with several applets and then split it later into multiple web
+pages.</p>
+      <p>9) When you are done, click on "Save HTML as..." Provide either the
+name of a
+new directory for this page or the name of the HTML file (.htm or
+.html) you
+want to create or replace. All necessary files will be created in the
+same
+directory. These include the HTML page itself, the JavaScript file
+JmolPopin.js, and three files for each view: a data file, a Jmol
+script, and
+a PNG image. If a new directory is indicated, the HTML file will be
+created
+in that directory and have the same name, with ".html" appended.</p>
+      <p>10) Open the HTML file in your favorite web editor and add your
+explanatory
+text and anything else you wish.&nbsp; As long as you do not alter the
+inside of
+the tables where Jmol will be displayed, you should be able to change
+the
+page without disrupting the JavaScript that controls the behavior of
+Jmol. </p>
+
+</body></html>

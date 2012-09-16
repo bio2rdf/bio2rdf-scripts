@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+      "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<!--/*	Allows to open Jmol models on request, in a div
+	Available from  http://biomodel.uah.es/Jmol/  and  http://wiki.jmol.org/ 
+	Author: Angel Herráez.  Version 2007.04.23
+	Modified by Jonathan Gutow Version 2007.07.17
+
+	This template is offered freely for anyone to use or adapt it, 
+	according to Creative Commons Attribution-ShareAlike 3.0 License,
+	http://creativecommons.org/licenses/by-sa/3.0/
+*/-->
+    <meta http-equiv="content-type" content="application/xhtml+xml; charset=iso-8859-1" />
+  <meta name="generator" content="Jmol, see http://www.jmol.org" />
+  <meta name ="author" content = "@AUTHOR@"/>
+  <meta name ="keywords" content = "generated_by_Jmol_Webexport"/>
+  <title>@TITLE@</title>
+ <style type="text/css">
+/* These are important, don't change: */
+html, body { height:100%; overflow:hidden; margin:0; padding:0; }
+.JmolPanels { position:absolute; overflow:hidden;}
+.textPanels { position:absolute; overflow:auto; }
+#JmolPane {left:@LEFTPERCENT@%; width: @WIDTHPERCENT@%; top:0px; height:100%; }
+#mainPane { left:0px; width:@LEFTPERCENT@%; top:0px; height:100%; }
+#JmolDiv {width:100%; height:100%;}
+#Jmol0 {width:100%; height:100%;}
+/* Don't add margin or padding to textPane; if needed, use an inner div with desired style (like 'contents' below) */
+
+/* These are aesthetic, can be customized: */
+.content { padding:0.5em 1ex; }
+.textPanels { background-color:rgb(102, 255, 255); }
+  </style>
+ 
+  <script src="JmolPopIn.js" type="text/javascript"></script>
+  <script type="text/javascript">
+	var jmoljarpath = "@REMOTEAPPLETPATH@"; // where Jmol.jar is to be found on a server
+    var jmoljspath = "@REMOTEAPPLETPATH@";  // where Jmol.js is to be found on a server
+	var jmollocaljarpath = "@LOCALAPPLETPATH@"; // where Jmol.jar is to be found locally
+    var jmollocaljspath = "@LOCALAPPLETPATH@";  // where Jmol.js is to be found locally
+    var jmoljarfile = "JmolApplet.jar";  // "JmolApplet.jar" is everything in one file 
+ 	var dataDir = ".";                // where the model AND .spt files are to be found.
+ 	changePathIfLocal();
+  </script>
+
+<script type="text/javascript">
+    addJavaScript(jmoljspath, "Jmol.js");
+</script>
+
+<script type='text/javascript'>
+  jmolInitialize(jmoljarpath, jmoljarfile); 
+  jmolSetDocument(0);
+</script>
+
+</head>
+<body style="color: rgb(0, 0, 0); background-color: rgb(102, 255, 255);"
+  onload="scriptbuttonJmol('@APPLETNAME0@.spt')">
+
+<div id="JmolPane" class="JmolPanels">
+  <div id="Jmol0" class="JmolDiv">
+   <img src="@APPLETNAME0@.png" alt="still of jmol image" style="height:100%; width:100%"/>
+  </div>
+</div>
+
+
+<div id="mainPane" class="textPanels">
+<div id="mainContent" class="content">
+GT_script_button_template.html_INSERT
+<br />
+
+@APPLETDEFS@ 
+
+<br />
+
+<div id="authordiv" style="text-align: right;">
+@AUTHORDATA@
+</div>
+<div id="creationdiv" style="text-align: right;">
+@CREATIONDATA@
+</div>
+<div id="logdiv" style="display:none">
+@LOGDATA@
+</div>
+
+</div><!--content-->
+</div><!--mainPane-->
+
+</body>
+</html>

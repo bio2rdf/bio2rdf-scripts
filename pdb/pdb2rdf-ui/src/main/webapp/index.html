@@ -1,0 +1,37 @@
+ <html>
+  <head>
+
+    <!-- Properties can be specified to influence deferred binding -->
+    <meta name='gwt:property' content='locale=en_CA'>
+
+    <!-- third party libraries -->
+    <script language="javascript" src="jmol/Jmol.js"></script>
+    <script type="text/javascript">
+    	jmolInitialize("jmol", "JmolApplet.jar, pdb2rdf-jar-with-dependencies.jar, jena-2.6.2-RC-jar-with-dependencies.jar");
+    	jmolSetDocument(false);
+    </script>
+    <script type="text/javascript" src="rinkConfiguration.js"></script>
+
+    <!-- Stylesheets are optional, but useful -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Titles are optional, but useful -->
+    <title>PDB2RDF</title>
+
+  </head>
+  <body>
+
+    <!-- This script tag is what actually loads the GWT module.  The -->
+    <!-- 'nocache.js' file (also called a "selection script") is     -->
+    <!-- produced by the GWT compiler in the module output directory -->
+    <!-- or generated automatically in hosted mode.                  -->
+    <script language="javascript" src="pdb2rdf/pdb2rdf.nocache.js"></script>
+
+
+    <!-- Include a history iframe to enable full GWT history support -->
+    <!-- (the id must be exactly as shown)                           -->
+    <iframe src="javascript:''" id="__gwt_historyFrame" style="width:0;height:0;border:0"></iframe>
+
+
+  </body>
+ </html>

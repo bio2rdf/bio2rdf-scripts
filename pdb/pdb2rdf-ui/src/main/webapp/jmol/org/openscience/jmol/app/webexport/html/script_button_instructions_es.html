@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=iso-8859-1"
+ http-equiv="content-type">
+  <title>Instrucciones para &quot;ScriptButton&quot;</title>
+  <meta content="J. Gutow" name="author">
+  <meta
+ content="Instructions for the script button tab in Jmol_Web_Page_Maker"
+ name="description">
+</head>
+<body>
+<hr>
+      <table style="text-align: left; width: 100%;" border="0"
+ cellpadding="2" cellspacing="2">
+        <tbody>
+          <tr valign="top">
+            <td><small>Plantillas de p&aacute;gina</small></td>
+            <td><small>Configuraci&oacute;n</small></td>
+          </tr>
+          <tr valign="top">
+            <td><small>&gt; <a
+ href="pop_in_instructions_es.html">Pop-In</a><br>
+            <br>
+&gt; ScriptButton<br>
+&gt;&gt;<a href="#Description">Descripci&oacute;n</a><br>
+&gt;&gt;<a href="#Page_Cartoon">Aspecto de la p&aacute;gina</a><br>
+&gt;&gt;<a href="#Instructions">Paso a paso</a><br>
+            </small></td>
+            <td><small>&gt; <a
+ href="Path_to_Applet_es.html">Ruta a Jmol</a><br>
+&gt; <a href="Installing_Applet_es.html">Jmol en el servidor</a><br>
+&gt; <a href="Testing_Pages_Locally_es.html">Pruebas locales (sin servidor)</a><br>
+            </small></td>
+          </tr>
+        </tbody>
+      </table>
+<hr>
+      <p style="text-align: center; font-weight: bold;">La plantilla &#8220;ScriptButton&#8221;
+      </p>
+      <p><a name="Description"></a>Esta pesta&ntilde;a se ha dise&ntilde;ado para preparar una p&aacute;gina web que muestra una miniaplicaci&oacute;n Jmol junto a un panel con barra de desplazamiento vertical que contiene botones con guiones de Jmol.&nbsp; Los botones cambian lo que se muestra en la miniaplicaci&oacute;n Jmol.&nbsp; La acci&oacute;n precisa de cada bot&oacute;n se define configurando Jmol con la vista que desees obtener para el modelo.&nbsp; Es posible a&ntilde;adir el texto de la p&aacute;gina usando el editor web que prefieras. Este panel se puede abrir una vez y regresar a &eacute;l en cualquier momento. A continuaci&oacute;n se muestra una imagen de ejemplo de una p&aacute;gina creada con esta plantilla:<br>
+          <img style="border: 1px solid ; width: 250px; height: 199px;"
+ alt='imagen de una página "ScriptButton"' src="script_button.png"><a
+ name="Page_Cartoon"></a></p>
+      <p><a name="Instructions"></a><b><i>Instrucciones</i></b> </p>
+        <p> 1) Define la ruta a la miniaplicaci&oacute;n Jmol en el sitio web, relativa a donde vayas a poner la p&aacute;gina creada por este programa.  (<a href="Path_to_Applet_es.html">m&aacute;s...</a>) </p>
+        <p> 2) Pon tu nombre en el espacio dedicado al autor. De este modo, quedar&aacute; a&ntilde;adido en los metadatos de la p&aacute;gina, utilizados por los buscadores. </p>
+        <p> 3) A&ntilde;ade el t&iacute;tulo que desees para el t&iacute;tulo de la ventana del navegador. (No tiene necesariamente que coincidir con el t&iacute;tulo que aparece dentro de la p&aacute;gina.)</p>
+        <p> 4) Indica el porcentaje del ancho total de la ventana que quieres dedicar a Jmol.</p>
+        <p> 5) Si no lo has hecho ya, abre el primer archivo de mol&eacute;cula que quieras mostrar en la p&aacute;gina, utilizando el men&uacute; &#8220;Archivo &gt; Abrir&#8221; de la aplicaci&oacute;n Jmol. Si necesitas mostrar varios modelos, &aacute;brelos de uno en uno y sigue las instrucciones 6 y 7 para cada uno. (&Uacute;nicamente si pretendes mostrar simult&aacute;neamente varios modelos necesitar&aacute;s usar &quot;load append&quot; o la casilla &#8220;a&ntilde;adir modelos&#8221;.)</p>
+        <p> 6) Ajusta el estado del modelo (tama&ntilde;o, orientaci&oacute;n, selecci&oacute;n, colores, a&ntilde;ade orbitales, ajusta la rotaci&oacute;n, etc.) exactamente como quieras que se vea en la p&aacute;gina web.</p>
+        <p> 7) Pulsa en el bot&oacute;n &#8220;A&ntilde;adir una vista con el estado actual de Jmol&#8221; y elige un nombre para esta vista.</p>
+        <p> 8) Repite para cada vista que desees incluir.&nbsp; Cada vez se a&ntilde;adir&aacute; un bot&oacute;n a la p&aacute;gina web, de modo que cuando el usuario pulse sobre &eacute;l se generar&aacute; la vista respectiva del modelo.
+        No es preciso cargar un nuevo archivo  si simplemente est&aacute;s modificando el aspecto de la vista anterior.</p>
+        <p> 9) Cuando hayas acabado, pulsa en el bot&oacute;n &#8220;Guardar HTML como...&#8221;. Proporciona el nombre para una nueva carpeta que contendr&aacute; esta p&aacute;gina, o bien el nombre de un archivo HTML que quieras crear o sustituir (con extensi&oacute;n .htm o .html). Todos los archivos necesarios para la p&aacute;gina se crear&aacute;n en esa misma carpeta; esto incluye la propia p&aacute;gina HTML, el archivo JavaScript &#8220;JmolPopin.js&#8221; y tres archivos por cada vista: uno con los datos de la mol&eacute;cula, un gui&oacute;n para Jmol y una imagen en formato png. Si indicaste una nueva carpeta, el archivo HTML se crear&aacute; en esa carpeta y tendr&aacute; el mismo nombre que &eacute;sta, seguido de &#8220;.html&#8221;.</p>
+        <p> 10) Abre el archivo HTML en un editor de p&aacute;ginas web y a&ntilde;ade el texto explicativo y cualquier otro contenido que desees para la p&aacute;gina.&nbsp; Ten la precauci&oacute;n de no alterar el contenido de las tablas en las que se mostrar&aacute; Jmol y sus botones; podr&aacute;s as&iacute; modificar la p&aacute;gina tanto como quieras sin afectar al c&oacute;digo JavaScript necesario para controlar el comportamiento de Jmol.</p>
+
+</body>
+</html>
