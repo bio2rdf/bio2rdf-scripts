@@ -36,7 +36,7 @@ class NCBITaxonomyParser extends RDFFactory{
 	private $bio2rdf_base = "http://bio2rdf.org/";
 	private $unists_vocab = "taxon_vocabulary:";
 	private $unists_resource = "taxon_resource:";
-	private $version = 0.1;
+	private $version = null; // version of the release data
 
 	private static $packageMap = array(
 		"taxdmp" => array(
@@ -55,7 +55,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			"contents" => array(
 				"gi_taxid_prot" => "gi_taxid_prot.dmp",
 			),
-			"file_url" => "ftp://ftp.ncbi.nih.gov/pub/taxonomy/gi_taxid_nucl.zip"
+			"file_url" => "ftp://ftp.ncbi.nih.gov/pub/taxonomy/gi_taxid_prot.zip"
 		) ,
 		"gi2taxid_nucleotide" => array(
 			"filename" => "gi_taxid_nucl.zip",
@@ -128,9 +128,10 @@ class NCBITaxonomyParser extends RDFFactory{
 				//get the name of the zip archive
 				$lfile = $value["filename"];
 				// make sure we have the zip archive
+				$zinfile = $ldir.$lfile;
 				$zin = new ZipArchive();
-				if ($zin->open($ldir.$lfile) === FALSE) {
-					trigger_error("Unable to open $ldir$lfile");
+				if ($zin->open($zinfile) === FALSE) {
+					trigger_error("Unable to open $zfile");
 					exit;
 				}
 				//now iterate over the files in the ziparchive
@@ -146,9 +147,9 @@ class NCBITaxonomyParser extends RDFFactory{
 						}
 						//ensure that there is a slash between directory name and filename
 						if(substr($odir, -1) == "/"){
-							$gzoutfile = $odir.$k.".ttl";
+							$gzoutfile = $odir.$k.".nt";
 						} else {
-							$gzoutfile = $odir."/".$k.".ttl";
+							$gzoutfile = $odir."/".$k.".nt";
 						}
 						//set the write file
 						$gz=false;
@@ -164,22 +165,27 @@ class NCBITaxonomyParser extends RDFFactory{
 						$this->$k();
 						$this->GetWriteFile()->Close();
 						echo "done!".PHP_EOL;
+						$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$gzoutfile;
 					}//if $k
 				}//foreach
 
-				// generate the release file
-				$desc = $this->GetBio2RDFDatasetDescription(
-					$this->GetNamespace(),
-					"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/ncbi_taxonomy_parser.php", 
-					$this->GetBio2RDFDownloadURL($this->GetNamespace()),
-					"http://www.ncbi.nlm.nih.gov/taxon",
-					array("use-share-modify"),
-					"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
-					"ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip",
-					$this->version
-				);
-				$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
 			}//if key taxdmp
+			
+			// generate the release file
+			$desc = $this->GetBio2RDFDatasetDescription(
+				$this->GetNamespace(),
+				"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/ncbi_taxonomy_parser.php", 
+				$bio2rdf_download_files,
+				"http://www.ncbi.nlm.nih.gov/taxon",
+				array("use-share-modify"),
+				"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
+				"ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip",
+				$this->version
+			);
+			$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+			$this->GetWriteFile()->Write($desc);
+			$this->GetWriteFile()->Close();
+
 		}
 	}//run
 
@@ -483,7 +489,7 @@ class NCBITaxonomyParser extends RDFFactory{
 				$this->AddRDF($this->QQuadL(
 					"taxon_resource:".md5("citation_id_".$cit_id),
 					"taxon_vocabulary:citation_key",
-					str_replace("\"","",utf8_encode($cit_key))
+					str_replace(array('"','\\'),"",utf8_encode($cit_key))
 				));
 			}
 			if ($pubmed_id != 0 && $pubmed_id != "") {
