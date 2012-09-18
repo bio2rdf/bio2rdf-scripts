@@ -91,7 +91,7 @@ class SABIORKParser extends RDFFactory
 			if(FALSE === $reaction_ids) {
 				exit;
 			} 
-			$f = new FileFactory($reaction_list_file, true);
+			$f = new FileFactory($reaction_list_file);
 			$f->Write($xml);
 			$f->Close();
 		}
