@@ -249,7 +249,8 @@ function CTD_chemicals_diseases()
 	while($l = $this->GetReadFile()->Read()) {
 		if($l[0] == '#') continue;
 		$a = explode("\t",trim($l));
-		
+		$this->WriteRDFBufferToWriteFile();
+
 		if($first) {
 			if(($c = count($a)) != 10) {
 				trigger_error("Expecting 10 fields, found $c!");return FALSE;
@@ -331,12 +332,14 @@ function CTD_chem_pathways_enriched()
 /*
   0 DiseaseName
 X 1 DiseaseID (MeSH or OMIM accession identifier)
-  2 Definition
-  3 AltDiseaseIDs
+  2 AltDiseaseIDs
+  3 Definition
   4 ParentIDs
   5 TreeNumbers
   6 ParentTreeNumbers
   7 Synonyms
+  8 SlimMappings
+
 */
 function CTD_diseases()
 {
@@ -347,8 +350,8 @@ function CTD_diseases()
 		
 		// check number of columns
 		if($first) {
-			if(($c = count(explode("\t",$l))) != 8) {
-				trigger_error("Expecting 8 fields, found $c!");
+			if(($c = count(explode("\t",$l))) != 9) {
+				trigger_error("Expecting 9 fields, found $c!");
 				return FALSE;
 			}
 			$first = false;
@@ -359,7 +362,7 @@ function CTD_diseases()
 		$uid = "$disease_ns:$disease_id";
 		$this->AddRDF($this->QQuadL($uid,"rdfs:label","$a[0] [$uid]"));
 		$this->AddRDF($this->QQuad($uid,"rdf:type", "ctd_vocabulary:Disease"));
-		$this->AddRDF($this->QQuadL($uid,"dc:description","$a[2]"));
+		$this->AddRDF($this->QQuadL($uid,"dc:description","$a[3]"));
 	}
 	return TRUE;
 }
