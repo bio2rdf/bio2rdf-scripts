@@ -177,23 +177,23 @@ class HGNCParser extends RDFFactory {
 			$this->AddRDF($this->QQuadL($id, "dc:identifier", "$id"));
 
 			if(!empty($approved_symbol)){
-				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:approved_symbol", "$approved_symbol"));
+				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:approved_symbol", $approved_symbol));
 			}
 
 			if(!empty($approved_name)){
 				$this->AddRDF($this->QQuadL($id, "rdfs:label", "$approved_name [$id]"));
-				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:approved_name", "$approved_name"));
+				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:approved_name", $approved_name));
 			}
 			
 			if(!empty($status)){
-				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:status", "$status"));
+				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:status", $status));
 			}
 			
 			if(!empty($locus_id)){
 				$locus_id = "hgnc:".$hgnc_id."_LOCUS";
 				$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:locus", $locus_id));
-				$this->AddRDF($this->QQuadL($locus_id, "hgnc_vocabulary:locus_type", "$locus_type"));
-				$this->AddRDF($this->QQuadL($locus_id, "hgnc_vocabulary:locus_group", "$locus_group"));
+				$this->AddRDF($this->QQuadL($locus_id, "hgnc_vocabulary:locus_type", $locus_type));
+				$this->AddRDF($this->QQuadL($locus_id, "hgnc_vocabulary:locus_group", $locus_group));
 			}
 			
 			if(!empty($previous_symbols)){
@@ -206,6 +206,7 @@ class HGNCParser extends RDFFactory {
 			if(!empty($previous_names)){
 				$previous_names = explode(", ", $previous_names);
 				foreach($previous_names as $previous_name){
+					$previous_name = str_replace("\"", "", $previous_name);
 					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:previous_name", $this->SafeLiteral($previous_name)));
 				}
 			}
@@ -213,13 +214,14 @@ class HGNCParser extends RDFFactory {
 			if(!empty($synonyms)){
 				$synonyms = explode(", ", $synonyms);
 				foreach ($synonyms as $synonym) {
-					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:synonym", "$synonym"));
+					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:synonym", $synonym));
 				}
 			}
 
 			if(!empty($name_synonyms)){
 				$name_synonyms = explode(", ", $name_synonyms);
 				foreach ($name_synonyms as $name_synonym) {
+					$name_synonym = str_replace("\"", "", $name_synonym);
 					$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:name_synonym", $this->SafeLiteral($name_synonym)));
 				}
 			}

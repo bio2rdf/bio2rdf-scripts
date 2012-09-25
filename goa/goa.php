@@ -160,7 +160,7 @@ class GOAParser extends RDFFactory {
 				$entryUri = $this->getdbURI($db_id,$db_object_id);
 				
 				$this->AddRDF($this->QQuad($entryUri, "void:inDataset", $this->GetDatasetURI()));
-				$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:gene_symbol", iconv("UTF-8","UTF-8//IGNORE",str_replace("\"", "", $db_object_symbol))));
+				$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:gene_symbol", iconv("UTF-8","UTF-8//IGNORE",str_replace(array("\"", "\\"), array("", "/"), $db_object_symbol))));
 
 				if(!empty($qualifier)){
 					$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:qualifier", iconv("UTF-8","UTF-8//IGNORE",str_replace("\"", "", $qualifier))));
