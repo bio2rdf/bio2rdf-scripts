@@ -28,12 +28,13 @@ SOFTWARE.
 
 
 // show command line options
-if($argc < 3) {
- echo "Usage: php $argv[0] input-ntriples-file output-directory".PHP_EOL;
+if($argc < 4) {
+ echo "Usage: php $argv[0] dataset input-ntriples-file output-directory".PHP_EOL;
  exit;
 }
-$i = $argv[1];
-$o = $argv[2];
+$d = $argv[1];
+$i = $argv[2];
+$o = $argv[3];
 
 if(!file_exists($i)) {
 	trigger_error("Unable to open $i");
@@ -44,9 +45,9 @@ if(!@is_dir($o)) {
 	exit;
 }
 
-NSCount($i,$o);
+NSCount($d,$i,$o);
 
-function NSCount($inputFileName, $outdir){
+function NSCount($dataset, $inputFileName, $outdir){
 	$pi = pathinfo($inputFileName);
 	if($pi["extension"] == "gz"){
 		$fh = gzopen($inputFileName, "r") or die("Could not open file ".$inputFileName);
@@ -105,17 +106,17 @@ function NSCount($inputFileName, $outdir){
 	ksort($ns);
 	$buf = '';
 	foreach($ns AS $k => $v) $buf .= "$k\t$v\n";
-	file_put_contents($outdir."counts.tab",$buf);
+	file_put_contents($outdir.$dataset."_ns.tab",$buf);
 	
 	ksort($nsns);
 	$buf = '';
 	foreach($nsns AS $k => $o) $buf .= $o['ns1']."\t".$o['ns2']."\t".$o['count']."\n";
-	file_put_contents($outdir."nsns.tab",$buf);
+	file_put_contents($outdir.$dataset."_nsns.tab",$buf);
 	
 	ksort($nsnsp);
 	$buf = '';
 	foreach($nsnsp AS $k => $o) $buf .= $o['ns1']."\t".$o['ns2']."\t".$o['p']."\t".$o['count']."\n";
-	file_put_contents($outdir."nsnsp.tab",$buf);
+	file_put_contents($outdir.$dataset."_nsnsp.tab",$buf);
 	
 } // NSCOUNT
 
