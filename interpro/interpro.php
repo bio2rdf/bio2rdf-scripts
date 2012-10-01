@@ -133,7 +133,7 @@ class AffymetrixParser extends RDFFactory
 			$type = $o->attributes()->type;
 			$s = "interpro:$interpro_id";
 			
-			$this->AddRDF($this->QQuadL($s,"rdfs:label","$name $type [$s]"));
+			$this->AddRDF($this->QQuadL($s,"rdfs:label","$name ($short_name) $type [$s]"));
 			$this->AddRDF($this->QQuad($s,"rdf:type","interpro_vocabulary:$type"));
 			$this->AddRDF($this->QQuad($s,"void:inDataset",$this->GetDatasetURI()));
 			
@@ -169,10 +169,16 @@ class AffymetrixParser extends RDFFactory
 					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:parent", "interpro:$id"));
 				}
 			}
-			if(isset($o->contains->rel_ref)) {
-				foreach($o->contains->rel_ref AS $child) {
+			if(isset($o->child->rel_ref)) {
+				foreach($o->child->rel_ref AS $child) {
 					$id = (string) $child->attributes()->ipr_ref;
 					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:child", "interpro:$id"));
+				}
+			}
+			if(isset($o->contains->rel_ref)) {
+				foreach($o->contains->rel_ref AS $contains) {
+					$id = (string) $contains->attributes()->ipr_ref;
+					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:contains", "interpro:$id"));
 				}
 			}
 			if(isset($o->found_in->rel_ref)) {
@@ -181,6 +187,13 @@ class AffymetrixParser extends RDFFactory
 					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:found-in", "interpro:$id"));
 				}
 			}
+			if(isset($o->sec_list->sec_ac)) {
+				foreach($o->sec_ac AS $s) {
+					$id = (string) $s->attributes()->acc;
+					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:secondary-accession", "interpro:$id"));
+				}
+			}
+			
 			
 			// xrefs
 			if(isset($o->member_list->dbxref)) {
