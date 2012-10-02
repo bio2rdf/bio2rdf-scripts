@@ -36,7 +36,7 @@ class AffymetrixParser extends RDFFactory
 		$this->SetDefaultNamespace("affymetrix");
 		
 		// set and print application parameters
-		$this->AddParameter('files',true,'all','all','');
+		$this->AddParameter('files',true,null,'all','');
 		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
@@ -81,11 +81,30 @@ class AffymetrixParser extends RDFFactory
 			trigger_error("could not find any .csv.zip files in $url");
 			exit;
 		}
+
+		if($this->GetParameterValue("files") == 'all') {
+			$myfiles = $m[1];
+		} else {
+			$a = explode(",",$this->GetParameterValue("files"));
+			foreach($a AS $f) {
+				$found  = false;
+				foreach($m[1] AS $n) {	
+					if(strstr($n,$f)) {
+						$found = true;
+						$myfiles[] = $n;
+						break;
+					}
+				}
+				if($found === false) {
+					echo "cannot find $f in list".PHP_EOL;
+				}
+			}
+		}
 		
-		foreach($m[1] AS $rfile) {
-			$rfile =  "http://www.affymetrix.com/Auth/analysis/downloads/na32/ivf/Yeast_2.na32.annot";
+		foreach($myfiles AS $rfile) {
 			// download
 			$base_file = substr($rfile,strrpos($rfile,"/")+1);
+			echo "processing $base_file".PHP_EOL;
 			$csv_file = $base_file.".csv";
 			$zip_file = $csv_file.".zip";
 		
@@ -121,7 +140,6 @@ class AffymetrixParser extends RDFFactory
 			
 			$this->GetWriteFile()->Close();
 			$this->GetReadFile()->Close();
-			break;
 		}
 		
 
@@ -195,6 +213,7 @@ class AffymetrixParser extends RDFFactory
 				if(isset($r)) {
 					foreach($b AS $c) {
 						$d = explode(" // ",$c);
+						if($r == 'symbol') $d[0] = str_replace(" ","-",$d[0]);
 						$this->AddRDF($this->QQuad($qname,"affymetrix_vocabulary:x-$r", "$r:".$d[0]));
 					}
 				} else {
@@ -228,9 +247,10 @@ class AffymetrixParser extends RDFFactory
 								
 								if($prefix == '---' || $id == '---') continue;
 								if($prefix == 'gb') $prefix = 'genbank';
+								if($prefix == 'ens') $prefix = 'ensembl';
 								if($prefix == 'affx' || $prefix == 'unknown') $prefix = 'affymetrix';
 								
-								$this->AddRDF($this->QQuad($qname,"affymetrix_vocabulary:transcript-assignment", "$prefix:$id"));
+								$this->AddRDF($this->QQuad($qname,"affymetrix_vocabulary:transcript-assignment", $this->GetNS()->MapQName("$prefix:$id")));
 							}
 							break;
 						
@@ -259,7 +279,7 @@ class AffymetrixParser extends RDFFactory
 							if(!isset($rel)) $rel = str_replace(" ","-",strtolower($label));
 							$b = explode(" /// ",$v);
 							foreach($b AS $c) {
-								$this->AddRDF($this->QQuadL($qname,"affymetrix_vocabulary:".$rel,$this->SafeLiteral($c)));
+								$this->AddRDF($this->QQuadL($qname,"affymetrix_vocabulary:".$rel,$this->SafeLiteral(stripslashes($c))));
 							}
 							
 						// multi-valued 
@@ -277,7 +297,6 @@ class AffymetrixParser extends RDFFactory
 			9 => 'unigene',
 			10 => 'unigene',
 			14 => 'symbol',
-			16 => 'unigene',
 			17 => 'ensembl',
 			18 => 'geneid',
 			19 => 'uniprot',
