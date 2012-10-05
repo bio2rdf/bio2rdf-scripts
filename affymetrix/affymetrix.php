@@ -81,7 +81,6 @@ class AffymetrixParser extends RDFFactory
 			trigger_error("could not find any .csv.zip files in $url");
 			exit;
 		}
-
 		if($this->GetParameterValue("files") == 'all') {
 			$myfiles = $m[1];
 		} else {
@@ -100,7 +99,8 @@ class AffymetrixParser extends RDFFactory
 				}
 			}
 		}
-		
+		if(!isset($myfiles)) exit;
+
 		foreach($myfiles AS $rfile) {
 			// download
 			$base_file = substr($rfile,strrpos($rfile,"/")+1);
@@ -144,7 +144,6 @@ class AffymetrixParser extends RDFFactory
 		
 
 		// generate the release file
-		$this->DeleteBio2RDFReleaseFiles($odir);
 		$desc = $this->GetBio2RDFDatasetDescription(
 			$this->GetNamespace(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/affymetrix/affymetrix.php", 
@@ -244,7 +243,6 @@ class AffymetrixParser extends RDFFactory
 								$d = explode(" // ",$c);
 								$id = $d[0];
 								$prefix = $d[2];
-								
 								if($prefix == '---' || $id == '---') continue;
 								if($prefix == 'gb') $prefix = 'genbank';
 								if($prefix == 'ens') $prefix = 'ensembl';
@@ -257,9 +255,13 @@ class AffymetrixParser extends RDFFactory
 					
 					
 						case 'Annotation Transcript Cluster':
+/*
 							$id = substr($v,0,strpos($v,"("));
+								
+
 							$rel = str_replace(" ","-",strtolower($label));
 							$this->AddRDF($this->QQuad($qname,"affymetrix_vocabulary:$rel", "refseq:$id"));
+*/
 							break;
 						
 							
