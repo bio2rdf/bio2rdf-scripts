@@ -159,13 +159,13 @@ class GOAParser extends RDFFactory {
 				$eid = $this->getdbURI($db,$id);
 				if(!isset($declared[$eid])) {
 					$declared[$eid] = '';
-					$this->AddRDF($this->QQuadL($eid,"rdfs:label",$label." [$eid]"));
+					$this->AddRDF($this->QQuadL($eid,"rdfs:label",addslashes($label)." [$eid]"));
 					$this->AddRDF($this->QQuad($eid, "void:inDataset", $this->GetDatasetURI()));
-					$this->AddRDF($this->QQuadL($eid, "goa_vocabulary:symbol", $symbol));
+					$this->AddRDF($this->QQuadL($eid, "goa_vocabulary:symbol", addslashes($symbol)));
 					$this->AddRDF($this->QQuad($eid, "goa_vocabulary:taxid", $taxid));	
 					foreach($synonyms as $s){
 						if(!empty($s)){
-							$this->AddRDF($this->QQuadL($eid, "goa_vocabulary:synonym", $s));
+							$this->AddRDF($this->QQuadL($eid, "goa_vocabulary:synonym", addslashes($s)));
 						}
 					}
 				}
@@ -183,9 +183,10 @@ class GOAParser extends RDFFactory {
 				$aid = "goa_resource:".($z++);
 				$this->AddRDF($this->QQuad($eid, "goa_vocabulary:go-annotation", $aid));
 				$this->AddRDF($this->QQuadL($aid, "rdfs:label", "$id-go:$goid association [$aid]"));
-				$this->AddRDF($this->QQuad($aid, "rdf:type", "goa_vocabulary:GO-Association"));
+				$this->AddRDF($this->QQuad($aid, "rdf:type", "goa_vocabulary:GO-Annotation"));
 				$this->AddRDF($this->QQuad($aid,"void:inDataset",$this->GetDatasetURI()));
 
+				$this->AddRDF($this->QQuad($aid, "goa_vocabulary:target", $eid));
 				$this->AddRDF($this->QQuad($aid, "goa_vocabulary:go-term", "go:".$goid));
 				$this->AddRDF($this->QQuadL($aid, "goa_vocabulary:go-category", "$aspect"));
 				$this->AddRDF($this->QQuad($aid, "goa_vocabulary:evidence", "eco:".$eco[$type][1]));
