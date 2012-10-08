@@ -108,7 +108,7 @@ class GOAParser extends RDFFactory {
 			$this->SetWriteFile($ofile, $gz);
 			
 			echo "processing $file ... ";
-			$this->process();
+			$this->process($file);
 			echo "done!";
 
 			//close write file
@@ -136,7 +136,7 @@ class GOAParser extends RDFFactory {
 
 	}
 
-	function process(){
+	function process($file){
 		$z = 1;
 		while($l = $this->GetReadFile()->Read(100000)) {
 			$fields = $this->parse_goa_file_line($l);
@@ -180,7 +180,7 @@ class GOAParser extends RDFFactory {
 				$this->AddRDF($this->QQuad($eid, "goa_vocabulary:".$rel, "go:".$goid));
 
 				$type = key($eco);
-				$aid = "goa_resource:".($z++);
+				$aid = "goa_resource:$file"."_".($z++);
 				$this->AddRDF($this->QQuad($eid, "goa_vocabulary:go-annotation", $aid));
 				$this->AddRDF($this->QQuadL($aid, "rdfs:label", "$id-go:$goid association [$aid]"));
 				$this->AddRDF($this->QQuad($aid, "rdf:type", "goa_vocabulary:GO-Annotation"));
