@@ -347,24 +347,23 @@ class ClinicalTrialsParser extends RDFFactory{
 				$facility = $location->xpath('./facility');
 				$address  = array_shift($location->xpath('//address'));
 				
-				if(($city = array_shift($address->xpath('./city'))) != ""){
+				if(($city = array_shift($address->xpath('./city'))) != null){
 					$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:has_city",$city));
 				}
 
-				if(($state = array_shift($address->xpath('./state'))) != ""){
+				if(($state = array_shift($address->xpath('./state'))) != null){
 					$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:has_state",$state));
 				}
-				if(($zip = array_shift($address->xpath('./zip'))) != ""){
+				if(($zip = array_shift($address->xpath('./zip'))) != null){
 					$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:has_zip",$zip));
 				}
 
-				if(($country = array_shift($address->xpath('./country'))) != "" ){
+				if(($country = array_shift($address->xpath('./country'))) != null ){
 					$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:has_country",$country));
 				}
 
 				$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_location",$location_id));
 				$this->AddRDF($this->QQuadl($location_id,"dc:title",array_shift($location->xpath('//name'))));
-
 				
 			}
 
