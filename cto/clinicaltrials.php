@@ -274,16 +274,18 @@ class ClinicalTrialsParser extends RDFFactory{
 			$time_frame      = array_shift($root->xpath('//primary_outcome/time_frame'));
 			$safety_issue    = array_shift($root->xpath('//primary_outcome/saftey_issue'));			
 
-			try{
-				# create unique hash for the primary_outcome
-				$po_id = "clinicaltrials:".md5($nct_id.$primary_outcome->asXML());
-				$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_primary_outcome",$po_id));
-				$this->AddRDF($this->QQuad($po_id,"rdf:type","clinicaltrials_vocabulary:Primary_Outcome"));					
-				$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_measure",$measure));
-				$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_time_frame",$time_frame));
-				$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_safety_issue",$safety_issue));
-			}catch(Exception $e){
-				echo "There was an error parsing the primary outcome element: $e \n".
+			if($primary_outcome){
+				try{
+					# create unique hash for the primary_outcome
+					$po_id = "clinicaltrials:".md5($nct_id.$primary_outcome->asXML());
+					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_primary_outcome",$po_id));
+					$this->AddRDF($this->QQuad($po_id,"rdf:type","clinicaltrials_vocabulary:Primary_Outcome"));					
+					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_measure",$measure));
+					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_time_frame",$time_frame));
+					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_safety_issue",$safety_issue));
+				}catch(Exception $e){
+					echo "There was an error parsing the primary outcome element: $e \n";
+				}
 			}
 
 			#################################################################################
@@ -304,7 +306,7 @@ class ClinicalTrialsParser extends RDFFactory{
 					$this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:has_safety_issue",$safety_issue));
 				}
 			}catch (Exception $e){
-				"There was an exception parsing the secondary outcomes element: $e\n".
+				"There was an exception parsing the secondary outcomes element: $e\n";
 			}
 			##############################################################################
 			#number of arms
@@ -568,7 +570,7 @@ class ClinicalTrialsParser extends RDFFactory{
 					$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:has_keyword",$keyword));
 				}
 			}catch(Exception $e){
-				echo "There was an error parsing the keywords element: $e"
+				echo "There was an error parsing the keywords element: $e";
 			}
 
 			# mesh terms 
@@ -591,7 +593,7 @@ class ClinicalTrialsParser extends RDFFactory{
 					$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:has_mesh_term",$mesh_term));
 				}
 			}
-			catch{
+			catch(Exception $e){
 				echo "There was an error parsing intervention_browse/mesh_term element: $e\n";
 			}
 
