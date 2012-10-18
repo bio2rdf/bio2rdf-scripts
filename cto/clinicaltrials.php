@@ -242,7 +242,7 @@ class ClinicalTrialsParser extends RDFFactory{
 			# primary completion date
 			###################################################################################
 			$primary_completion_date = array_shift($root->xpath('//primary_completion_date'));
-			if($primary_completion != ""){
+			if($primary_completion_date != ""){
 				$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:has_primary_completion_date",$primary_completion_date));
 			}
 
