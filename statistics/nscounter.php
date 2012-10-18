@@ -29,15 +29,15 @@ SOFTWARE.
 
 // show command line options
 if($argc < 4) {
- echo "Usage: php $argv[0] dataset input-ntriples-file output-directory".PHP_EOL;
+ echo "Usage: php $argv[0] dataset ntriples-file-or-directory output-directory".PHP_EOL;
  exit;
 }
 $d = $argv[1];
 $i = $argv[2];
 $o = $argv[3];
 
-if(!file_exists($i)) {
-	trigger_error("Unable to open $i");
+if(!is_dir($i) && !file_exists($i)) {
+	trigger_error("$i is neither a directory or file");
 	exit;
 }
 if(!@is_dir($o)) {
@@ -47,18 +47,38 @@ if(!@is_dir($o)) {
 
 NSCount($d,$i,$o);
 
-function NSCount($dataset, $inputFileName, $outdir){
-	$pi = pathinfo($inputFileName);
+function NSCount($dataset, $input, $outdir){
+	if(is_dir($input)) {
+		$d = opendir($input);
+		while($f = readdir($d)) {
+			if($f == '.' || $f == '..') continue;
+			if(strstr($f,"statistics")) continue;
+			$files [] = $input.$f;
+		}
+		closedir($d);
+	} else {
+		$files[] = $input;
+	}
+
+
+  $slist = null;
+  foreach($files AS $f) {
+	echo "processing $f".PHP_EOL;
+	$olist = null;
+
+	$pi = pathinfo($f);
 	if($pi["extension"] == "gz"){
-		$fh = gzopen($inputFileName, "r") or die("Could not open file ".$inputFileName);
+		$fh = gzopen($f, "r") or die("Could not open file ".$f);
 	}elseif ($pi["extension"] != "gz" && $pi["extension"] !="zip") {
-		$fh = fopen($inputFileName, "r") or die ("Could not open file ".$inputFileName);
+		$fh = fopen($f, "r") or die ("Could not open file ".$f);
 	}
 	
-	while(($l = fgets($fh, 100000)) !== false){
+	while(($l = fgets($fh, 1000000)) !== false){
 		// get the triple
 		preg_match_all('/\<([^\>]+)\>/',$l,$m);
 		if(count($m) < 2) continue; 
+		if(count($m[1]) <2) continue;
+
 		$s = $m[1][0];
 		$p = $m[1][1];
 		$o = null;
@@ -71,8 +91,8 @@ function NSCount($dataset, $inputFileName, $outdir){
 			preg_match('/http\:\/\/bio2rdf\.org\/([^:]+)/',$s,$m);
 			if(!isset($m[1])) continue; // not a bio2rdf uri
 			else $ns1 = $m[1]; // str_replace(array("_resource","_vocabulary"),"",$m[1]);
-			if(!isset($entity[$s])) {
-				$entity[$s] = true;
+			if(!isset($slist[$s])) {
+				$slist[$s] = '';
 				if(!isset($ns[$ns1])) $ns[$ns1] = 1;
 				else $ns[$ns1] += 1;
 			}
@@ -84,8 +104,8 @@ function NSCount($dataset, $inputFileName, $outdir){
 			if(!isset($m[1])) continue; // not a bio2rdf uri
 			else $ns2 = $m[1];	
 			
-			if(!isset($entity[$o])) {
-				$entity[$o] = true;
+			if(!isset($olist[$o])) {
+				$olist[$o] = '';
 				if(!isset($ns[$ns2])) $ns[$ns2] = 1;
 				else $ns[$ns2] += 1;
 			}
@@ -102,6 +122,7 @@ function NSCount($dataset, $inputFileName, $outdir){
 		}
 	}//while
 	fclose($fh);
+  } //foreach
 
 	ksort($ns);
 	$buf = '';
