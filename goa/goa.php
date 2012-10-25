@@ -1,7 +1,7 @@
 <?php
 
 /**
-Copyright (C) 2012 Alison Callahan, Jose Cruz-Toledo
+Copyright (C) 2012 Alison Callahan, Jose Cruz-Toledo, Michel Dumontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -27,6 +27,7 @@ SOFTWARE.
  * @version 1.0
  * @author Alison Callahan
  * @author Jose Cruz-Toledo
+ * @author Michel Dumontier
 */
 
 require('../../php-lib/rdfapi.php');
@@ -83,8 +84,7 @@ class GOAParser extends RDFFactory {
 
 		foreach($files as $file){
 
-			$lfile = $ldir."gene_association.goa_".$file.".gz";
-
+			$lfile = $ldir."goa_".$file.".gz";
 			if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$this->SetParameterValue('download',true);
@@ -97,9 +97,8 @@ class GOAParser extends RDFFactory {
 				file_put_contents($lfile,file_get_contents($rfile));
 			}
 
-			$ofile = $odir."gene_association.goa_".$file.'.ttl'; 
-			$gz=false;
-			
+			$ofile = $odir."goa_".$file.'.nt'; 
+			$gz=false;	
 			if($this->GetParameterValue('gzip')) {
 				$ofile .= '.gz';
 				$gz = true;
@@ -109,7 +108,7 @@ class GOAParser extends RDFFactory {
 			$this->SetWriteFile($ofile, $gz);
 			
 			echo "processing $file ... ";
-			$this->process();
+			$this->process($file);
 			echo "done!";
 
 			//close write file
@@ -137,64 +136,66 @@ class GOAParser extends RDFFactory {
 
 	}
 
-	function process(){
-		while($l = $this->GetReadFile()->Read(4096)) {
-			$id = 1;
+	function process($file){
+		$z = 1;
+		while($l = $this->GetReadFile()->Read(100000)) {
 			$fields = $this->parse_goa_file_line($l);
 			if($fields != null){
 				//get the Go id
-				$db_id = $fields[0];
-				$db_object_id = $fields[1];
-				$db_object_symbol = $fields[2];
+				$db = $fields[0];
+				$id = $fields[1];
+				$symbol = $fields[2];
 				$qualifier = $fields[3];
-				$go_id = substr($fields[4],3);
-				$db_references = $this->getDbReferences($fields[5]);
-				$evidence_code = $this->getEvidenceCodeLabelArr($fields[6]);
+				$goid = substr($fields[4],3);
+				$refs = $this->getDbReferences($fields[5]);
+				$eco = $this->getEvidenceCodeLabelArr($fields[6]);
 				$aspect = $this->getAspect($fields[8]);
-				$geneProduct = $fields[9];
-				$geneSynonyms = $this->getGeneSynonyms($fields[10]);
+				$label = $fields[9];
+				$synonyms = $this->getGeneSynonyms($fields[10]);
 				$taxid = $fields[12];
 				$date = $this->parseDate($fields[13]);	
 				$assignedBy = $fields[14];
 
-				$entryUri = $this->getdbURI($db_id,$db_object_id);
-				
-				$this->AddRDF($this->QQuad($entryUri, "void:inDataset", $this->GetDatasetURI()));
-				$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:gene_symbol", iconv("UTF-8","UTF-8//IGNORE",str_replace(array("\"", "\\"), array("", "/"), $db_object_symbol))));
-
-				if(!empty($qualifier)){
-					$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:qualifier", iconv("UTF-8","UTF-8//IGNORE",str_replace("\"", "", $qualifier))));
-				}
-
-				$this->AddRDF($this->QQuad($entryUri, "goa_vocabulary:".$aspect, "go:".$go_id));
-
-				foreach($db_references as $aref){
-					$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:source", htmlentities(str_replace("\"", "", $aref))));
-				}
-
-				$type = key($evidence_code);
-				$eid = "goa_resource:".$db_object_id."_".($id++);
-				$this->AddRDF($this->QQuad($entryUri, "goa_vocabulary:geneproduct-go-association", $eid));
-				$this->AddRDF($this->QQuadL($eid, "rdfs:label", "$entryUri-go:$go_id association [$eid]"));
-				$this->AddRDF($this->QQuad($eid, "rdf:type", "goa_vocabulary:GeneProduct-GO-Association"));
-				$this->AddRDF($this->QQuad($eid, "goa_vocabulary:go_term", "go:".$go_id));
-				$this->AddRDF($this->QQuadL($eid, "goa_vocabulary:go_category", "$aspect"));
-				$this->AddRDF($this->QQuad($eid, "goa_vocabulary:evidence", "eco:".$evidence_code[$type][1]));
-				$this->AddRDF($this->QQuad($eid,"void:inDataset",$this->GetDatasetURI()));
-
-				if(!empty($geneProduct)){
-					$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:gene_product", iconv("UTF-8","UTF-8//IGNORE",str_replace(array("\/", "\\", "\""), array(";", "", ""), $geneProduct))));
-				}
-				
-				foreach($geneSynonyms as $aSyn){
-					if(!empty($aSyn)){
-						$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:synonym", htmlentities(str_replace(array("\\", "\""), "", $aSyn))));
+				$eid = $this->getdbURI($db,$id);
+				if(!isset($declared[$eid])) {
+					$declared[$eid] = '';
+					$this->AddRDF($this->QQuadL($eid,"rdfs:label",addslashes($label)." [$eid]"));
+					$this->AddRDF($this->QQuad($eid, "void:inDataset", $this->GetDatasetURI()));
+					$this->AddRDF($this->QQuadL($eid, "goa_vocabulary:symbol", addslashes($symbol)));
+					$this->AddRDF($this->QQuad($eid, "goa_vocabulary:taxid", $taxid));	
+					foreach($synonyms as $s){
+						if(!empty($s)){
+							$this->AddRDF($this->QQuadL($eid, "goa_vocabulary:synonym", addslashes($s)));
+						}
 					}
 				}
-				
-				$this->AddRDF($this->QQuad($entryUri, "goa_vocabulary:taxid", $taxid));	
-				$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:assigned_by", $assignedBy));
-				$this->AddRDF($this->QQuadL($entryUri, "goa_vocabulary:entry_date", $date, null, "xsd:date"));	
+
+				$rel = $aspect;
+				if($qualifier == 'NOT') {
+					if($aspect == 'process') $rel = 'not-in-process';	
+					if($aspect == 'function') $rel = 'not-has-function';
+					if($aspect == 'component') $rel = 'not-in-component';	
+				}
+
+				$this->AddRDF($this->QQuad($eid, "goa_vocabulary:".$rel, "go:".$goid));
+
+				$type = key($eco);
+				$aid = "goa_resource:$file"."_".($z++);
+				$this->AddRDF($this->QQuad($eid, "goa_vocabulary:go-annotation", $aid));
+				$this->AddRDF($this->QQuadL($aid, "rdfs:label", "$id-go:$goid association [$aid]"));
+				$this->AddRDF($this->QQuad($aid, "rdf:type", "goa_vocabulary:GO-Annotation"));
+				$this->AddRDF($this->QQuad($aid,"void:inDataset",$this->GetDatasetURI()));
+
+				$this->AddRDF($this->QQuad($aid, "goa_vocabulary:target", $eid));
+				$this->AddRDF($this->QQuad($aid, "goa_vocabulary:go-term", "go:".$goid));
+				$this->AddRDF($this->QQuadL($aid, "goa_vocabulary:go-category", "$aspect"));
+				$this->AddRDF($this->QQuad($aid, "goa_vocabulary:evidence", "eco:".$eco[$type][1]));
+				$this->AddRDF($this->QQuadL($aid, "goa_vocabulary:assigned-by", $assignedBy));
+				$this->AddRDF($this->QQuadL($aid, "goa_vocabulary:entry-date", $date, null, "xsd:date"));	
+				foreach($refs as $ref){
+					$b = explode(":",$ref);
+					if($b[0] == 'PMID') $this->AddRDF($this->QQuad($aid, "goa_vocabulary:article", "pubmed:".$b[1]));
+				}
 
 				//write RDF to file
 				$this->WriteRDFBufferToWriteFile();

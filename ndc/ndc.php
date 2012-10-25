@@ -158,7 +158,7 @@ class NDCParser extends RDFFactory
 				$type_label = preg_replace("/ \([0-9\-]+\) /","",$c);			
 				
 				// get the identifier preg_match("/ \([0-9\-]+\) /",$c,$type_id);	
-				$type_uri   = "ndc_resource:".md5($type_label);
+				$type_uri   = "ndc_vocabulary:".md5($type_label);
 				if(!isset($types[$type_uri])) {
 					$types[$type_uri] = '';
 					$this->AddRDF($this->QQuadL($type_uri, "rdfs:label", $type_label));
