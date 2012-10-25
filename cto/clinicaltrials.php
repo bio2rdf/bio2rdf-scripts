@@ -22,7 +22,7 @@ SOFTWARE.
 
  @author :: Dana Klasen
  @version :: 0.1
- @description :: The Pubchem database parser
+ @description :: The Clinical Trials Parser database parser
 */
 
 require('../../php-lib/rdfapi.php');
@@ -41,6 +41,7 @@ class ClinicalTrialsParser extends RDFFactory{
 		$this->AddParameter('outdir',false,null,'../../data/clinical_trials/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('remote_server',false,null,'http://clinicaltrials.gov/ct2/crawl');
+
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
@@ -58,6 +59,9 @@ class ClinicalTrialsParser extends RDFFactory{
 		$this->crawl();
 	}
 
+	/**
+	* scape the clinical gov site for the links to invididual records
+	**/
 	function crawl(){
 		$crawl_url = "http://clinicaltrials.gov/ct2/crawl";
 		$html = file_get_contents($crawl_url);
@@ -84,25 +88,29 @@ class ClinicalTrialsParser extends RDFFactory{
 	**/
 	function fetch_record_block($url){
 		$html = file_get_contents($url);
-
 		$dom = new DOMDocument();
 		@$dom->loadHTML($html);
 
 		$xpath = new DOMXPath($dom);
 		$hrefs = $xpath->evaluate("/html/body//a");
 
+		// this is the name of the folder where this block will be placed
+		$block_no = explode('/', rtrim($url, '/'));
+		$curr_block = "nct".$block_no[5];
+
 		for ($i = 0; $i < $hrefs->length; $i++) {
 			$href = $hrefs->item($i);
 			if(preg_match("/ct2\/show\//",$href->getAttribute('href'))){
+
 				$page_uri = "http://clinicaltrials.gov/".$href->getAttribute('href')."?resultsxml=true";
-				$this->fetch_page($page_uri);
+				$this->fetch_page($page_uri,$curr_block);
 			}	
 		}
 	}
 	/**
 	* fetch the individual record page using 
 	**/
-	function fetch_page($url){
+	function fetch_page($url,$curr_block){
 		preg_match("/show\/(NCT[0-9]+)/",$url,$m);
 		$file = $m[1];
 		$outfile = $this->GetParameterValue("indir")."/".$file.".xml";
@@ -112,15 +120,19 @@ class ClinicalTrialsParser extends RDFFactory{
 		file_put_contents($outfile,$xml);
 
 		# convert the file to RDF
-		$this->process_result($outfile);
+		$this->process_result($outfile,$curr_block);
 	}
 	
 	/**
 	* process a results xml file from the download directory
 	**/
-	function process_result($infile){
+	function process_result($infile,$curr_block){
 		$indir = $this->GetParameterValue('indir');
-		$outfile = $this->GetParameterValue("outdir").basename($infile,".xml").".nt";
+
+		$outfile = $this->GetParameterValue("outdir");
+		if($curr_block !=null ){ $outfile .= $curr_block."/"; $this->CreateDirectory($outfile); }
+		$outfile.=basename($infile,".xml").".nt";
+		
 		$gz = false;
 		if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
 		
