@@ -75,16 +75,27 @@ class ClinicalTrialsParser extends RDFFactory{
 			echo "Parsing entries: \n";
 
 			$sub_dir = "0-100";
+			$files = array();
+			$ignore = array("..",'.','.DS_STORE');
+
 			while(($entry = readdir($handle)) !== false){
-				if ($entry == "." || $entry == ".." || $echo == "0") continue;
+				if (in_array($entry, $ignore) || is_dir($entry)) continue;
+				array_push($files, $entry);
+			}
 
-				$record_number = preg_match('/(\d+)\.xml/', $entry);
+			sort($files);
 
-				if( $record_number %100 == 0 ){
-					$sub_dir = $record_number + "-" + ($records_number+100);
+			// go through sorted files
+			foreach($files as $file){
+				echo "$file\n";
+				preg_match('/^NCT[0]+(\d+)\.xml$/', $file,$matches);
+				$record_number = $matches[1];
+				if($record_number % 100 == 0 ){
+					$next = $record_number + 99;
+					$sub_dir = "$record_number-$next" ;
 				}
-				$this->process_result($entry,$sub_dir);
 
+				$this->process_result($file,$sub_dir);
 			}
 
 			echo "Finished\n.";
