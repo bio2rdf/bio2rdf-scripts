@@ -35,8 +35,8 @@ class ClinicalTrialsParser extends RDFFactory{
 		parent::__construct();
 
 		$this->SetDefaultNamespace("clinicaltrials");
-		$this->AddParameter('download',false,'true|false','false','download the files from the clinical open trials website');
-		$this->AddParameter('files',true,'all|study|results','all','files to process');
+		$this->AddParameter('process',true,'crawl|download|local','local','select how to process files from the clinical open trials website');
+		$this->AddParameter('files',false,'all|study|results','all','files to process');
 		$this->AddParameter('indir',false,null,'../../download/clinical_trials/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'../../data/clinical_trials/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
@@ -56,10 +56,10 @@ class ClinicalTrialsParser extends RDFFactory{
 	}
 
 	function run(){
-		switch($this->GetParameterValue('download')) {
-			case true :
+		switch($this->GetParameterValue('process')) {
+			case "crawl" || "download":
 				$this->crawl();
-			case  false :
+			case  "local" :
 				$this->parse_dir();
 		}
 	}
@@ -166,9 +166,11 @@ class ClinicalTrialsParser extends RDFFactory{
 		# save the file
 		file_put_contents($outfile,$xml);
 
-		$sub_dir = $this->get_sub_dir($outfile);
-		# convert the file to RDF
-		$this->process_result($outfile,$sub_dir);
+		// only parse the page if the process was set
+		if($this->GetParameterValue("process") == "crawl"){
+			$sub_dir = $this->get_sub_dir($outfile);
+			$this->process_result($outfile,$sub_dir);
+		}
 	}
 	
 	/**
