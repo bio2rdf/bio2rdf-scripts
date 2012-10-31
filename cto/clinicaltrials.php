@@ -56,9 +56,41 @@ class ClinicalTrialsParser extends RDFFactory{
 	}
 
 	function run(){
-		$this->crawl();
+		switch($this->GetParameterValue('download')) {
+			case true :
+				$this->crawl();
+			case  false :
+				$this->parse_dir();
+		}
 	}
 
+	/**
+	* parse directory of files
+	**/
+	function parse_dir(){
+		$indir = $this->GetParameterValue('indir');
+
+		if( $handle = opendir($indir)) {
+			echo "processing directory $indir: \n";
+			echo "Parsing entries: \n";
+
+			$sub_dir = "0-100";
+			while(($entry = readdir($handle)) !== false){
+				if ($entry == "." || $entry == ".." || $echo == "0") continue;
+
+				$record_number = preg_match('/(\d+)\.xml/', $entry);
+
+				if( $record_number %100 == 0 ){
+					$sub_dir = $record_number + "-" + ($records_number+100);
+				}
+				$this->process_result($entry,$sub_dir);
+
+			}
+
+			echo "Finished\n.";
+			closedir($handle);
+		}
+	}
 	/**
 	* scape the clinical gov site for the links to invididual records
 	**/
@@ -126,7 +158,7 @@ class ClinicalTrialsParser extends RDFFactory{
 	/**
 	* process a results xml file from the download directory
 	**/
-	function process_result($infile,$curr_block){
+	function process_result($infile,$curr_block = null){
 		$indir = $this->GetParameterValue('indir');
 
 		$outfile = $this->GetParameterValue("outdir");
@@ -467,18 +499,18 @@ class ClinicalTrialsParser extends RDFFactory{
 					$facility = $location->xpath('./facility');
 					$address  = array_shift($location->xpath('//address'));
 					
-					if(($city = array_shift($address->xpath('./city'))) != null){
+					if($address && ($city = array_shift($address->xpath('./city'))) != null){
 						$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:has_city",$city));
 					}
 
-					if(($state = array_shift($address->xpath('./state'))) != null){
+					if($address && ($state = array_shift($address->xpath('./state'))) != null){
 						$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:has_state",$state));
 					}
-					if(($zip = array_shift($address->xpath('./zip'))) != null){
+					if($address && ($zip = array_shift($address->xpath('./zip'))) != null){
 						$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:has_zip",$zip));
 					}
 
-					if(($country = array_shift($address->xpath('./country'))) != null ){
+					if( $address && ($country = array_shift($address->xpath('./country'))) != null ){
 						$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:has_country",$country));
 					}
 
