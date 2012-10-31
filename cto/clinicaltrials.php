@@ -78,10 +78,9 @@ class ClinicalTrialsParser extends RDFFactory{
 			
 			while(($entry = readdir($handle)) !== false){
 				if (in_array($entry, $ignore) || is_dir($entry) ) continue;
+			
 				
-				echo "$entry\n";
-				
-				$sub_dir = $this->get_sub_dir();
+				$sub_dir = $this->get_sub_dir($entry);
 				$this->process_result($entry,$sub_dir);
 			}
 
