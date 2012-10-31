@@ -74,33 +74,41 @@ class ClinicalTrialsParser extends RDFFactory{
 			echo "processing directory $indir: \n";
 			echo "Parsing entries: \n";
 
-			$sub_dir = "0-100";
-			$files = array();
-			$ignore = array("..",'.','.DS_STORE');
-
+			$ignore = array("..",'.','.DS_STORE',"0");
+			
 			while(($entry = readdir($handle)) !== false){
-				if (in_array($entry, $ignore) || is_dir($entry)) continue;
-				array_push($files, $entry);
+				if (in_array($entry, $ignore) || is_dir($entry) ) continue;
+				
+				echo "$entry\n";
+				
+				$sub_dir = $this->get_sub_dir();
+				$this->process_result($entry,$sub_dir);
 			}
 
-			sort($files);
-
-			// go through sorted files
-			foreach($files as $file){
-				echo "$file\n";
-				preg_match('/^NCT[0]+(\d+)\.xml$/', $file,$matches);
-				$record_number = $matches[1];
-				if($record_number % 100 == 0 ){
-					$next = $record_number + 99;
-					$sub_dir = "$record_number-$next" ;
-				}
-
-				$this->process_result($file,$sub_dir);
-			}
-
+		
 			echo "Finished\n.";
 			closedir($handle);
 		}
+	}
+
+	/**
+	* generate the proper subdir based on the file name
+	**/
+	function get_sub_dir($entry){
+		$bin_range = 10;
+
+		preg_match('/NCT[0]+(\d+)\.xml$/', $entry,$matches);
+		$record_number = $matches[1];
+		
+		// find last multiple of bin_range
+		$count = -strlen($bin_range);
+		$marker = substr($record_number, $count);
+
+		$curr_bin = substr($marker, 0,1). str_repeat(0,intval(strlen($bin_range))-1);
+
+		$sub_dir = substr($record_number, 0,$count).$curr_bin;
+
+		return $sub_dir;
 	}
 	/**
 	* scape the clinical gov site for the links to invididual records
@@ -137,23 +145,20 @@ class ClinicalTrialsParser extends RDFFactory{
 		$xpath = new DOMXPath($dom);
 		$hrefs = $xpath->evaluate("/html/body//a");
 
-		// this is the name of the folder where this block will be placed
-		$block_no = explode('/', rtrim($url, '/'));
-		$curr_block = "nct".$block_no[5];
-
 		for ($i = 0; $i < $hrefs->length; $i++) {
 			$href = $hrefs->item($i);
 			if(preg_match("/ct2\/show\//",$href->getAttribute('href'))){
 
 				$page_uri = "http://clinicaltrials.gov/".$href->getAttribute('href')."?resultsxml=true";
-				$this->fetch_page($page_uri,$curr_block);
+				$this->fetch_page($page_uri);
 			}	
 		}
 	}
+
 	/**
 	* fetch the individual record page using 
 	**/
-	function fetch_page($url,$curr_block){
+	function fetch_page($url){
 		preg_match("/show\/(NCT[0-9]+)/",$url,$m);
 		$file = $m[1];
 		$outfile = $this->GetParameterValue("indir")."/".$file.".xml";
@@ -162,18 +167,20 @@ class ClinicalTrialsParser extends RDFFactory{
 		# save the file
 		file_put_contents($outfile,$xml);
 
+		$sub_dir = $this->get_sub_dir($outfile);
 		# convert the file to RDF
-		$this->process_result($outfile,$curr_block);
+		$this->process_result($outfile,$sub_dir);
 	}
 	
 	/**
 	* process a results xml file from the download directory
 	**/
-	function process_result($infile,$curr_block = null){
+	function process_result($infile,$curr_block){
 		$indir = $this->GetParameterValue('indir');
 
 		$outfile = $this->GetParameterValue("outdir");
-		if($curr_block !=null ){ $outfile .= $curr_block."/"; $this->CreateDirectory($outfile); }
+		$outfile .= $curr_block."/"; 
+		$this->CreateDirectory($outfile); 
 		$outfile.=basename($infile,".xml").".nt";
 		
 		$gz = false;
