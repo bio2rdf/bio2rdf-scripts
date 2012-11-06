@@ -57,10 +57,16 @@ class ClinicalTrialsParser extends RDFFactory{
 
 	function run(){
 		switch($this->GetParameterValue('process')) {
-			case "crawl" || "download":
+			case "crawl":
 				$this->crawl();
+				break;
+			case "download":
+				$this->crawl();
+				break;
 			case  "local" :
+				echo "parsing local directory:\n";
 				$this->parse_dir();
+				break;
 		}
 	}
 
@@ -78,7 +84,6 @@ class ClinicalTrialsParser extends RDFFactory{
 			
 			while(($entry = readdir($handle)) !== false){
 				if (in_array($entry, $ignore) || is_dir($entry) ) continue;
-			
 				
 				$sub_dir = $this->get_sub_dir($entry);
 				$this->process_result($entry,$sub_dir);
@@ -187,7 +192,6 @@ class ClinicalTrialsParser extends RDFFactory{
 		$gz = false;
 		if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
 		
-		echo $outfile."\n";
 		$this->SetWriteFile($outfile,$gz);
 
 		$xml = new CXML($indir,basename($infile));
@@ -241,7 +245,7 @@ class ClinicalTrialsParser extends RDFFactory{
 				$agency_class = array_shift($lead_sponsor->xpath("//agency_class"));
 				$lead_sponsor_id = "clinicaltrials:".md5($lead_sponsor->asXML());
 				$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_lead_sponsor",$lead_sponsor_id));
-				$this->AddRDF($this->QQuadl($lead_sponsor_id,"dc:title",$agency));
+				$this->AddRDF($this->QQuadl($lead_sponsor_id,"dc:title",$this->SafeLiteral($agency)));
 				$this->AddRDF($this->QQuadl($lead_sponsor_id,"clinicaltrials_vocabulary:has_agency_class",$agency_class));
 			}catch( Exception $e){
 				echo "There was an error in the lead sponsor element: $e\n";
@@ -343,9 +347,9 @@ class ClinicalTrialsParser extends RDFFactory{
 					$po_id = "clinicaltrials:".md5($nct_id.$primary_outcome->asXML());
 					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_primary_outcome",$po_id));
 					$this->AddRDF($this->QQuad($po_id,"rdf:type","clinicaltrials_vocabulary:Primary_Outcome"));					
-					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_measure",$measure));
-					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_time_frame",$time_frame));
-					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_safety_issue",$safety_issue));
+					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_measure",$this->SafeLiteral($measure)));
+					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_time_frame",$this->SafeLiteral($time_frame)));
+					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:has_safety_issue",$this->SafeLiteral($safety_issue)));
 				}catch(Exception $e){
 					echo "There was an error parsing the primary outcome element: $e \n";
 				}
@@ -364,9 +368,9 @@ class ClinicalTrialsParser extends RDFFactory{
 
 					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_secondary_outcome",$so_id));
 					$this->AddRDF($this->QQuad($so_id,"rdf:type","clinicaltrials_vocabulary:Secondary_Outcome"));
-					$this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:has_measure",$measure));
-					$this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:has_time_frame",$time_frame));
-					$this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:has_safety_issue",$safety_issue));
+					$this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:has_measure",$this->SafeLiteral($measure)));
+					$this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:has_time_frame",$this->SafeLiteral($time_frame)));
+					$this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:has_safety_issue",$this->SafeLiteral($safety_issue)));
 				}
 			}catch (Exception $e){
 				"There was an exception parsing the secondary outcomes element: $e\n";
@@ -387,7 +391,7 @@ class ClinicalTrialsParser extends RDFFactory{
 			##############################################################################
 			try{
 				$enrollment = array_shift($root->xpath('//enrollment'));
-				if($enrollment) { $this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:has_enrollment",$enrollment));}
+				if($enrollment) { $this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:has_enrollment",$this->SafeLiteral($enrollment)));}
 			} catch(Exception $e){
 				echo "There was an exception parsing the enrollment element: $e\n";
 			}
@@ -397,7 +401,7 @@ class ClinicalTrialsParser extends RDFFactory{
 			try {
 				$conditions = $root->xpath('//condition');
 				foreach($conditions as $condition){
-					$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:has_condition",$condition));
+					$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:has_condition",$this->SafeLiteral($condition)));
 				}
 			} catch(Exception $e) {
 				echo "There was an exception parsing condition element: $e\n";
@@ -409,15 +413,15 @@ class ClinicalTrialsParser extends RDFFactory{
 			try {
 				$arm_groups = $root->xpath('//arm_group');
 				foreach ($arm_groups as $arm_group) {
-					$arm_group_label = $arm_group->xpath('./arm_group_label');
+					$arm_group_label = array_shift($arm_group->xpath('./arm_group_label'));
 					$arm_group_type = ucfirst(str_replace(" ","_",array_shift($arm_group->xpath('./arm_group_type'))));
 					$description = array_shift($arm_group->xpath('./description'));
 
 					$arm_group_id = "clinicaltrials:".md5($arm_group->asXML());
 					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_arm_group",$arm_group_id));
-					$this->AddRDF($this->QQuadl($arm_group_id,"rdfs:label",$arm_group_label));
+					$this->AddRDF($this->QQuadl($arm_group_id,"rdfs:label",$this->SafeLiteral($arm_group_label)));
 					$this->AddRDF($this->QQuad($arm_group_id,"rdf:type","clinicaltrials_vocabulary:".$arm_group_type));
-					$this->AddRDF($this->QQuadl($arm_group_id,"rdfs:comment",$description));
+					$this->AddRDF($this->QQuadl($arm_group_id,"rdfs:comment",$this->SafeLiteral($description)));
 				}
 			} catch (Exception $e){
 				echo "There was an exception in arm groups: $e\n";
@@ -435,7 +439,7 @@ class ClinicalTrialsParser extends RDFFactory{
 					$intervention_id = "clinicaltrials:".md5($intervention->asXML());
 					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_intervention",$intervention_id));
 					$this->AddRDF($this->QQuad($intervention_id,"rdf:type","clinicaltrials_vocabulary:".$intervention_type));
-					$this->AddRDF($this->QQuadl($intervention_id,"rdfs:label",$intervention_name));
+					$this->AddRDF($this->QQuadl($intervention_id,"rdfs:label",$this->SafeLiteral($intervention_name)));
 
 					$description = array_shift($intervention->xpath('./description'));
 					if($description != ""){
@@ -502,7 +506,7 @@ class ClinicalTrialsParser extends RDFFactory{
 					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_overall_official",$overall_official));
 					$this->AddRDF($this->QQuadl($overall_official,"clinicaltrials_vocabulary:has_last_name",$last_name));
 					$this->AddRDF($this->QQuadl($overall_official,"clinicaltrials_vocabulary:has_role",$role));
-					$this->AddRDF($this->QQuadl($overall_official,"clinicaltrials_vocabulary:has_affiliation",$affiliation));
+					$this->AddRDF($this->QQuadl($overall_official,"clinicaltrials_vocabulary:has_affiliation",$this->SafeLiteral($affiliation)));
 				}
 			}catch (Exception $e){
 				echo "There was an error parsing the overal_official: $e\n";
@@ -568,7 +572,7 @@ class ClinicalTrialsParser extends RDFFactory{
 				foreach($references as $reference){
 					$pmid = "pubmed:".array_shift($reference->xpath('./PMID'));
 					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_reference",$pmid));
-					$this->AddRDF($this->QQuadl($pmid,"rdfs:comment",array_shift($reference->xpath('./citation'))));
+					$this->AddRDF($this->QQuadl($pmid,"rdfs:comment",$this->SafeLiteral(array_shift($reference->xpath('./citation')))));
 					$this->AddRDF($this->QQuad($pmid,"rdf:type","clinicaltrials_vocabulary:Reference"));
 				}
 			} catch(Exception $e){
@@ -583,7 +587,7 @@ class ClinicalTrialsParser extends RDFFactory{
 				foreach($results_references as $result_reference){
 					$pmid = "pubmed:".array_shift($result_reference->xpath('./PMID'));
 					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:has_result_reference",$pmid));
-					$this->AddRDF($this->QQuadl($pmid,"rdfs:comment",array_shift($result_reference->xpath('./citation'))));
+					$this->AddRDF($this->QQuadl($pmid,"rdfs:comment",$this->SafeLiteral(array_shift($result_reference->xpath('./citation')))));
 				}
 			}catch(Exception $e){
 				echo "There was an error parsing results_references element: $e\n";
