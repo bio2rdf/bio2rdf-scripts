@@ -432,6 +432,10 @@ function Download($dir,$include,$exclude)
    $oid = (string) $d->ontologyId;
    $label = (string) $d->displayLabel;
    $abbv = (string) strtolower($d->abbreviation);
+   $filename = (string) $d->filenames->string;
+   if(strstr($filename,".zip")) $zip = true;
+   else $zip = false;
+   
    if(!$abbv) {
 	$a = explode(" ",$label);
 	if(count($a) == 1) $abbv = strtolower($label);
@@ -461,6 +465,8 @@ function Download($dir,$include,$exclude)
 	$suf = "zip";
 	continue;  // we can't manage these yet
    }
+   if($zip) $suf = 'zip';
+   
    
    echo "Downloading $label ($abbv id=$oid) ... ";
    $onto_url = 'http://rest.bioontology.org/bioportal/virtual/download/'.$oid.'?apikey='.$options['ncbo_api_key']['value'];

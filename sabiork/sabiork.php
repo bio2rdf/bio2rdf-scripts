@@ -91,7 +91,7 @@ class SABIORKParser extends RDFFactory
 			if(FALSE === $reaction_ids) {
 				exit;
 			} 
-			$f = new FileFactory($reaction_list_file, true);
+			$f = new FileFactory($reaction_list_file);
 			$f->Write($xml);
 			$f->Close();
 		}
@@ -125,7 +125,8 @@ class SABIORKParser extends RDFFactory
 			$p->SetBuffer($buf)
 				->SetBioPAXVersion(3)
 				->SetBaseNamespace("http://sabio.h-its.org/biopax#")
-				->SetBio2RDFNamespace("http://bio2rdf.org/sabiork:");
+				->SetBio2RDFNamespace("http://bio2rdf.org/sabiork:")
+				->SetDatasetURI($this->GetDatasetURI());
 			$rdf = $p->Parse();
 			
 			$ofile = "sabiork_$rid.owl";
