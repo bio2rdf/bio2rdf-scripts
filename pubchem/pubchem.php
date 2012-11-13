@@ -328,28 +328,28 @@ class PubChemParser extends RDFFactory{
 				case "Putative Target":
 					break;
 				case "Cell Line":
-					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))) };
+					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
 					break;
 				case "ChEMBL Target ID":
-					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment)))};
+					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
 					break;
 				case "Target Type":
-					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment)))};
+					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
 					break;
 				case "Tax ID":
 					 $this->AddRDF($this->QQuad($pid,"pubchembioactivity_vocabulary:has_taxid","taxon:".trim($value))) ;
 					break;
 				case "Confidence":
-					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment)))};
+					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
 					break;
 				case "Relationship Type":
-					if ($comment != nil) {$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment)))};
+					if ($comment != nil) {$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
 					break;
 				case "Multi":
-					if ($comment != nil) {$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment)))};
+					if ($comment != nil) {$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
 					break;
 				case "Complex":
-					if ($comment != nil) {$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment)))};
+					if ($comment != nil) {$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
 					break;
 				default:
 					break;
@@ -387,7 +387,7 @@ class PubChemParser extends RDFFactory{
 			$rtid = $this->result_type_id($tid);
 			$this->AddRDF($this->QQuad($rtid,"rdf:type","pubchembioactivity_vocabulary:AssayResultType"));
 			$this->AddRDF($this->QQuadl($rtid,"dc:identifier",$tid));
-			if($description != "") { $this->AddRDF($this->QQuadl($rtid,"rdfs:comment",$this->SafeLiteral($description)))};
+			if($description != "") { $this->AddRDF($this->QQuadl($rtid,"rdfs:comment",$this->SafeLiteral($description))); }
 			$this->AddRDF($this->QQuadl($rtid,"dc:title",$name));
 			if($unit != null)$this->AddRDF($this->QQuadl($rtid,"pubchembioactivity_vocabulary:has_unit",$unit->attributes()->value));
 		}
@@ -688,7 +688,7 @@ class PubChemParser extends RDFFactory{
 		//comment
 		$comments     = $root->xpath('//PC-Substance_comment/PC-Substance_comment_E');
 		foreach($comments as $comment) {
-			if($comment != ""){ $this->AddRDF($this->QQuadL($psid,"rdfs:comment",$this->SafeLiteral($comment),"en"))};
+			if($comment != ""){ $this->AddRDF($this->QQuadL($psid,"rdfs:comment",$this->SafeLiteral($comment),"en"));}
 		}
 	}
 }
