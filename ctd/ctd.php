@@ -171,6 +171,7 @@ function CTD_chemicals()
 		$this->AddRDF($this->QQuadL($mesh_id,"rdfs:label", "$a[0] [$mesh_id]"));
 		$this->AddRDF($this->QQuad($mesh_id, "rdf:type", "ctd_vocabulary:Chemical"));
 		if($a[2]) $this->AddRDF($this->QQuad($mesh_id,"owl:equivalentClass","cas:$a[2]"));
+		$this->WriteRDFBufferToWriteFile();
 	}
 	return TRUE;
 }
@@ -225,6 +226,8 @@ function CTD_chem_gene_ixns()
 		if($taxon_id) $this->AddRDF($this->QQuad($uri,"ctd_vocabulary:organism","taxon:$taxon_id"));
 		if($pubmed_ids) foreach($pubmed_ids AS $pubmed_id) $this->AddRDF($this->QQuad($uri,"ctd_vocabulary:article","pubmed:$pubmed_id"));
 		if($interaction_action) $this->AddRDF($this->QQuadL($uri,"ctd_vocabulary:action","$interaction_action"));
+		$this->WriteRDFBufferToWriteFile();
+
 	}
 	return TRUE;
 }
@@ -600,6 +603,7 @@ function CTD_chem_go_enriched()
 		elseif($a[3] == "Cellular Component") $rel = "is-located-in";
 
 		$this->AddRDF($this->QQuad("mesh:$a[1]","ctd_vocabulary:$rel","$go_ns:$go_id"));
+		$this->WriteRDFBufferToWriteFile();
 	}	
 	return TRUE;
 }
@@ -630,6 +634,8 @@ function CTD_chem_gene_ixn_types()
 		$this->AddRDF($this->QQuadL($id,"dc:description",$a[2]));
 		if(isset($a[4]))
 			$this->AddRDF($this->QQuad($id,"rdfs:subClassOf","ctd_vocabulary:$a[4]"));
+
+		$this->WriteRDFBufferToWriteFile();
 
 	}	
 	return TRUE;
