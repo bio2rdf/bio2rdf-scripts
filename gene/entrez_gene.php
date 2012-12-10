@@ -542,10 +542,10 @@ class EntrezGeneParser extends RDFFactory{
 				//check for a valid symbol
 				if($symbol != "NEWENTRY"){
 					$this->AddRDF($this->QQuadL($geneid, "rdfs:label", "$description ($symbolid,$taxid) [$geneid]"));
-					$this->AddRDF($this->QQuad($geneid, "rdf:type", "geneid:vocabulary:Gene"));
+					$this->AddRDF($this->QQuad($geneid, "rdf:type", "geneid_vocabulary:Gene"));
 					$this->AddRDF($this->QQuad($geneid,"void:inDataset",$this->GetDatasetURI()));
 					if($type_of_gene != '-') {
-						$this->AddRDF($this->QQuad($geneid, "rdf:type", "geneid:vocabulary:".$type_of_gene."-gene"));
+						$this->AddRDF($this->QQuad($geneid, "rdf:type", "geneid_vocabulary:".$type_of_gene."-gene"));
 					} 
 					//taxid
 					$this->AddRDF($this->QQuad($geneid, "geneid_vocabulary:has_taxid", $taxid ));
