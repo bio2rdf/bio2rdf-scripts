@@ -48,13 +48,58 @@ $endpoints = array(
 /********************/
 /** FUNCTION CALLS **/
 /********************/
-$p = retrieveStatistics($endpoints);
-print_r($p);
+$endpoint_stats = retrieveStatistics($endpoints);
+makeHTML($endpoint_stats);
+
+
 
 
 /***************/
 /** FUNCTIONS **/
 /***************/
+
+function makeHTML($endpoint_stats){
+	//create one html file per endpoint
+	foreach($endpoint_stats as $endpoint => $d){
+		if(count($d) > 2){
+			//create an output file
+			$fo = fopen($endpoint.".html", "w") or die("Could not create file!");
+			if($fo){
+				$html = "<html>";
+				$html .= addHeader($endpoint);
+				$html .= "<h1>".$endpoint."</h1>";
+				$html .= addBasicStatsTable($d['endpoint_url'],$d['triples'],$d['unique_subjects'],$d['unique_predicates'],$d['unique_objects'] );
+				$html .= "</html>";
+				fwrite($fo, $html);
+			}
+			fclose($fo);
+		}
+	}
+}
+
+function addBasicStatsTable($endpoint_url, $numOfTriples, $unique_subjects, $unique_predicates, $unique_objects){
+	$rm ="<table>";
+	$rm .= "<tr><td>Enpoint URL</td><td><a href=\"".$endpoint_url."\">".$endpoint_url."</a></td></tr>";
+	$rm .= "<tr><td>Number of Triples</td><td>".$numOfTriples."</td></tr>";
+	$rm .= "<tr><td>Unique Subject count</td><td>".$unique_subjects."</td></tr>";
+	$rm .= "<tr><td>Unique Predicate count</td><td>".$unique_predicates."</td></tr>";
+	$rm .= "<tr><td>Unique Object count</td><td>".$unique_objects."</td></tr>";
+	$rm .= "</table>";
+	return $rm;
+}
+function addBody($contents){
+	$rm = "<body>".$contents."</body>";
+	return $rm;
+}
+
+function addHeader($aTitle){
+	$rm = "<head>";
+	if(strlen($aTitle)){
+		$rm .= "<title> Endpoint statistics for ".$aTitle."</title>";
+	}
+	return $rm."</head>";
+}
+
 /**
 This function modifies the $endpoint_arr and adds each 
 of the statistics found here https://github.com/bio2rdf/bio2rdf-scripts/wiki/Bio2RDF-Dataset-Metrics
@@ -102,6 +147,7 @@ function retrieveStatistics(&$endpoint_arr){
 	}
 	return $endpoint_arr;
 }
+
 function getSubTypePredObjType($aJSON){
 	$retrunMe = array();
 	$decoded = json_decode($aJSON);
