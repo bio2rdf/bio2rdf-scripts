@@ -170,6 +170,7 @@ function makeHTML($endpoint_stats){
 				$html .= addPredicateLiteralLinks($d['endpoint_url'],$d['predicate_literals']);
 				$html .= addSubjectCountPredicateObjectCount($d['endpoint_url'],$d['subject_count_predicate_object_count']);
 				$html .= addSubjectPredicateUniqueLits($d['endpoint_url'],$d['subject_count_predicate_literal_count']);
+				$html .= q10_print($d['endpoint_url'], $d['graph_uri']);
 				$html .= addSubjectTypePredType($d['endpoint_url'],$d['subject_type_predicate_object_type']);
 				$html .= "</div></body></html>";
 				fwrite($fo, $html);
@@ -262,6 +263,8 @@ function addHeader($aTitle){
 	//add css
 	$rm .= '<link rel="stylesheet" type="text/css" href="http://134.117.53.12/lib/datatables/css/jquery.dataTables.css">';
 	$rm .= '<link rel="stylesheet" type="text/css" href="http://134.117.53.12/lib/datatables/css/stoc.css">';
+	$rm .= '<link rel="stylesheet" type="text/css" href="http://134.117.53.12/lib/datatables/css/code.css">';
+
 	//add some js
 	$rm .= '<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>';
 	$rm .= '<script type="text/javascript"  src="http://134.117.53.12/lib/datatables/js/jquery.stoc.js"></script>';
@@ -563,6 +566,7 @@ function q10($endpoint_url, $graph_url){
 		return false;
 	}
 }
+
 function makeFCTURL($endpointURL, $aURL){
 	//remove sparql and replace with describe
 	$url = str_replace("sparql", "describe", $endpointURL);
