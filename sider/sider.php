@@ -97,7 +97,27 @@ class SIDERParser extends RDFFactory
 			$this->GetWriteFile()->Close();
 			$this->GetReadFile()->Close();
 			echo "done!".PHP_EOL;
+			
+			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$ofile;
 		}
+		
+		// generate the release file
+		// @TODO
+		/*
+		$desc = $this->GetBio2RDFDatasetDescription(
+			$this->GetNamespace(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sider/sider.php", 
+			$bio2rdf_download_files,
+			"http://www.ncbi.nlm.nih.gov/gene",
+			array("use-share-modify"),
+			"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
+			"ftp://ftp.ncbi.nih.gov/gene/",
+			$this->version
+		);
+		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
+		$this->GetWriteFile()->Write($desc);
+		$this->GetWriteFile()->Close();
+		*/
 	}
 
 /*
@@ -130,39 +150,30 @@ class SIDERParser extends RDFFactory
 			$id = "sider:".urlencode(trim($a[6]));
 			
 			$this->AddRDF($this->QQuadL($id,"dc:identifier",trim($a[6])));
+			$this->AddRDF($this->QQuad($id, "void:inDataset", $this->GetDatasetURI()));
+			$this->AddRDF($this->QQuad($id, "rdf:type","sider_vocabulary:Compound"));
+			
 			if(trim($a[0])) {
-				$brand = strtolower(trim($a[0]));
-				$brand_qname = "sider_resource:".md5($brand);
-				$this->AddRDF($this->QQuad($id,"sider_vocabulary:brand-name",$brand_qname));
-				if(!isset($declared[$brand_qname])) {
-					$declared[$brand_qname] = '';
-						$this->AddRDF($this->QQuadL($brand_qname,"rdfs:label",$brand." [$brand_qname]"));
-						$this->AddRDF($this->QQuadL($brand_qname,"dc:title",$brand));
-						$this->AddRDF($this->QQuad($brand_qname,"rdf:type","sider_vocabulary:Brand-Drug"));	
-				}
+				$brand_label = strtolower(trim($a[0]));
+				$brand_qname = "sider_resource:".md5($brand_label);
+				$this->AddRDF($this->XRef($id,"sider_vocabulary:brand-name",$brand_qname, "sider_vocabulary:Brand-Drug",$brand_label));
 			}
 			if(trim($a[1])) {
 				$b = explode(";",strtolower(trim($a[1])));
 				$b = array_unique($b);
 				foreach($b AS $generic_name) {
-					$generic = trim($generic_name);
-					$generic_qname = "sider_resource:".md5($generic);
-					$this->AddRDF($this->QQuad($id,"sider_vocabulary:generic-name",$generic_qname));
-					if(!isset($declared[$generic_qname])) {
-						$declared[$generic_qname] = '';
-						$this->AddRDF($this->QQuadL($generic_qname,"rdfs:label",$generic." [$generic_qname]"));
-						$this->AddRDF($this->QQuadL($generic_qname,"dc:title",$generic));
-						$this->AddRDF($this->QQuad($generic_qname,"rdf:type","sider_vocabulary:Generic-Drug"));
-					}
+					$generic_label = trim($generic_name);
+					$generic_qname = "sider_resource:".md5($generic_label);
+					$this->AddRDF($this->XRef($id,"sider_vocabulary:generic-name",$generic_qname, "sider_vocabulary:Generic-Drug",$generic_label));
 				}
 			}
-			if($a[2]) $this->AddRDF($this->QQuad($id,"sider_vocabulary:mapping-result","sider_vocabulary:".str_replace(" ","-",$a[2])));
-			if($a[3]) $this->AddRDF($this->QQuad($id,"sider_vocabulary:stitch-flat-compound-id","stitch:".$a[3]));
-			if($a[3]) $this->AddRDF($this->QQuad($id,"sider_vocabulary:pubchem-flat-compound-id","pubchemcompound:".$this->GetPCFromFlat($a[3])));
-//			if($a[4]) $this->AddRDF($this->QQuad($id,"sider_vocabulary:stitch-stereo-compound-id","stitch:".abs($a[4])));
-			if($a[4]) $this->AddRDF($this->QQuad($id,"sider_vocabulary:pubchem-stereo-compound-id","pubchemcompound:".$this->GetPCFromStereo($a[4])));
-			if($a[5]) $this->AddRDF($this->QQuadO_URL($id,"sider_vocabulary:pdf-url",str_replace(" ","+",$a[5])));
 			
+			if($a[2]) $this->AddRDF($this->QQuad($id,"sider_vocabulary:mapping-result","sider_vocabulary:".str_replace(" ","-",$a[2])));
+			if($a[3]) $this->AddRDF($this->XRef($id,"sider_vocabulary:stitch-flat-compound-id","stitch:".$a[3]));
+			if($a[3]) $this->AddRDF($this->XRef($id,"sider_vocabulary:pubchem-flat-compound-id","pubchemcompound:".$this->GetPCFromFlat($a[3])));
+//			if($a[4]) $this->AddRDF($this->XRef($id,"sider_vocabulary:stitch-stereo-compound-id","stitch:".abs($a[4])));
+			if($a[4]) $this->AddRDF($this->XRef($id,"sider_vocabulary:pubchem-stereo-compound-id","pubchemcompound:".$this->GetPCFromStereo($a[4])));
+			if($a[5]) $this->AddRDF($this->QQuadO_URL($id,"sider_vocabulary:pdf-url",str_replace(" ","+",$a[5])));
 		}
 		$this->WriteRDFBufferToWriteFile();	
 	}
@@ -191,15 +202,10 @@ class SIDERParser extends RDFFactory
 		while($l = $this->GetReadFile()->Read()) {
 			$a = explode("\t",$l);
 			$id = "sider:".urlencode($a[0]);
-			$label= strtolower(trim($a[2]));
 			$cui = "umls:".$a[1];
-
-			$this->AddRDF($this->QQuad($id,"sider_vocabulary:side-effect",$cui));
-			if(!isset($declared[$label])) {
-				$declared[$label] = '';
-				$this->AddRDF($this->QQuadL($cui,"rdfs:label",$label." [$cui]"));
-				$this->AddRDF($this->QQuadL($cui,"dc:identifier",$cui));
-			}
+			$cui_label= strtolower(trim($a[2]));
+			
+			$this->AddRDF($this->XRef($id,"sider_vocabulary:side-effect",$cui,null,$cui_label));
 		}
 		$this->WriteRDFBufferToWriteFile();	
 	}
@@ -209,15 +215,10 @@ class SIDERParser extends RDFFactory
 		while($l = $this->GetReadFile()->Read()) {
 			$a = explode("\t",$l);
 			$id = "sider:".urlencode($a[0]);
-			$label= strtolower(trim($a[2]));
 			$cui = "umls:".$a[1];
-			
-			$this->AddRDF($this->QQuad($id,"sider_vocabulary:indication",$cui));
-			if(!isset($declared[$label])) {
-				$declared[$label] = '';
-				$this->AddRDF($this->QQuadL($cui,"rdfs:label",$label." [$cui]"));
-				$this->AddRDF($this->QQuadL($cui,"dc:identifier",$cui));
-			}
+			$cui_label = strtolower(trim($a[2]));
+
+			$this->XRef($this->XRef($id,"sider_vocabulary:indication",$cui,null,$cui_label));
 		}
 		$this->WriteRDFBufferToWriteFile();	
 	}
@@ -248,23 +249,31 @@ e.g. from different clinical trials or for different levels of severeness.
 	{
 		$i = 1;
 		while($l = $this->GetReadFile()->Read()) {
-			$a = explode("\t",$l);
+			$a = explode("\t",str_replace("%","",$l));
 			$label_id = "sider:".urlencode($a[2]);
 			$effect_id = "umls:".$a[3];
 			
-			$id = "sider:F".$i++;
-			$this->AddRDF($this->QQuad($id,"rdf:type","sider_vocabulary:Drug-Effect-Frequency"));
+			$id = "sider_resource:F".$i++;
+			$this->AddRDF($this->QQuad($id,"rdf:type","sider_vocabulary:Drug-Effect"));
 			$this->AddRDF($this->QQuad($id,"sider_vocabulary:drug",$label_id));
-			$this->AddRDF($this->QQuad($id,"sider_vocabulary:effect",$effect_id));
-			if($a[5]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:placebo","true"));
-			if($a[6]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:frequency",$a[6]));
-			if($a[7]) $this->AddRDF($this->QuadL($id,"sider_vocabulary:lower-frequency",$a[7]));
+			$this->AddRDF($this->XRef($id,"sider_vocabulary:effect",$effect_id,"sider_vocabulary:Effect",$a[4]));
+			if($a[5]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:placebo","true",null,"xsd:boolean"));
+			if($a[6]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:frequency",$a[6],null,"xsd:float"));
+			if($a[7]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:lower-frequency",$a[7]));
 			if($a[8]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:upper-frequency",$a[8]));
+
 			
-/*			if($a[9]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:meddra-concept-level",$a[9]));
-			if($a[10]) $this->AddRDF($this->QQuad($id,"sider_vocabulary:meddra-concept-id","umls:".$a[10]));
-			if(trim($a[11])) $this->AddRDF($this->QQuadL("umls:".$a[10],"rdfs:label",strtolower(trim($a[11]))));
-*/
+			
+			if($a[10]) {
+				$meddra_id = "umls:$a[10]";
+				$label = null;
+				if(trim($a[11])) $label = strtolower(trim($a[11]));
+				$this->AddRDF($this->XRef($id,"sider_vocabulary:meddra-effect",$meddra_id,"sider_vocabulary:Effect",$label));
+				if($a[9]) $this->AddRDF($this->QQuadL($meddra_id,"sider_vocabulary:meddra-concept-level",$a[9]));
+			}
+print_r($a);
+echo $this->GetRDF(); 
+
 			$this->WriteRDFBufferToWriteFile();	
 		}
 		
@@ -285,6 +294,8 @@ meddra_adverse_effects.tsv.gz
 All side effects found on the labels are given as LLT. Additionally, the PT is shown. There is at least one
 PT for every side effect, but sometimes the PT is the same as the LLT. 
 */
+
+// @TODO
 	function meddra_adverse_effects()
 	{
 /*
