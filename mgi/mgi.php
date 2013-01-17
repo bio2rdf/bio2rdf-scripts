@@ -115,11 +115,18 @@ class MGIParser extends RDFFactory
 	*/
 	function MGI_PhenotypicAllele($qtl = false)
 	{
+		$line = 0;
 		while($l = $this->GetReadFile()->Read(50000)) {
 			$a = explode("\t",$l);
+			$line++;
+			
 			$id = strtolower($a[0]);
 			if($a[0][0] == "#") continue;
-			//print_r($a);
+			
+			if(count($a) != 11) {
+				echo "skipping badly formed line $line++".PHP_EOL;
+				continue;
+			}
 			
 			$this->AddRDF($this->QQuadL($id,"dc:identifier",$a[0]));
 			$this->AddRDF($this->QQuad($id,"rdf:type","mgi_vocabulary:allele"));
@@ -175,7 +182,7 @@ class MGIParser extends RDFFactory
 		*/
 		while($l = $this->GetReadFile()->Read(50000)) {
 			$a = explode("\t",$l);
-
+			
 			$id = "hgnc:".$a[4];
 			
 			$this->AddRDF($this->QQuadL($id,"dc:identifier",$id));
