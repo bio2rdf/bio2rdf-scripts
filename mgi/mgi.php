@@ -182,7 +182,7 @@ class MGIParser extends RDFFactory
 			$this->AddRDF($this->QQuad($id,"rdf:type","hgnc:gene-map"));
 			
 			$this->AddRDF($this->QQuad($id,"hgnc_vocabulary:mouse-marker",strtolower($a[0])));
-			$this->AddRDF($this->QQuad($id,"hgnc_vocabulary:mouse-ncgigene-id",$a[0])));
+			$this->AddRDF($this->QQuad($id,"hgnc_vocabulary:mouse-ncgigene-id",$a[0]));
 			
 			if(trim($a[2])) {
 				$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:allele-name",trim($a[2])));
