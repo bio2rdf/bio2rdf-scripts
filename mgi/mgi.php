@@ -37,7 +37,7 @@ class MGIParser extends RDFFactory
 		$this->SetDefaultNamespace("sider");
 		
 		// set and print application parameters
-		$this->AddParameter('files',true,'all|MGI_PhenotypicAllele|HMD_HGNC_Accession','all','all or comma-separated list to process');
+		$this->AddParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|HMD_HGNC_Accession','all','all or comma-separated list to process');
 		$this->AddParameter('indir',false,null,'/data/download/mgi/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/mgi/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
@@ -214,6 +214,30 @@ class MGIParser extends RDFFactory
 		$this->WriteRDFBufferToWriteFile();	
 	}
 	
+	function MGI_Strain()
+	{
+		$line = 0;
+		$errors = 0;
+		while($l = $this->GetReadFile()->Read(50000)) {
+			$a = explode("\t",trim($l));
+			$line ++;
+			if(count($a) != 3) {
+				echo "Expecting 3 columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
+				if($error++ == 10) {echo "found 10 errors. quiting!"; return;}
+				continue;
+			}
+			$id = strtolower($a[0]);
+			$this->AddRDF($this->QQuadL($id,"rdfs:label",$a[1]." [$id]"));
+			$this->AddRDF($this->QQuadL($id,"dc:identifier",$id));
+			$this->AddRDF($this->QQuadL($id,"dc:source","mgi"));
+			$this->AddRDF($this->QQuad($id,"rdf:type","mgi_vocabulary:Strain"));
+			$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:strain-name",$a[1]));
+			$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:strain-type",$a[2]));
+		}
+		
+		$this->WriteRDFBufferToWriteFile();	
+	
+	}
 }
 
 set_error_handler('error_handler');
