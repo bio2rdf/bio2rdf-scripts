@@ -37,7 +37,7 @@ class MGIParser extends RDFFactory
 		$this->SetDefaultNamespace("sider");
 		
 		// set and print application parameters
-		$this->AddParameter('files',true,'all|MGI_PhenotypicAllele','all','all or comma-separated list to process');
+		$this->AddParameter('files',true,'all|MGI_PhenotypicAllele|HMD_HGNC_Accession','all','all or comma-separated list to process');
 		$this->AddParameter('indir',false,null,'/data/download/mgi/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/mgi/','directory to place rdfized files');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
@@ -92,11 +92,15 @@ class MGIParser extends RDFFactory
 			}
 			$this->SetReadFile($lfile,true);
 			
+			echo "Processing $item...";
 			$ofile = $odir."mgi-".$item.'.rdf.gz';
 			$this->SetWriteFile($ofile,true);
+			
 			$this->$item();
+			
 			$this->GetWriteFile()->Close();
 			$this->GetReadFile()->Close();
+			echo "Done".PHP_EOL;
 		}
 	}
 	
@@ -146,7 +150,7 @@ class MGIParser extends RDFFactory
 			if(trim($a[5])) {
 				$marker_id = strtolower($a[5]);
 				$this->AddRDF($this->QQuad($id,"mgi_vocabulary:marker",$marker_id));
-				$this->AddRDF($this->QQuad($marker_id,"rdf:type","mgi_vocabulary:marker"));
+				$this->AddRDF($this->QQuad($marker_id,"rdf:type","mgi_vocabulary:Mouse-Marker"));
 		
 				if(trim($a[6])) {
 					$this->AddRDF($this->QQuadL($marker_id,"mgi_vocabulary:marker-symbol",strtolower($a[6])));
@@ -179,49 +183,33 @@ class MGIParser extends RDFFactory
 		HGNC ID	
 		HGNC Human Marker Symbol	
 		Human Entrez Gene ID
-		*/
+		*/	
+		$line = 0;
 		while($l = $this->GetReadFile()->Read(50000)) {
 			$a = explode("\t",$l);
+			$line ++;
+			if(count($a) != 7) {
+				echo "incorrect number of columns at line $line!".PHP_EOL;
+				continue;
+			}
 			
-			$id = "hgnc:".$a[4];
+			$id = "mgi_resource:".$line;
+			$mgi_id  = strtolower($a[0]);
+			$ncbigene_id = "geneid:".trim($a[6]);
 			
 			$this->AddRDF($this->QQuadL($id,"dc:identifier",$id));
-			$this->AddRDF($this->QQuad($id,"rdf:type","hgnc:gene-map"));
+			$this->AddRDF($this->QQuad($id,"rdf:type","mgi_vocabulary:Orthologous-Relationship"));
 			
-			$this->AddRDF($this->QQuad($id,"hgnc_vocabulary:mouse-marker",strtolower($a[0])));
-			$this->AddRDF($this->QQuad($id,"hgnc_vocabulary:mouse-ncgigene-id",$a[0]));
+			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-mgi",$mgi_id));
+			$this->AddRDF($this->QQuad($mgi_id, "rdf:type", "mgi_vocabulary:Resource"));
+			$this->AddRDF($this->QQuadL($mgi_id, "dc:identifier", $mgi_id));
+			$this->AddRDF($this->QQuadL($mgi_id, "dc:source", "mgi"));			
 			
-			if(trim($a[2])) {
-				$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:allele-name",trim($a[2])));
-			}
-			if(trim($a[3])) {
-				$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:allele-type",trim($a[3])));
-			}
-			if(trim($a[4])) {
-				$this->AddRDF($this->QQuad($id,"mgi_vocabulary:pubmed-id","pubmed:".$a[4]));
-			}
-			if(trim($a[5])) {
-				$marker_id = strtolower($a[5]);
-				$this->AddRDF($this->QQuad($id,"mgi_vocabulary:marker",$marker_id));
-				$this->AddRDF($this->QQuad($marker_id,"rdf:type","mgi_vocabulary:marker"));
-		
-				if(trim($a[6])) {
-					$this->AddRDF($this->QQuadL($marker_id,"mgi_vocabulary:marker-symbol",strtolower($a[6])));
-				}
-				if(trim($a[7])) {
-					$this->AddRDF($this->QQuad($marker_id,"mgi_vocabulary:refseq","refseq:".$a[7]));
-				}		
-				if(trim($a[8])) {
-					$this->AddRDF($this->QQuad($marker_id,"mgi_vocabulary:ensembl","ensembl:".$a[8]));
-				}
-			}
-
-			if(trim($a[9])) {
-				$b = explode(",",$a[9]);
-				foreach($b AS $mp) {
-					$this->AddRDF($this->QQuadO_URL($id,"mgi_vocabulary:phenotype",str_replace("MP:","http://purl.obolibrary.org/obo/MP_",$mp)));
-				}
-			}
+			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-ncbigene",$ncbigene_id));
+			$this->AddRDF($this->QQuad($ncbigene_id, "rdf:type", "hgnc_vocabulary:Resource"));
+			$this->AddRDF($this->QQuadL($ncbigene_id, "dc:identifier", $ncbigene_id));
+			$this->AddRDF($this->QQuadL($ncbigene_id, "dc:source", "ncbigene"));	
+			if($a[4]) $this->AddRDF($this->QQuad($ncbigene_id, "mgi_vocabulary:x-hgnc", strtolower($a[4])));	
 		}
 		$this->WriteRDFBufferToWriteFile();	
 	}
