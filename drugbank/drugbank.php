@@ -123,18 +123,20 @@ class DrugBankParser extends RDFFactory
 		$xml = new CXML($ldir,$infile);
 		while($xml->Parse("partner") == TRUE) {
 			$this->ParsePartnerEntry($xml);
+			$this->WriteRDFBufferToWriteFile();
+
 			//if($i++ == 10) break;
 		}
 		unset($xml);
-		$this->WriteRDFBufferToWriteFile();
 		
 		$xml = new CXML($ldir,$infile);
 		while($xml->Parse("drug") == TRUE) {
 			$this->ParseDrugEntry($xml);
+			$this->WriteRDFBufferToWriteFile();
+
 			//if($i++ == 10) break;
 		}
 		unset($xml);
-		$this->WriteRDFBufferToWriteFile();
 	}
 	
 	function ParsePartnerEntry(&$xml)
