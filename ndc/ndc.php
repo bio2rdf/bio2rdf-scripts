@@ -92,6 +92,12 @@ class NDCParser extends RDFFactory
 		// now go through each item in the zip file and process
 		foreach($files AS $file) {
 			echo "Processing $file ...";
+
+			// the file name in the zip archive is Product not product
+			if($file == "product"){
+				$file = ucfirst($file);
+			}
+
 			$fpin = $zin->getStream($file.".txt");
 			if(!$fpin) {
 				trigger_error("Unable to get pointer to $file in $zinfile");
