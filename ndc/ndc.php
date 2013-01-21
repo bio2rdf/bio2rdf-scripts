@@ -172,6 +172,7 @@ class NDCParser extends RDFFactory
 				}
 				if($i == 0) $this->AddRDF($this->QQuad($ndc_package, "rdf:type", $type_uri));
 				else $this->AddRDF($this->QQuad($ndc_package, "ndc_vocabulary:has-part", $type_uri));
+				 $this->WriteRDFBufferToWriteFile();
 			}
 		}
 	}
@@ -323,7 +324,7 @@ class NDCParser extends RDFFactory
 				}
 			}	
 			$this->AddRDF($this->QQuadL($ndc_product, "rdfs:label", $label." [$ndc_product]"));
-			
+			 $this->WriteRDFBufferToWriteFile();
 			//echo $this->GetRDF();exit;
 		}
 	}
