@@ -22,127 +22,48 @@ SOFTWARE.
 */
 
 /**
-This script generates an HTML page summarizing the details for all Bio2RDF endpoints
+This script generates an HTML page summarizing the details for all Bio2RDF endpoints.
+It reads in an instances.tab file as used by our servers
 **/
 
-$endpoints = array(
-	"affymetrix" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16002/sparql",
-		"graph_uri" => "",
-		),
-	"atlas" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16052/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-atlas-statistics",
-		),
-	"biomodels" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16041/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-biomodels-statistics",
-		),
-	"bioportal" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16017/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-bioportal-statistics",
-		),
-	"ctd" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16004/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-ctd-statistics",
-		),
-	"drugbank" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16006/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-drugbank-statistics",
-		),
-	"gene" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16007/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-gene-statistics",
-		),
-	"genbank" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16008/sparql",
-		"graph_uri" => "",
-		),
-	"goa" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16009/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-goa-statistics",
-		),
-	"hgnc" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16011/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-hgnc-statistics",
-		),
-	"hhpid" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16034/sparql",
-		"graph_uri" => "",
-		),
-	"homologene" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16012/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-homologene-statistics",
-		),
-	"interpro" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16032/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-interpro-statistics",
-		),
-	"iproclass" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16014/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-iproclass-statistics",
-		),
-	"irefindex" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16015/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-irefindex-statistics",
-		),
-	"kegg" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16036/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-kegg-statistics",
-		),
-	"mesh" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16016/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-mesh-statistics",
-		),
-	"mgi" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16035/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-mgi-statistics",
-		),
-	"ndc" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16018/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-ndc-statistics",
-		),
-	"omim" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16019/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-omim-statistics",
-		),
-	"pharmgkb" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16021/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-pharmgkb-statistics",
-		),
-	"pubmed" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16023/sparql",
-		"graph_uri" => "",
-		),
-	"refseq" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16024/sparql",
-		"graph_uri" => "",
-		),
-	"sabiork" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16042/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-sabiork-statistics",
-		),
-	"sgd" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16026/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-sgd-statistics",
-		),
-	"taxonomy" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16027/sparql",
-		"graph_uri" => "http://bio2rdf.org/bio2rdf-taxonomy-statistics",
-		),
-	"toxkb" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16028/sparql",
-		"graph_uri" => "",
-		),
-	"uniprot" => array(
-		"endpoint_url" => "http://s4.semanticscience.org:16030/sparql",
-		"graph_uri" => "",
-		),
-	);
+$options = array(
+	"instances_file" => "instances/file/path/",
+);
+
+// show command line options
+if($argc == 1) {
+	echo "Usage: php $argv[0] ";
+	foreach($options AS $key => $value) {
+  		echo "$key=$value ".PHP_EOL;
+ 	}
+}
+
+// set options from user input
+foreach($argv AS $i => $arg) {
+	if($i==0){
+		continue;
+	} 
+ 	$b = explode("=",$arg);
+ 	if(isset($options[$b[0]])){
+ 		$options[$b[0]] = $b[1];
+ 	} else {
+ 		echo "Uknown option: $b[0]";
+ 		exit;
+ 	}//else
+}//foreach
+
+if($options['instances_file'] == 'instances/file/path/'){
+	echo "** Please specify a valid instances file **".PHP_EOL;
+	exit;
+}
+
 
 /********************/
 /** FUNCTION CALLS **/
 /********************/
+
+$endpoints =  makeEndpoints($options['instances_file']);
+
 $endpoint_stats = retrieveStatistics($endpoints);
 makeHTML($endpoint_stats);
 
@@ -152,6 +73,44 @@ makeHTML($endpoint_stats);
 /***************/
 /** FUNCTIONS **/
 /***************/
+function makeEndpoints ($aFileName){
+	//return an array with the endpoint information
+	$returnMe = array();
+	$fh = fopen($aFileName, "r") or die("Could not open file: ".$aFileName."!\n");
+	if($fh){
+		while(($aLine =  fgets($fh, 4096)) !== false){
+			if(!(preg_match('/^\s*#.*$/',$aLine))){
+				$al = trim($aLine);
+				if(strlen($al)){
+					$tal = explode("\t", $al);
+					$info = array();
+					if(isset($tal[0])){
+						$info['isql_port'] = $tal[0];
+					}
+					if(isset($tal[1])){
+						$info['http_port'] = $tal[1];
+					}
+					if(isset($tal[2])){
+						$info['ns'] = $tal[2];
+					}
+					if(strlen($info['http_port']) && strlen($info['ns']) && strlen($info['isql_port'])){
+						$returnMe[$info['ns']] = array(
+							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org:".$info['http_port']."/sparql",
+							'graph_uri' => "http://bio2rdf.org/bio2rdf-".$info['ns']."-statistics",
+							'isql_port' => $info['isql_port'],
+							);
+					}
+				}else{
+					continue;
+				}
+			}
+		}
+		fclose($fh);
+	}
+	return $returnMe;
+
+}
+
 
 function makeHTML($endpoint_stats){
 	//create one html file per endpoint
@@ -170,7 +129,7 @@ function makeHTML($endpoint_stats){
 				$html .= addPredicateLiteralLinks($d['endpoint_url'],$d['predicate_literals']);
 				$html .= addSubjectCountPredicateObjectCount($d['endpoint_url'],$d['subject_count_predicate_object_count']);
 				$html .= addSubjectPredicateUniqueLits($d['endpoint_url'],$d['subject_count_predicate_literal_count']);
-				$html .= q10_print($d['endpoint_url'], $d['graph_uri']);
+				//$html .= q10_print($d['endpoint_url'], $d['graph_uri']);
 				$html .= addSubjectTypePredType($d['endpoint_url'],$d['subject_type_predicate_object_type']);
 				$html .= "</div></body></html>";
 				fwrite($fo, $html);
@@ -342,116 +301,142 @@ function retrieveStatistics(&$endpoint_arr){
 function getSubTypePredObjType($aJSON){
 	$returnMe = array();
 	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	foreach($results_raw->bindings as $ab){
-		$aP = $ab->aPred->value;
-		$oCount = $ab->objCount->value;
-		$objType = $ab->objType->value;
-		$subCount = $ab->subjectCount->value;
-		$subType = $ab->subjectType->value;
-		$returnMe[$aP]["object_type"] = $objType;
-		$returnMe[$aP]["object_count"] = $oCount;
-		$returnMe[$aP]["subject_type"] = $subType;
-		$returnMe[$aP]["subject_count"] = $subCount;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		foreach($results_raw->bindings as $ab){
+			$aP = $ab->aPred->value;
+			$oCount = $ab->objCount->value;
+			$objType = $ab->objType->value;
+			$subCount = $ab->subjectCount->value;
+			$subType = $ab->subjectType->value;
+			$returnMe[$aP]["object_type"] = $objType;
+			$returnMe[$aP]["object_count"] = $oCount;
+			$returnMe[$aP]["subject_type"] = $subType;
+			$returnMe[$aP]["subject_count"] = $subCount;
+		}
 	}
 	return $returnMe;
 }
 function getSubPredLitLinks($aJSON){
 	$returnMe = array();
 	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	foreach($results_raw->bindings as $ab){
-		$aP = $ab->p->value;
-		$sC = $ab->sc->value;
-		$lC = $ab->lc->value;
-		$returnMe[$aP]["subject_count"] = $sC;
-		$returnMe[$aP]["literal_count"] = $lC;
+
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		foreach($results_raw->bindings as $ab){
+			$aP = $ab->p->value;
+			$sC = $ab->sc->value;
+			$lC = $ab->lc->value;
+			$returnMe[$aP]["subject_count"] = $sC;
+			$returnMe[$aP]["literal_count"] = $lC;
+		}
 	}
 	return $returnMe;
 }
 function getSubPredObjLinks($aJSON){
 	$returnMe = array();
 	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	foreach($results_raw->bindings as $ab){
-		$aP = $ab->aP->value;
-		$oC = $ab->oC->value;
-		$sC = $ab->sC->value;
-		$returnMe[$aP]["object_count"] = $oC;
-		$returnMe[$aP]["subject_count"] = $sC;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		foreach($results_raw->bindings as $ab){
+			$aP = $ab->aP->value;
+			$oC = $ab->oC->value;
+			$sC = $ab->sC->value;
+			$returnMe[$aP]["object_count"] = $oC;
+			$returnMe[$aP]["subject_count"] = $sC;
+		}
 	}
 	return $returnMe;
 }
 function getPredLitLinks($aJSON){
 	$returnMe = array();
 	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	foreach($results_raw->bindings as $ab){
-		$aP = $ab->aP->value;
-		$count = $ab->aC->value;
-		$returnMe[$aP] = $count;
+
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		foreach($results_raw->bindings as $ab){
+			$aP = $ab->aP->value;
+			$count = $ab->aC->value;
+			$returnMe[$aP] = $count;
+		}
 	}
 	return $returnMe;
 }
 function getPredObjFreq($aJSON){
 	$returnMe = array();
 	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	foreach($results_raw->bindings as $ab){
-		$aP = $ab->aP->value;
-		$count = $ab->aC->value;
-		$returnMe[$aP] = $count;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		foreach($results_raw->bindings as $ab){
+			$aP = $ab->aP->value;
+			$count = $ab->aC->value;
+			$returnMe[$aP] = $count;
+		}
 	}
 	return $returnMe;
 }
 function getNumOfTypes($aJSON){
 	$returnMe = array();
 	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	foreach($results_raw->bindings as $ab){
-		$aT = $ab->at->value;
-		$count = $ab->tc->value;
-		$returnMe[$aT] = $count;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		foreach($results_raw->bindings as $ab){
+			$aT = $ab->at->value;
+			$count = $ab->tc->value;
+			$returnMe[$aT] = $count;
+		}
 	}
 	return $returnMe;
 }
 function getNumOfObjects($aJSON){
 	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	if(isset($results_raw->bindings[0])){
-		$count = $results_raw->bindings[0]->oc->value;
-	}else{
-		$count = -1;
+	$count = -1;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		if(isset($results_raw->bindings[0])){
+			$count = $results_raw->bindings[0]->oc->value;
+		}else{
+			$count = -1;
+		}
 	}
 	return $count;
 }
 function getNumOfPredicates($aJSON){
 	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	if(isset($results_raw->bindings[0])){
-		$count = $results_raw->bindings[0]->pc->value;
-	}else{
-		$count = -1;
+	$count = -1;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		if(isset($results_raw->bindings[0])){
+			$count = $results_raw->bindings[0]->pc->value;
+		}else{
+			$count = -1;
+		}
 	}
 	return $count;
 }
 function getNumOfSubjects($aJSON){
-	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	if(isset($results_raw->bindings[0])){
-		$count = $results_raw->bindings[0]->sc->value;
-	}else{
-		$count = -1;
+	$decoded = json_decode($aJSON);	
+	$count = -1;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		if(isset($results_raw->bindings[0])){
+			$count = $results_raw->bindings[0]->sc->value;
+		}else{
+			$count = -1;
+		}
 	}
 	return $count;
 }
 function getNumOfTriples($aJSON){
 	$decoded = json_decode($aJSON);
-	$results_raw = $decoded->results;
-	if(isset($results_raw->bindings[0])){
-		$count = $results_raw->bindings[0]->tc->value;
-	}else{
-		$count = -1;
+	$count = -1;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		if(isset($results_raw->bindings[0])){
+			$count = $results_raw->bindings[0]->tc->value;
+		}else{
+			$count = -1;
+		}
 	}
 	return $count;
 }
