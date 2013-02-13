@@ -167,7 +167,7 @@ class DrugBankParser extends RDFFactory
 					}
 				} else if($v != '') {
 					// default
-					$this->AddRDF($this->QQuadText($pid,"drugbank_vocabulary:$k",addslashes($v)));
+					$this->AddRDF($this->QQuadl($pid,"drugbank_vocabulary:$k",$this->SafeLiteral(addslashes($v))));
 				}
 				
 			} else {
