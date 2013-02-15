@@ -1,6 +1,6 @@
 Bio2RDF-scripts
 ===============
-This Git repository holds all of the RDF converter scripts used to generate Bio2RDF linked data.
+ This Git repository holds all of the RDF converter scripts used to generate Bio2RDF linked data.
 
 Requirements
 -------------
