@@ -362,7 +362,7 @@ class DrugBankParser extends RDFFactory
 		}
 		// biotransformation
 		if(isset($x->biotransformation) && $x->biotransformation != '') {
-			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:biotransformation",$x->biotransformation));
+			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:biotransformation",$this->SafeLiteral($x->biotransformation)));
 		}
 		// absorption
 		if(isset($x->absorption) && $x->absorption != '') {
