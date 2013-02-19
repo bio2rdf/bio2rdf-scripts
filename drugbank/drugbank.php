@@ -350,7 +350,7 @@ class DrugBankParser extends RDFFactory
 		
 		//pharmacology
 		if(isset($x->pharmacology) && $x->pharmacology != '') {
-			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:pharmacology",$x->pharmacology));
+			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:pharmacology",$this->SafeLiteral($x->pharmacology)));
 		}
 		//mechanism-of-action
 		if(isset($x->{"mechanism-of-action"})  && $x->{'mechanism-of-action'} != '') {
@@ -366,27 +366,27 @@ class DrugBankParser extends RDFFactory
 		}
 		// absorption
 		if(isset($x->absorption) && $x->absorption != '') {
-			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:absorption",$x->absorption));
+			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:absorption",$this->SafeLiteral($x->absorption)));
 		}		
 		// half-life
 		if(isset($x->{"half-life"}) && $x->{"half-life"} != '') {
-			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:half-life",$x->{"half-life"}));
+			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:half-life",$this->SafeLiteral($x->{"half-life"})));
 		}		
 		// protein-binding
 		if(isset($x->{"protein-binding"}) && $x->{"protein-binding"} != '') {
-			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:protein-binding",$x->{"protein-binding"}));
+			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:protein-binding",$this->SafeLiteral($x->{"protein-binding"})));
 		}		
 		// route-of-elimination		
  		if(isset($x->{"route-of-elimination"}) && $x->{"route-of-elimination"} != '') {
-			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:route-of-elimination",$x->{"route-of-elimination"}));
+			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:route-of-elimination",$this->SafeLiteral($x->{"route-of-elimination"})));
 		}
 		// volume-of-distribution	
  		if(isset($x->{"volume-of-distribution"}) && $x->{"volume-of-distribution"} != '') {
-			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:volume-of-distribution",$x->{"volume-of-distribution"}));
+			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:volume-of-distribution",$this->SafeLiteral($x->{"volume-of-distribution"})));
 		}	
 		// clearance
 		if(isset($x->clearance) && $x->clearance != '') {
-			$this->AddRDF($this->QuadL($did,"drugbank_vocabulary:clearance",$x->clearance));
+			$this->AddRDF($this->QuadL($did,"drugbank_vocabulary:clearance",$this->SafeLiteral($x->clearance)));
 		}	
 		    		
 		// experimental-properties
