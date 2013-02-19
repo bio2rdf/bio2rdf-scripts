@@ -91,7 +91,7 @@ class SIDERParser extends RDFFactory
 			}
 			echo "processing $file";
 			$this->SetReadFile($lfile,true);			
-			$ofile = $odir."sider-".$file.'.rdf.gz';
+			$ofile = $odir."sider-".$file.'.nt.gz';
 			$this->SetWriteFile($ofile,true);
 			$this->$file();
 			$this->GetWriteFile()->Close();
@@ -261,8 +261,6 @@ e.g. from different clinical trials or for different levels of severeness.
 			if($a[6]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:frequency",$a[6],null,"xsd:float"));
 			if($a[7]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:lower-frequency",$a[7]));
 			if($a[8]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:upper-frequency",$a[8]));
-
-			
 			
 			if($a[10]) {
 				$meddra_id = "umls:$a[10]";
@@ -271,9 +269,6 @@ e.g. from different clinical trials or for different levels of severeness.
 				$this->AddRDF($this->XRef($id,"sider_vocabulary:meddra-effect",$meddra_id,"sider_vocabulary:Effect",$label));
 				if($a[9]) $this->AddRDF($this->QQuadL($meddra_id,"sider_vocabulary:meddra-concept-level",$a[9]));
 			}
-print_r($a);
-echo $this->GetRDF(); 
-
 			$this->WriteRDFBufferToWriteFile();	
 		}
 		
