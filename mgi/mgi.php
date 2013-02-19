@@ -133,7 +133,7 @@ class MGIParser extends RDFFactory
 			}
 			
 			$this->AddRDF($this->QQuadL($id,"dc:identifier",$a[0]));
-			$this->AddRDF($this->QQuad($id,"rdf:type","mgi_vocabulary:allele"));
+			$this->AddRDF($this->QQuad($id,"rdf:type","mgi_vocabulary:Allele"));
 			//$this->AddRDF($this->QQuadL($id,"rdfs:label",$a[2]." [$id]"));
 			if(trim($a[1])) {
 				$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:allele-symbol",trim($a[1])));
@@ -145,21 +145,21 @@ class MGIParser extends RDFFactory
 				$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:allele-type",trim($a[3])));
 			}
 			if(trim($a[4])) {
-				$this->AddRDF($this->QQuad($id,"mgi_vocabulary:pubmed-id","pubmed:".$a[4]));
+				$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-pubmed","pubmed:".$a[4]));
 			}
 			if(trim($a[5])) {
 				$marker_id = strtolower($a[5]);
-				$this->AddRDF($this->QQuad($id,"mgi_vocabulary:marker",$marker_id));
+				$this->AddRDF($this->QQuad($id,"mgi_vocabulary:Genetic-Marker",$marker_id));
 				$this->AddRDF($this->QQuad($marker_id,"rdf:type","mgi_vocabulary:Mouse-Marker"));
 		
 				if(trim($a[6])) {
 					$this->AddRDF($this->QQuadL($marker_id,"mgi_vocabulary:marker-symbol",strtolower($a[6])));
 				}
 				if(trim($a[7])) {
-					$this->AddRDF($this->QQuad($marker_id,"mgi_vocabulary:refseq","refseq:".$a[7]));
+					$this->AddRDF($this->QQuad($marker_id,"mgi_vocabulary:x-refseq","refseq:".$a[7]));
 				}		
 				if(trim($a[8])) {
-					$this->AddRDF($this->QQuad($marker_id,"mgi_vocabulary:ensembl","ensembl:".$a[8]));
+					$this->AddRDF($this->QQuad($marker_id,"mgi_vocabulary:x-ensembl","ensembl:".$a[8]));
 				}
 			}
 
@@ -203,12 +203,12 @@ class MGIParser extends RDFFactory
 			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-mgi",$mgi_id));
 			$this->AddRDF($this->QQuad($mgi_id, "rdf:type", "mgi_vocabulary:Resource"));
 			$this->AddRDF($this->QQuadL($mgi_id, "dc:identifier", $mgi_id));
-			$this->AddRDF($this->QQuadL($mgi_id, "dc:source", "mgi"));			
+			$this->AddRDF($this->QQuadO_URL($mgi_id, "dc:source", "bio2rdf_dataset:mgi"));			
 			
 			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-ncbigene",$ncbigene_id));
 			$this->AddRDF($this->QQuad($ncbigene_id, "rdf:type", "hgnc_vocabulary:Resource"));
 			$this->AddRDF($this->QQuadL($ncbigene_id, "dc:identifier", $ncbigene_id));
-			$this->AddRDF($this->QQuadL($ncbigene_id, "dc:source", "ncbigene"));	
+			$this->AddRDF($this->QQuadO_URL($ncbigene_id, "dc:source", "bio2rdf_dataset:geneid"));	
 			if($a[4]) $this->AddRDF($this->QQuad($ncbigene_id, "mgi_vocabulary:x-hgnc", strtolower($a[4])));	
 		}
 		$this->WriteRDFBufferToWriteFile();	
@@ -229,10 +229,10 @@ class MGIParser extends RDFFactory
 			$id = strtolower($a[0]);
 			$this->AddRDF($this->QQuadL($id,"rdfs:label",$a[1]." [$id]"));
 			$this->AddRDF($this->QQuadL($id,"dc:identifier",$id));
-			$this->AddRDF($this->QQuadL($id,"dc:source","mgi"));
+			$this->AddRDF($this->QQuadO_URL($id,"dc:source","bio2rdf_dataset:mgi"));
 			$this->AddRDF($this->QQuad($id,"rdf:type","mgi_vocabulary:Strain"));
 			$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:strain-name",$a[1]));
-			$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:strain-type",$a[2]));
+			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:strain-type","mgi_vocabulary:".str_replace(" ","-",strtolower($a[2]))));
 		}
 		
 		$this->WriteRDFBufferToWriteFile();	
