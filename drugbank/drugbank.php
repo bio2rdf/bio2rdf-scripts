@@ -1,3 +1,4 @@
+#! /usr/bin/php
 <?php
 /**
 Copyright (C) 2012 Michel Dumontier
@@ -656,8 +657,10 @@ class DrugBankParser extends RDFFactory
 		if(isset($x->{"external-links"})) {
 			foreach($x->{"external-links"} AS $objs) {
 				foreach($objs AS $obj) {
-					$this->AddRDF($this->QQuadO_URL($did,"rdfs:seeAlso",$obj->url));
-				}
+                    if(strpos($obj->url,'http') !== false){
+                         $this->AddRDF($this->QQuadO_URL($did,"rdfs:seeAlso",$obj->url));
+                    }
+                }
 			}
 		}
 		
