@@ -218,7 +218,7 @@ class SIDERParser extends RDFFactory
 			$cui = "umls:".$a[1];
 			$cui_label = strtolower(trim($a[2]));
 
-			$this->XRef($this->XRef($id,"sider_vocabulary:indication",$cui,null,$cui_label));
+			$this->AddRDF($this->XRef($id,"sider_vocabulary:indication",$cui,null,$cui_label));
 		}
 		$this->WriteRDFBufferToWriteFile();	
 	}
