@@ -25,7 +25,7 @@ SOFTWARE.
 This script generates an HTML page summarizing the details for all Bio2RDF endpoints.
 It reads in an instances.tab file as used by our servers
 **/
-
+/*
 $options = array(
 	"instances_file" => "instances/file/path/",
 );
@@ -56,16 +56,17 @@ if($options['instances_file'] == 'instances/file/path/'){
 	echo "** Please specify a valid instances file **".PHP_EOL;
 	exit;
 }
-
+*/
 
 /********************/
 /** FUNCTION CALLS **/
 /********************/
 
-$endpoints =  makeEndpoints($options['instances_file']);
-
-$endpoint_stats = retrieveStatistics($endpoints);
-makeHTML($endpoint_stats);
+//$endpoints =  makeEndpoints($options['instances_file']);
+$endpoints = makeEndpoints('/tmp/instances.tab');
+print_r($endpoints);
+//$endpoint_stats = retrieveStatistics($endpoints);
+//makeHTML($endpoint_stats);
 
 
 
@@ -95,7 +96,7 @@ function makeEndpoints ($aFileName){
 					}
 					if(strlen($info['http_port']) && strlen($info['ns']) && strlen($info['isql_port'])){
 						$returnMe[$info['ns']] = array(
-							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org:".$info['http_port']."/sparql",
+							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org/sparql",
 							'graph_uri' => "http://bio2rdf.org/bio2rdf-".$info['ns']."-statistics",
 							'isql_port' => $info['isql_port'],
 							);
@@ -111,6 +112,40 @@ function makeEndpoints ($aFileName){
 
 }
 
+function makeEndpointsTmp ($aFileName){
+	//return an array with the endpoint information
+	$returnMe = array();
+	$fh = fopen($aFileName, "r") or die("Could not open file: ".$aFileName."!\n");
+	if($fh){
+		while(($aLine =  fgets($fh, 4096)) !== false){
+			if(!(preg_match('/^\s*#.*$/',$aLine))){
+				$al = trim($aLine);
+				if(strlen($al)){
+					$tal = explode("\t", $al);
+					$info = array();
+					if(isset($tal[0])){
+						$info['isql_port'] = $tal[0];
+					}
+					if(isset($tal[1])){
+						$info['http_port'] = $tal[1];
+					}
+					if(isset($tal[2])){
+						$info['ns'] = $tal[2];
+					}
+					if(strlen($info['http_port']) && strlen($info['ns']) && strlen($info['isql_port'])){
+						print_r($info);
+					}
+				}else{
+					continue;
+				}
+			}
+		}
+		fclose($fh);
+	}
+	return $returnMe;
+
+
+}
 
 function makeHTML($endpoint_stats){
 	//create one html file per endpoint
@@ -129,7 +164,6 @@ function makeHTML($endpoint_stats){
 				$html .= addPredicateLiteralLinks($d['endpoint_url'],$d['predicate_literals']);
 				$html .= addSubjectCountPredicateObjectCount($d['endpoint_url'],$d['subject_count_predicate_object_count']);
 				$html .= addSubjectPredicateUniqueLits($d['endpoint_url'],$d['subject_count_predicate_literal_count']);
-				//$html .= q10_print($d['endpoint_url'], $d['graph_uri']);
 				$html .= addSubjectTypePredType($d['endpoint_url'],$d['subject_type_predicate_object_type']);
 				$html .= "</div></body></html>";
 				fwrite($fo, $html);
