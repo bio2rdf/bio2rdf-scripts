@@ -92,7 +92,7 @@ class MGIParser extends RDFFactory
 			}
 			$this->SetReadFile($lfile,true);
 			
-			$ofile = $odir."mgi-".$item.'.rdf.gz';
+			$ofile = $odir."mgi-".$item.'.nt.gz';
 			$this->SetWriteFile($ofile,true);
 			$this->$item();
 			$this->GetWriteFile()->Close();
