@@ -25,45 +25,14 @@ SOFTWARE.
 This script generates an HTML page summarizing the details for all Bio2RDF endpoints.
 It reads in an instances.tab file as used by our servers
 **/
-/*
-$options = array(
-	"instances_file" => "instances/file/path/",
-);
 
-// show command line options
-if($argc == 1) {
-	echo "Usage: php $argv[0] ";
-	foreach($options AS $key => $value) {
-  		echo "$key=$value ".PHP_EOL;
- 	}
-}
 
-// set options from user input
-foreach($argv AS $i => $arg) {
-	if($i==0){
-		continue;
-	} 
- 	$b = explode("=",$arg);
- 	if(isset($options[$b[0]])){
- 		$options[$b[0]] = $b[1];
- 	} else {
- 		echo "Uknown option: $b[0]";
- 		exit;
- 	}//else
-}//foreach
-
-if($options['instances_file'] == 'instances/file/path/'){
-	echo "** Please specify a valid instances file **".PHP_EOL;
-	exit;
-}
-*/
 
 /********************/
 /** FUNCTION CALLS **/
 /********************/
-
-//$endpoints =  makeEndpoints($options['instances_file']);
-$endpoints = makeEndpointsTmp('/tmp/instances.tab');
+$options = print_usage($argv, $argc);
+$endpoints =  makeEndpoints($options['instances_file']);
 $endpoint_stats = retrieveStatistics($endpoints);
 makeHTML($endpoint_stats);
 
@@ -73,6 +42,40 @@ makeHTML($endpoint_stats);
 /***************/
 /** FUNCTIONS **/
 /***************/
+function print_usage($argv, $argc){
+	$options = array(
+		"instances_file" => "/instances/file/path/",
+	);
+
+	// show command line options
+	if($argc == 1) {
+		echo "Usage: php $argv[0] ";
+		foreach($options AS $key => $value) {
+	  		echo "$key=$value ".PHP_EOL;
+	 	}
+	}
+
+	// set options from user input
+	foreach($argv AS $i => $arg) {
+		if($i==0){
+			continue;
+		} 
+	 	$b = explode("=",$arg);
+	 	if(isset($options[$b[0]])){
+	 		$options[$b[0]] = $b[1];
+	 	} else {
+	 		echo "Uknown option: $b[0]";
+	 		exit;
+	 	}//else
+	}//foreach
+
+	if($options['instances_file'] == 'instances/file/path/'){
+		echo "** Please specify a valid instances file **".PHP_EOL;
+		exit;
+	}
+	return $options;
+}
+
 function makeEndpoints ($aFileName){
 	//return an array with the endpoint information
 	$returnMe = array();
@@ -111,44 +114,6 @@ function makeEndpoints ($aFileName){
 
 }
 
-function makeEndpointsTmp ($aFileName){
-	//return an array with the endpoint information
-	$returnMe = array();
-	$fh = fopen($aFileName, "r") or die("Could not open file: ".$aFileName."!\n");
-	if($fh){
-		while(($aLine =  fgets($fh, 4096)) !== false){
-			if(!(preg_match('/^\s*#.*$/',$aLine))){
-				$al = trim($aLine);
-				if(strlen($al)){
-					$tal = explode("\t", $al);
-					$info = array();
-					if(isset($tal[0])){
-						$info['isql_port'] = $tal[0];
-					}
-					if(isset($tal[1])){
-						$info['http_port'] = $tal[1];
-					}
-					if(isset($tal[2])){
-						$info['ns'] = $tal[2];
-					}
-					if(strlen($info['http_port']) && strlen($info['ns']) && strlen($info['isql_port'])){
-						$returnMe[$info['ns']] = array(
-							'endpoint_url' => 'http://s4.semanticscience.org:'.$info['http_port']."/sparql",
-							'graph_uri' => "http://bio2rdf.org/bio2rdf-".$info['ns']."-statistics",
-							'isql_port' => $info['isql_port'],
-							);
-					}
-				}else{
-					continue;
-				}
-			}
-		}
-		fclose($fh);
-	}
-	return $returnMe;
-
-
-}
 
 function makeHTML($endpoint_stats){
 	//create one html file per endpoint
