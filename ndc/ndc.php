@@ -92,6 +92,12 @@ class NDCParser extends RDFFactory
 		// now go through each item in the zip file and process
 		foreach($files AS $file) {
 			echo "Processing $file ...";
+
+			// the file name in the zip archive is Product not product
+			if($file == "product"){
+				$file = ucfirst($file);
+			}
+
 			$fpin = $zin->getStream($file.".txt");
 			if(!$fpin) {
 				trigger_error("Unable to get pointer to $file in $zinfile");
@@ -166,6 +172,7 @@ class NDCParser extends RDFFactory
 				}
 				if($i == 0) $this->AddRDF($this->QQuad($ndc_package, "rdf:type", $type_uri));
 				else $this->AddRDF($this->QQuad($ndc_package, "ndc_vocabulary:has-part", $type_uri));
+				 $this->WriteRDFBufferToWriteFile();
 			}
 		}
 	}
@@ -317,7 +324,7 @@ class NDCParser extends RDFFactory
 				}
 			}	
 			$this->AddRDF($this->QQuadL($ndc_product, "rdfs:label", $label." [$ndc_product]"));
-			
+			 $this->WriteRDFBufferToWriteFile();
 			//echo $this->GetRDF();exit;
 		}
 	}
