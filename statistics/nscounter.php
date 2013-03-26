@@ -87,6 +87,7 @@ function NSCount($dataset, $input, $outdir){
 		// parse bio2rdf namespaces from the subject / object uris
 		// increment the namespace counter if we haven't already seen this uri
 		// subject
+				
 		if(isset($s)) {
 			preg_match('/http\:\/\/bio2rdf\.org\/([^:]+)/',$s,$m);
 			if(!isset($m[1])) continue; // not a bio2rdf uri
@@ -116,15 +117,21 @@ function NSCount($dataset, $input, $outdir){
 			else $nsns[$key]['count'] += 1;
 			
 			// increment the ns-ns-predicate counter
+			/*
 			$key = $ns1.$ns2.$p;
 			if(!isset($nsnsp[$key])) $nsnsp[$key] = array("ns1"=>$ns1,"ns2" =>$ns2,"p" =>$p,"count"=>1);
 			else $nsnsp[$key]['count'] += 1;
+			*/
 		}
 	}//while
 	fclose($fh);
   } //foreach
 
-	ksort($ns);
+	ksort($nsns);
+
+	$rdf = rdfize_counts($nsns, $dataset);
+	file_put_contents($outdir.$dataset."_nsns.rdf",$rdf);
+	/*
 	$buf = '';
 	foreach($ns AS $k => $v) $buf .= "$k\t$v\n";
 	file_put_contents($outdir.$dataset."_ns.tab",$buf);
@@ -138,8 +145,37 @@ function NSCount($dataset, $input, $outdir){
 	$buf = '';
 	foreach($nsnsp AS $k => $o) $buf .= $o['ns1']."\t".$o['ns2']."\t".$o['p']."\t".$o['count']."\n";
 	file_put_contents($outdir.$dataset."_nsnsp.tab",$buf);
-	
+	*/
 } // NSCOUNT
 
+function rdfize_counts($counts_arr, $dataset_name){
 
+	$rdf = "";
+	foreach($counts_arr as $i => $nscount){
+		$ns1 = $nscount['ns1'];
+		$ns2 = $nscount['ns2'];
+		$count = $nscount['count'];
+
+		$dataset_uri = "http://bio2rdf.org/dataset_resource:".md5("http://".$dataset_name.".bio2rdf.org/sparql");
+		$count_uri = "http://bio2rdf.org/dataset_resource:".md5($dataset_name.$ns1.$ns2.$count);
+
+		$rdf .= Quad($dataset_uri, "http://bio2rdf.org/dataset_vocabulary:has_nsns_count", $count_uri);
+		$rdf .= Quad($count_uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/dataset_vocabulary:Namespace_Namespace_Count");
+		$rdf .= Quad($count_uri, "http://bio2rdf.org/dataset_vocabulary:namespace1", "http://bio2rdf.org/".$ns1);
+		$rdf .= Quad($count_uri, "http://bio2rdf.org/dataset_vocabulary:namespace2", "http://bio2rdf.org/".$ns2);
+		$rdf .= QuadLiteral($count_uri, "http://bio2rdforg/dataset_vocabulary:has_nsns_count_value", $count);
+
+	}
+	return $rdf;
+}
+
+function Quad($subject_uri, $predicate_uri, $object_uri, $graph_uri = null)
+{
+	return "<$subject_uri> <$predicate_uri> <$object_uri> ".(isset($graph_uri)?"<$graph_uri>":"")." .".PHP_EOL;
+}
+
+function QuadLiteral($subject_uri, $predicate_uri, $literal, $lang = null, $graph_uri = null)
+{
+	return "<$subject_uri> <$predicate_uri> \"$literal\"".(isset($lang)?"@$lang ":' ').(isset($graph_uri)?"<$graph_uri>":"")." .".PHP_EOL;
+}
 ?>
