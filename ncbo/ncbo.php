@@ -180,14 +180,6 @@ function OBO2TTL($indir,$outdir,$file)
 			unset($intersection_of);
 		}
 	}
-	if(isset($relationship)) {
-		if($a[0] != "relationship") {
-			$relationship .= ")].".PHP_EOL;
-			$buf .= $relationship;
-			if($options['minimal+']['value'] == 'true') $min .= $relationship;
-			unset($relationship);
-		}
-	}
 
 	if(isset($typedef)) {	
 		if($a[0] == "id") {
@@ -383,6 +375,11 @@ function OBO2TTL($indir,$outdir,$file)
 				$header .= AddToGlobalNS($obj_ns);
 
 				$relationship .= ' ['.GetFQURITTL('owl:onProperty').' '.GetFQURITTL("obo:".$pred_id).'; '.GetFQURITTL('owl:someValuesFrom').' '.GetFQURITTL("$obj_ns:$obj_id").'] ';
+				
+				$relationship .= ")].".PHP_EOL;
+				$buf .= $relationship;
+				if($options['minimal+']['value'] == 'true') $min .= $relationship;
+				unset($relationship);		
 			}
 		} else {
 			// default handler
