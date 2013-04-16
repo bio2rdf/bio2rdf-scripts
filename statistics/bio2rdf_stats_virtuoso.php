@@ -493,28 +493,28 @@ function write_endpoint_details($fh){
 function write_triple_count($fh, $triple_count){
 	GLOBAL $options;
 	if($triple_count !== null){
-		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_triple_count", $triple_count));
+		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#triples", $triple_count));
 	}
 }
 
 function write_unique_subject_count($fh, $subj_count){
 	GLOBAL $options;
 	if($subj_count !== null){
-		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_unique_subject_count", $subj_count));
+		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#distinctSubjects", $subj_count));
 	}
 }
 
 function write_unique_predicate_count($fh, $pred_count){
 	GLOBAL $options;
 	if($pred_count !== null){
-		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_unique_predicate_count", $pred_count));
+		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#properties", $pred_count));
 	}
 }
 
 function write_unique_object_count($fh, $obj_count){
 	GLOBAL $options;
 	if($obj_count !== null){
-		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_unique_object_count", $obj_count));
+		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#distinctObjects", $obj_count));
 	}
 }
 
@@ -522,7 +522,7 @@ function write_type_counts($fh, $type_counts){
 	GLOBAL $options;
 	if($type_counts !== null){
 		foreach($type_counts as $type => $count){
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_type_count", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count")));
+			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#classes", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count")));
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://bio2rdf.org/dataset_vocabulary:has_type", $type));
 			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://bio2rdf.org/dataset_vocabulary:has_count", $count));
 		}//foreach
