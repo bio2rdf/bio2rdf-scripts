@@ -1,6 +1,6 @@
 <?php 
 /**
-Copyright (C) 2012 Michel Dumontier, Jose Cruz-Toledo
+Copyright (C) 2012 Michel Dumontier, Jose Cruz-Toledo, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -87,6 +87,7 @@ function NSCount($dataset, $input, $outdir){
 		// parse bio2rdf namespaces from the subject / object uris
 		// increment the namespace counter if we haven't already seen this uri
 		// subject
+				
 		if(isset($s)) {
 			preg_match('/http\:\/\/bio2rdf\.org\/([^:]+)/',$s,$m);
 			if(!isset($m[1])) continue; // not a bio2rdf uri
@@ -124,7 +125,11 @@ function NSCount($dataset, $input, $outdir){
 	fclose($fh);
   } //foreach
 
-	ksort($ns);
+	ksort($nsns);
+
+	$rdf = rdfize_counts($nsns, $dataset);
+	file_put_contents($outdir.$dataset."_nsns.rdf",$rdf);
+	
 	$buf = '';
 	foreach($ns AS $k => $v) $buf .= "$k\t$v\n";
 	file_put_contents($outdir.$dataset."_ns.tab",$buf);
@@ -141,5 +146,34 @@ function NSCount($dataset, $input, $outdir){
 	
 } // NSCOUNT
 
+function rdfize_counts($counts_arr, $dataset_name){
 
+	$rdf = "";
+	foreach($counts_arr as $i => $nscount){
+		$ns1 = $nscount['ns1'];
+		$ns2 = $nscount['ns2'];
+		$count = $nscount['count'];
+
+		$dataset_uri = "http://bio2rdf.org/dataset_resource:".md5("http://".$dataset_name.".bio2rdf.org/sparql");
+		$count_uri = "http://bio2rdf.org/dataset_resource:".md5($dataset_name.$ns1.$ns2.$count);
+
+		$rdf .= Quad($dataset_uri, "http://bio2rdf.org/dataset_vocabulary:has_nsns_count", $count_uri);
+		$rdf .= Quad($count_uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/dataset_vocabulary:Namespace_Namespace_Count");
+		$rdf .= Quad($count_uri, "http://bio2rdf.org/dataset_vocabulary:namespace1", "http://bio2rdf.org/".$ns1);
+		$rdf .= Quad($count_uri, "http://bio2rdf.org/dataset_vocabulary:namespace2", "http://bio2rdf.org/".$ns2);
+		$rdf .= QuadLiteral($count_uri, "http://bio2rdforg/dataset_vocabulary:has_nsns_count_value", $count);
+
+	}
+	return $rdf;
+}
+
+function Quad($subject_uri, $predicate_uri, $object_uri, $graph_uri = null)
+{
+	return "<$subject_uri> <$predicate_uri> <$object_uri> ".(isset($graph_uri)?"<$graph_uri>":"")." .".PHP_EOL;
+}
+
+function QuadLiteral($subject_uri, $predicate_uri, $literal, $lang = null, $graph_uri = null)
+{
+	return "<$subject_uri> <$predicate_uri> \"$literal\"".(isset($lang)?"@$lang ":' ').(isset($graph_uri)?"<$graph_uri>":"")." .".PHP_EOL;
+}
 ?>
