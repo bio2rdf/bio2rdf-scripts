@@ -7,7 +7,8 @@ this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
 use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
+so, subject to the following con
+ditions:
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
@@ -87,14 +88,15 @@ function NSCount($dataset, $input, $outdir){
 		// parse bio2rdf namespaces from the subject / object uris
 		// increment the namespace counter if we haven't already seen this uri
 		// subject
-				
+	
 		if(isset($s)) {
 			preg_match('/http\:\/\/bio2rdf\.org\/([^:]+)/',$s,$m);
 			if(!isset($m[1])) continue; // not a bio2rdf uri
 			else $ns1 = $m[1]; // str_replace(array("_resource","_vocabulary"),"",$m[1]);
 			if(!isset($slist[$s])) {
 				$slist[$s] = '';
-				if(!isset($ns[$ns1])) $ns[$ns1] = 1;
+			
+		if(!isset($ns[$ns1])) $ns[$ns1] = 1;
 				else $ns[$ns1] += 1;
 			}
 		}
@@ -117,9 +119,11 @@ function NSCount($dataset, $input, $outdir){
 			else $nsns[$key]['count'] += 1;
 			
 			// increment the ns-ns-predicate counter
+			
 			$key = $ns1.$ns2.$p;
 			if(!isset($nsnsp[$key])) $nsnsp[$key] = array("ns1"=>$ns1,"ns2" =>$ns2,"p" =>$p,"count"=>1);
 			else $nsnsp[$key]['count'] += 1;
+			
 		}
 	}//while
 	fclose($fh);
@@ -133,12 +137,12 @@ function NSCount($dataset, $input, $outdir){
 	$buf = '';
 	foreach($ns AS $k => $v) $buf .= "$k\t$v\n";
 	file_put_contents($outdir.$dataset."_ns.tab",$buf);
-	
+	/*
 	ksort($nsns);
 	$buf = '';
 	foreach($nsns AS $k => $o) $buf .= $o['ns1']."\t".$o['ns2']."\t".$o['count']."\n";
 	file_put_contents($outdir.$dataset."_nsns.tab",$buf);
-	
+	*/
 	ksort($nsnsp);
 	$buf = '';
 	foreach($nsnsp AS $k => $o) $buf .= $o['ns1']."\t".$o['ns2']."\t".$o['p']."\t".$o['count']."\n";
