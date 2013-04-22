@@ -365,11 +365,12 @@ font-weight:bold;
 }
 
 </style><body>";
+	$returnMe .= "<a href=\"http://bio2rdf.org\"><img alt=\"Bio2RDF Homepage\" id=\"logo\" src=\"../img/logo.png\" height=\"80px\"/></a>";
 	$returnMe .= "<div id=\"links\">";
-	$returnMe .= "<h2>Homepage: <a href=\"http://bio2rdf.org\">http://bio2rdf.org</a></h2>".PHP_EOL;
 	$returnMe .= "<h2>GitHub: <a href=\"http://github.com/bio2rdf\">http://github.com/bio2rdf</a></h2>".PHP_EOL;
 	$returnMe .= "<h2>Wiki: <a href=\"http://github.com/bio2rdf/bio2rdf-scripts/wiki\">http://github.com/bio2rdf/bio2rdf-scripts/wiki</a></h2>".PHP_EOL;
 	$returnMe .= "</div>";
+
 	$returnMe .= "<table class=\"hor-minimalist-a\">".PHP_EOL;
 	$returnMe .= "<thead><tr><th width=\"40\"></th><th width=\"300\">Dataset</th><th width=\"100\">Date generated</th><th width=\"100\"># of triples</th><th width=\"100\"># of unique subjects</th><th width=\"100\"># of unique predicates</th><th width=\"100\"># of unique objects</th></tr></thead>".PHP_EOL;
 	$i = 0;
