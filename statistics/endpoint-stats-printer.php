@@ -314,11 +314,17 @@ function addHeader($aTitle){
 			display: block;
   			margin-left: auto;
  			margin-right: auto;
+ 			height: 80px;
 			}
 			#link {
-			margin: 0 auto;
+			 margin: 0 auto;
    			 text-align: center;
    			 width: 800px;
+			}
+			body{
+			   font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+               font-size: 14px;
+               color:#039;
 			}
 			</style>';
 	//add some js
