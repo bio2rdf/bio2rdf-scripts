@@ -1,40 +1,44 @@
 <?php
 /**
-Copyright (C) 2012 Jose Cruz-Toledo
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+* Copyright (C) 2013 Jose Cruz-Toledo
+* 
+* Permission is hereby granted, free of charge, to any person obtaining a copy of
+* this software and associated documentation files (the "Software"), to deal in
+* the Software without restriction, including without limitation the rights to
+* use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+* of the Software, and to permit persons to whom the Software is furnished to do
+* so, subject to the following conditions:
+* 
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
 */
 
 /**
-This script generates an HTML page summarizing the details for all Bio2RDF endpoints.
-It reads in an instances.tab file as used by our servers
+*This script generates an HTML page summarizing the details for all Bio2RDF endpoints.
+*It reads in an instances.tab file as used by our servers
 **/
 
 
+//TODO: add lsr_file to parser
 
 /********************/
 /** FUNCTION CALLS **/
 /********************/
 $options = print_usage($argv, $argc);
 $endpoints =  makeEndpoints($options['instances_file']);
+$lsr_arr = readLSRIntoArr($options['lsr_file']);
+//search the lsr for the descriptions of the endpoints found in endpoints
+$endpoints_desc = parseDescriptions($endpoints, $lsr_arr);
 $endpoint_stats = retrieveStatistics($endpoints);
-makeHTML($endpoint_stats);
+makeHTML($endpoint_stats, $endpoints_desc);
 
 
 
@@ -45,6 +49,7 @@ makeHTML($endpoint_stats);
 function print_usage($argv, $argc){
 	$options = array(
 		"instances_file" => "/instances/file/path/",
+		"lsr_file" => "/path/to/lsr",
 	);
 
 	// show command line options
@@ -54,7 +59,6 @@ function print_usage($argv, $argc){
 	  		echo "$key=$value ".PHP_EOL;
 	 	}
 	}
-
 	// set options from user input
 	foreach($argv AS $i => $arg) {
 		if($i==0){
@@ -68,12 +72,30 @@ function print_usage($argv, $argc){
 	 		exit;
 	 	}//else
 	}//foreach
-
-	if($options['instances_file'] == 'instances/file/path/'){
+	if($options['instances_file'] == '/instances/file/path/'){
 		echo "** Please specify a valid instances file **".PHP_EOL;
 		exit;
 	}
+	if($options['lsr_file'] == '/path/to/lsr.csv'){
+		echo "** Specify a valid LSR CSV file path. **".PHP_EOL;
+		exit;
+	}
 	return $options;
+}
+
+function parseDescriptions($anEndpointArr, $anLsr_arr){
+	$rm = array();
+	foreach ($anEndpointArr as $endpoint_name => $val) {
+		//search for $endpoint_name in anLsrArr and attach
+		//its description to $rm
+		//print_r($anLsr_arr);exit;
+		if(array_key_exists($endpoint_name, $anLsr_arr)){
+			$rm[$endpoint_name] = $anLsr_arr[$endpoint_name]['description'];
+		}else{
+			continue;
+		}
+	}
+	return $rm;
 }
 
 function makeEndpoints ($aFileName){
@@ -111,21 +133,54 @@ function makeEndpoints ($aFileName){
 		fclose($fh);
 	}
 	return $returnMe;
+}
 
+/**
+* This function parses the LSR and returns a multidimensional assoc array
+*/
+function readLSRIntoArr($aFn){
+$fh = fopen($aFn, "r") or die("Could not open File ". $aFn);
+	$returnMe = array();
+	if($fh){
+		while(($data = fgetcsv($fh, 1000, ","))!== FALSE){
+			//now parse the data that we need
+			$prefix =  @$data[0];
+			$title = @$data[8];
+			$description = @$data[9];
+			$homepage = @$data[14];
+			$example_id = @$data[22];
+			$returnMe[$prefix]["name"] = $title;
+			$returnMe[$prefix]["namespace"] = $prefix;
+			$returnMe[$prefix]["description"] = $description;
+			$returnMe[$prefix]["homepage"] = $homepage;
+			$returnMe[$prefix]["id"] = $example_id;
+		}
+	}
+	fclose($fh);
+	return $returnMe;
 }
 
 
-function makeHTML($endpoint_stats){
+function makeHTML($endpoint_stats, $endpoint_desc){
 	//create one html file per endpoint
 	foreach($endpoint_stats as $endpoint => $d){
 		if(count($d) > 2){
+			//find the corresponding description in $endpoint_desc
+			$desc = @$endpoint_desc[$endpoint];
 			//create an output file
 			$fo = fopen($endpoint.".html", "w") or die("Could not create file!");
 			if($fo){
 				$html = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html>';
 				$html .= addHeader($endpoint);
-				$html .= "<body><h1> Summary data metrics for the Bio2RDF ".$endpoint." endpoint</h1>";
+				//add Bio2RDF logo
+				//add Endpoint description
+				//add link back to the statistics page
+				$html .= "<body>";
+				//add the logo
+				$html .= addBio2RDFLogo();
+				$html .= "<h1> Summary data metrics for the Bio2RDF ".$endpoint." endpoint</h1>";
 				$html .= "<div id='container'> <div id='items'></div>";
+				$html .= addDatasetDescription($desc);
 				$html .= addBasicStatsTable($d['endpoint_url'],$d['triples'],$d['unique_subjects'],$d['unique_predicates'],$d['unique_objects'] );
 				$html .= addUniqueTypesTable($d['endpoint_url'],$d['unique_types']);
 				$html .= addPredicateObjLinks($d['endpoint_url'],$d['predicate_object_links']);
@@ -140,6 +195,24 @@ function makeHTML($endpoint_stats){
 			fclose($fo);
 		}
 	}
+}
+
+function addBio2RDFLogo(){
+	$rm = "";
+	$rm .= '<div id="logo">
+				<a  href="http://bio2rdf.org"><img src="https://googledrive.com/host/0B3GgKfZdJasrRnB0NDNNMFZqMUk/bio2rdf_logo.png" alt="Bio2RDF logo" /></a>
+			</div>';
+	$rm .= '<div id ="link"><a href ="http://download.bio2rdf.org/current/release.html">Bio2RDF current release summary statistics</a></div>';
+	return $rm;
+}
+
+function addDatasetDescription($aDesc){
+	$rm = "";
+	if($aDesc != null && strlen($aDesc) > 0){
+		$rm .= "<h2>Dataset Description</h2>";
+		$rm .= "<p>".$aDesc."</p>";
+	}
+	return $rm;
 }
 function addNSNSCounts($eURL, $arr){
 	$rm = "<hr><h2>Frequency of Subject-Namespace, Object-Namespace pairs</h2>";
@@ -235,7 +308,25 @@ function addHeader($aTitle){
 	$rm .= '<link rel="stylesheet" type="text/css" href="http://134.117.53.12/lib/datatables/css/jquery.dataTables.css">';
 	$rm .= '<link rel="stylesheet" type="text/css" href="http://134.117.53.12/lib/datatables/css/stoc.css">';
 	$rm .= '<link rel="stylesheet" type="text/css" href="http://134.117.53.12/lib/datatables/css/code.css">';
-
+	$rm .= '<style>
+			#logo img
+			{
+			display: block;
+  			margin-left: auto;
+ 			margin-right: auto;
+ 			height: 80px;
+			}
+			#link {
+			 margin: 0 auto;
+   			 text-align: center;
+   			 width: 800px;
+			}
+			body{
+			   font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+               font-size: 14px;
+               color:#039;
+			}
+			</style>';
 	//add some js
 	$rm .= '<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>';
 	$rm .= '<script type="text/javascript"  src="http://134.117.53.12/lib/datatables/js/jquery.stoc.js"></script>';
@@ -247,11 +338,11 @@ function addHeader($aTitle){
 			"bPaginate": false,
 			"aaSorting": [[1,"desc"]]
 		});
-$("#items").stoc({
-	search: "#container"
-});
-});
-</script>';
+		$("#items").stoc({
+			search: "#container"
+		});
+		});
+		</script>';
 return $rm."</head>";
 }
 
