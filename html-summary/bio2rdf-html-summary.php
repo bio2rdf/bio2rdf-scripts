@@ -282,95 +282,72 @@ function parseInstancesTabFile($instances_tab_fn){
 
 
 function htmlPrinter($endpoints){
-	$returnMe = "<html><head><title>Bio2RDF endpoint details</title></head><style type=\"text/css\">
+	$returnMe = "<html><head><title>Bio2RDF endpoint details</title>
 
-body
-{
-	line-height: 1.6em;
-	width: 80%;
+	<link rel=\"stylesheet\" type=\"text/css\" href=\"http://134.117.53.12/lib/datatables/css/jquery.dataTables.css\"/>
+	<link rel=\"stylesheet\" type=\"text/css\" href=\"http://134.117.53.12/lib/datatables/css/code.css\"/>
+
+	<script type=\"text/javascript\" src=\"http://code.jquery.com/jquery-latest.js\"></script>
+	<script type=\"text/javascript\" src=\"http://134.117.53.12/lib/datatables/js/jquery.dataTables.js\"></script>
+	<script type=\"text/javascript\" charset=\"utf-8\">
+		$(document).ready(function(){
+			$(\"table\").dataTable({
+				\"bInfo\":false,
+				\"bPaginate\":false,
+				\"aaSorting\":[[0,\"asc\"]]
+			});
+		});
+	</script>
+
+	<style type=\"text/css\">
+
+
+
+	#logo{
+	display:block;
 	margin-left:auto;
 	margin-right:auto;
-}
+	}
 
-table{
-    table-layout: fixed;
-}
-
-#description {
-	width: 200px;
-}
-
-table.hor-minimalist-a
-{
-	font-family: \"Lucida Sans Unicode\", \"Lucida Grande\", Sans-Serif;
-	font-size: 12px;
-	background: #fff;
-	margin: 45px;
-	width: 480px;
-	border-collapse: collapse;
-	text-align: left;
-}
-
-table.hor-minimalist-a th
-{
-	font-size: 14px;
-	font-weight: normal;
-	color: #039;
-	padding: 10px 8px;
-	border-bottom: 2px solid #6678b1;
-}
-
-table.hor-minimalist-a td
-{
-	color: #669;
-	padding: 9px 8px 0px 8px;
-	vertical-align:text-top;
-}
-
-table.hor-minimalist-a tr.d0 td {
-	background-color: #FFFFFF;
-}
-
-table.hor-minimalist-a tr.d1 td {
-	background-color: #F0F8FF;
-}
-
-table.hor-minimalist-a tbody tr:hover td
-{
-	color: #009;
-}
-
-#logo{
-display:block;
-margin-left:auto;
-margin-right:auto;
-}
-
-#release{
-margin-left:20%;
-margin-right:20%;
-font-size: 120%;
-color:#039;
-font-weight:bold;
-}
-
-#links{
-	font-family: \"Lucida Sans Unicode\", \"Lucida Grande\", Sans-Serif;
-	font-size: 12px;
+	#release{
+	margin-left:20%;
+	margin-right:20%;
+	font-size: 120%;
 	color:#039;
-	background: #fff;
-	margin-left:auto;
-	margin-right:auto;
-	text-align: center;
-}
+	font-weight:bold;
+	}
 
-</style><body>";
-	$returnMe .= "<a href=\"http://bio2rdf.org\"><img alt=\"Bio2RDF Homepage\" id=\"logo\" src=\"../img/logo.png\" height=\"80px\"/></a>";
+	body {
+		font-family: \"Lucida Sans Unicode\", \"Lucida Grande\", Sans-Serif;
+		font-size: 12px;
+		color:#039;
+	}
+	
+	#links{
+		background: #fff;
+		margin-left:auto;
+		margin-right:auto;
+		text-align: center;
+	}
+
+	#tableContainer {
+		margin:0 auto;
+		padding-bottom: 20px;
+		padding-top: 50px;
+		width: 80%;
+	}
+
+</style>
+
+
+</head><body>";
+	$returnMe .= "<a href=\"http://bio2rdf.org\"><img alt=\"Bio2RDF Homepage\" id=\"logo\" src=\"https://googledrive.com/host/0B3GgKfZdJasrRnB0NDNNMFZqMUk/bio2rdf_logo.png\" height=\"80px\"/></a>";
 	$returnMe .= "<div id=\"links\">";
 	$returnMe .= "<h2>GitHub: <a href=\"http://github.com/bio2rdf\">http://github.com/bio2rdf</a></h2>".PHP_EOL;
 	$returnMe .= "<h2>Wiki: <a href=\"http://github.com/bio2rdf/bio2rdf-scripts/wiki\">http://github.com/bio2rdf/bio2rdf-scripts/wiki</a></h2>".PHP_EOL;
 	$returnMe .= "</div>";
 
+	$returnMe .= "<div id=\"tableContainer\">";
 	$returnMe .= "<table class=\"hor-minimalist-a\">".PHP_EOL;
 	$returnMe .= "<thead><tr><th width=\"40\"></th><th width=\"300\">Dataset</th><th width=\"100\">Date generated</th><th width=\"100\"># of triples</th><th width=\"100\"># of unique subjects</th><th width=\"100\"># of unique predicates</th><th width=\"100\"># of unique objects</th></tr></thead>".PHP_EOL;
 	$i = 0;
@@ -379,6 +356,7 @@ font-weight:bold;
 		$returnMe .= tablePrinter($endpoint_details, $i);
 	}
 	$returnMe .= "</table>";
+	$returnMe .= "</div>";
 	return $returnMe."</body></html>";
 }
 
