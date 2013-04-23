@@ -215,7 +215,7 @@ function addDatasetDescription($aDesc){
 	return $rm;
 }
 function addNSNSCounts($eURL, $arr){
-	$rm = "<hr><h2>Frequency of Subject-Namespace, Object-Namespace pairs</h2>";
+	$rm = "<hr><h2>Inter and Intra dataset namespace links</h2>";
 	$rm .= "<table id='t'>";
 	$rm .= "<thead><tr><th>Namespace</th><th>Namespace</th><th>Counts</th></tr></thead><tbody>";
 	foreach($arr as $p => $c){
