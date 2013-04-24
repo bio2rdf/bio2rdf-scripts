@@ -85,18 +85,68 @@ function print_usage($argv, $argc){
 
 function parseDescriptions($anEndpointArr, $anLsr_arr){
 	$rm = array();
+
 	foreach ($anEndpointArr as $endpoint_name => $val) {
 		//search for $endpoint_name in anLsrArr and attach
 		//its description to $rm
 		//print_r($anLsr_arr);exit;
 		if(array_key_exists($endpoint_name, $anLsr_arr)){
-			$rm[$endpoint_name] = $anLsr_arr[$endpoint_name]['description'];
+			$rm[$endpoint_name]['description'] = $anLsr_arr[$endpoint_name]['description'];
+			$rm[$endpoint_name]['name'] = $anLsr_arr[$endpoint_name]['name'];
+			$rm[$endpoint_name]['namespace'] = $anLsr_arr[$endpoint_name]['namespace'];
+			$rm[$endpoint_name]['homepage'] = $anLsr_arr[$endpoint_name]['homepage'];
+			$rm[$endpoint_name]['ident_regex_patt'] = $anLsr_arr[$endpoint_name]['ident_regex_patt'];
+			$rm[$endpoint_name]['provider_html_url'] = $anLsr_arr[$endpoint_name]['provider_html_url'];
+			$rm[$endpoint_name]['license_url'] = $anLsr_arr[$endpoint_name]['license_url'];
+			$rm[$endpoint_name]['keywords'] = $anLsr_arr[$endpoint_name]['keywords'];
+			$rm[$endpoint_name]['organization'] = $anLsr_arr[$endpoint_name]['organization'];
+			$rm[$endpoint_name]['prefix'] = $anLsr_arr[$endpoint_name]['prefix'];
 		}else{
 			continue;
 		}
 	}
 	return $rm;
 }
+
+
+
+/**
+* This function parses the LSR and returns a multidimensional assoc array
+*/
+function readLSRIntoArr($aFn){
+$fh = fopen($aFn, "r") or die("Could not open File ". $aFn);
+	$returnMe = array();
+	if($fh){
+		while(($data = fgetcsv($fh, 1000, ","))!== FALSE){
+			//now parse the data that we need
+			$prefix =  @$data[0];
+			$organization = @$data[11];
+			$keywords = @$data[13];
+			$license_url = @$data[19];
+			$provider_html_url = @$data[23];
+			$ident_regex_patt = @$data[21];
+			$title = @$data[8];
+			$description = @$data[9];
+			$homepage = @$data[14];
+			$example_id = @$data[22];
+			$returnMe[$prefix]["ident_regex_patt"] = $ident_regex_patt;
+			$returnMe[$prefix]["provider_html_url"] = $provider_html_url;
+			$returnMe[$prefix]["license_url"] = $license_url;
+			$returnMe[$prefix]["keywords"] = $keywords;
+			$returnMe[$prefix]["organization"] = $organization;
+			$returnMe[$prefix]["prefix"] = $prefix;
+			$returnMe[$prefix]["name"] = $title;
+			$returnMe[$prefix]["namespace"] = $prefix;
+			$returnMe[$prefix]["description"] = $description;
+			$returnMe[$prefix]["homepage"] = $homepage;
+			$returnMe[$prefix]["id"] = $example_id;
+		}
+	}
+	fclose($fh);
+	return $returnMe;
+}
+
+
 
 function makeEndpoints ($aFileName){
 	//return an array with the endpoint information
@@ -135,37 +185,13 @@ function makeEndpoints ($aFileName){
 	return $returnMe;
 }
 
-/**
-* This function parses the LSR and returns a multidimensional assoc array
-*/
-function readLSRIntoArr($aFn){
-$fh = fopen($aFn, "r") or die("Could not open File ". $aFn);
-	$returnMe = array();
-	if($fh){
-		while(($data = fgetcsv($fh, 1000, ","))!== FALSE){
-			//now parse the data that we need
-			$prefix =  @$data[0];
-			$title = @$data[8];
-			$description = @$data[9];
-			$homepage = @$data[14];
-			$example_id = @$data[22];
-			$returnMe[$prefix]["name"] = $title;
-			$returnMe[$prefix]["namespace"] = $prefix;
-			$returnMe[$prefix]["description"] = $description;
-			$returnMe[$prefix]["homepage"] = $homepage;
-			$returnMe[$prefix]["id"] = $example_id;
-		}
-	}
-	fclose($fh);
-	return $returnMe;
-}
+
 
 
 function makeHTML($endpoint_stats, $endpoint_desc){
 	//create one html file per endpoint
 	foreach($endpoint_stats as $endpoint => $d){
 		if(count($d) > 2){
-			//find the corresponding description in $endpoint_desc
 			$desc = @$endpoint_desc[$endpoint];
 			//create an output file
 			$fo = fopen($endpoint.".html", "w") or die("Could not create file!");
@@ -181,6 +207,7 @@ function makeHTML($endpoint_stats, $endpoint_desc){
 				$html .= "<h1> Summary data metrics for the Bio2RDF ".$endpoint." endpoint</h1>";
 				$html .= "<div id='container'> <div id='items'></div>";
 				$html .= addDatasetDescription($desc);
+				$html .= addBio2RDFDetails($d['endpoint_url'], $desc['namespace']);
 				$html .= addBasicStatsTable($d['endpoint_url'],$d['triples'],$d['unique_subjects'],$d['unique_predicates'],$d['unique_objects'] );
 				$html .= addUniqueTypesTable($d['endpoint_url'],$d['unique_types']);
 				$html .= addPredicateObjLinks($d['endpoint_url'],$d['predicate_object_links']);
@@ -197,23 +224,76 @@ function makeHTML($endpoint_stats, $endpoint_desc){
 	}
 }
 
-function addBio2RDFLogo(){
+function addBio2RDFDetails($u, $ns){
 	$rm = "";
-	$rm .= '<div id="logo">
-				<a  href="http://bio2rdf.org"><img src="https://googledrive.com/host/0B3GgKfZdJasrRnB0NDNNMFZqMUk/bio2rdf_logo.png" alt="Bio2RDF logo" /></a>
-			</div>';
-	$rm .= '<div id ="link"><a href ="http://download.bio2rdf.org/current/release.html">Bio2RDF current release summary statistics</a></div>';
+	if($u != null && $ns != null){
+		$rm .= "<br><h2>Bio2RDF Resources</h2>";
+		$rm .= "<table id='t'>";
+		$rm .= "<thead><tr><th></th><th></th></tr></thead><tbody>";
+		$rm .= "<tr><td>SPARQL Endpoint URL</td><td><a href=\"".$u."\">".$u."</a></td></tr>";
+		$rm .= "<tr><td>Faceted Browser URL</td><td><a href=\"http://cu.".$ns.".bio2rdf.org/fct\">http://cu.".$ns.".bio2rdf.org/fct</a></td></tr>";
+		$rm .= "<tr><td>Conversion Script URL</td><td><a href=\"http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."\">http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."</a></td></tr>";
+		$rm .= "<tr><td>Download URL</td><td><a href=\"http://download.bio2rdf.org/release/2/".$ns."\">http://download.bio2rdf.org/release/2/".$ns."</a></td></tr>";
+		$rm .= "</tbody></table>";
+	}
 	return $rm;
 }
 
 function addDatasetDescription($aDesc){
 	$rm = "";
-	if($aDesc != null && strlen($aDesc) > 0){
+	if($aDesc != null && count($aDesc) > 0){
 		$rm .= "<h2>Dataset Description</h2>";
-		$rm .= "<p>".$aDesc."</p>";
+		$rm .= "<table id='t'>";
+		$rm .= "<thead><tr><th></th><th></th></tr></thead><tbody>";
+		if(isset($aDesc['namespace'])&&strlen($aDesc['name'])){
+			$rm .= "<tr><td>Name</td><td>".$aDesc['name']."</td></tr>";
+		}
+		if (isset($aDesc['description'])&&strlen($aDesc['description'])) {
+			$rm .= "<tr><td>Description</td><td>".$aDesc['description']."</td></tr>";	
+		}
+		if (isset($aDesc['keywords'])&&strlen($aDesc['keywords'])) {
+			$rm .= "<tr><td>Keywords</td><td>".$aDesc['keywords']."</td></tr>";	
+		}
+		if (isset($aDesc['namespace'])&&strlen($aDesc['namespace'])) {
+			$rm .= "<tr><td>Namespace</td><td>".$aDesc['namespace']."</td></tr>";	
+		}
+		if (isset($aDesc['homepage'])&&strlen($aDesc['homepage'])) {
+			$rm .= "<tr><td>Homepage</td><td><a href=\"".$aDesc['homepage']."\">".$aDesc['homepage']."</a></td></tr>";	
+		}
+		if (isset($aDesc['organization'])&&strlen($aDesc['organization'])) {
+			$rm .= "<tr><td>Organization</td><td>".$aDesc['organization']."</td></tr>";	
+		}
+		if (isset($aDesc['license_url'])&&strlen($aDesc['license_url'])) {
+			$rm .= "<tr><td>License</td><td>".$aDesc['license_url']."</td></tr>";
+		}
+		if (isset($aDesc['id'])&&strlen($aDesc['id']) && isset($aDesc['provider_html_url'])&&strlen($aDesc['provider_html_url'])) {
+			//construct a record url
+			$s = str_replace('$id', $aDesc['id'], $aDesc['provider_html_url']);
+			$rm .= "<tr><td>Example Identifier</td><td><a href=\"".$s."\">".$aDesc['id']."</a></td></tr>";
+		}
+		if (isset($aDesc['ident_regex_patt'])&&strlen($aDesc['ident_regex_patt'])) {
+			$rm .= "<tr><td>Identifier regex pattern</td><td>".$aDesc['ident_regex_patt']."</td></tr>";	
+		}
+		$rm .= "</tbody></table>";	
 	}
 	return $rm;
 }
+
+
+function addBio2RDFLogo(){
+	$rm = "";
+	$rm .= '<div id="logo">
+				<a  href="http://bio2rdf.org"><img src="https://googledrive.com/host/0B3GgKfZdJasrRnB0NDNNMFZqMUk/bio2rdf_logo.png" alt="Bio2RDF logo" /></a>
+			</div>';
+	$rm .= '<div id ="link">';
+	$rm .= "<h1>Linked Data for the Life Sciences</h1>".PHP_EOL;
+	$rm .= "<h2>GitHub: <a href=\"http://github.com/bio2rdf\">http://github.com/bio2rdf</a></h2>".PHP_EOL;
+	$rm .= "<h2>Wiki: <a href=\"http://github.com/bio2rdf/bio2rdf-scripts/wiki\">http://github.com/bio2rdf/bio2rdf-scripts/wiki</a></h2>".PHP_EOL;
+	$rm .= '<h2><a href ="http://download.bio2rdf.org/current/release.html">-Release 2-</a></h2></div>';
+	return $rm;
+}
+
+
 function addNSNSCounts($eURL, $arr){
 	$rm = "<hr><h2>Inter and Intra dataset namespace links</h2>";
 	$rm .= "<table id='t'>";
@@ -285,8 +365,8 @@ function addUniqueTypesTable($endpointURL, $typeArray){
 	return $rm;
 }
 function addBasicStatsTable($endpoint_url, $numOfTriples, $unique_subjects, $unique_predicates, $unique_objects){
-	$rm ="<h2>Basic data metrics</h2><table><thead><th>Metric</th><th>Value</th></thead><tbody>";
-	$rm .= "<tr><td>Enpoint URL</td><td><a href=\"".$endpoint_url."\">".$endpoint_url."</a></td></tr>";
+	$rm ="<h2>Basic data metrics</h2><table><thead><th></th><th></th></thead><tbody>";
+	$rm .= "<tr><td>Endpoint URL</td><td><a href=\"".$endpoint_url."\">".$endpoint_url."</a></td></tr>";
 	$rm .= "<tr><td>Number of Triples</td><td>".$numOfTriples."</td></tr>";
 	$rm .= "<tr><td>Unique Subject count</td><td>".$unique_subjects."</td></tr>";
 	$rm .= "<tr><td>Unique Predicate count</td><td>".$unique_predicates."</td></tr>";
@@ -319,12 +399,14 @@ function addHeader($aTitle){
 			#link {
 			 margin: 0 auto;
    			 text-align: center;
-   			 width: 800px;
+   			 margin-right:auto;
+   			 margin-left:auto;
+   			 font-size:12px; !important
 			}
 			body{
 			   font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
                font-size: 14px;
-               color:#039;
+               color:#174e74;
 			}
 			</style>';
 	//add some js
@@ -365,7 +447,9 @@ function retrieveStatistics(&$endpoint_arr){
 				//numOfTriples
 				$numOfTriplesJson = trim(@file_get_contents(q1($endpoint_url,$graph_uri)));
 				$endpoint_arr[$name]["triples"] = getNumOfTriples($numOfTriplesJson);
-
+				//get the date
+				$dateJson = trim(@file_get_contents(getDatasetDateQuery($endpoint_url)));
+				$endpoint_arr[$name]['date'] = getDate2($dateJson);
 				//numOfSubjects
 				$numOfSubjectsJson = trim(@file_get_contents(q2($endpoint_url,$graph_uri)));
 				$endpoint_arr[$name]["unique_subjects"] = getNumOfSubjects($numOfSubjectsJson);
@@ -554,6 +638,19 @@ function getNumOfSubjects($aJSON){
 	}
 	return $count;
 }
+function getDate2($aJSON){
+	$decoded = json_decode($aJSON);
+	$count = -1;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		if(isset($results_raw->bindings[0])){
+			$count = $results_raw->bindings[0]->date->value;
+		}else{
+			$count = -1;
+		}
+	}
+	return $count;
+}
 function getNumOfTriples($aJSON){
 	$decoded = json_decode($aJSON);
 	$count = -1;
@@ -693,6 +790,19 @@ function q10($endpoint_url, $graph_url){
 	}else{
 		return false;
 	}
+}
+
+function getDatasetDateQuery($endpoint_url){
+	$rm = "";
+	if(strlen($endpoint_url) != 0){
+		$t = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT DISTINCT ?date";
+		$t .= " WHERE { ?d a data_vocab:Endpoint. ?d data_vocab:has_url ?u. ?p <http://rdfs.org/ns/void#sparqlEndpoint> ?u. ?p <http://purl.org/dc/terms/created> ?date.}";
+		$rm .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
+		return $rm;
+	}else{
+		return false;
+	}
+
 }
 
 function makeFCTURL($endpointURL, $aURL){
