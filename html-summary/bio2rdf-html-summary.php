@@ -155,6 +155,10 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["predicates"] = "256";
 						$returnMe[$name]["objects"] = "12291465";
 						$returnMe[$name]["date"] = "2012-10-15";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = "http://download.bio2rdf.org/release/2/".$name."/".$name.".html";
 					} elseif($name == "bioportal") {
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
@@ -164,6 +168,10 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["predicates"] = "191";
 						$returnMe[$name]["objects"] = "7668644";
 						$returnMe[$name]["date"] = "2012-10-07";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = "http://download.bio2rdf.org/release/2/".$name."/".$name.".html";
 					} elseif($name == "gene"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://".$name.".bio2rdf.org/fct";
@@ -173,15 +181,23 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["predicates"] = "60";
 						$returnMe[$name]["objects"] = "121538103";
 						$returnMe[$name]["date"] = "2012-10-06";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = "http://download.bio2rdf.org/release/2/".$name."/".$name.".html";
 					} elseif($name == "genbank"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
 						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
-						$returnMe[$name]["triples"] = "";
-						$returnMe[$name]["subjects"] = "";
-						$returnMe[$name]["predicates"] = "";
-						$returnMe[$name]["objects"] = "";
+						$returnMe[$name]["triples"] = "6973521";
+						$returnMe[$name]["subjects"] = "884932";
+						$returnMe[$name]["predicates"] = "18";
+						$returnMe[$name]["objects"] = "3206190";
 						$returnMe[$name]["date"] = "2010-08-03";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/1/".$name."/";
+						$returnMe[$name]["metrics"] = null;
 					} elseif($name == "hhpid"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
@@ -191,6 +207,10 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["predicates"] = "14";
 						$returnMe[$name]["objects"] = "9882";
 						$returnMe[$name]["date"] = "2012-10-15";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = null;
 					} elseif($name == "kegg"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
@@ -200,6 +220,10 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["predicates"] = "33";
 						$returnMe[$name]["objects"] = "8338160";
 						$returnMe[$name]["date"] = "2012-10-15";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = "http://download.bio2rdf.org/release/2/".$name."/".$name.".html";
 					} elseif($name == "mgi"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
@@ -209,6 +233,10 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["predicates"] = "27";
 						$returnMe[$name]["objects"] = "1178016";
 						$returnMe[$name]["date"] = "2012-10-15";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = "http://download.bio2rdf.org/release/2/".$name."/".$name.".html";
 					} elseif($name == "pubmed"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
@@ -218,6 +246,10 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["predicates"] = "245";
 						$returnMe[$name]["objects"] = "90175085";
 						$returnMe[$name]["date"] = "2012-09-24";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = "http://download.bio2rdf.org/release/2/".$name."/".$name.".html";
 					} elseif($name == "taxonomy"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
@@ -227,6 +259,10 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["predicates"] = "33";
 						$returnMe[$name]["objects"] = "2467675";
 						$returnMe[$name]["date"] = "2012-10-06";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = "http://download.bio2rdf.org/release/2/".$name."/".$name.".html";
 					} elseif($name == "toxkb"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
@@ -235,7 +271,11 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["subjects"] = "551854";
 						$returnMe[$name]["predicates"] = "39";
 						$returnMe[$name]["objects"] = "576416";
-						$returnMe[$name]["date"] = "";
+						$returnMe[$name]["date"] = "2011-01-01";
+						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
+						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
+						$returnMe[$name]["download"] = null;
+						$returnMe[$name]["metrics"] = null;
 					} elseif($name == "refseq"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
@@ -245,19 +285,25 @@ function parseInstancesTabFile($instances_tab_fn){
 						$returnMe[$name]["predicates"] = "";
 						$returnMe[$name]["objects"] = "";
 						$returnMe[$name]["date"] = "2010-08-04";
-					} elseif($name == "uniprot"){
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
-						$returnMe[$name]["download"] = "cu.http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/1/".$name."/";
+						$returnMe[$name]["metrics"] = null;
+					} elseif($name == "uniprot"){
 						$returnMe[$name]["triples"] = "";
 						$returnMe[$name]["subjects"] = "";
 						$returnMe[$name]["predicates"] = "";
 						$returnMe[$name]["objects"] = "";
 						$returnMe[$name]["date"] = "2010-08-05";
+						$returnMe[$name]["sparql"] = null;
+						$returnMe[$name]["fct"] = null;
+						$returnMe[$name]["download"] = "cu.http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = null;
 					} else {
 						$returnMe[$name]["sparql"] = "http://cu.".$name.".bio2rdf.org/sparql";
 						$returnMe[$name]["fct"] = "http://cu.".$name.".bio2rdf.org/fct";
 						$returnMe[$name]["download"] = "http://download.bio2rdf.org/release/2/".$name."/";
+						$returnMe[$name]["metrics"] = "http://download.bio2rdf.org/release/2/".$name."/".$name.".html";
 						//now add the metrics
 						$metrics = getMetricsCSV($returnMe[$name]["sparql"]);
 						if(strlen($metrics)){
@@ -319,8 +365,8 @@ function htmlPrinter($endpoints){
 
 	body {
 		font-family: \"Lucida Sans Unicode\", \"Lucida Grande\", Sans-Serif;
-		font-size: 12px;
-		color:#039;
+		font-size: 10px;
+		color:#174e74;
 	}
 	
 	#links{
@@ -343,11 +389,12 @@ function htmlPrinter($endpoints){
 </head><body>";
 	$returnMe .= "<a href=\"http://bio2rdf.org\"><img alt=\"Bio2RDF Homepage\" id=\"logo\" src=\"https://googledrive.com/host/0B3GgKfZdJasrRnB0NDNNMFZqMUk/bio2rdf_logo.png\" height=\"80px\"/></a>";
 	$returnMe .= "<div id=\"links\">";
-	$returnMe .= "<h2>GitHub: <a href=\"http://github.com/bio2rdf\">http://github.com/bio2rdf</a></h2>".PHP_EOL;
-	$returnMe .= "<h2>Wiki: <a href=\"http://github.com/bio2rdf/bio2rdf-scripts/wiki\">http://github.com/bio2rdf/bio2rdf-scripts/wiki</a></h2>".PHP_EOL;
-	$returnMe .= "</div>";
+	$returnMe .= "<h1>Linked Data for the Life Sciences</h1>".PHP_EOL;
+	$returnMe .= "<h2>-Release 2-</h2>".PHP_EOL;
+	$returnMe .= '<h2>[<a href="http://bio2rdf.org" target="_blank">website</a>][<a href="http://download.bio2rdf.org/release/2/release.html" target="_blank">datasets</a>][<a href="http://github.com/bio2rdf/bio2rdf-scripts/wiki" target="_blank">documentation</a>]</h2>';
+	$returnMe .= "</div>".PHP_EOL;
 
-	$returnMe .= "<div id=\"tableContainer\">";
+	$returnMe .= "<div id=\"tableContainer\">".PHP_EOL;
 	$returnMe .= "<table class=\"hor-minimalist-a\">".PHP_EOL;
 	$returnMe .= "<thead><tr><th width=\"40\"></th><th width=\"300\">Dataset</th><th width=\"100\">Date generated</th><th width=\"100\"># of triples</th><th width=\"100\"># of unique subjects</th><th width=\"100\"># of unique predicates</th><th width=\"100\"># of unique objects</th></tr></thead>".PHP_EOL;
 	$i = 0;
@@ -355,8 +402,8 @@ function htmlPrinter($endpoints){
 		$i++;
 		$returnMe .= tablePrinter($endpoint_details, $i);
 	}
-	$returnMe .= "</table>";
-	$returnMe .= "</div>";
+	$returnMe .= "</table>".PHP_EOL;
+	$returnMe .= "</div>".PHP_EOL;
 	return $returnMe."</body></html>";
 }
 
@@ -368,7 +415,7 @@ function tablePrinter($rawData, $rowNum){
 	}
 	
 	$rm .= "<td>".$rowNum."</td>";
-	$rm .= "<td width=\"300\"><strong>".$rawData["details"]["name"]." [".$rawData["details"]["namespace"]."]</strong><br />";
+	$rm .= "<td width=\"300\"><strong><a href=\"http://download.bio2rdf.org/release/2/".$rawData["details"]["namespace"]."/".$rawData["details"]["namespace"].".html\">".$rawData["details"]["name"]."</a> [".$rawData["details"]["namespace"]."]</strong><br />";
 	$rm .= $rawData["details"]["description"]."<br />";
 	if(!empty($rawData["details"]["homepage"])){
 		$rm .= "<strong>Homepage:</strong> <a href=\"".$rawData["details"]["homepage"]."\">".$rawData["details"]["homepage"]."</a><br />";
@@ -376,17 +423,25 @@ function tablePrinter($rawData, $rowNum){
 	if(!empty($rawData["details"]["id"])){
 		$rm .= "<strong>Example ID:</strong> ".$rawData["details"]["id"]."<br />";
 	}
-	$rm .= "<strong>Links:</strong> "."<a href=\"".$rawData["metrics"]["fct"]."\">SEARCH</a>";
-	$rm .= " <a href=\"".$rawData["metrics"]["sparql"]."\">QUERY</a>";
-	$rm .= " <a href=\"".$rawData["metrics"]["download"]."\">DOWNLOAD</a>";
-	$rm .= " <a href=\"".$rawData["metrics"]["download"].$rawData["details"]["namespace"].".html\" target=\"_blank\">METRICS</a>";
+	$rm .= "<strong>Links: </strong>";
+	if($rawData["metrics"]["fct"] != null){
+		$rm .= "<a href=\"".$rawData["metrics"]["fct"]."\" target=\"_blank\">SEARCH</a> ";
+	}
+	if($rawData["metrics"]["sparql"] != null){
+		$rm .= "<a href=\"".$rawData["metrics"]["sparql"]."\" target=\"_blank\">QUERY</a> ";
+	}
+	if($rawData["metrics"]["download"] != null){
+		$rm .= " <a href=\"".$rawData["metrics"]["download"]."\" target=\"_blank\">DOWNLOAD</a>";
+	}
+	if($rawData["metrics"]["metrics"] != null){
+		$rm .= " <a href=\"".$rawData["metrics"]["metrics"]."\" target=\"_blank\">METRICS</a>";
+	}
 	$rm .= "</td>";
 	$rm .= "<td width=\"100\">".$rawData["metrics"]["date"]."</td>";
 	$rm .= "<td width=\"100\">".$rawData["metrics"]["triples"]."</td>";
 	$rm .= "<td width=\"100\">".$rawData["metrics"]["subjects"]."</td>";
 	$rm .= "<td width=\"100\">".$rawData["metrics"]["predicates"]."</td>";
 	$rm .= "<td width=\"100\">".$rawData["metrics"]["objects"]."</td>";
-	
 	$rm .= "</tr>".PHP_EOL;
 	return $rm;
 }
