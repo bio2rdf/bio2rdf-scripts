@@ -292,7 +292,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			if($parent_taxid != ""){
 				$this->AddRDF($this->QQuad(
 					"taxon:".$taxid,
-					"taxon_vocabulary:parent",
+					"rdfs:subClassOf",
 					"taxon:".$parent_taxid
 				));
 			}
