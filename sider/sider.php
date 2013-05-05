@@ -183,7 +183,6 @@ class SIDERParser extends RDFFactory
 	function GetPCFromStereo($id)
 	{
 		return ltrim(abs($id),"0");
-
 	}
 	
 	/*
@@ -298,5 +297,4 @@ PT for every side effect, but sometimes the PT is the same as the LLT.
 set_error_handler('error_handler');
 $parser = new SIDERParser($argv);
 $parser->Run();
-
 ?>

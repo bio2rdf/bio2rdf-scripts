@@ -167,7 +167,6 @@ function makeHTML($endpoint_stats){
 		}
 	}
 }
-
 function addNSNSCounts($eURL, $arr){
 	$rm = "<hr><h2>Frequency of Subject-Namespace, Object-Namespace pairs</h2>";
 	$rm .= "<table id='t'>";
@@ -178,7 +177,6 @@ function addNSNSCounts($eURL, $arr){
 	$rm .= "</tbody></table>";
 	return $rm;
 }
-
 function addPredicateObjLinks($eURL, $predArr){
 	$rm = "<hr><h2>List of the unique predicate-object links and their counts</h2>";
 	$rm .= "<table id='t'>";
@@ -302,6 +300,7 @@ function retrieveStatistics(&$endpoint_arr){
 				//numOfTriples
 				$numOfTriplesJson = trim(@file_get_contents(q1($endpoint_url,$graph_uri)));
 				$endpoint_arr[$name]["triples"] = getNumOfTriples($numOfTriplesJson);
+
 				//numOfSubjects
 				$numOfSubjectsJson = trim(@file_get_contents(q2($endpoint_url,$graph_uri)));
 				$endpoint_arr[$name]["unique_subjects"] = getNumOfSubjects($numOfSubjectsJson);
@@ -417,7 +416,6 @@ function getPredObjFreq($aJSON){
 	}
 	return $returnMe;
 }
-
 function getNSNSCounts($aJS){
 	$rm = array();
 	$decoded = json_decode($aJS);
@@ -439,7 +437,6 @@ function getNSNSCounts($aJS){
 	}
 	return $rm;
 }
-
 function getNumOfTypes($aJSON){
 	$returnMe = array();
 	$decoded = json_decode($aJSON);

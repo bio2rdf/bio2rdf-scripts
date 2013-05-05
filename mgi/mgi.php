@@ -203,7 +203,7 @@ class MGIParser extends RDFFactory
 			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-mgi",$mgi_id));
 			$this->AddRDF($this->QQuad($mgi_id, "rdf:type", "mgi_vocabulary:Resource"));
 			$this->AddRDF($this->QQuadL($mgi_id, "dc:identifier", $mgi_id));
-			$this->AddRDF($this->QQuadO_URL($mgi_id, "dc:source", "bio2rdf_dataset:mgi"));				
+			$this->AddRDF($this->QQuadO_URL($mgi_id, "dc:source", "bio2rdf_dataset:mgi"));			
 			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-ncbigene",$ncbigene_id));
 			$this->AddRDF($this->QQuad($ncbigene_id, "rdf:type", "hgnc_vocabulary:Resource"));
 			$this->AddRDF($this->QQuadL($ncbigene_id, "dc:identifier", $ncbigene_id));
