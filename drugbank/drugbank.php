@@ -387,9 +387,9 @@ class DrugBankParser extends RDFFactory
 		}	
 		// clearance
 		if(isset($x->clearance) && $x->clearance != '') {
-			$this->AddRDF($this->QuadL($did,"drugbank_vocabulary:clearance",$this->SafeLiteral($x->clearance)));
+			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:clearance",$this->SafeLiteral($x->clearance)));
 		}	
-		    		
+
 		// experimental-properties
 		if(isset($x->{"experimental-properties"})) {
 			foreach($x->{"experimental-properties"} AS $properties) {
