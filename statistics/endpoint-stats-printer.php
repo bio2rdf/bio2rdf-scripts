@@ -56,14 +56,8 @@ if($options['instances_file'] == 'instances/file/path/'){
 	echo "** Please specify a valid instances file **".PHP_EOL;
 	exit;
 }
-
-
-/********************/
-/** FUNCTION CALLS **/
-/********************/
-
+$options = print_usage($argv, $argc);
 $endpoints =  makeEndpoints($options['instances_file']);
-
 $endpoint_stats = retrieveStatistics($endpoints);
 makeHTML($endpoint_stats);
 
@@ -73,6 +67,40 @@ makeHTML($endpoint_stats);
 /***************/
 /** FUNCTIONS **/
 /***************/
+function print_usage($argv, $argc){
+	$options = array(
+		"instances_file" => "/instances/file/path/",
+	);
+
+	// show command line options
+	if($argc == 1) {
+		echo "Usage: php $argv[0] ";
+		foreach($options AS $key => $value) {
+	  		echo "$key=$value ".PHP_EOL;
+	 	}
+	}
+
+	// set options from user input
+	foreach($argv AS $i => $arg) {
+		if($i==0){
+			continue;
+		} 
+	 	$b = explode("=",$arg);
+	 	if(isset($options[$b[0]])){
+	 		$options[$b[0]] = $b[1];
+	 	} else {
+	 		echo "Uknown option: $b[0]";
+	 		exit;
+	 	}//else
+	}//foreach
+
+	if($options['instances_file'] == 'instances/file/path/'){
+		echo "** Please specify a valid instances file **".PHP_EOL;
+		exit;
+	}
+	return $options;
+}
+
 function makeEndpoints ($aFileName){
 	//return an array with the endpoint information
 	$returnMe = array();
@@ -96,6 +124,7 @@ function makeEndpoints ($aFileName){
 					if(strlen($info['http_port']) && strlen($info['ns']) && strlen($info['isql_port'])){
 						$returnMe[$info['ns']] = array(
 							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org:".$info['http_port']."/sparql",
+//							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org/sparql",
 							'graph_uri' => "http://bio2rdf.org/bio2rdf-".$info['ns']."-statistics",
 							'isql_port' => $info['isql_port'],
 							);
@@ -129,14 +158,25 @@ function makeHTML($endpoint_stats){
 				$html .= addPredicateLiteralLinks($d['endpoint_url'],$d['predicate_literals']);
 				$html .= addSubjectCountPredicateObjectCount($d['endpoint_url'],$d['subject_count_predicate_object_count']);
 				$html .= addSubjectPredicateUniqueLits($d['endpoint_url'],$d['subject_count_predicate_literal_count']);
-				//$html .= q10_print($d['endpoint_url'], $d['graph_uri']);
 				$html .= addSubjectTypePredType($d['endpoint_url'],$d['subject_type_predicate_object_type']);
+				$html .= addNSNSCounts($d['endpoint_url'], $d['nsnscounts']);
 				$html .= "</div></body></html>";
 				fwrite($fo, $html);
 			}
 			fclose($fo);
 		}
 	}
+}
+
+function addNSNSCounts($eURL, $arr){
+	$rm = "<hr><h2>Frequency of Subject-Namespace, Object-Namespace pairs</h2>";
+	$rm .= "<table id='t'>";
+	$rm .= "<thead><tr><th>Namespace</th><th>Namespace</th><th>Counts</th></tr></thead><tbody>";
+	foreach($arr as $p => $c){
+		$rm .= "<tr><td>".$c['ns1']."</td><td>".$c['ns2']."</td><td>".$c['count']."</td></tr>";
+	}
+	$rm .= "</tbody></table>";
+	return $rm;
 }
 
 function addPredicateObjLinks($eURL, $predArr){
@@ -255,8 +295,10 @@ function retrieveStatistics(&$endpoint_arr){
 			$endpoint_url = $details["endpoint_url"];
 			$graph_uri = $details["graph_uri"];
 			if(strlen($endpoint_url) != 0 && strlen($graph_uri) != 0){
-				
 				//now retrieve each of the stats
+				//nsns counts
+				$nsnsJSON = trim(@file_get_contents(nsQ($endpoint_url,$graph_uri)));
+				$endpoint_arr[$name]["nsnscounts"] = getNSNSCounts($nsnsJSON);
 				//numOfTriples
 				$numOfTriplesJson = trim(@file_get_contents(q1($endpoint_url,$graph_uri)));
 				$endpoint_arr[$name]["triples"] = getNumOfTriples($numOfTriplesJson);
@@ -375,6 +417,29 @@ function getPredObjFreq($aJSON){
 	}
 	return $returnMe;
 }
+
+function getNSNSCounts($aJS){
+	$rm = array();
+	$decoded = json_decode($aJS);
+	if(isset($decoded->results)){
+		$rr = $decoded->results;
+		foreach($rr->bindings as $r){
+			$key = $r->x->value;
+			if(!array_key_exists($key, $rm)){
+				$count = $r->count->value;
+				$ns1 = $r->ns1->value;
+				$ns2 = $r->ns2->value;
+				$rm[$key] = array(
+					'count' => $count,
+					'ns1' => $ns1,
+					'ns2' => $ns2,
+					);
+			}
+		}
+	}
+	return $rm;
+}
+
 function getNumOfTypes($aJSON){
 	$returnMe = array();
 	$decoded = json_decode($aJSON);
@@ -439,6 +504,22 @@ function getNumOfTriples($aJSON){
 		}
 	}
 	return $count;
+}
+
+function nsQ($endpoint_url, $graph_url){
+	$rm = "";
+	if(strlen($endpoint_url) !=0 && strlen($graph_url) != 0){
+		$t = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> select * from <";
+		$t .= $graph_url."> where { ?x a data_vocab:Namespace_Namespace_Count.";
+		$t .= " ?x <http://bio2rdforg/dataset_vocabulary:has_nsns_count_value> ?count.";
+		$t .= " ?x data_vocab:namespace ?ns1.";
+		$t .= " ?x data_vocab:namespace ?ns2.";
+		$t .= " FILTER (?ns1 != ?ns2).}";
+		$rm = $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
+		return $rm;
+	}else{
+		return false;
+	}
 }
 
 function q1($endpoint_url, $graph_url){
