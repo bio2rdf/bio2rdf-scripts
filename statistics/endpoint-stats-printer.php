@@ -26,12 +26,40 @@
 *It reads in an instances.tab file as used by our servers
 **/
 
+$options = array(
+	"instances_file" => "instances/file/path/",
+);
 
+<<<<<<< HEAD
+// show command line options
+if($argc == 1) {
+	echo "Usage: php $argv[0] ";
+	foreach($options AS $key => $value) {
+  		echo "$key=$value ".PHP_EOL;
+ 	}
+}
+
+// set options from user input
+foreach($argv AS $i => $arg) {
+	if($i==0){
+		continue;
+	} 
+ 	$b = explode("=",$arg);
+ 	if(isset($options[$b[0]])){
+ 		$options[$b[0]] = $b[1];
+ 	} else {
+ 		echo "Uknown option: $b[0]";
+ 		exit;
+ 	}//else
+}//foreach
+=======
 //TODO: add lsr_file to parser
+>>>>>>> bio2rdf-master/master
 
-/********************/
-/** FUNCTION CALLS **/
-/********************/
+if($options['instances_file'] == 'instances/file/path/'){
+	echo "** Please specify a valid instances file **".PHP_EOL;
+	exit;
+}
 $options = print_usage($argv, $argc);
 $endpoints =  makeEndpoints($options['instances_file']);
 $lsr_arr = readLSRIntoArr($options['lsr_file']);
@@ -170,7 +198,8 @@ function makeEndpoints ($aFileName){
 					}
 					if(strlen($info['http_port']) && strlen($info['ns']) && strlen($info['isql_port'])){
 						$returnMe[$info['ns']] = array(
-							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org/sparql",
+							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org:".$info['http_port']."/sparql",
+//							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org/sparql",
 							'graph_uri' => "http://bio2rdf.org/bio2rdf-".$info['ns']."-statistics",
 							'isql_port' => $info['isql_port'],
 							);
