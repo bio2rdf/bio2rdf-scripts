@@ -61,7 +61,7 @@ class PubChemParser extends RDFFactory{
 		$this->AddParameter('graph_uri',false,null,null,'provide a graph uri to generate n-quads');
 		$this->AddParameter('workspace',false,null,'../../workspace/pubchem/','directory to mount pubchem FTP server');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('remote_server',false,null,'ftp.ncbi.nlm.nih.gov/pubchem/');
+		$this->AddParameter('download_url',false,null,'ftp.ncbi.nlm.nih.gov/pubchem/');
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
@@ -149,7 +149,7 @@ class PubChemParser extends RDFFactory{
 		}
 
 		echo "Setting up FTP mount:\n";
-		exec("curlftpfs ".$this->getParameterValue('remote_server')." ".$this->getParameterValue('workspace'));
+		exec("curlftpfs ".$this->getParameterValue('download_url')." ".$this->getParameterValue('workspace'));
 	}
 
 	/**

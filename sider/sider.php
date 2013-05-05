@@ -103,25 +103,23 @@ class SIDERParser extends RDFFactory
 		
 		// generate the release file
 		// @TODO
-		/*
 		$desc = $this->GetBio2RDFDatasetDescription(
 			$this->GetNamespace(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sider/sider.php", 
 			$bio2rdf_download_files,
-			"http://www.ncbi.nlm.nih.gov/gene",
-			array("use-share-modify"),
-			"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
-			"ftp://ftp.ncbi.nih.gov/gene/",
+			"http://sideeffects.embl.de/",
+			array("use-share-modify","restricted-by-source-license"),
+			"http://creativecommons.org/licenses/by-nc-sa/3.0/",
+			"http://sideeffects.embl.de/media/download/",
 			$this->version
 		);
 		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
 		$this->GetWriteFile()->Write($desc);
 		$this->GetWriteFile()->Close();
-		*/
 	}
 
 /*
-	1 & 2: generic and brand names
+1 & 2: generic and brand names
 
 3: a marker if the drug could be successfully mapped to STITCH. Possible values:
  - [empty field]: success
@@ -185,6 +183,7 @@ class SIDERParser extends RDFFactory
 	function GetPCFromStereo($id)
 	{
 		return ltrim(abs($id),"0");
+
 	}
 	
 	/*
@@ -289,24 +288,15 @@ meddra_adverse_effects.tsv.gz
 All side effects found on the labels are given as LLT. Additionally, the PT is shown. There is at least one
 PT for every side effect, but sometimes the PT is the same as the LLT. 
 */
-
 // @TODO
 	function meddra_adverse_effects()
 	{
-/*
-		while($l = $this->GetReadFile()->Read()) {
-			$a = explode("\t",$l);
-			
-			
-			print_r($a);exit;
-			
-		}
-		$this->WriteRDFBufferToWriteFile();	
-*/
+		
 	}
 }
 
 set_error_handler('error_handler');
 $parser = new SIDERParser($argv);
 $parser->Run();
+
 ?>
