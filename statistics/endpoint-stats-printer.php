@@ -30,7 +30,7 @@ $options = array(
 	"instances_file" => "instances/file/path/",
 );
 
-<<<<<<< HEAD
+
 // show command line options
 if($argc == 1) {
 	echo "Usage: php $argv[0] ";
@@ -52,9 +52,6 @@ foreach($argv AS $i => $arg) {
  		exit;
  	}//else
 }//foreach
-=======
-//TODO: add lsr_file to parser
->>>>>>> bio2rdf-master/master
 
 if($options['instances_file'] == 'instances/file/path/'){
 	echo "** Please specify a valid instances file **".PHP_EOL;
