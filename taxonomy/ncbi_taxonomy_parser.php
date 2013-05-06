@@ -247,6 +247,16 @@ class NCBITaxonomyParser extends RDFFactory{
 					"taxon_vocabulary:has_value",
 					str_replace("\"","",utf8_encode($name))
 				));
+				$this->AddRDF($this->QQuadL(
+					"taxon_resource:".md5($r.$taxid),
+					"rdfs:label",
+					str_replace("\"","",utf8_encode($name_class))
+				));
+				$this->AddRDF($this->QQuadL(
+					"taxon_resource:".md5($r.$taxid),
+					"rdfs:label",
+					str_replace("\"","",utf8_encode($name_class))
+				));
 			}
 			
 			$this->AddRDF($this->QQuad("taxon:".$taxid, "void:inDataset", $this->getDatasetURI()));
