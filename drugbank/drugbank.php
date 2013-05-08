@@ -626,7 +626,7 @@ class DrugBankParser extends RDFFactory
 						$ddi_id = "drugbank_resource:".$dbid."_".$ddi->drug;
 						$this->AddRDF($this->QQuad("drugbank:".$ddi->drug,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
 						$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
-						$this->AddRDF($this->QQuadL($ddi_id,"rdfs:label","DDI between $name and ".$ddi->name." - ".trim($ddi->description)." [$ddi_id]"));
+						$this->AddRDF($this->QQuadL($ddi_id,"rdfs:label","DDI between $name and ".$ddi->name." - ".trim($this->SafeLiteral($ddi->description))." [$ddi_id]"));
 						$this->AddRDF($this->QQuad($ddi_id,"rdf:type","drugbank_vocabulary:Drug-Drug-Interaction"));
 					}
 				}
