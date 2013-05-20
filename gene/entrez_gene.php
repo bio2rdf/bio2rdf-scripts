@@ -382,7 +382,7 @@ class EntrezGeneParser extends RDFFactory{
 		$this->GetReadFile()->Read(200000);
 		while($aLine = $this->GetReadFile()->Read(200000)){
 				$splitLine = explode("\t",$aLine);
-				if(count($splitLine) == 13){
+				if(count($splitLine) == 16){
 					$taxid =  trim($splitLine[0]);
 					$aGeneId = trim($splitLine[1]);
 					$status = trim($splitLine[2]);
@@ -396,6 +396,18 @@ class EntrezGeneParser extends RDFFactory{
 					$endPositionOnGenomicAccession = trim($splitLine[10]);
 					$orientation = trim($splitLine[11]);
 					$assembly = trim($splitLine[12]);
+					$mature_peptide_accession_version = trim($splitLine[13]);
+					$mature_peptide_gi = trim($splitLine[14]);
+					$symbol = trim($splitLine[15]);
+					//TODO: add mature peptide accession version
+					//symbol
+					$this->AddRDF($this->QQuadL("geneid:".$aGeneId, 
+							"geneid_vocabulary:has_gene_symbol",
+							$symbol));
+					//mature_peptide_gi
+					$this->AddRDF($this->QQuad("geneid:".$aGeneId, 
+							"geneid_vocabulary:has_mature_peptide_gi",
+							"gi:".$mature_peptide_gi));
 					//taxid
 					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 							"geneid_vocabulary:has_taxid",
