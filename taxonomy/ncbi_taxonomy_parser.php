@@ -224,12 +224,41 @@ class NCBITaxonomyParser extends RDFFactory{
 			$name = str_replace("\t","",trim($a[1]));
 			$unique_name = str_replace("\t","",trim($a[2]));
 			$name_class = str_replace("\t","",trim($a[3]));
-			//create a resource
-			$this->AddRDF($this->QQuadL(
-				"taxon:".$taxid,
-				"rdfs:label",
-				str_replace("\"","",utf8_encode($name))."[taxon:".$taxid."]"
-			));
+			if($name_class == "scientific name"){
+				$this->AddRDF($this->QQuadL(
+					"taxon:".$taxid,
+					"rdfs:label",
+					str_replace("\"","",utf8_encode($name))." [taxon:".$taxid."]"
+				));	
+			}else{
+				$r = rand();
+				$this->AddRDF($this->QQuad(
+					"taxon:".$taxid,
+					"taxon_vocabulary:has_name_class",
+					"taxon_resource:".md5($r.$taxid)
+				));
+				$this->AddRDF($this->QQuad(
+					"taxon_resource:".md5($r.$taxid),
+					"rdf:type",
+					"taxon_resource:name_class"
+				));
+				$this->AddRDF($this->QQuadL(
+					"taxon_resource:".md5($r.$taxid),
+					"taxon_vocabulary:has_value",
+					str_replace("\"","",utf8_encode($name))
+				)); 
+				$this->AddRDF($this->QQuadL(
+					"taxon_resource:".md5($r.$taxid),
+					"rdfs:label",
+					str_replace("\"","",utf8_encode($name))
+				));
+				$this->AddRDF($this->QQuadL(
+					"taxon_resource:".md5($r.$taxid),
+					"rdf:type",
+					preg_replace('/\s+/','',str_replace("\"","",utf8_encode($name_class)))
+				));
+			}
+			
 			$this->AddRDF($this->QQuad("taxon:".$taxid, "void:inDataset", $this->getDatasetURI()));
 			//type it
 			$this->AddRDF($this->QQuad(
@@ -247,14 +276,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			}
 			
 			
-			//add name class
-			if($name_class != "" && $name_class != null){
-				$this->AddRDF($this->QQuadL(
-					"taxon:".$taxid,
-					"taxon_vocabulary:name_class",
-					str_replace("\"","",utf8_encode($name_class))
-				));
-			}
+			
 			//type it
 			$this->WriteRDFBufferToWriteFile();
 		}//while
@@ -277,11 +299,6 @@ class NCBITaxonomyParser extends RDFFactory{
 			$hidden_st_root_flag = str_replace("\t","",trim($a[11]));
 			$comments = str_replace("\t","",trim($a[12]));
 			//create a resource
-			$this->AddRDF($this->QQuadL(
-				"taxon:".$taxid,
-				"rdfs:label",
-				"taxon [taxon:".$taxid."]"
-			));
 			$this->AddRDF($this->QQuad("taxon:".$taxid, "void:inDataset", $this->getDatasetURI()));
 			//type it
 			$this->AddRDF($this->QQuad(
@@ -289,10 +306,10 @@ class NCBITaxonomyParser extends RDFFactory{
 				"rdf:type",
 				"taxon_vocabulary:taxon"
 			));
-			if($parent_taxid != ""){
+			if($parent_taxid != "" && $taxid != "1"){
 				$this->AddRDF($this->QQuad(
 					"taxon:".$taxid,
-					"taxon_vocabulary:parent",
+					"rdfs:subClassOf",
 					"taxon:".$parent_taxid
 				));
 			}
@@ -388,7 +405,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			$this->AddRDF($this->QQuadL(
 				"taxon_resource:".md5("division_id_".$division_id),
 				"rdfs:label",
-				str_replace("\"","",utf8_encode($name))."[taxon_resource:".$division_id."]"
+				str_replace("\"","",utf8_encode($name))." [taxon_resource:".$division_id."]"
 			));
 			$this->AddRDF($this->QQuad("taxon_resource:".md5("division_id_".$division_id), "void:inDataset", $this->getDatasetURI()));
 			//type it
@@ -427,7 +444,7 @@ class NCBITaxonomyParser extends RDFFactory{
 			$this->AddRDF($this->QQuadL(
 				"taxon_resource:".md5("gencode_id_".$gencode),
 				"rdfs:label",
-				str_replace("\"","",utf8_encode($name))."[taxon_resource:".$gencode."]"
+				str_replace("\"","",utf8_encode($name))." [taxon_resource:".$gencode."]"
 			));
 			$this->AddRDF($this->QQuad("taxon_resource:".md5("gencode_id_".$gencode), "void:inDataset", $this->getDatasetURI()));
 

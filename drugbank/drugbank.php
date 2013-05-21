@@ -387,9 +387,9 @@ class DrugBankParser extends RDFFactory
 		}	
 		// clearance
 		if(isset($x->clearance) && $x->clearance != '') {
-			$this->AddRDF($this->QuadL($did,"drugbank_vocabulary:clearance",$this->SafeLiteral($x->clearance)));
+			$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:clearance",$this->SafeLiteral($x->clearance)));
 		}	
-		    		
+
 		// experimental-properties
 		if(isset($x->{"experimental-properties"})) {
 			foreach($x->{"experimental-properties"} AS $properties) {
@@ -626,7 +626,7 @@ class DrugBankParser extends RDFFactory
 						$ddi_id = "drugbank_resource:".$dbid."_".$ddi->drug;
 						$this->AddRDF($this->QQuad("drugbank:".$ddi->drug,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
 						$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
-						$this->AddRDF($this->QQuadL($ddi_id,"rdfs:label","DDI between $name and ".$ddi->name." - ".trim($ddi->description)." [$ddi_id]"));
+						$this->AddRDF($this->QQuadL($ddi_id,"rdfs:label","DDI between $name and ".$ddi->name." - ".trim($this->SafeLiteral($ddi->description))." [$ddi_id]"));
 						$this->AddRDF($this->QQuad($ddi_id,"rdf:type","drugbank_vocabulary:Drug-Drug-Interaction"));
 					}
 				}
