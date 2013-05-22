@@ -36,8 +36,8 @@ class BioPAXParser extends RDFFactory
 		
 		// set and print application parameters
 		$this->AddParameter('files',true,null,'all','entries to process: comma-separated list or hyphen-separated range');
-		$this->AddParameter('indir',false,null,'/tmp/biopax/download/','directory to download into and parse from');
-        $this->AddParameter('outdir',false,null,'/tmp/biopax/data/','directory to place rdfized files');
+		$this->AddParameter('indir',false,null,'/data/download/biopax','directory to download into and parse from');
+        $this->AddParameter('outdir',false,null,'/data/rdf/biopax/','directory to place rdfized files');
         $this->AddParameter('download',false,'true|false','download remote file to indirectory');
         $this->AddParameter('download_url',false,null,'http://pathway-commons.googlecode.com/files/pathwaycommons2-Sept2012.owl.zip');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
