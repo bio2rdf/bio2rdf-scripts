@@ -22,42 +22,27 @@ SOFTWARE.
 
  @author :: Dana Klasen
  @author :: Michel Dumontier
- @version :: 0.2
+ @version :: 0.3
  @description ::  clinicaltrials.gov parser
 */
 
-require('../../php-lib/rdfapi.php');
-require('../../php-lib/xmlapi.php');
-class ClinicalTrialsParser extends RDFFactory{
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/xmlapi.php');
 
-	private $version = null;
-
+class ClinicalTrialsParser extends Bio2RDFizer
+{
 	function __construct($argv){
-		parent::__construct();
+		parent::__construct($argv,"clinicaltrials");
 
-		$this->SetDefaultNamespace("clinicaltrials");
-		$this->AddParameter('process',true,'crawl|download|local','local','select how to process files from the clinical open trials website');
-		$this->AddParameter('files',false,'all|study|results','all','files to process');
-		$this->AddParameter('indir',false,null,'/data/download/clinicaltrials/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/clinicaltrials/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'specify a graph uri to generate nquads');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('remote_server',false,null,'http://clinicaltrials.gov/ct2/crawl');
-
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
+		parent::addParameter('files',false,'all|study|results','all','files to process');
+		parent::addParameter('process',true,'crawl|download|local','local','select how to process files from the clinical open trials website');
+		parent::addParameter('download_url',false,null,'http://clinicaltrials.gov/ct2/crawl');
 		
-		return TRUE;
+		parent::initialize();
 	}
 
 	function run(){
-		switch($this->GetParameterValue('process')) {
+		switch(parent::getParameterValue('process')) {
 			case "crawl":
 				$this->crawl();
 				break;
@@ -65,19 +50,17 @@ class ClinicalTrialsParser extends RDFFactory{
 				$this->crawl();
 				break;
 			case  "local" :
-				echo "parsing local directory:\n";
+				echo "parsing local directory".PHP_EOL;
 				$this->parse_dir();
 				break;
 		}
 	}
 
-	/**
-	* parse directory of files
-	**/
+	/** parse directory of files */
 	function parse_dir(){
-		$indir = $this->GetParameterValue('indir');
+		$indir = parent::getParameterValue('indir');
 
-		if( $handle = opendir($indir)) {
+		if($handle = opendir($indir)) {
 			echo "processing directory $indir\n";
 			echo "Parsing entries\n";
 
@@ -119,7 +102,7 @@ class ClinicalTrialsParser extends RDFFactory{
 	* scape the clinical gov site for the links to invididual records
 	**/
 	function crawl(){
-		$crawl_url = $this->GetParameterValue("remote_server"); //"http://clinicaltrials.gov/ct2/crawl";
+		$crawl_url = parent::getParameterValue("download_url"); //"http://clinicaltrials.gov/ct2/crawl";
 		$html = file_get_contents($crawl_url);
 
 		$dom = new DOMDocument();
@@ -166,14 +149,14 @@ class ClinicalTrialsParser extends RDFFactory{
 	function fetch_page($url){
 		preg_match("/show\/(NCT[0-9]+)/",$url,$m);
 		$file = $m[1];
-		$outfile = $this->GetParameterValue("indir")."/".$file.".xml";
+		$outfile = parent::getParameterValue("indir")."/".$file.".xml";
 		$xml = file_get_contents($url);
 		
 		# save the file
 		file_put_contents($outfile,$xml);
 
 		// only parse the page if the process was set
-		if($this->GetParameterValue("process") == "crawl"){
+		if($parent::getParameterValue("process") == "crawl"){
 			$sub_dir = $this->get_sub_dir($outfile);
 			$this->process_result($outfile,$sub_dir);
 		}
@@ -183,60 +166,82 @@ class ClinicalTrialsParser extends RDFFactory{
 	* process a results xml file from the download directory
 	**/
 	function process_result($infile,$curr_block){
-		$indir = $this->GetParameterValue('indir');
-
-		$outfile = $this->GetParameterValue("outdir");
-		$this->CreateDirectory($outfile); 
-		$outfile.=basename($infile,".xml").".nt";
+		$indir = parent::getParameterValue('indir');
+		$outfile = parent::getParameterValue("outdir");
+		$outfile.= basename($infile,".xml").".nt";
 		
 		$gz = false;
-		if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
+		if(strstr(parent::getParameterValue('output_format'),".gz")) {
+			$outfile .= '.gz';$gz = true;
+		}
 		
-		$this->SetWriteFile($outfile,$gz);
+		$this->setWriteFile($outfile,$gz);
 
 		$xml = new CXML($indir,basename($infile));
 		while($xml->Parse("clinical_study") == TRUE) {
-
-			$root = $xml->GetXMLRoot();
-			#########################################################################################
-			# study ids
-			#########################################################################################
-			$nct_id       = @array_shift($root->xpath("//id_info/nct_id"));
-			$org_study_id = @array_shift($root->xpath("//id_info/org_study_id"));
-			$secondary_id = @array_shift($root->xpath("//id_info/secondary_id"));
-
-			$study_id = "clinicaltrials:".$nct_id;
-			$this->AddRDF($this->QQuad($study_id,"rdf:type","clinicaltrials_vocabulary:Clinical-Study"));
-			$this->AddRDF($this->QQuadl($study_id,"dc:identifier",$nct_id));
+			$this->root = $root = $xml->GetXMLRoot();
 			
-			$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:org-study-identifier",$org_study_id));
-			$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:secondary-identifier",$secondary_id));
-
+			$nct_id = $this->getString("//id_info/nct_id");
+			$study_id = parent::getNamespace().":$nct_id";
+			
 			##########################################################################################
-			#brief trial
+			#brief title
 			##########################################################################################
-			$brief_title = @array_shift($root->xpath("//brief_title"));
+			$brief_title = $this->getString("//brief_title");
 			if($brief_title != ""){
-				$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:brief-title",$this->SafeLiteral($brief_title)));
-				$this->AddRDF($this->QQuadl($study_id,"rdfs:label",$this->SafeLiteral($brief_title)." [$study_id]"));
+				$this->AddRDF(
+					parent::triplifyString($study_id,parent::getVoc()."brief-title",$brief_title)
+				);
 			}
 
 			##########################################################################################
 			#official title
 			##########################################################################################
-			$official_title = @array_shift($root->xpath("//official_title"));
+			$official_title = $this->getString("//official_title");
 			if($official_title != "") {
-				$this->AddRDF($this->QQuadl($study_id,"dc:title",$this->SafeLiteral($official_title)));
-				if(!$brief_title) $this->AddRDF($this->QQuadl($study_id,"rdfs:label",$this->SafeLiteral($official_title)." [$study_id]"));
+				$this->AddRDF(
+					parent::triplifyString($study_id,parent::getVoc()."official-title",$official_title)
+				);
+			}
+			if($brief_title != '') $label = $brief_title;
+			if(!$label && $official_title != '') $label = $official_title;
+			if(!$label) $label = "clinical trial #".$nct_id;
+			
+			###################################################################################
+			#brief summary
+			###################################################################################
+			$brief_summary = $this->getString('//brief_summary/textblock');
+			$brief_summary = str_replace(array("\r","\n","\t","      "),"",trim($brief_summary));
+			if($brief_summary) {
+				$this->AddRDF(
+					parent::triplifyString($study_id,$this->getVoc()."brief-summary",$brief_summary)
+				);
 			}
 			
+			// we have enough to describe the study
+			$this->AddRDF(
+				parent::describeIndividual($study_id,$label,$official_title,$brief_summary,parent::getVoc()."Clinical-Study")
+			);
+			
+			#########################################################################################
+			# study ids
+			#########################################################################################
+			$org_study_id = $this->getString("//id_info/org_study_id");
+			$secondary_id = $this->getString("//id_info/secondary_id");
+
+			$this->AddRDF(
+				parent::triplifyString($study_id,parent::getVoc()."org-study-identifier",$org_study_id).
+				parent::triplifyString($study_id,parent::getVoc()."secondary-identifier",$secondary_id)
+			);
 
 			#########################################################################################
 			#acronym
 			#########################################################################################
-			$acronym = @array_shift($root->xpath("//acronym"));
+			$acronym = $this->getString("//acronym");
 			if($acronym != ""){
-				$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:acronym",$this->SafeLiteral($acronym)));
+				$this->AddRDF(
+					parent::triplifyString($study_id,parent::getVoc()."acronym",$acronym)
+				);
 			}
 
 			########################################################################################
@@ -244,51 +249,54 @@ class ClinicalTrialsParser extends RDFFactory{
 			########################################################################################
 			try {
 				$lead_sponsor = @array_shift($root->xpath('//sponsors/lead_sponsor'));
-				$agency       = @array_shift($lead_sponsor->xpath("//agency"));
-				$agency_class = @array_shift($lead_sponsor->xpath("//agency_class"));
-				$lead_sponsor_id = "clinicaltrials_resource:".md5($lead_sponsor->asXML());
-                $this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:lead-sponsor",$lead_sponsor_id));
-                $this->AddRDF($this->QQuad($lead_sponsor_id,"rdf:type","clinicaltrials_vocabulary:Lead-Sponsor"));
-				$this->AddRDF($this->QQuadl($lead_sponsor_id,"dc:title",$this->SafeLiteral($agency)));
-				$this->AddRDF($this->QQuadl($lead_sponsor_id,"rdfs:label",$this->SafeLiteral($agency)." [$lead_sponsor_id]"));
-				$this->AddRDF($this->QQuadl($lead_sponsor_id,"clinicaltrials_vocabulary:agency-class",$this->SafeLiteral($agency_class)));
+				$lead_sponsor_id = parent::getRes().md5($lead_sponsor->asXML());
+				
+				$agency       = $this->getString("//sponsors/lead_sponsor/agency");
+				$agency_class = $this->getString("//sponsors/lead_sponsor/agency_class");
+				
+                $this->AddRDF(
+					parent::triplify($study_id,parent::getVoc()."lead-sponsor",$lead_sponsor_id).
+					parent::describeIndividual($lead_sponsor_id,$agency,$agency,null,"en",parent::getVoc()."Lead-Sponsor").
+					parent::describeClass(parent::getVoc()."Lead-Sponsor","Lead Sponsor").
+					parent::triplifyString($lead_sponsor_id,parent::getVoc()."agency-class",$agency_class)
+				);
 			}catch( Exception $e){
 				echo "There was an error in the lead sponsor element: $e\n";
 			}
 
 			######################################################################################
-			#oversight info
+			# oversight
 			######################################################################################
 			try {
-				$over_site = @array_shift($root->xpath('//oversight_info'));
-				$authority = @array_shift($over_site->xpath('//authority'));
-				$os_id = "clinicaltrials_resource:".md5($over_site->asXML());
-                $this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:oversight-authority",$os_id));
-                $this->AddRDF($this->QQuad($os_id,"rdf:type","clinicaltrials_vocabulary:Oversight-Authority"));
-				$this->AddRDF($this->QQuadl($os_id,"rdfs:label",$authority." [$os_id]"));
-				$this->AddRDF($this->QQuadl($os_id,"dc:title",$authority));
+				$oversight = @array_shift($root->xpath('//oversight_info'));
+				$oversight_id = parent::getRes().md5($oversight->asXML());
+				$authority = $this->getString('//oversight_info/authority');
+                $this->AddRDF(	
+					parent::triplify($study_id,$this->getVoc()."oversight-authority",$oversight_id).
+					parent::describeIndividual($oversight_id,$authority,$authority,null,"en",$this->getVoc()."Oversight-Authority")
+				);
 			} catch(Exception $e){
 				echo "There was an error in the oversight info element: $e\n";
 			}
 			####################################################################################
-			# has_dmc
+			# dmc
 			####################################################################################
-			$has_dmc   = @array_shift($over_site->xpath('//has_dmc'));
-			if($has_dmc != ""){
-				$this->AddRDF($this->QQuadl($os_id,"clinicaltrials_vocabulary:dmc",$has_dmc)); // what's a dmc?
-			}
-
-			###################################################################################
-			#brief summary
-			###################################################################################
-			$brief_summary = @array_shift($root->xpath('//brief_summary/textblock'));
-			if($brief_summary) $this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:brief-summary",$this->SafeLiteral($brief_summary)));
+			$dmc   = $this->getString('//has_dmc');
+			if($dmc != ""){
+				$this->AddRDF(
+					parent::triplifyString($os_id,parent::getVoc()."dmc",$dmc)
+				);
+			}			
 
 			####################################################################################
 			# detailed description
 			####################################################################################
-			$detailed_description = @array_shift($root->xpath('//detailed_description/textblock'));
-			if($detailed_description) $this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:detailed-description",$this->SafeLiteral($detailed_description)));
+			$detailed_description = $this->getString('//detailed_description/textblock');
+			if($detailed_description) {
+				$this->AddRDF(
+					parent::triplifyString($study_id,parent::getVoc()."detailed-description",$detailed_description)
+				);
+			}
 
 			#################################################################################
 			# overall status
@@ -296,17 +304,21 @@ class ClinicalTrialsParser extends RDFFactory{
 			$overall_status = @array_shift($root->xpath('//overall_status'));
 			if($overall_status) {
 				$status_id = "clinicaltrials_resource:".md5($overall_status);
-				$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:overall-status",$status_id));
-				$this->AddRDF($this->QQuad($status_id,"rdf:type","clinicaltrials_vocabulary:Status"));
-				$this->AddRDF($this->QQuadL($status_id,"rdfs:label",$overall_status));
+				$this->AddRDF(
+					parent::triplify($study_id,parent::getVoc()."overall-status",$status_id).
+					parent::describe($status_id,$overall_status,$overall_status,null,null,parent::getVoc()."Status")
+				);
 			}
 
 			##################################################################################
 			# start date
 			##################################################################################
-			$start_date = @array_shift($root->xpath('//start_date'));
+			$start_date = $this->getString('//start_date');
 			if($start_date) {
-				$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:start-date",$this->SafeLiteral($start_date)));
+				// July 2002
+				$this->AddRDF(
+					parent::triplifyString($study_id,parent::getVoc()."start-date",$start_date)
+				);
 			}
 
 			###################################################################################
@@ -746,13 +758,13 @@ class ClinicalTrialsParser extends RDFFactory{
 			$this->WriteRDFBufferToWriteFile();
 
 		}
-
 		$this->getWriteFile()->close();
-
+	}
+	
+	function getString($xpath)
+	{
+		$r = @array_shift($this->root->xpath($xpath));
+		return ((string)$r[0]);
 	}
 }
-
-$parser = new ClinicalTrialsParser($argv);
-$parser->run();
-
 ?>
