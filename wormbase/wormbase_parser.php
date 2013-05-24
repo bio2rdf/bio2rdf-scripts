@@ -53,6 +53,14 @@ class WormbaseParser extends RDFFactory{
 		$ldir = $this->GetParameterValue('indir');
 		//output dir
 		$odir = $this->GetParameterValue('outdir');
+		if(substr($ldir, -1) == "/"):
+		else: 
+			$ldir = $ldir."/";
+		endif;
+		if(substr($odir, -1) == "/"):
+		else: 
+			$odir = $odir."/";
+		endif;
 		$selectedPackage = trim($this->GetParameterValue('files'));	#File to rdfsize
 		$convertTheseFiles = array();
 		if($selectedPackage == 'all'):
@@ -67,11 +75,11 @@ class WormbaseParser extends RDFFactory{
 				//seteamos el archivo que se parsearea
 				$lfile = "c_elegans.WS235.geneIDs.txt";
 				//create a file pointer
-				$fp = fopen($lfile, "r") or die("Could not open file !\n");
+				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
 				$fout = "Gene_IDs.rdf";
 				$this->SetReadFile($ldir.$lfile);
 				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($fout, false);
+				$this->SetWriteFile($odir.$fout, false);
 				echo "starting with ".$lfile."\n";
 				$this->geneIDs(); #Entra a la funcion geneIDs
 			endif;
@@ -80,11 +88,11 @@ class WormbaseParser extends RDFFactory{
 				//seteamos el archivo que se parsearea
 				$lfile = "c_elegans.WS235.functional_descriptions.txt";
 				//create a file pointer
-				$fp = fopen($lfile, "r") or die("Could not open file !\n");
+				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
 				$fout = "Genes_functional_descriptions.rdf";
 				$this->SetReadFile($ldir.$lfile);
 				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($fout, false);
+				$this->SetWriteFile($odir.$fout, false);
 				echo "starting with ".$lfile."\n";
 				$this->functional_descri();
 			endif;
@@ -93,11 +101,11 @@ class WormbaseParser extends RDFFactory{
 				//seteamos el archivo que se parsearea
 				$lfile = "gene_association.WS235.wb"; # real file  gene_association.WS235.wb
 				//create a file pointer
-				$fp = fopen($lfile, "r") or die("Could not open file !\n");
+				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
 				$fout = "gene_association.rdf";
 				$this->SetReadFile($ldir.$lfile);
 				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($fout, false);
+				$this->SetWriteFile($odir.$fout, false);
 				echo "starting with ".$lfile."\n";
 				$this->gene_association_F();
 			endif;	
@@ -106,11 +114,11 @@ class WormbaseParser extends RDFFactory{
 				//seteamos el archivo que se parsearea
 				$lfile = "phenotype_association.WS235.wb"; # phenotype_association.WS235.wb
 				//create a file pointer
-				$fp = fopen($lfile, "r") or die("Could not open file !\n");
+				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
 				$fout = "phenotype_association.rdf";
 				$this->SetReadFile($ldir.$lfile);
 				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($fout, false);
+				$this->SetWriteFile($odir.$fout, false);
 				echo "starting with ".$lfile."\n";
 				$this->phenotype_association_F();
 			endif;	
@@ -118,11 +126,11 @@ class WormbaseParser extends RDFFactory{
 				//seteamos el archivo que se parsearea
 				$lfile = "c_elegans.WS235.gene_interactions.txt"; # real file c_elegans.WS235.gene_interactions.txt
 				//create a file pointer
-				$fp = fopen($lfile, "r") or die("Could not open file !\n");
+				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
 				$fout = "gene_interactions.rdf";
 				$this->SetReadFile($ldir.$lfile);
 				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($fout, false);
+				$this->SetWriteFile($odir.$fout, false);
 				echo "starting with ".$lfile."\n";
 				$this->gene_interactions_F();					
 			endif;
@@ -212,7 +220,7 @@ class WormbaseParser extends RDFFactory{
 			$current_description='';
 		endif;
 		if ($collect ==  true):
-			$current_description=$current_description.$aLine;
+			$current_description=$current_description.rtrim($aLine);
 		endif;
 		$this->WriteRDFBufferToWriteFile();
 		endwhile;
@@ -673,8 +681,8 @@ if (count($argv) == 1 or $argv[1]=="-h|help"):
  echo " php wormbase_parser.php file=gene_association intdir=/my/specific/folder \n";
  echo " It possible to supply more than one file separate by commas. Accepted files are the following : ";
  echo " geneIDs,functional_description, gene_association, gene_interactions phenotype_association or all \n";
- echo "  indir=directory to download into and parse from \n";
- echo "  outdir=directory to place rdfized files \n";
+ echo " indir=directory to download into and parse from \n";
+ echo " outdir=directory to place rdfized files \n";
 
  $argv[1]='files=all';
 endif; 
