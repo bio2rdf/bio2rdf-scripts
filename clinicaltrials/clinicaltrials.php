@@ -189,7 +189,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			##########################################################################################
 			$brief_title = $this->getString("//brief_title");
 			if($brief_title != ""){
-				$this->AddRDF(
+				$this->addRDF(
 					parent::triplifyString($study_id,parent::getVoc()."brief-title",$brief_title)
 				);
 			}
@@ -199,7 +199,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			##########################################################################################
 			$official_title = $this->getString("//official_title");
 			if($official_title != "") {
-				$this->AddRDF(
+				$this->addRDF(
 					parent::triplifyString($study_id,parent::getVoc()."official-title",$official_title)
 				);
 			}
@@ -213,13 +213,13 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			$brief_summary = $this->getString('//brief_summary/textblock');
 			$brief_summary = str_replace(array("\r","\n","\t","      "),"",trim($brief_summary));
 			if($brief_summary) {
-				$this->AddRDF(
+				$this->addRDF(
 					parent::triplifyString($study_id,$this->getVoc()."brief-summary",$brief_summary)
 				);
 			}
 			
 			// we have enough to describe the study
-			$this->AddRDF(
+			$this->addRDF(
 				parent::describeIndividual($study_id,$label,$official_title,$brief_summary,parent::getVoc()."Clinical-Study")
 			);
 			
@@ -229,7 +229,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			$org_study_id = $this->getString("//id_info/org_study_id");
 			$secondary_id = $this->getString("//id_info/secondary_id");
 
-			$this->AddRDF(
+			$this->addRDF(
 				parent::triplifyString($study_id,parent::getVoc()."org-study-identifier",$org_study_id).
 				parent::triplifyString($study_id,parent::getVoc()."secondary-identifier",$secondary_id)
 			);
@@ -239,7 +239,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			#########################################################################################
 			$acronym = $this->getString("//acronym");
 			if($acronym != ""){
-				$this->AddRDF(
+				$this->addRDF(
 					parent::triplifyString($study_id,parent::getVoc()."acronym",$acronym)
 				);
 			}
@@ -254,7 +254,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$agency       = $this->getString("//sponsors/lead_sponsor/agency");
 				$agency_class = $this->getString("//sponsors/lead_sponsor/agency_class");
 				
-                $this->AddRDF(
+                $this->addRDF(
 					parent::triplify($study_id,parent::getVoc()."lead-sponsor",$lead_sponsor_id).
 					parent::describeIndividual($lead_sponsor_id,$agency,$agency,null,"en",parent::getVoc()."Lead-Sponsor").
 					parent::describeClass(parent::getVoc()."Lead-Sponsor","Lead Sponsor").
@@ -271,7 +271,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$oversight = @array_shift($root->xpath('//oversight_info'));
 				$oversight_id = parent::getRes().md5($oversight->asXML());
 				$authority = $this->getString('//oversight_info/authority');
-                $this->AddRDF(	
+                $this->addRDF(	
 					parent::triplify($study_id,$this->getVoc()."oversight-authority",$oversight_id).
 					parent::describeIndividual($oversight_id,$authority,$authority,null,"en",$this->getVoc()."Oversight-Authority")
 				);
@@ -283,7 +283,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			####################################################################################
 			$dmc   = $this->getString('//has_dmc');
 			if($dmc != ""){
-				$this->AddRDF(
+				$this->addRDF(
 					parent::triplifyString($os_id,parent::getVoc()."dmc",$dmc)
 				);
 			}			
@@ -293,7 +293,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			####################################################################################
 			$detailed_description = $this->getString('//detailed_description/textblock');
 			if($detailed_description) {
-				$this->AddRDF(
+				$this->addRDF(
 					parent::triplifyString($study_id,parent::getVoc()."detailed-description",$detailed_description)
 				);
 			}
@@ -304,7 +304,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			$overall_status = @array_shift($root->xpath('//overall_status'));
 			if($overall_status) {
 				$status_id = "clinicaltrials_resource:".md5($overall_status);
-				$this->AddRDF(
+				$this->addRDF(
 					parent::triplify($study_id,parent::getVoc()."overall-status",$status_id).
 					parent::describe($status_id,$overall_status,$overall_status,null,null,parent::getVoc()."Status")
 				);
@@ -316,7 +316,9 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			$start_date = $this->getString('//start_date');
 			if($start_date) {
 				// July 2002
-				$this->AddRDF(
+				preg_match("/[^\w]+ [0-9]{4}/",$start_date,$m);
+				print_m($m);exit;
+				$this->addRDF(
 					parent::triplifyString($study_id,parent::getVoc()."start-date",$start_date)
 				);
 			}
@@ -326,7 +328,9 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			##################################################################################
 			$completion_date = @array_shift($root->xpath('//completion_date'));
 			if($completion_date != ""){
-				$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:completion-date",$this->SafeLiteral($completion_date)));
+				$this->addRDF(
+					parent::triplifyString($study_id,parent::getVoc().":completion-date",$completion_date)
+				);
 			}
 
 			####################################################################################
