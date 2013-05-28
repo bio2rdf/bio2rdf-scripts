@@ -23,8 +23,8 @@ SOFTWARE.
 require("../../php-lib/rdfapi.php");
 class WormbaseParser extends RDFFactory{
 	private $bio2rdf_base = "http://bio2rdf.org/";
-	private $unists_vocab = "wormbase_vocabulary:";
-	private $unists_resource = "wormbase_resource:";
+	private $wormbase_vocab = "wormbase_vocabulary:";
+	private $wormbase_resource = "wormbase_resource:";
 	private $version = null; // version of the release data
 	
 	function __construct($argv, $path) {
@@ -34,10 +34,7 @@ class WormbaseParser extends RDFFactory{
 		$this->AddParameter('files',true,null,'|all|geneIDs|functional_description|gene_association|gene_interactions|phenotype_association','','files to process'); #The files subject to RDF from wormbase
 		$this->AddParameter('indir',false,null,$path,'directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,$path,'directory to place rdfized files');
-	//	$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-	//	$this->AddParameter('download',false,'true|false','false','set true to download files');
-	//	$this->AddParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip');
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
@@ -135,7 +132,6 @@ class WormbaseParser extends RDFFactory{
 				$this->gene_interactions_F();					
 			endif;
 			$this->GetWriteFile()->Close();
-//			echo "done!".PHP_EOL;
 		}
 	} #Run
 	
@@ -193,7 +189,6 @@ class WormbaseParser extends RDFFactory{
 			$this->WriteRDFBufferToWriteFile();
 		}//while
 		echo "Done! file Gene_IDs.rdf wrote \n";
-//		exit;
 		
 			}# Funcion Gene_IDs
 			
@@ -225,7 +220,6 @@ class WormbaseParser extends RDFFactory{
 		$this->WriteRDFBufferToWriteFile();
 		endwhile;
 		echo "Done! file Genes_functional_descriptions.rdf wrote \n";
-//		exit;  #no es necesario salir del programa
 	}	#function functional_descri
 			
 	private function gene_association_F(){
@@ -267,10 +261,7 @@ TAS Traceable Author Statement
 					foreach ($line_components as $component){
 						$Dicto['WBG']="$matches[1]";
 						if (preg_match($goo,$component,$go_matches)==1):
-							//if (in_array($go_matches[1], $Dicto["GO"])):
-							//else:		
 							$Dicto['GO'][]=$go_matches[1];
-							//endif;	
 						elseif (preg_match($pubmed_ID,$component)==1):
 							$pub_sep=explode("|",trim($component));
 							foreach ($pub_sep as $single_pub){
@@ -291,12 +282,9 @@ TAS Traceable Author Statement
 						else :
 						endif;
 					} //end foreach	
-				//strlen
-//				$this->WriteRDFBufferToWriteFile();
 		endwhile;
 		$this->Resource_relations($Dicto,"Gene");
 		echo "Done! file gene_association.rdf wrote \n";
-//		exit;
 	}
  # gene_association_F function
 	
@@ -349,7 +337,6 @@ TAS Traceable Author Statement
 		endwhile;
 	$this->Resource_relations($Dicto,"Phenotype");
 	echo "Done! file phenotype_association.rdf wrote \n";
-//	exit;
 	} ##phenotype_association
 	
 	private function gene_interactions_F(){
@@ -377,7 +364,6 @@ TAS Traceable Author Statement
 				$Dicto=array('WBI'=>'','I_type'=>'','Ad_info'=>'','WBG1'=>'','WBG2'=>'');
 		endwhile;
 		echo "Done! gene_interactions.rdf wrote \n";
-//		exit;
 	} //enf gene interaction F
 	
 	
@@ -390,7 +376,6 @@ TAS Traceable Author Statement
 		foreach ($Gene_dicto['Go_Evi'] as $current_GO_evi) {
 		  $evi_type=$GO_Evidence[$current_GO_evi];
 		  $current_GO=$Gene_dicto['GO'][$n];
-		  //echo $evi_type;
 		  ##Ad evidence resource type
 		  $this->AddRDF(
 					$this->QQuad(
@@ -417,17 +402,7 @@ TAS Traceable Author Statement
 				);	
 				$n=$n+1;
 			} //foreach GOevidence	
-/*		  ##GO
-			foreach ($Gene_dicto['GO'] as $current_GO) {
-				$this->AddRDF(
-				$this->QQuad(
-					"wormbase_resource:".$Gene_dicto['WBG'],
-					"wormbase_vocabulary:is_associated_with",
-					"go:".$current_GO
-					)
-				);
-			} //foreach GO	
-	*/		##TaxID
+			##TaxID
 			foreach ($Gene_dicto['Tax'] as $current_Tax) {
 				$this->AddRDF(
 				$this->QQuad(
