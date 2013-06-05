@@ -43,7 +43,7 @@ class CTDParser extends RDFFactory
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'http://ctd.mdibl.org/reports/');
+		$this->AddParameter('download_url',false,null,'http://ctdbase.org/reports/');
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
