@@ -106,6 +106,7 @@ class NDCParser extends RDFFactory
 			
 			// set the write file
 			$outfile = $file.'.nt'; $gz=false;
+			if($this->GetParameterValue('graph_uri')) {$outfile = $file.'.nq';}
 			if($this->GetParameterValue('gzip')) {
 				$outfile .= '.gz';
 				$gz = true;

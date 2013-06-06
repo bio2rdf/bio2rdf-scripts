@@ -118,7 +118,7 @@ class SGDParser extends RDFFactory {
 
 			$ofile = $odir."sgd_".$file.'.nt'; 
 			$gz=false;
-			
+			if($this->GetParameterValue('graph_uri')) {$ofile = $odir."sgd_".$file.'.nq'; }
 			if($this->GetParameterValue('gzip')) {
 				$ofile .= '.gz';
 				$gz = true;
@@ -1062,9 +1062,16 @@ class SGDParser extends RDFFactory {
 	  	file_put_contents($target_filepath, file_get_contents('http://rest.bioontology.org/bioportal/virtual/download/'.$ontology_id.'?apikey='.$apikey));
 	}
 }//SGDParser
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new SGDParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 
 ?>
