@@ -75,12 +75,9 @@ class CTDParser extends RDFFactory
 
 		foreach($files AS $file) {
 			$lfile = $ldir.$file.$gz_suffix;
-			$ofile = $file.".nt";
-			$gz = false;
-			if($this->GetParameterValue('gzip') == "true") {
-				$gz = true;
-				$ofile .= ".gz";
-			}
+			$ofile = $file.".nt"; $gz = false;
+			if($this->GetParameterValue('graph_uri')) {$ofile = $file.'.nq';}
+			if($this->GetParameterValue('gzip')) {$ofile .= '.gz';$gz = true;}
 			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$ofile;
 			
 			if(!file_exists($lfile)) {
@@ -643,9 +640,17 @@ function CTD_chem_gene_ixn_types()
 
 } // end class
 
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new CTDParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
+
 
 ?>

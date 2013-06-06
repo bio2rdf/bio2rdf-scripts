@@ -115,7 +115,8 @@ class PharmGKBParser extends RDFFactory
 			else $zipentries = array($file.".tsv");
 			
 			// set the write file, parse, write and close
-			$outfile = $odir.$file.'.ttl'; $gz=false;
+			$outfile = $odir.$file.'.nt'; $gz=false;
+			if($this->GetParameterValue('graph_uri')) {$outfile = $odir.$file.'.nq';}
 			if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
 			$this->SetWriteFile($outfile, $gz);
 			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$outfile;
@@ -975,9 +976,15 @@ class PharmGKBParser extends RDFFactory
 		return TRUE;
 	}
 }
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new PharmGKBParser($argv);
 $parser->Run();
 
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 ?>
