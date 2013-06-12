@@ -104,7 +104,7 @@ class EntrezGeneParser extends RDFFactory{
 				} else {
 					$rfile = $rdir.$file;
 				}
-				file_put_contents($lfile,file_get_contents($rfile));
+				Utils::DownloadSingle($rfile, $lfile);
 			}
 			
 			$writefile = $odir.$id.".nt"; $gz=false;
