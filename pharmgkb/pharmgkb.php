@@ -91,13 +91,13 @@ class PharmGKBParser extends RDFFactory
 				$rfile = $rdir.$file.".zip";
 				echo "downloading $file...";
 				if($file == 'offsides') {
-					file_put_contents($lfile,file_get_contents('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip'));
+					Utils::DownloadSingle('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip', $lfile);
 				} elseif($file == 'twosides') {
-					file_put_contents($lfile,file_get_contents('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip'));
+					Utils::DownloadSingle('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip', $lfile);
 				} elseif($file == 'pathways') {
-					file_put_contents($lfile,file_get_contents('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'-tsv.zip'));
+					Utils::DownloadSingle('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'-tsv.zip', $lfile);
 				} else {
-					file_put_contents($lfile,file_get_contents('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'.zip'));
+					Utils::DownloadSingle('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'.zip', $lfile);
 				}
 			}
 			
