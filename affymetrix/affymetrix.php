@@ -66,12 +66,7 @@ class AffymetrixParser extends RDFFactory
 		$listing_file = $ldir."probeset_list.html";
 		if(!file_exists($listing_file) || $this->GetParameterValue("download") == "true") {
 			echo "Downloading $listing_file".PHP_EOL;
-			$ret = file_get_contents($url);
-			if($ret === FALSE) {
-				trigger_error("unable to download from $url");
-				exit;
-			}
-			file_put_contents($listing_file,$ret);
+			Utils::DownloadSingle ($url, $listing_file);
 		}
 		$listings = file_get_contents($listing_file);
 		

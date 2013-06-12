@@ -84,7 +84,7 @@ class HGNCParser extends RDFFactory {
 		if($this->GetParameterValue('download') == true) {
 			$rfile = $rdir;
 			echo "downloading $file ... ";
-			file_put_contents($lfile,file_get_contents($rfile));
+			Utils::DownloadSingle ($rfile, $lfile);
 		}
 
 		$ofile = $odir.$file.'.nt'; 

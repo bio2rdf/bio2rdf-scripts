@@ -92,15 +92,9 @@ class CTDParser extends RDFFactory
 				
 				$rfile = $rdir.'CTD_'.$file.$suffix;
 				if($suffix == ".tsv.gz") {
-					if(FALSE === copy($rfile,$lfile)) {
-						exit(-1);
-					}
+					Utils::DownloadSingle ($rfile, $lfile);
 				} else {
-					$buf = file_get_contents($rfile);
-					$e = file_put_contents("compress.zlib://".$lfile, $buf);
-					if($e === FALSE) {
-						exit(-1);
-					}
+					Utils::DownloadSingle ($rfile, "compress.zlib://".$lfile);
 				}
 			}
 			

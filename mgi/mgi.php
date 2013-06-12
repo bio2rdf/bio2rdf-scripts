@@ -78,17 +78,7 @@ class MGIParser extends RDFFactory
 			$rfile = $this->GetParameterValue('download_url').$item.'.rpt';
 			if(!file_exists($lfile) || $this->GetParameterValue('download') == 'true') {
 				echo "downloading $item...";
-				$ret = file_get_contents($rfile);
-				if($ret === FALSE) {
-					trigger_error("Unable to get $rfile",E_USER_WARNING);
-					continue;
-				}
-				$ret = file_put_contents($lfile,$ret);
-				if($ret === FALSE) {
-					trigger_error("Unable to write $lfile",E_USER_ERROR);
-					exit;
-				}		
-				echo "done!".PHP_EOL;
+				Utils::DownloadSingle ($rfile, $lfile);
 			}
 			$this->SetReadFile($lfile,true);
 			
