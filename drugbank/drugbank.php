@@ -86,10 +86,7 @@ class DrugBankParser extends RDFFactory
 		if($this->GetParameterValue('download') == true) { 
 			$rfile = $rdir.$file;
 			trigger_error("Downloading $file from $rfile", E_USER_NOTICE);
-			if(Utils::Download($rdir,array($file),$ldir) === FALSE) {
-				trigger_error("Unable to download $file. skipping", E_USER_WARNING);
-				continue;
-			}
+			Utils::DownloadSingle($rfile, $lfile);
 		}
 		
 		// set the write file, parse, write and close
