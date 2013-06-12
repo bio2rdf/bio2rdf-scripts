@@ -113,7 +113,7 @@ class SGDParser extends RDFFactory {
 			if($this->GetParameterValue('download') == true && $file !== "mapping") {
 				$rfile = $rdir.$rfiles[$file];
 				echo "downloading $file ... ";
-				file_put_contents($lfile,file_get_contents($rfile));
+				Utils::DownloadSingle ($rfile, $lfile);
 			}
 
 			$ofile = $odir."sgd_".$file.'.nt'; 
@@ -1059,7 +1059,7 @@ class SGDParser extends RDFFactory {
 	}//GetMethodID
 
 	function GetLatestNCBOOntology($ontology_id,$apikey,$target_filepath){
-	  	file_put_contents($target_filepath, file_get_contents('http://rest.bioontology.org/bioportal/virtual/download/'.$ontology_id.'?apikey='.$apikey));
+		Utils::DownloadSingle('http://rest.bioontology.org/bioportal/virtual/download/'.$ontology_id.'?apikey='.$apikey, $target_filepath);
 	}
 }//SGDParser
 $start = microtime(true);
