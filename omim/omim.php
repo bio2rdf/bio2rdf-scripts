@@ -95,6 +95,7 @@ class OMIMParser extends RDFFactory
 		
 		// set the write file
 		$outfile = 'omim.nt'; $gz=false;
+		if($this->GetParameterValue('graph_uri')) {$outfile = 'omim.nq';}
 		if($this->GetParameterValue('gzip')) {
 			$outfile .= '.gz';
 			$gz = true;

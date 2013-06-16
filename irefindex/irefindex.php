@@ -41,11 +41,11 @@ class iREFINDEXParser extends RDFFactory
 		$this->AddParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|other','all','all or comma-separated list of files to process');
 		$this->AddParameter('indir',false,null,'/data/download/irefindex/','directory to download into and parse from');
 		$this->AddParameter('outdir',false,null,'/data/rdf/irefindex/','directory to place rdfized files');
-		$this->AddParameter('version',false,null,'10182011','dated version of files to download');
+		$this->AddParameter('version',false,null,'03022013','dated version of files to download');
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'ftp://ftp.no.embnet.org/irefindex/data/current/psimi_tab/MITAB2.6/');
+		$this->AddParameter('download_url',false,null,'ftp://ftp.no.embnet.org/irefindex/data/current/psi_mitab/MITAB2.6/');
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
@@ -78,7 +78,8 @@ class iREFINDEXParser extends RDFFactory
 			
 			$ofile = "irefindex-".$file.".nt";
 			$gz = false;
-			if($this->GetParameterValue("gzip") == "true") {
+			if($this->GetParameterValue("graph_uri")) {$ofile = "irefindex-".$file.".nq";}
+			if($this->GetParameterValue("gzip")) {
 				$gz = true;
 				$ofile .= ".gz";
 			}
@@ -90,7 +91,7 @@ class iREFINDEXParser extends RDFFactory
 			}
 			
 			if($this->GetParameterValue('download') == true) {
-				if(FALSE === Utils::Download("ftp://ftp.no.embnet.org",array("/irefindex/data/current/psimi_tab/MITAB2.6/".$zip_file),$ldir)) {
+				if(FALSE === Utils::Download("ftp://ftp.no.embnet.org",array("/irefindex/data/current/psi_mitab/MITAB2.6/".$zip_file),$ldir)) {
 					trigger_error("Error in Download");
 					return FALSE;
 				}
@@ -351,9 +352,16 @@ class iREFINDEXParser extends RDFFactory
 	}
 	
 }
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new iREFINDEXParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 
 ?>

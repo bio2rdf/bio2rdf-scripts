@@ -97,12 +97,9 @@ class GOAParser extends RDFFactory {
 				file_put_contents($lfile,file_get_contents($rfile));
 			}
 
-			$ofile = $odir."goa_".$file.'.nt'; 
-			$gz=false;	
-			if($this->GetParameterValue('gzip')) {
-				$ofile .= '.gz';
-				$gz = true;
-			}
+			$ofile = $odir."goa_".$file.'.nt'; $gz=false;	
+			if($this->GetParameterValue('graph_uri')) {$ofile = $odir."goa_".$file.'.nq';}
+			if($this->GetParameterValue('gzip')) {$ofile .= '.gz';$gz = true;}
 			
 			$this->SetReadFile($lfile, TRUE);
 			$this->SetWriteFile($ofile, $gz);
@@ -333,8 +330,16 @@ class GOAParser extends RDFFactory {
 
 }
 
+$start = microtime(true);
+
 set_error_handler('error_handler');
 $parser = new GOAParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 
 ?>

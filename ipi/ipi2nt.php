@@ -23,9 +23,9 @@
 
 
 //Specify the path where the raw IPI files are located
-$input_path = "/tmp/ipi/ipi/";
+$input_path = "/Users/gabivulcu/Downloads/bio2-rdf-data/ipi/in";
 //Specify the path where the N-Triples files should be created
-$output_path = "/tmp/ipi/nt/";
+$output_path = "/Users/gabivulcu/Downloads/bio2-rdf-data/ipi/out";
 
 //TThe following are the files that this parser can handle
 $species_xrefs = array(
@@ -346,9 +346,11 @@ function parser_ipi_OSCODE_xref_gz_file($anInputPath, $anOSCODEFile, $outputPath
 		//no trailing slash
 		$outputPath .= "/";
 	}
+	echo "Processing $anInputPath, $anOSCODEFile, $outputPath ".PHP_EOL;
 	$out_fileName = substr($anOSCODEFile, 0, strrpos($anOSCODEFile, "."));
 	$ifh = gzopen($anInputPath.$anOSCODEFile, 'r') or die("Could not open ".$anInputPath.$anOSCODEFile."\n");
 	$outfh = fopen($outputPath.$out_fileName.".nt", 'w') or die ("Could not open file here!\n");
+
 
 	if($ifh){
 		while(!gzeof($ifh)){
