@@ -182,15 +182,15 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			$this->root = $root = $xml->GetXMLRoot();
 			
 			$nct_id = $this->getString("//id_info/nct_id");
-			$study_id = parent::getNamespace().":$nct_id";
+			$study_id = parent::getNamespace()."$nct_id";
 			
 			##########################################################################################
 			#brief title
 			##########################################################################################
 			$brief_title = $this->getString("//brief_title");
 			if($brief_title != ""){
-				$this->addRDF(
-					parent::triplifyString($study_id,parent::getVoc()."brief-title",$brief_title)
+				parent::addRDF(
+					parent::triplifyString($study_id, parent::getVoc()."brief-title",$brief_title)
 				);
 			}
 
@@ -199,7 +199,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			##########################################################################################
 			$official_title = $this->getString("//official_title");
 			if($official_title != "") {
-				$this->addRDF(
+				parent::addRDF(
 					parent::triplifyString($study_id,parent::getVoc()."official-title",$official_title)
 				);
 			}
@@ -213,24 +213,24 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			$brief_summary = $this->getString('//brief_summary/textblock');
 			$brief_summary = str_replace(array("\r","\n","\t","      "),"",trim($brief_summary));
 			if($brief_summary) {
-				$this->addRDF(
+				parent::addRDF(
 					parent::triplifyString($study_id,$this->getVoc()."brief-summary",$brief_summary)
 				);
 			}
 			
 			// we have enough to describe the study
-			$this->addRDF(
-				parent::describeIndividual($study_id,$label,$official_title,$brief_summary,parent::getVoc()."Clinical-Study")
+			parent::addRDF(
+				parent::describeIndividual($study_id,$label,parent::getVoc()."Clinical-Study", $official_title,$brief_summary)
 			);
-			
+
 			#########################################################################################
 			# study ids
 			#########################################################################################
 			$org_study_id = $this->getString("//id_info/org_study_id");
 			$secondary_id = $this->getString("//id_info/secondary_id");
 
-			$this->addRDF(
-				parent::triplifyString($study_id,parent::getVoc()."org-study-identifier",$org_study_id).
+			parent::addRDF(
+				parent::triplifyString($study_id,parent::getVoc()."organization-study-identifier",$org_study_id).
 				parent::triplifyString($study_id,parent::getVoc()."secondary-identifier",$secondary_id)
 			);
 
@@ -239,13 +239,13 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			#########################################################################################
 			$acronym = $this->getString("//acronym");
 			if($acronym != ""){
-				$this->addRDF(
+				parent::addRDF(
 					parent::triplifyString($study_id,parent::getVoc()."acronym",$acronym)
 				);
 			}
 
 			########################################################################################
-			#lead_sponser
+			#lead_sponsor
 			########################################################################################
 			try {
 				$lead_sponsor = @array_shift($root->xpath('//sponsors/lead_sponsor'));
@@ -254,16 +254,15 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$agency       = $this->getString("//sponsors/lead_sponsor/agency");
 				$agency_class = $this->getString("//sponsors/lead_sponsor/agency_class");
 				
-                $this->addRDF(
-					parent::triplify($study_id,parent::getVoc()."lead-sponsor",$lead_sponsor_id).
-					parent::describeIndividual($lead_sponsor_id,$agency,$agency,null,"en",parent::getVoc()."Lead-Sponsor").
-					parent::describeClass(parent::getVoc()."Lead-Sponsor","Lead Sponsor").
+                parent::addRDF(
+					parent::triplify($study_id, parent::getVoc()."lead-sponsor", $lead_sponsor_id).
+					parent::describeClass($lead_sponsor_id,$agency, parent::getVoc()."Organization",$agency).
 					parent::triplifyString($lead_sponsor_id,parent::getVoc()."agency-class",$agency_class)
 				);
 			}catch( Exception $e){
 				echo "There was an error in the lead sponsor element: $e\n";
 			}
-
+	
 			######################################################################################
 			# oversight
 			######################################################################################
@@ -271,30 +270,32 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$oversight = @array_shift($root->xpath('//oversight_info'));
 				$oversight_id = parent::getRes().md5($oversight->asXML());
 				$authority = $this->getString('//oversight_info/authority');
-                $this->addRDF(	
+                parent::addRDF(	
 					parent::triplify($study_id,$this->getVoc()."oversight-authority",$oversight_id).
-					parent::describeIndividual($oversight_id,$authority,$authority,null,"en",$this->getVoc()."Oversight-Authority")
+					parent::describeIndividual($oversight_id,$authority,parent::getVoc()."Organization",$authority)
 				);
 			} catch(Exception $e){
 				echo "There was an error in the oversight info element: $e\n";
 			}
+			
 			####################################################################################
 			# dmc
 			####################################################################################
 			$dmc   = $this->getString('//has_dmc');
 			if($dmc != ""){
-				$this->addRDF(
-					parent::triplifyString($os_id,parent::getVoc()."dmc",$dmc)
+				parent::addRDF(
+					parent::triplifyString($study_id,parent::getVoc()."dmc",$dmc)
 				);
-			}			
+			}	
 
 			####################################################################################
 			# detailed description
 			####################################################################################
 			$detailed_description = $this->getString('//detailed_description/textblock');
 			if($detailed_description) {
-				$this->addRDF(
-					parent::triplifyString($study_id,parent::getVoc()."detailed-description",$detailed_description)
+				$d = str_replace(array("\r","\n","\t","      "),"",trim($detailed_description));
+				parent::addRDF(
+					parent::triplifyString($study_id,parent::getVoc()."detailed-description",$d)
 				);
 			}
 
@@ -304,9 +305,9 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			$overall_status = @array_shift($root->xpath('//overall_status'));
 			if($overall_status) {
 				$status_id = "clinicaltrials_resource:".md5($overall_status);
-				$this->addRDF(
+				parent::addRDF(
 					parent::triplify($study_id,parent::getVoc()."overall-status",$status_id).
-					parent::describe($status_id,$overall_status,$overall_status,null,null,parent::getVoc()."Status")
+					parent::describe($status_id,$overall_status,parent::getVoc()."Status", $overall_status)
 				);
 			}
 
@@ -316,53 +317,78 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			$start_date = $this->getString('//start_date');
 			if($start_date) {
 				// July 2002
-				preg_match("/[^\w]+ [0-9]{4}/",$start_date,$m);
-				print_m($m);exit;
-				$this->addRDF(
-					parent::triplifyString($study_id,parent::getVoc()."start-date",$start_date)
-				);
+				$datetime = $this->getDatetimeFromDate($start_date);
+				if(isset($datetime)) {
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."start-date",$datetime)
+					);
+				} else {
+					trigger_error("unable to parse start date: $start_date",E_USER_ERROR);
+				}
 			}
+			
 
 			###################################################################################
 			# completion date
 			##################################################################################
-			$completion_date = @array_shift($root->xpath('//completion_date'));
-			if($completion_date != ""){
-				$this->addRDF(
-					parent::triplifyString($study_id,parent::getVoc().":completion-date",$completion_date)
-				);
+			$completion_date = $this->getString('//completion_date');
+			if($completion_date){
+				$datetime = $this->getDatetimeFromDate($completion_date);
+				if(isset($datetime)) {
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."completion-date",$datetime)
+					);
+				} else {
+					trigger_error("unable to parse completion date: $completion_date",E_USER_ERROR);
+				}
 			}
 
 			####################################################################################
 			# primary completion date
 			###################################################################################
-			$primary_completion_date = @array_shift($root->xpath('//primary_completion_date'));
-			if($primary_completion_date != ""){
-				$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:primary-completion-date",$this->SafeLiteral($primary_completion_date)));
+			$primary_completion_date = $this->getString('//primary_completion_date');
+			if($primary_completion_date){
+				$datetime = $this->getDatetimeFromDate($primary_completion_date);
+				if(isset($datetime)) {
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."primary-completion-date",$datetime)
+					);
+				} else {
+					trigger_error("unable to parse completion date: $primary_completion_date",E_USER_ERROR);
+				}
 			}
 
 			####################################################################################
 			# study type
 			####################################################################################
-			$study_type = @array_shift($root->xpath('//study_type'));
-			if($study_type != ""){
-				$study_type_id = "clinicaltrials_resource:".md5($study_type);
-				$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:study-type",$study_type_id));
-				$this->AddRDF($this->QQuad($study_type_id,"rdf:type", "clinicaltrials_vocabulary:Study-Type"));
-				$this->AddRDF($this->QQuadL($study_type_id,"rdfs:label", $this->SafeLiteral($study_type)." [$study_type_id]"));
+			$study_type = $this->getString('//study_type');
+			if($study_type){
+				$study_type_id = $this->getRes().md5($study_type);
+				parent::addRDF(
+					parent::triplify($study_id,parent::getVoc()."study-type",$study_type_id).
+					parent::describeClass($study_type_id,$study_type,parent::getVoc()."Study")
+				);
 			}
 
 			####################################################################################
 			# phase
 			####################################################################################
-			$phase = @array_shift($root->xpath('//phase'));
-			if($phase && $phase != "N/A") $this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:phase",$this->SafeLiteral($phase)));
+			$phase = $this->getString('//phase');
+			if($phase && $phase != "N/A") {
+				parent::addRDF(
+					parent::triplifyString($study_id,parent::getVoc()."phase",$phase)
+				);
+			}
 
 			###############################################################################
 			# study design
 			###############################################################################
-			$study_design = @array_shift($root->xpath('//study_design'));
-			if($study_design) $this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:study-design",$this->SafeLiteral($study_design)));
+			$study_design = $this->getString('//study_design');
+			if($study_design) {
+				parent::addRDF(
+					parent::triplifyString($study_id,parent::getVoc()."study-design",$study_design)
+				);
+			}
 
 			################################################################################
 			#primary outcome
@@ -370,19 +396,28 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			$primary_outcome = @array_shift($root->xpath('//primary_outcome'));
 			if($primary_outcome){
 				try{
-					$measure         = @array_shift($root->xpath('//primary_outcome/measure'));
-					$time_frame      = @array_shift($root->xpath('//primary_outcome/time_frame'));
-					$safety_issue    = @array_shift($root->xpath('//primary_outcome/saftey_issue'));	
-					$description     = @array_shift($root->xpath('//primary_outcome/description'));
+					$po_id = parent::getRes().md5($nct_id.$primary_outcome->asXML());
 					
-					$po_id = "clinicaltrials_resource:".md5($nct_id.$primary_outcome->asXML());
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:primary-outcome",$po_id));
-					$this->AddRDF($this->QQuad($po_id,"rdf:type","clinicaltrials_vocabulary:Primary-Outcome"));					
-					$this->AddRDF($this->QQuadl($po_id,"rdfs:label",$this->SafeLiteral($measure." ".$time_frame)." [$po_id]"));					
-					$this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:measure",$this->SafeLiteral($measure)));
-					if($description) $this->AddRDF($this->QQuadl($po_id,"dc:description",$this->SafeLiteral($description)));
-					if($time_frame) $this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:time-frame",$this->SafeLiteral($time_frame)));
-					if($safety_issue) $this->AddRDF($this->QQuadl($po_id,"clinicaltrials_vocabulary:safety-issue",$this->SafeLiteral($safety_issue)));
+					$measure         = $this->getString('//primary_outcome/measure');
+					$time_frame      = $this->getString('//primary_outcome/time_frame');
+					$safety_issue    = $this->getString('//primary_outcome/saftey_issue');	
+					$description     = $this->getString('//primary_outcome/description');
+					
+					parent::addRDF(
+						parent::triplify($study_id, parent::getVoc()."primary-outcome",$po_id).
+						parent::describeClass($po_id,$measure." ".$time_frame, parent::getVoc()."Primary-Outcome",$description).
+						parent::triplifyString($po_id, parent::getVoc()."measure", $measure)
+					);					
+					if($time_frame) {
+						parent::addRDF(
+							parent::triplifyString($po_id,parent::getVoc()."time-frame",$time_frame)
+						);
+					}
+					if($safety_issue) {
+						parent::addRDF(
+							parent::triplifyString($po_id,parent::getVoc()."safety-issue",$safety_issue)
+						);
+					}
 				}catch(Exception $e){
 					echo "There was an error parsing the primary outcome element: $e \n";
 				}
@@ -393,71 +428,94 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			#################################################################################
 			try{
 				$secondary_outcomes = $root->xpath('//secondary_outcome');
-				foreach($secondary_outcomes as $secondary_outcome){
-					$measure = @array_shift($secondary_outcome->xpath('//measure'));
-					$time_frame = @array_shift($secondary_outcome->xpath('//time_frame'));
-					$safety_issue = @array_shift($secondary_outcome->xpath('//safety_issue'));
-					$so_id = "clinicaltrials_resource:".md5($nct_id.$secondary_outcome->asXML());
+				foreach($secondary_outcomes as $so){
+					$so_id = parent::getRes().md5($nct_id.$so->asXML());
+					
+					$measure = $this->getString('//measure',$so);
+					$time_frame = $this->getString('//time_frame',$so);
+					$safety_issue = $this->getString('//safety_issue',$so);
+					
+					parent::addRDF(
+						parent::triplify($study_id, parent::getVoc()."secondary-outcome",$so_id).
+						parent::triplifyString($study_id, parent::getVoc()."measure",$measure).
+						parent::describeClass($so_id,$measure." ".$time_frame,parent::getVoc()."Secondary-Outcome")
+					);
 
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:secondary-outcome",$so_id));
-					$this->AddRDF($this->QQuad($so_id,"rdf:type","clinicaltrials_vocabulary:Secondary-Outcome"));
-					$this->AddRDF($this->QQuadl($so_id,"rdfs:label",$this->SafeLiteral($measure." ".$time_frame). "[$so_id]"));					
-					$this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:measure",$this->SafeLiteral($measure)));
-					if($time_frame) $this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:time-frame",$this->SafeLiteral($time_frame)));
-					if($safety_issue)$this->AddRDF($this->QQuadl($so_id,"clinicaltrials_vocabulary:safety-issue",$this->SafeLiteral($safety_issue)));
+					if($time_frame) {
+						parent::addRDF(
+							parent::triplifyString($so_id,parent::getVoc()."time-frame",$time_frame)
+						);
+					}
+					if($safety_issue) {
+						parent::addRDF(
+							parent::triplifyString($so_id,parent::getVoc()."safety-issue",$safety_issue)
+						);
+					}
 				}
 			}catch (Exception $e){
 				"There was an exception parsing the secondary outcomes element: $e\n";
 			}
+
 			##############################################################################
 			#number of arms
 			##############################################################################
 			try {
-				$no_of_arms = @array_shift($root->xpath('//number_of_arms'));
-				if($no_of_arms != ""){
-					$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:number-of-arms",$no_of_arms));
+				$no_of_arms = $this->getString('//number_of_arms');
+				if($no_of_arms){
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."number-of-arms",$no_of_arms)
+					);
 				}
 			}catch(Exception $e){
 				echo "There was an exception parsing the number of arms element: $e\n";
 			}
+
+			
 			##############################################################################
 			#enrollment
 			##############################################################################
 			try{
-				$enrollment = @array_shift($root->xpath('//enrollment'));
-				if($enrollment) { $this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:enrollment",$this->SafeLiteral($enrollment)));}
+				$enrollment = $this->getString('//enrollment');
+				if($enrollment) { 
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."enrollment",$enrollment)
+					);
+				}
 			} catch(Exception $e){
 				echo "There was an exception parsing the enrollment element: $e\n";
 			}
+			
 			###############################################################################
 			#condition
 			###############################################################################
 			try {
 				$conditions = $root->xpath('//condition');
 				foreach($conditions as $condition){
-					$mesh_label_id = "clinicaltrials_resource:".md5($this->SafeLiteral($condition));
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:condition",$mesh_label_id));
-					$this->AddRDF($this->QQuadl($mesh_label_id,"rdfs:label",$this->SafeLiteral($condition)));
+					$mesh_label_id = parent::getRes().md5($condition);
+					parent::addRDF(
+						parent::triplify($study_id,parent::getVoc()."condition",$mesh_label_id).
+						parent::describeClass($mesh_label_id,$condition,parent::getVoc()."Condition")
+					);
 				}
 			} catch(Exception $e) {
 				echo "There was an exception parsing condition element: $e\n";
 			}
+			
 			################################################################################
 			# arm_group
 			################################################################################
-			
 			try {
 				$arm_groups = $root->xpath('//arm_group');
 				foreach ($arm_groups as $arm_group) {
-					$arm_group_label = @array_shift($arm_group->xpath('./arm_group_label'));
-					$arm_group_type = ucfirst(str_replace(" ","_",@array_shift($arm_group->xpath('./arm_group_type'))));
-					$description = @array_shift($arm_group->xpath('./description'));
+					$arm_group_id = parent::getRes().md5($arm_group->asXML());
+					$arm_group_label = $this->getString('./arm_group_label',$arm_group);
+					$arm_group_type = ucfirst(str_replace(" ","_",$this->getString('./arm_group_type'),$arm_group));
+					$description = $this->getString('./description',$arm_group);
 
-					$arm_group_id = "clinicaltrials_resource:".md5($arm_group->asXML());
-                    $this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:arm-group",$arm_group_id));
-					$this->AddRDF($this->QQuadl($arm_group_id,"rdfs:label",$this->SafeLiteral($arm_group_label). "[$arm_group_id]"));
-					$this->AddRDF($this->QQuad($arm_group_id,"rdf:type","clinicaltrials_vocabulary:".$arm_group_type));
-					$this->AddRDF($this->QQuadl($arm_group_id,"rdfs:comment",$this->SafeLiteral($description)));
+                    parent::addRDF(
+						parent::triplify($study_id,parent::getVoc()."arm-group",$arm_group_id).
+						parent::describe($arm_group_id,$arm_group_label,parent::getVoc().$arm_group_type,$arm_group_label,$description)
+					);
 				}
 			} catch (Exception $e){
 				echo "There was an exception in arm groups: $e\n";
@@ -469,18 +527,15 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try {
 				$interventions = $root->xpath('//intervention');
 				foreach ($interventions as $intervention) {
-					$intervention_name = @array_shift($intervention->xpath('./intervention_name'));
-					$intervention_type = ucfirst(str_replace(" ","_",@array_shift($intervention->xpath('./intervention_type'))));
-
-					$intervention_id = "clinicaltrials_resource:".md5($intervention->asXML());
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:intervention",$intervention_id));
-					$this->AddRDF($this->QQuad($intervention_id,"rdf:type","clinicaltrials_vocabulary:".$intervention_type));
-					$this->AddRDF($this->QQuadl($intervention_id,"rdfs:label",$this->SafeLiteral($intervention_name)));
-
-					$description = @array_shift($intervention->xpath('./description'));
-					if($description != ""){
-						$this->AddRDF($this->QQuadl($intervention_id,"rdfs:comment",$this->SafeLiteral($description)));
-					}
+					$intervention_id = parent::getRes().md5($intervention->asXML());
+					$intervention_name = $this->getString('./intervention_name',$intervention);
+					$intervention_type = ucfirst(str_replace(" ","_",$this->getString('./intervention_type',$intervention)));
+					$description = $this->getString('./description',$intervention);
+					
+					parent::addRDF(
+						parent::triplify($study_id,parent::getvoc()."intervention",$intervention_id).
+						parent::describeClass($intervention_id,$intervention_name,parent::getVoc().$intervention_type,$intervention_name,$description)
+					);
 				}
 			}catch(Exception $e){
 				echo "There was an error in interventions $e\n";
@@ -491,12 +546,12 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			################################################################################
 			try{
 				$eligibility = @array_shift($root->xpath('//eligibility'));
-
 				if($eligibility != null) {
-
-					$eligibility_id = "clinicaltrials_resource:".md5($eligibility->asXML());
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:eligibility",$eligibility_id));
-                    $this->AddRDF($this->QQuad($eligibility_id,"rdf:type","clinicaltrials_vocabulary:Eligibility"));
+					$eligibility_id = parent::getRes().md5($eligibility->asXML());
+					parent::addRDF(
+						parent::triplify($study_id,parent::getVoc()."eligibility",$eligibility_id).
+						parent::describeIndividual($eligibility_id,null,parent::getVoc()."Eligibility")
+					);
 
 					if($criteria = @array_shift($eligibility->xpath('./criteria'))){
 						$text = str_replace("\n\n","",@array_shift($criteria->xpath('./textblock')));
@@ -507,10 +562,11 @@ class ClinicalTrialsParser extends Bio2RDFizer
 							foreach($d AS $inclusion) {
 								$inc = trim($inclusion);
 								if($inc != '') {
-									$inc_id = "clinicaltrials_resource:".md5($inc);
-									$this->AddRDF($this->QQuad($eligibility_id,"clinicaltrials_vocabulary:inclusion-criteria",$inc_id));
-									$this->AddRDF($this->QQuad($inc_id,"rdf:type","clinicaltrials_vocabulary:Inclusion-Criteria"));
-									$this->AddRDF($this->QQuadL($inc_id,"rdfs:label",trim($this->SafeLiteral($inc))));
+									$inc_id = parent::getRes().md5($inc);
+									parent::addRDF(
+										parent::triplify($eligibility_id,parent::getVoc()."inclusion-criteria",$inc_id).
+										parent::describe($inc_id,$inc,parent::getVoc()."Inclusion-Criteria")
+									);
 								}
 							}
 						}
@@ -520,36 +576,46 @@ class ClinicalTrialsParser extends Bio2RDFizer
 							foreach($d AS $exclusion) {
 								$exc = trim($exclusion);
 								if($exc != '') {
-									$exc_id = "clinicaltrials_resource:".md5($exc);
-									$this->AddRDF($this->QQuad($eligibility_id,"clinicaltrials_vocabulary:exclusion-criteria",$exc_id));
-									$this->AddRDF($this->QQuad($exc_id,"rdf:type","clinicaltrials_vocabulary:Exclusion-Criteria"));
-									$this->AddRDF($this->QQuadL($exc_id,"rdfs:label",trim($this->SafeLiteral($exc))));
+									$exc_id = parent::getRes().md5($exc);
+									parent::addRDF(
+										parent::triplify($eligibility_id,parent::getVoc()."exclusion-criteria",$exc_id).
+										parent::describe($exc_id,$exc,parent::getVoc()."Exclusion-Criteria")
+									);
 								}
 							}
 						}					
 					}
-
-					if($gender = @array_shift($eligibility->xpath('./gender'))){
-						$this->AddRDF($this->QQuadl($eligibility_id,"clinicaltrials_vocabulary:gender",$gender));
+					
+					if($gender = $this->getString('./gender',$eligibility)) {
+						parent::addRDF(
+							parent::triplifyString($eligibility_id,parent::getVoc()."gender",$gender)
+						);
+					}
+					if($healthy_volunteers = $this->getString('./healthy_volunteers',$eligibility)){
+						parent::addRDF(
+							parent::triplifyString($eligibility_id,parent::getVoc()."healthy-volunteers",$healthy_volunteers)
+						);
 					}
 
-					if($minimum_age = @array_shift($eligibility->xpath('./minimum_age'))){
-						if($minimum_age != 'N/A') $this->AddRDF($this->QQuadL($eligibility_id,"clinicaltrials_vocabulary:minimum-age",trim(str_replace("Years","",$minimum_age))));
+					$attributes = array('minimum_age','maximum_age');
+					foreach($attributes AS $a) {
+						$s = $this->getString('./'.$a,$eligibility);
+						if($s != 'N/A') {
+							$age = trim(str_replace("Years","",$s));
+							parent::addRDF(
+								parent::triplifyString($eligibility_id,parent::getVoc().str_replace("_","-",$a),$age)
+							);
+						}
 					}
 
-					if($maximum_age = @array_shift($eligibility->xpath('./maximum_age'))){
-						if($maximum_age != 'N/A')  $this->AddRDF($this->QQuadL($eligibility_id,"clinicaltrials_vocabulary:maximum-age",trim(str_replace("Years","",$maximum_age))));
-					}
-					if($healthy_volunteers = @array_shift($eligibility->xpath('./healthy_volunteers'))){
-						$this->AddRDF($this->QQuadl($eligibility_id,"clinicaltrials_vocabulary:healthy-volunteers",$healthy_volunteers));
-					}
-
-					if($study_pop = @array_shift($eligibility->xpath('./study_pop'))){
-						$this->AddRDF($this->QQuadl($eligibility_id,"clinicaltrials_vocabulary:study-population",$study_pop->xpath('./textblock')));
-					}
-
-					if($sampling_method = @array_shift($eligibility->xpath('./sampling_method'))){
-						$this->AddRDF($this->QQuadl($eligibility_id,"clinicaltrials_vocabulary:sampling-method",$sampling_method->xpath('./textblock')));
+					$attributes = array("study_pop"=>"study-population","sampling_method"=>"sampling-method");
+					foreach($attributes AS $a => $r) {
+						$e = @array_shift($eligibility->xpath('./'.$a));
+						if($s = $this->getString('./'.$a,$eligibility)){
+							parent::addRDF(
+								parent::triplifyString($eligibility_id,parent::getVoc().$r,$this->getString('./textblock',$e))
+							);
+						}
 					}
 				}
 			}catch(Exception $e){
@@ -562,16 +628,16 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try {
 				$overall_official = @array_shift($root->xpath('//overall_official'));
 				if($overall_official) {
-					$overall_official = "clinicaltrials_resource:".md5($overall_official->asXML());
-					$last_name   = @array_shift($root->xpath('//overall_official/last_name'));
-					$role        = @array_shift($root->xpath('//overall_official/role'));
-					$affiliation = @array_shift($root->xpath('//overall_official/affiliation'));
+					$overall_official = parent::getRes().md5($overall_official->asXML());
+					$last_name   = $this->getString('//overall_official/last_name');
+					$role        = $this->getString('//overall_official/role');
+					$affiliation = $this->getString('//overall_official/affiliation');
 
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:overall-official",$overall_official));
-					$this->AddRDF($this->QQuad($overall_official,"rdf:type","clinicaltrials_vocabulary:Overall-Official"));
-					$this->AddRDF($this->QQuadl($overall_official,"clinicaltrials_vocabulary:lastname",$last_name));
-					$this->AddRDF($this->QQuadl($overall_official,"clinicaltrials_vocabulary:role",$role));
-					$this->AddRDF($this->QQuadl($overall_official,"clinicaltrials_vocabulary:affiliation",$this->SafeLiteral($affiliation)));
+					parent::addRDF(parent::triplify($study_id,parent::getVoc()."overall-official",$overall_official));
+					parent::addRDF(parent::triplify($overall_official,"rdf:type",parent::getVoc()."Overall-Official"));
+					parent::addRDF(parent::triplifyString($overall_official,parent::getVoc()."lastname",$last_name));
+					parent::addRDF(parent::triplifyString($overall_official,parent::getVoc()."role",$role));
+					parent::addRDF(parent::triplifyString($overall_official,parent::getVoc()."affiliation",$affiliation));
 				}
 			}catch (Exception $e){
 				echo "There was an error parsing the overal_official: $e\n";
@@ -583,32 +649,28 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try {	
 				$location = @array_shift($root->xpath('//location'));
 				if($location){
-					$location_id = "clinicaltrials_resource:".md5($location->asXML());
-					$title = @array_shift($location->xpath('//name'));
+					$location_id = parent::getRes().md5($location->asXML());
+					$title = $this->getString('//name',$location);
 					$facility = $location->xpath('./facility');
 					$address  = @array_shift($location->xpath('//address'));
 					
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:location",$location_id));
-					$this->AddRDF($this->QQuadl($location_id,"dc:title",$title));
-					$this->AddRDF($this->QQuadl($location_id,"rdfs:label",$title." [$location_id]"));
-					$this->AddRDF($this->QQuad($location_id,"rdfs:type","clinicaltrials_vocabulary:Location"));
+					parent::addRDF(parent::triplify($study_id,parent::getVoc()."location",$location_id));
+					parent::addRDF(parent::describeIndividual($location_id,$title,parent::getVoc()."Location",$title));
 
-					if($address && ($city = @array_shift($address->xpath('./city'))) != null){
-						$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:city",$city));
+					if($address && ($city =  $this->getString('./city',$address)) != null){
+						parent::addRDF(parent::triplifyString($location_id,parent::getVoc()."city",$city));
 					}
 
-					if($address && ($state = @array_shift($address->xpath('./state'))) != null){
-						$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:state",$state));
+					if($address && ($state = $this->getString('./state',$address)) != null){
+						parent::addRDF(parent::triplifyString($location_id,parent::getVoc()."state",$state));
 					}
-					if($address && ($zip = @array_shift($address->xpath('./zip'))) != null){
-						$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:zipcode",$zip));
-					}
-
-					if( $address && ($country = @array_shift($address->xpath('./country'))) != null ){
-						$this->AddRDF($this->QQuadl($location_id,"clinicaltrials_vocabulary:country",$country));
+					if($address && ($zip =  $this->getString('./zip',$address)) != null){
+						parent::addRDF(parent::triplifyString($location_id,parent::getVoc()."zipcode",$zip));
 					}
 
-
+					if( $address && ($country =  $this->getString('./country',$address)) != null ){
+						parent::addRDF(parent::triplifyString($location_id,parent::getVoc()."country",$country));
+					}
 				}
 			}catch (Exception $e){
 				echo "There was an error parsing location: $e"."\n";
@@ -621,31 +683,29 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try {
 				$groups = $root->xpath('//group');
 				foreach ($groups as $group) {
-					$group_id = "clinicaltrials_resource:".md5($group->asXML());
-					$title = @array_shift($group->xpath('./title'));
-					$description = @array_shift($group->xpath('./description'));
+					$group_id = parent::getRes().md5($group->asXML());
+					
+					$title = $this->getString('./title',$group);
+					$description = $this->getString('./description',$group);
 					$id = $group->attributes()->group_id;
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:group",$group_id));
-					$this->AddRDF($this->QQuad($group_id,"rdf:type","clinicaltrials_vocabulary:Group"));
-					$this->AddRDF($this->QQuadl($group_id,"dc:title",$title));
-					$this->AddRDF($this->QQuadl($group_id,"rdfs:comment",$this->SafeLiteral($description)));
-					$this->AddRDF($this->QQuadl($group_id,"dc:identifier",$id));
+					parent::addRDF(parent::triplify($study_id,parent::getVoc()."group",$group_id));
+					parent::addRDF(parent::describeIndividual($group_id,$title,parent::getVoc()."Group",$title,$description));
 				}
 			}catch(Exception $e){
 				echo "There was an exception parsing groups xml element: $e\n";
 			}
 
 			######################################################################
-			#results reference
+			#reference
 			######################################################################
 			try {
 				$references = $root->xpath('//reference');
 				foreach($references as $reference){
-					$p = @array_shift($reference->xpath('./PMID'));
+					$p = $this->getString('./PMID',$reference);
 					if($p) {
 						$pmid = "pubmed:$p";
-						$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:reference",$pmid));
-						$this->AddRDF($this->QQuadl($pmid,"rdfs:comment",$this->SafeLiteral(@array_shift($reference->xpath('./citation')))));
+						parent::addRDF(parent::triplify($study_id,parent::getVoc()."reference",$pmid));
+						parent::addRDF(parent::triplifyString($pmid,"rdfs:comment",$this->getString('./citation',$reference)));
 					}
 				}
 			} catch(Exception $e){
@@ -658,11 +718,11 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try{
 				$results_references = $root->xpath('//results_reference');
 				foreach($results_references as $result_reference){
-					$p = @array_shift($result_reference->xpath('./PMID'));
+					$p = $this->getString('./PMID',$result_reference);
 					if($p) {
 						$pmid = "pubmed:".$p;
-						$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:results-reference",$pmid));
-						$this->AddRDF($this->QQuadl($pmid,"rdfs:comment",$this->SafeLiteral(@array_shift($result_reference->xpath('./citation')))));
+						parent::addRDF(parent::triplify($study_id,parent::getVoc()."results-reference",$pmid));
+						parent::addRDF(parent::triplifyString($pmid,"rdfs:comment",$this->getString('./citation',$result_reference)));
 					}
 				}
 			}catch(Exception $e){
@@ -673,14 +733,31 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			#verification date
 			#########################################################################
 			try{
-				$verification_date  = @array_shift($root->xpath('//verification_date'));
-				$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:verification-date",$verification_date));
+				$verification_date  = $this->getString('//verification_date');
 				
-				$lastchanged_date   = @array_shift($root->xpath('//lastchanged_date'));
-				$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:last-changed-date",$lastchanged_date));
+				if($verification_date){
+					$date = $this->getDatetimeFromDate($verification_date);
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."verification-date",$date)
+					);
+				}
 				
-				$firstreceived_date = @array_shift($root->xpath('//firstreceived_date'));
-				$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:first-received-date",$firstreceived_date));
+				$lastchanged_date   = $this->getString('//lastchanged_date');
+				if($lastchanged_date) {
+					$date = $this->getDatetimeFromDate($lastchanged_date);
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."last-changed-date",$date)
+					);
+				}
+				
+				$firstreceived_date = $this->getString('//firstreceived_date');
+				if($firstreceived_date) {
+					$date = $this->getDatetimeFromDate($firstreceived_date);
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."first-received-date",$date)
+					);
+				}
+				
 			} catch(Exception $e){
 				echo "There was an error parsing the verification_date element: $e\n";
 			}
@@ -691,16 +768,14 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try{
 				$responsible_party = @array_shift($root->xpath('//responsible_party'));
 				if($responsible_party){
-					$name_title        = $root->xpath('//responsible_party/name_title');
-					$organization      = $root->xpath('//responsible_party/organization');
-
-					$rp_id = "clinicaltrials_resource:".md5($responsible_party->asXML());
-
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:responsible-party",$rp_id));
-					$this->AddRDF($this->QQuad($rp_id,"rdf:type","clinicaltrials_vocabulary:Responsible-Party"));
-					$this->AddRDF($this->QQuadl($rp_id,"rdfs:label","$name_title, $organization [$rp_id]"));
-					$this->AddRDF($this->QQuadl($rp_id,"clinicaltrials_vocabulary:name-title",$name_title));
-					$this->AddRDF($this->QQuadl($rp_id,"clinicaltrials_vocabulary:organization",$organization));
+					$rp_id = parent::getRes().md5($responsible_party->asXML());
+					$name_title        = $this->getString('//responsible_party/name_title');
+					$organization      = $this->getString('//responsible_party/organization');
+					
+					parent::addRDF(parent::triplify($study_id,parent::getVoc()."responsible-party",$rp_id));
+					parent::addRDF(parent::describeIndividual($rp_id,"$name_title, $organization",parent::getVoc()."Responsible-Party"));
+					parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."name-title",$name_title));
+					parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."organization",$organization));
 				}
 			}catch(Exception $e){
 				echo "There was an error parsing the responsible_party element: $e\n";
@@ -712,7 +787,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try{
 				$keywords = $root->xpath('//keyword');
 				foreach($keywords as $keyword){
-					$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:keyword",$keyword));
+					parent::addRDF(parent::triplifyString($study_id,parent::getVoc()."keyword",(string)$keyword));
 				}
 			}catch(Exception $e){
 				echo "There was an error parsing the keywords element: $e";
@@ -723,23 +798,25 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try{
 				$mesh_terms = $root->xpath('//condition_browse/mesh_term');
 				foreach($mesh_terms as $mesh_term){
-					$mesh_id = "clinicaltrials_resource:".md5($mesh_term);
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:condition-mesh",$mesh_id));
-					$this->AddRDF($this->QQuadl($mesh_id,"rdfs:label",$mesh_term));
+					$term = (string)$mesh_term;
+					$mesh_id = parent::getRes().md5($term);
+					parent::addRDF(parent::triplify($study_id,parent::getVoc()."condition-mesh",$mesh_id));
+					parent::addRDF(parent::triplifyString($mesh_id,"rdfs:label",$term));
 				}
 			}catch(Exception $e){
 				echo "There was an error in mesh_terms: $e\n";
 			}
 
 			###############################################################################
-			# mesh terms for hte invervention browse
+			# mesh terms for the invervention browse
 			###############################################################################
 			try {
 				$mesh_terms = $root->xpath('//intervention_browse/mesh_term');
 				foreach($mesh_terms as $mesh_label){
-					$mesh_label_id = "clinicaltrials_resource:".md5($mesh_label);
-					$this->AddRDF($this->QQuad($study_id,"clinicaltrials_vocabulary:intervention_mesh",$mesh_label_id));
-					$this->AddRDF($this->QQuadl($mesh_label_id,"rdfs:label",$this->SafeLiteral($mesh_label)));
+					$term = (string)$mesh_label;
+					$mesh_label_id = parent::getRes().md5($term);
+					parent::addRDF(parent::triplify($study_id,parent::getVoc()."intervention_mesh",$mesh_label_id));
+					parent::addRDF(parent::triplifyString($mesh_label_id,"rdfs:label",$term));
 				}
 			}
 			catch(Exception $e){
@@ -751,24 +828,69 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			# boolean value yes or no
 			################################################################################
 			try {
-				$regulated = @array_shift($root->xpath('is_fda_regulated'));
+				$regulated = $this->getString('is_fda_regulated');
 				if($regulated != ""){
-					$this->AddRDF($this->QQuadl($study_id,"clinicaltrials_vocabulary:is-fda-regulated",$regulated));
+					parent::addRDF(parent::triplifyString($study_id,parent::getVoc()."is-fda-regulated",$regulated));
 				}
-			} catch (Excepetion $e){
+			} catch (Exception $e){
 				echo "There was an error parsing the is_fda_regulated element: $e\n";
 			}
 
 			$this->WriteRDFBufferToWriteFile();
 
 		}
+		$this->WriteRDFBufferToWriteFile();
 		$this->getWriteFile()->close();
 	}
 	
-	function getString($xpath)
+	function getString($xpath,$element = null)
 	{
-		$r = @array_shift($this->root->xpath($xpath));
+		$o = $this->root;
+		if(isset($element)) $o = $element;
+		$r = @array_shift($o->xpath($xpath));
 		return ((string)$r[0]);
+	}
+	
+	public function getMonthNumber($month)
+	{
+		$months = array(
+			"January"  => "01",
+			"February" => "02",
+			"March" => "03",
+			"April" => "04",
+			"May" => "05",
+			"June" => "06",
+			"July" => "07",
+			"August" => "08",
+			"September" => "09",
+			"October" =>  10,
+			"November" => 11,
+			"December" => 12
+		);
+		if(isset($months[$month])) {
+			return $months[$month];
+		} else {
+			trigger_error("don't recognize $month",E_USER_ERROR);
+			return null;
+		}
+	}
+	
+	public function getDatetimeFromDate($date)
+	{
+		preg_match("/([A-Za-z]+)( [0-9]+,)? ([0-9]{4})/",$date,$m);
+		$month = "01"; $day = "01"; 
+		if(isset($m[1]) && $m[1]) $month = $this->getMonthNumber($m[1]);
+		if(isset($m[2]) && $m[2]) {
+			$day = substr($m[2], 1,-1);
+			$day = str_pad($day,2,"0",STR_PAD_LEFT);
+		}
+		if(isset($m[3])) {
+			$year = $m[3];
+			$datetime = $year.'-'.$month.'-'.$day.'T00:00:00Z';
+			return $datetime;
+		} 
+		trigger_error("unable to get date from $date",E_USER_ERROR);
+		return null;
 	}
 }
 ?>
