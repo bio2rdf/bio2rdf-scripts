@@ -104,11 +104,11 @@ class EntrezGeneParser extends RDFFactory{
 				} else {
 					$rfile = $rdir.$file;
 				}
-				file_put_contents($lfile,file_get_contents($rfile));
+				Utils::DownloadSingle($rfile, $lfile);
 			}
 			
-			$writefile = $odir.$id.".nt";
-			$gz=false;
+			$writefile = $odir.$id.".nt"; $gz=false;
+			if($this->GetParameterValue('graph_uri')) {$writefile = $odir.$id.".nq";}
 			if($this->GetParameterValue('gzip')){
 				$writefile .= '.gz';
 				$gz = true;
@@ -247,7 +247,7 @@ class EntrezGeneParser extends RDFFactory{
 		$this->GetReadFile()->Read(200000);
 		while($aLine = $this->GetReadFile()->Read(200000)){
 				$splitLine = explode("\t",$aLine);
-				if(count($splitLine) == 16){
+				if(count($splitLine) == 13){
 					$taxid = trim($splitLine[0]);
 					$aGeneId = trim($splitLine[1]);
 					$status = trim($splitLine[2]);
@@ -261,29 +261,6 @@ class EntrezGeneParser extends RDFFactory{
 					$endPositionOnGenomicAccession = trim($splitLine[10]);
 					$orientation = trim($splitLine[11]);
 					$assembly = trim($splitLine[12]);
-					$mature_peptide_accession_version = trim($splitLine[13]);
-					$mature_peptide_gi = trim($splitLine[14]);
-					$symbol = trim($splitLine[15]);
-
-
-					if($mature_peptide_accession_version != "-"){
-						$this->AddRDF($this->QQuad("geneid:".$aGeneId, 
-								"geneid_vocabulary:has_mature_peptide_gi",
-								"refseq:".$mature_peptide_accession_version));
-					}
-					//symbol
-					if($symbol != "-"){
-						$this->AddRDF($this->QQuadL("geneid:".$aGeneId, 
-								"geneid_vocabulary:has_gene_symbol",
-								$symbol));
-					}
-					//mature_peptide_gi
-					if($mature_peptide_gi != "-"){
-						$this->AddRDF($this->QQuad("geneid:".$aGeneId, 
-								"geneid_vocabulary:has_mature_peptide_gi",
-								"gi:".$mature_peptide_gi));
-					}
-
 					//taxid
 					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 							"geneid_vocabulary:has_taxid",
@@ -405,7 +382,7 @@ class EntrezGeneParser extends RDFFactory{
 		$this->GetReadFile()->Read(200000);
 		while($aLine = $this->GetReadFile()->Read(200000)){
 				$splitLine = explode("\t",$aLine);
-				if(count($splitLine) == 16){
+				if(count($splitLine) == 13){
 					$taxid =  trim($splitLine[0]);
 					$aGeneId = trim($splitLine[1]);
 					$status = trim($splitLine[2]);
@@ -419,26 +396,6 @@ class EntrezGeneParser extends RDFFactory{
 					$endPositionOnGenomicAccession = trim($splitLine[10]);
 					$orientation = trim($splitLine[11]);
 					$assembly = trim($splitLine[12]);
-					$mature_peptide_accession_version = trim($splitLine[13]);
-					$mature_peptide_gi = trim($splitLine[14]);
-					$symbol = trim($splitLine[15]);
-					if($mature_peptide_accession_version != "-"){
-						$this->AddRDF($this->QQuad("geneid:".$aGeneId, 
-								"geneid_vocabulary:has_mature_peptide_gi",
-								"refseq:".$mature_peptide_accession_version));
-					}
-					//symbol
-					if($symbol != "-"){
-						$this->AddRDF($this->QQuadL("geneid:".$aGeneId, 
-								"geneid_vocabulary:has_gene_symbol",
-								$symbol));
-					}
-					//mature_peptide_gi
-					if($mature_peptide_gi != "-"){
-						$this->AddRDF($this->QQuad("geneid:".$aGeneId, 
-								"geneid_vocabulary:has_mature_peptide_gi",
-								"gi:".$mature_peptide_gi));
-					}
 					//taxid
 					$this->AddRDF($this->QQuad("geneid:".$aGeneId,
 							"geneid_vocabulary:has_taxid",
@@ -659,8 +616,15 @@ class EntrezGeneParser extends RDFFactory{
 	}	
 }
 
+$start = microtime(true);
+
 set_error_handler('error_handler');
 $parser = new EntrezGeneParser($argv);
 $parser-> Run();
 
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 ?>

@@ -147,12 +147,14 @@ class NCBITaxonomyParser extends RDFFactory{
 						}
 						//ensure that there is a slash between directory name and filename
 						if(substr($odir, -1) == "/"){
-							$gzoutfile = $odir.$k.".nt";
+							$gzoutfilename = $odir.$k;
 						} else {
-							$gzoutfile = $odir."/".$k.".nt";
+							$gzoutfilename = $odir."/".$k;
 						}
+						$gzoutfile = $gzoutfilename.".nt";
 						//set the write file
 						$gz=false;
+						if($this->GetParameterValue('graph_uri')) {$gzoutfile = $gzoutfilename.".nq";}
 						if($this->GetParameterValue('gzip')) {
 							$gzoutfile .= '.gz';
 							$gz = true;
@@ -548,6 +550,15 @@ class NCBITaxonomyParser extends RDFFactory{
 	}//getpackagemap
 
 }//class
+$start = microtime(true);
+
 $p = new NCBITaxonomyParser($argv);
 $p->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
+
 ?>

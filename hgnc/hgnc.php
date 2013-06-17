@@ -84,12 +84,12 @@ class HGNCParser extends RDFFactory {
 		if($this->GetParameterValue('download') == true) {
 			$rfile = $rdir;
 			echo "downloading $file ... ";
-			file_put_contents($lfile,file_get_contents($rfile));
+			Utils::DownloadSingle ($rfile, $lfile);
 		}
 
 		$ofile = $odir.$file.'.nt'; 
 		$gz=false;
-		
+		if($this->GetParameterValue('graph_uri')) {$ofile = $odir.$file.'.nq'; }
 		if($this->GetParameterValue('gzip')) {
 			$ofile .= '.gz';
 			$gz = true;
@@ -423,9 +423,16 @@ class HGNCParser extends RDFFactory {
 		}//while
 	}//process
 }//HGNCParser
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new HGNCParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 
 ?>
