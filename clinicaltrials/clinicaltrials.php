@@ -62,16 +62,12 @@ class ClinicalTrialsParser extends Bio2RDFizer
 
 		if($handle = opendir($indir)) {
 			echo "processing directory $indir\n";
-			echo "Parsing entries\n";
-
 			$ignore = array("..",'.','.DS_STORE',"0");
 			
 			while(($entry = readdir($handle)) !== false){
-				if (in_array($entry, $ignore) || is_dir($entry) ) continue;
-				
+				if (in_array($entry,$ignore) || is_dir($entry) ) continue;
 				echo "Processing $entry".PHP_EOL;
-				$sub_dir = $this->get_sub_dir($entry);
-				$this->process_result($entry,$sub_dir);
+				$this->process_result($entry);
 			}
 		
 			echo "Finished\n.";
@@ -165,7 +161,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 	/**
 	* process a results xml file from the download directory
 	**/
-	function process_result($infile,$curr_block){
+	function process_result($infile) {
 		$indir = parent::getParameterValue('indir');
 		$outfile = parent::getParameterValue("outdir");
 		$outfile.= basename($infile,".xml").".nt";
@@ -176,9 +172,9 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		}
 		
 		$this->setWriteFile($outfile,$gz);
-
 		$xml = new CXML($indir,basename($infile));
 		while($xml->Parse("clinical_study") == TRUE) {
+		
 			$this->root = $root = $xml->GetXMLRoot();
 			
 			$nct_id = $this->getString("//id_info/nct_id");
@@ -469,8 +465,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			}catch(Exception $e){
 				echo "There was an exception parsing the number of arms element: $e\n";
 			}
-
-			
+		
 			##############################################################################
 			#enrollment
 			##############################################################################
@@ -509,7 +504,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				foreach ($arm_groups as $arm_group) {
 					$arm_group_id = parent::getRes().md5($arm_group->asXML());
 					$arm_group_label = $this->getString('./arm_group_label',$arm_group);
-					$arm_group_type = ucfirst(str_replace(" ","_",$this->getString('./arm_group_type'),$arm_group));
+					$arm_group_type = ucfirst(str_replace(" ","_",$this->getString('./arm_group_type',$arm_group)));
 					$description = $this->getString('./description',$arm_group);
 
                     parent::addRDF(
@@ -771,11 +766,15 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$rp_id = parent::getRes().md5($responsible_party->asXML());
 					$name_title        = $this->getString('//responsible_party/name_title');
 					$organization      = $this->getString('//responsible_party/organization');
+					$party_type        = $this->getString('//responsible_party/party_type');
 					
-					parent::addRDF(parent::triplify($study_id,parent::getVoc()."responsible-party",$rp_id));
-					parent::addRDF(parent::describeIndividual($rp_id,"$name_title, $organization",parent::getVoc()."Responsible-Party"));
-					parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."name-title",$name_title));
-					parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."organization",$organization));
+					parent::addRDF(
+						parent::triplify($study_id,parent::getVoc()."responsible-party",$rp_id).
+						parent::describeIndividual($rp_id,"$name_title, $organization",parent::getVoc()."Responsible-Party")
+					);
+					if($party_type) parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."party-type",$party_type));
+					if($name_title) parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."name-title",$name_title));
+					if($organization) parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."organization",$organization));
 				}
 			}catch(Exception $e){
 				echo "There was an error parsing the responsible_party element: $e\n";
@@ -841,6 +840,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		}
 		$this->WriteRDFBufferToWriteFile();
 		$this->getWriteFile()->close();
+		
 	}
 	
 	function getString($xpath,$element = null)
