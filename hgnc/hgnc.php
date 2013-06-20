@@ -127,7 +127,17 @@ class HGNCParser extends RDFFactory {
 	}//Run
 
 	function process(){
-		$this->GetReadFile()->Read(4096);
+		$header = $this->GetReadFile()->Read(4096);
+		$expected = "HGNC ID	Approved Symbol	Approved Name	Status	Locus Type	Locus Group	Previous Symbols	Previous Names	Synonyms	Name Synonyms	Chromosome	Date Approved	Date Modified	Date Symbol Changed	Date Name Changed	Accession Numbers	Enzyme IDs	Entrez Gene ID	Ensembl Gene ID	Mouse Genome Database ID	Specialist Database Links	Specialist Database IDs	Pubmed IDs	RefSeq IDs	Gene Family Tag	Gene family description	Record Type	Primary IDs	Secondary IDs	CCDS IDs	VEGA IDs	Locus Specific Databases	Entrez Gene ID(supplied by NCBI)	OMIM ID(supplied by NCBI)	RefSeq(supplied by NCBI)	UniProt ID(supplied by UniProt)	Ensembl ID(supplied by Ensembl)	UCSC ID(supplied by UCSC)	Mouse Genome Database ID(supplied by MGI)	Rat Genome Database ID(supplied by RGD)\n";
+		if ($header != $expected)
+		{
+			echo PHP_EOL;
+			echo "FOUND :".$header.PHP_EOL;
+			echo "EXPCTD:".$expected.PHP_EOL;
+			trigger_error ("Header format is different than expected, please update the script");
+			exit;
+		}
+
 		while($l = $this->GetReadFile()->Read(4096)) {
 			$fields = explode("\t", $l);
 			$id = strtolower($fields[0]);
@@ -160,17 +170,16 @@ class HGNCParser extends RDFFactory {
 			$primary_ids = $fields[27];
 			$secondary_ids = $fields [28];
 			$ccd_ids = $fields[29];
-			$vega_ids = $fields[23];
+			$vega_ids = $fields[30];
 			$locus_specific_databases = $fields[31];
-			$gdb_id_mappeddata = $fields[32];
-			$entrez_gene_id_mappeddatasuppliedbyNCBI = $fields[33];
-			$omim_id_mappeddatasuppliedbyNCBI = $fields[34];
-			$refseq_mappeddatasuppliedbyNCBI = $fields[35];
-			$uniprot_id_mappeddatasuppliedbyUniProt = $fields[36];
-			$ensembl_id_mappeddatasuppliedbyEnsembl = $fields[37];
-			$ucsc_id_mappeddatasuppliedbyUCSC = $fields[38];
-			$mouse_genome_database_id_mappeddatasuppliedbyMGI = $fields[39];
-			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[40];
+			$entrez_gene_id_mappeddatasuppliedbyNCBI = $fields[32];
+			$omim_id_mappeddatasuppliedbyNCBI = $fields[33];
+			$refseq_mappeddatasuppliedbyNCBI = $fields[34];
+			$uniprot_id_mappeddatasuppliedbyUniProt = $fields[35];
+			$ensembl_id_mappeddatasuppliedbyEnsembl = $fields[36];
+			$ucsc_id_mappeddatasuppliedbyUCSC = $fields[37];
+			$mouse_genome_database_id_mappeddatasuppliedbyMGI = $fields[38];
+			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[39];
 
 			$this->AddRDF($this->QQuad($id, "rdf:type", "hgnc_vocabulary:GeneSymbol"));
 			$this->AddRDF($this->QQuad($id, "void:inDataset", $this->GetDatasetURI()));
@@ -341,7 +350,7 @@ class HGNCParser extends RDFFactory {
 			}
 
 			if(!empty($locus_specific_databases)){
-				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:locus_specific_databases", "$locus_specific_databases"));
+				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:locus_specific_databases", $this->SafeLiteral($locus_specific_databases)));
 			}
 
 			/*if(!empty($gdb_id_mappeddata)){
