@@ -127,7 +127,17 @@ class HGNCParser extends RDFFactory {
 	}//Run
 
 	function process(){
-		$this->GetReadFile()->Read(4096);
+		$header = $this->GetReadFile()->Read(4096);
+		$expected = "HGNC ID	Approved Symbol	Approved Name	Status	Locus Type	Locus Group	Previous Symbols	Previous Names	Synonyms	Name Synonyms	Chromosome	Date Approved	Date Modified	Date Symbol Changed	Date Name Changed	Accession Numbers	Enzyme IDs	Entrez Gene ID	Ensembl Gene ID	Mouse Genome Database ID	Specialist Database Links	Specialist Database IDs	Pubmed IDs	RefSeq IDs	Gene Family Tag	Gene family description	Record Type	Primary IDs	Secondary IDs	CCDS IDs	VEGA IDs	Locus Specific Databases	Entrez Gene ID(supplied by NCBI)	OMIM ID(supplied by NCBI)	RefSeq(supplied by NCBI)	UniProt ID(supplied by UniProt)	Ensembl ID(supplied by Ensembl)	UCSC ID(supplied by UCSC)	Mouse Genome Database ID(supplied by MGI)	Rat Genome Database ID(supplied by RGD)\n";
+		if ($header != $expected)
+		{
+			echo PHP_EOL;
+			echo "FOUND :".$header.PHP_EOL;
+			echo "EXPCTD:".$expected.PHP_EOL;
+			trigger_error ("Header format is different than expected, please update the script");
+			exit;
+		}
+
 		while($l = $this->GetReadFile()->Read(4096)) {
 			$fields = explode("\t", $l);
 			$id = strtolower($fields[0]);
