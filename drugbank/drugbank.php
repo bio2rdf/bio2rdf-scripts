@@ -397,7 +397,7 @@ class DrugBankParser extends RDFFactory
 				
 					$id = "drugbank_resource:experimental_property_".$dbid."_".($counter++);
 					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:experimental-property",$id));
-					$this->AddRDF($this->QQuadL($id,"rdfs:label",$property->kind.": $value".($property->source == ''?'':" from ".$property->source)." [$id]"));
+					$this->AddRDF($this->QQuadL($id,"rdfs:label",$this->SafeLiteral ($property->kind.": $value".($property->source == ''?'':" from ".$property->source)." [$id]")));
 
 					// value
 					$this->AddRDF($this->QQuadL($id,"drugbank_vocabulary:value",$value));					
@@ -407,7 +407,7 @@ class DrugBankParser extends RDFFactory
 					$this->AddRDF($this->QQuad($id,"rdf:type",$tid));
 					if(!isset($defined[$tid])) {
 						$defined[$tid] = '';
-						$this->AddRDF($this->QQuadL($tid,"rdfs:label","$type [$tid]"));
+						$this->AddRDF($this->QQuadL($tid,"rdfs:label",$this->SafeLiteral ("$type [$tid]")));
 						$this->AddRDF($this->QQuad($tid,"rdfs:subClassOf","drugbank_vocabulary:Experimental-Property"));
 					}
 					
@@ -418,7 +418,7 @@ class DrugBankParser extends RDFFactory
 							$this->AddRDF($this->QQuad($id,"drugbank_vocabulary:source",$sid));
 							if(!isset($defined[$sid])) {
 								$defined[$sid] = '';
-								$this->AddRDF($this->QQuadL($sid,"rdfs:label",$source." [$sid]"));
+								$this->AddRDF($this->QQuadL($sid,"rdfs:label", $this->SafeLiteral ($source." [$sid]")));
 								$this->AddRDF($this->QQuad($sid,"rdf:type","drugbank_vocabulary:Source"));
 							}
 						}
