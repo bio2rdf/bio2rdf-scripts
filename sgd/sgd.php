@@ -105,13 +105,11 @@ class SGDParser extends Bio2RDFizer {
 
 			$ofile = $odir."sgd_".$file.'.nt'; 
 			$gz=false;
-<<<<<<< HEAD
+			
 			if($this->GetParameterValue('graph_uri')) {$ofile = $odir."sgd_".$file.'.nq'; }
 			if($this->GetParameterValue('gzip')) {
-=======
 			
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
->>>>>>> 68f2ed5... Updated SGD parser to use new Bio2RDF API/Release 3 guidelines
 				$ofile .= '.gz';
 				$gz = true;
 			}
