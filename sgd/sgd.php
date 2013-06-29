@@ -107,7 +107,6 @@ class SGDParser extends Bio2RDFizer {
 			$gz=false;
 			
 			if($this->GetParameterValue('graph_uri')) {$ofile = $odir."sgd_".$file.'.nq'; }
-			if($this->GetParameterValue('gzip')) {
 			
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
 				$ofile .= '.gz';
