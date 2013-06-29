@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2012 Michel Dumontier, Alison Callahan
+Copyright (C) 2013 Michel Dumontier, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,55 +23,40 @@ SOFTWARE.
 
 /**
  * An RDF generator for SGD (http://www.yeastgenome.org/)
- * @version 1.0
+ * @version 2.0
  * @author Michel Dumontier
  * @author Alison Callahan
 */
 
-require('../../php-lib/rdfapi.php');
+require('../../php-lib/bio2rdfapi.php');
 require('../common/php/oboparser.php');
 
-class SGDParser extends RDFFactory {
+
+class SGDParser extends Bio2RDFizer {
 	private $version = null;
 
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("sgd");
-		
-		// set and print application parameters
-		$this->AddParameter('files',true,'all|dbxref|features|domains|protein|goa|goslim|complex|interaction|phenotype|pathways|mapping','all','all or comma-separated list of files to process');
-		$this->AddParameter('indir',false,null,'/data/download/sgd/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/sgd/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'http://downloads.yeastgenome.org/');
-		$this->AddParameter('ncbo_api_key', false, null, '24e19c82-54e0-11e0-9d7b-005056aa3316');
-		$this->AddParameter('ncbo_download_dir', false, null, '/data/download/ncbo', 'directory of ncbo ontologies');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		
-		return TRUE;
+
+		parent::__construct($argv,"sgd");
+		parent::addParameter('files',true,'all|dbxref|features|domains|protein|goa|goslim|complex|interaction|phenotype|pathways|mapping','all','all or comma-separated list of files to process');
+		parent::addParameter('ncbo_api_key', false, null, '24e19c82-54e0-11e0-9d7b-005056aa3316');
+		parent::addParameter('download_url',false,null,'http://downloads.yeastgenome.org/');
+		parent::addParameter('ncbo_download_dir', false, null, '/data/download/ncbo', 'directory of ncbo ontologies');
+		parent::initialize();
 	}
 
 	function Run(){
 
-		if($this->GetParameterValue('files') == 'all') {
-			$files = explode("|",$this->GetParameterList('files'));
+		if(parent::getParameterValue('files') == 'all') {
+			$files = explode("|",parent::getParameterList('files'));
 			array_shift($files);
 		} else {
-			$files = explode(",",$this->GetParameterValue('files'));
+			$files = explode(",",parent::getParameterValue('files'));
 		}
 
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		$rdir = $this->GetParameterValue('download_url');
+		$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+		$rdir = parent::getParameterValue('download_url');
 		
 		//make sure directories end with slash
 		if(substr($ldir, -1) !== "/"){
@@ -97,6 +82,7 @@ class SGDParser extends RDFFactory {
  		);
 
 		foreach($files as $file){
+
 			$ext = substr(strrchr($rfiles[$file], '.'), 1);
 			if($ext == "tab"){
 				$lfile = $ldir."sgd_".$file.".tab";
@@ -104,33 +90,38 @@ class SGDParser extends RDFFactory {
 				$lfile = $ldir."sgd_".$file.".tab.gz";
 			}
 
-			if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
+			if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
-				$this->SetParameterValue('download',true);
+				parent::setParameterValue('download',true);
 			}
 			
 			//download all files [except mapping file]
-			if($this->GetParameterValue('download') == true && $file !== "mapping") {
+			if(parent::getParameterValue('download') == true && $file !== "mapping") {
 				$rfile = $rdir.$rfiles[$file];
 				echo "downloading $file ... ";
-				file_put_contents($lfile,file_get_contents($rfile));
+				Utils::DownloadSingle ($rfile, $lfile);
 			}
 
 			$ofile = $odir."sgd_".$file.'.nt'; 
 			$gz=false;
+<<<<<<< HEAD
 			
+			if(strstr(parent::getParameterValue('output_format'), "gz")) {
+=======
+			if($this->GetParameterValue('graph_uri')) {$ofile = $odir."sgd_".$file.'.nq'; }
 			if($this->GetParameterValue('gzip')) {
+>>>>>>> upstream/master
 				$ofile .= '.gz';
 				$gz = true;
 			}
 			
-			$this->SetWriteFile($ofile, $gz);
+			parent::setWriteFile($ofile, $gz);
 
 			//parse file
 			if($ext !== "gz"){
-				$this->SetReadFile($lfile, FALSE);
+				parent::setReadFile($lfile, FALSE);
 			} else {
-				$this->SetReadFile($lfile, TRUE);
+				parent::setReadFile($lfile, TRUE);
 			}
 			
 			$fnx = $file;	
@@ -139,35 +130,35 @@ class SGDParser extends RDFFactory {
 			echo "done!";
 
 			//write RDF to file
-			$this->WriteRDFBufferToWriteFile();
+			parent::writeRDFBufferToWriteFile();
 
 			//close write file
-			$this->GetWriteFile()->Close();
+			parent::getWriteFile()->close();
 			echo PHP_EOL;
 			
 		}//foreach
 
 		// generate the dataset release file
 		echo "generating dataset release file... ";
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
+		$desc = parent::getBio2RDFDatasetDescription(
+			$this->getPrefix(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sgd/sgd.php", 
-			$this->GetBio2RDFDownloadURL($this->GetNamespace()),
+			$this->getBio2RDFDownloadURL($this->getNamespace()),
 			"http://yeastgenome.org",
 			array("use"),
 			"http://yeastgenome.org",
-			$this->GetParameterValue('download_url'),
-			$this->version
+			parent::getParameterValue('download_url'),
+			parent::getDatasetVersion()
 		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
+		$this->getWriteFile()->write($desc);
+		$this->getWriteFile()->close();
 		echo "done!".PHP_EOL;
  		
 	}
 
 	function dbxref(){
-		while($l = $this->GetReadFile()->Read(2048)) {
+		while($l = $this->getReadFile()->read(2048)) {
 
 			list($id, $ns, $type, $name, $sgdid) = explode("\t",trim($l));;
 					
@@ -276,15 +267,20 @@ class SGDParser extends RDFFactory {
 					echo "unable to map $ns : $id to $sgdid".PHP_EOL;
 			}
 			
-			if($rel) {
+			if($rel) { 
 				if($suf == 'gp'){
+					$qname = "sgd_resource:".$sgdid.$suf;
 					//if the entity is not an sgd entity but a bio2rdf sgd entity, use the sgd_resource namespace
-					$this->AddRDF($this->QQuad("sgd_resource:$sgdid$suf", $rel, "$ns:$id"));
-					$this->AddRDF($this->QQuad("sgd_resource:$sgdid$suf", "void:inDataset", $this->GetDatasetURI()));
+					$this->addRDF(
+							parent::triplify($qname,$this->getVoc().$rel, "$ns:$id")
+					);
+				
 				} else {
 					//otherwise use the sgd namespace
-					$this->AddRDF($this->QQuad("sgd:$sgdid$suf", $rel, "$ns:$id"));
-					$this->AddRDF($this->QQuad("sgd_resource:$sgdid$suf", "void:inDataset", $this->GetDatasetURI()));
+					$qname = "sgd:".$sgdid.$suf;
+					$this->addRDF(
+						parent::triplify($qname,$this->getVoc().$rel, "$ns:$id")
+					);
 				}//else
 			}//if
 				
@@ -305,71 +301,81 @@ class SGDParser extends RDFFactory {
 
 			/// record
 			$rid = "sgd_resource:record_$id";
-			$this->AddRDF($this->QQuadL($rid,'dc:identifier',$rid));
-			$this->AddRDF($this->QQuad($rid, "void:inDataset", $this->GetDatasetURI()));
-			$this->AddRDF($this->QQuadL($rid,"rdfs:label","Record for sgd:$id [$rid]"));
-			$this->AddRDF($this->QQuad($rid,"rdf:type","sgd_vocabulary:Record")); //was sio:Record
-			$this->AddRDF($this->QQuad($rid,"sgd_vocabulary:is-about", "sgd:$id")); //was sio:is-about
+			$rid_label = "Record for $sid [$rid]";
+			$rid_type = $this->getVoc()."Record";
+			$this->AddRDF(
+				parent::triplify($rid, $this->getVoc()."is-about", $sid).
+				parent::describeIndividual($rid, $rid_label, $rid_type).
+				parent::describeProperty($this->getVoc()."is-about", "Relationship between an SGD record and the SGD identifier it describes").
+				parent::describeClass($this->getVoc()."Record", "An SGD record")
+			);
+
 			if($a[14]) {
 				$b = explode("|",$a[14]);
 				foreach($b AS $c) {
-					$this->AddRDF($this->QQuadL($rid,"sgd_vocabulary:modified",$c));
+					$this->AddRDF(
+						parent::triplifyString($rid, $this->getVoc()."modified", $c).
+						parent::describeProperty($this->getVoc()."modified", "Relationship between an SGD record and the date it was modified")
+					);
+					//$this->AddRDF($this->QQuadL($rid,"sgd_vocabulary:modified",$c));
 				}
 			}
 			
-
 			/// entry
-			$this->AddRDF($this->QQuadL($sid,"dc:identifier",$sid));
-			$this->AddRDF($this->QQuad($sid, "void:inDataset", $this->GetDatasetURI()));
 			$label = $a[4]." "; // standard name
 			if($a[3]) $label .= "(".$a[3].")";    // 
-			if(!$label && $a[6]) $label = "$a[1] for $a[6]";
-			$this->AddRDF($this->QQuadL($sid,"rdfs:label","$label [$sid]"));
+			if(!$label && $a[6]) $label .= "$a[1] for $a[6]";
+			$description = null;
 			if(trim($a[15])){
-				$this->AddRDF($this->QQuadL($sid,"dc:description",addslashes(trim($a[15]))));
+				$description = addslashes(trim($a[15]));
 			}
 			
 			$feature_type = $this->GetFeatureType($a[1]);
-			$this->AddRDF($this->QQuad($sid,"rdf:type",strtolower($feature_type)));
+			$this->AddRDF(
+				parent::describeIndividual($sid, $label, $feature_type, null, $description)
+			);
 
 			unset($type);
 
 			if($a[1] == "ORF") {
-				$type = "p";
+				$type = $this->getVoc()."Protein";
 			} elseif(stristr($a[1],"rna")){
-				$type = "r";
+				$type = $this->getVoc()."RNA";
 			}
 
 			if(isset($type)) {
 				unset($p1);
 				unset($p2);
 				$gp = 'sgd_resource:'.$id."gp";
-				$this->AddRDF($this->QQuad("sgd:$id","sgd_vocabulary:encodes",$gp));
-				$this->AddRDF($this->QQuadL($gp,'rdfs:label',"$id"."gp [$gp]"));
-				$this->AddRDF($this->QQuad($gp, "void:inDataset", $this->GetDatasetURI()));
-				
-				if($type == "p") {
-					$this->AddRDF($this->QQuad($gp,'rdf:type','sgd_vocabulary:Protein'));
-				} elseif($type == "r") {
-					$this->AddRDF($this->QQuad($gp,'rdf:type','sgd_vocabulary:RNA')); 
-				}
+				$gplabel = "$id"."gp";
+				$this->AddRDF(
+					parent::triplify($sid, $this->getVoc()."encodes", $gp).
+					parent::describeIndividual($gp, $gplabel, $type).
+					parent::describeProperty($this->getVoc()."encodes", "Relationship between an SGD gene and the gene product it encodes")
+				);
 
 				if($a[1] == "ORF" && $a[3] != '') {
 					$p1 = ucfirst(strtolower(str_replace(array("(",")"), array("%28","%29"), $a[3])))."p";
-					$this->AddRDF($this->QQuad("sgd:$id","sgd_vocabulary:encodes","sgd:$p1"));
-					$this->AddRDF($this->QQuad("sgd:$p1","owl:sameAs","$gp"));
-					$this->AddRDF($this->QQuadL("sgd:$p1","rdfs:label","$p1 [sgd:$p1]"));
-					$this->AddRDF($this->QQuad("sgd:$p1","rdf:type","sgd_vocabulary:Protein"));
+					$p1label = "$p1";
+					$this->addRDF(
+						parent::triplify($sid, $this->getVoc()."encodes", "sgd:$p1").
+						parent::triplify("sgd:$p1", "owl:sameAs", $gp).
+						parent::describeIndividual("sgd:$p1", $p1label, $this->getVoc()."Protein")
+					);
 				}
 				if($a[1] == "ORF" && $a[4] != '') {
 					$p2 = ucfirst(strtolower(str_replace(array("(",")"), array("%28","%29"), $a[4])))."p";
-					$this->AddRDF($this->QQuad("sgd:$id","sgd_vocabulary:encodes","sgd:$p2"));
-					$this->AddRDF($this->QQuad("sgd:$p2","owl:sameAs","$gp"));
-					$this->AddRDF($this->QQuadL("sgd:$p2","rdfs:label","$p2 [sgd:$p2]"));
-					$this->AddRDF($this->QQuad("sgd:$p2","rdf:type","sgd_vocabulary:Protein"));
+					$p2label = "$p2";
+					$this->AddRDF(
+						parent::triplify($sid, $this->getVoc()."encodes", "sgd:$p2").
+						parent::triplify("sgd:$p2", "owl:sameAs", $gp).
+						parent::describeIndividual("sgd:$p2", $p2label, $this->getVoc()."Protein")
+					);
 				}
 				if(isset($p1) && isset($p2)){
-					$this->AddRDF($this->QQuad("sgd:$p1","owl:sameAs","sgd:$p2"));
+					$this->AddRDF(
+						parent::triplify("sgd:$p1", "owl:sameAs", "sgd:$p2")
+					);
 				} 
 					
 			}
@@ -378,42 +384,57 @@ class SGDParser extends RDFFactory {
 			if($a[2]) {
 				$qualifiers = explode("|",$a[2]);
 				foreach($qualifiers AS $q) {
-					$this->AddRDF($this->QQuadL("sgd:$id","sgd_vocabulary:status","$q"));
+					$this->AddRDF(
+						parent::triplifyString($sid, $this->getVoc()."status", "$q").
+						parent::describeProperty($this->getVoc()."status", "Relationship between an SGD entry and it feature qualifier(s)")
+					);
 				}
 			}
 			
 			// unique feature name
 			if($a[3]) {
-				$this->AddRDF($this->QQuadL("sgd:$id","sgd_vocabulary:prefLabel",$a[3]));
 				$nid = str_replace(array("(",")"), array("%28","%29"),$a[3]);
-				$this->AddRDF($this->QQuad("sgd:$id","owl:sameAs","sgd:$nid"));
+				$this->AddRDF(
+					parent::triplifyString($sid, $this->getVoc()."prefLabel", $a[3]).
+					parent::triplify($sid, "owl:sameAs", "sgd:$nid").
+					parent::describeProperty($this->getVoc()."prefLabel", "Relationship between an SGD entry and its unique feature name")
+				);
 			}
 			
 			// common names
 			if($a[4]) {
-				$this->AddRDF($this->QQuadL("sgd:$id","sgd_vocabulary:standardName",$a[4]));
 				$nid = str_replace(array("(",")"), array("%28","%29"), $a[4]);
-				$this->AddRDF($this->QQuad("sgd:$id","owl:sameAs","sgd:$nid"));
+				$this->AddRDF(
+					parent::triplifyString($sid, $this->getVoc()."standardName", $a[4]).
+					parent::triplify($sid, "owl:sameAs", "sgd:$nid").
+					parent::describeProperty($this->getVoc()."standardName", "Relationship between an SGD entry and its common name")
+				);
 			}
 			if($a[5]) {
 				$b = explode("|",$a[5]);
 				foreach($b AS $name) {
-					$this->AddRDF($this->QQuadL("sgd:$id","sgd_vocabulary:alias",str_replace('"','',$name)));
+					$this->AddRDF(
+						parent::triplifyString($sid, $this->getVoc()."alias", str_replace('"', '', $name)).
+						parent::describeProperty($this->getVoc()."alias", "Relationship between an SGD entry and its alias(es)")
+					);	
 				}
 			}
 			// parent feature
 			$parent_type = '';
 			if($a[6]) {
 				$parent = str_replace(array("(",")"," "), array("%28","%29","_"), $a[6]);
-				//$parent = urlencode($a[6]);
-
-				$this->AddRDF($this->QQuad("sgd:$id","sgd_vocabulary:is-proper-part-of","sgd_resource:$parent"));
+				$this->addRDF(
+					parent::triplify($sid, $this->getVoc()."is-proper-part-of", $this->getRes().$parent).
+					parent::describeProperty($this->getVoc()."is-proper-part-of", "Relationship between an SGD entity and an entity it is a proper part of")
+				);
 				if(strstr($parent,"chromosome")) {
 					$parent_type = 'c';
 					if(!isset($chromosomes[$parent])) $chromosomes[$parent] = '';
 					else {
-						$this->AddRDF($this->QQuad("sgd_resource:$parent","rdf:type","sgd_vocabulary:Chromosome"));
-						$this->AddRDF($this->QQuadL("sgd_resource:$parent","rdfs:label",$a[6]));
+						$this->AddRDF(
+							parent::describeIndividual($this->getRes().$parent, $a[6], $this->getVoc()."Chromosome").
+							parent::describeClass($this->getVoc()."Chromosome", "SGD Chromosome")
+						);
 					}
 				}
 			}
@@ -422,7 +443,9 @@ class SGDParser extends RDFFactory {
 				if($a[3]) {
 					$b = explode("|",$a[7]);
 					foreach($b AS $c) {
-						$this->AddRDF($this->QQuad("sgd:$id","owl:sameAs","sgd:$c"));
+						$this->AddRDF(
+							parent::triplify($sid, "owl:sameAs", "sgd:$c")
+						);
 					}
 				}
 			}
@@ -430,7 +453,9 @@ class SGDParser extends RDFFactory {
 			unset($chr);
 			if($a[8] && $parent_type != 'c') {
 				$chr = "chromosome_".$a[8];
-				$this->AddRDF($this->QQuad("sgd:$id","sgd_vocabulary:is-proper-part-of","sgd_resource:$chr"));
+				$this->AddRDF(
+					parent::triplify($sid, $this->getVoc()."is-proper-part-of", $this->getRes().$chr)
+				);
 			}
 			// watson or crick strand of the chromosome
 			unset($strand);
@@ -438,29 +463,41 @@ class SGDParser extends RDFFactory {
 				$chr = "chromosome_".$a[8];
 				$strand_type = ($a[11]=="w"?"WatsonStrand":"CrickStrand");
 				$strand = $chr."_".$strand_type;
-				$this->AddRDF($this->QQuad("sgd:$id","sgd_vocabulary:is-proper-part-of","sgd_resource:$strand"));
+				$this->AddRDF(
+					parent::triplify($sid, $this->getVoc()."is-proper-part-of", $this->getRes().$strand)
+				);
 				if(!isset($strands[$strand])) {
 					$strands[$strand] = '';
-					$this->AddRDF($this->QQuad("sgd_resource:$strand","rdf:type","sgd_vocabulary:$strand_type"));
-					$this->AddRDF($this->QQuadL("sgd_resource:$strand","rdfs:label","$strand_type for $chr"));
-					$this->AddRDF($this->QQuad("sgd_resource:$strand","sgd_vocabulary:is-proper-part-of","sgd_resource:$chr"));
+					$this->AddRDF(
+						parent::describeIndividual($this->getRes().$strand, "$strand_type for $chr", $this->getVoc().$strand_type).
+						parent::triplify($this->getRes().$strand, $this->getVoc()."is-proper-part-of", $this->getRes().$chr).
+						parent::describeClass($this->getVoc().$strand_type, "$strand_type")
+					);
 				}
 			}
 			
 			// position
 			if($a[9]) {
 				$loc = $id."loc";
-				$this->AddRDF($this->QQuad("sgd:$id","sgd_vocabulary:location","sgd_resource:$loc"));
-				$this->AddRDF($this->QQuadL("sgd_resource:$loc","dc:identifier","sgd_resource:$loc"));
-				$this->AddRDF($this->QQuadL("sgd_resource:$loc","rdfs:label","Genomic location of sgd:$id"));
-				$this->AddRDF($this->QQuad("sgd_resource:$loc","rdf:type","sgd_vocabulary:Location"));
-				$this->AddRDF($this->QQuadL("sgd_resource:$loc","sgd_vocabulary:has-start-position",$a[9]));
-				$this->AddRDF($this->QQuadL("sgd_resource:$loc","sgd_vocabulary:has-stop-position",$a[10]));
+				$this->AddRDF(
+					parent::triplify($sid, $this->getVoc()."location", $this->getRes().$loc).
+					parent::triplifyString($this->getRes().$loc, $this->getVoc()."has-start-position", $a[9]).
+					parent::triplifyString($this->getRes().$loc, $this->getVoc()."has-stop-position", $a[10]).
+					parent::describeIndividual($this->getRes().$loc, "Genomic location of $sid", $this->getVoc()."Location", null, null).
+					parent::describeProperty($this->getVoc()."has-start-position", "Relationship between an SGD chromosomal location and its start position").
+					parent::describeProperty($this->getVoc()."has-stop-position", "Relationship between an SGD chromosomal location and its stop position")
+				);
 				if(isset($chr)){
-					$this->AddRDF($this->QQuad("sgd_resource:$loc","sgd_vocabulary:chromosome","sgd_resource:$chr"));
+					$this->AddRDF(
+						parent::triplify($this->getRes().$loc, $this->getVoc()."chromosome", $this->getRes().$chr).
+						parent::describeProperty($this->getRes()."chromosome", "Relationship between an SGD chromosomal location and its chromosome")
+					);
 				}
 				if(isset($strand)){
-					$this->AddRDF($this->QQuad("sgd_resource:$loc","sgd_vocabulary:strand","sgd_resource:$strand"));
+					$this->AddRDF(
+						parent::triplify($this->getRes().$loc, $this->getVoc()."strand", $this->getRes().$strand).
+						parent::describeProperty($this->getRes()."strand", "Relationship between an SGD chromosomal location and its strand")
+					);
 				}
 			}
 		}//while
@@ -489,18 +526,32 @@ class SGDParser extends RDFFactory {
 			$a = explode("\t",$l);
 
 			$id = "sgd:".$a[0]."p";
+			
 			$domain = $domain_ns[$a[3]].":".$a[4];
-			$this->AddRDF($this->QQuad($id,'sgd_vocabulary:has-proper-part',$domain));
+			//if a[4] = 'seg', URI not necessarily unique - adding protein, start and stop positions to domain identifier as well
+			if($a[4] == 'seg'){
+				$domain .= "-".$a[0]."-".$a[6]."-".$a[7];
+			}
+
+			$this->AddRDF(
+				parent::triplify($id, $this->getVoc()."has-proper-part", $domain).
+				parent::describeProperty($this->getVoc()."has-proper-part", "Relationship between an SGD entity and an entity that is its proper part")
+			);
 
 			$da = "sgd_resource:da_".$a[0]."p_$a[4]_$a[6]_$a[7]";
-			$this->AddRDF($this->QQuadL($da,'rdfs:label',"domain alignment between $id and $domain [$da]"));
-			$this->AddRDF($this->QQuad($da,'rdf:type','sgd_vocabulary:Domain-Alignment'));
-			$this->AddRDF($this->QQuad($da, "void:inDataset", $this->GetDatasetURI()));
-			$this->AddRDF($this->QQuad($da,'sgd_vocabulary:query',$id));
-			$this->AddRDF($this->QQuad($da,'sgd_vocabulary:target',$domain));
-			$this->AddRDF($this->QQuadL($da,'sgd_vocabulary:query-start', $a[6]));
-			$this->AddRDF($this->QQuadL($da,'sgd_vocabulary:query-stop', $a[7]));
-			$this->AddRDF($this->QQuadL($da,'sgd_vocabulary:e-value', $a[8]));	
+			$this->AddRDF(
+				parent::describeIndividual($da, "domain alignment between $id and $domain", $this->getVoc()."Domain-Alignment").
+				parent::triplify($da, $this->getVoc()."query", $id).
+				parent::triplify($da, $this->getVoc()."target", $domain).
+				parent::triplifyString($da, $this->getVoc()."query-start", $a[6]).
+				parent::triplifyString($da, $this->getVoc()."query-stop", $a[7]).
+				parent::triplifyString($da, $this->getVoc()."e-value", $a[8]).
+				parent::describeProperty($this->getVoc()."query", "Relationship between an SGD domain alignment and its query SGD entity").
+				parent::describeProperty($this->getVoc()."target", "Relationship between an SGD domain alignment and its target SGD domain").
+				parent::describeProperty($this->getVoc()."query-start", "Relationship between an SGD domain alignment and its query start position").
+				parent::describeProperty($this->getVoc()."query-stop", "Relationship between an SGD domain alignment and its query end position").
+				parent::describeProperty($this->getVoc()."e-value", "Relationship between an SGD domain alignment and its e-value")
+			);
 		}
 		return TRUE;
 	}//domains
@@ -546,11 +597,14 @@ class SGDParser extends RDFFactory {
 				$pid =  "$id"."_".$p["id"];
 				$type = $p["type"];
 				
-				$this->AddRDF($this->QQuad("sgd:$id","sgd_vocabulary:is-described-by","sgd_resource:$pid"));
-				$this->AddRDF($this->QQuad("sgd_resource:$pid","rdf:type","sgd_vocabulary:$type"));
-				$this->AddRDF($this->QQuad("sgd_resource:$pid", "void:inDataset", $this->GetDatasetURI()));
-				$this->AddRDF($this->QQuadL("sgd_resource:$pid","rdfs:label","$type for sgd:$id [sgd_resource:$pid]"));
-				$this->AddRDF($this->QQuadL("sgd_resource:$pid","sgd_vocabulary:has-value",$a[$i]));
+				$this->AddRDF(
+					parent::triplify($this->getNamespace().$id, $this->getVoc()."is-described-by", $this->getRes().$pid).
+					parent::triplifyString($this->getRes().$pid, $this->getVoc()."has-value", $a[$i]).
+					parent::describeIndividual($this->getRes().$pid, "$type for sgd:$id", $this->getVoc().$type).
+					parent::describeProperty($this->getVoc()."is-described-by", "Relationship  between an SGD entity and a property it is described by").
+					parent::describeProperty($this->getVoc()."has-value", "Relationship between an SGD entity and its value").
+					parent::describeClass($this->getVoc().$type, "$type")
+				);
 			}
 		}
 		return TRUE;
@@ -577,30 +631,46 @@ class SGDParser extends RDFFactory {
 			$subject   = "sgd_resource:$id";
 			$predicate = "sgd_vocabulary:".$goterms[$a[8]]['sgd_vocabulary'];
 			$object    = "go:".$term;
-			$this->AddRDF($this->QQuad($subject,$predicate,$object));
+			//$this->AddRDF($this->QQuad($subject,$predicate,$object));
+			$this->AddRDF(
+				parent::triplify($subject, $predicate, $object).
+				parent::describeProperty($predicate, "$predicate")
+			);
 
 			// now for the GO annotation
-			$goa = "sgd_resource:goa_".($z++);
-			$this->AddRDF($this->QQuad($goa,"rdf:type","goa_vocabulary:GO-Annotation"));
-			$this->AddRDF($this->QQuad($goa,"void:inDataset", $this->GetDatasetURI()));
-			$this->AddRDF($this->QQuad($goa,"goa_vocabulary:target",$subject));
-			$this->AddRDF($this->QQuad($goa,"goa_vocabulary:go-term",$object));
-			$this->AddRDF($this->QQuadL($goa,"goa_vocabulary:go-category",$goterms[$a[8]]['sgd_vocabulary']));
+			$goa = "sgd_resource:goa_".($z);
+			$this->AddRDF(
+				parent::describeIndividual($goa, "SGD GO annotation $z", "goa_vocabulary:GO-Annotation").
+				parent::describeClass("goa_vocabulary:GO-Annotation", "GOA GO annotation").
+				parent::triplify($goa, "goa_vocabulary:target", $subject).
+				parent::triplify($goa, "goa_vocabulary:go-term", $object).
+				parent::triplifyString($goa, "goa_vocabulary:go-category", $goterms[$a[8]]['sgd_vocabulary']).
+				parent::describeProperty("goa_vocabulary:target", "Relationship between a GO annotation and its target").
+				parent::describeProperty("goa_vocabulary:go-term", "Relationship between a GO annotation and its GO term").
+				parent::describeProperty("goa_vocabulary:go-category", "Relationship between a GO annotation and its GO category")
+			);
 			if(isset($a[5])) {
 				$b = explode("|",$a[5]);
 				foreach($b as $c) {
 					$d = explode(":",$c);
 					if($d[0] == "pmid") {
-						$this->AddRDF($this->QQuad($goa,"goa_vocabulary:article","pubmed:".$d[1]));
+						$this->AddRDF(
+							parent::triplify($goa, "goa_vocabulary:article", "pubmed:".$d[1]).
+							parent::describeProperty("goa_vocabulary:article", "Relationship between a GO annotation and its source article")
+						);
 					}
 				}
 			}
 			if(isset($a[6])) {
 				$code = $this->MapECO($a[6]);
 				if($code){
-					$this->AddRDF($this->QQuad($goa,"goa_vocabulary:evidence","eco:$code"));
+					$this->AddRDF(
+						parent::triplify($goa, "goa_vocabulary:evidence", "eco:$code").
+						parent::describeProperty("goa_vocabulary:evidence", "Relationship between a GO annotation and its evidence code")
+					);
 				}//if
 			}//if
+			$z++;
 		}//while
 		return TRUE;
 	}//goa
@@ -624,11 +694,14 @@ class SGDParser extends RDFFactory {
 			$id = $a[2]."gp";
 			$term = substr($a[5],3);
 			
-			$subject   = "sgd_resource:$id";
-			$predicate = "sgd_vocabulary:".$goterms[$a[3]]['sgd_vocabulary'];
+			$subject   = $this->getRes().$id;
+			$predicate = $this->getVoc().$goterms[$a[3]]['sgd_vocabulary'];
 			$object    = "go:".$term;
-			$this->AddRDF($this->QQuad($subject,$predicate,$object));
-			
+
+			$this->AddRDF(
+				parent::triplify($subject, $predicate, $object).
+				parent::describeProperty($predicate, "$predicate")
+			);			
 		}		
 		return TRUE;
 	}//goslim
@@ -639,14 +712,18 @@ class SGDParser extends RDFFactory {
 			
 			$b = explode("/",$a[0]);
 			$id = "sgd:".$b[count($b)-1];
-			$this->AddRDF($this->QQuadL($id,'rdfs:label', "$b[0] [$id]"));
-			$this->AddRDF($this->QQuad($id, "void:inDataset", $this->GetDatasetURI()));
-			$this->AddRDF($this->QQuad($id, 'rdf:type',"sgd_vocabulary:Complex"));
+
+			$this->AddRDF(
+				parent::describeIndividual($id, $b[0], $this->getVoc()."Complex").
+				parent::describeClass($this->getVoc()."Complex", "SGD complex")
+			);
 			
 			$b = explode("/|",$a[1]);
 			foreach($b AS $c) {
 				$d = explode("/",$c);
-				$this->AddRDF($this->QQuad($id,'sgd_vocabulary:has-proper-part',"sgd_resource:$d[3]gp"));
+				$this->AddRDF(
+					parent::triplify($id, $this->getVoc()."has-proper-part", $this->getRes().$d[3]."gp")
+				);
 			}
 		}//while
 		return TRUE;
@@ -675,8 +752,7 @@ class SGDParser extends RDFFactory {
 			$id = md5($id1.$id2.$method.$cit);
 
 			$exp_type = array_search($interaction_type, $searchlist['experiment_type']);
-			$this->AddRDF($this->QQuad("sgd_resource:$id","rdf:type",strtolower($exp_type)));
-			$this->AddRDF($this->QQuad("sgd_resource:$id", "void:inDataset", $this->GetDatasetURI()));
+
 			$this->GetMethodID($method,$oid,$type);
 			$id1 = str_replace(array("(",")"), array("",""), $id1);
 			$id2 = str_replace(array("(",")"), array("",""), $id2);
@@ -685,14 +761,17 @@ class SGDParser extends RDFFactory {
 				$id2=ucfirst(strtolower($id2))."p";
 			}
 			
-			$this->AddRDF($this->QQuadL("sgd_resource:$id","rdfs:label","$htpORman ".substr($interaction_type,0,-1)." between $id1 and $id2 [sgd_resource:$id]"));
-			
-			$this->AddRDF($this->QQuad("sgd_resource:$id","sgd_vocabulary:bait","sgd:$id1"));
-			$this->AddRDF($this->QQuad("sgd_resource:$id","sgd_vocabulary:hit","sgd:$id2"));
-			$this->AddRDF($this->QQuad("sgd_resource:$id","sgd_vocabulary:method", strtolower($oid)));
+			$this->AddRDF(
+				parent::describeIndividual($this->getRes().$id, "$htpORman ".substr($interaction_type,0,-1)." between $id1 and $id2", strtolower($exp_type)).
+				parent::triplify($this->getRes().$id, $this->getVoc()."bait", $this->getNamespace().$id1).
+				parent::triplify($this->getRes().$id, $this->getVoc()."hit", $this->getNamespace().$id2).
+				parent::triplify($this->getRes().$id, $this->getVoc()."method", strtolower($oid)).
+				parent::describeProperty($this->getVoc()."bait", "Relationship between an SGD interaction and its bait").
+				parent::describeProperty($this->getVoc()."hit", "Relationship between an SGD interaction and its hit").
+				parent::describeProperty($this->getVoc()."method", "Relationship between an SGD interaction and the method by which it was obtained")
+			);
 			
 			if($phenotype) {
-				$this->AddRDF($this->QQuad("sgd_resource:$id","rdf:type",strtolower($exp_type)));
 				$p = explode(":",$phenotype);
 				if(count($p) == 1) {
 					// straight match to observable
@@ -701,19 +780,32 @@ class SGDParser extends RDFFactory {
 					// p[0] is the observable and p[1] is the qualifier
 					$observable = array_search($p[0], $searchlist['observable']);
 					$qualifier = array_search($p[1], $searchlist['qualifier']);
-					$this->AddRDF($this->QQuad("sgd_resource:$id","sgd_vocabulary:qualifier",strtolower($qualifier)));
+					$this->AddRDF(
+						parent::triplify($this->getRes().$id, $this->getVoc()."qualifier", strtolower($qualifier)).
+						parent::describeProperty($this->getVoc()."qualifier", "Relationship between an SGD entity and its qualifier")
+					);
 				}
-				$this->AddRDF($this->QQuad("sgd_resource:$id","sgd_vocabulary:phenotype",strtolower($observable)));
+				$this->AddRDF(
+					parent::triplify($this->getRes().$id, $this->getVoc()."phenotype", strtolower($observable)).
+					parent::describeProperty($this->getVoc()."phenotype", "Relationship between an SGD entity and its phenotype")
+				);
 			}//if
 
 			if($htpORman){
-				$this->AddRDF($this->QQuadL("sgd_resource:$id","sgd_vocabulary:throughput",($htpORman=="manually curated"?"manually curated":"high throughput")));
+				$this->AddRDF(
+					parent::triplifyString($this->getRes().$id, $this->getVoc()."throughput", ($htpORman=="manually curated"?"manually curated":"high throughput")).
+					parent::describeProperty($this->getVoc()."throughput", "Relationship between an SGD entity and its throughput")
+				);
 			}
 			$b = explode("|",$ref);
 			foreach($b AS $c) {
 				$d = explode(":",$c);
 				if($d[0]=="PMID"){
 					$this->AddRDF($this->QQuad("sgd_resource:$id","sgd_vocabulary:article","pubmed:".$d[1]));
+					$this->AddRDF(
+						parent::triplify($this->getRes().$id, $this->getVoc()."article", "pubmed:".$d[1]).
+						parent::describeProperty($this->getVoc()."article", "Relationship between an SGD entity and a published article")
+					);
 				}
 			}//foreach
 		}//while
@@ -743,10 +835,12 @@ class SGDParser extends RDFFactory {
 			$eid =  md5($a[3].$a[5].$a[6].$a[9]);
 			
 			$label = "$a[0] - $a[5] experiment with $a[6] resulting in phenotype of $a[9]";
-			$this->AddRDF($this->QQuadL("sgd_resource:$eid","rdfs:label","$label [sgd_resource:$eid]"));
-			$this->AddRDF($this->QQuad("sgd_resource:$eid", "void:inDataset", $this->GetDatasetURI()));
-			$this->AddRDF($this->QQuad("sgd_resource:$eid","rdf:type","sgd_vocabulary:Phenotype_Experiment"));
-			$this->AddRDF($this->QQuad("sgd_resource:$eid","sgd_vocabulary:has-participant","sgd:$a[3]"));
+
+			$this->AddRDF(
+				parent::triplify($this->getRes().$eid, $this->getVoc()."has-participant", $this->getNamespace().$a[3]).
+				parent::describeClass($this->getVoc()."Phenotype_Experiment", "SGD phenotype experiment [".$this->getVoc()."Phenotype_Experiment]").
+				parent::describeProperty($this->getVoc()."has-participant", "Relationship between an SGD entity and its participant")
+			);
 			
 			// reference
 			// PMID: 12140549|SGD_REF: S000071347
@@ -755,21 +849,31 @@ class SGDParser extends RDFFactory {
 				$d = explode(" ",$c);
 				if($d[0] == "PMID:") $ns = "pubmed";
 				else $ns = "sgd";
-				$this->AddRDF($this->QQuad("sgd_resource:$eid","sgd_vocabulary:article","$ns:".$d[1]));
+				$this->AddRDF(
+					parent::triplify($this->getRes().$eid, $this->getVoc()."article", $ns.":".$d[1])
+				);
 			}
 			
 			// experiment type [5]
+			$details=null;
 			$p = strpos($a[5],'(');
 			if($p !== FALSE) {
 				$label = substr($a[5],0,$p-1);
 				$details = substr($a[5],$p+1);
-				$this->AddRDF($this->QQuadL("sgd_resource:$eid","dc:description","$details"));
 			} else {
 				$label = $a[5];
 			}
+
+			$this->AddRDF(
+				parent::describeIndividual($this->getRes().$eid, $label, $this->getVoc()."Phenotype_Experiment", null, $details, null)
+			);
+
 			$id = array_search($label, $searchlist['experiment_type']);	
 			if($id !== FALSE){
-				$this->AddRDF($this->QQuad("sgd_resource:$eid","sgd_vocabulary:experiment-type",strtolower($id)));
+				$this->AddRDF(
+					parent::triplify($this->getRes().$eid, $this->getVoc()."experiment-type", strtolower($id)).
+					parent::describeProperty($this->getVoc()."experiment-type", "Relationship between an SGD experiment and the experiment type")
+				);
 			} else {
 				trigger_error("No match for experiment type $label");
 			}
@@ -777,19 +881,27 @@ class SGDParser extends RDFFactory {
 			// mutant type [6]
 			$id = array_search($a[6], $searchlist['mutant_type']);
 			if($id !== FALSE){
-				$this->AddRDF($this->QQuad("sgd_resource:$eid","sgd_vocabulary:mutant-type",strtolower($id)));
+				$this->AddRDF(
+					parent::triplify($this->getRes().$eid, $this->getVoc()."mutant-type", strtolower($id)).
+					parent::describeProperty($this->getVoc()."mutant-type", "Relationship between an SGD experiment and the mutant type")
+				);
 			}			
 			// phenotype  [9]
 			// presented as observable: qualifier
 			$b = explode(": ",$a[9]);
 			$id = array_search($b[0], $searchlist['observable']);
 			if($id !== FALSE){
-				$this->AddRDF($this->QQuad("sgd_resource:$eid","sgd_vocabulary:observable",strtolower($id)));
+				$this->AddRDF(
+					parent::triplify($this->getRes().$eid, $this->getVoc()."observable", strtolower($id)).
+					parent::describeProperty($this->getVoc()."observable", "Relationship between an SGD entity and its observable qualifier")
+				);
 			}
 			if(!empty($b[1])){
 				$id = array_search($b[1], $searchlist['qualifier']);
 				if($id !== FALSE){
-					$this->AddRDF($this->QQuad("sgd_resource:$eid","sgd_vocabulary:qualifier",strtolower($id)));
+					$this->AddRDF(
+						parent::triplify($this->getRes().$eid, $this->getVoc()."qualifier", strtolower($id))
+					);
 				} 
 			}
 					
@@ -803,26 +915,39 @@ class SGDParser extends RDFFactory {
 			*/
 
 			if(trim($a[7]) != ''){
-				$this->AddRDF($this->QQuadL("sgd_resource:$eid","sgd_vocabulary:allele",$a[7]));
+				$this->AddRDF(
+					parent::triplifyString($this->getRes().$eid, $this->getVoc()."allele", $a[7]).
+					parent::describeProperty($this->getVoc()."allele", "Relationship between an SGD experiment and an allele")
+				);
 			} 
 
 			if(trim($a[8]) != ''){
-				$this->AddRDF($this->QQuadL("sgd_resource:$eid","sgd_vocabulary:background",$a[8]));
+				$this->AddRDF(
+					parent::triplifyString($this->getRes().$eid, $this->getVoc()."background", $a[8]).
+					parent::describeProperty($this->getVoc()."background", "Relationship betweeen an SGD experiment and its background")
+				);
 			}
 
 			if(trim($a[10]) != ''){
-				$this->AddRDF($this->QQuadL("sgd_resource:$eid","sgd_vocabulary:chemical",$a[10]));
+				$this->AddRDF(
+					parent::triplifyString($this->getRes().$eid, $this->getVoc()."chemical", $a[10]).
+					parent::describeProperty($this->getVoc()."chemical", "Relationship between an SGD experiment and a chemical")
+				);
 			}
 
 			if(trim($a[11]) != ''){
-				$this->AddRDF($this->QQuadL("sgd_resource:$eid","sgd_vocabulary:condition",$a[11]));
+				$this->AddRDF(
+					parent::triplifyString($this->getRes().$eid, $this->getVoc()."condition", $a[11]).
+					parent::describeProperty($this->getVoc()."condition", "Relationship between an SGD experiment and a condition")
+				);
 			}
 
 			if(trim($a[12]) != ''){
-				$this->AddRDF($this->QQuadL("sgd_resource:$eid","sgd_vocabulary:details",str_replace('"','\"',$a[12])));
-			} 
-			//if($a[13] != '') $buf .= "sgd:$eid sgd_vocabulary:reporter \"$a[13]\".".PHP_EOL;
-			
+				$this->AddRDF(
+					parent::triplifyString($this->getRes().$eid, $this->getVoc()."details", str_replace('"','\"',$a[12])).
+					parent::describeProperty($this->getVoc()."details", "Relationship between an SGD experiment and its details")
+				);
+			} 			
 		}//while
 		return TRUE;
 	}//phenotype
@@ -839,48 +964,60 @@ class SGDParser extends RDFFactory {
 
 			if(!isset($e[$pid])) {
 				$e[$pid] = '1';
-				$this->AddRDF($this->QQuadL("sgd_resource:$pid","rdfs:label","$a[0] [sgd_resource:$pid]"));
-				$this->AddRDF($this->QQuad("sgd_resource:$pid", "void:inDataset", $this->GetDatasetURI()));
-				$this->AddRDF($this->QQuadL("sgd_resource:$pid","dc:title",$a[0]));
-
 				if(!$sp){
-					$this->AddRDF($this->QQuad("sgd_resource:$pid","rdf:type","sgd_vocabulary:Pathway"));
+					$this->AddRDF(
+						parent::describeIndividual($this->getRes().$pid, $a[0], $this->getVoc()."Pathway", $a[0])
+					);
 				} else {
-					$this->AddRDF($this->QQuad("sgd_resource:$pid","rdf:type","sgd_vocabulary:Superpathway"));
+					$this->AddRDF(
+						parent::describeIndividual($this->getRes().$pid, $a[0], $this->getVoc()."SuperPathway", $a[0])
+					);
 				}
 			}
 			if($sp) { // add the pathway to the superpathway
 				$pathway = substr($a[1],0,-(strlen($a[1])-strrpos($a[1]," ")));
-				$this->AddRDF($this->QQuad("sgd_resource:$pid","sgd_vocabulary:has-proper-part","sgd_resource:".md5($pathway)));
+				$this->AddRDF(
+					parent::triplify($this->getRes().$pid, $this->getVoc()."has-proper-part", $this->getRes().md5($pathway))
+				);
 				continue;
 			}
 
 			$eid = '';
 			if($a[3]) { // there is a protein
 				$eid = ucfirst(strtolower($a[3]))."p";
-				$this->AddRDF($this->QQuad("sgd_resource:$pid","sgd_vocabulary:has-participant", "sgd_resource:$eid"));
+				$this->AddRDF(
+					parent::triplify($this->getRes().$pid, $this->getVoc()."has-participant", $this->getRes().$eid)
+				);
 			}				
 			$cid = '';
 			if($a[1]) { // enzyme complex
 				$cid = md5($a[1]);
 				if(!isset($e[$cid])) {
 					$e[$cid] = $cid;
-					$this->AddRDF($this->QQuadL("sgd_resource:$cid","rdfs:label","$a[1] [sgd_resource:$cid]"));
-					$this->AddRDF($this->QQuad("sgd_resource:$cid","rdf:type","sgd_vocabulary:Enzyme"));
-					$this->AddRDF($this->QQuad("sgd_resource:$cid", "void:inDataset", $this->GetDatasetURI()));
+					$this->AddRDF(
+						parent::describeIndividual($this->getRes().$cid, $a[1], $this->getVoc()."Enzyme").
+						parent::describeClass($this->getVoc()."Enzyme", "SGD enzyme")
+					);
 				}
-				$this->AddRDF($this->QQuad("sgd_resource:$pid","sgd_vocabulary:has-participant","sgd_resource:$cid"));
+				$this->AddRDF(
+					parent::triplify($this->getRes().$pid, $this->getVoc()."has-participant", $this->getRes().$cid)
+				);
 				if($eid){
-					$this->AddRDF($this->QQuad("sgd_resource:$cid","sgd_vocabulary:has-proper-part","sgd_resource:$eid"));
+					$this->AddRDF(
+						parent::triplify($this->getRes().$cid, $this->getVoc()."has-proper-part", $this->getRes().$eid)
+					);
 				}
 			}
 			if($a[2]) { // EC reaction
-				$this->AddRDF($this->QQuad("sgd_resource:$pid","sgd_vocabulary:has-proper-part","ec:$a[2]"));
-				$this->AddRDF($this->QQuadL("ec:$a[2]","rdfs:label","$a[2] [ec:$a[2]]"));
-				$this->AddRDF($this->QQuad("ec:$a[2]","rdf:type","sgd_vocabulary:Reaction"));
-				$this->AddRDF($this->QQuad("ec:$a[2]","sgd_vocabulary:has-participant","sgd_resource:$eid"));
+				$this->AddRDF(
+					parent::describeIndividual("ec:".$a[2], $a[2], $this->getVoc()."Reaction").
+					parent::describeClass($this->getVoc()."Reaction", "Chemical reaction").
+					parent::triplify("ec:".$a[2], $this->getVoc()."has-participant", $this->getRes().$eid)
+				);
 				if($cid){
-					$this->AddRDF($this->QQuad("ec:$a[2]","sgd_vocabulary:has-participant","sgd_resource:$cid"));
+					$this->AddRDF(
+						parent::triplify("ec:".$a[2], $this->getVoc()."has-participant", $this->getRes().$cid)
+					);
 				}
 			}
 	
@@ -891,8 +1028,10 @@ class SGDParser extends RDFFactory {
 					$ns = "sgd";
 					if($d[0] == "PMID"){
 						$ns = "pubmed";
-					} 
-					$this->AddRDF($this->QQuad("sgd_resource:$pid","sgd_vocabulary:article","$ns:$d[1]"));
+					}
+					$this->AddRDF(
+						parent::triplify($this->getRes().$pid, $this->getVoc()."article", $ns.":".$d[1])
+					); 
 				}
 			}//if
 		}//while
@@ -906,35 +1045,42 @@ class SGDParser extends RDFFactory {
 			$id1 = $a[0];
 			$id2 = $a[7];
 			$id = "aln_$id1_$id2";
-		
-			$this->AddRDF($this->QQuadL("sgd_resource:$id","rdfs:label","psiblast alignment between $id1 and $id2 [sgd_resource:$id]"));
-			$this->AddRDF($this->QQuad("sgd_resource:$id", "void:inDataset", $this->GetDatasetURI()));
-			$this->AddRDF($this->QQuad("sgd_resource:$id","rdf:type","sgd_vocabulary:PSI-BLAST-Alignment"));
-			$this->AddRDF($this->QQuad("sgd_resource:$id","sgd_vocabulary:query","sgd:$id1"));
-			$this->AddRDF($this->QQuad("sgd_resource:$id","sgd_vocabulary:target","sgd:$id2"));
-			$this->AddRDF($this->QQuadL("sgd_resource:$id","sgd_vocabulary:query-start",$a[1]));
-			$this->AddRDF($this->QQuadL("sgd_resource:$id","sgd_vocabulary:query-stop",$a[2]));
-			$this->AddRDF($this->QQuadL("sgd_resource:$id","sgd_vocabulary:target-start",$a[3]));
-			$this->AddRDF($this->QQuadL("sgd_resource:$id","sgd_vocabulary:target-stop",$a[4]));
-			$this->AddRDF($this->QQuadL("sgd_resource:$id","sgd_vocabulary:percent-aligned",$a[5]));
-			$this->AddRDF($this->QQuadL("sgd:resource:$id","sgd_vocabulary:score",$a[6]));
-			$this->AddRDF($this->QQuad("sgd:$id2","sgd_vocabulary:is-encoded-by","taxon:".$a[8]));
+			$this->AddRDF(
+				parent::describeIndividual($this->getRes().$id, "psiblast alignment between $id1 and $id2", $this->getVoc()."PSI-BLAST-Alignment").
+				parent::describeClass($this->getVoc()."PSI-BLAST-Alignment", "PSI-Blast Alignment").
+				parent::triplify($this->getRes().$id, $this->getVoc()."query", $this->getNamespace().$id1).
+				parent::triplify($this->getRes().$id, $this->getVoc()."target", $this->getNamespace().$id2).
+				parent::triplifyString($this->getRes().$id, $this->getVoc()."query-start", $a[1]).
+				parent::triplifyString($this->getRes().$id, $this->getVoc()."query-stop", $a[2]).
+				parent::triplifyString($this->getRes().$id, $this->getVoc()."target-start", $a[3]).
+				parent::triplifyString($this->getRes().$id, $this->getVoc()."target-stop", $a[4]).
+				parent::triplifyString($this->getRes().$id, $this->getVoc()."percent-aligned", $a[5]).
+				parent::triplifyString($this->getRes().$id, $this->getVoc()."score", $a[6]).
+				parent::triplifyString($this->getRes().$id, $this->getVoc()."is-encoded-by", "taxon:".$a[8]).
+				parent::describeProperty($this->getVoc()."target-start", "Relationship between an SGD sequence alignment and its target sequence start position").
+				parent::describeProperty($this->getVoc()."target-stop", "Relationship between an SGD sequence alignment and its target sequence stop position").
+				parent::describeProperty($this->getVoc()."score", "Relationship between an SGD sequence alignment and its score").
+				parent::describeProperty($this->getVoc()."percent-aligned", "Relationship between an SGD sequence alignment and its percent-aligned value").
+				parent::describeProperty($this->getVoc()."is-encoded-by", "Relationship between an SGD sequence alignment and the taxon the aligned sequences are encoded by")
+			);
 		}//while
 		return TRUE;
 	}//psiblast
 
 	function mapping(){
-		$this->AddRDF($this->QQuad("sgd_vocabulary:has-proper-part","owl:equivalentProperty","sio:SIO_000053"));
-		$this->AddRDF($this->QQuad("sgd_vocabulary:encodes","owl:equivalentProperty","sio:SIO_010078"));
-		$this->AddRDF($this->QQuad("sgd_vocabulary:is-about","owl:equivalentProperty","sio:SIO_000332"));
-		$this->AddRDF($this->QQuad("sgd_vocabulary:is-proper-part-of","owl:equivalentProperty","sio:SIO_000093"));
-		$this->AddRDF($this->QQuad("sgd_vocabulary:article","owl:equivalentProperty","sio:SIO_000212"));
-		$this->AddRDF($this->QQuad("sgd_vocabulary:has-participant","owl:equivalentProperty","sio:SIO_000132"));
-		$this->AddRDF($this->QQuad("sgd_vocabulary:is-described-by","owl:equivalentProperty","sio:SIO_000557"));
-	
-		$this->AddRDF($this->QQuad("sgd_vocabulary:Protein","owl:equivalentClass","chebi:36080"));
-		$this->AddRDF($this->QQuad("sgd_vocabulary:RNA","owl:equivalentClass","chebi:33697"));
-		$this->AddRDF($this->QQuad("sgd_vocabulary:Chromosome","owl:equivalentClass","so:0000340"));	
+
+		$this->AddRDF(
+			parent::triplify($this->getVoc()."has-proper-part", "owl:equivalentProperty", "sio:SIO_000053").
+			parent::triplify($this->getVoc()."encodes", "owl:equivalentProperty", "sio:SIO_010078").
+			parent::triplify($this->getVoc()."is-about", "owl:equivalentProperty", "sio:SIO_000332").
+			parent::triplify($this->getVoc()."is-proper-part-of", "owl:equivalentProperty", "sio:SIO_000093").
+			parent::triplify($this->getVoc()."article", "owl:equivalentProperty", "sio:SIO_000212").
+			parent::triplify($this->getVoc()."has-participant", "owl:equivalentProperty", "sio:SIO_000132").
+			parent::triplify($this->getVoc()."is-described-by", "owl:equivalentProperty", "sio:SIO_000557").
+			parent::triplify($this->getVoc()."Protein", "owl:equivalentClass", "chebi:36080").
+			parent::triplify($this->getVoc()."RNA", "owl:equivalentClass", "chebi:33697").
+			parent::triplify($this->getVoc()."Chromosome", "owl:equivalentClass", "so:0000340")
+		);
 	}//mapping
 
 	function GetFeatureType($feature_id) {
@@ -1059,12 +1205,19 @@ class SGDParser extends RDFFactory {
 	}//GetMethodID
 
 	function GetLatestNCBOOntology($ontology_id,$apikey,$target_filepath){
-	  	file_put_contents($target_filepath, file_get_contents('http://rest.bioontology.org/bioportal/virtual/download/'.$ontology_id.'?apikey='.$apikey));
+		Utils::DownloadSingle('http://rest.bioontology.org/bioportal/virtual/download/'.$ontology_id.'?apikey='.$apikey, $target_filepath);
 	}
 }//SGDParser
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new SGDParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 
 ?>

@@ -43,7 +43,7 @@ class CTDParser extends RDFFactory
 		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
 		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
 		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'http://ctd.mdibl.org/reports/');
+		$this->AddParameter('download_url',false,null,'http://ctdbase.org/reports/');
 		if($this->SetParameters($argv) == FALSE) {
 			$this->PrintParameters($argv);
 			exit;
@@ -75,12 +75,9 @@ class CTDParser extends RDFFactory
 
 		foreach($files AS $file) {
 			$lfile = $ldir.$file.$gz_suffix;
-			$ofile = $file.".nt";
-			$gz = false;
-			if($this->GetParameterValue('gzip') == "true") {
-				$gz = true;
-				$ofile .= ".gz";
-			}
+			$ofile = $file.".nt"; $gz = false;
+			if($this->GetParameterValue('graph_uri')) {$ofile = $file.'.nq';}
+			if($this->GetParameterValue('gzip')) {$ofile .= '.gz';$gz = true;}
 			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$ofile;
 			
 			if(!file_exists($lfile)) {
@@ -95,15 +92,9 @@ class CTDParser extends RDFFactory
 				
 				$rfile = $rdir.'CTD_'.$file.$suffix;
 				if($suffix == ".tsv.gz") {
-					if(FALSE === copy($rfile,$lfile)) {
-						exit(-1);
-					}
+					Utils::DownloadSingle ($rfile, $lfile);
 				} else {
-					$buf = file_get_contents($rfile);
-					$e = file_put_contents("compress.zlib://".$lfile, $buf);
-					if($e === FALSE) {
-						exit(-1);
-					}
+					Utils::DownloadSingle ($rfile, "compress.zlib://".$lfile);
 				}
 			}
 			
@@ -643,9 +634,17 @@ function CTD_chem_gene_ixn_types()
 
 } // end class
 
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new CTDParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
+
 
 ?>
