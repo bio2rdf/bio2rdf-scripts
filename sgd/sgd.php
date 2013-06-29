@@ -28,9 +28,8 @@ SOFTWARE.
  * @author Alison Callahan
 */
 
-//require('../../php-lib/bio2rdfapi.php');
-require('/home/alison/git/php-lib/bio2rdfapi.php');
-require('/home/alison/git/bio2rdf-scripts/common/php/oboparser.php');
+require('../../php-lib/bio2rdfapi.php');
+require('../common/php/oboparser.php');
 
 
 class SGDParser extends Bio2RDFizer {
@@ -100,13 +99,18 @@ class SGDParser extends Bio2RDFizer {
 			if(parent::getParameterValue('download') == true && $file !== "mapping") {
 				$rfile = $rdir.$rfiles[$file];
 				echo "downloading $file ... ";
-				file_put_contents($lfile,file_get_contents($rfile));
+				Utils::DownloadSingle ($rfile, $lfile);
 			}
 
 			$ofile = $odir."sgd_".$file.'.nt'; 
 			$gz=false;
+<<<<<<< HEAD
 			
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
+=======
+			if($this->GetParameterValue('graph_uri')) {$ofile = $odir."sgd_".$file.'.nq'; }
+			if($this->GetParameterValue('gzip')) {
+>>>>>>> upstream/master
 				$ofile .= '.gz';
 				$gz = true;
 			}
@@ -1201,12 +1205,19 @@ class SGDParser extends Bio2RDFizer {
 	}//GetMethodID
 
 	function GetLatestNCBOOntology($ontology_id,$apikey,$target_filepath){
-	  	file_put_contents($target_filepath, file_get_contents('http://rest.bioontology.org/bioportal/virtual/download/'.$ontology_id.'?apikey='.$apikey));
+		Utils::DownloadSingle('http://rest.bioontology.org/bioportal/virtual/download/'.$ontology_id.'?apikey='.$apikey, $target_filepath);
 	}
 }//SGDParser
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new SGDParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 
 ?>

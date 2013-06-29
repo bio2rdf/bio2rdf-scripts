@@ -129,9 +129,9 @@ class SABIORKParser extends RDFFactory
 				->SetDatasetURI($this->GetDatasetURI());
 			$rdf = $p->Parse();
 			
-			$ofile = "sabiork_$rid.owl";
-			$gz = false;
-			if($this->GetParameterValue("gzip") == "true") {
+			$ofile = "sabiork_$rid.nt";	$gz = false;
+			if($this->GetParameterValue("graph_uri")) {$ofile = "sabiork_$rid.nq";}
+			if($this->GetParameterValue("gzip")) {
 				$gz = true;
 				$ofile .= ".gz";
 			}
@@ -160,9 +160,16 @@ class SABIORKParser extends RDFFactory
 		$this->GetWriteFile()->Close();
 	} // run
 }
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new SABIORKParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 ?>
 

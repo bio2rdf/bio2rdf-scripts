@@ -33,9 +33,9 @@ SOFTWARE.
 require('../../php-lib/rdfapi.php');
 class MeshParser extends RDFFactory{
 	private static $packageMap = array(
-		"descriptor_records" => "d2012.bin",
-		"qualifier_records" => "q2012.bin",
-		"supplementary_records" => "c2012.bin"					
+		"descriptor_records" => "d2013.bin",
+		"qualifier_records" => "q2013.bin",
+		"supplementary_records" => "c2013.bin"					
 	);
 	private static $descriptor_data_elements = array(
 		"AN" =>	"annotation",
@@ -156,7 +156,6 @@ class MeshParser extends RDFFactory{
 				}
 			}	
 		}
-	  
 	  //now iterate over the files array
 		foreach ($files as $k => $aFile){	
 			//ensure that there is a slash between directory name and filename
@@ -170,12 +169,14 @@ class MeshParser extends RDFFactory{
 
 			//ensure that there is a slash between directory name and filename
 			if(substr($odir, -1) == "/"){
-				$gzoutfile = $odir.$k.".ttl";
+				$gzoutfilename = $odir.$k;
 			} else {
-				$gzoutfile = $odir."/".$k.".ttl";
+				$gzoutfilename = $odir."/".$k;
 			}
-			$gz=false;
+			$gzoutfile = $gzoutfilename.".nt";
 
+			$gz=false;
+			if($this->GetParameterValue('graph_uri')){$gzoutfile = $gzoutfilename.".nq";}
 			if($this->GetParameterValue('gzip')){
 				$gzoutfile .= '.gz';
 				$gz = true;
@@ -983,7 +984,14 @@ class MeshParser extends RDFFactory{
 		return self::$descriptor_data_elements;
 	}
 }
+$start = microtime(true);
 
 $p = new MeshParser($argv);
 $p->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 ?>

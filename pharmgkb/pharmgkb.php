@@ -91,13 +91,13 @@ class PharmGKBParser extends RDFFactory
 				$rfile = $rdir.$file.".zip";
 				echo "downloading $file...";
 				if($file == 'offsides') {
-					file_put_contents($lfile,file_get_contents('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip'));
+					Utils::DownloadSingle('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip', $lfile);
 				} elseif($file == 'twosides') {
-					file_put_contents($lfile,file_get_contents('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip'));
+					Utils::DownloadSingle('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip', $lfile);
 				} elseif($file == 'pathways') {
-					file_put_contents($lfile,file_get_contents('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'-tsv.zip'));
+					Utils::DownloadSingle('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'-tsv.zip', $lfile);
 				} else {
-					file_put_contents($lfile,file_get_contents('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'.zip'));
+					Utils::DownloadSingle('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'.zip', $lfile);
 				}
 			}
 			
@@ -115,7 +115,8 @@ class PharmGKBParser extends RDFFactory
 			else $zipentries = array($file.".tsv");
 			
 			// set the write file, parse, write and close
-			$outfile = $odir.$file.'.ttl'; $gz=false;
+			$outfile = $odir.$file.'.nt'; $gz=false;
+			if($this->GetParameterValue('graph_uri')) {$outfile = $odir.$file.'.nq';}
 			if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
 			$this->SetWriteFile($outfile, $gz);
 			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$outfile;
@@ -975,9 +976,15 @@ class PharmGKBParser extends RDFFactory
 		return TRUE;
 	}
 }
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new PharmGKBParser($argv);
 $parser->Run();
 
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 ?>

@@ -190,6 +190,7 @@ class ClinicalTrialsParser extends RDFFactory{
 		$outfile.=basename($infile,".xml").".nt";
 		
 		$gz = false;
+		if($this->GetParameterValue('gzip')){$outfile.=basename($infile,".xml").".nq";}
 		if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
 		
 		$this->SetWriteFile($outfile,$gz);
@@ -751,8 +752,16 @@ class ClinicalTrialsParser extends RDFFactory{
 
 	}
 }
+$start = microtime(true);
 
 $parser = new ClinicalTrialsParser($argv);
 $parser->run();
+
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 
 ?>
