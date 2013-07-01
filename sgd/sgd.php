@@ -28,9 +28,8 @@ SOFTWARE.
  * @author Alison Callahan
 */
 
-//require('../../php-lib/bio2rdfapi.php');
-require('/home/alison/git/php-lib/bio2rdfapi.php');
-require('/home/alison/git/bio2rdf-scripts/common/php/oboparser.php');
+require('../../php-lib/bio2rdfapi.php');
+require('../common/php/oboparser.php');
 
 
 class SGDParser extends Bio2RDFizer {
