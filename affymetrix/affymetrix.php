@@ -20,66 +20,47 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-require('../../php-lib/rdfapi.php');
+
 /**
  * Affymetrix RDFizer
  * @version 1.0 
  * @author Michel Dumontier
  * @description http://www.affymetrix.com/support/technical/manual/taf_manual.affx
 */
-class AffymetrixParser extends RDFFactory 
+class AffymetrixParser extends Bio2RDFizer 
 {	
-	private $version = null;
-	
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("affymetrix");
-		
-		// set and print application parameters
-		$this->AddParameter('files',true,null,'all','');
-		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'http://www.affymetrix.com/support/technical/annotationfilesmain.affx','');
-
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));		
-		
-		return TRUE;
+		parent::__construct($argv,"affymetrix");
+		parent::addParameter('files',true,null,'all','');
+		parent::addParameter('download_url',false,null,'http://www.affymetrix.com/support/technical/annotationfilesmain.affx','');
+		parent::initialize();
 	}
 	
 	function Run()
 	{	
 		// directory shortcuts
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
+		$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
 		
 		// get the listings page
-		$url = trim($this->GetParameterValue('download_url'));
+		$url = trim(parent::getParameterValue('download_url'));
 		$listing_file = $ldir."probeset_list.html";
-		if(!file_exists($listing_file) || $this->GetParameterValue("download") == "true") {
+		if(!file_exists($listing_file) || parent::getParameterValue("download") == "true") {
 			echo "Downloading $listing_file".PHP_EOL;
 			Utils::DownloadSingle ($url, $listing_file);
 		}
 		$listings = file_get_contents($listing_file);
 		
-		// get the csv.zip files
+		// make a list of the csv.zip files
 		preg_match_all("/\"([^\"]+)\.csv\.zip\"/",$listings,$m);
 		if(count($m[1]) == 0) {
 			trigger_error("could not find any .csv.zip files in $url");
 			exit;
 		}
-		if($this->GetParameterValue("files") == 'all') {
+		if(parent::getParameterValue("files") == 'all') {
 			$myfiles = $m[1];
 		} else {
-			$a = explode(",",$this->GetParameterValue("files"));
+			$a = explode(",",parent::getParameterValue("files"));
 			foreach($a AS $f) {
 				$found  = false;
 				foreach($m[1] AS $n) {	
@@ -94,9 +75,9 @@ class AffymetrixParser extends RDFFactory
 				}
 			}
 		}
-		if(!isset($myfiles)) exit;
+		if(!isset($myfiles)) exit; // nothing to do
 
-		// print_r($myfiles);
+		// iterate over the files
 		foreach($myfiles AS $rfile) {
 			// download
 			$base_file = substr($rfile,strrpos($rfile,"/")+1);
@@ -114,6 +95,18 @@ class AffymetrixParser extends RDFFactory
 					trigger_error("Unable to download $file. skipping", E_USER_WARNING);
 					continue;
 				}
+			if(!file_exists($lfile) || parent::getParameterValue("download") == "true") {
+				echo "can't find $lfile".PHP_EOL;
+				echo "Use download manager at http://www.freedownloadmanager.org/scripts/downl.php?file_id=1".PHP_EOL;
+				continue;
+			}
+			
+			// set the dataset version
+			if(parent::getDatasetVersion() == null) {
+				preg_match("/\.na([0-9]{2})\.annot/",$base_file,$m);
+				if(isset($m[1])) {
+					$this->setDatasetVersion($m[1]);
+				}
 			}
 			
 			// open the zip file
@@ -127,59 +120,62 @@ class AffymetrixParser extends RDFFactory
 				trigger_error("Unable to get $csv_file in ziparchive $lfile");
 				return FALSE;
 			}
-			$this->SetReadFile($lfile);
-			$this->GetReadFile()->SetFilePointer($fp);
-
+			parent::setReadFile($lfile);
+			parent::getReadFile()->setFilePointer($fp);
+			
 			// set the write file
 			$outfile = $base_file.'.nt'; $gz=false;
-			if($this->GetParameterValue('graph_uri')) {$outfile = $base_file.'.nq';}
-			if($this->GetParameterValue('gzip')) {
+			if(strstr(parent::getParameterValue('output_format'), "gz")) {
 				$outfile .= '.gz';
 				$gz = true;
-			}
-			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$outfile; 
+			}			
+			$this->setWriteFile($odir.$outfile, $gz);
 			
-			$this->SetWriteFile($odir.$outfile, $gz);
-			$this->Parse();		
+			// parse the file
+			$this->parse();		
 			
-			$this->GetWriteFile()->Close();
-			$this->GetReadFile()->Close();
+			parent::getWriteFile()->close();
+			parent::getReadFile()->close();
+			
+			$bio2rdf_download_files[] = $this->getBio2RDFDownloadURL($this->getNamespace()).$outfile; 
+			
+			parent::clear();
 		}
 		
 
 		// generate the release file
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
+		$desc = $this->getBio2RDFDatasetDescription(
+			$this->getNamespace(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/affymetrix/affymetrix.php", 
 			$bio2rdf_download_files,
 			"dsfsdfs",
 			"http://affymetrix.com/",
 			array("use-share-modify","no-commercial"),
 			null, // license
-			$this->GetParameterValue('download_url'),
-			$this->version
+			parent::getParameterValue('download_url'),
+			parent::getDatasetVersion()
 		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
+		$this->getWriteFile()->write($desc);
+		$this->getWriteFile()->close();
 		
 		return true;
 	}	
 	
 	function Parse()
-	{
-		$resource = $this->GetNS()->getNSURI("affymetrix_resource");
-		$vocab = $this->GetNS()->getNSURI("affymetrix_vocabulary");
-		
-		$this->GetReadFile()->Read(); // skip the first comment line
+	{	
+		parent::getReadFile()->read(); // skip the first comment line
 		$line = 1;
 		$first = true;
-		while($l = $this->GetReadFile()->Read(500000)) {
-			$line++;
+		while($l = parent::getReadFile()->read(500000)) {			
 			if($l[0] == "#") {
 				// dataset attributes
 				$a = explode('=',trim($l));
-				$this->AddRDF($this->QuadL($this->GetDatasetURI(),$vocab.substr($a[0],2),$a[1]));
+				$r = $this->getVoc().substr($a[0],2);
+				parent::addRDF( 
+					parent::triplifyString( parent::getDatasetURI(), $r, $a[1]).
+					parent::describe($r,"$r")
+				);
 				continue;
 			}
 			if($first == true) {			
@@ -199,13 +195,16 @@ class AffymetrixParser extends RDFFactory
 				trigger_error("Expecting 41 columns, found $n on line $line!");
 				exit;
 			}
-			$this->WriteRDFBufferToWriteFile();
+			parent::writeRDFBufferToWriteFile();
 			
 			$id = $a[0];
 			$qname = "affymetrix:$id";
-			$this->AddRDF($this->QQuad($qname,"rdf:type","affymetrix_vocabulary:Probeset"));
-			$this->AddRDF($this->QQuadL($qname,"rdfs:label","probeset $a[0] on GeneChip $a[1] ($a[2]) [$qname]"));
-			$this->AddRDF($this->QQuad($qname,"void:inDataset",$this->GetDatasetURI()));
+			$label = "probeset $a[0] on GeneChip $a[1] ($a[2])";
+			parent::addRDF( 
+				parent::describeClass($qname,$label,null,null,"en",$this->getVoc()."Probeset").
+				parent::describeClass($this->getVoc()."Probeset","Affymetrix probeset")
+			);
+			trigger_error($id,E_USER_NOTICE);
 			
 			// now process the entries
 			foreach($a AS $k => $v) {
@@ -218,7 +217,11 @@ class AffymetrixParser extends RDFFactory
 					foreach($b AS $c) {
 						$d = explode(" // ",$c);
 						if($r == 'symbol') $d[0] = str_replace(" ","-",$d[0]);
-						$this->AddRDF($this->QQuad($qname,"affymetrix_vocabulary:x-$r", "$r:".$d[0]));
+						$s = $this->getRegistry()->getPreferredPrefix($r);
+						$this->addRDF(
+							parent::triplify($qname,$this->getVoc()."x-$s", "$s:".$d[0]).
+							parent::describeProperty($this->getVoc()."x-$s","a relation to $s")
+						);
 					}
 				} else {
 					// we handle manually
@@ -227,18 +230,23 @@ class AffymetrixParser extends RDFFactory
 					
 					switch ($label) {		
 						case 'GeneChip Array':
-							$this->AddRDF($this->QQuad($qname,"affymetrix_vocabulary:genechip-array", "affymetrix_resource:".str_replace(" ","-",$v)));
+							$array_id = "affymetrix_resource:".str_replace(" ","-",$v);
+							parent::addRDF(
+								parent::triplify($qname, $this->getVoc()."genechip-array", $array_id).
+								parent::describeClass($array_id,"Affymetrix GeneChip array",null,null,"en",$this->getVoc()."Genechip-Array"));
 							break;
 						case 'Gene Ontology Biological Process':
-							if(!isset($rel)) {$rel = "process"; $prefix = "go";}
+							if(!isset($rel)) {$rel = 'go-process'; $prefix = "go";}
 						case 'Gene Ontology Cellular Component':
-							if(!isset($rel)) {$rel = 'location'; $prefix = "go";}
+							if(!isset($rel)) {$rel = 'go-location'; $prefix = "go";}
 						case 'Gene Ontology Molecular Function':
-							if(!isset($rel)) {$rel = 'function'; $prefix = "go";}
+							if(!isset($rel)) {$rel = 'go-function'; $prefix = "go";}
 							$b = explode(" /// ",$v);
 							foreach($b AS $c) {
 								$d = explode(" // ",$c);
-								$this->AddRDF($this->QQuad($qname,"affymetrix_vocabulary:".$rel, "$prefix:".$d[0]));								
+								parent::addRDF(
+									$this->triplify($qname,$this->getVoc().$rel, "$prefix:".$d[0]).
+									$this->describeProperty($this->getVoc().$rel,"$rel"));								
 							}
 							break;
 							
@@ -249,14 +257,17 @@ class AffymetrixParser extends RDFFactory
 								$id = $d[0];
 								$prefix = $d[2];
 								if($prefix == '---' || $id == '---') continue;
-								if($prefix == 'gb') $prefix = 'genbank';
+								if($prefix == 'gb' || $prefix == 'gb_htc') $prefix = 'genbank';
+								if($prefix == 'ncbibacterial') $prefix = 'gi';
 								if($prefix == 'ens') $prefix = 'ensembl';
+								if($prefix == 'ncbi_mito' || $prefix == 'ncbi_organelle') $prefix = 'refseq';
 								if($prefix == 'affx' || $prefix == 'unknown') $prefix = 'affymetrix';
 								
-								$this->AddRDF($this->QQuad($qname,"affymetrix_vocabulary:transcript-assignment", $this->GetNS()->MapQName("$prefix:$id")));
+								parent::addRDF(
+									parent::triplify($qname,$this->getVoc()."transcript-assignment", "$prefix:$id").
+									parent::describeProperty($this->getVoc()."transcript-assignment","transcript assignment"));
 							}
-							break;
-						
+							break;							
 					
 					
 						case 'Annotation Transcript Cluster':
@@ -270,32 +281,72 @@ class AffymetrixParser extends RDFFactory
 							break;
 						
 							
-					
-						case 'Transcript ID(Array Design)':
-							if(!isset($rel)) $rel = 'transcript';
-						// date
 						case 'Annotation Date':
 							// Jun 9, 2011
-							// should reformat to xsd:date
-						// literals
+							$rel = "annotation-date";
+							preg_match("/^([A-Za-z]+) ([0-9]+), ([0-9]{4})$/",$v,$m);
+							if(count($m) == 4) {
+								array_shift($m);
+								list($m,$day,$year) = $m;
+								$month = $this->getMonth($m);
+								$date = $year."-".$month."-".str_pad($day,2,"0",STR_PAD_LEFT)."T00:00:00Z";
+								
+								parent::addRDF(
+									parent::triplifyString($qname,$this->getVoc().$rel,$date,"xsd:dateTime").
+									parent::describeProperty($this->getVoc().$rel,"$rel"));
+									
+							} else {
+								trigger_error("could not match date from $v",E_USER_ERROR);
+							}
+							break;
+
 						case 'Species Scientific Name':
+							break;
+							
+						case 'Transcript ID(Array Design)':
+							if(!isset($rel)) $rel = 'transcript';
+							
 						
-						// types
 						case 'Sequence type';							
 						default:
 							if(!isset($rel)) $rel = str_replace(" ","-",strtolower($label));
 							$b = explode(" /// ",$v);
 							foreach($b AS $c) {
-								$this->AddRDF($this->QQuadL($qname,"affymetrix_vocabulary:".$rel,$this->SafeLiteral(stripslashes($c))));
+								parent::addRDF(
+									parent::triplifyString($qname,$this->getVoc().$rel,stripslashes($c)).
+									parent::describeProperty($this->getVoc().$rel,"$rel"));
 							}
-							
-						// multi-valued 
+							break;
 					
-					}
-				}
+					} //  switch
+				} // else
 				
-			}			
+			}
+			$this->WriteRDFBufferToWriteFile();
 		}
+	}
+	
+	function getMonth($m)
+	{
+		$months = array(
+			"Jan" => "01",
+			"Feb" => "02",
+			"Mar" => "03",
+			"Apr" => "04",
+			"May" => "05",
+			"Jun" => "06",
+			"Jul" => "07",
+			"Aug" => "08",
+			"Sep" => "09",
+			"Oct" => "10",
+			"Nov" => "11",
+			"Dec" => "12"
+		);
+		if(!isset($months[$m])) {
+			trigger_error("Unable to get month: $m",E_USER_ERROR);
+			return "00";
+		}
+		return $months[$m];
 	}
 
 	function Map($k)
