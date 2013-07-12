@@ -24,57 +24,36 @@ SOFTWARE.
 
 /**
  * DrugBank RDFizer
- * @version 1.0
+ * @version 2.0
  * @author Michel Dumontier
+ * @author Dana Klassen
  * @description 
 */
-require('../../php-lib/xmlapi.php');
-require('../../php-lib/rdfapi.php');
+require('../../php-lib/bio2rdfapi.php');
 
-
-class DrugBankParser extends RDFFactory 
+class DrugBankParser extends Bio2RDFizer 
 {
-	private $version = null;
 	
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("drugbank");
-		
-		// set and print application parameters
-		$this->AddParameter('files',true,'all|drugbank.xml.zip','all','files to process');
-		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'http://www.drugbank.ca/system/downloads/current/');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		
-		return TRUE;
+		parent::__construct($argv,"drugbank");
+
+        parent::addParameter('files', true, 'all|blah|1|2|3','all','Files to be downloaded');
+        parent::addParameter('download_url',false,null,'http://www.drugbank.ca/system/downloads/current/');
+        parent::initialize();
 	}
 	
 	function Run()
-	{
-		// get the file list
-		if($this->GetParameterValue('files') == 'all') {
-			$files = explode("|",$this->GetParameterList('files'));
-			array_shift($files);
-		} else {
-			$files = explode("|",$this->GetParameterValue('files'));
-		}
-
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		$rdir = $this->GetParameterValue('download_url');
-		
-		// check if exists
+    {
+        $indir = parent::getParameterValue('indir');
+        $outdir = parent::getParameterValue('outdir');
+        $download_url = parent::getParameterValue('download_url');
+    
+        // get the file list
+        $files = parent::getFileList();
+        print_r($files);
+        exit;    
+        
+        // check if exists
 		$file = $files[0];
 		$lfile = $ldir.$file;
 		if(!file_exists($lfile)) {
@@ -114,7 +93,7 @@ class DrugBankParser extends RDFFactory
 		$this->GetWriteFile()->Write($desc);
 		$this->GetWriteFile()->Close();
 		
-		return TRUE;
+        parent::clear();
 	}
 
 
