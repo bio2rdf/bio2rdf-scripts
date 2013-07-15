@@ -195,7 +195,7 @@ class DrugBankParser extends Bio2RDFizer
             parent::triplify($did,"void:inDataset",parent::GetDatasetURI()).
             parent::triplify($did,"owl:sameAs","http://indentifiers.org/drugbank/".$dbid).
             parent::triplify($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid). 
-            parent::triplifyString($did,"drugbank_vocabulary:category", ucfirst($x->attributes()->type);
+            parent::triplifyString($did,"drugbank_vocabulary:category", ucfirst($x->attributes()->type))
         );    
 
 		$this->AddText($x,$did,"groups","group","drugbank_vocabulary:category");
@@ -259,7 +259,7 @@ class DrugBankParser extends Bio2RDFizer
 						if(!isset($defined[$pid])) {
 							$defined[$pid] = '';
                             parent::addRDF(
-                                parent::describe($pid,$item->name,null,null);
+                                parent::describe($pid,$item->name,null,null)
                             );
 
                             if(strstr($item->url,"http://") && $item->url != "http://BASF Corp."){
@@ -279,20 +279,22 @@ class DrugBankParser extends Bio2RDFizer
 		// prices
 		if(isset($x->prices->price)) {
 			foreach($x->prices->price AS $product) {
-				$pid = "drugbank_resource:".md5($product->description);
-				
-				$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:product",$pid));
-				$this->AddRDF($this->QQuadL($pid,"rdfs:label",$product->description." [$pid]"));
-				$this->AddRDF($this->QQuad($pid,"rdf:type","drugbank_vocabulary:Pharmaceutical"));
-				$this->AddRDF($this->QQuadL($pid,"drugbank_vocabulary:price", $product->cost));
-				
-				$uid = "drugbank_vocabulary:".md5($product->unit);
-				$this->AddRDF($this->QQuad($pid,"drugbank_vocabulary:form", $uid));
-				
+			    $pid = "drugbank_resource:".md5($product->description);
+			    $uid = "drugbank_vocabulary:".md5($product->unit);
+               
+                parent::addRDF(
+                  parent::describeIndividual($pid,$product->description,"drugbank_vocabulary:Pharmaceutical").
+                  parent::triplify($did,"drugbank_vocabulary:product",$pid).
+                  parent::triplifyString($pid,"drugbank_vocabulary:price",$product->cost)
+                );    
+
+               // NOTE:: Should move the variable checking to describe and triplify?
 				if(!isset($defined[$uid])) {
 					$defined[$uid] = '';
-					$this->AddRDF($this->QQuadL($uid,"rdfs:label",$product->unit." [$uid]"));
-					$this->AddRDF($this->QQuad($uid,"rdf:type","drugbank_vocabulary:Unit"));
+                    parent::addRDF(
+                        parent::describeIndividual($uid,$product->unit,"drugbank_vocabulary:Unit").
+                        parent::triplify($pid,"drugbank_vocabulary:form",$uid) 
+                    );
 				}
 			}
 		}			
@@ -301,24 +303,33 @@ class DrugBankParser extends Bio2RDFizer
 		if(isset($x->dosages->dosage)) {
 			foreach($x->dosages->dosage AS $dosage) {
 				$id = "drugbank_resource:".md5($dosage->form.$dosage->route);
-				
-				$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:dosage",$id));
-				$this->AddRDF($this->QQuadL($id,"rdfs:label",$dosage->form." by ".$dosage->route." route [$id]"));
-				$this->AddRDF($this->QQuad($id,"rdf:type","drugbank_vocabulary:Dosage"));
-				
+
+                parent::addRDF(
+                    parent::triplify($did,"drugbank_vocabulary:dosage",$id).
+                    parent::describe($id,$dosage->form." by ".$dosage->route,"drugbank_vocabulary:Dossage")
+                );    
+
 				$rid = "pharmgkb_vocabulary:".md5($dosage->route);
-				$this->AddRDF($this->QQuad($id,"drugbank_vocabulary:route", $rid));
+                
+                parent:addRDF(
+                   parent::triplify($id,"drugbank_vocabulary:route",$rid)
+                );
+
 				if(!isset($defined[$rid])) {
 					$defined[$rid] = '';
-					$this->AddRDF($this->QQuadL($rid,"rdfs:label",$dosage->route." [$rid]"));
-					$this->AddRDF($this->QQuad($rid,"rdf:type","drugbank_vocabulary:Route"));
+                    parent::addRDF(
+                       parent::describeIndividual($rid,$dosage->route,"drugbank_vocabulary:Route")
+                    );
 				}
 				$fid = "pharmgkb_vocabulary:".md5($dosage->form);
-				$this->AddRDF($this->QQuad($id,"drugbank_vocabulary:form", $fid));
+                parent::addRDF(
+                    parent::triplify($id,"drugbank_vocabulary:form",$fid)
+                );
 				if(!isset($defined[$fid])) {
 					$defined[$fid] = '';
-					$this->AddRDF($this->QQuadL($fid,"rdfs:label",$dosage->form." [$fid]"));
-					$this->AddRDF($this->QQuad($fid,"rdf:type","drugbank_vocabulary:Form"));						
+                    parent::addRDF(
+                       parent::describeClass($fid,$dosage->form,"drugbank_vocabulary:Form")
+                    );
 				}
 				
 				// strength
