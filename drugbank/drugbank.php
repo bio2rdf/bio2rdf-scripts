@@ -30,54 +30,35 @@ SOFTWARE.
  * @description 
 */
 require('../../php-lib/bio2rdfapi.php');
+require('../../php-lib/xmlapi.php');
 
 class DrugBankParser extends Bio2RDFizer 
 {
 	
 	function __construct($argv) {
 		parent::__construct($argv,"drugbank");
-
-        parent::addParameter('files', true, 'all|blah|1|2|3','all','Files to be downloaded');
+        parent::addParameter('files', true, 'all|drugbank.xml.zip','all','Files to convert');
         parent::addParameter('download_url',false,null,'http://www.drugbank.ca/system/downloads/current/');
         parent::initialize();
 	}
 	
 	function Run()
     {
-        $indir = parent::getParameterValue('indir');
-        $outdir = parent::getParameterValue('outdir');
+        $indir        = parent::getParameterValue('indir');
+        $outdir       = parent::getParameterValue('outdir');
         $download_url = parent::getParameterValue('download_url');
+
+        parent::downloadSources();
+        parent::setupSingleOutFile($outdir.'drugbank.nt.gz');
+
+        // TODO:: Get the filename and set a variable
+        // right now its a bit awkward asking for the file list again
+        $this->Parse($indir,"drugbank.xml.zip");
+        parent::GetWriteFile()->Close();
     
-        // get the file list
-        $files = parent::getFileList();
-        print_r($files);
-        exit;    
+
+        exit;
         
-        // check if exists
-		$file = $files[0];
-		$lfile = $ldir.$file;
-		if(!file_exists($lfile)) {
-			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
-			$this->SetParameterValue('download',true);
-		}
-		
-		// download
-		if($this->GetParameterValue('download') == true) { 
-			$rfile = $rdir.$file;
-			trigger_error("Downloading $file from $rfile", E_USER_NOTICE);
-			if(Utils::Download($rdir,array($file),$ldir) === FALSE) {
-				trigger_error("Unable to download $file. skipping", E_USER_WARNING);
-				continue;
-			}
-		}
-		
-		// set the write file, parse, write and close
-		$ofile = 'drugbank.nt'; $gz=false;
-		if($this->GetParameterValue('gzip')) {$ofile .= '.gz';$gz = true;}
-		$this->SetWriteFile($odir.$ofile, $gz);
-		$this->Parse($ldir,$file);
-		$this->GetWriteFile()->Close();
-		
 		// generate the release file
 		$desc = $this->GetBio2RDFDatasetDescription(
 			$this->GetNamespace(),
@@ -121,16 +102,17 @@ class DrugBankParser extends Bio2RDFizer
 	
 	function ParsePartnerEntry(&$xml)
 	{
-		$x = $xml->GetXMLRoot();
-		$id = (string)$x->attributes()->id;
-		$pid = "drugbank_target:".$id;
-		$name = (string) $x->name;
+		$x                         = $xml->GetXMLRoot();
+		$id                        = (string)$x->attributes()->id;
+		$pid                       = "drugbank_target:".$id;
+		$name                      = (string) $x->name;
 		$this->named_entries[$pid] = $name;
-		
-		$this->AddRDF($this->QQuadL($pid,"rdfs:label","$name [$pid]","en"));
-		$this->AddRDF($this->QQuad ($pid,"rdf:type", "drugbank_vocabulary:Target"));
-		$this->AddRDF($this->QQuad ($pid,"void:inDataset",$this->GetDatasetURI()));
-		
+
+        parent::addRDF(
+            parent::describeIndividual($pid,$name,"drugbank_vocabulary:Target",null,null).
+            parent::triplify($pid,"void:inDataset",parent::GetDatasetURI()) 
+        );
+	
 		// iterate over all the child nodes
 		foreach($x->children() AS $k => $v) {
 			
@@ -142,12 +124,16 @@ class DrugBankParser extends Bio2RDFizer
 					$a = preg_match_all("/pubmed\/([0-9]+)/",$v,$m);
 					if(isset($m[1])) {
 						foreach($m[1] AS $pmid) {
-							$this->AddRDF($this->QQuad($pid,"drugbank_vocabulary:article","pubmed:".$pmid));	
+                            parent::addRDF(
+                                parent::triplify($pid,"drugbank_vocabulary:article","pubmed:".$pmid)
+                            );	
 						}
 					}
 				} else if($v != '') {
 					// default
-					$this->AddRDF($this->QQuadL($pid,"drugbank_vocabulary:$k",$this->SafeLiteral(addslashes($v))));
+                    parent::addRDF(
+                        parent::triplifyString($pid,"drugbank_vocabulary:$k",$v)
+                    );
 				}
 				
 			} else {
@@ -155,10 +141,14 @@ class DrugBankParser extends Bio2RDFizer
 				
 				// special cases
 				if($k == "species") {
-					$this->AddRDF($this->QQuad($pid,"drugbank_vocabulary:species","taxon:".$v->{'uniprot-taxon-id'}));	
+                    parent::addRDF(
+                        parent::triplify($pid,"drugbank_vocabulary:species","taxon:".$v->{'uniprot-taxon-id'})
+                    );	
 				
 				} else {
-					// default handling for collections
+                    
+                    /*
+                    // default handling for collections
 					$found = false;
 					$list_name = $k;
 					$item_name = substr($k,0,-1);
@@ -177,7 +167,9 @@ class DrugBankParser extends Bio2RDFizer
 								$this->AddRDF($this->QQuad($pid,"drugbank_vocabulary:xref","pfam:".$v2->identifier));
 							}	
 						} // special handlers
-					}
+                    }
+
+                     */
 				} // default handler
 				
 			}
@@ -186,29 +178,25 @@ class DrugBankParser extends Bio2RDFizer
 
 	function ParseDrugEntry(&$xml)
 	{	
-		$declared = null; // a list of all the entities declared
-		$counter = 1;
-		
-		$x = $xml->GetXMLRoot();
-		$dbid = $x->{"drugbank-id"};
-//if($dbid != "DB02128") return;  
+		$declared    = null; // a list of all the entities declared
+		$counter     = 1;
+		$x           = $xml->GetXMLRoot();
+		$dbid        = $x->{"drugbank-id"};
+		$did         = "drugbank:".$dbid;
+        $name        = (string)$x->name;
+        $description = null;
 
-		$did = "drugbank:".$dbid;
-		$name = (string)$x->name; 
-		
-		// minimal
-		$this->AddRDF($this->QQuadL($did,"rdfs:label","$name [$did]","en"));
-		$this->AddRDF($this->QQuad($did,"rdf:type","drugbank_vocabulary:Drug"));
-		$this->AddRDF($this->QQuad($did,"void:inDataset",$this->GetDatasetURI()));
-		$this->AddRDF($this->QQuadO_URL($did,"owl:sameAs", "http://identifers.org/drugbank/".$dbid));
-		$this->AddRDF($this->QQuadO_URL($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid));
-		
 		if(isset($x->description) && $x->description != '') {
-			$this->AddRDF($this->QQuadL($did,"dc:description",$this->SafeLiteral(addslashes(trim((string)$x->description)),"en")));
+			$description = addslashes(trim((string)$x->description));
 		}		
-		
-		// additional type
-		$this->AddRDF($this->QQuadL($did,"drugbank_vocabulary:category",ucfirst($x->attributes()->type)));
+	    
+        parent::addRDF(
+            parent::describeIndividual($did, $label, "drugbank_vocabulary:Drug",null, $description). 
+            parent::triplify($did,"void:inDataset",parent::GetDatasetURI()).
+            parent::triplify($did,"owl:sameAs","http://indentifiers.org/drugbank/".$dbid).
+            parent::triplify($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid). 
+            parent::triplifyString($did,"drugbank_vocabulary:category", ucfirst($x->attributes()->type);
+        );    
 
 		$this->AddText($x,$did,"groups","group","drugbank_vocabulary:category");
 		$this->AddText($x,$did,"categories","category","drugbank_vocabulary:category");
@@ -222,7 +210,6 @@ class DrugBankParser extends Bio2RDFizer
 
 		// substructures
 		$this->AddText($x,$did,"taxonomy","substructures","drugbank_vocabulary:substructure", "substructure");
-
 		
 		// synonyms
 		$this->AddText($x,$did,"synonyms","synonym","drugbank_vocabulary:synonym");
@@ -237,17 +224,22 @@ class DrugBankParser extends Bio2RDFizer
 			foreach($x->mixtures->mixture AS $item) {
 				if(isset($item)) {
 					$o = $item;
-					$mid = "drugbank_resource:".str_replace(" ","-",$o->name);
-					$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:mixture",$mid));
-					$this->AddRDF($this->QQuad($mid,"rdf:type","drugbank_vocabulary:Mixture"));
-					$this->AddRDF($this->QQuadL($mid,"rdfs:label",$o->name." [$mid]"));
-					$this->AddRDF($this->QQuadL($mid,"drugbank_vocabulary:ingredients",$this->SafeLiteral($o->ingredients)));
-					$a = explode(" + ",$o->ingredients);
+                    $mid = "drugbank_resource:".str_replace(" ","-",$o->name);
+
+                    parent::addRDF(
+                        parent::triplify($did,"drugbank_vocabulary:mixture",$mid).
+                        parent::describeIndividual($mid,$o->name,"drugbank_vocabulary:Mixture",null).
+                        parent::triplify($mid,"drubank_vocabulary:ingredients",$o->ingredients) 
+                    );
+                    
+                    $a = explode(" + ",$o->ingredients);
 					foreach($a AS $b) {
 						$b = trim($b);
 						$iid = "drugbank_resource:".str_replace(" ","-",$b);
-						$this->AddRDF($this->QQuadL($iid,"rdfs:label",$b." [$iid]"));
-						$this->AddRDF($this->QQuad($mid,"drugbank_vocabulary:ingredient",$iid));
+                        parent::addRDF(
+                            parent::triplifyString($iid,"drugbank_vocabulary:ingredients",$b).
+                            parent::triplify($mid,"drugbank_vocabulary:ingredient",$iid)
+                        );
 					}
 				}
 			}
@@ -260,13 +252,23 @@ class DrugBankParser extends Bio2RDFizer
 				if(isset($items->packager)) {
 					foreach($items->packager AS $item) {
 						$pid = "drugbank_resource:".md5($item->name);
-						
-						$this->AddRDF($this->QQuad($did,"drugbank_vocabulary:packager",$pid)); 
+		                
+                        parent::addRDF(
+                            parent::triplify($did,"drugbank_vocabulary:packager",$pid)
+                        );                
 						if(!isset($defined[$pid])) {
 							$defined[$pid] = '';
-							$this->AddRDF($this->QQuadL($pid,"rdfs:label",$this->SafeLiteral($item->name." [$pid]"))); 
-							if(strstr($item->url,"http://") && $item->url != "http://BASF Corp.") $this->AddRDF($this->QQuadO_URL($pid,"rdfs:seeAlso",$item->url));
-						}
+                            parent::addRDF(
+                                parent::describe($pid,$item->name,null,null);
+                            );
+
+                            if(strstr($item->url,"http://") && $item->url != "http://BASF Corp."){
+                                // TODO:: Needs to be updated QQuad0_URL?
+                                parent::addRDF(
+                                    $this->QQuadO_URL($pid,"rdfs:seeAlso",$item->url)
+                                );
+                            }    
+                        }
 					}
 				}
 			}
