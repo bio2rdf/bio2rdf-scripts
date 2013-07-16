@@ -33,47 +33,24 @@ class ClinicalTrialsParser extends Bio2RDFizer
 {
 	function __construct($argv){
 		parent::__construct($argv,"clinicaltrials");
-
-		parent::addParameter('files',false,'all|study|results','all','files to process');
-		parent::addParameter('process',true,'crawl|download|local','local','select how to process files from the clinical open trials website');
+	
+		parent::addParameter('files',true,'all|study|results','all','files to process');
 		parent::addParameter('download_url',false,null,'http://clinicaltrials.gov/ct2/crawl');
 		
 		parent::initialize();
 	}
 
 	function run(){
-		switch(parent::getParameterValue('process')) {
-			case "crawl":
-				$this->crawl();
-				break;
-			case "download":
-				$this->crawl();
-				break;
-			case  "local" :
-				echo "parsing local directory".PHP_EOL;
-				$this->parse_dir();
-				break;
+		if(parent::getParameterValue('download') === true) 
+		{
+			$this->crawl();
+		}
+		if(parent::getParameterValue('process') === true) 
+		{
+			$this->parse_dir();
 		}
 	}
 
-	/** parse directory of files */
-	function parse_dir(){
-		$indir = parent::getParameterValue('indir');
-
-		if($handle = opendir($indir)) {
-			echo "processing directory $indir\n";
-			$ignore = array("..",'.','.DS_STORE',"0");
-			
-			while(($entry = readdir($handle)) !== false){
-				if (in_array($entry,$ignore) || is_dir($entry) ) continue;
-				echo "Processing $entry".PHP_EOL;
-				$this->process_result($entry);
-			}
-		
-			echo "Finished\n.";
-			closedir($handle);
-		}
-	}
 
 	/**
 	* generate the proper subdir based on the file name
@@ -99,7 +76,13 @@ class ClinicalTrialsParser extends Bio2RDFizer
 	**/
 	function crawl(){
 		$crawl_url = parent::getParameterValue("download_url"); //"http://clinicaltrials.gov/ct2/crawl";
+		echo "Fetching clinical trial list...".PHP_EOL;
 		$html = file_get_contents($crawl_url);
+		if($html === FALSE) {
+			trigger_error("unable to get crawl file");
+			return false;
+		}
+		echo "done.".PHP_EOL;
 
 		$dom = new DOMDocument();
 		@$dom->loadHTML($html);
@@ -111,7 +94,6 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		for ($i = 0; $i < $hrefs->length; $i++) {
 			$href = $hrefs->item($i);
 			if(preg_match("/crawl\/([0-9]+)/",$href->getAttribute('href'))){
-				
 				$record_block_url = "http://clinicaltrials.gov".$href->getAttribute('href');
 				$this->fetch_record_block($record_block_url);
 			}	
@@ -122,7 +104,14 @@ class ClinicalTrialsParser extends Bio2RDFizer
 	* Fetch the page holding a block of records
 	**/
 	function fetch_record_block($url){
+		echo "Fetching record block...".PHP_EOL;
 		$html = file_get_contents($url);
+		if($html === FALSE) {
+			trigger_error("unable to fetch record block at $url",E_USER_ERROR);
+			return false;
+		}
+		echo "done.".PHP_EOL;
+		
 		$dom = new DOMDocument();
 		@$dom->loadHTML($html);
 
@@ -132,7 +121,6 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		for ($i = 0; $i < $hrefs->length; $i++) {
 			$href = $hrefs->item($i);
 			if(preg_match("/ct2\/show\//",$href->getAttribute('href'))){
-
 				$page_uri = "http://clinicaltrials.gov/".$href->getAttribute('href')."?resultsxml=true";
 				$this->fetch_page($page_uri);
 			}	
@@ -146,35 +134,53 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		preg_match("/show\/(NCT[0-9]+)/",$url,$m);
 		$file = $m[1];
 		$outfile = parent::getParameterValue("indir")."/".$file.".xml";
+		echo "fetching $url".PHP_EOL;
 		$xml = file_get_contents($url);
 		
 		# save the file
-		file_put_contents($outfile,$xml);
-
-		// only parse the page if the process was set
-		if($parent::getParameterValue("process") == "crawl"){
-			$sub_dir = $this->get_sub_dir($outfile);
-			$this->process_result($outfile,$sub_dir);
+		$ret = file_put_contents($outfile,$xml);
+		if($ret === FALSE) {
+			trigger_error("unable to save $outfile");
+			return false;
+		}
+	}
+	
+	
+	/** parse directory of files */
+	function parse_dir(){
+		$ignore = array("..",'.','.DS_STORE',"0");
+		$this->setCheckPoint('dataset');
+		$indir = parent::getParameterValue('indir');
+		if($handle = opendir($indir)) {
+			echo "Processing directory $indir\n";
+			while(($file = readdir($handle)) !== false){
+				if (in_array($file,$ignore) || is_dir($file) ) continue;
+				$trial_id = basename($file,'.xml');
+				if(parent::getParameterValue('id_list') == '' || in_array($trial_id, explode(",",parent::getParameterValue('id_list')))) {
+					echo "Processing $file".PHP_EOL;					
+					$this->process_file($file);
+				}
+			}
+			echo "Finished\n.";
+			closedir($handle);
 		}
 	}
 	
 	/**
 	* process a results xml file from the download directory
 	**/
-	function process_result($infile) {
+	function process_file($infile) {
 		$indir = parent::getParameterValue('indir');
-		$outfile = parent::getParameterValue("outdir");
-		$outfile.= basename($infile,".xml").".nt";
-		
-		$gz = false;
-		if(strstr(parent::getParameterValue('output_format'),".gz")) {
-			$outfile .= '.gz';$gz = true;
-		}
+		$outfile = parent::getParameterValue("outdir")
+		  .basename($infile,".xml")
+		  .'.'.parent::getParameterValue('output_format');
+		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 		
 		$this->setWriteFile($outfile,$gz);
 		$xml = new CXML($indir,basename($infile));
+		$this->setCheckPoint('file');
 		while($xml->Parse("clinical_study") == TRUE) {
-		
+			$this->setCheckPoint('record');
 			$this->root = $root = $xml->GetXMLRoot();
 			
 			$nct_id = $this->getString("//id_info/nct_id");
@@ -216,7 +222,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			
 			// we have enough to describe the study
 			parent::addRDF(
-				parent::describeIndividual($study_id,$label,parent::getVoc()."Clinical-Study", $official_title,$brief_summary)
+				parent::describeIndividual($study_id,$label,parent::getVoc()."Clinical-Study", $official_title,$brief_summary).
+				parent::describeClass(parent::getVoc()."Clinical-Study","Clinical Study")
 			);
 
 			#########################################################################################
@@ -303,7 +310,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$status_id = "clinicaltrials_resource:".md5($overall_status);
 				parent::addRDF(
 					parent::triplify($study_id,parent::getVoc()."overall-status",$status_id).
-					parent::describe($status_id,$overall_status,parent::getVoc()."Status", $overall_status)
+					parent::describeIndividual($status_id,$overall_status,parent::getVoc()."Status", $overall_status)
 				);
 			}
 
@@ -361,8 +368,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if($study_type){
 				$study_type_id = $this->getRes().md5($study_type);
 				parent::addRDF(
-					parent::triplify($study_id,parent::getVoc()."study-type",$study_type_id).
-					parent::describeClass($study_type_id,$study_type,parent::getVoc()."Study")
+					parent::describeClass($study_type_id,$study_type,parent::getVoc()."Study").
+					parent::triplify($study_id,parent::getVoc()."study-type",$study_type_id)
 				);
 			}
 
@@ -371,8 +378,10 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			####################################################################################
 			$phase = $this->getString('//phase');
 			if($phase && $phase != "N/A") {
+				$phase_id = $this->getRes().md5($phase);
 				parent::addRDF(
-					parent::triplifyString($study_id,parent::getVoc()."phase",$phase)
+					parent::describeIndividual($phase_id,$phase,parent::getVoc()."Clinical-Phase",$phase).
+					parent::triplify($study_id,parent::getVoc()."phase",$phase_id)
 				);
 			}
 
@@ -381,9 +390,22 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			###############################################################################
 			$study_design = $this->getString('//study_design');
 			if($study_design) {
+				$study_design_id = parent::getRes().md5($study_design);
 				parent::addRDF(
-					parent::triplifyString($study_id,parent::getVoc()."study-design",$study_design)
+					parent::describeIndividual($study_design_id,"study design for $study_id",parent::getVoc()."Study-Design").
+					parent::triplify($study_id,parent::getVoc()."study-design",$study_design_id)
 				);
+				// Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment
+				foreach(explode(", ",$study_design) AS $b) {
+					$c = explode(": ",$b);
+					$key = parent::getRes().md5($c[0]);
+					$value = parent::getRes().md5($c[1]);
+					parent::addRDF(
+						parent::describeClass($value,$c[1],parent::getVoc()."Study-Design-Parameter",$c[1]).
+						parent::describeObjectProperty($key,$c[0],null,$c[0]).
+						parent::triplify($study_design_id,$key, $value)
+					);
+				}
 			}
 
 			################################################################################
@@ -400,8 +422,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$description     = $this->getString('//primary_outcome/description');
 					
 					parent::addRDF(
-						parent::triplify($study_id, parent::getVoc()."primary-outcome",$po_id).
 						parent::describeClass($po_id,$measure." ".$time_frame, parent::getVoc()."Primary-Outcome",$description).
+						parent::triplify($study_id, parent::getVoc()."primary-outcome",$po_id).
 						parent::triplifyString($po_id, parent::getVoc()."measure", $measure)
 					);					
 					if($time_frame) {
@@ -432,9 +454,9 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$safety_issue = $this->getString('//safety_issue',$so);
 					
 					parent::addRDF(
+						parent::describeClass($so_id,$measure." ".$time_frame,parent::getVoc()."Secondary-Outcome").
 						parent::triplify($study_id, parent::getVoc()."secondary-outcome",$so_id).
-						parent::triplifyString($study_id, parent::getVoc()."measure",$measure).
-						parent::describeClass($so_id,$measure." ".$time_frame,parent::getVoc()."Secondary-Outcome")
+						parent::triplifyString($study_id, parent::getVoc()."measure",$measure)
 					);
 
 					if($time_frame) {
@@ -509,7 +531,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 
                     parent::addRDF(
 						parent::triplify($study_id,parent::getVoc()."arm-group",$arm_group_id).
-						parent::describe($arm_group_id,$arm_group_label,parent::getVoc().$arm_group_type,$arm_group_label,$description)
+						parent::describeIndividual($arm_group_id,$arm_group_label,parent::getVoc().$arm_group_type,$arm_group_label,$description)
 					);
 				}
 			} catch (Exception $e){
@@ -542,10 +564,11 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try{
 				$eligibility = @array_shift($root->xpath('//eligibility'));
 				if($eligibility != null) {
+					$eligibility_label = "eligibility for ".$study_id;
 					$eligibility_id = parent::getRes().md5($eligibility->asXML());
 					parent::addRDF(
-						parent::triplify($study_id,parent::getVoc()."eligibility",$eligibility_id).
-						parent::describeIndividual($eligibility_id,null,parent::getVoc()."Eligibility")
+						parent::describeIndividual($eligibility_id,$eligibility_label,parent::getVoc()."Eligibility").
+						parent::triplify($study_id,parent::getVoc()."eligibility",$eligibility_id)			
 					);
 
 					if($criteria = @array_shift($eligibility->xpath('./criteria'))){
@@ -560,7 +583,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 									$inc_id = parent::getRes().md5($inc);
 									parent::addRDF(
 										parent::triplify($eligibility_id,parent::getVoc()."inclusion-criteria",$inc_id).
-										parent::describe($inc_id,$inc,parent::getVoc()."Inclusion-Criteria")
+										parent::describeIndividual($inc_id,$inc,parent::getVoc()."Inclusion-Criteria")
 									);
 								}
 							}
@@ -574,7 +597,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 									$exc_id = parent::getRes().md5($exc);
 									parent::addRDF(
 										parent::triplify($eligibility_id,parent::getVoc()."exclusion-criteria",$exc_id).
-										parent::describe($exc_id,$exc,parent::getVoc()."Exclusion-Criteria")
+										parent::describeIndividual($exc_id,$exc,parent::getVoc()."Exclusion-Criteria")
 									);
 								}
 							}
@@ -834,13 +857,11 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			} catch (Exception $e){
 				echo "There was an error parsing the is_fda_regulated element: $e\n";
 			}
-
-			$this->WriteRDFBufferToWriteFile();
-
+			
 		}
-		$this->WriteRDFBufferToWriteFile();
+		$this->setCheckPoint('record');
+		$this->setCheckPoint('dataset');
 		$this->getWriteFile()->close();
-		
 	}
 	
 	function getString($xpath,$element = null)
