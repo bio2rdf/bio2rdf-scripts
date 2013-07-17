@@ -28,20 +28,18 @@ SOFTWARE.
  * @author Alison Callahan
 */
 
-require('../../php-lib/bio2rdfapi.php');
-require('../common/php/oboparser.php');
-
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../common/php/oboparser.php');
 
 class SGDParser extends Bio2RDFizer {
 	private $version = null;
 
 	function __construct($argv) {
-
 		parent::__construct($argv,"sgd");
 		parent::addParameter('files',true,'all|dbxref|features|domains|protein|goa|goslim|complex|interaction|phenotype|pathways|mapping','all','all or comma-separated list of files to process');
-		parent::addParameter('ncbo_api_key', false, null, '24e19c82-54e0-11e0-9d7b-005056aa3316');
 		parent::addParameter('download_url',false,null,'http://downloads.yeastgenome.org/');
 		parent::addParameter('ncbo_download_dir', false, null, '/data/download/ncbo', 'directory of ncbo ontologies');
+		parent::addParameter('ncbo_api_key',true,null,null,'your NCBO API key');
 		parent::initialize();
 	}
 
