@@ -78,23 +78,16 @@ class MGIParser extends RDFFactory
 			$rfile = $this->GetParameterValue('download_url').$item.'.rpt';
 			if(!file_exists($lfile) || $this->GetParameterValue('download') == 'true') {
 				echo "downloading $item...";
-				$ret = file_get_contents($rfile);
-				if($ret === FALSE) {
-					trigger_error("Unable to get $rfile",E_USER_WARNING);
-					continue;
-				}
-				$ret = file_put_contents($lfile,$ret);
-				if($ret === FALSE) {
-					trigger_error("Unable to write $lfile",E_USER_ERROR);
-					exit;
-				}		
-				echo "done!".PHP_EOL;
+				Utils::DownloadSingle ($rfile, $lfile);
 			}
 			$this->SetReadFile($lfile,true);
 			
 			echo "Processing $item...";
-			$ofile = $odir."mgi-".$item.'.nt.gz';
-			$this->SetWriteFile($ofile,true);
+			$ofile = $odir."mgi-".$item.'.nt'; $gz=false;
+			if($this->GetParameterValue('graph_uri')) {$ofile = $odir."mgi-".$item.'.nq';;}
+			if($this->GetParameterValue('gzip')) {$ofile .= '.gz';$gz = true;}
+			
+			$this->SetWriteFile($ofile, $gz);
 			
 			$this->$item();
 			
@@ -238,9 +231,17 @@ class MGIParser extends RDFFactory
 	
 	}
 }
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new MGIParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
+
 ?>	
 		

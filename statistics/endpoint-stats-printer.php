@@ -230,10 +230,11 @@ function makeHTML($endpoint_stats, $endpoint_desc){
 				$html .= "<body>";
 				//add the logo
 				$html .= addBio2RDFLogo();
-				$html .= "<h1> Summary data metrics for the Bio2RDF ".$endpoint." endpoint</h1>";
-				$html .= "<div id='container'> <div id='items'></div>";
+				$html .= "<div id='description'>";
 				$html .= addDatasetDescription($desc);
 				$html .= addBio2RDFDetails($d['endpoint_url'], $desc['namespace']);
+				$html .= "</div>";
+				$html .= "<div id='container'> <div id='items'></div>";
 				$html .= addBasicStatsTable($d['endpoint_url'],$d['triples'],$d['unique_subjects'],$d['unique_predicates'],$d['unique_objects'] );
 				$html .= addUniqueTypesTable($d['endpoint_url'],$d['unique_types']);
 				$html .= addPredicateObjLinks($d['endpoint_url'],$d['predicate_object_links']);
@@ -253,14 +254,10 @@ function makeHTML($endpoint_stats, $endpoint_desc){
 function addBio2RDFDetails($u, $ns){
 	$rm = "";
 	if($u != null && $ns != null){
-		$rm .= "<br><h2>Bio2RDF Resources</h2>";
-		$rm .= "<table id='t'>";
-		$rm .= "<thead><tr><th></th><th></th></tr></thead><tbody>";
-		$rm .= "<tr><td>SPARQL Endpoint URL</td><td><a href=\"".$u."\">".$u."</a></td></tr>";
-		$rm .= "<tr><td>Faceted Browser URL</td><td><a href=\"http://cu.".$ns.".bio2rdf.org/fct\">http://cu.".$ns.".bio2rdf.org/fct</a></td></tr>";
-		$rm .= "<tr><td>Conversion Script URL</td><td><a href=\"http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."\">http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."</a></td></tr>";
-		$rm .= "<tr><td>Download URL</td><td><a href=\"http://download.bio2rdf.org/release/2/".$ns."\">http://download.bio2rdf.org/release/2/".$ns."</a></td></tr>";
-		$rm .= "</tbody></table>";
+		$rm .= "<p><strong>SPARQL Endpoint URL:</strong> <a href=\"".$u."\">".$u."</a></p>";
+		$rm .= "<p><strong>Faceted Browser URL:</strong> <a href=\"http://cu.".$ns.".bio2rdf.org/fct\">http://cu.".$ns.".bio2rdf.org/fct</a></p>";
+		$rm .= "<p><strong>Conversion Script URL:</strong> <a href=\"http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."\">http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."</a></p>";
+		$rm .= "<p><strong>Download URL:</strong> <a href=\"http://download.bio2rdf.org/release/2/".$ns."\">http://download.bio2rdf.org/release/2/".$ns."</a></p>";
 	}
 	return $rm;
 }
@@ -268,39 +265,35 @@ function addBio2RDFDetails($u, $ns){
 function addDatasetDescription($aDesc){
 	$rm = "";
 	if($aDesc != null && count($aDesc) > 0){
-		$rm .= "<h2>Dataset Description</h2>";
-		$rm .= "<table id='t'>";
-		$rm .= "<thead><tr><th></th><th></th></tr></thead><tbody>";
 		if(isset($aDesc['namespace'])&&strlen($aDesc['name'])){
-			$rm .= "<tr><td>Name</td><td>".$aDesc['name']."</td></tr>";
+			$rm .= "<h3>".$aDesc['name']."</h3>";
 		}
 		if (isset($aDesc['description'])&&strlen($aDesc['description'])) {
-			$rm .= "<tr><td>Description</td><td>".$aDesc['description']."</td></tr>";	
+			$rm .= "<p>".$aDesc['description']."</p>";
 		}
 		if (isset($aDesc['keywords'])&&strlen($aDesc['keywords'])) {
-			$rm .= "<tr><td>Keywords</td><td>".$aDesc['keywords']."</td></tr>";	
+			$rm .= "<p><strong>Keywords: </strong>".$aDesc['keywords']."</p>";
 		}
 		if (isset($aDesc['namespace'])&&strlen($aDesc['namespace'])) {
-			$rm .= "<tr><td>Namespace</td><td>".$aDesc['namespace']."</td></tr>";	
+			$rm .= "<p><strong>Namespace: </strong>".$aDesc['namespace']."</p>";
 		}
 		if (isset($aDesc['homepage'])&&strlen($aDesc['homepage'])) {
-			$rm .= "<tr><td>Homepage</td><td><a href=\"".$aDesc['homepage']."\">".$aDesc['homepage']."</a></td></tr>";	
+			$rm .= "<p><strong>Homepage:</strong> <a href=\"".$aDesc['homepage']."\">".$aDesc['homepage']."</a></p>";	
 		}
 		if (isset($aDesc['organization'])&&strlen($aDesc['organization'])) {
-			$rm .= "<tr><td>Organization</td><td>".$aDesc['organization']."</td></tr>";	
+			$rm .= "<p><strong>Organization:</strong> ".$aDesc['organization']."</p>";	
 		}
 		if (isset($aDesc['license_url'])&&strlen($aDesc['license_url'])) {
-			$rm .= "<tr><td>License</td><td>".$aDesc['license_url']."</td></tr>";
+			$rm .= "<p><strong>License:</strong> ".$aDesc['license_url']."</p>";
 		}
 		if (isset($aDesc['id'])&&strlen($aDesc['id']) && isset($aDesc['provider_html_url'])&&strlen($aDesc['provider_html_url'])) {
 			//construct a record url
 			$s = str_replace('$id', $aDesc['id'], $aDesc['provider_html_url']);
-			$rm .= "<tr><td>Example Identifier</td><td><a href=\"".$s."\">".$aDesc['id']."</a></td></tr>";
+			$rm .= "<p><strong>Example Identifier:</strong> <a href=\"".$s."\">".$aDesc['id']."</a></p>";
 		}
 		if (isset($aDesc['ident_regex_patt'])&&strlen($aDesc['ident_regex_patt'])) {
-			$rm .= "<tr><td>Identifier regex pattern</td><td>".$aDesc['ident_regex_patt']."</td></tr>";	
+			$rm .= "<p><strong>Identifier Regex Pattern:</strong> ".$aDesc['ident_regex_patt']."</p>";	
 		}
-		$rm .= "</tbody></table>";	
 	}
 	return $rm;
 }
@@ -313,9 +306,9 @@ function addBio2RDFLogo(){
 			</div>';
 	$rm .= '<div id ="link">';
 	$rm .= "<h1>Linked Data for the Life Sciences</h1>".PHP_EOL;
-	$rm .= "<h2>GitHub: <a href=\"http://github.com/bio2rdf\">http://github.com/bio2rdf</a></h2>".PHP_EOL;
-	$rm .= "<h2>Wiki: <a href=\"http://github.com/bio2rdf/bio2rdf-scripts/wiki\">http://github.com/bio2rdf/bio2rdf-scripts/wiki</a></h2>".PHP_EOL;
-	$rm .= '<h2><a href ="http://download.bio2rdf.org/current/release.html">-Release 2-</a></h2></div>';
+	$rm .= '<h2>-Release 2-</h2>';
+	$rm .= '<h2>[<a href="http://bio2rdf.org" target="_blank">website</a>][<a href="http://download.bio2rdf.org/release/2/release.html" target="_blank">datasets</a>][<a href="http://github.com/bio2rdf/bio2rdf-scripts/wiki" target="_blank">documentation</a>]</h2>';
+	$rm .= "</div>";
 	return $rm;
 }
 
@@ -428,6 +421,12 @@ function addHeader($aTitle){
    			 margin-right:auto;
    			 margin-left:auto;
    			 font-size:12px; !important
+			}
+			#description {
+				margin: 0 auto;
+   				padding-bottom: 20px;
+    			top: 50px;
+				width: 960px;
 			}
 			body{
 			   font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;

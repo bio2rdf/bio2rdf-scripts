@@ -47,12 +47,7 @@ class AffymetrixParser extends Bio2RDFizer
 		$listing_file = $ldir."probeset_list.html";
 		if(!file_exists($listing_file) || parent::getParameterValue("download") == "true") {
 			echo "Downloading $listing_file".PHP_EOL;
-			$ret = file_get_contents($url);
-			if($ret === FALSE) {
-				trigger_error("unable to download from $url");
-				exit;
-			}
-			file_put_contents($listing_file,$ret);
+			Utils::DownloadSingle ($url, $listing_file);
 		}
 		$listings = file_get_contents($listing_file);
 		
@@ -86,15 +81,20 @@ class AffymetrixParser extends Bio2RDFizer
 		foreach($myfiles AS $rfile) {
 			// download
 			$base_file = substr($rfile,strrpos($rfile,"/")+1);
-			echo "processing $base_file".PHP_EOL;
+			$base_url = substr($rfile,0, strrpos($rfile,"/"));
+			echo "processing $base_file, from $base_url".PHP_EOL;
 			$csv_file = $base_file.".csv";
 			$zip_file = $csv_file.".zip";
 		
 			$lfile = $ldir.$zip_file;
-			if(!file_exists($lfile) || parent::getParameterValue("download") == "true") {
-				echo "can't find $lfile".PHP_EOL;
-				echo "Use download manager at http://www.freedownloadmanager.org/scripts/downl.php?file_id=1".PHP_EOL;
-				continue;
+
+			if(!file_exists($lfile) || $this->GetParameterValue('download') == true) { 
+				$rfile = $url.$zip_file;
+				trigger_error("Downloading $zip_file from $rfile", E_USER_NOTICE);
+				if(Utils::Download($base_url,array($zip_file),$ldir) === FALSE) {
+					trigger_error("Unable to download $file. skipping", E_USER_WARNING);
+					continue;
+				}
 			}
 			
 			// set the dataset version
@@ -111,16 +111,19 @@ class AffymetrixParser extends Bio2RDFizer
 				trigger_error("Unable to open $lfile");
 				exit;
 			}
+
 			if(($fp = $zin->getStream($csv_file)) === FALSE) {
 				trigger_error("Unable to get $csv_file in ziparchive $lfile");
 				return FALSE;
 			}
-			parent::setReadFile($lfile);
-			parent::getReadFile()->setFilePointer($fp);
-			
+
+			$this->SetReadFile($lfile);
+			$this->GetReadFile()->SetFilePointer($fp);
+
 			// set the write file
 			$outfile = $base_file.'.nt'; $gz=false;
-			if(strstr(parent::getParameterValue('output_format'), "gz")) {
+			if($this->GetParameterValue('graph_uri')) {$outfile = $base_file.'.nq';}
+			if($this->GetParameterValue('gzip')) {
 				$outfile .= '.gz';
 				$gz = true;
 			}			
@@ -143,6 +146,7 @@ class AffymetrixParser extends Bio2RDFizer
 			$this->getNamespace(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/affymetrix/affymetrix.php", 
 			$bio2rdf_download_files,
+			"dsfsdfs",
 			"http://affymetrix.com/",
 			array("use-share-modify","no-commercial"),
 			null, // license
@@ -368,7 +372,6 @@ class AffymetrixParser extends Bio2RDFizer
 		return null;
 	}
 }
-
 
 ?>
 

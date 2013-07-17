@@ -96,8 +96,9 @@ class PathwaycommonsParser extends RDFFactory
 			fclose($fpin);
 
 			// set the output file
-			$outfile = $this->GetParameterValue('outdir').$source.'ttl';
+			$outfile = $this->GetParameterValue('outdir').$source.'nt';
 			$gz = false;
+			if($this->GetParameterValue('graph_uri')) {$outfile = $this->GetParameterValue('outdir').$source.'nq';}
 			if($this->GetParameterValue('gzip') == 'true') {
 				$outfile .= '.gz';
 				$gz = true;
@@ -311,9 +312,16 @@ LIMIT 1
 		}
 	}
 } 
-
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new PathwaycommonsParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
+
 ?>
