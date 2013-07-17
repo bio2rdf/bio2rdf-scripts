@@ -38,8 +38,6 @@ class CTDParser extends Bio2RDFizer
 		parent::addParameter('files',true,'all|chem_gene_ixns|chem_gene_ixn_types|chemicals_diseases|chem_go_enriched|chem_pathways_enriched|genes_diseases|genes_pathways|diseases_pathways|chemicals|diseases|genes|pathways','all','all or comma-separated list of files to process');
 		parent::addParameter('download_url',false,null,'http://ctdbase.org/reports/');
 		parent::initialize();
-
-		return TRUE;
 	}
 	
 	function Run()
