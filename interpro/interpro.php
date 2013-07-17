@@ -83,6 +83,7 @@ class AffymetrixParser extends RDFFactory
 		
 		// set the write file
 		$outfile = 'interpro.nt'; $gz=false;
+		if($this->GetParameterValue('graph_uri')) {$outfile = 'interpro.nq';}
 		if($this->GetParameterValue('gzip')) {
 			$outfile .= '.gz';
 			$gz = true;
@@ -124,15 +125,16 @@ class AffymetrixParser extends RDFFactory
 		// now interate over the entries
 		foreach($xml->interpro AS $o) {
 			$this->WriteRDFBufferToWriteFile();
-			
+
 			$interpro_id = $o->attributes()->id;
-			echo "$interpro_id".PHP_EOL;
+			echo "Processing id... $interpro_id".PHP_EOL;
 			
 			$name = $o->name;
 			$short_name = $o->attributes()->short_name;
 			$type = $o->attributes()->type;
 			$s = "interpro:$interpro_id";
 			
+			echo "Adding... $s rdfs:label $name ($short_name) $type [$s]".PHP_EOL;
 			$this->AddRDF($this->QQuadL($s,"rdfs:label","$name ($short_name) $type [$s]"));
 			$this->AddRDF($this->QQuad($s,"rdf:type","interpro_vocabulary:$type"));
 			$this->AddRDF($this->QQuad($s,"void:inDataset",$this->GetDatasetURI()));
@@ -228,10 +230,17 @@ class AffymetrixParser extends RDFFactory
 	}
 
 }
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new AffymetrixParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 ?>
 
 

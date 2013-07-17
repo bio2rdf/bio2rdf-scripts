@@ -71,7 +71,7 @@ class NDCParser extends RDFFactory
 		// download
 		if($this->GetParameterValue('download') == true) {
 			trigger_error("Downloading $rfile", E_USER_NOTICE);
-			file_put_contents($ldir.$lfile, file_get_contents($rfile));
+			Utils::DownloadSingle($rfile, $ldir.$lfile);
 		}
 
 		// make sure we have the zip archive
@@ -100,12 +100,13 @@ class NDCParser extends RDFFactory
 
 			$fpin = $zin->getStream($file.".txt");
 			if(!$fpin) {
-				trigger_error("Unable to get pointer to $file in $zinfile");
+				trigger_error("Unable to get pointer to $file in $ldir$lfile", E_USER_ERROR);
 				exit("failed\n");
 			}
 			
 			// set the write file
 			$outfile = $file.'.nt'; $gz=false;
+			if($this->GetParameterValue('graph_uri')) {$outfile = $file.'.nq';}
 			if($this->GetParameterValue('gzip')) {
 				$outfile .= '.gz';
 				$gz = true;

@@ -111,6 +111,7 @@ class BiomodelsParser extends RDFFactory
 		
 		// set the write file
 		$outfile = 'biomodels.nt'; $gz=false;
+		if($this->GetParameterValue('graph_uri')) {$outfile = 'biomodels.nq';}
 		if($this->GetParameterValue('gzip')) {
 			$outfile .= '.gz';
 			$gz = true;
@@ -175,8 +176,15 @@ class BiomodelsParser extends RDFFactory
 	}	
 
 }
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $parser = new BiomodelsParser($argv);
 $parser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 ?>
