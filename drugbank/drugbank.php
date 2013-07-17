@@ -688,8 +688,15 @@ class DrugBankParser extends Bio2RDFizer
 
 } // end class
 
+$start = microtime(true);
 
 set_error_handler('error_handler');
 $dbparser = new DrugBankParser($argv);
 $dbparser->Run();
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 ?>

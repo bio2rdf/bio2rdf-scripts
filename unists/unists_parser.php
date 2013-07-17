@@ -37,7 +37,7 @@ class UniSTSParser extends RDFFactory{
 	private static $packageMap = array(
 		"markers" =>  "UniSTS.sts",
 		"aliases" => "UniSTS.aliases",
-		"map_reports" => "ftp.ncbi.nlm.nih.gov/repository/UniSTS/UniSTS_MapReports/",
+		"map_reports" => "ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_MapReports/",
 		//"pcr_reports" => "ftp.ncbi.nih.gov/repository/UniSTS/UniSTS_ePCR.Reports/"
 	);
 
@@ -89,16 +89,19 @@ class UniSTSParser extends RDFFactory{
 			} else {
 				$lfile = $ldir."/".$value;
 			}
-			if($key == "markers" || $key == "aliases"){		
+
+		if($key == "markers" || $key == "aliases"){		
 				//create a file pointer
 				$fp = gzopen($lfile, "r") or die("Could not open file ".$value."!\n");
 				//ensure that there is a slash between directory name and filename
 				if(substr($odir, -1) == "/"){
-					$gzoutfile = $odir.$key.".ttl";
+					$gzoutfilename = $odir.$key;
 				} else {
-					$gzoutfile = $odir."/".$key.".ttl";
+					$gzoutfilename = $odir."/".$key;
 				}
+				$gzoutfile = $gzoutfilename.".nt"; 
 				$gz=false;
+				if($this->GetParameterValue('graph_uri')){ $gzoutfile = $gzoutfilename.".nq";};
 				if($this->GetParameterValue('gzip')){
 					$gzoutfile .= '.gz';
 					$gz = true;
@@ -139,11 +142,13 @@ class UniSTSParser extends RDFFactory{
 					if($fn_no_ext == "README"){
 						//ensure that there is a slash between directory name and filename
 						if(substr($odir, -1) == "/"){
-							$gzoutfile = $odir.$pfn.$q."-".$fn_no_ext .".ttl";
+							$gzoutfilename = $odir.$pfn.$q."-".$fn_no_ext;
 						} else {
-							$gzoutfile = $odir."/".$pfn.$q."-".$fn_no_ext.".ttl";
+							$gzoutfilename = $odir."/".$pfn.$q."-".$fn_no_ext;
 						}
 						$gz=false;
+						$gzoutfile = $gzoutfilename.".nt";
+						if($this->GetParameterValue('graph_uri')){$gzoutfile = $gzoutfilename.".nq";}
 						if($this->GetParameterValue('gzip')){
 							$gzoutfile .= '.gz';
 							$gz = true;
@@ -169,11 +174,13 @@ class UniSTSParser extends RDFFactory{
 					elseif($fn_no_ext != "README" && $fn_no_ext != "README~" ){
 						//ensure that there is a slash between directory name and filename
 						if(substr($odir, -1) == "/"){
-							$gzoutfile = $odir.$pfn.$q."-".$fn_no_ext .".ttl";
+							$gzoutfilename = $odir.$pfn.$q."-".$fn_no_ext;
 						} else {
-							$gzoutfile = $odir."/".$pfn.$q."-".$fn_no_ext.".ttl";
+							$gzoutfilename = $odir."/".$pfn.$q."-".$fn_no_ext;
 						}
 						$gz=false;
+						$gzoutfile = $gzoutfilename.".nt";
+						if($this->GetParameterValue('graph_uri')){$gzoutfile = $gzoutfilename.".nq";}						
 						if($this->GetParameterValue('gzip')){
 							$gzoutfile .= '.gz';
 							$gz = true;
@@ -217,11 +224,13 @@ class UniSTSParser extends RDFFactory{
 						//echo $species_name_dir."\t".$fn_no_ext."\n";
 						//ensure that there is a slash between directory name and filename
 						if(substr($odir, -1) == "/"){
-							$gzoutfile = $odir.$species_name_dir.$q."-".$fn_no_ext .".ttl";
+							$gzoutfilename = $odir.$species_name_dir.$q."-".$fn_no_ext;
 						} else {
-							$gzoutfile = $odir."/".$species_name_dir.$q."-".$fn_no_ext.".ttl";
+							$gzoutfilename = $odir."/".$species_name_dir.$q."-".$fn_no_ext;
 						}
 						$gz=false;
+						$gzoutfile = $gzoutfilename.".nt";
+						if($this->GetParameterValue('graph_uri')){$gzoutfile = $gzoutfilename.".nq";}
 						if($this->GetParameterValue('gzip')){
 							$gzoutfile .= '.gz';
 							$gz = true;
@@ -729,9 +738,17 @@ class UniSTSParser extends RDFFactory{
 		return $rm;
 	}
 }//class
+$start = microtime(true);
 
 $p = new UniSTSParser($argv);
 //$a = $p->getFileR("/tmp",true);
 //$b = $p->filterByExtension($a, "txt");
 $p->Run();
+
+
+$end = microtime(true);
+$time_taken =  $end - $start;
+print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
+print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
+print "Took: ".$time_taken." seconds\n"
 ?>
