@@ -148,32 +148,34 @@ class DrugBankParser extends Bio2RDFizer
                     );  
                 
                 } else {
-                  
                     
-                //     // // default handling for collections
-                //     // $found = false;
-                //     // $list_name = $k;
-                //     // $item_name = substr($k,0,-1);
-                //     // foreach($v->children() AS $k2 => $v2) {
-                //     //     if(!$v2->children() && $k2 == $item_name) {
-                //     //         $this->AddRDF($this->QQuadL($pid,"drugbank_vocabulary:".$item_name,$this->SafeLiteral($v2)));
-                //     //         $found = true;
-                //     //     } else {
-                //     //         // need special handling
-                //     //         if($k == 'external-identifiers') {
-                //     //             $this->GetNS()->ParsePrefixedName($v2->identifier,$ns,$id);
-                //     //             $ns = $this->NSMap($v2->resource);
-                //     //             if($ns == "genecards") $id = str_replace(array(" "),array("_"),$id);
-                //     //             $this->AddRDF($this->QQuad($pid,"drugbank_vocabulary:xref","$ns:$id"));
-                //     //         } elseif($k == 'pfams') {
-                //     //             $this->AddRDF($this->QQuad($pid,"drugbank_vocabulary:xref","pfam:".$v2->identifier));
-                //     //         }   
-                //     //      } // special handlers
-                //     // }
+                    // default handling for collections
+                    $found = false;
+                    $list_name = $k;
+                    $item_name = substr($k,0,-1);
+                    foreach($v->children() AS $k2 => $v2) {
+                        if(!$v2->children() && $k2 == $item_name) {
+                            parent::addRDF(
+                                parent::triplifyString($pid,"drugbank_vocabulary:".$item_name,"".$v2)
+                            );
+                            $found = true;
+                        } else {
+                            // need special handling
+                            if($k == 'external-identifiers') {
+                                $ns = $this->NSMap($v2->resource);
+                                if($ns == "genecards") $id = str_replace(array(" "),array("_"),$id);
 
-                     
+                                parent::addRDF(
+                                    parent::triplify($pid,"drugbank_vocabulary:xref","$ns:$id")
+                                );
+                            } elseif($k == 'pfams') {
+                                parent::addRDF(
+                                    parent::triplify($pid,"drugbank_vocabulary:xref","pfam:".$v2->identifier)
+                                );
+                            }   
+                         } // special handlers
+                    }
                  } // default handler
-                
             }
          }
  
@@ -232,7 +234,7 @@ class DrugBankParser extends Bio2RDFizer
             parent::describeIndividual($did, $label, "drugbank_vocabulary:Drug",null, $description).
             parent::triplify($did,"owl:sameAs","http://indentifiers.org/drugbank/".$dbid).
             parent::triplify($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid). 
-            parent::triplifyString($did,"drugbank_vocabulary:category", ucfirst($x->attributes()->type))
+            parent::triplifyString($did,"drugbank_vocabulary:category", ucfirst($x->attributes()->type[0]))
         );    
 
         // TODO:: Replace the next two lines
@@ -266,15 +268,15 @@ class DrugBankParser extends Bio2RDFizer
             foreach($x->mixtures->mixture AS $item) {
                 if(isset($item)) {
                     $o = $item;
-                    $mid = "drugbank_resource:".str_replace(" ","-",$o->name);
+                    $mid = "drugbank_resource:".str_replace(" ","-",$o->name[0]);
 
                     parent::addRDF(
                         parent::triplify($did,"drugbank_vocabulary:mixture",$mid).
-                        parent::describeIndividual($mid,$o->name,"drugbank_vocabulary:Mixture",null).
-                        parent::triplifyString($mid,$this->getVoc()."ingredients",$o->ingredients) 
+                        parent::describeIndividual($mid,$o->name[0],"drugbank_vocabulary:Mixture",null).
+                        parent::triplifyString($mid,$this->getVoc()."ingredients","".$o->ingredients[0]) 
                     );
                  
-                    $a = explode(" + ",$o->ingredients);
+                    $a = explode(" + ",$o->ingredients[0]);
                     foreach($a AS $b) {
                         $b = trim($b);
                         $iid = "drugbank_resource:".str_replace(" ","-",$b);
@@ -301,13 +303,13 @@ class DrugBankParser extends Bio2RDFizer
                      if(!isset($defined[$pid])) {
                          $defined[$pid] = '';
                             parent::addRDF(
-                                parent::describe($pid,$item->name,null,null)
+                                parent::describe($pid,"".$item->name[0],null,null)
                             );
 
                             if(strstr($item->url,"http://") && $item->url != "http://BASF Corp."){
                                 // TODO:: Needs to be updated QQuad0_URL?
                                 parent::addRDF(
-                                    $this->QQuadO_URL($pid,"rdfs:seeAlso",$item->url)
+                                    $this->QQuadO_URL($pid,"rdfs:seeAlso","".$item->url[0])
                                 );
                             }    
                         }
@@ -316,7 +318,7 @@ class DrugBankParser extends Bio2RDFizer
          }
      }     
 
-     // manufacturers
+//      // manufacturers
      $this->AddText($x,$did,"manufacturers","manufacturer","drugbank_vocabulary:manufacturer"); // @TODO RESOURCE
         
      // prices
@@ -326,9 +328,9 @@ class DrugBankParser extends Bio2RDFizer
              $uid = "drugbank_vocabulary:".md5($product->unit);
                
                 parent::addRDF(
-                  parent::describeIndividual($pid,$product->description,"drugbank_vocabulary:Pharmaceutical").
+                  parent::describeIndividual($pid,"".$product->description[0],"drugbank_vocabulary:Pharmaceutical").
                   parent::triplify($did,"drugbank_vocabulary:product",$pid).
-                  parent::triplifyString($pid,"drugbank_vocabulary:price",$product->cost)
+                  parent::triplifyString($pid,"drugbank_vocabulary:price","".$product->cost)
                 );    
 
              // NOTE:: Should move the variable checking to describe and triplify?
@@ -353,11 +355,10 @@ class DrugBankParser extends Bio2RDFizer
             );    
 
             $rid = "pharmgkb_vocabulary:".md5($dosage->route);
-            $this->typify($id,$rid,"Route",$dosage->route);
+            $this->typify($id,$rid,"Route","".$dosage->route);
 
             $fid = "pharmgkb_vocabulary:".md5($dosage->form);
-            $this->typify($id,$fid,"Form",$dosage->form);
-
+            $this->typify($id,$fid,"Form","".$dosage->form);
          }
      } 
 
@@ -365,8 +366,8 @@ class DrugBankParser extends Bio2RDFizer
      if(isset($x->{"experimental-properties"})) {
          foreach($x->{"experimental-properties"} AS $properties) {
              foreach($properties AS $property) {
-                 $type = $property->kind;
-                 $value = $property->value;
+                 $type  = "".$property->kind;
+                 $value = "".$property->value;
                 
                  $id = "drugbank_resource:experimental_property_".$dbid."_".($counter++);
                  parent::addRDF(
@@ -394,9 +395,9 @@ class DrugBankParser extends Bio2RDFizer
      if(isset($x->{"calculated-properties"})) {
          foreach($x->{"calculated-properties"} AS $properties) {
              foreach($properties AS $property) {
-                 $type = $property->kind;
-                 $value = addslashes($property->value);
-                 $source = $property->source;            
+                 $type   = "".$property->kind;
+                 $value  = addslashes($property->value);
+                 $source = "".$property->source;            
                     
                  $id = "drugbank_resource:calculated_property_".$dbid."_".($counter++);
                  parent::addRDF(
@@ -437,12 +438,12 @@ class DrugBankParser extends Bio2RDFizer
              parent::addRDF(
                 parent::triplify($did,$this->getVoc()."patent",$id).
                 parent::describeIndividual($id,$patent->country." patent ".$patent->number,$this->getVoc()."Patent").
-                parent::triplifyString($id,$this->getVoc()."approved",$patent->approved).
-                parent::triplifyString($id,$this->getVoc()."expires",$patent->expires)
+                parent::triplifyString($id,$this->getVoc()."approved","".$patent->approved).
+                parent::triplifyString($id,$this->getVoc()."expires","".$patent->expires)
              );
                            
              $cid = "drugbank_resource:".md5($patent->country);
-             $this->typify($id,$cid,"Country",$patent->country);
+             $this->typify($id,$cid,"Country","".$patent->country);
          }
      }
         
@@ -469,14 +470,14 @@ class DrugBankParser extends Bio2RDFizer
                      foreach($target->actions AS $action) {
                          if(isset($action->action) && $action->action != '') {
                              parent::addRDF(
-                                 parent::triplifyString($dti,$this->getVoc()."action",$action->action)
+                                 parent::triplifyString($dti,$this->getVoc()."action","".$action->action)
                              );
                          }
                      }
                  }
                  if(isset($target->{"known-action"})) {
                      parent::addRDF(
-                         parent::triplifyString($dti,$this->getVoc()."pharmacological-action",$target->{'known-action'})
+                         parent::triplifyString($dti,$this->getVoc()."pharmacological-action","".$target->{'known-action'})
                      );
 
                  }               
@@ -495,131 +496,157 @@ class DrugBankParser extends Bio2RDFizer
          }
      }
         
-//      // enzymes
-//      if(isset($x->enzymes)) {
-//          foreach($x->enzymes AS $enzymes) {
-//              foreach($enzymes->enzyme AS $enzyme) {                  
-//                  $tid = "drugbank_target:".$enzyme->attributes()->partner;
-//                  $this->AddRDF($this->QQuad($did,"drugbank_vocabulary:enzyme",$tid));
+     // enzymes
+     if(isset($x->enzymes)) {
+         foreach($x->enzymes AS $enzymes) {
+             foreach($enzymes->enzyme AS $enzyme) {                  
+                 $tid = "drugbank_target:".$enzyme->attributes()->partner;
+                 $this->AddRDF($this->QQuad($did,"drugbank_vocabulary:enzyme",$tid));
                     
-//                  $dti = "drugbank_resource:".$dbid."_".$enzyme->attributes()->partner;
-//                  $partner_name = $tid;
-//                  if(isset($this->named_entries[$tid])) $partner_name = $this->named_entries[$tid];
+                 $dti = "drugbank_resource:".$dbid."_".$enzyme->attributes()->partner;
+                 $partner_name = $tid;
+                 if(isset($this->named_entries[$tid])) $partner_name = $this->named_entries[$tid];
+                    parent::addRDF(
+                         parent::describeIndividual($dti,"drug-enzyme interaction $name and $partner_name",$this->getVoc()."Drug-Enzyme-Interaction").
+                         parent::triplify($dti,$this->getVoc()."drug",$did).
+                         parent::triplify($dti,$this->getVoc()."enzyme",$tid)
+                    );
+                 
+                 if(isset($enzyme->actions)) {
+                     foreach($enzyme->actions AS $action) {
+                         if(isset($action->action) && $action->action != '') {
+                            parent::addRDF(
+                               parent::triplifyString($dti,$this->getVoc()."action","".$enzyme->action)
+                            );
+                         }
+                     }
+                 }
+                 if(isset($enzyme->{"known-action"})) {
+                    parent::addRDF(
+                               parent::triplifyString($dti,$this->getVoc()."known-action","".$enzyme->{'known-action'})
+                    );
+                 }               
+                 if(isset($enzyme->references)) {
+                     $a = preg_match_all("/pubmed\/([0-9]+)/",$enzyme->references,$m);
+                     if(isset($m[1])) {
+                         foreach($m[1] AS $pmid) {
+                            parent::addRDF(
+                               parent::triplify($dti,$this->getVoc()."article","pubmed:".$pmid)
+                            );
+                         }
+                     }
+                 }
                     
-//                  $this->AddRDF($this->QQuadL($dti,"rdfs:label","drug-enzyme interaction $name and $partner_name [$dti]" ));
-//                  $this->AddRDF($this->QQuad($dti,"rdf:type","drugbank_vocabulary:Drug-Enzyme-Interaction"));
-//                  $this->AddRDF($this->QQuad($dti,"drugbank_vocabulary:drug",$did));
-//                  $this->AddRDF($this->QQuad($dti,"drugbank_vocabulary:enzyme",$tid));
-//                  if(isset($enzyme->actions)) {
-//                      foreach($enzyme->actions AS $action) {
-//                          if(isset($action->action) && $action->action != '') {
-//                              $this->AddRDF($this->QQuadL($dti,"drugbank_vocabulary:action",$action->action));    
-//                          }
-//                      }
-//                  }
-//                  if(isset($enzyme->{"known-action"})) {
-//                      $this->AddRDF($this->QQuadL($dti,"drugbank_vocabulary:pharmacological-action",$enzyme->{"known-action"}));
-//                  }               
-//                  if(isset($enzyme->references)) {
-//                      $a = preg_match_all("/pubmed\/([0-9]+)/",$enzyme->references,$m);
-//                      if(isset($m[1])) {
-//                          foreach($m[1] AS $pmid) {
-//                              $this->AddRDF($this->QQuad($dti,"drugbank_vocabulary:article","pubmed:".$pmid));    
-//                          }
-//                      }
-//                  }
-                    
-//              }
-//          }
-//      }
+             }
+         }
+     }
     
 //      // transporters
-//      if(isset($x->transporters)) {
-//          foreach($x->transporters AS $transporters) {
-//              foreach($transporters->transporter AS $transporter) {                   
-//                  $tid = "drugbank_target:".$transporter->attributes()->partner;
-//                  $this->AddRDF($this->QQuad($did,"drugbank_vocabulary:transporter",$tid));
+     if(isset($x->transporters)) {
+         foreach($x->transporters AS $transporters) {
+             foreach($transporters->transporter AS $transporter) {                   
+                 $tid = "drugbank_target:".$transporter->attributes()->partner;
+                 parent::addRDF(
+                    parent::triplify($did,$this->getVoc()."transporter",$tid)
+                 );
                     
-//                  $dti = "drugbank_resource:".$dbid."_".$tid;
-//                  $partner_name = $tid;
-//                  if(isset($this->named_entries[$tid])) $partner_name = $this->named_entries[$tid];
-                    
-//                  $this->AddRDF($this->QQuadL($dti,"rdfs:label","drug-transporter interaction $name and $partner_name [$dti]" ));
-//                  $this->AddRDF($this->QQuad($dti,"rdf:type","drugbank_vocabulary:Drug-Transporter-Interaction"));
-//                  $this->AddRDF($this->QQuad($dti,"drugbank_vocabulary:drug",$did));
-//                  $this->AddRDF($this->QQuad($dti,"drugbank_vocabulary:transporter",$tid));
-//                  if(isset($transporter->actions)) {
-//                      foreach($transporter->actions AS $action) {
-//                          if(isset($action->action) && $action->action != '') {
-//                              $this->AddRDF($this->QQuadL($dti,"drugbank_vocabulary:action",$action->action));    
-//                          }
-//                      }
-//                  }
-//                  if(isset($transporter->{"known-action"})) {
-//                      $this->AddRDF($this->QQuadL($dti,"drugbank_vocabulary:pharmacological-action",$transporter->{"known-action"}));
-//                  }               
-//                  if(isset($transporter->references)) {
-//                      $a = preg_match_all("/pubmed\/([0-9]+)/",$transporter->references,$m);
-//                      if(isset($m[1])) {
-//                          foreach($m[1] AS $pmid) {
-//                              $this->AddRDF($this->QQuad($dti,"drugbank_vocabulary:article","pubmed:".$pmid));    
-//                          }
-//                      }
-//                  }
-                    
-//              }
-//          }
-//      }
-        
-        
-//      // drug-interactions
-//      $y = (int) substr($dbid,2);
-//      if(isset($x->{"drug-interactions"})) {
-//          foreach($x->{"drug-interactions"} AS $ddis) {
-//              foreach($ddis->{"drug-interaction"} AS $ddi) {
-//                  $z = (int) substr($ddi->drug,2);
+                 $dti = "drugbank_resource:".$dbid."_".$tid;
+                 $partner_name = $tid;
+                 if(isset($this->named_entries[$tid])) $partner_name = $this->named_entries[$tid];
+                    parent::addRDF(
+                        parent::describeIndividual($dti,"drug-transporter interaction $name and $partner_name [$dti]",$this->getVoc()."Drug-Transporter-Interaction").
+                        parent::triplify($dti,$this->getVoc()."drug",$did).
+                        parent::triplify($dti,$this->getVoc()."transporter",$tid)
+                    );
 
-//                  if($y < $z) { // don't repeat
-//                      $ddi_id = "drugbank_resource:".$dbid."_".$ddi->drug;
-//                      $this->AddRDF($this->QQuad("drugbank:".$ddi->drug,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
-//                      $this->AddRDF($this->QQuad($did,"drugbank_vocabulary:ddi-interactor-in",$ddi_id));
-//                      $this->AddRDF($this->QQuadL($ddi_id,"rdfs:label","DDI between $name and ".$ddi->name." - ".trim($this->SafeLiteral($ddi->description))." [$ddi_id]"));
-//                      $this->AddRDF($this->QQuad($ddi_id,"rdf:type","drugbank_vocabulary:Drug-Drug-Interaction"));
-//                  }
-//              }
-//          }
-//      }
-//      // food-interactions
-//      $this->AddText($x,$did,"food-interactions","food-interaction","drugbank_vocabulary:food-interaction");
-//      // affected-organisms
-//      $this->AddText($x,$did,"affected-organisms","affected-organism","drugbank_vocabulary:affected-organism");
+                 if(isset($transporter->actions)) {
+                     foreach($transporter->actions AS $action) {
+                         if(isset($action->action) && $action->action != '') {
+                            parent::addRDF(
+                               parent::triplifyString($dti,$this->getVoc()."action","".$action->action)
+                            );
+                         }
+                     }
+                 }
+                 if(isset($transporter->{"known-action"})) {
+
+                    parent::addRDF(
+                               parent::triplifyString($dti,$this->getVoc()."pharmacological-action","".$transporter->{"known-action"})
+                    );
+                 }               
+                 if(isset($transporter->references)) {
+                     $a = preg_match_all("/pubmed\/([0-9]+)/",$transporter->references,$m);
+                     if(isset($m[1])) {
+                         foreach($m[1] AS $pmid) {
+                            parent::addRDF(
+                               parent::triplify($dti,$this->getVoc()."article","pubmed:".$pmid)
+                            );
+                         }
+                     }
+                 }
+                    
+             }
+         }
+     }
         
-//      // cas
-//      if(isset($x->{'cas-number'}) && $x->{'cas-number'} != '') {
-//          $this->AddRDF($this->QQuad($did,"drugbank_vocabulary:xref","cas:".$x->{'cas-number'}));
-//      }
+     // drug-interactions
+     $y = (int) substr($dbid,2);
+     if(isset($x->{"drug-interactions"})) {
+         foreach($x->{"drug-interactions"} AS $ddis) {
+             foreach($ddis->{"drug-interaction"} AS $ddi) {
+                 $z = (int) substr($ddi->drug,2);
+
+                 if($y < $z) { // don't repeat
+                     $ddi_id = "drugbank_resource:".$dbid."_".$ddi->drug;
+                     parent::addRDF(
+                        parent::triplify("drugbank:".$ddi->drug,"drugbank_vocabulary:ddi-interactor-in","".$ddi_id).
+                        parent::describeIndividual($ddi_id,"DDI between $name and ".$ddi->name." - ".trim($this->SafeLiteral($ddi->description)),"drugbank_vocabulary:Drug-Drug-Interaction")
+                     );
+                 }
+             }
+         }
+     }
+
+     // food-interactions
+     $this->AddText($x,$did,"food-interactions","food-interaction","drugbank_vocabulary:food-interaction");
+     
+     // affected-organisms
+     $this->AddText($x,$did,"affected-organisms","affected-organism","drugbank_vocabulary:affected-organism");
         
-//      //  <external-identifiers>
-//      if(isset($x->{"external-identifiers"})) {
-//          foreach($x->{"external-identifiers"} AS $objs) {
-//              foreach($objs AS $obj) {
-//                  $ns = $this->NSMap($obj->resource);
-//                  $id = $obj->identifier;
-//                  if($ns == "genecards") $id = str_replace(array(" "),array("_"),$id);
-//                  $this->AddRDF($this->QQuad($did,"drugbank_vocabulary:xref","$ns:$id"));
-//              }
-//          }
-//      }
-//      // <external-links>
-//      if(isset($x->{"external-links"})) {
-//          foreach($x->{"external-links"} AS $objs) {
-//              foreach($objs AS $obj) {
-//                     if(strpos($obj->url,'http') !== false){
-//                          $this->AddRDF($this->QQuadO_URL($did,"rdfs:seeAlso",$obj->url));
-//                     }
-//                 }
-//          }
-//      }
+     // cas
+     if(isset($x->{'cas-number'}) && $x->{'cas-number'} != '') {
+        parent::addRDF(
+            parent::triplify($did,"drugbank_vocabulary:xref","cas:".$x->{'cas-number'})
+        );
+     }
+        
+     //  <external-identifiers>
+     if(isset($x->{"external-identifiers"})) {
+         foreach($x->{"external-identifiers"} AS $objs) {
+             foreach($objs AS $obj) {
+                 $ns = $this->NSMap($obj->resource);
+                 $id = $obj->identifier;
+                 if($ns == "genecards") $id = str_replace(array(" "),array("_"),$id);
+
+                 parent::addRDF(
+                    parent::triplify($did,"drugbank_vocabulary:xref","$ns:$id")
+                 );
+             }
+         }
+     }
+     // <external-links>
+     if(isset($x->{"external-links"})) {
+         foreach($x->{"external-links"} AS $objs) {
+             foreach($objs AS $obj) {
+                    if(strpos($obj->url,'http') !== false){
+
+                        parent::addRDF(
+                            parent::triplify($did,"rdfs:seeAlso","".$obj->url)
+                        );
+                    }
+                }
+         }
+     }
         
   
     }
