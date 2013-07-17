@@ -77,11 +77,10 @@ class AffymetrixParser extends Bio2RDFizer
 		}
 		if(!isset($myfiles)) exit; // nothing to do
 
-<<<<<<< HEAD
+
 		// iterate over the files
-=======
+
 		// print_r($myfiles);
->>>>>>> 12d96c7ffcf54b9d4c75e7b7036e6b0c7004c127
 		foreach($myfiles AS $rfile) {
 			// download
 			$base_file = substr($rfile,strrpos($rfile,"/")+1);
