@@ -1,7 +1,5 @@
 <?php
 /**
-TESTING
-
 Copyright (C) 2013 Michel Dumontier, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
