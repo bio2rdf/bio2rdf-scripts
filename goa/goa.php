@@ -24,7 +24,7 @@ SOFTWARE.
 
 /**
  * An RDF generator for GOA (http://www.ebi.ac.uk/GOA/)
- * @version 1.0
+ * @version 2.0
  * @author Alison Callahan
  * @author Jose Cruz-Toledo
  * @author Michel Dumontier
@@ -307,7 +307,6 @@ class GOAParser extends Bio2RDFizer
 		$day = substr($str, 6, 2);
 		return "$year-$month-$day";
 	}
-
 }
 
 ?>
