@@ -130,7 +130,7 @@ class irefindexParser extends Bio2RDFizer
 		// check # of columns
 		while($l = parent::getReadFile()->read(100000)) {
 			$a = explode("\t",trim($l));
-print_r($a);
+
 			// 13 is the original identifier
 			$ids = explode("|",$a[13],2);
 			parent::getRegistry()->parseQName($ids[0],$ns,$str);
@@ -138,7 +138,6 @@ print_r($a);
 			$this->Parse4IDLabel($str,$id,$label);
 			$id = str_replace('"','',$id);
 			$iid = "$ns:$id";
-			print_r($iid);exit;
 
 			// get the type
 			if($a[52] == "X") {
