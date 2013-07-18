@@ -45,10 +45,17 @@ class Bio2RDFApp extends Application
 		$parser_name = parent::getParameterValue('parser');
 		$file = $parser_name.'/'.$parser_name.'.php';
 		require($file);
-		$parser_class = $parser_name."Parser";
-
+		$parser_class = $parser_name."Parser";	
 		$parser = new $parser_class($argv);
+		
+		$start = microtime(true);
 		$parser->Run();
+		
+		$end = microtime(true);
+		$time_taken =  $end - $start;
+		print "Start: ".date("l jS F \@ g:i:s a", $start)."\n";
+		print "End:   ".date("l jS F \@ g:i:s a", $end)."\n";
+		print "Time:  ".sprintf("%.2f",$time_taken)." seconds\n";
 	}
 	
 	/** looks for dir/dir.php, as an initial list of parsers */
