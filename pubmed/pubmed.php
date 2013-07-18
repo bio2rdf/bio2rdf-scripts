@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2011 Alison Callahan
+Copyright (C) 2013 Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -27,37 +27,16 @@ SOFTWARE.
  * @author Alison Callahan
 */
 
-require('../../php-lib/rdfapi.php');
+require_once(__DIR__.'../../php-lib/bio2rdfapi.php');
 
-class PubmedParser extends RDFFactory
+class PubmedParser extends Bio2RDFizer
 {
-
-	private $version = null;
-
 	function __construct($argv) {
-			parent::__construct();
-
-			$this->SetDefaultNamespace("pubmed");
-
-			// set and print application parameters
-			$this->AddParameter('indir',true,null,'/data/download/pubmed/','directory to download into and parse from');
-			$this->AddParameter('outdir',true,null,'/data/rdf/pubmed/','directory to place rdfized files');
-			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-			$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-			$this->AddParameter('download_url',false,null,null);
-
-			if($this->SetParameters($argv) == FALSE) {
-				$this->PrintParameters($argv);
-				exit;
-			}
-			if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-			if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-			if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-
-			return TRUE;
-	  }//constructor
+		parent::__construct($argv, "pubmed");
+		parent::initialize();
+	}//constructor
 	
-	function Run() {
+	function run() {
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
 		
@@ -119,7 +98,7 @@ class PubmedParser extends RDFFactory
 	}
 	
 	function pubmed(){
-		$this->version = "2012";
+		//$this->version = "2012";
 
 		$citations = null;
 		$ext = substr(strrchr($this->GetReadFile()->GetFileName(), '.'), 1);
@@ -170,29 +149,44 @@ class PubmedParser extends RDFFactory
 			$pubmodel = $citation->Article['PubModel'];
 
 			$id = "pubmed:".$pmid;
-			$this->AddRDF($this->QQuadL($id, "rdfs:label", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), "$articleTitle [$id]"))));
-			$this->AddRDF($this->QQuad($id, "rdf:type", "pubmed_vocabulary:PubMedRecord"));
-			$this->AddRDF($this->QQuadL($id, "dc:identifier", "$pmid"));
-			$this->AddRDF($this->QQuad($id, "void:inDataset", $this->GetDatasetURI()));
+			$label = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $articleTitle));
+
+			parent::addRDF(
+				parent::describeIndividual($id, $label, parent::getVoc()."PubMedRecord");
+			);
 
 			if(!empty($citationOwner)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:owner", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationOwner))));
-
+				$owner = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationOwner));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."owner", $owner);
+				);
 			}
 
 			if(!empty($citationStatus)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:status", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationStatus))));
+				$status = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationStatus));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."status", $status);
+				);
 			}
 
 			if(!empty($citationVersionID)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:version_id", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationVersionID))));
+				$version_id = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationVersionID));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."version_id", $version_id);
+				);
 			}
 
 			if(!empty($citationVersionDate)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:version_date", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationVersionDate))));
+				$version_date = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationVersionDate));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."version_date", $version_date);
+				);
 			}
 
-			$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:publication_model", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pubmodel))));
+			$publication_model = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pubmodel));
+			parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."publication_model", $publication_model);
+			);
 
 			foreach($citation->OtherID as $otherID){
 				if(!empty($otherID)){
