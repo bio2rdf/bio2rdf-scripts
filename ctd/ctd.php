@@ -1,5 +1,7 @@
 <?php
 /**
+TESTING
+
 Copyright (C) 2013 Michel Dumontier, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-require('/home/alison/git/php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
 /** 
  * Parser for CTD: The Comparative Toxicogenomics Database (http://ctd.mdibl.org/)
