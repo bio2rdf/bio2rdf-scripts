@@ -27,7 +27,7 @@ SOFTWARE.
  * @author Alison Callahan
 */
 
-require_once(__DIR__.'../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
 class PubmedParser extends Bio2RDFizer
 {
@@ -148,120 +148,163 @@ class PubmedParser extends Bio2RDFizer
 			$pagination = trim($citation->Article->Pagination);
 			$pubmodel = $citation->Article['PubModel'];
 
-			$id = "pubmed:".$pmid;
+			$id = parent::getPrefix().$pmid;
 			$label = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $articleTitle));
-
 			parent::addRDF(
-				parent::describeIndividual($id, $label, parent::getVoc()."PubMedRecord");
+				parent::describeIndividual($id, $label, parent::getVoc()."PubMedRecord", $label)
 			);
 
 			if(!empty($citationOwner)){
 				$owner = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationOwner));
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."owner", $owner);
+					parent::triplifyString($id, parent::getVoc()."owner", $owner)
 				);
 			}
 
 			if(!empty($citationStatus)){
 				$status = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationStatus));
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."status", $status);
+					parent::triplifyString($id, parent::getVoc()."status", $status)
 				);
 			}
 
 			if(!empty($citationVersionID)){
 				$version_id = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationVersionID));
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."version_id", $version_id);
+					parent::triplifyString($id, parent::getVoc()."version_id", $version_id)
 				);
 			}
 
 			if(!empty($citationVersionDate)){
 				$version_date = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationVersionDate));
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."version_date", $version_date);
+					parent::triplifyString($id, parent::getVoc()."version_date", $version_date)
 				);
 			}
 
 			$publication_model = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pubmodel));
 			parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."publication_model", $publication_model);
+					parent::triplifyString($id, parent::getVoc()."publication_model", $publication_model)
 			);
 
 			foreach($citation->OtherID as $otherID){
 				if(!empty($otherID)){
-					$this->AddRDF($this->QQuadL($id,"pubmed_vocabulary:other_id", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $otherID))));
-					$this->AddRDF($this->QQuadL($id,"pubmed_vocabulary:other_id_source", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $otherID['Source']))));
+					$other_id = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $otherID));
+					parent::addRDF(
+						parent::triplifyString($id, parent::getVoc()."other_id", $other_id).
+						parent::triplifyString($id, parent::getVoc()."other_id_source", $otherID['Source'])
+					);
 				}
 			}
 
 			if(!empty($dateCreated)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:date_created", "$dateCreated"));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."date_created", $dateCreated)
+				);
 			}
 
 			if(!empty($dateCompleted)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:date_completed", "$dateCompleted"));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."date_completed", $dateCompleted)
+				);
 			}
 
 			if(!empty($dateRevised)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:date_revised", "$dateRevised"));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."date_revised", $dateRevised)
+				);
 			}
 
 			foreach($publicationTypeList->PublicationType as $publicationType){
-				$this->AddRDF($this->QQuadL($id,"pubmed_vocabulary:publication_type", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $publicationType))));
+				$publication_type = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $publicationType));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."publication_type", $publication_type)
+				);
 			}
-
-			$this->AddRDF($this->QQuadL($id, "dc:title", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $articleTitle))));
 			
 			if(!empty($abstract)){
-				$abstractIdentifier = "pubmed_resource:".$pmid."_ABSTRACT";
-				$this->AddRDF($this->QQuad($id, "dc:abstract", $abstractIdentifier));
-				$this->AddRDF($this->QQuad($abstractIdentifier, "rdf:type", "pubmed_vocabulary:ArticleAbstract"));
+				$abstractIdentifier = parent::getRes().$pmid."_ABSTRACT";
+				$abstractLabel = "Abstract for ".parent::getVoc().$pmid;
+				parent::addRDF(
+					parent::describeIndividual($abstractIdentifier, $abstractLabel, parent::getVoc()."ArticleAbstract")
+				);
+
+				parent::addRDF(
+					parent::triplify($id, "dc:abstract", $abstractIdentifier)
+				);
+			
 				$abstractText = "";
 				foreach($abstract->AbstractText as $text){
 					$abstractText .= " ".$text;
 					if(!empty($text['Label']) && $text['Label'] !== "UNLABELLED"){
 						$nlmCategory = utf8_encode(str_replace("\"", "", $text['NlmCategory']));
-						$this->AddRDF($this->QQuadL($abstractIdentifier, "pubmed_vocabulary:abstract_".strtolower($nlmCategory), utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $text))));
+						$text_string = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $text));
+						parent::addRDF(
+							parent::triplifyString($abstractIdentifier, parent::getVoc()."abstract_".strtolower($nlmCategory), $text_string)
+						);
 					}
 				}
-				$this->AddRDF($this->QQuadL($abstractIdentifier, "pubmed_vocabulary:abstract_text", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $abstractText))));
+				$abstract_text = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $abstractText));
+				parent::addRDF(
+					parent::triplifyString($abstractIdentifier, parent::getVoc()."abstract_text", $abstract_text)
+				);
 			}
 
 			$otherAbstractNumber = 0;
 			foreach($citation->OtherAbstract as $otherAbstract){
 				$otherAbstractNumber++;
 				if(!empty($otherAbstract)){
-					$otherAbstractIdentifier = "pubmed_resource:".$pmid."_OTHER_ABSTRACT_".$otherAbstractNumber;
-					$this->AddRDF($this->QQuad($id, "dc:abstract", $otherAbstractIdentifier));
-					$this->AddRDF($this->QQuad($id, "rdf:type", "pubmed_vocabulary:ArticleAbstract"));
+					$otherAbstractIdentifier = parent::getRes().$pmid."_OTHER_ABSTRACT_".$otherAbstractNumber;
+					$other_abstract_label = "Abstract for ".parent::getPrefix().$pmid;
+					parent::addRDF(
+						parent::describeIndividual($otherAbstractIdentifier, $other_abstract_label, parent::getVoc()."ArticleAbstract")
+					);
+					parent::addRDF(
+						parent::triplify($id, "dc:abstract", $otherAbstractIdentifier)
+					);
+
 					$otherAbstractText = "";
 					foreach($otherAbstract->AbstractText as $otherText){
 						$otherAbstractText .= " ".$otherText;
 						if(!empty($otherText['Label']) && $otherText['Label'] !== "UNLABELLED"){
 							$otherTextCategory = utf8_encode(str_replace("\"", "", $otherText['Category']));
-							$this->AddRDF($this->QQuadL($otherAbstractIdentifier, "pubmed_vocabulary:abstract_".strtolower($otherTextCategory), utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $otherText))));
+							$other_text = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $otherText));
+							parent::addRDF(
+								parent::triplifyString($otherAbstractIdentifier, parent::getVoc()."abstract_".strtolower($otherTextCategory), $other_text)
+							);
 						}
 					}
-					$this->AddRDF($this->QQuadL($otherAbstractIdentifier, "pubmed_vocabulary:abstract_text", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $otherAbstractText))));
+					$abstract_text = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $otherAbstractText));
+					parent::addRDF(
+						parent::triplifyString($otherAbstractIdentifier, parent::getVoc()."abstract_text", $abstract_text)
+					);
 				}
 			}
 			
 			foreach($citation->Article->Language as $language){
 				if(!empty($language)){
-					$this->AddRDF($this->QQuadL($id, "dc:language", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $language))));
+					$language =  utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $language));
+					parent::addRDF(
+						parent::triplifyString($id, "dc:language", $language)
+					);
 				}
 			}
 
 			if(!empty($keywordList)){
 				foreach($keywordList->Keyword as $keyword){
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:keyword", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $keyword))));
+					$keyword = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $keyword));
+					parent::addRDF(
+						parent::triplifyString($id, parent::getVoc()."keyword", $keyword)
+					);
 				}
 			}
 
 			if(!empty($geneSymbolList)){
 				foreach($geneSymbolList->GeneSymbol as $geneSymbol){
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:gene_symbol", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $geneSymbol))));
+					$gene_symbol = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $geneSymbol));
+					parent::addRDF(
+						parent::triplifyString($id, parent::getVoc()."gene_symbol", $gene_symbol)
+					);
 				}
 			}
 
@@ -269,10 +312,15 @@ class PubmedParser extends Bio2RDFizer
 				foreach($dataBankList->DataBank as $dataBank){
 					$accessionNumberList = $dataBank->AccessionNumberList;
 					$dataBankName = utf8_encode(str_replace("\"", "", $dataBank->DataBankName));
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:databank", $this->SafeLiteral($dataBankName)));
+					parent::addRDF(
+						parent::triplifyString($id, parent::getVoc()."databank", $dataBankName)
+					);
 					if($accessionNumberList !== NULL){
 						foreach($accessionNumberList->AccessionNumber as $acc){
-							$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:x-".strtolower($dataBankName), utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $acc))));
+							$xref = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $acc));
+							parent::addRDF(
+								parent::triplifyString($id, parent::getVoc()."x-".strtolower($dataBankName), $xref)
+							);
 						}
 					}
 				}
@@ -282,58 +330,102 @@ class PubmedParser extends Bio2RDFizer
 				$grantNumber = 0;
 				foreach($grantList->Grant as $grant){
 					$grantNumber++;
-					$grantIdentifier = "pubmed_resource:".$pmid."_GRANT_".$grantNumber;
+					$grantIdentifier = parent::getRes().$pmid."_GRANT_".$grantNumber;
 					$grantId = $grant->GrantID;//optional
 					$grantAgency = $grant->Agency;
 					$grantCountry = $grant->Country;
 
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:grant", $grantIdentifier));
-					$this->AddRDF($this->QQuad($grantIdentifier, "rdf:type", "pubmed_vocabulary:Grant"));
-					
+					$grant_label = "Grant ".$grantNumber."for ".parent::getPrefix().$pmid;
+
+					parent::addRDF(
+						parent::describeIndividual($grantIdentifier, $grant_label, parent::getVoc()."Grant")
+					);
+
+					parent::addRDF(
+						parent::triplify($id, parent::getVoc()."grant", $grantIdentifier)
+					);
+				
 					if(!empty($grantId)){
-						$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_identifier", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $grantId))));
+						$grant_identifier = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $grantId));
+						parent::addRDF(
+							parent::triplifyString($grantIdentifier, parent::getVoc()."grant_identifier", $grant_identifier)
+						);
 					}
 					
 					if(!empty($grantAcronym)){
-						$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_acronym", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $grantAcronym))));
+						$grant_acronym = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $grantAcronym));
+						parent::addRDF(
+							parent::triplifyString($grantIdentifier, parent::getVoc()."grant_acronym", $grant_acronym)
+						);
 					}
 
-					$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_agency", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $grantAgency))));
-					$this->AddRDF($this->QQuadL($grantIdentifier, "pubmed_vocabulary:grant_country", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $grantCountry))));
+					$grant_agency = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $grantAgency));
+					$grant_country = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $grantCountry));
+					
+					parent::addRDF(
+						parent::triplifyString($grantIdentifier, parent::getVoc()."grant_agency", $grant_agency)
+					);
+
+					parent::addRDF(
+						parent::triplifyString($grantIdentifier, parent::getVoc()."grant_country", $grant_country)
+					);
 				}
 			}
 
 			if(!empty($affiliation)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:affiliation", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $affiliation))));
+				$aff = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $affiliation));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."affiliation", $aff)
+				);
 			}
 
 			if(!empty($numberOfReferences)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:number_of_references", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $numberOfReferences))));
+				$number_of_references = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $numberOfReferences));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."number_of_references", $number_of_references)
+				);
 			}
 
 			if(!empty($vernacularTitle)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:vernacular_title", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $vernacularTitle))));
+				$vernacular_title = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $vernacularTitle));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."vernacular_title", $vernacular_title)
+				);
 			}
 
 			if(!empty($copyright)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:copyright_information", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $copyright))));
+				$copyright_information = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $copyright));
+				parent:;addRDF(
+					parent::triplifyString($id, parent::getVoc()."copyright_information", $copyright_information)
+				);
 			}
 
 			if(!empty($meshHeadingList)){
 				$meshHeadingNumber = 0;
 				foreach($meshHeadingList->MeshHeading as $meshHeading){
 					$meshHeadingNumber++;
-					$meshHeadingIdentifier = "pubmed_resource:".$pmid."_MESH_HEADING_".$meshHeadingNumber;
+					$meshHeadingIdentifier = parent::getRes().$pmid."_MESH_HEADING_".$meshHeadingNumber;
 					$descriptorName = $meshHeading->DescriptorName;
 					$qualifierName = $meshHeading->QualifierName;
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:mesh_heading", $meshHeadingIdentifier));
-					$this->AddRDF($this->QQuad($meshHeadingIdentifier, "rdf:type", "pubmed_vocabulary:MeshHeading"));
-					$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "pubmed_vocabulary:mesh_descriptor_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $descriptorName))));
-					$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "rdfs:label", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $descriptorName))));
+					$mesh_heading_label = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $descriptorName));
+					parent::addRDF(
+						parent::describeIndividual($meshHeadingIdentifier, $mesh_heading_label, parent::getVoc()."MeshHeading")
+					);
+
+					parent::addRDF(
+						parent::triplifyString($meshHeadingIdentifier, parent::getVoc()."mesh_descriptor_name", $mesh_heading_label)
+					);
 
 					if(!empty($qualifierName)){
-						$this->AddRDF($this->QQuadL($meshHeadingIdentifier, "pubmed_vocabulary:mesh_qualifier_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $qualifierName))));
+						$qualifier_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $qualifierName));
+						parent::addRDF(
+							parent::triplifyString($meshHeadingIdentifier, parent::getVoc()."mesh_qualifier_name", $qualifier_name)
+						);
 					}
+
+					parent::addRDF(
+						parent::triplify($id, parent::getVoc()."mesh_heading", $meshHeadingIdentifier)
+					);	
 				}
 			}
 
@@ -343,16 +435,23 @@ class PubmedParser extends Bio2RDFizer
 					$chemicalName = $chemical->NameOfSubstance;
 					$registryNumber = $chemical->RegistryNumber;
 					$chemicalNumber++;
-					$chemicalIdentifier = "pubmed_resource:".$pmid."_CHEMICAL_".$chemicalNumber;
+					$chemicalIdentifier = parent::getRes().$pmid."_CHEMICAL_".$chemicalNumber;
 					
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:chemical", $chemicalIdentifier));
-					$this->AddRDF($this->QQuad($chemicalIdentifier, "rdf:type", "pubmed_vocabulary:Chemical"));
-					$this->AddRDF($this->QQuadL($chemicalIdentifier, "rdfs:label", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $chemicalName))));
+					$chemical_label = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $chemicalName));
+
+					parent::addRDF(
+						parent::describeIndividual($chemicalIdentifier, $chemical_label, parent::getVoc()."Chemical")
+					);
 
 					if($registryNumber !== "0"){
-						$this->AddRDF($this->QQuadL($chemicalIdentifier,"pubmed_vocabulary:cas_registry_number", "$registryNumber"));
+						parent::addRDF(
+							parent::triplifyString($chemicalIdentifier, parent::getVoc()."cas_registry_number", $registryNumber)
+						);
 					}
-					
+
+					parent::addRDF(
+						parent::triplify($id, parent::getVoc()."chemical", $chemicalIdentifier)
+					);	
 				}
 			}
 
@@ -360,17 +459,28 @@ class PubmedParser extends Bio2RDFizer
 				$supplMeshNumber = 0;
 				foreach($supplMeshList->SupplMeshName as $supplMeshName){
 					$supplMeshNumber++;
-					$supplMeshIdentifier = "pubmed_resource:".$pmid."SUPPL_MESH_HEADING_".$supplMeshNumber;
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:suppl_mesh_heading", $supplMeshIdentifier));
-					$this->AddRDF($this->QQuad($supplMeshIdentifier, "rdf:type", "pubmed_vocabulary:MeshHeading"));
-					$this->AddRDF($this->QQuadL($supplMeshIdentifier, "pubmed_vocabulary:mesh_descriptor_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $supplMeshName))));
-					$this->AddRDF($this->QQuadL($supplMeshIdentifier, "rdfs:label", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $supplMeshName))));
+					$supplMeshIdentifier = parent::getRes().$pmid."SUPPL_MESH_HEADING_".$supplMeshNumber;
+					$suppl_mesh_label = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $supplMeshName));
+					parent::addRDF(
+						parent::describeIndividual($supplMeshIdentifier, $suppl_mesh_label, parent::getVoc()."MeshHeading")
+					);
+
+					parent::addRDF(
+						parent::triplifyString($supplMeshIdentifier, parent::getVoc()."mesh_descriptor_name", $suppl_mesh_label)
+					);
+
+					parent::addRDF(
+						parent::triplify($id, parent::getVoc()."suppl_mesh_heading", $supplMeshIdentifier)
+					);
 				}
 			}
 
 			foreach($citation->CitationSubset as $citationSubset){
 				if(!empty($citationSubset)){
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:citation_subset", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationSubset))));
+					$citation_subset = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationSubset));
+					parent::addRDF(
+						parent::triplifyString($id, parent::getVoc()."citation_subset", $citation_subset)
+					);
 				}
 			}
 
@@ -382,31 +492,56 @@ class PubmedParser extends Bio2RDFizer
 					$ccPmid = $commentCorrection->PMID;//optional
 					$ccNote = $commentCorrection->Note;//optional
 
-					$ccIdentifier = "pubmed_resource:".$pmid."_COMMENT_CORRECTION_".$ccNumber;
+					$ccIdentifier = parent::getRes().$pmid."_COMMENT_CORRECTION_".$ccNumber;
 
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:comment_correction", $ccIdentifier));
-					$this->AddRDF($this->QQuad($ccIdentifier, "rdf:type", "pubmed_vocabulary:".$ccRefType));
-					$this->AddRDF($this->QQuad($ccIdentifier, "rdf:type", "pubmed_vocabulary:CommentCorrection"));
-					$this->AddRDF($this->QQuadL($ccIdentifier, "pubmed_vocabulary:ref_source", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $ccRefSource))));
+					$cc_label = "Comment or correction .".$ccNumber." for ".parent::getPrefix().$pmid;
+
+					parent::addRDF(
+						parent::describeIndividual($ccIdentifier, $cc_label, parent::getVoc()."CommentCorrection")
+					);
+
+					parent::addRDF(
+						parent::triplify($ccIdentifier, "rdf:type", parent::getVoc().$ccRefType)
+					);
+
+					$ref_source = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $ccRefSource));
+					parent::addRDF(
+						parent::triplifyString($ccIdentifier, parent::getVoc()."ref_source", $ref_source)
+					);
+
 					if(!empty($ccPmid)){
-						$this->AddRDF($this->QQuad($ccIdentifier, "pubmed_vocabulary:pmid", "pubmed:".$pmid));
+						parent::addRDF(
+							parent::triplify($ccIdentifier, parent::getVoc()."pmid", parent::getPrefix().$pmid)
+						);
 					}
 
 					if(!empty($ccNote)){
-						$this->AddRDF($this->QQuadL($ccIdentifier, "pubmed_vocabulary:note", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $ccNote))));
+						$cc_note = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $ccNote));
+						parent::addRDF(
+							parent::triplifyString($ccIdentifier, parent::getVoc()."note", $cc_note)
+						);
 					}	
+
+					parent::addRDF(
+						parent::triplify($id, parent::getVoc()."comment_correction", $ccIdentifier)
+					);					
 				}
 			}
 
 			if(!empty($generalNote)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:general_note", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $generalNote))));
+				$general_note = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $generalNote));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."general_note", $general_note)
+				);
 			}
 
 			if(!empty($articleDate)){
 				$year = $articleDate->Year;
 				$month = $articleDate->Month;
 				$day = $articleDate->Day;
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:article_date", "$year-$month-$day", null, "xsd:date"));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."article_date", "$year-$month-$day", "xsd:date")
+				);
 			}
 
 			if(!empty($authorList)){
@@ -418,33 +553,62 @@ class PubmedParser extends Bio2RDFizer
 					$authorInitials = $author->Initials;//optional
 					$authorCollectiveName = $author->CollectiveName;//optional
 
-					$authorIdentifier = "pubmed_resource:".$pmid."_AUTHOR_".$authorNumber;
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:author", $authorIdentifier));
-					$this->AddRDF($this->QQuad($authorIdentifier, "rdf:type", "pubmed_vocabulary:Author"));
-					$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:last_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorLastName))));
+					$authorIdentifier = parent::getRes().$pmid."_AUTHOR_".$authorNumber;
+					$author_last_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorLastName));
+
+					$author_label = $author_last_name.", author of ".parent::getPrefix().$pmid;
+
+					parent::addRDF(
+						parent::describeIndividual($authorIdentifier, $author_label, parent::getVoc()."Author")
+					);
+
+					parent::addRDF(
+						parent::triplifyString($authorIdentifier, parent::getVoc()."last_name", $author_last_name)
+					);
+
 					if(!empty($authorForeName)){
-						$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:fore_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorForeName))));
+						$author_fore_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorForeName));
+						parent::addRDF(
+							parent::triplifyString($authorIdentifier, parent::getVoc()."fore_name". $author_fore_name)
+						);
 					}
 
 					if(!empty($authorInitials)){
-						$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:initials", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorInitials))));
+						$author_initials = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorInitials));
+						parent::addRDF(
+							parent::triplifyString($authorIdentifier, parent::getVoc()."initials", $author_initials)
+						);
 					}
 
 					if(!empty($authorCollectiveName)){
-						$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:collective_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorCollectiveName))));
+						$author_collective_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorCollectiveName));
+						parent::addRDF(
+							parent::triplifyString($authorIdentifier, parent::getVoc()."collective_name", $author_collective_name)
+						);
 					}
 
 					foreach($author->NameID as $authorNameId){
 						if(!empty($authorNameId)){
-							$this->AddRDF($this->QQuadL($authorIdentifier, "pubmed_vocabulary:name_id", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorNameId))));
+							$author_name_id = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorNameId));
+							parent::addRDF(
+								parent::triplifyString($authorIdentifier, parent::getVoc()."name_id", $author_name_id)
+							);
 						}
 					}
+
+					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:author", $authorIdentifier));
+					parent::addRDF(
+						parent::triplify($id, parent::getVoc()."author", $authorIdentifier)
+					);
 				}
 			}
 
 			foreach($citation->SpaceFlightMission as $spaceFlightMission){
 				if(!empty($spaceFlightMission)){
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:space_flight_mission", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $spaceFlightMission))));
+					$space_flight_mission = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $spaceFlightMission));
+					parent::addRDF(
+						parent::triplifyString($id, parent::getVoc()."space_flight_mission". $space_flight_mission)
+					);
 				}
 			}
 
@@ -457,29 +621,51 @@ class PubmedParser extends Bio2RDFizer
 					$iInitials = $investigator->Initials;//optional
 					$iAffiliation = $investigator->Affiliation;//optional
 
-					$iIdentifier = "pubmed_resource:".$pmid."_INVESTIGATOR_".$investigatorNumber;
+					$iIdentifier = parent::getRes().$pmid."_INVESTIGATOR_".$investigatorNumber;
+					$i_last_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iLastName));
+					$i_label = $i_last_name.", investigator for ".parent::getPrefix().$pmid;
 
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:investigator", $iIdentifier));
-					$this->AddRDF($this->QQuad($iIdentifier, "rdf:type", "pubmed_vocabulary:Investigator"));
-					$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:last_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iLastName))));
-					
+					parent::addRDF(
+						parent::describeIndividual($iIdentifier, $i_label, parent::getVoc()."Investigator")
+					);
+
+					parent::addRDF(
+						parent::triplifyString($iIdentifier, parent::getVoc()."last_name", $i_last_name)
+					);
+
 					if(!empty($iForeName)){
-						$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:fore_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iForeName))));
+						$i_fore_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iForeName));
+						parent::addRDF(
+							parent::triplifyString($iIdentifier, parent::getVoc()."fore_name", $i_fore_name)
+						);
 					}
 
 					if(!empty($iInitials)){
-						$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:initials", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iInitials))));
+						$i_initials = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iInitials));
+						parent::addRDF(
+							parent::triplifyString($iIdentifier, parent::getVoc()."initials", $i_initials)
+						);
 					}
 
 					if(!empty($iAffiliation)){
-						$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:affiliation", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iAffiliation))));
+						$i_affiliation = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iAffiliation));
+						parent::addRDF(
+							parent::triplifyString($iIdentifier, parent::getVoc()."affiliation", $i_affiliation)
+						);
 					}
 
 					foreach($investigator->NameID as $iNameId){
 						if(!empty($iNameId)){
-							$this->AddRDF($this->QQuadL($iIdentifier, "pubmed_vocabulary:name_id", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iNameId))));
+							$i_name_id = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iNameId));
+							parent::addRDF(
+								parent::triplifyString($iIdentifier, parent::getVoc()."name_id", $i_name_id)
+							);
 						}	
 					}
+
+					parent::addRDF(
+						parent::triplify($id, parent::getVoc()."investigator", $iIdentifier)
+					);				
 				}
 			}
 
@@ -487,28 +673,48 @@ class PubmedParser extends Bio2RDFizer
 				$pnsNumber = 0;
 				foreach($personalNameSubjectList->PersonalNameSubject as $personalNameSubject){
 					$pnsNumber++;
-					$pnsIdentifier = "pubmed_resource:".$pmid."_PERSONAL_NAME_SUBJECT_".$pnsNumber;
+					$pnsIdentifier = parent::getRes().$pmid."_PERSONAL_NAME_SUBJECT_".$pnsNumber;
 
 					$pnsLastName = $personalNameSubject->LastName;
 					$pnsForeName = $personalNameSubject->ForeName;//optional
 					$pnsInitials = $personalNameSubject->Initials;//optional
 					$pnsSuffix = $personalNameSubject->Suffix;//optional
 
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:personal_name_subject", $pnsIdentifier));
-					$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:last_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pnsLastName))));
-					
+					$pns_last_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pnsLastName));
+					$pns_label = $pns_last_name.", personal name subject for ".parent::getPrefix().$pmid;
+
+					parent::addRDF(
+						parent::describeIndividual($pnsIdentifier, $pns_label, parent::getVoc()."PersonalNameSubject")
+					);
+
+					parent::addRDF(
+						parent::triplifyString($pnsIdentifier, parent::getVoc()."last_name", $pns_last_name)
+					);
+
 					if(!empty($pnsForeName)){
-						$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:fore_name", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pnsForeName))));
+						$pns_fore_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pnsForeName));
+						parent::addRDF(
+							parent::triplifyString($pnsIdentifier, parent::getVoc()."fore_name", $pns_fore_name)
+						);
 					}
 
 					if(!empty($pnsInitials)){
-						$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:initials", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pnsInitials))));
+						$pns_initials = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pnsInitials));
+						parent::addRDF(
+							parent::triplifyString($pnsIdentifier, parent::getVoc()."initials", $pns_initials)
+						);
 					}
 
 					if(!empty($pnsSuffix)){
-						$this->AddRDF($this->QQuadL($pnsIdentifier, "pubmed_vocabulary:suffix", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pnsSuffix))));
+						$pns_suffix = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pnsSuffix));
+						parent::addRDF(
+							parent::triplifyString($pnsIdentifier, parent::getVoc()."suffix", $pns_suffix)
+						);
 					}
 
+					parent::addRDF(
+						parent::triplify($id, parent::getVoc()."personal_name_subject", $pnsIdentifier)
+					);
 				}
 			}
 
@@ -521,11 +727,18 @@ class PubmedParser extends Bio2RDFizer
 			$journalPubDate = trim($journalIssue->PubDate);
 			$journalNlmID = $citation->MedLineJournalInfo->NlmUniqueID;//optional
 
-			$journalId = "pubmed_resource:".$pmid."_JOURNAL";
-			$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:journal", $journalId));
-			$this->AddRDF($this->QQuad($journalId, "rdf:type", "pubmed_vocabulary:Journal"));
+			$journalId = parent::getRes().$pmid."_JOURNAL";
+			$journal_label = "Journal for ".parent::getPrefix().$pmid;
+
+			parent::addRDF(
+				parent::describeIndividual($journalId, $journal_label, parent::getVoc()."Journal")
+			);
+
 			if(!empty($journalNlmID)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_nlm_identifier", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalNlmID))));
+				$journal_nlm_identifier = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalNlmID));
+				parent::addRDF(
+					parent::triplifyString($journalId, parent::getVoc()."journal_nlm_identifier", $journal_nlm_identifier)
+				);
 			}
 
 			if(!empty($journalPubDate)){
@@ -535,50 +748,82 @@ class PubmedParser extends Bio2RDFizer
 				if(!empty($journalYear)){
 					if(!empty($journalMonth)){
 						if(!empty($journalDay)){
-							$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:publication_date", "$journalYear-$journalMonth-$journalDay", null, "xsd:date"));
+							parent::addRDF(
+								parent::triplifyString($journalId, parent::getVoc()."publication_date", "$journalYear-$journalMonth-$journalDay", "xsd:date")
+							);
 						} else {
-							$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:publication_year", "$journalYear"));
-							$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:publication_month", "$journalMonth"));
+							parent::addRDF(
+								parent::triplifyString($journalId, parent::getVoc()."publication_year", $journalYear).
+								parent::triplifyString($journalId, parent::getVoc()."publication_month", $journalMonth)
+							);
 						}
 					} else {
 						$journalSeason = $journalPubDate->Season;
 						if(!empty($journalSeason)){
-							$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:publication_season", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalSeason))));
+							$journal_season = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalSeason));
+							parent::addRDF(
+								parent::triplifyString($journalId, parent::getVoc()."publication_season", $journal_season)
+							);
 						}
 						
 					}
 				} else {
 					$journalMedlineDate = $journalPubDate->MedlineDate;
 					if(!empty($journalMedlineDate)){
-						$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:publication_date", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalMedlineDate))));
+						$journal_medline_date = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalMedlineDate));
+						parent::addRDF(
+							parent::triplifyString($journalId, parent::getVoc()."publication_date", $journal_medline_date)
+						);
 					}
 				}
 				
 			}
 
 			if(!empty($journalTitle)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_title", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalTitle))));
+				$journal_title = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalTitle));
+				parent::addRDF(
+					parent::triplifyString($journalId, parent::getVoc()."journal_title", $journal_title)
+				);
 			}
 
 			if(!empty($journalAbbrev)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_abbreviation", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalAbbrev))));
+				$journal_abbreviation = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalAbbrev));
+				parent::addRDF(
+					parent::triplifyString($journalId, parent::getVoc()."journal_abbreviation", $journal_abbreviation)
+				);
 			}
 
 			if(!empty($journalVolume)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_volume", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalVolume))));
+				$journal_volume = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalVolume));
+				parent::addRDF(
+					parent::triplifyString($journalId, parent::getVoc()."journal_volume", $journal_volume)
+				);
 			}
 
 			if(!empty($journalIssueIssue)){
-				$this->AddRDF($this->QQuadL($journalId, "pubmed_vocabulary:journal_issue", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalIssueIssue))));
+				$journal_issue = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalIssueIssue));
+				parent::addRDF(
+					parent::triplifyString($journalId, parent::getVoc()."journal_issue", $journal_issue)
+				);
 			}
 
+			parent::addRDF(
+				parent::triplify($id, parent::getVoc()."journal", $journalId)
+			);
+			
 			if(!empty($pagination)){
-				$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:pagination", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pagination))));
+				$pagination = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pagination));
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."pagination", $pagination)
+				);
 			}
 
 			foreach($citation->Article->ELocation as $eLocation){
 				if(!empty($eLocation)){
-					$this->AddRDF($this->QQuadL($id, "pubmed_vocabulary:elocation", utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $eLocation))));
+					$e_location = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $eLocation));
+					parent::addRDF(
+						parent::triplifyString($id, parent::getVoc()."elocation", $e_location)
+					);
 				}
 			}
 		}
