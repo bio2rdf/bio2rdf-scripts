@@ -829,15 +829,4 @@ class PubmedParser extends Bio2RDFizer
 		}
 	}
 }
-
-$start = microtime(true); 
-
-$parser = new PubmedParser($argv);
-$parser->run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
 ?>
