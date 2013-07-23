@@ -23,7 +23,7 @@ SOFTWARE.
 
 /**
  * An RDF generator for PubMed (http://ncbi.nlm.nih.gov/pubmed)
- * @version 1.0
+ * @version 2.0
  * @author Alison Callahan
 */
 
@@ -33,70 +33,69 @@ class PubmedParser extends Bio2RDFizer
 {
 	function __construct($argv) {
 		parent::__construct($argv, "pubmed");
+		parent::addParameter('files',true,'all','all','files to process');
 		parent::initialize();
 	}//constructor
 	
 	function run() {
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
+
+		if(parent::getParameterValue('process') === true){
+			$this->process_dir();
+		}
+	}//run
+
+	function process_dir(){
+		$this->setCheckPoint('dataset');
+
+		$ldir = parent::getParameterValue('indir');
 		
 		//make sure directories end with slash
 		if(substr($ldir, -1) !== "/"){
 			$ldir = $ldir."/";
 		}
-		
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
-		
-		// generate the dataset release file
-		$this->DeleteBio2RDFReleaseFiles($odir);
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubmed/pubmed.php", 
-			$this->GetBio2RDFDownloadURL($this->GetNamespace()),
-			"http://www.ncbi.nlm.nih.gov/pubmed", 
-			array("use"), 
-			"http://www.nlm.nih.gov/databases/download.html",
-			$this->GetParameterValue("download_url"),
-			$this->version);
-
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
 
 		if ($lhandle = opendir($ldir)) {
 			while (($lfilename = readdir($lhandle)) !== FALSE) {
 				if ($lfilename != "." && $lfilename != "..") {
-
-					$lfile = $ldir.$lfilename;
-					$ofile = $odir.$lfilename.".nt";
-				
-					if($this->GetParameterValue('gzip')) {
-						$ofile .= '.gz';
-						$gz = true;
-					}
-					
-					$fp = gzopen($lfile, "r") or die("Could not open file ".$lfilename."!\n");
-					
-					$this->SetReadFile($lfile);
-					$this->GetReadFile()->SetFilePointer($fp);
-					$this->SetWriteFile($ofile, $gz);
-					
+		
 					echo "processing $lfilename... ";
 				
-					$this->pubmed();
-					$this->WriteRDFBufferToWriteFile();
+					$this->process_file($ldir.$lfilename);
 					
 					echo "done!\n";
-					$this->GetWriteFile()->Close();
-				}
-				
+				}	
 			}
 			closedir($lhandle);
 		}
+	}//process)dir
+
+	function process_file($infile){
+
+		$odir = parent::getParameterValue('outdir');
+
+		if(substr($odir, -1) !== "/"){
+			$odir = $odir."/";
+		}
+
+		$ofile = $odir.basename($infile, ".xml.gz").'.'.parent::getParameterValue('output_format');
+
+		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+
+		$fp = gzopen($infile, "r") or die("Could not open file ".$infile."!\n");
+
+		$this->setReadFile($infile);
+
+		$this->getReadFile()->setFilePointer($fp);
+
+		$this->setWriteFile($ofile, $gz);
+
+		$this->setCheckPoint('file');
+
+		$this->pubmed();
+
+		$this->getWriteFile()->close();	
 	}
-	
+
 	function pubmed(){
 		//$this->version = "2012";
 
@@ -110,7 +109,8 @@ class PubmedParser extends Bio2RDFizer
 		}
 		
 		foreach($citations->MedlineCitation as $citation){
-			
+			$this->setCheckPoint('record');
+
 			$pmid = $citation->PMID;
 			$dateCreated = trim($citation->DateCreated);
 			$dateCompleted = trim($citation->DateCompleted);
@@ -148,7 +148,7 @@ class PubmedParser extends Bio2RDFizer
 			$pagination = trim($citation->Article->Pagination);
 			$pubmodel = $citation->Article['PubModel'];
 
-			$id = parent::getPrefix().$pmid;
+			$id = parent::getNamespace().$pmid;
 			$label = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $articleTitle));
 			parent::addRDF(
 				parent::describeIndividual($id, $label, parent::getVoc()."PubMedRecord", $label)
@@ -190,9 +190,10 @@ class PubmedParser extends Bio2RDFizer
 			foreach($citation->OtherID as $otherID){
 				if(!empty($otherID)){
 					$other_id = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $otherID));
+					$other_id_source = trim($otherID['Source']);
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."other_id", $other_id).
-						parent::triplifyString($id, parent::getVoc()."other_id_source", $otherID['Source'])
+						parent::triplifyString($id, parent::getVoc()."other_id_source", $other_id_source)
 					);
 				}
 			}
@@ -216,6 +217,7 @@ class PubmedParser extends Bio2RDFizer
 			}
 
 			foreach($publicationTypeList->PublicationType as $publicationType){
+
 				$publication_type = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $publicationType));
 				parent::addRDF(
 					parent::triplifyString($id, parent::getVoc()."publication_type", $publication_type)
@@ -255,7 +257,7 @@ class PubmedParser extends Bio2RDFizer
 				$otherAbstractNumber++;
 				if(!empty($otherAbstract)){
 					$otherAbstractIdentifier = parent::getRes().$pmid."_OTHER_ABSTRACT_".$otherAbstractNumber;
-					$other_abstract_label = "Abstract for ".parent::getPrefix().$pmid;
+					$other_abstract_label = "Abstract for ".parent::getNamespace().$pmid;
 					parent::addRDF(
 						parent::describeIndividual($otherAbstractIdentifier, $other_abstract_label, parent::getVoc()."ArticleAbstract")
 					);
@@ -335,7 +337,7 @@ class PubmedParser extends Bio2RDFizer
 					$grantAgency = $grant->Agency;
 					$grantCountry = $grant->Country;
 
-					$grant_label = "Grant ".$grantNumber."for ".parent::getPrefix().$pmid;
+					$grant_label = "Grant ".$grantNumber."for ".parent::getNamespace().$pmid;
 
 					parent::addRDF(
 						parent::describeIndividual($grantIdentifier, $grant_label, parent::getVoc()."Grant")
@@ -395,7 +397,7 @@ class PubmedParser extends Bio2RDFizer
 
 			if(!empty($copyright)){
 				$copyright_information = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $copyright));
-				parent:;addRDF(
+				parent::addRDF(
 					parent::triplifyString($id, parent::getVoc()."copyright_information", $copyright_information)
 				);
 			}
@@ -433,7 +435,7 @@ class PubmedParser extends Bio2RDFizer
 				$chemicalNumber = 0;
 				foreach($chemicals->Chemical as $chemical){
 					$chemicalName = $chemical->NameOfSubstance;
-					$registryNumber = $chemical->RegistryNumber;
+					$registryNumber = trim($chemical->RegistryNumber);
 					$chemicalNumber++;
 					$chemicalIdentifier = parent::getRes().$pmid."_CHEMICAL_".$chemicalNumber;
 					
@@ -494,7 +496,7 @@ class PubmedParser extends Bio2RDFizer
 
 					$ccIdentifier = parent::getRes().$pmid."_COMMENT_CORRECTION_".$ccNumber;
 
-					$cc_label = "Comment or correction .".$ccNumber." for ".parent::getPrefix().$pmid;
+					$cc_label = "Comment or correction .".$ccNumber." for ".parent::getNamespace().$pmid;
 
 					parent::addRDF(
 						parent::describeIndividual($ccIdentifier, $cc_label, parent::getVoc()."CommentCorrection")
@@ -511,7 +513,7 @@ class PubmedParser extends Bio2RDFizer
 
 					if(!empty($ccPmid)){
 						parent::addRDF(
-							parent::triplify($ccIdentifier, parent::getVoc()."pmid", parent::getPrefix().$pmid)
+							parent::triplify($ccIdentifier, parent::getVoc()."pmid", parent::getNamespace().$pmid)
 						);
 					}
 
@@ -556,7 +558,7 @@ class PubmedParser extends Bio2RDFizer
 					$authorIdentifier = parent::getRes().$pmid."_AUTHOR_".$authorNumber;
 					$author_last_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorLastName));
 
-					$author_label = $author_last_name.", author of ".parent::getPrefix().$pmid;
+					$author_label = $author_last_name.", author of ".parent::getNamespace().$pmid;
 
 					parent::addRDF(
 						parent::describeIndividual($authorIdentifier, $author_label, parent::getVoc()."Author")
@@ -569,7 +571,7 @@ class PubmedParser extends Bio2RDFizer
 					if(!empty($authorForeName)){
 						$author_fore_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $authorForeName));
 						parent::addRDF(
-							parent::triplifyString($authorIdentifier, parent::getVoc()."fore_name". $author_fore_name)
+							parent::triplifyString($authorIdentifier, parent::getVoc()."fore_name", $author_fore_name)
 						);
 					}
 
@@ -595,8 +597,6 @@ class PubmedParser extends Bio2RDFizer
 							);
 						}
 					}
-
-					$this->AddRDF($this->QQuad($id, "pubmed_vocabulary:author", $authorIdentifier));
 					parent::addRDF(
 						parent::triplify($id, parent::getVoc()."author", $authorIdentifier)
 					);
@@ -623,7 +623,7 @@ class PubmedParser extends Bio2RDFizer
 
 					$iIdentifier = parent::getRes().$pmid."_INVESTIGATOR_".$investigatorNumber;
 					$i_last_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $iLastName));
-					$i_label = $i_last_name.", investigator for ".parent::getPrefix().$pmid;
+					$i_label = $i_last_name.", investigator for ".parent::getNamespace().$pmid;
 
 					parent::addRDF(
 						parent::describeIndividual($iIdentifier, $i_label, parent::getVoc()."Investigator")
@@ -681,7 +681,7 @@ class PubmedParser extends Bio2RDFizer
 					$pnsSuffix = $personalNameSubject->Suffix;//optional
 
 					$pns_last_name = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pnsLastName));
-					$pns_label = $pns_last_name.", personal name subject for ".parent::getPrefix().$pmid;
+					$pns_label = $pns_last_name.", personal name subject for ".parent::getNamespace().$pmid;
 
 					parent::addRDF(
 						parent::describeIndividual($pnsIdentifier, $pns_label, parent::getVoc()."PersonalNameSubject")
@@ -728,7 +728,7 @@ class PubmedParser extends Bio2RDFizer
 			$journalNlmID = $citation->MedLineJournalInfo->NlmUniqueID;//optional
 
 			$journalId = parent::getRes().$pmid."_JOURNAL";
-			$journal_label = "Journal for ".parent::getPrefix().$pmid;
+			$journal_label = "Journal for ".parent::getNamespace().$pmid;
 
 			parent::addRDF(
 				parent::describeIndividual($journalId, $journal_label, parent::getVoc()."Journal")
@@ -833,7 +833,7 @@ class PubmedParser extends Bio2RDFizer
 $start = microtime(true); 
 
 $parser = new PubmedParser($argv);
-$parser->Run();
+$parser->run();
 
 $end = microtime(true);
 $time_taken =  $end - $start;
