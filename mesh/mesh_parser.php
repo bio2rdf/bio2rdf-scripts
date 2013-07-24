@@ -145,104 +145,78 @@ class MeshParser extends Bio2RDFizer{
 	private  $mesh_resource = "mesh_resource:";
 	private $version = 0.3;
 	function __construct($argv) {
-			parent::__construct();
-			$this->SetDefaultNamespace("mesh");
-			// set and print application parameters
-			$this->AddParameter('files',true,null,'all|descriptor_records|qualifier_records|supplementary_records','','files to process');
-			$this->AddParameter('indir',false,null,'/data/download/mesh/','directory to download into and parse from');
-			$this->AddParameter('outdir',false,null,'/data/rdf/mesh/','directory to place rdfized files');
-			$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-			$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-			$this->AddParameter('download',false,'true|false','false','set true to download files');
-			$this->AddParameter('download_url',false,null,'http://www.nlm.nih.gov/cgi/request.meshdata');
-			if($this->SetParameters($argv) == FALSE) {
-				$this->PrintParameters($argv);
-				exit;
-			}
-			if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-			if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-			if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		return TRUE;
+		parent::__construct($argv, "mesh");
+		parent::addParameter('files', true, 'all|descriptor_records|qualifier_records|supplementary_records', 'all', 'all or comma-separated list of files to process');
+		parent::initialize();
 	  }//constructor
 
-	  function Run(){
-	  	$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		//which files are to be converted?
-		$selectedPackage = trim($this->GetParameterValue('files'));		 
-		if($selectedPackage == 'all') {
-			$files = $this->getPackageMap();
-		} else {
-			$sel_arr = explode(",",$selectedPackage);
-			$pm = $this->getPackageMap();
-			$files = array();
-			foreach($sel_arr as $a){
-				if(array_key_exists($a, $pm)){
-					$files[$a] = $pm[$a];
-				}
-			}	
+	function Run(){
+		$sp = trim(parent::getParameterValue('files'));
+	  	if($sp == 'all'){
+	  		$files = $this->getPackageMap();
+	  	}else{
+	  		$s_a = explode(",", $sp);
+	  		$pm = $this->getPackageMap();
+	  		$files = array();
+	  		foreach($s_a as $a){
+	  			if(array_key_exists($a, $pm)){
+	  				$files[$a] = $pm[$a];
+	  			}
+	  		}
+	  	}//else
+
+	  	$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+		//make sure directories end with slash
+		if(substr($ldir, -1) !== "/"){
+			$ldir = $ldir."/";
 		}
-	  //now iterate over the files array
+		if(substr($odir, -1) !== "/"){
+			$odir = $odir."/";
+		}
+		
+	  	//now iterate over the files array
 		foreach ($files as $k => $aFile){	
-			//ensure that there is a slash between directory name and filename
-			if(substr($ldir, -1) == "/"){
+			$ext = substr(strrchr($this->getPackageMap()[$k],'.'),1);
+			if($ext == 'bin'){
 				$lfile = $ldir.$aFile;
-			} else {
-				$lfile = $ldir."/".$aFile;
 			}
-			//create a file pointer
-			$fp = gzopen($lfile, "r") or die("Could not open file ".$aFile."!\n");
 
-			//ensure that there is a slash between directory name and filename
-			if(substr($odir, -1) == "/"){
-				$gzoutfilename = $odir.$k;
-			} else {
-				$gzoutfilename = $odir."/".$k;
-			}
-			$gzoutfile = $gzoutfilename.".nt";
-
+			//set the outfile
+			$outfile = $odir."mesh_".$aFile.'.nt'; 
 			$gz=false;
-			if($this->GetParameterValue('graph_uri')){$gzoutfile = $gzoutfilename.".nq";}
-			if($this->GetParameterValue('gzip')){
-				$gzoutfile .= '.gz';
+			if(strstr(parent::getParameterValue('output_format'), "gz")){
+				$outfile .= '.gz';
 				$gz = true;
 			}
-
-			$this->SetReadFile($lfile);
-			$this->GetReadFile()->SetFilePointer($fp);
-			$this->SetWriteFile($gzoutfile, $gz);
-			//first check if the file is there
-			if(!file_exists($gzoutfile)){
-				if (($gzout = gzopen($gzoutfile,"a"))=== FALSE) {
-					trigger_error("Unable to open $odir.$gzoutfile");
-					exit;
-				}
-				echo "processing $aFile... ";
-
-				$this->$k();
-				echo "done!\n";
-				$this->GetReadFile()->Close();
-				$this->GetWriteFile()->Close();
-			}else{
-				echo "file $gzoutfile already there!\nPlease remove file and try again\n";
-				exit;
-			}
-
+			parent::setWriteFile($outfile, $gz);
+			parent::setReadFile($lfile, FALSE);
+			$fnx = $k;
+			echo "processing $k ...";
+			$this->$fnx();
+			echo "done!\n";
+			//write RDF to file
+			parent::writeRDFBufferToWriteFile();
+			//close write file
+			parent::getWriteFile()->close();
+			echo PHP_EOL;
 		}//foreach
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
+		// generate the dataset release file
+		echo "generating dataset release file... ";
+		$desc = parent::getBio2RDFDatasetDescription(
+			$this->getPrefix(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mesh/mesh_parser.php", 
-			$this->GetBio2RDFDownloadURL($this->GetNamespace()),
+			$this->getBio2RDFDownloadURL($this->getNamespace()),
 			"http://www.nlm.nih.gov/mesh/",
 			array("use"),
 			"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
 			"http://www.nlm.nih.gov/databases/download.html",
-			$this->version
+			parent::getDatasetVersion()
 		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
-		return TRUE;
+		parent::setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
+		parent::getWriteFile()->write($desc);
+		parent::getWriteFile()->close();
+		echo "done!".PHP_EOL;
 	}//run
 
 	private function supplementary_records(){
