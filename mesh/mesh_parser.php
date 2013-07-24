@@ -220,7 +220,7 @@ class MeshParser extends Bio2RDFizer{
 	}//run
 
 	private function supplementary_records(){
-		$sup_rec = "";
+		/*$sup_rec = "";
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
 			if(count($matches)){
@@ -233,7 +233,7 @@ class MeshParser extends Bio2RDFizer{
 			if(count($matches) == 0){
 				$sup_rec .= $aLine;
 			}			
-		}
+		}*/
 	}
 	private function descriptor_records(){
 		$descriptor_record = "";
@@ -253,7 +253,7 @@ class MeshParser extends Bio2RDFizer{
 	}
 
 	private function qualifier_records(){
-		$qualifier_record = "";
+		/*$qualifier_record = "";
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
 			if(count($matches)){
@@ -266,7 +266,7 @@ class MeshParser extends Bio2RDFizer{
 			if(count($matches) == 0){
 				$qualifier_record .= $aLine;
 			}			
-		}
+		}*/
 	}
 	/**
 	* add an RDF representation of the incoming param to the model.
@@ -958,8 +958,6 @@ class MeshParser extends Bio2RDFizer{
 				if(!array_key_exists($al[0], $returnMe)){
 					$returnMe[$al[0]] = array($al[1]);
 				}else{
-					$b = $returnMe[$al[0]];
-					$returnMe[$al[0]] = $b;
 					$returnMe[$al[0]][] = $al[1];
 				}
 			}
@@ -984,14 +982,14 @@ class MeshParser extends Bio2RDFizer{
 		return self::$descriptor_data_elements;
 	}
 }
-$start = microtime(true);
 
+$start = microtime(true);
+set_error_handler('error_handler');
 $p = new MeshParser($argv);
 $p->Run();
-
 $end = microtime(true);
-$time_taken =  $end - $start;
+$tt = ($end - $start)/60;
 print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
 print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
+print "Took: ".$tt." minutes\n";
 ?>
