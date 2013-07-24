@@ -254,7 +254,7 @@ class MeshParser extends Bio2RDFizer{
 	}
 
 	private function qualifier_records(){
-		/*$qualifier_record = "";
+		$qualifier_record = "";
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
 			if(count($matches)){
@@ -267,7 +267,7 @@ class MeshParser extends Bio2RDFizer{
 			if(count($matches) == 0){
 				$qualifier_record .= $aLine;
 			}			
-		}*/
+		}
 	}
 	/**
 	* add an RDF representation of the incoming param to the model.
@@ -692,12 +692,14 @@ class MeshParser extends Bio2RDFizer{
 				}
 				if($k == "MR"){
 					foreach($v as $kv => $vv){
+						$date = date_parse($vv);
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['MR'], utf8_encode(htmlspecialchars($vv))).
+							parent::triplifyString($dr_res, $this->getVoc().$dde['MR'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date")).
 							parent::describeProperty($this->getVoc().$dde['MR'], "Relationship between a descriptor record and its major revision date")
 						);
 					}
 				}
+				
 				if($k == "MS"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
@@ -809,6 +811,229 @@ class MeshParser extends Bio2RDFizer{
 	* @$qual_record_arr is an assoc array with the contents of one qualifier record
 	*/
 	private function makeQualifierRecordRDF($qual_record_arr){
+		//get the UI of the qualifier record
+		$qr_ui = $qual_record_arr["UI"][0];
+		$qr_res = $this->getNamespace().$qr_ui;
+		$qr_label = "qualifier record";
+		$qr_label_class = "mesh subheading: ".$desc_record_arr["SH"][0];
+
+		parent::AddRDF(
+			parent::triplify($dr_res, "rdf:type", $this->getVoc()."qualifier_record").
+			parent::describeIndividual($qr_res, $qr_label, $this->getVoc()."qualifier_record").
+			parent::describeClass($this->getVoc()."qualifier_record", $qr_label_class )
+		);
+		//now get the descriptor_data_elements
+		$qde = $this->getQualifierDataElements();
+		//iterate over the properties
+		foreach($desc_record_arr as $k => $v){
+			if(array_key_exists($k, $qde)){
+				if($k == "AN"){
+					foreach($v as $kv => $vv){
+						//explode by semicolon
+						$vvrar = explode(";", $vv);
+						foreach($vvrar as $anAn){
+							parent::AddRDF(
+								parent::triplifyString($qr_res, $this->getVoc().$qde["AN"], $anAn).
+								parent::describeProperty($this->getVoc().$qde["AN"], "Relationship between a qualifier record and its annotation")
+							);
+						}//foreach
+					}//foreach
+				}//if
+				if($k == "DA"){
+					foreach($v as $kv => $vv){
+						$date = date_parse($vv);
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$qde['DA'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+							parent::describeProperty($this->getVoc().$qde['DA'], "Relationship between a qualifier record and its date of entry")
+						);
+					}
+				}//if
+				if($k == "DQ"){
+					foreach($v as $kv => $vv){
+						$date = date_parse($vv);
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$qde['DQ'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+							parent::describeProperty($this->getVoc().$qde['DQ'], "Relationship between a qualifier record and its date qualifier established")
+						);
+					}
+				}//if
+				if($k == "GM"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$qde['GM'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['GM'], "Relationship between a qualifier record and its grateful med note")
+						);
+					}
+				}
+				if($k == "HN"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$qde['HN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['HN'], "Relationship between a qualifier record and its history note")
+						);
+					}
+				}
+				if($k == "HN"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['HN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['HN'], "Relationship between a qualifier record and its history note")
+						);
+					}
+				}
+				if($k == "MED"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['MED'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['MED'], "Relationship between a qualifier record and its backfile postings")
+						);
+					}
+				}
+				if($k == "M94"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['M94'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['M94'], "Relationship between a qualifier record and its backfile postings")
+						);
+					}
+				}
+				if($k == "M90"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['M90'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['M90'], "Relationship between a qualifier record and its backfile postings")
+						);
+					}
+				}
+				if($k == "M85"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['M85'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['M85'], "Relationship between a qualifier record and its backfile postings")
+						);
+					}
+				}
+				if($k == "M80"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['M80'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['M80'], "Relationship between a qualifier record and its backfile postings")
+						);
+					}
+				}
+				if($k == "M75"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['M75'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['M75'], "Relationship between a qualifier record and its backfile postings")
+						);
+					}
+				}
+				if($k == "M66"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['M66'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['M66'], "Relationship between a qualifier record and its backfile postings")
+						);
+					}
+				}
+				if($k == "MR"){
+					foreach($v as $kv => $vv){
+						$date = date_parse($vv);
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$qde['MR'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+							parent::describeProperty($this->getVoc().$qde['MR'], "Relationship between a qualifier record and its major revision date")
+						);
+					}
+				}//if
+				if($k == "MS"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['MS'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['MS'], "Relationship between a qualifier record and its MeSH scope note")
+						);
+					}
+				}
+				if($k == "OL"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['OL'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['OL'], "Relationship between a qualifier record and its online note")
+						);
+					}
+				}
+				if($k == "QA"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['QA'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['QA'], "Relationship between a qualifier record and its toplical qualifier abbreviation")
+						);
+					}
+				}
+				if($k == "QE"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['QE'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['QE'], "Relationship between a qualifier record and its qualifier entry version")
+						);
+					}
+				}
+				if($k == "QS"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['QS'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['QS'], "Relationship between a qualifier record and its qualifier sort version")
+						);
+					}
+				}
+				if($k == "QT"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['QT'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['QT'], "Relationship between a qualifier record and its qualifier type")
+						);
+					}
+				}
+				if($k == "QX"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['QX'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['QX'], "Relationship between a qualifier record and its qualifier cross reference")
+						);
+					}
+				}
+				if($k == "RECTYPE"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['RECTYPE'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['RECTYPE'], "Relationship between a qualifier record and its record type")
+						);
+					}
+				}
+				if($k == "SH"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['SH'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['SH'], "Relationship between a qualifier record and its subheading")
+						);
+					}
+				}
+				if($k == "TN"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($qr_res, $this->getVoc().$dde['TN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$dde['TN'], "Relationship between a qualifier record and its tree node allowed")
+						);
+					}
+				}
+				
+			}else{
+				trigger_error("Please add key to qualifier record map: ".$k.PHP_EOL, E_USER_ERROR);
+			}//else
+			$this->WriteRDFBufferToWriteFile();
+		}//foreach
+		$this->WriteRDFBufferToWriteFile();
+		/*
 		//I will use the topical qualifier abbreviation as the 
 		//seed of the md5 hash for the uri
 		//see: http://www.nlm.nih.gov/mesh/qtype.html
@@ -971,6 +1196,7 @@ class MeshParser extends Bio2RDFizer{
 			}//if
 			$this->WriteRDFBufferToWriteFile();
 		}//foreach
+		*/
 	}//makeQualifierRecord
 
 
