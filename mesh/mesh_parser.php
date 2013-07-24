@@ -26,7 +26,9 @@ SOFTWARE.
  * @version 0.3
  * @author Jose Cruz-Toledo
  * @author Jose Miguel Vives
- * @description ftp://ftp.ncbi.nih.gov/gene/DATA/
+ * @description This parser transforms the 2013 MeSH ASCII data to Bio2RDF compliant Linked Data. 
+ * To download the original data files please visit http://www.nlm.nih.gov/cgi/request.meshdata
+ * and register.
 */
 
 
@@ -447,7 +449,7 @@ class MeshParser extends Bio2RDFizer{
 	* @$desc_record_arr is an assoc array with the contents of one qualifier record
 	*/
 	private function makeDescriptorRecord($desc_record_arr){
-		
+		/*
 		//I will use the mesh heading as the 
 		//seed of the md5 hash for the uri
 		//see: http://www.nlm.nih.gov/mesh/dtype.html
@@ -775,6 +777,7 @@ class MeshParser extends Bio2RDFizer{
 			}//if
 			$this->WriteRDFBufferToWriteFile();
 		}//foreach
+		*/
 	}
 	/**
 	* add an RDF representation of the incoming param to the model.
