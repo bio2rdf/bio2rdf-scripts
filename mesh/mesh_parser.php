@@ -2,7 +2,6 @@
 /**
 Copyright (C) 2013 Jose Cruz-Toledo
 
-
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
 the Software without restriction, including without limitation the rights to
@@ -24,15 +23,16 @@ SOFTWARE.
 
 /**
  * MeSH Gene RDFizer
- * @version 0.1
+ * @version 0.3
  * @author Jose Cruz-Toledo
  * @author Jose Miguel Vives
  * @description ftp://ftp.ncbi.nih.gov/gene/DATA/
 */
 
 
-require('../../php-lib/rdfapi.php');
-class MeshParser extends RDFFactory{
+require(__DIR__.'../../php-lib/rdfapi.php');
+class MeshParser extends Bio2RDFizer{
+
 	private static $packageMap = array(
 		"descriptor_records" => "d2013.bin",
 		"qualifier_records" => "q2013.bin",
@@ -55,6 +55,12 @@ class MeshParser extends RDFFactory{
 		"GM" =>	"grateful-med-note",
 		"HN" => "history-note",
 		"MED" => "backfile-posting",
+		"M94" => "backfile-posting",
+		"M90" => "backfile-posting",
+		"M85" => "backfile-posting",
+		"M80" => "backfile-posting",
+		"M75" => "backfile-posting",
+		"M66" => "backfile-posting",
 		"MH" =>	"mesh-heading",
 		"MH_TH" =>	"mesh-heading-thesaurus-id",
 		"MN" =>	"mesh-tree-number",
@@ -73,25 +79,44 @@ class MeshParser extends RDFFactory{
 		"ST" =>	"semantic-type",
 		"UI" =>	"unique-identifier"
 	);
+	//see: http://www.nlm.nih.gov/mesh/dtype.html
+	private static $descriptor_data_elements_subfields = array(
+		"a" => "the term itself",
+		"b" => "SEMANTIC TYPE",
+		"c" => "LEXICAL TYPE",
+		"d" => "SEMANTIC RELATION",
+		"e" => "THESAURUS ID",
+		"f" => "DATE",
+		"s" => "SORT VERSION",
+		"v" => "ENTRY VERSION",
+	);
+	//see: http://www.nlm.nih.gov/mesh/qtype.html
 	private static $qualifier_data_elements = array(
-		"AN"=> "annotation",
-		"DA"=> "date-of-entry",
-		"DQ"=> "date-qualifier-established",
-		"GM"=>"grateful-med-note",
-		"HN"=>"histrory-note",
-		"MR"=>"major-revision-date",
-		"MS"=> "scope-note",
-		"OL"=> "online-note",
-		"QA"=> "topical-qualifier-abbreviation",
-		"QA"=>	"topical-qualifier-abbreviation",
-		"QE"=>	"qualifier-entry-version",
-		"QS"=>	"qualifier-sort-version",
-		"QT"=>	"qualifier-type",
-		"QX"=>	"qualifier-cross-reference",
-		"RECTYPE"	=>"record-type",
-		"SH"=>	"subheading",
-		"TN"=>	"tree-node-allowed",
-		"UI"=>	"unique-identifier",
+		"AN" => "annotation",
+		"DA" => "date-of-entry",
+		"DQ" => "date-qualifier-established",
+		"GM" => "grateful-med-note",
+		"HN" => "histrory-note",
+		"MED" => "backfile-posting",
+		"M94" => "backfile-posting",
+		"M90" => "backfile-posting",
+		"M85" => "backfile-posting",
+		"M80" => "backfile-posting",
+		"M75" => "backfile-posting",
+		"M66" => "backfile-posting",
+		"MR" =>"major-revision-date",
+		"MS" => "scope-note",
+		"OL" => "online-note",
+		"QA" => "topical-qualifier-abbreviation",
+		"QA" =>	"topical-qualifier-abbreviation",
+		"QE" =>	"qualifier-entry-version",
+		"QS" =>	"qualifier-sort-version",
+		"QT" =>	"qualifier-type",
+		"QX" =>	"qualifier-cross-reference",
+		"RECTYPE" => "record-type",
+		"SH" =>	"subheading",
+		"TN" =>	"tree-node-allowed",
+		"UI" =>	"unique-identifier",
 		"MED" => "backfile-posting"
 	);
 	private static $supplementary_concept_records = array(
@@ -118,7 +143,7 @@ class MeshParser extends RDFFactory{
 	private  $bio2rdf_base = "http://bio2rdf.org/";
 	private  $mesh_vocab ="mesh_vocabulary:";
 	private  $mesh_resource = "mesh_resource:";
-	private $version = 0.1;
+	private $version = 0.3;
 	function __construct($argv) {
 			parent::__construct();
 			$this->SetDefaultNamespace("mesh");
