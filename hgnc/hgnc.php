@@ -29,106 +29,78 @@ SOFTWARE.
  * @author Jose Cruz-Toledo
 */
 
-require(__DIR__.'../../php-lib/bio2rdfapi.php');
+require(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
 class HGNCParser extends Bio2RDFizer {
 	private $version = 2.0;
-
-	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("hgnc");
-		
-		// set and print application parameters
-		$this->AddParameter('indir',false,null,'/data/download/hgnc/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/hgnc/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download',false,'true|false','false','set true to download file');
-		$this->AddParameter('download_url',false,null,'http://www.genenames.org/cgi-bin/hgnc_downloads?title=HGNC+output+data&hgnc_dbtag=on&preset=all&status=Approved&status=Entry+Withdrawn&status_opt=2&level=pri&=on&where=&order_by=gd_app_sym_sort&limit=&format=text&submit=submit&.cgifields=&.cgifields=level&.cgifields=chr&.cgifields=status&.cgifields=hgnc_dbtag');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		
-		return TRUE;
-	}//construct
+	function __construct($argv){
+		parent::__construct($argv, "hgnc");
+		parent::addParameter('files', true, 'hgnc_complete_set', 'hgnc_complete_set', 'The filename of the complete HGNC dataset');
+		parent::addParameter('download_url',false,null,'ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc_complete_set.txt.gz');
+		parent::initialize();
+	}//constructor
 
 	function Run(){
-
-		$file = "hgnc.tab";
-
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		$rdir = $this->GetParameterValue('download_url');
-		
+		$file = "hgnc_complete_set.txt.gz";
+		$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+		$rdir = parent::getParameterValue('download_url');
 		//make sure directories end with slash
 		if(substr($ldir, -1) !== "/"){
 			$ldir = $ldir."/";
-		}
-		
+		}		
 		if(substr($odir, -1) !== "/"){
 			$odir = $odir."/";
 		}
-
 		$lfile = $ldir.$file;
-
-		if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
+		if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
 			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
-			$this->SetParameterValue('download',true);
-		}
-		
-		//download all files [except mapping file]
-		if($this->GetParameterValue('download') == true) {
+			parent::setParameterValue('download',true);
+		}		
+		//download the hgnc file
+		if(parent::getParameterValue('download') == true) {
 			$rfile = $rdir;
 			echo "downloading $file ... ";
-			Utils::DownloadSingle ($rfile, $lfile);
+			Utils::DownloadSingle($rfile, $lfile);
 		}
 
 		$ofile = $odir.$file.'.nt'; 
 		$gz=false;
-		if($this->GetParameterValue('graph_uri')) {$ofile = $odir.$file.'.nq'; }
-		if($this->GetParameterValue('gzip')) {
+		if(strstr(parent::getParameterValue('output_format'), "gz")){			
 			$ofile .= '.gz';
 			$gz = true;
 		}
 		
-		$this->SetWriteFile($ofile, $gz);
-
-		$this->SetReadFile($lfile);
-		
+		parent::setWriteFile($ofile, $gz);
+		parent::setReadFile($lfile, true);
 		echo "processing $file... ";
 		$this->process();
-		echo "done!";
-
+		echo "done!".PHP_EOL;
 		//close write file
-		$this->GetWriteFile()->Close();
+		parent::getWriteFile()->close();
 		echo PHP_EOL;
-		
 		// generate the dataset release file
 		echo "generating dataset release file... ";
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
+		$desc = parent::getBio2RDFDatasetDescription(
+			$this->getPrefix(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/hgnc/hgnc.php", 
-			$this->GetBio2RDFDownloadURL($this->GetNamespace()),
+			$this->getBio2RDFDownloadURL($this->getNamespace()),
 			"http://www.genenames.org",
 			array("use"),
 			"http://www.genenames.org/about/overview",
-			$this->GetParameterValue('download_url'),
-			$this->version
+			"ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc_complete_set.txt.gz",
+			parent::getDatasetVersion()
 		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+		parent::setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
+		parent::getWriteFile()->write($desc);
+		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
 		
 	}//Run
 
 	function process(){
-		$header = $this->GetReadFile()->Read(4096);
+		echo "poto\n";
+		/*$header = $this->GetReadFile()->Read(4096);
 		$expected = "HGNC ID	Approved Symbol	Approved Name	Status	Locus Type	Locus Group	Previous Symbols	Previous Names	Synonyms	Name Synonyms	Chromosome	Date Approved	Date Modified	Date Symbol Changed	Date Name Changed	Accession Numbers	Enzyme IDs	Entrez Gene ID	Ensembl Gene ID	Mouse Genome Database ID	Specialist Database Links	Specialist Database IDs	Pubmed IDs	RefSeq IDs	Gene Family Tag	Gene family description	Record Type	Primary IDs	Secondary IDs	CCDS IDs	VEGA IDs	Locus Specific Databases	Entrez Gene ID(supplied by NCBI)	OMIM ID(supplied by NCBI)	RefSeq(supplied by NCBI)	UniProt ID(supplied by UniProt)	Ensembl ID(supplied by Ensembl)	UCSC ID(supplied by UCSC)	Mouse Genome Database ID(supplied by MGI)	Rat Genome Database ID(supplied by RGD)\n";
 		if ($header != $expected)
 		{
@@ -354,12 +326,7 @@ class HGNCParser extends Bio2RDFizer {
 				$this->AddRDF($this->QQuadL($id, "hgnc_vocabulary:locus_specific_databases", $this->SafeLiteral($locus_specific_databases)));
 			}
 
-			/*if(!empty($gdb_id_mappeddata)){
-				$gdb_id_mappeddata = explode(", ", $gdb_id_mappeddata);
-				foreach ($gdb_id_mappeddata as $gdb_id) {
-					$this->AddRDF($this->QQuad($id, "hgnc_vocabulary:x-gdb", "gdb:".$gdb_id));
-				}
-			}*/
+		
 
 			if(!empty($entrez_gene_id_mappeddatasuppliedbyNCBI)){
 				$entrez_gene_id_mappeddatasuppliedbyNCBI = explode(", ", $entrez_gene_id_mappeddatasuppliedbyNCBI);
@@ -431,6 +398,7 @@ class HGNCParser extends Bio2RDFizer {
 			//write RDF to file
 			$this->WriteRDFBufferToWriteFile();
 		}//while
+		*/
 	}//process
 }//HGNCParser
 $start = microtime(true);
