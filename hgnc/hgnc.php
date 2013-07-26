@@ -1,7 +1,7 @@
 <?php
 
 /**
-Copyright (C) 2012 Alison Callahan
+Copyright (C) 2013 Alison Callahan, Jose Cruz-Toledo and Michel Dumontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -24,14 +24,15 @@ SOFTWARE.
 
 /**
  * An RDF generator for HGNC (http://www.genenames.org/)
- * @version 1.0
+ * @version 2.0
  * @author Alison Callahan
+ * @author Jose Cruz-Toledo
 */
 
-require('../../php-lib/rdfapi.php');
+require(__DIR__.'../../php-lib/bio2rdfapi.php');
 
-class HGNCParser extends RDFFactory {
-	private $version = null;
+class HGNCParser extends Bio2RDFizer {
+	private $version = 2.0;
 
 	function __construct($argv) {
 		parent::__construct();
