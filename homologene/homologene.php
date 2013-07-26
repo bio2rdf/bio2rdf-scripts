@@ -35,35 +35,14 @@ class HomologeneParser extends Bio2RDFizer{
 	private $version = 2.0;
 
 	function __construct($argv){
-		parent::__construct();
-
-		$this->SetDefaultNamespace("homologene");
-
-		//set and print the application options
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('indir',false,null,'/data/download/homologene','directory to download files');
-		$this->AddParameter('outdir',false,null,'/data/rdf/homologene/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('force',false,'true|false','true','remove old files and copy over');
-		$this->AddParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/pub/HomoloGene/current/');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-
-		//create necessary directories if they don't exist			
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-
-		return TRUE;
+		parent::__construct($argv, "homologene");
+		parent::addParameter('files', true, 'homologene.data', 'homologene.data', 'The filename of the complete Homologene dataset');
+		parent::addParameter('download_url', false, null,'ftp://ftp.ncbi.nih.gov/pub/HomoloGene/current/' );
+		parent::initialize();
 	}
 
  	function Run(){
-
  		$file = "homologene.data";
-
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
 		$rdir = $this->GetParameterValue('download_url');
