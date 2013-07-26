@@ -66,7 +66,7 @@ class HomologeneParser extends Bio2RDFizer{
 		}
 
 		$ofile = $odir.$file.'.nt'; $gz=false;
-		if(parent::getParameterValue('gzip')) {
+		if(strstr(parent::getParameterValue('output_format'), "gz")) {
 			$ofile .= '.gz';
 			$gz = true;
 		}
@@ -89,32 +89,54 @@ class HomologeneParser extends Bio2RDFizer{
 			parent::getParameterValue('download_url'),
 			parent::getDatasetVersion()
 		);
-		parent::getWriteFile($odir.$this->getBio2RDFReleaseFile($this->GetNamespace()));
+		parent::setWriteFile($odir.$this->getBio2RDFReleaseFile($this->GetNamespace()));
 		parent::getWriteFile()->write($desc);
 		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
 	}//run
 	
 	function process(){		
-		while($aLine = $this->GetReadFile()->Read(4096)){
+		while($aLine = $this->GetReadFile()->Read(200000)){
 			$parsed_line = $this->parse_homologene_tab_line($aLine);
 			$hid = "homologene:".$parsed_line["hid"];
+			$hid_res = $this->getNamespace().$hid;
+			$hid_label = "homologene id";
+			$hid_label_class = "homologene group for ".$hid_res;
+
+			parent::AddRDF(
+				parent::triplify($hid_res, "rdf:type", $this->getVoc()."homologene_group").
+				parent::describeIndividual($hid_res, $hid_label, $this->getVoc()."homologene_group").
+				parent::describeClass($this->getVoc()."homologene_group", $hid_label_class )
+			);
+
 			$geneid = "geneid:".$parsed_line["geneid"];
 			$taxid = "taxon:".$parsed_line["taxid"];
 			$gi = "gi:".$parsed_line["gi"];
 			$genesymbol = str_replace("\\", "", $parsed_line["genesymbol"]);
 			$refseq = "refseq:".$parsed_line["refseq"];
-			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_taxid",  $taxid));
-			$this->AddRDF($this->QQuad($hid, "rdf:type", "homologene_vocabulary:HomoloGene_Group"));
-			$this->AddRDF($this->QQuadL($hid, "rdfs:label", "HomoloGene Group $hid [".$hid."]"));
-			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_gene", $geneid));
-			$this->AddRDF($this->QQuadL($hid, "homologene_vocabulary:has_gene_symbol", $genesymbol));
-			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_gi", $gi));
-			$this->AddRDF($this->QQuad($hid, "homologene_vocabulary:has_refseq", $refseq));
-			
+
+			parent::AddRDF(
+				parent::triplify($hid_res, $this->getVoc()."x-taxid", "$taxid").
+				parent::describeProperty($this->getVoc()."x-taxid", "Link to NCBI taxonomy")
+			);
+			parent::AddRDF(
+				parent::triplify($hid_res, $this->getVoc()."x-geneid", "$geneid").
+				parent::describeProperty($this->getVoc()."x-geneid", "Link to NCBI GeneId")
+			);
+			parent::AddRDF(
+				parent::triplifyString($hid_res, $this->getVoc()."gene_symbol",  utf8_encode(htmlspecialchars($genesymbol))).
+				parent::describeProperty($this->getVoc()."gene_symbol", "The gene symbol used")
+			);
+			parent::AddRDF(
+				parent::triplify($hid_res, $this->getVoc()."x-gi", "$gi").
+				parent::describeProperty($this->getVoc()."x-gi", "Link to NCBI GI")
+			);
+			parent::AddRDF(
+				parent::triplify($hid_res, $this->getVoc()."x-refseq", "$refseq").
+				parent::describeProperty($this->getVoc()."x-refseq", "Link to NCBI Refseq")
+			);	
 			$this->WriteRDFBufferToWriteFile();
 		}
-
 	}
 
 	function parse_homologene_tab_line($aLine){
@@ -130,14 +152,4 @@ class HomologeneParser extends Bio2RDFizer{
 	}
 }
 
-$start = microtime(true);
-
-$parser = new HomologeneParser($argv);
-$parser->Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
 ?>
