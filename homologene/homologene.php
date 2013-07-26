@@ -45,24 +45,19 @@ class HomologeneParser extends Bio2RDFizer{
  		$file = "homologene.data";
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
-		$rdir = $this->GetParameterValue('download_url');
-		
+		$rdir = $this->GetParameterValue('download_url');		
 		//make sure directories end with slash
 		if(substr($ldir, -1) !== "/"){
 			$ldir = $ldir."/";
-		}
-		
+		}		
 		if(substr($odir, -1) !== "/"){
 			$odir = $odir."/";
-		}
-		
+		}		
 		$lfile = $ldir.$file;
-		
 		if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
 				trigger_error($file." not found. Will attempt to download.", E_USER_NOTICE);
-				$this->SetParameterValue('download',true);
+				parent::setParameterValue('download',true);
 		}
-
 		//download
 		if($this->GetParameterValue('download') == true){
 			$rfile = $rdir.$file;
@@ -71,38 +66,33 @@ class HomologeneParser extends Bio2RDFizer{
 		}
 
 		$ofile = $odir.$file.'.nt'; $gz=false;
-		if($this->GetParameterValue('graph_uri')) {$ofile = $odir.$file.'.nq';}
-		if($this->GetParameterValue('gzip')) {
+		if(parent::getParameterValue('gzip')) {
 			$ofile .= '.gz';
 			$gz = true;
 		}
-			
-		$this->SetReadFile($lfile);
-		$this->SetWriteFile($ofile, $gz);
-
+		parent::setReadFile($lfile);
+		parent::setWriteFile($ofile, $gz);
 		echo "processing $file... ";
 		$this->process();	
 		echo "done!".PHP_EOL;
-		$this->GetWriteFile()->Close();
+		parent::getWriteFile()->close();
 
 		// generate the dataset release file
 		echo "generating dataset release file... ";
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
+		$desc = parent::getBio2RDFDatasetDescription(
+			$this->getPrefix(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/homologene/homologene.php", 
-			$this->GetBio2RDFDownloadURL($this->GetNamespace()),
+			$this->getBio2RDFDownloadURL($this->getNamespace()),
 			"http://www.genenames.org",
 			array("use"),
 			"http://www.genenames.org/about/overview",
-			$this->GetParameterValue('download_url'),
-			$this->version
+			parent::getParameterValue('download_url'),
+			parent::getDatasetVersion()
 		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+		parent::getWriteFile($odir.$this->getBio2RDFReleaseFile($this->GetNamespace()));
+		parent::getWriteFile()->write($desc);
+		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
-
-		return TRUE;
 	}//run
 	
 	function process(){		
