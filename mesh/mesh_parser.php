@@ -120,6 +120,7 @@ class MeshParser extends Bio2RDFizer{
 		"UI" =>	"unique-identifier",
 		"MED" => "backfile-posting"
 	);
+	//see https://www.nlm.nih.gov/mesh/xmlconvert.html
 	private static $supplementary_concept_records = array(
 		"DA" => "date-of-entry",
 		"FR" =>	"frequency",
@@ -221,7 +222,7 @@ class MeshParser extends Bio2RDFizer{
 	}//run
 
 	private function supplementary_records(){
-		/*$sup_rec = "";
+		$sup_rec = "";
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
 			if(count($matches)){
@@ -234,7 +235,7 @@ class MeshParser extends Bio2RDFizer{
 			if(count($matches) == 0){
 				$sup_rec .= $aLine;
 			}			
-		}*/
+		}
 	}
 	private function descriptor_records(){
 		$descriptor_record = "";
@@ -274,174 +275,179 @@ class MeshParser extends Bio2RDFizer{
 	* @$desc_record_arr is an assoc array with the contents of one qualifier record
 	*/
 	private function makeSupplementaryRecord($sup_record_arr){
-		if(array_key_exists("NM", $sup_record_arr)){
-			$tqa = $sup_record_arr["NM"][0];
-		}else{
-			return ;
-		}
-		$sr_id = md5($tqa);
-		//create a resource for a mesh supplementary record and type it as such
-		$this->AddRDF($this->QQuad("mesh:".$sr_id, 
-				"rdf:type", 
-				"mesh_vocabulary:supplementary_record"
-				));
-		//add the lablel
-		$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-				"rdfs:label",
-				"$tqa [mesh:".$sr_id."]"
-				));
-		$this->AddRDF($this->QQuad("mesh:".$sr_id, "void:inDataset", $this->getDatasetURI()));
+		//get the UI of the supplementary record
+		$sr_ui = $sup_record_arr["UI"][0];
+		/*if($dr_ui == "D000388"){
+			print_r($desc_record_arr);exit;
+		}*/
+		$sr_res = $this->getNamespace().$sr_ui;
+		$sr_label = "supplementary record";
+		$sr_label_class = "mesh heading: ".$sup_record_arr["NM"][0];
+
+		parent::AddRDF(
+			parent::triplify($sr_res, "rdf:type", $this->getVoc()."supplementary_record").
+			parent::describeIndividual($sr_res, $sr_label, $this->getVoc()."supplementary_record").
+			parent::describeClass($this->getVoc()."supplementary_record", $sr_label_class )
+		);
+		//now get the descriptor_data_elements
+		$sde = $this->getSupplementaryConceptRecords();
+		//iterate over the properties
 		foreach($sup_record_arr as $k => $v){
-			if(array_key_exists($k, $this->getSupplementaryConceptRecords())){
-				//date of entry
+			if(array_key_exists($k, $sde)){
+				//add date of entry
 				if($k == "DA"){
-					$date = date_parse($v[0]);
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["DA"], 
-						$date["month"]."-".$date["day"]."-".$date["year"],
-						null,
-						"xsd:date"
-					));
+					foreach($v as $kv => $vv){
+						$date = date_parse($vv);
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['DA'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+							parent::describeProperty($this->getVoc().$sde['DA'], "Relationship between a supplementary record and its date of entry")
+						);
+					}
 				}//if
-				//frequency
 				if($k == "FR"){
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["FR"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['FR'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['FR'], "Relationship between a supplementary record and its frequency")
+						);
+					}
 				}//if
-				//heading mapped to
 				if($k == "HM"){
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["HM"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['HM'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['HM'], "Relationship between a supplementary record and its heading mapping")
+						);
+					}
 				}//if
-				//indexing information
 				if($k == "II"){
-					$x = $this->getSupplementaryConceptRecords();
 					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-							"mesh_vocabulary:".$x["II"], 
-							utf8_encode(htmlspecialchars($vv))
-						));
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['II'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['II'], "Relationship between a supplementary record and its indexing information")
+						);
 					}
 				}//if
-				//major revision date
 				if($k == "MR"){
-					$date = date_parse($v[0]);
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["MR"], 
-						$date["month"]."-".$date["day"]."-".$date["year"],
-						null,
-						"xsd:date"
-					));
+					foreach($v as $kv => $vv){
+						$d = date_parse($vv);
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['MR'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+							parent::describeProperty($this->getVoc().$sde['MR'], "Relationship between a supplementary record and its major revision date")
+						);
+					}
 				}//if
-				//CAS TYPE 1 NAME
 				if($k == "N1"){
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["N1"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['N1'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['N1'], "Relationship between a supplementary record and its cas 1 name")
+						);
+					}
 				}//if
-				//name of substance
+				if($k == "NM"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['NM'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['NM'], "Relationship between a supplementary record and its name of substance")
+						);
+					}
+				}//if
 				if($k == "NM_TH"){
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["NM_TH"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['NM_TH'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['NM_TH'], "Relationship between a supplementary record and its term thesaurus id")
+						);
+					}
 				}//if
-				//note
 				if($k == "NO"){
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["NO"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['NO'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['NO'], "Relationship between a supplementary record and its note")
+						);
+					}
 				}//if
-				//pharmacological action
 				if($k == "PA"){
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["PA"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['PA'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['PA'], "Relationship between a supplementary record and its pharmacological action")
+						);
+					}
 				}//if
-				//previous index
 				if($k == "PI"){
-					$x = $this->getSupplementaryConceptRecords();
 					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-							"mesh_vocabulary:".$x["PI"], 
-							utf8_encode(htmlspecialchars($vv))
-						));
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['PI'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['PI'], "Relationship between a supplementary record and its previous indexing")
+						);
 					}
 				}//if
-				//cas registry number/ ec number
+				if($k == "RECTYPE"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['RECTYPE'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['RECTYPE'], "Relationship between a supplementary record and its record type")
+						);
+					}
+				}//if
 				if($k == "RN"){
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["RN"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['RN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['RN'], "Relationship between a supplementary record and its cas registry number or ec number")
+						);
+					}
 				}//if
-				//related cas registry number
 				if($k == "RR"){
-					$x = $this->getSupplementaryConceptRecords();
 					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-							"mesh_vocabulary:".$x["RR"], 
-							utf8_encode(htmlspecialchars($vv))
-						));
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['RR'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['RR'], "Relationship between a supplementary record and its related cas registry number")
+						);
 					}
 				}//if
-				//source
 				if($k == "SO"){
-					$x = $this->getSupplementaryConceptRecords();
 					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-							"mesh_vocabulary:".$x["SO"], 
-							utf8_encode(htmlspecialchars($vv))
-						));
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['SO'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['SO'], "Relationship between a supplementary record and its source")
+						);
 					}
 				}//if
-				//synonym
-				if($k == "SY"){
-					$x = $this->getSupplementaryConceptRecords();
-					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-							"mesh_vocabulary:".$x["SY"], 
-							utf8_encode(htmlspecialchars($vv))
-						));
-					}
-				}//if
-				//semantic type
 				if($k == "ST"){
-					$x = $this->getSupplementaryConceptRecords();
 					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-							"mesh_vocabulary:".$x["ST"], 
-							utf8_encode(htmlspecialchars($vv))
-						));
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['ST'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['ST'], "Relationship between a supplementary record and its semantic type")
+						);
 					}
 				}//if
-				//unique identifier
-				if($k == "UI"){
-					$x = $this->getSupplementaryConceptRecords();
-					$this->AddRDF($this->QQuadL("mesh:".$sr_id, 
-						"mesh_vocabulary:".$x["UI"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
+				if($k == "SY"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['SY'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['SY'], "Relationship between a supplementary record and its synonym")
+						);
+					}
 				}//if
-			}//if
+				if($k == "TH"){
+					foreach($v as $kv => $vv){
+						parent::AddRDF(
+							parent::triplifyString($sr_res, $this->getVoc().$sde['TH'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$sde['TH'], "Relationship between a supplementary record and its thesaurus id")
+						);
+					}
+				}//if
+
+			}else{
+				trigger_error("Please add key to descriptor record map: ".$k.PHP_EOL, E_USER_ERROR);
+			}
 			$this->WriteRDFBufferToWriteFile();
 		}//foreach
+		$this->WriteRDFBufferToWriteFile();
 	}
 	/**
 	* add an RDF representation of the incoming param to the model.
@@ -463,18 +469,18 @@ class MeshParser extends Bio2RDFizer{
 			parent::describeClass($this->getVoc()."descriptor_record", $dr_label_class )
 		);
 		//now get the descriptor_data_elements
-		$dde = $this->getDescriptorDataElements();
+		$qde = $this->getDescriptorDataElements();
 		//iterate over the properties
 		foreach($desc_record_arr as $k => $v){
-			if(array_key_exists($k, $dde)){
+			if(array_key_exists($k, $qde)){
 				if($k == "AN"){
 					foreach($v as $kv => $vv){
 						//explode by semicolon
 						$vvrar = explode(";", $vv);
 						foreach($vvrar as $anAn){
 							parent::AddRDF(
-								parent::triplifyString($dr_res, $this->getVoc().$dde["AN"], $anAn).
-								parent::describeProperty($this->getVoc().$dde["AN"], "Relationship between a descriptor record and its annotation")
+								parent::triplifyString($dr_res, $this->getVoc().$qde["AN"], $anAn).
+								parent::describeProperty($this->getVoc().$qde["AN"], "Relationship between a descriptor record and its annotation")
 							);
 						}//foreach
 					}//foreach
@@ -488,11 +494,11 @@ class MeshParser extends Bio2RDFizer{
 							$aq_res = $this->getRes().$aq;
 							parent::AddRDF(
 								parent::triplify($aq_res, "rdf:type", $this->getVoc()."allowable-topical-qualifier").
-								parent::describeClass($this->getVoc()."allowable-topical-qualifier", "allowable topical qualifier: ".$dde['AQ'])
+								parent::describeClass($this->getVoc()."allowable-topical-qualifier", "allowable topical qualifier: ".$qde['AQ'])
 							);
 							parent::AddRDF(
-								parent::triplify($dr_res, $this->getVoc().$dde['AQ'], $aq_res).
-								parent::describeProperty($this->getVoc().$dde['AQ'], "Relationship between a descriptor record and its allowable topical qualifiers")
+								parent::triplify($dr_res, $this->getVoc().$qde['AQ'], $aq_res).
+								parent::describeProperty($this->getVoc().$qde['AQ'], "Relationship between a descriptor record and its allowable topical qualifiers")
 							);
 						}//foreach
 					}//foreach
@@ -501,16 +507,16 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "CATSH"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['CATSH'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['CATSH'], "Relationship between a descriptor record and its cataloging subheadings list name" )
+							parent::triplifyString($dr_res, $this->getVoc().$qde['CATSH'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['CATSH'], "Relationship between a descriptor record and its cataloging subheadings list name" )
 						);
 					}			
 				}//if
 				if($k == "CX"){
 					foreach($v as $kv=> $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['CX'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['CATSH'], "Relationship between a descriptor record and its consider also xref")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['CX'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['CATSH'], "Relationship between a descriptor record and its consider also xref")
 						);
 					}	
 				}//if
@@ -519,8 +525,8 @@ class MeshParser extends Bio2RDFizer{
 					foreach($v as $kv => $vv){
 						$date = date_parse($vv);
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['DA'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
-							parent::describeProperty($this->getVoc().$dde['DA'], "Relationship between a descriptor record and its date of entry")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['DA'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+							parent::describeProperty($this->getVoc().$qde['DA'], "Relationship between a descriptor record and its date of entry")
 						);
 					}
 				}//if
@@ -528,8 +534,8 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "DC"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['DC'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['DC'], "Relationship between a descriptor record and its descriptor class")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['DC'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['DC'], "Relationship between a descriptor record and its descriptor class")
 						);
 					}
 				}//if
@@ -537,8 +543,8 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "DE"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['DE'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['DE'], "Relationship between a descriptor record and its entry version")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['DE'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['DE'], "Relationship between a descriptor record and its entry version")
 						);
 					}
 				}//if
@@ -546,8 +552,8 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "DS"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['DS'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['DS'], "Relationship between a descriptor record and its sort version")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['DS'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['DS'], "Relationship between a descriptor record and its sort version")
 						);
 					}
 				}//if
@@ -556,112 +562,112 @@ class MeshParser extends Bio2RDFizer{
 					foreach($v as $kv => $vv){
 						$date = date_parse($vv);
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['DX'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
-							parent::describeProperty($this->getVoc().$dde['DX'], "Relationship between a descriptor record and its date of major descriptor established")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['DX'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+							parent::describeProperty($this->getVoc().$qde['DX'], "Relationship between a descriptor record and its date of major descriptor established")
 						);
 					}
 				}//if
 				if($k == "EC"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['EC'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['EC'], "Relationship between a descriptor record and its entry combination")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['EC'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['EC'], "Relationship between a descriptor record and its entry combination")
 						);
 					}
 				}
 				if($k == "PRINT ENTRY"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['PRINT ENTRY'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['PRINT ENTRY'], "Relationship between a descriptor record and its print entry term")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['PRINT ENTRY'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['PRINT ENTRY'], "Relationship between a descriptor record and its print entry term")
 						);
 					}
 				}
 				if($k == "ENTRY"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['ENTRY'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['ENTRY'], "Relationship between a descriptor record and its entry term")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['ENTRY'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['ENTRY'], "Relationship between a descriptor record and its entry term")
 						);
 					}
 				}
 				if($k == "FX"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['FX'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['FX'], "Relationship between a descriptor record and its forward cross reference")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['FX'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['FX'], "Relationship between a descriptor record and its forward cross reference")
 						);
 					}
 				}
 				if($k == "GM"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['GM'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['GM'], "Relationship between a descriptor record and its grateful med note")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['GM'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['GM'], "Relationship between a descriptor record and its grateful med note")
 						);
 					}
 				}
 				if($k == "HN"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['HN'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['HN'], "Relationship between a descriptor record and its history note")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['HN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['HN'], "Relationship between a descriptor record and its history note")
 						);
 					}
 				}
 				if($k == "MED"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['MED'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['MED'], "Relationship between a descriptor record and its backfile postings")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['MED'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['MED'], "Relationship between a descriptor record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M94"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['M94'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M94'], "Relationship between a descriptor record and its backfile postings")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['M94'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M94'], "Relationship between a descriptor record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M90"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['M90'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M90'], "Relationship between a descriptor record and its backfile postings")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['M90'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M90'], "Relationship between a descriptor record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M85"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['M85'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M85'], "Relationship between a descriptor record and its backfile postings")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['M85'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M85'], "Relationship between a descriptor record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M80"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['M80'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M80'], "Relationship between a descriptor record and its backfile postings")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['M80'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M80'], "Relationship between a descriptor record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M75"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['M75'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M75'], "Relationship between a descriptor record and its backfile postings")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['M75'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M75'], "Relationship between a descriptor record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M66"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['M66'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M66'], "Relationship between a descriptor record and its backfile postings")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['M66'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M66'], "Relationship between a descriptor record and its backfile postings")
 						);
 					}
 				}
@@ -669,24 +675,24 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "MH_TH"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['MH_TH'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['MH_TH'], "Relationship between a descriptor record and its MeSH Heading thesaurus id")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['MH_TH'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['MH_TH'], "Relationship between a descriptor record and its MeSH Heading thesaurus id")
 						);
 					}
 				}
 				if($k == "MH"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['MH'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['MH'], "Relationship between a descriptor record and its MeSH Heading")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['MH'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['MH'], "Relationship between a descriptor record and its MeSH Heading")
 						);
 					}
 				}
 				if($k == "MN"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['MN'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['MN'], "Relationship between a descriptor record and its MeSH Tree Number")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['MN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['MN'], "Relationship between a descriptor record and its MeSH Tree Number")
 						);
 					}
 				}
@@ -694,8 +700,8 @@ class MeshParser extends Bio2RDFizer{
 					foreach($v as $kv => $vv){
 						$date = date_parse($vv);
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['MR'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date")).
-							parent::describeProperty($this->getVoc().$dde['MR'], "Relationship between a descriptor record and its major revision date")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['MR'], $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+							parent::describeProperty($this->getVoc().$qde['MR'], "Relationship between a descriptor record and its major revision date")
 						);
 					}
 				}
@@ -703,96 +709,96 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "MS"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['MS'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['MS'], "Relationship between a descriptor record and its MeSH scope note")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['MS'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['MS'], "Relationship between a descriptor record and its MeSH scope note")
 						);
 					}
 				}
 				if($k == "N1"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['N1'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['N1'], "Relationship between a descriptor record and its CAS 1 name")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['N1'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['N1'], "Relationship between a descriptor record and its CAS 1 name")
 						);
 					}
 				}
 				if($k == "OL"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['OL'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['OL'], "Relationship between a descriptor record and its online note")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['OL'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['OL'], "Relationship between a descriptor record and its online note")
 						);
 					}
 				}
 				if($k == "PA"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['PA'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['PA'], "Relationship between a descriptor record and its pharmacological action")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['PA'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['PA'], "Relationship between a descriptor record and its pharmacological action")
 						);
 					}
 				}
 				if($k == "PI"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['PI'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['PI'], "Relationship between a descriptor record and its previous indexing")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['PI'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['PI'], "Relationship between a descriptor record and its previous indexing")
 						);
 					}
 				}
 				if($k == "PM"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['PM'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['PM'], "Relationship between a descriptor record and its public mesh note")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['PM'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['PM'], "Relationship between a descriptor record and its public mesh note")
 						);
 					}
 				}
 				if($k == "PX"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['PX'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['PX'], "Relationship between a descriptor record and its pre explosion")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['PX'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['PX'], "Relationship between a descriptor record and its pre explosion")
 						);
 					}
 				}
 				if($k == "RECTYPE"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['RECTYPE'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['RECTYPE'], "Relationship between a descriptor record and its record type")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['RECTYPE'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['RECTYPE'], "Relationship between a descriptor record and its record type")
 						);
 					}
 				}
 				if($k == "RH"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['RH'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['RH'], "Relationship between a descriptor record and its running head, in relation to mesh tree structures")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['RH'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['RH'], "Relationship between a descriptor record and its running head, in relation to mesh tree structures")
 						);
 					}
 				}
 				if($k == "RN"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['RN'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['RN'], "Relationship between a descriptor record and its CAS registry")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['RN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['RN'], "Relationship between a descriptor record and its CAS registry")
 						);
 					}
 				}
 				if($k == "RR"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['RR'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['RR'], "Relationship between a descriptor record and its registry number")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['RR'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['RR'], "Relationship between a descriptor record and its registry number")
 						);
 					}
 				}
 				if($k == "ST"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$dde['ST'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['ST'], "Relationship between a descriptor record and its semantic type")
+							parent::triplifyString($dr_res, $this->getVoc().$qde['ST'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['ST'], "Relationship between a descriptor record and its semantic type")
 						);
 					}
 				}
@@ -815,17 +821,17 @@ class MeshParser extends Bio2RDFizer{
 		$qr_ui = $qual_record_arr["UI"][0];
 		$qr_res = $this->getNamespace().$qr_ui;
 		$qr_label = "qualifier record";
-		$qr_label_class = "mesh subheading: ".$desc_record_arr["SH"][0];
+		$qr_label_class = "mesh subheading: ".$qual_record_arr["SH"][0];
 
 		parent::AddRDF(
-			parent::triplify($dr_res, "rdf:type", $this->getVoc()."qualifier_record").
+			parent::triplify($qr_res, "rdf:type", $this->getVoc()."qualifier_record").
 			parent::describeIndividual($qr_res, $qr_label, $this->getVoc()."qualifier_record").
 			parent::describeClass($this->getVoc()."qualifier_record", $qr_label_class )
 		);
 		//now get the descriptor_data_elements
 		$qde = $this->getQualifierDataElements();
 		//iterate over the properties
-		foreach($desc_record_arr as $k => $v){
+		foreach($qual_record_arr as $k => $v){
 			if(array_key_exists($k, $qde)){
 				if($k == "AN"){
 					foreach($v as $kv => $vv){
@@ -876,64 +882,64 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "HN"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['HN'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['HN'], "Relationship between a qualifier record and its history note")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['HN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['HN'], "Relationship between a qualifier record and its history note")
 						);
 					}
 				}
 				if($k == "MED"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['MED'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['MED'], "Relationship between a qualifier record and its backfile postings")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['MED'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['MED'], "Relationship between a qualifier record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M94"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['M94'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M94'], "Relationship between a qualifier record and its backfile postings")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['M94'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M94'], "Relationship between a qualifier record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M90"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['M90'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M90'], "Relationship between a qualifier record and its backfile postings")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['M90'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M90'], "Relationship between a qualifier record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M85"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['M85'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M85'], "Relationship between a qualifier record and its backfile postings")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['M85'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M85'], "Relationship between a qualifier record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M80"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['M80'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M80'], "Relationship between a qualifier record and its backfile postings")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['M80'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M80'], "Relationship between a qualifier record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M75"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['M75'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M75'], "Relationship between a qualifier record and its backfile postings")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['M75'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M75'], "Relationship between a qualifier record and its backfile postings")
 						);
 					}
 				}
 				if($k == "M66"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['M66'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['M66'], "Relationship between a qualifier record and its backfile postings")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['M66'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['M66'], "Relationship between a qualifier record and its backfile postings")
 						);
 					}
 				}
@@ -949,80 +955,80 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "MS"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['MS'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['MS'], "Relationship between a qualifier record and its MeSH scope note")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['MS'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['MS'], "Relationship between a qualifier record and its MeSH scope note")
 						);
 					}
 				}
 				if($k == "OL"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['OL'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['OL'], "Relationship between a qualifier record and its online note")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['OL'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['OL'], "Relationship between a qualifier record and its online note")
 						);
 					}
 				}
 				if($k == "QA"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['QA'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['QA'], "Relationship between a qualifier record and its toplical qualifier abbreviation")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['QA'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['QA'], "Relationship between a qualifier record and its toplical qualifier abbreviation")
 						);
 					}
 				}
 				if($k == "QE"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['QE'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['QE'], "Relationship between a qualifier record and its qualifier entry version")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['QE'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['QE'], "Relationship between a qualifier record and its qualifier entry version")
 						);
 					}
 				}
 				if($k == "QS"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['QS'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['QS'], "Relationship between a qualifier record and its qualifier sort version")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['QS'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['QS'], "Relationship between a qualifier record and its qualifier sort version")
 						);
 					}
 				}
 				if($k == "QT"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['QT'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['QT'], "Relationship between a qualifier record and its qualifier type")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['QT'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['QT'], "Relationship between a qualifier record and its qualifier type")
 						);
 					}
 				}
 				if($k == "QX"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['QX'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['QX'], "Relationship between a qualifier record and its qualifier cross reference")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['QX'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['QX'], "Relationship between a qualifier record and its qualifier cross reference")
 						);
 					}
 				}
 				if($k == "RECTYPE"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['RECTYPE'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['RECTYPE'], "Relationship between a qualifier record and its record type")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['RECTYPE'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['RECTYPE'], "Relationship between a qualifier record and its record type")
 						);
 					}
 				}
 				if($k == "SH"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['SH'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['SH'], "Relationship between a qualifier record and its subheading")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['SH'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['SH'], "Relationship between a qualifier record and its subheading")
 						);
 					}
 				}
 				if($k == "TN"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($qr_res, $this->getVoc().$dde['TN'], utf8_encode(htmlspecialchars($vv))).
-							parent::describeProperty($this->getVoc().$dde['TN'], "Relationship between a qualifier record and its tree node allowed")
+							parent::triplifyString($qr_res, $this->getVoc().$qde['TN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeProperty($this->getVoc().$qde['TN'], "Relationship between a qualifier record and its tree node allowed")
 						);
 					}
 				}
@@ -1033,170 +1039,6 @@ class MeshParser extends Bio2RDFizer{
 			$this->WriteRDFBufferToWriteFile();
 		}//foreach
 		$this->WriteRDFBufferToWriteFile();
-		/*
-		//I will use the topical qualifier abbreviation as the 
-		//seed of the md5 hash for the uri
-		//see: http://www.nlm.nih.gov/mesh/qtype.html
-		if(array_key_exists("QA", $qual_record_arr)){
-			$tqa = $qual_record_arr["QA"][0];
-		}else{
-			return ;
-		}
-		$qr_id = md5($tqa);
-		//create a resource for a mesh qualifier record and type it as such
-		$this->AddRDF($this->QQuad("mesh:".$qr_id, 
-				"rdf:type", 
-				"mesh_vocabulary:qualifier_record"
-				));
-		$this->AddRDF($this->QQuad("mesh:".$qr_id, "void:inDataset", $this->getDatasetURI()));
-
-		//iterate over the remaining properties
-		foreach($qual_record_arr as $k => $v){
-			if(array_key_exists($k, $this->getQualifierDataElements())){
-				//add allowed tree nodes
-				if($k == "TN"){
-					$x = $this->getQualifierDataElements();
-					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-							"mesh_vocabulary:".$x["TN"], 
-							$vv
-						));
-					}//foreach
-				}//if
-				//add qualifier cross reference
-				if($k == "QX"){
-					$x = $this->getQualifierDataElements();
-					foreach($v as $kv => $vv){
-						$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-							"mesh_vocabulary:".$x["QX"], 
-							$vv
-						));
-					}//foreach
-				}//if
-				//add qualifier sort version
-				if($k == "QS"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["QS"], 
-						$v[0]
-					));
-				}//if
-				//add online note
-				if($k == "ON"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["ON"], 
-						$v[0]
-					));
-				}//if
-				//add major revision date 
-				if($k == "MR"){
-					$date = date_parse($v[0]);
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["MR"], 
-						$date["month"]."-".$date["day"]."-".$date["year"],
-						null,
-						"xsd:date"
-					));
-				}//if
-				//add backfile postings
-				if($k == "MED" || $k == "M94" || $k == "M90" || $k == "M85" || $k == "M80" || $k == "75" || $k == "M66"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["MED"], 
-						$v[0]));
-				}
-				//add history note
-				if($k == "HN"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["HN"], 
-						$v[0]
-					));
-				}//if
-				//add date qualifier established
-				if($k == "DQ"){
-					$date = date_parse($v[0]);
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["DQ"], 
-						$date["month"]."-".$date["day"]."-".$date["year"],
-						null,
-						"xsd:date"
-					));
-				}//if
-				//add date of entry
-				if($k == "DA"){
-					$date = date_parse($v[0]);
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["DA"], 
-						$date["month"]."-".$date["day"]."-".$date["year"],
-						null,
-						"xsd:date"
-					));
-				}//if
-				//add annotation
-				if($k == "AN"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["AN"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
-				}//if
-				//add qualifier type
-				if($k == "QT"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["QT"], 
-						$v[0]
-					));
-				}//if
-				//Add  topical qualifier abbreviation
-				if($k == "QA"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["QA"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
-				}//if
-				//add mesh scope note
-				if($k == "MS"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["MS"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
-				}//if
-				//add the label
-				if($k == "SH"){
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"rdfs:label", 
-						$v[0]." [mesh:".$qr_id."]"
-					));
-				}//if
-				//add unique identifier
-				//add qualifier entry version
-				if($k == "UI"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["UI"], 
-						$v[0]
-					));
-				}
-				//add qualifier entry version
-				if($k == "QE"){
-					$x = $this->getQualifierDataElements();
-					$this->AddRDF($this->QQuadL("mesh:".$qr_id, 
-						"mesh_vocabulary:".$x["QE"], 
-						utf8_encode(htmlspecialchars($v[0]))
-					));
-				}
-			}//if
-			$this->WriteRDFBufferToWriteFile();
-		}//foreach
-		*/
 	}//makeQualifierRecord
 
 
