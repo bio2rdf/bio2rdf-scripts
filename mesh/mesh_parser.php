@@ -1081,13 +1081,4 @@ class MeshParser extends Bio2RDFizer{
 
 }
 
-$start = microtime(true);
-set_error_handler('error_handler');
-$p = new MeshParser($argv);
-$p->Run();
-$end = microtime(true);
-$tt = ($end - $start)/60;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$tt." minutes\n";
 ?>
