@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2012 Alison Callahan
+Copyright (C) 2013 Alison Callahan and Jose Cruz-Toledo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,8 +23,9 @@ SOFTWARE.
 
 /**
  * An RDF generator for iProClass (http://pir.georgetown.edu/iproclass/)
- * @version 1.0
+ * @version 2.0
  * @author Alison Callahan
+ * @author Jose Cruz-Toledo
 */
 
 require('../../php-lib/rdfapi.php');
