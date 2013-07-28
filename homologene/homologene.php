@@ -36,7 +36,7 @@ class HomologeneParser extends Bio2RDFizer{
 
 	function __construct($argv){
 		parent::__construct($argv, "homologene");
-		parent::addParameter('files', true, 'homologene.data', 'homologene.data', 'The filename of the complete Homologene dataset');
+		parent::addParameter('files',true,'all','all','files to process');
 		parent::addParameter('download_url', false, null,'ftp://ftp.ncbi.nih.gov/pub/HomoloGene/current/' );
 		parent::initialize();
 	}
@@ -104,9 +104,8 @@ class HomologeneParser extends Bio2RDFizer{
 			$hid_label_class = "homologene group for ".$hid_res;
 
 			parent::AddRDF(
-				parent::triplify($hid_res, "rdf:type", $this->getVoc()."homologene_group").
-				parent::describeIndividual($hid_res, $hid_label, $this->getVoc()."homologene_group").
-				parent::describeClass($this->getVoc()."homologene_group", $hid_label_class )
+				parent::describeIndividual($hid_res, $hid_label, $this->getVoc()."Homologene-Group").
+				parent::describeClass($this->getVoc()."Homologene-Group", $hid_label_class )
 			);
 
 			$geneid = "geneid:".$parsed_line["geneid"];
@@ -120,8 +119,8 @@ class HomologeneParser extends Bio2RDFizer{
 				parent::describeProperty($this->getVoc()."x-taxid", "Link to NCBI taxonomy")
 			);
 			parent::AddRDF(
-				parent::triplify($hid_res, $this->getVoc()."x-geneid", "$geneid").
-				parent::describeProperty($this->getVoc()."x-geneid", "Link to NCBI GeneId")
+				parent::triplify($hid_res, $this->getVoc()."x-ncbigene", "$geneid").
+				parent::describeProperty($this->getVoc()."x-ncbigene", "Link to NCBI GeneId")
 			);
 			parent::AddRDF(
 				parent::triplifyString($hid_res, $this->getVoc()."gene_symbol",  utf8_encode(htmlspecialchars($genesymbol))).
