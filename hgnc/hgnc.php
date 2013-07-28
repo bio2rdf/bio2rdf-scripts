@@ -35,7 +35,8 @@ class HGNCParser extends Bio2RDFizer {
 	private $version = 2.0;
 	function __construct($argv){
 		parent::__construct($argv, "hgnc");
-		parent::addParameter('files', true, 'hgnc_complete_set', 'hgnc_complete_set', 'The filename of the complete HGNC dataset');
+		//parent::addParameter('files', true, 'hgnc_complete_set', 'hgnc_complete_set', 'The filename of the complete HGNC dataset');
+		parent::addParameter('files',true,'all','all','files to process');
 		parent::addParameter('download_url',false,null,'ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc_complete_set.txt.gz');
 		parent::initialize();
 	}//constructor
@@ -156,7 +157,7 @@ class HGNCParser extends Bio2RDFizer {
 			$id_label = "hgnc identifier";
 			$id_label_class = "hgnc identifier: ".$id;
 			parent::AddRDF(
-				parent::triplify($id_res, "rdf:type", $this->getVoc()."GeneSymbol").
+				parent::triplify($id_res, "rdf:type", $this->getVoc()."Gene-Symbol").
 				parent::describeIndividual($id_res, $id_label, $this->getVoc()."gene symbol").
 				parent::describeClass($this->getVoc()."GeneSymbol", $id_label_class)
 			);
