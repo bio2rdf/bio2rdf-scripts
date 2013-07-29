@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2011-2012 Dana Klassen
+Copyright (C) 2011-2013 Dana Klassen, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,9 +23,10 @@ SOFTWARE.
 
 
 /**
-* @author :: Dana Klasen
-* @version :: 0.1
-* @description :: The Pubchem database parser
+* An RDF generator for PubChem
+* @author  Dana Klassen
+* @author  Alison Callahan
+* @version 0.2
 **/
 
 /**
@@ -44,79 +45,66 @@ SOFTWARE.
 * of download script
 *
 **/
-require('../../php-lib/rdfapi.php');
-require('../../php-lib/xmlapi.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/xmlapi.php');
 
-class PubChemParser extends RDFFactory{
-
-	private $version = null;
+class PubChemParser extends Bio2RDFizer {
 
 	function __construct($argv){
-		parent::__construct();
-
-		$this->AddParameter('sync',false,'true|false','false','update all files or just download ones not present');
-		$this->AddParameter('files',true,'all|compounds|substances|bioactivity','all','files to process');
-		$this->AddParameter('indir',false,null,'../../download/pubchem/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'../../data/pubchem','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide a graph uri to generate n-quads');
-		$this->AddParameter('workspace',false,null,'../../workspace/pubchem/','directory to mount pubchem FTP server');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download_url',false,null,'ftp.ncbi.nlm.nih.gov/pubchem/');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		
-		return TRUE;
+		parent::__construct($argv, "pubchem");
+		parent::addParameter('files',true,'all|compounds|substances|bioactivity','all','files to process');
+		parent::addParameter('workspace',false,null,'../../workspace/pubchem/','directory to mount pubchem FTP server');
+		parent::addParameter('download_url',false,null,'ftp.ncbi.nlm.nih.gov/pubchem/');
+		parent::initialize();
 	}
 
+	function run(){
+		if($this->checkRequirements() == FALSE){ 
+			echo PHP_EOL."--> Missing requirements: see above for details. Consult readme for installation."; 
+			exit;
+		}
+	
+		if(parent::getParameterValue('download') === true){
+ 			$this->sync_files();		
+ 		}
 
-	function Run(){
+		if(parent::getParameterValue('process') === true){
+			$this->process();
+		}
+			
+	}
 
-		//check requirements
-		if($this->checkRequirements() == FALSE){ echo "\n --> you are missing requirements see above for details. Consult readme for installation."; exit;};
-		// sync the files with the remote server
-		if($this->getParameterValue("sync") == TRUE) $this->sync_files();
+	function process(){
 
-		//process the indirectory
-		switch($this->getParameterValue('files')){
+		$idir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+		$files = parent::getParameterValue('files');
+
+		if($files == 'all') {
+			$files = explode('|', parent::getParameterList('files'));
+			array_shift($files);
+		} else {
+			$files = explode(',', parent::getParameterValue('files'));
+		}
+		
+		parent::setCheckpoint('dataset');
+
+		switch($files){
 			case "compounds" :
 				$this->parse_compounds();
-				$this->generateReleaseFile();
 				break;
 			case "substances" :
 				$this->parse_substances();
-				$this->generateReleaseFile();
 				break;
 			case "bioactivity";
 				$this->parse_bioactivity();
-				$this->generateReleaseFile();
+				break;
+			case "all";
+				$this->parse_compounds();
+				$this->parse_substances();
+				$this->parse_bioactivity();
 				break;
 		}
-	}
-
-	function generateReleaseFile(){
-		$odir = $this->GetParameterValue("outdir");
-		// generate the dataset release file
-		echo "generating dataset release file... ";
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubchem/pubchem.php", 
-			$this->GetBio2RDFDownloadURL($this->GetNamespace()),
-			"ftp://ftp.ncbi.nlm.nih.gov/pubchem/",
-			array("use"),
-			"http://www.genenames.org/about/overview",
-			$this->GetParameterValue('download_url'),
-			$this->version
-		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
-		echo "done!".PHP_EOL;
 	}
 
 	/**
@@ -132,7 +120,6 @@ class PubChemParser extends RDFFactory{
 		}else{
 			return FALSE;
 		}
-
 		return TRUE;
 	}
 
@@ -140,7 +127,7 @@ class PubChemParser extends RDFFactory{
 	* Create workspace and mount pubchem
 	**/
 	function setup_ftp(){
-		//create workspace if dones't already exist
+		//create workspace if doesn't already exist
 		if($this->CreateDirectory($this->GetParameterValue('workspace')) === TRUE){
 			echo "set up workspace ".$this->GetParameterValue('workspace')."\n";
 		}else{
@@ -166,7 +153,7 @@ class PubChemParser extends RDFFactory{
 
 		$this->setup_ftp();
 
-		switch($this->getParameterValue('files')) {
+		switch(parent::getParameterValue('files')) {
 			case "substances"   :
 				$this->sync_substances();
 				break;
@@ -182,7 +169,6 @@ class PubChemParser extends RDFFactory{
 				$this->sync_bioactivity();
 				break;
 		}
-
 		$this->close_ftp();
 	}
 
@@ -222,8 +208,6 @@ class PubChemParser extends RDFFactory{
 	*	process the local copy of the pubchem bioactivity directory
 	**/
 	function parse_bioactivity(){
-
-		$this->SetDefaultNameSpace("pubchembioactivity");
 
 		$ignore = array(".","..");
 		$input_dir = $this->getParameterValue('indir')."/bioactivity" ; $gz=false;
@@ -289,8 +273,8 @@ class PubChemParser extends RDFFactory{
 		$root    = $xml->GetXMLRoot();
 		
 		// internal identifier
-		$aid     = array_shift($root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_aid/PC-ID/PC-ID_id'));
-		$pid = "pubchembioactivity:".$aid;
+		$aid = array_shift($root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_aid/PC-ID/PC-ID_id'));
+		$pid = "pubchem.bioassay:".$aid;
 		$this->AddRDF($this->QQuad($pid,"rdf:type","pubchembioactivity_vocabulary:Assay"));
 		$this->AddRDF($this->QQuadl($pid,"dc:identifier",$aid));
 
