@@ -50,6 +50,10 @@ require_once(__DIR__.'/../../php-lib/xmlapi.php');
 
 class PubChemParser extends Bio2RDFizer {
 
+	private $pcbPrefix = "pubchem.bioassay";
+	private $pccPrefix = "pubchem.compound";
+	private $pcsPrefix = "pubchem.substance";
+
 	function __construct($argv){
 		parent::__construct($argv, "pubchem");
 		parent::addParameter('files',true,'all|compounds|substances|bioactivity','all','files to process');
@@ -80,30 +84,40 @@ class PubChemParser extends Bio2RDFizer {
 		$odir = parent::getParameterValue('outdir');
 		$files = parent::getParameterValue('files');
 
+		if(substr($idir, -1) !== "/"){
+			$idir = $idir."/";
+		}
+		
+		if(substr($odir, -1) !== "/"){
+			$odir = $odir."/";
+		}
+
 		if($files == 'all') {
 			$files = explode('|', parent::getParameterList('files'));
 			array_shift($files);
 		} else {
 			$files = explode(',', parent::getParameterValue('files'));
 		}
-		
+
 		parent::setCheckpoint('dataset');
 
-		switch($files){
-			case "compounds" :
-				$this->parse_compounds();
-				break;
-			case "substances" :
-				$this->parse_substances();
-				break;
-			case "bioactivity";
-				$this->parse_bioactivity();
-				break;
-			case "all";
-				$this->parse_compounds();
-				$this->parse_substances();
-				$this->parse_bioactivity();
-				break;
+		foreach($files as $file){
+			switch($file){
+				case "compounds" :
+					$this->parse_compounds();
+					break;
+				case "substances" :
+					$this->parse_substances();
+					break;
+				case "bioactivity";
+					$this->parse_bioactivity();
+					break;
+				case "all";
+					$this->parse_compounds();
+					$this->parse_substances();
+					$this->parse_bioactivity();
+					break;
+			}
 		}
 	}
 
@@ -152,23 +166,34 @@ class PubChemParser extends Bio2RDFizer {
 	function sync_files(){
 
 		$this->setup_ftp();
+		$files = parent::getParameterValue('files');
 
-		switch(parent::getParameterValue('files')) {
-			case "substances"   :
-				$this->sync_substances();
-				break;
-			case "compounds"    :
-				$this->sync_compounds();
-				break;
-			case "bioactivity" :
-				$this->sync_bioactivity();
-				break;
-			case "all" :
-				$this->sync_substances();
-				$this->sync_compounds();
-				$this->sync_bioactivity();
-				break;
+		if($files == 'all') {
+			$files = explode('|', parent::getParameterList('files'));
+			array_shift($files);
+		} else {
+			$files = explode(',', parent::getParameterValue('files'));
 		}
+
+		foreach($files as $file){
+			switch($file) {
+				case "substances"   :
+					$this->sync_substances();
+					break;
+				case "compounds"    :
+					$this->sync_compounds();
+					break;
+				case "bioactivity" :
+					$this->sync_bioactivity();
+					break;
+				case "all" :
+					$this->sync_substances();
+					$this->sync_compounds();
+					$this->sync_bioactivity();
+					break;
+			}
+		}
+		
 		$this->close_ftp();
 	}
 
@@ -229,13 +254,17 @@ class PubChemParser extends Bio2RDFizer {
 						while(false != ($file = readdir($files))){
 							if(in_array($file, $ignore))continue;
 
-							echo "processing file:".$file."\n";
+							echo "Processing file:".$file.PHP_EOL;
 							$outfile = realpath($this->getParameterValue('outdir'))."/bioactivity/".array_shift(explode(".",$dir))."/".basename($file,".xml.gz").".nt";
 				
-							if($this->GetParameterValue('gzip')){$outfile .= '.gz';$gz = true;}
-							echo "-> to ".$outfile."\n";
+							if(strstr(parent::getParameterValue('output_format'), "gz")) {
+								$outfile .= '.gz';
+								$gz = true;
+							}							
+							echo "... into ".$outfile.PHP_EOL;
 
 							$this->setWriteFile($outfile,$gz);
+							parent::setCheckpoint('file');
 							$this->parse_bioactivity_file($read_dir,$file);
 							$this->getWriteFile()->close();
 						}
@@ -261,8 +290,8 @@ class PubChemParser extends Bio2RDFizer {
 	function parse_bioactivity_file($indir,$file){
 		$xml = new CXML($indir,$file);
 		while($xml->Parse("PC-AssaySubmit") == TRUE) {
+			parent::setCheckpoint('record');
 			$this->parse_bioactivity_record($xml);
-			$this->WriteRDFBufferToWriteFile();
 		}
 	}
 
@@ -270,36 +299,48 @@ class PubChemParser extends Bio2RDFizer {
 	* 	process a single pubchem bioactivity record
 	**/
 	function parse_bioactivity_record(&$xml) {
-		$root    = $xml->GetXMLRoot();
+		$root = $xml->GetXMLRoot();
 		
 		// internal identifier
 		$aid = array_shift($root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_aid/PC-ID/PC-ID_id'));
-		$pid = "pubchem.bioassay:".$aid;
-		$this->AddRDF($this->QQuad($pid,"rdf:type","pubchembioactivity_vocabulary:Assay"));
-		$this->AddRDF($this->QQuadl($pid,"dc:identifier",$aid));
+		$pid = $this->getPcbNs().$aid;
+
+		// text based description
+		$assay_name = array_shift($root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_name'));		
+		parent::addRDF(
+			parent::describeIndividual($pid, $assay_name, $this->getPcbVoc()."Assay", null, $assay_name).
+			parent::describeClass($this->getPcbVoc."Assay", "PubChem BioAssay")
+		);
 
 		$version = array_shift($root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_aid/PC-AssayDescription_aid-source/PC-ID/PC-ID_version'));
-		$this->AddRDF($this->QQuadl($pid,"pubchembioactivity_vocabulary:has_version",$version));
+		parent::addRDF(
+			parent::triplifyString($pid, $this->getPcbVoc()."has-version", $version).
+			parent::describeProperty($this->getPcbVoc()."has-version", "Relationship between a PubChem entity and a version")
+		);
 
 		// additional identifiers
 		$source_desc   = array_shift($root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_aid-source/PC-Source/PC-Source_db/PC-DBTracking'));
 		$tracking_name = array_shift($source_desc->xpath('./PC-DBTracking_name'));
 		$tracking_id   = array_shift($source_desc->xpath('./PC-DBTracking_source-id/Object-id/Object-id_str'));
 		$xid = $tracking_name.":".$tracking_id;
-		$this->AddRDF($this->QQuadl($pid,"pubchembioactivity_vocabulary:has_xref",$xid));
 
-		// text based description
-		$assay_name = array_shift($root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_name'));
-		$this->AddRDF($this->QQuadL($pid,"dc:title",$assay_name));
+		parent::addRDF(
+			parent::triplifyString($pid, $this->getPcbVoc()."xref", $xid)
+		);
 
 		$assay_descriptions = $root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_description/PC-AssayDescription_description_E');
 		foreach($assay_descriptions as $assay_description) {
-			if($assay_description != "") $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_description)));
+			if($assay_description != ""){
+				$assay_description = parent::safeLiteral($assay_description);
+				parent::addRDF(
+					parent::triplifyString($pid, "dc:description", $assay_description)
+				);
+			}
 		}
 
 		$assay_comments = $root->xpath('//PC-AssaySubmit_assay/PC-AssaySubmit_assay_descr/PC-AssayDescription/PC-AssayDescription_comment/PC-AssayDescription_comment_E');
 		foreach($assay_comments as $assay_comment) {
-			$comment = explode(":",$assay_comment);
+			$comment = explode(":", $assay_comment);
 			
 			if(count($comment) <= 1) continue;
 			
@@ -311,33 +352,24 @@ class PubChemParser extends Bio2RDFizer {
 			switch($key) {
 				case "Putative Target":
 					break;
-				case "Cell Line":
-					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
-					break;
-				case "ChEMBL Target ID":
-					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
-					break;
-				case "Target Type":
-					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
-					break;
 				case "Tax ID":
-					 $this->AddRDF($this->QQuad($pid,"pubchembioactivity_vocabulary:has_taxid","taxon:".trim($value))) ;
+					 if($value != nil){
+					 	$value = trim($value);
+					 	parent::addRDF(
+					 		parent::triplify($pid, $this->getPcbVoc()."has-taxid", "taxon:".$value).
+					 		parent::describeProperty($this->getPcbVoc()."has-taxid", "Relationship between a PubChem BioAssay and a taxonomic identifier")
+					 	);
+					 }
 					break;
-				case "Confidence":
-					if ($comment != nil) { $this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
+				default :
+					if ($value != nil) { 
+						$value = parent::safeLiteral($value);
+						parent::addRDF(
+							parent::triplifyString($pid, "rdfs:comment", $comment)
+						);
+					}//if
 					break;
-				case "Relationship Type":
-					if ($comment != nil) {$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
-					break;
-				case "Multi":
-					if ($comment != nil) {$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
-					break;
-				case "Complex":
-					if ($comment != nil) {$this->AddRDF($this->QQuadl($pid,"rdfs:comment",$this->SafeLiteral($assay_comment))); }
-					break;
-				default:
-					break;
-			}
+			}//switch
 		}
 
 		// xrefs - these are database cross references to pubmed, ncbi gene, and pubchem substance
@@ -351,7 +383,7 @@ class PubChemParser extends Bio2RDFizer {
 			$this->db_xrefs($pid,$taxons,"taxon");
 
 			$aids = $xref->xpath("./PC-AnnotatedXRef_xref/PC-XRefData/PC-XRefData_aid");
-			$this->db_xrefs($pid,$aids,"pubchembioactivity");
+			$this->db_xrefs($pid,$aids, $this->getPcbPrefix());
 
 			$omims = $xref->xpath("./PC-AnnotatedXRef_xref/PC-XRefData/PC-XRefData_mim");
 			$this->db_xrefs($pid,$omims,"omim");
@@ -367,46 +399,92 @@ class PubChemParser extends Bio2RDFizer {
 			$type        = array_shift($result_type->xpath('./PC-ResultType_type'));
 			$unit        = array_shift($result_type->xpath('./PC-ResultType_unit'));
 
-			// create the possible assay types that a result can be may result in duplication with other experiments
+			// create the possible assay types that a result can be; may result in duplication with other experiments
 			$rtid = $this->result_type_id($tid);
-			$this->AddRDF($this->QQuad($rtid,"rdf:type","pubchembioactivity_vocabulary:AssayResultType"));
-			$this->AddRDF($this->QQuadl($rtid,"dc:identifier",$tid));
-			if($description != "") { $this->AddRDF($this->QQuadl($rtid,"rdfs:comment",$this->SafeLiteral($description))); }
-			$this->AddRDF($this->QQuadl($rtid,"dc:title",$name));
-			if($unit != null)$this->AddRDF($this->QQuadl($rtid,"pubchembioactivity_vocabulary:has_unit",$unit->attributes()->value));
+
+			parent::addRDF(
+				parent::describeIndividual($rtid, $name, $this->getPcbVoc()."AssayResultType", $name).
+				parent::describeClass($this->getPcbVoc()."AssayResultType", "Result type of a PubChem BioAssay")
+			);
+
+			if($description != ""){
+				$description = parent::safeLiteral($description);
+				parent::addRDF(
+					parent::triplifyString($rtid, "dc:description", $description)
+				);
+			}
+
+			if($unit != null){
+				$value = $unit->attributes()->value;
+				parent::addRDF(
+					parent::triplifyString($rtid, $this->getPcbVoc()."has-unit", $value).
+					parent::describeProperty($this->getPcbVoc()."has-unit", "Relationship between a PubChem BioAssay Result Type and its unit")
+				);
+			}
 		}
+
 		// project category e.g literature-extracted
 		$project_category = array_shift($root->xpath('//PC-AssaySubmit_assay/PC-Assay_descr/PC-AssayDescription_project-category'));
 		//$this->AddRDF($this->QQuadl($pid,"pubchembioactivity_vocabulary:hasProjectCategory",$project_category));
 
 		// result sets - these are containers for multiple assay result sets
 		$results = $root->xpath('//PC-AssaySubmit_data/PC-AssayResults');
-		$rsid    = "pubchembioactivity:resultset_".md5(implode($results));
-		$this->AddRDF($this->QQuad($rsid,"rdf:type","pubchembioactivity_vocabulary:ResultSet"));
-		$this->AddRDF($this->QQuad($pid,"pubchembioactivity_vocabulary:hasResultSet",$rsid));
+		$rsid    = $this->getPcbRes()."resultset_".md5(implode($results));
+		$rsid_label = "BioAssay Result Set for $pid";
+
+		parent::addRDF(
+			parent::describeIndividual($rsid, $rsid_label, $this->getPcbVoc()."ResultSet").
+			parent::describeClass($this->getPcbVoc()."ResultSet", "PubChem BioAssay Result Set")
+		);
+
+		parent::addRDF(
+			parent::triplify($pid, $this->getPcbVoc()."has-result-set", $rsid).
+			parent::describeProperty($this->getPcbVoc()."has-result-set", "Relationship between a PubChem BioAssay and its result set")
+		);
 
 		foreach($results as $result) {
 
-			$rid = "pubchembioactivity:result_".md5($result->asXML());
-			$this->AddRDF($this->QQuad($rid,"rdf:type","pubchembioactivity_vocabulary:AssayResult"));
-			$this->AddRDF($this->QQuad($rsid,"pubchembioactivity_vocabulary:hasResult",$rid));
+			$rid = $this->getPcbRes()."result_".md5($result->asXML());
+			$rid_label = "A PubChem BioAssay Result for $pid";
+			parent::addRDF(
+				parent::describeIndividual($id, $rid_label, $this->getPcbVoc()."AssayResult").
+				parent::describeClass($this->getPcbVoc()."AssayResult", "PubChem BioAssay Result")
+			);
+
+			parent::addRDF(
+				parent::triplify($rsid, $this->getPcbVoc()."has-result", $rid).
+				parent::describeProperty($this->getPcbVoc()."has-result", "Relationship between a PubChem BioAssay Result Set and a Result")
+			);
 
 			// substance id
 			$sid  = array_shift($result->xpath('./PC-AssayResults_sid'));
-			$psid = "pubchemsubstance:".$sid;
-			$this->AddRDF($this->QQuad($rid,"pubchembioactivity_vocabulary:hasSubstance",$psid));
+			$psid = $this->getPcsNs().$sid;
+
+			parent::addRDF(
+				parent::triplify($rid, $this->getPcbVoc()."has-substance", $psid).
+				parent::describeProperty($this->getPcbVoc()."has-substance", "Relationship between a PubChem BioAssay Result and a PubChem substance")
+			);
 
 			// pubchem substance version
-			$sid_version           = array_shift($result->xpath('./PC-AssayResults_version'));
-			$this->AddRDF($this->QQuadl($psid,"pubchembioactivity_vocabulary:hasVersion",$sid_version));
+			$sid_version = array_shift($result->xpath('./PC-AssayResults_version'));
+			parent::addRDF(
+				parent::triplifyString($psid, $this->getPcbVoc()."has-version", $sid_version)
+			);
 
-			$assay_outcome         = array_shift($result->xpath('./PC-AssayResults_outcome'));
-			$this->AddRDF($this->QQuadl($rid,"pubchembioactivity_vocabulary:hasOutcome",$assay_outcome));
+			$assay_outcome = array_shift($result->xpath('./PC-AssayResults_outcome'));
+			parent::addRDF(
+				parent::triplifyString($rid, $this->getPcbVoc()."has-outcome", $assay_outcome).
+				parent::describeProperty($this->getPcbVoc()."has-outcome", "Relationship between a PubChem BioAssay and an outcome")
+			);
 
-			$year                  = array_shift($result->xpath('./PC-AssayResults_date/Date/Date_std/Date-std/Date-std_year'));
-			$month                 = array_shift($result->xpath('./PC-AssayResults_date/Date/Date_std/Date-std/Date-std_month'));
-			$day                   = array_shift($result->xpath('./PC-AssayResults_date/Date/Date_std/Date-std/Date-std_day'));
-			$this->AddRDF($this->QQuadl($rid,"pubchembioactivity_vocabulary:hasDate",$day."-".$month."-".$year));
+			$year = array_shift($result->xpath('./PC-AssayResults_date/Date/Date_std/Date-std/Date-std_year'));
+			$month = array_shift($result->xpath('./PC-AssayResults_date/Date/Date_std/Date-std/Date-std_month'));
+			$day = array_shift($result->xpath('./PC-AssayResults_date/Date/Date_std/Date-std/Date-std_day'));
+
+			parent::addRDF(
+				parent::triplifyString($rid, parent::getPcbVoc()."has-date", $day."-".$month."-".$year, "xsd:date").
+				parent::describeProperty($this->getPcbVoc()."has-date", "Relationship between a PubChem BioAssay and a date")
+			);
 
 			// individual result datapoints
 			$assay_data_collection = $result->xpath('./PC-AssayResults_data/PC-AssayData');
@@ -415,11 +493,24 @@ class PubChemParser extends Bio2RDFizer {
 				$atype  = array_shift($assay_data->xpath('./PC-AssayData_tid'));
 				$avalue = array_shift($assay_data->xpath('./PC-AssayData_value/*'));
 
-				$vid = "pubchembioactivity:result_value_".md5($rid.$avalue);
-				$this->AddRDF($this->QQuad($vid,"rdf:type",$this->result_type_id($atype)));
-				$this->AddRDF($this->QQuad($rid,"pubchembioactivity_vocabulary:hasResultValue",$vid));
+				$vid = $this->getPcbRes()."result_value_".md5($rid.$avalue);
+				$vid_label = "Result value of type ".$atype." for PubChem BioAssay ".$aid;
+				$vid_type = $this->result_type_id($atype);
+
+				parent::addRDF(
+					parent::describeIndividual($vid, $vid_label, $vid_type)
+				);
+
+				parent::addRDF(
+					parent::triplify($rid, $this->getPcbVoc()."has-result-value", $vid).
+					parent::describeProperty($this->getPcbVoc()."has-result-value", "Relationship between a PubChem BioAssay result and its value resource")
+				);
 				
-				if($avalue != "" && $avalue != null )$this->AddRDF($this->QQuadl($vid,"rdf:value",$avalue));
+				if($avalue != "" && $avalue != null ){
+					parent::addRDF(
+						parent::triplifyString($vid, "rdf:value", parent::safeLiteral($avalue))
+					);
+				}
 			}
 		}
 	}
@@ -428,7 +519,7 @@ class PubChemParser extends Bio2RDFizer {
 	* Create unique id for a result id
 	**/
 	function result_type_id($tid) {
-		return "pubchembioactivity:result_type_".$tid;
+		return $this->getPcbNs()."result_type_".$tid;
 	}
 
 	/**
@@ -438,8 +529,10 @@ class PubChemParser extends Bio2RDFizer {
 
 		if($xrefs != null) {
 			foreach($xrefs as $xref) {
-					$xref = $vocab.":".$xref;
-					$this->AddRDF($this->QQuad($pid,"pubchembioactivity_vocabulary:has_xref",$xref));
+				$xref = $vocab.":".$xref;
+				parent::addRDF(
+					parent::triplify($pid, $this->getPcbVoc()."xref", $xref)
+				);
 			}
 		}
 	}
@@ -449,29 +542,31 @@ class PubChemParser extends Bio2RDFizer {
 	*	compound directory.
 	**/
 	function parse_compounds(){
-
-		$this->SetDefaultNameSpace("pubchemcompound");
-
 		$ignore = array(".","..");
-		$compounds_dir = $this->getParameterValue('indir')."/compounds/" ; $gz=false;
-		$this->CreateDirectory($this->getParameterValue('outdir')."/compounds/");
+		$compounds_dir = parent::getParameterValue('indir')."/compounds/" ; $gz=false;
+		parent::createDirectory(parent::getParameterValue('outdir')."/compounds/");
 
 		if($handle = opendir($compounds_dir)){
 			while(false !== ($file = readdir($handle))){
 				if(in_array($file, $ignore))continue;
-				echo "Processing file: ".$compounds_dir.$file;
-				$outfile = realpath($this->getParameterValue('outdir'))."/compounds/".basename($file,".xml.gz").".nt";
+				echo "Processing file: ".$compounds_dir.$file.PHP_EOL;
+				$outfile = realpath(parent::getParameterValue('outdir'))."/compounds/".basename($file,".xml.gz").".nt";
 				
-				if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
-				echo "-> to ".$outfile;
+				if(strstr(parent::getParameterValue('output_format'), "gz")) {
+					$outfile .= '.gz';
+					$gz = true;
+				}
+				
+				echo "... into ".$outfile.PHP_EOL;
 
+				parent::setCheckpoint('file');
 				$this->setWriteFile($outfile,$gz);
 				$this->parse_compound_file($compounds_dir,$file);
 				$this->getWriteFile()->close();
 			}
 			closedir($handle);
 		}else{
-			echo "unable to read directory contents: ".$compounds_dir."\n";
+			echo "Unable to read directory contents: ".$compounds_dir."\n";
 			exit;
 		}
 	}
@@ -482,8 +577,8 @@ class PubChemParser extends Bio2RDFizer {
 	function parse_compound_file($indir,$file){
 		$xml = new CXML($indir,$file);
 		while($xml->Parse("PC-Compound") == TRUE) {
+			parent::setCheckpoint('record');
 			$this->parse_compound_record($xml);
-			$this->WriteRDFBufferToWriteFile();
 		}
 	}
 
@@ -495,10 +590,8 @@ class PubChemParser extends Bio2RDFizer {
 		
 		$root = $xml->GetXMLRoot();
 		$cid  =  array_shift($root->xpath('//PC-Compound_id/PC-CompoundType/PC-CompoundType_id/PC-CompoundType_id_cid'));
-		$pcid = "pubchemcompound:".$cid;
-
-		$this->AddRDF($this->QQuad($pcid,"rdf:type","pubchemcompound_vocabulary:Compound"));
-		$this->AddRDF($this->QQuadL($pcid,"dc:identifier",$cid,"en"));
+		$pcid = $this->getPccNs().$cid;
+		$pcid_label = null;
 
 		// AtomID/Type Information
 		//$pc_atoms_aid     = $root->xpath('//PC-Compound_atoms/PC-Atoms/PC-Atoms_aid/PC-Atoms_aid_E');
@@ -540,28 +633,96 @@ class PubChemParser extends Bio2RDFizer {
 		$property = $root->xpath('//PC-Compound_props/PC-InfoData');
 
 		foreach($property as $prop) {
-			$label           = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_label'));
-			$name            = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_name'));
-			$implementation  = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_implementation'));
-			$software        = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_software'));
-			$version         = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_version'));
-			$release         = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_release'));
-			$source          = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_release'));
-			$data_type_value = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_datatype/PC-UrnDataType'));
-			$data_type       = $data_type_value->attributes()->value;
+
+			$urn_label           = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_label'));
+			$urn_name            = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_name'));
+			$urn_implementation  = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_implementation'));
+			$urn_software        = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_software'));
+			$urn_version         = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_version'));
+			$urn_release         = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_release'));
+			$urn_data_type_value = array_shift($prop->xpath('./PC-InfoData_urn/PC-Urn/PC-Urn_datatype/PC-UrnDataType'));
+			$urn_data_type       = $urn_data_type_value->attributes()->value;
 
 			$value = array_shift($prop->xpath('./PC-InfoData_value/*'));
 
-			$prop_id = "pubchemcompound:".$this->info_id($cid,$prop->asXML());
+			if($urn_name == "Preferred" && $urn_label == "IUPAC Name"){
+				$pcid_label = $value;
+			}
 
-			$this->AddRDF($this->QQuad($pcid,"pubchemcompound_vocabulary:has_info_data",$prop_id));
-			$this->AddRDF($this->QQuadl($prop_id,"rdfs:label",$label." ".$name,"en"));
-			if($implementation != "") $this->AddRDF($this->QQuadl($prop_id,"pubchemcompound:has_implementation",$this->SafeLiteral($implementation),"en"));
-			if($software       != "") $this->AddRDF($this->QQuadl($prop_id,"pubchemcompound_vocabulary:has_software",$this->SafeLiteral($software),"en"));
-			if($version        != "") $this->AddRDF($this->QQuadl($prop_id,"pubchemcompound_vocabulary:has_version",$this->SafeLiteral($version),"en"));
-			if($release        != "") $this->AddRDF($this->QQuadl($prop_id,"pubchemcompound_vocabulary:has_release",$this->SafeLiteral($release),"en"));
-			if($value          != "") $this->AddRDF($this->QQuadl($prop_id,"rdf:value",$this->SafeLiteral($value)));
+			if($value  != ""){
+
+				$urn_name = trim($urn_name);
+				$urn_label = trim($urn_label);
+
+				$pcid_type_string = "";
+				if($urn_name != ""){
+					$pcid_type_string .= $urn_name;
+				}
+
+				if($urn_label != ""){
+					$pcid_type_string .= $urn_label;
+				}
+
+				$prop_id = $this->getPccRes().$this->info_id($cid,$prop->asXML());
+				$prop_type = $this->getPccVoc().str_replace(" ", "_", $pcid_type_string);
+				$prop_label = $urn_name." ".$urn_label." for PubChem compound ". $cid;
+
+				parent::addRDF(
+					parent::describeIndividual($prop_id, $prop_label, $prop_type).
+					parent::triplifyString($prop_id, "rdf:value", parent::safeLiteral($value))
+				);
+
+				$pcid_predicate_string = "";
+				if($urn_name != ""){
+					$pcid_predicate_string .= $urn_name;
+				}
+
+				if($urn_label != ""){
+					$pcid_predicate_string .= $urn_label;
+				}
+
+				$pcid_predicate_string = strtolower(str_replace(" ", "-", $pcid_predicate_string));
+				parent::addRDF(
+					parent::triplify($pcid, $this->getPccVoc()."has-".$pcid_predicate_string, $prop_id).
+					parent::describeProperty($this->getPccVoc()."has-".$pcid_predicate_string, "Relationship between a PubChem compound and a $pcid_type_string")
+				);
+
+				$prov_id = $prop_id."_provenance";
+
+				parent::addRDF(
+					parent::triplify($prop_id, "prov:wasGeneratedBy", $prov_id)
+				);
+
+				if($urn_implementation != ""){
+					parent::addRDF(
+						parent::triplifyString($prov_id, $this->getPccVoc()."implementation", parent::safeLiteral($urn_implementation))
+					);
+				}
+
+				if($urn_software != ""){
+					parent::addRDF(
+						parent::triplifyString($prov_id, $this->getPccVoc()."software", parent::safeLiteral($urn_software))
+					);
+				}
+
+				if($urn_version != ""){
+					parent::addRDF(
+						parent::triplifyString($prov_id, $this->getPccVoc()."version", parent::safeLiteral($urn_version))
+					);
+				}
+				
+				if($urn_release != ""){
+					parent::addRDF(
+						parent::triplifyString($prov_id, $this->getPccVoc()."release", parent::safeLiteral($urn_release))
+					);
+				}
+			}
 		} 
+
+		parent::addRDF(
+			parent::describeIndividual($pcid, $pcid_label, $this->getPccVoc()."Compound")
+		);
+
 	}
 
 	/**
@@ -592,9 +753,6 @@ class PubChemParser extends Bio2RDFizer {
 	*  Function to begin parsing the local copy of the pubchem substances directory
 	**/
 	function parse_substances(){
-
-		$this->SetDefaultNameSpace("pubchemsubstance");
-
 		$ignore        = array(".","..");
 		$substances_dir = $this->getParameterValue('indir')."/substances/" ; $gz=false;
 		$this->CreateDirectory($this->getParameterValue('outdir')."/substances/");
@@ -602,11 +760,17 @@ class PubChemParser extends Bio2RDFizer {
 		if($handle = opendir($substances_dir)){
 			while(false !== ($file = readdir($handle))){
 				if(in_array($file, $ignore)) continue;
-				echo "Processing file: ".$substances_dir.$file."\n";
+				echo "Processing file: ".$substances_dir.$file.PHP_EOL;
 				$outfile = realpath($this->getParameterValue('outdir'))."/substances/".basename($file,".xml.gz").".nt";
-				if($this->GetParameterValue('gzip')) {$outfile .= '.gz';$gz = true;}
-				echo "-> to ".$outfile."\n";
+				
+				if(strstr(parent::getParameterValue('output_format'), "gz")) {
+					$outfile .= '.gz';
+					$gz = true;
+				}
+				
+				echo "... into ".$outfile.PHP_EOL;
 
+				parent::setCheckpoint('file');
 				$this->setWriteFile($outfile,$gz);
 				$this->parse_substance_file($substances_dir,$file);
 				$this->getWriteFile()->close();
@@ -624,8 +788,8 @@ class PubChemParser extends Bio2RDFizer {
 	function parse_substance_file($indir,$file){
 		$xml = new CXML($indir,$file);
 		while($xml->Parse("PC-Substance") == TRUE) {
+			parent::setCheckpoint('record');
 			$this->parse_substance_record($xml);
-			$this->WriteRDFBufferToWriteFile();
 		}
 	}
 
@@ -638,46 +802,107 @@ class PubChemParser extends Bio2RDFizer {
 		// pubchem identifier and version
 		$sid         = array_shift($root->xpath('//PC-Substance_sid/PC-ID/PC-ID_id'));
 		$sid_version = array_shift($root->xpath('//PC-Substance_sid/PC-ID/PC-ID_version'));
-		$psid        = "pubchemsubstance:".$sid;
+		$psid        = $this->getPcsNs().$sid;
 
-		$this->AddRDF($this->QQuad($psid,"rdf:type","pubchemsubstance_vocabulary:Substance"));
-		$this->AddRDF($this->QQuadL($psid,"dc:identifier",$sid,"en"));
-		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:has_version",$sid_version));
+		parent::addRDF(
+			parent::describeIndividual($psid, null, $this->getPcsVoc()."Substance")
+		);
+
+		parent::addRDF(
+			parent::triplifyString($psid, $this->getPcsVoc()."version", parent::safeLiteral($sid_version))
+		);
 
 		// reference to pubchem compounds
 		$pc_compounds = $root->xpath('//PC-Substance_compound/PC-Compounds/PC-Compound');
 		foreach($pc_compounds as $compound) {
-			$cid = "pubchemcompound:".array_shift($compound->xpath('./PC-Compound_id/PC-CompoundType_id_cid'));
+			$cid = array_shift($compound->xpath('./PC-Compound_id/PC-CompoundType/PC-CompoundType_id/PC-CompoundType_id_cid'));
 			$cid_type = array_shift($compound->xpath('./PC-Compound_id/PC-CompoundType/PC-CompoundType_type'));
 
-			$pcrel = "pubchemsubstance:compound_relation_".md5($cid.$cid_type);
+			if($cid != ""){
+				$pcid = $this->getPccNs().$cid;
+				parent::addRDF(
+					parent::triplify($psid, $this->getPcsVoc()."compound", $pcid)
+				);
+			}
+			
 
-			$this->AddRDF($this->QQuad($psid,"pubchemsubstance_vocabulary:hasCompoundRelation",$pcrel));
-			$this->AddRDF($this->QQuad($pcrel,"pubchemsubstance_vocabulary:hasCompound",$cid));
-			$this->AddRDF($this->QQuadl($pcrel,"pubchemsubstance_vocabulary:hasCompoundType",$cid_type->attributes()->value));
 		}
 		// database cross references (xref)
 
 		// source identifier
 		$source_id   = array_shift($root->xpath('//PC-Substance_source/PC-Source/PC-Source_db/PC-DBTracking/PC-DBTracking_source-id/Object-id/Object-id_str'));
-		$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:source_identifier",$source_id));
+
+		parent::addRDF(
+			parent::triplifyString($psid, $this->getPcsVoc()."source-identifier", parent::safeLiteral($source_id))
+		);
 
 		// synonyms
 		$synonyms   = $root->xpath('//PC-Substance_synonyms/PC-Substance_synonyms_E');
 
 		foreach($synonyms as $synonym){
-			$this->AddRDF($this->QQuadL($psid,"pubchemsubstance_vocabulary:synonyms",$this->SafeLiteral($synonym)));
+			parent::addRDF(
+				parent::triplifyString($psid, $this->getPcsVoc()."synonym", parent::safeLiteral($synonym))
+			);
 		}
 
 		//comment
 		$comments     = $root->xpath('//PC-Substance_comment/PC-Substance_comment_E');
 		foreach($comments as $comment) {
-			if($comment != ""){ $this->AddRDF($this->QQuadL($psid,"rdfs:comment",$this->SafeLiteral($comment),"en"));}
+			if($comment !== ""){
+				parent::addRDF(
+					parent::triplifyString($psid, "rdfs:comment", parent::safeLiteral($comment))
+				);
+			}
 		}
+	}
+
+	private function getPccPrefix(){
+		return $this->pccPrefix;
+	}
+ 
+ 	private function getPcbPrefix(){
+		return $this->pcbPrefix;
+	}
+ 
+	private function getPcsPrefix(){
+		return $this->pcsPrefix;
+	}
+
+	private function getPccNs(){
+		return $this->getPccPrefix().":";
+	}
+ 
+	private function getPcbNs(){
+		return $this->getPcbPrefix().":";
+	}
+
+	private function getPcsNs(){
+		return $this->getPcsPrefix().":";
+	}
+
+	private function getPccVoc(){
+		return $this->getPccPrefix()."_vocabulary:";
+	}
+ 
+	private function getPcbVoc(){
+		return $this->getPcbPrefix()."_vocabulary:";
+	}
+
+	private function getPcsVoc(){
+		return $this->getPcsPrefix()."_vocabulary:";
+	}
+
+	private function getPccRes(){
+		return $this->getPccPrefix()."_resource:";
+	}
+ 
+	private function getPcbRes(){
+		return $this->getPcbPrefix()."_resource:";
+	}
+
+	private function getPcsRes(){
+		return $this->getPcsPrefix()."_resource:";
 	}
 }
 
-set_error_handler('error_handler');
-$dbparser = new PubChemParser($argv);
-$dbparser->Run();
 ?>
