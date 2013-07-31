@@ -397,14 +397,16 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				);
 				// Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment
 				foreach(explode(", ",$study_design) AS $b) {
-					$c = explode(": ",$b);
+					$c = explode(":  ",$b);
 					$key = parent::getRes().md5($c[0]);
+					if(isset($c[1])) {
 					$value = parent::getRes().md5($c[1]);
 					parent::addRDF(
 						parent::describeClass($value,$c[1],parent::getVoc()."Study-Design-Parameter",$c[1]).
 						parent::describeObjectProperty($key,$c[0],null,$c[0]).
 						parent::triplify($study_design_id,$key, $value)
 					);
+					}
 				}
 			}
 
