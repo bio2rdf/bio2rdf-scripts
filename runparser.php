@@ -22,10 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-require_once(__DIR__.'/../php-lib/bio2rdfapi.php');
-require_once(__DIR__.'/../php-lib/rdfapi.php');
-require_once(__DIR__.'/../php-lib/registry.php');
-require_once(__DIR__.'/../php-lib/application.php');
+require_once(__DIR__.'/../php-lib/phplib.php');
 
 class Bio2RDFApp extends Application
 {
@@ -36,11 +33,8 @@ class Bio2RDFApp extends Application
 		// get the parsers;
 		$parsers = $this->getParsers();
 		parent::addParameter('parser',true,implode("|",$parsers),null,'bio2rdf parser to run');
-		if(parent::setParameters($argv,true) == false) {
-			parent::printParameters($argv);
-			exit;
-		}
-		
+		parent::setParameters($argv,true);
+
 		// now get the file and run it
 		$parser_name = parent::getParameterValue('parser');
 		$file = $parser_name.'/'.$parser_name.'.php';
