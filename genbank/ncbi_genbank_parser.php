@@ -27,6 +27,7 @@ SOFTWARE.
  * @description ftp://ftp.ncbi.nlm.nih.gov/genbank/README.genbank
 */
 
+/*
 $gb_fields = array(
 	"LOCUS" => array(
 		"description" => "The LOCUS field contains a number of different data elements, including locus name, sequence length, molecule type, GenBank division, and modification date",
@@ -180,9 +181,7 @@ function extractAccession($gb_str){
 	}
 	return $rm;
 }
-/**
-* get an array of keywords
-*/
+
 function extractKeywords($gb_str){
 	$rm = null;
 	$p = "/KEYWORDS\s+(.*?)/";
@@ -256,4 +255,5 @@ $x = extractVersion($str);
 print_r($x);
 //parseRecordFromString($str);
 //print_r($gb_fields);
+*/
 ?>
