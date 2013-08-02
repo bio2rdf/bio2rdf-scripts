@@ -525,7 +525,4 @@ class OMIMParser extends Bio2RDFizer
 	} // end parse
 } 
 
-set_error_handler('error_handler');
-$parser = new OMIMParser($argv);
-$parser->Run();
 ?>
