@@ -527,6 +527,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$arm_group_id = parent::getRes().md5($arm_group->asXML());
 					$arm_group_label = $this->getString('./arm_group_label',$arm_group);
 					$arm_group_type = ucfirst(str_replace(" ","_",$this->getString('./arm_group_type',$arm_group)));
+					if(!$arm_group_type) $arm_group_type = "Clinical-Arm";
 					$description = $this->getString('./description',$arm_group);
 
                     parent::addRDF(
@@ -790,6 +791,10 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$name_title        = $this->getString('//responsible_party/name_title');
 					$organization      = $this->getString('//responsible_party/organization');
 					$party_type        = $this->getString('//responsible_party/party_type');
+					
+					if($name_title)   $label  = $name_title;
+					if($organization) $label .= (($name_title !== '')?", ":"").$organization;
+					if(!$label && $party_type) $label = $party_type;
 					
 					parent::addRDF(
 						parent::triplify($study_id,parent::getVoc()."responsible-party",$rp_id).
