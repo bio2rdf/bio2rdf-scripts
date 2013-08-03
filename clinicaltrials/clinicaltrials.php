@@ -793,14 +793,14 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$name_title        = $this->getString('//responsible_party/name_title');
 					$organization      = $this->getString('//responsible_party/organization');
 					$party_type        = $this->getString('//responsible_party/party_type');
-					
+					$label = '';
 					if($name_title)   $label  = $name_title;
 					if($organization) $label .= (($name_title !== '')?", ":"").$organization;
 					if(!$label && $party_type) $label = $party_type;
 					
 					parent::addRDF(
 						parent::triplify($study_id,parent::getVoc()."responsible-party",$rp_id).
-						parent::describeIndividual($rp_id,"$name_title, $organization",parent::getVoc()."Responsible-Party")
+						parent::describeIndividual($rp_id,$label,parent::getVoc()."Responsible-Party")
 					);
 					if($party_type) parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."party-type",$party_type));
 					if($name_title) parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."name-title",$name_title));
