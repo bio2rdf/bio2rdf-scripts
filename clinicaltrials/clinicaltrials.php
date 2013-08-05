@@ -150,6 +150,18 @@ class ClinicalTrialsParser extends Bio2RDFizer
 	function parse_dir(){
 		$ignore = array("..",'.','.DS_STORE',"0");
 		$this->setCheckPoint('dataset');
+		
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+
+		$dataset_file = parent::getParameterValue("outdir").parent::getBio2RDFReleaseFile();
+		$fp = fopen($dataset_file);
+		if(!$fp === FALSE) {
+			trigger_error("Unable to open $dataset_file",E_USER_ERROR);
+			return false;
+		}
+		
 		$indir = parent::getParameterValue('indir');
 		if($handle = opendir($indir)) {
 			echo "Processing directory $indir\n";
@@ -159,10 +171,52 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				if(parent::getParameterValue('id_list') == '' || in_array($trial_id, explode(",",parent::getParameterValue('id_list')))) {
 					echo "Processing $file".PHP_EOL;					
 					$this->process_file($file);
+					
+					// make the dataset description
+					$ouri = parent::getGraphURI(parent::getDatasetURI());
+					parent::setGraphURI(parent::getDatasetURI());
+					
+					$output_file = (new DataResource($this))
+						->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$file")
+						->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
+						->setSource($source_file->getURI())
+						->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/clinicaltrials/clinicaltrials.php")
+						->setCreateDate($date)
+						->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+						->setPublisher("http://bio2rdf.org")			
+						->setRights("use-share-modify")
+						->setRights("by-attribution")
+						->setRights("restricted-by-source-license")
+						->setLicense("http://creativecommons.org/licenses/by/3.0/")
+						->setDataset(parent::getDatasetURI());
+
+					if($gz) $output_file->setFormat("application/gzip");
+					if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+					else $output_file->setFormat("application/n-quads");
+													
+					// dataset description
+					$source_version = parent::getDatasetVersion();
+					$source_file = (new DataResource($this))
+					->setURI($rfile)
+					->setTitle("Clinicaltrials")
+					->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+					->setFormat("application/xml")
+					->setPublisher("http://clinicaltrials.gov/")
+					->setHomepage("http://clinicaltrials.gov/")
+					->setRights("use")
+					->setRights("by-attribution")
+					->setLicense("http://clinicaltrials.gov/ct2/about-site/terms-conditions")
+					->setDataset("http://identifiers.org/clinicaltrials/");
+				
+					fwrite($fp, $source_file->toRDF().$output_file->toRDF());
+					parent::setGraphURI(parent::setDatasetURI($ouri));
 				}
 			}
 			echo "Finished\n.";
 			closedir($handle);
+
+			// write the dataset description file
+			fclose($fp);
 		}
 	}
 	
