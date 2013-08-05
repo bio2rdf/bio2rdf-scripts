@@ -74,20 +74,50 @@ class InterproParser extends Bio2RDFizer
 		parent::writeRDFBufferToWriteFile();
 		parent::getWriteFile()->close();	
 		echo "Done!".PHP_EOL;
+
+
+		
+		parent::setGraphURI(parent::getDatasetURI());
+		
+		// dataset description
+		$source_version = parent::getDatasetVersion();
+		$source_file = (new DataResource($this))
+		->setURI($rfile)
+		->setTitle("InterPro v$source_version")
+		->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+		->setFormat("application/xml")
+		->setFormat("application/g-zip")
+		->setPublisher("http://www.ebi.ac.uk/")
+		->setHomepage("http://www.ebi.ac.uk/interpro/")
+		->setRights("InterPro - Integrated Resource Of Protein Domains And Functional Sites. Copyright (C) 2001 The InterPro Consortium")
+		->setLicense("http://www.ebi.ac.uk/interpro/faqs.html")
+		->setDataset("http://identifiers.org/interpro/");
 	
-		// generate the release file
-		$desc = parent::getBio2RDFDatasetDescription(
-			parent::getPrefix(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/interpro/intepro.php", 
-			parent::getBio2RDFDownloadURL(parent::getPrefix()).$outfile,
-			"http://www.ebi.ac.uk/interpro/",
-			array("use-share-modify"),
-			null, // license
-			parent::getParameterValue('download_url'),
-			$this->version
-		);
-		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile(parent::getPrefix()));
-		parent::getWriteFile()->write($desc);
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$outfile")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/interpro/interpro.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")			
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+		
+		$dataset_description = $source_file->toRDF().$output_file->toRDF();
+
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
 		
 		return true;
@@ -105,11 +135,17 @@ class InterproParser extends Bio2RDFizer
 				parent::setDatasetVersion($o->attributes()->version);
 			}
 		}
+		// get a potential id list
+		$id_list = explode(",",parent::getParameterValue("id_list"));
+		
 		// now interate over the entries
 		foreach($xml->interpro AS $o) {
 			parent::writeRDFBufferToWriteFile();
 
 			$interpro_id = $o->attributes()->id;
+			if(isset($id_list) && !in_array($interpro_id,$id_list)) {
+				continue;
+			}
 			echo "Processing $interpro_id".PHP_EOL;
 			
 			$name = $o->name;
