@@ -76,7 +76,7 @@ class InterproParser extends Bio2RDFizer
 		echo "Done!".PHP_EOL;
 
 
-		
+		// let's make an nq file
 		parent::setGraphURI(parent::getDatasetURI());
 		
 		// dataset description
