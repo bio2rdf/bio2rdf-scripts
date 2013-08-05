@@ -22,10 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-require_once(__DIR__.'/../php-lib/bio2rdfapi.php');
-require_once(__DIR__.'/../php-lib/rdfapi.php');
-require_once(__DIR__.'/../php-lib/registry.php');
-require_once(__DIR__.'/../php-lib/application.php');
+require_once(__DIR__.'/../php-lib/phplib.php');
 
 class Bio2RDFApp extends Application
 {
@@ -36,19 +33,23 @@ class Bio2RDFApp extends Application
 		// get the parsers;
 		$parsers = $this->getParsers();
 		parent::addParameter('parser',true,implode("|",$parsers),null,'bio2rdf parser to run');
-		if(parent::setParameters($argv,true) == false) {
-			parent::printParameters($argv);
-			exit;
-		}
-		
+		parent::setParameters($argv,true);
+
 		// now get the file and run it
 		$parser_name = parent::getParameterValue('parser');
 		$file = $parser_name.'/'.$parser_name.'.php';
 		require($file);
-		$parser_class = $parser_name."Parser";
-
+		$parser_class = $parser_name."Parser";	
 		$parser = new $parser_class($argv);
+		
+		$start = microtime(true);
 		$parser->Run();
+		
+		$end = microtime(true);
+		$time_taken =  $end - $start;
+		print "Start: ".date("l jS F \@ g:i:s a", $start)."\n";
+		print "End:   ".date("l jS F \@ g:i:s a", $end)."\n";
+		print "Time:  ".sprintf("%.2f",$time_taken)." seconds\n";
 	}
 	
 	/** looks for dir/dir.php, as an initial list of parsers */

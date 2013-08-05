@@ -29,7 +29,7 @@ SOFTWARE.
  * @contributor Michel Dumontier
  * @description ftp://ftp.ncbi.nih.gov/gene/DATA/
 */
-require('../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
 class EntrezGeneParser extends Bio2RDFizer{
 

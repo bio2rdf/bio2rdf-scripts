@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2011-2012 Michel Dumontier
+Copyright (C) 2011-2013 Michel Dumontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -25,58 +25,54 @@ SOFTWARE.
 /**
  * An RDF generator for SIDER
  * documentation: http://sideeffects.embl.de/media/download/README
- * @version 1.0
+ * @version 2.0
  * @author Michel Dumontier
+ * @author Alison Callahan
 */
 
-require('../../php-lib/rdfapi.php');
-class SIDERParser extends RDFFactory 
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
+
+class SIDERParser extends Bio2RDFizer 
 {
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("sider");
+		parent::__construct($argv, "sider");
 		
 		// set and print application parameters
-		$this->AddParameter('files',true,'all|label_mapping|adverse_effects_raw|indications_raw|meddra_freq_parsed','all','all or comma-separated list of ontology short names to process');
-		$this->AddParameter('indir',false,null,'/data/download/sider/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/sider/','directory to place rdfized files');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('graph_uri',false,null,null,'specify a graph uri to generate nquads');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'http://sideeffects.embl.de/media/download/');
+		parent::addParameter('files',true,'all|label_mapping|adverse_effects_raw|indications_raw|meddra_freq_parsed','all','all or comma-separated list of ontology short names to process');
+		parent::addParameter('download_url',false,null,'http://sideeffects.embl.de/media/download/');
+		
+		parent::initialize();
+	}
 
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
+	function run() {
+
+		if(parent::getParameterValue('download') === true) 
+		{
+			$this->download();
+		}
+		if(parent::getParameterValue('process') === true) 
+		{
+			$this->process();
 		}
 		
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) {
-			$this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		}
-				
-		return TRUE;
 	}
-	
-	function Run()
-	{
-		$idir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		$files = $this->GetParameterValue('files');
+		
+	function download(){
+		$idir = parent::getParameterValue('indir');
+		$files = parent::getParameterValue('files');
 		
 		if($files == 'all') {
-			$files = explode('|',$this->GetParameterList('files'));
+			$files = explode('|', parent::getParameterList('files'));
 			array_shift($files);
 		} else {
-			$files = explode(',',$this->GetParameterValue('files'));
+			$files = explode(',', parent::getParameterValue('files'));
 		}
 		
 		foreach($files AS $file) {
 			$lfile = $idir.$file.'.tsv.gz';
-			$rfile = $this->GetParameterValue('download_url').$file.'.tsv.gz';
-			if(!file_exists($lfile) || $this->GetParameterValue('download') == 'true') {
-				echo "downloading $file...";
+			$rfile = parent::getParameterValue('download_url').$file.'.tsv.gz';
+			if(!file_exists($lfile) || parent::getParameterValue('download') == 'true') {
+				echo "downloading $file... ";
 				$ret = file_get_contents($rfile);
 				if($ret === FALSE) {
 					trigger_error("Unable to get $rfile",E_USER_WARNING);
@@ -89,38 +85,50 @@ class SIDERParser extends RDFFactory
 				}		
 				echo "done!".PHP_EOL;
 			}
-			echo "processing $file";
-			$this->SetReadFile($lfile,true);	
-			
-			$ofile = $odir."sider-".$file.'.nt'; $gz=false;
-			if($this->GetParameterValue('graph_uri')) {$ofile = $odir."sider-".$file.'.nq';}		
-			if($this->GetParameterValue('gzip')) {$ofile .= '.gz';$gz = true;}
-			$this->SetWriteFile($ofile,$gz);
-			$this->$file();
-			$this->GetWriteFile()->Close();
-			$this->GetReadFile()->Close();
-			echo "done!".PHP_EOL;
-			
-			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$ofile;
-		}
-		
-		// generate the release file
-		// @TODO
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sider/sider.php", 
-			$bio2rdf_download_files,
-			"http://sideeffects.embl.de/",
-			array("use-share-modify","restricted-by-source-license"),
-			"http://creativecommons.org/licenses/by-nc-sa/3.0/",
-			"http://sideeffects.embl.de/media/download/",
-			$this->version
-		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+		}//foreach
 	}
 
+	function process(){
+
+		$idir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+		$files = parent::getParameterValue('files');
+		
+		if($files == 'all') {
+			$files = explode('|', parent::getParameterList('files'));
+			array_shift($files);
+		} else {
+			$files = explode(',', parent::getParameterValue('files'));
+		}
+		
+		parent::setCheckpoint('dataset');
+
+		foreach($files AS $file) {
+			$lfile = $idir.$file.'.tsv.gz';
+
+			echo "processing $file... ";
+			parent::setReadFile($lfile,true);	
+			
+			$ofile = $odir."sider-".$file.'.nt'; 
+			$gz = false;
+			
+			if(parent::getParameterValue('graph_uri')) {
+				$ofile = $odir."sider-".$file.'.nq';
+			}
+
+			if(strstr(parent::getParameterValue('output_format'), "gz")) {
+				$ofile .= '.gz';
+				$gz = true;
+			}
+
+			parent::setWriteFile($ofile, $gz);
+			$this->$file();
+			parent::getWriteFile()->Close();
+			parent::getReadFile()->Close();
+			echo "done!".PHP_EOL;
+		}//foreach
+		parent::setCheckpoint('dataset');
+	}
 /*
 1 & 2: generic and brand names
 
@@ -145,38 +153,84 @@ class SIDERParser extends RDFFactory
 */
 	function label_mapping()
 	{
+		parent::setCheckpoint('file');
+
 		$declared = null;
-		while($l = $this->GetReadFile()->Read()) {
+		while($l = parent::getReadFile()->Read()) {
+
+			parent::setCheckpoint('record');
+
 			$a = explode("\t",$l);
-			$id = "sider:".urlencode(trim($a[6]));
 			
-			$this->AddRDF($this->QQuadL($id,"dc:identifier",trim($a[6])));
-			$this->AddRDF($this->QQuad($id, "void:inDataset", $this->GetDatasetURI()));
-			$this->AddRDF($this->QQuad($id, "rdf:type","sider_vocabulary:Compound"));
+			$id = parent::getNamespace().urlencode(trim($a[6]));
 			
+			parent::addRDF(
+				parent::describeIndividual($id, null, parent::getVoc()."Compound")
+			);
+		
 			if(trim($a[0])) {
 				$brand_label = strtolower(trim($a[0]));
-				$brand_qname = "sider_resource:".md5($brand_label);
-				$this->AddRDF($this->XRef($id,"sider_vocabulary:brand-name",$brand_qname, "sider_vocabulary:Brand-Drug",$brand_label));
+				$brand_qname = parent::getRes().md5($brand_label);
+				parent::addRDF(
+					parent::describeIndividual($brand_qname, $brand_label, parent::getVoc()."Brand-Drug")
+
+				);
+
+				parent::addRDF(
+					parent::triplify($id, parent::getVoc()."brand-name", $brand_qname)
+				);
 			}
 			if(trim($a[1])) {
 				$b = explode(";",strtolower(trim($a[1])));
 				$b = array_unique($b);
 				foreach($b AS $generic_name) {
 					$generic_label = trim($generic_name);
-					$generic_qname = "sider_resource:".md5($generic_label);
-					$this->AddRDF($this->XRef($id,"sider_vocabulary:generic-name",$generic_qname, "sider_vocabulary:Generic-Drug",$generic_label));
+					$generic_qname = parent::getRes().md5($generic_label);
+					parent::addRDF(
+						parent::describeIndividual($generic_qname, $generic_label, parent::getVoc()."Generic-Drug")
+					);
+
+					parent::addRDF(
+						parent::triplify($id, parent::getVoc()."generic-name", $generic_qname)
+					);
 				}
 			}
 			
-			if($a[2]) $this->AddRDF($this->QQuad($id,"sider_vocabulary:mapping-result","sider_vocabulary:".str_replace(" ","-",$a[2])));
-			if($a[3]) $this->AddRDF($this->XRef($id,"sider_vocabulary:stitch-flat-compound-id","stitch:".$a[3]));
-			if($a[3]) $this->AddRDF($this->XRef($id,"sider_vocabulary:pubchem-flat-compound-id","pubchemcompound:".$this->GetPCFromFlat($a[3])));
-//			if($a[4]) $this->AddRDF($this->XRef($id,"sider_vocabulary:stitch-stereo-compound-id","stitch:".abs($a[4])));
-			if($a[4]) $this->AddRDF($this->XRef($id,"sider_vocabulary:pubchem-stereo-compound-id","pubchemcompound:".$this->GetPCFromStereo($a[4])));
-			if($a[5]) $this->AddRDF($this->QQuadO_URL($id,"sider_vocabulary:pdf-url",str_replace(" ","+",$a[5])));
+			if($a[2]){
+				$mapping_result = str_replace(" ","-",$a[2]);
+				parent::addRDF(
+					parent::triplify($id, parent::getVoc()."mapping-result", parent::getVoc().$mapping_result)
+				);
+			}
+
+			if($a[3]){
+				parent::addRDF(
+					parent::triplify($id, parent::getVoc()."stitch-flat-compound-id", "stitch:".$a[3])
+				);
+
+				$pubchemcompound = $this->GetPCFromFlat($a[3]);
+				parent::addRDF(
+					parent::triplify($id, parent::getVoc()."pubchem-flat-compound-id", "pubchemcompound:".$pubchemcompound)
+				);
+			}
+
+			if($a[4]){
+				$pubchemcompound = $this->GetPCFromStereo($a[4]);
+				parent::addRDF(
+					parent::triplify($id, parent::getVoc()."pubchem-stereo-compound-id", "pubchemcompound:".$pubchemcompound)
+				);
+			}
+
+			if($a[5]){
+				$url = str_replace(" ","+",$a[5]);
+				parent::addRDF(
+					parent::QQuadO_URL($id, parent::getVoc()."pdf-url", $url)
+				);
+			}
+			parent::setCheckpoint('record');
+
 		}
-		$this->WriteRDFBufferToWriteFile();	
+		parent::setCheckpoint('file');
 	}
 	
 	function GetPCFromFlat($id)
@@ -200,28 +254,49 @@ class SIDERParser extends RDFFactory
 	function adverse_effects_raw()
 	{
 		$declared = null;
+
+		parent::setCheckpoint('file');
+
 		while($l = $this->GetReadFile()->Read()) {
 			$a = explode("\t",$l);
 			$id = "sider:".urlencode($a[0]);
 			$cui = "umls:".$a[1];
 			$cui_label= strtolower(trim($a[2]));
-			
-			$this->AddRDF($this->XRef($id,"sider_vocabulary:side-effect",$cui,null,$cui_label));
+			parent::addRDF(
+				parent::describeIndividual($cui, $cui_label, null)
+			);
+			parent::addRDF(
+				parent::triplify($id, parent::getVoc()."side-effect", $cui)
+			);
 		}
-		$this->WriteRDFBufferToWriteFile();	
+		parent::setCheckpoint('file');
 	}
+
 	function indications_raw()
 	{
 		$declared = null;
+
+		parent::setCheckpoint('file');
+
 		while($l = $this->GetReadFile()->Read()) {
+			parent::setCheckpoint('record');
+
 			$a = explode("\t",$l);
 			$id = "sider:".urlencode($a[0]);
 			$cui = "umls:".$a[1];
 			$cui_label = strtolower(trim($a[2]));
 
-			$this->AddRDF($this->XRef($id,"sider_vocabulary:indication",$cui,null,$cui_label));
+			parent::addRDF(
+				parent::describeIndividual($cui, $cui_label, null)
+			);
+
+			parent::addRDF(
+				parent::triplify($id, parent::getVoc()."indication", $cui)
+			);
+			parent::setCheckpoint('record');
+
 		}
-		$this->WriteRDFBufferToWriteFile();	
+		parent::setCheckpoint('file');
 	}
 	
 	/*
@@ -249,30 +324,81 @@ e.g. from different clinical trials or for different levels of severeness.
 	function meddra_freq_parsed()
 	{
 		$i = 1;
-		while($l = $this->GetReadFile()->Read()) {
+		parent::setCheckpoint('file');
+
+		while($l = parent::getReadFile()->Read()) {
+
+			parent::setCheckpoint('record');
+
 			$a = explode("\t",str_replace("%","",$l));
-			$label_id = "sider:".urlencode($a[2]);
+			$label_id = parent::getNamespace().urlencode($a[2]);
 			$effect_id = "umls:".$a[3];
 			
-			$id = "sider_resource:F".$i++;
-			$this->AddRDF($this->QQuad($id,"rdf:type","sider_vocabulary:Drug-Effect"));
-			$this->AddRDF($this->QQuad($id,"sider_vocabulary:drug",$label_id));
-			$this->AddRDF($this->XRef($id,"sider_vocabulary:effect",$effect_id,"sider_vocabulary:Effect",$a[4]));
-			if($a[5]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:placebo","true",null,"xsd:boolean"));
-			if($a[6]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:frequency",$a[6],null,"xsd:float"));
-			if($a[7]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:lower-frequency",$a[7]));
-			if($a[8]) $this->AddRDF($this->QQuadL($id,"sider_vocabulary:upper-frequency",$a[8]));
+			$id = parent::getRes()."F".$i++;
+			$label = "MedDRA side effect details for drug ".$a[2]." and effect ".$a[4];
+			parent::addRDF(
+				parent::describeIndividual($id, $label, parent::getVoc()."Drug-Effect")
+			);
+
+			parent::addRDF(
+				parent::describeIndividual($effect_id, $a[4], parent::getVoc()."Effect")
+			);
+
+			parent::addRDF(
+				parent::triplify($id, parent::getVoc()."drug", $label_id)
+			);
+
+			parent::addRDF(
+				parent::triplify($id, parent::getVoc()."effect", $effect_id)
+			);
+
+			if($a[5]){
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."placebo", "true", "xsd:boolean")
+				);
+			}
+
+			if($a[6]){
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."frequency", $a[6], "xsd:float")
+				);
+			}
+
+			if($a[7]){
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."lower-frequency", $a[7])
+				);
+			}
+
+			if($a[8]){
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."upper-frequency", $a[8])
+				);
+			}
 			
 			if($a[10]) {
 				$meddra_id = "umls:$a[10]";
 				$label = null;
 				if(trim($a[11])) $label = strtolower(trim($a[11]));
-				$this->AddRDF($this->XRef($id,"sider_vocabulary:meddra-effect",$meddra_id,"sider_vocabulary:Effect",$label));
-				if($a[9]) $this->AddRDF($this->QQuadL($meddra_id,"sider_vocabulary:meddra-concept-level",$a[9]));
+
+				parent::addRDF(
+					parent::describeIndividual($meddra_id, $label, parent::getVoc()."Effect")
+				);
+
+				parent::addRDF(
+					parent::triplify($id, parent::getVoc()."meddra-effect", $meddra_id)
+				);
+
+				if($a[9]){
+					parent::addRDF(
+						parent::triplifyString($meddra_id, parent::getVoc()."meddra-concept-level", $a[9])
+					);
+				}
 			}
-			$this->WriteRDFBufferToWriteFile();	
+			parent::setCheckpoint('record');
 		}
-		
+		parent::setCheckpoint('file');
+
 	}
 	
 /*
@@ -296,15 +422,4 @@ PT for every side effect, but sometimes the PT is the same as the LLT.
 		
 	}
 }
-$start = microtime(true);
-
-set_error_handler('error_handler');
-$parser = new SIDERParser($argv);
-$parser->Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
 ?>
