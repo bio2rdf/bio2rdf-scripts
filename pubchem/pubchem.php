@@ -58,7 +58,7 @@ class PubChemParser extends Bio2RDFizer {
 		parent::__construct($argv, "pubchem");
 		parent::addParameter('files',true,'all|compounds|substances|bioassay','all','files to process');
 		parent::addParameter('workspace',false,null,'../../workspace/pubchem/','directory to mount pubchem FTP server');
-		parent::addParameter('download_url',false,null,'ftp.ncbi.nlm.nih.gov/pubchem/');
+		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nlm.nih.gov/pubchem/');
 		parent::initialize();
 	}
 
@@ -240,6 +240,8 @@ class PubChemParser extends Bio2RDFizer {
 		$this->CreateDirectory($tmp);
 		$this->CreateDirectory($this->getParameterValue('outdir')."/bioassay/");
 
+		$dataset_description = '';
+
 		if($handle = opendir($input_dir)){
 			while(false !== ($dir = readdir($handle))){
 				if(in_array($dir, $ignore)) continue;
@@ -263,10 +265,13 @@ class PubChemParser extends Bio2RDFizer {
 							}							
 							echo "... into ".$outfile.PHP_EOL;
 
-							$this->setWriteFile($outfile,$gz);
+							parent::setWriteFile($outfile,$gz);
 							parent::setCheckpoint('file');
 							$this->parse_bioassay_file($read_dir,$file);
-							$this->getWriteFile()->close();
+							parent::getWriteFile()->close();
+							//parent::clear();
+
+							
 						}
 						rmdir($tmp);
 					}else{
@@ -278,8 +283,50 @@ class PubChemParser extends Bio2RDFizer {
 				}
 			}
 			closedir($handle);
+
+			$source_file = (new DataResource($this))
+				->setURI("http://www.ncbi.nlm.nih.gov/pcassay")
+				->setTitle("PubChem BioAssay")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($input_dir)))
+				->setFormat("text/xml")
+				->setFormat("application/zip")	
+				->setPublisher("http://ncbi.nlm.nih.gov/")
+				->setHomepage("http://pubchem.ncbi.nlm.nih.gov/")
+				->setRights("use")
+				->setRights("restricted-by-source-license")
+				->setLicense("ftp://ftp.ncbi.nlm.nih.gov/pubchem/README")
+				->setDataset("http://identifiers.org/pubchem.bioassay/");
+
+			$prefix = $this->getPcbPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubchem/pubchem.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+
+			// write the dataset description
+			$this->setWriteFile($this->getParameterValue('outdir')."/bioassay/".$this->getBio2RDFReleaseFile());
+			$this->getWriteFile()->write($dataset_description);
+			$this->getWriteFile()->close();
+
 		}else{
-			echo "unable to read directory contents: ".$substances_dir."\n";
+			echo "unable to read directory contents: ".$input_dir."\n";
 			exit;
 		}
 	}
@@ -558,13 +605,15 @@ class PubChemParser extends Bio2RDFizer {
 	**/
 	function parse_compounds(){
 		$ignore = array(".","..");
-		$compounds_dir = parent::getParameterValue('indir')."/compounds/" ; $gz=false;
+		$input_dir = parent::getParameterValue('indir')."/compounds/" ; $gz=false;
 		parent::createDirectory(parent::getParameterValue('outdir')."/compounds/");
 
-		if($handle = opendir($compounds_dir)){
+		$dataset_description = '';
+
+		if($handle = opendir($input_dir)){
 			while(false !== ($file = readdir($handle))){
 				if(in_array($file, $ignore))continue;
-				echo "Processing file: ".$compounds_dir.$file.PHP_EOL;
+				echo "Processing file: ".$input_dir.$file.PHP_EOL;
 				$outfile = realpath(parent::getParameterValue('outdir'))."/compounds/".basename($file,".xml.gz").".nt";
 				
 				if(strstr(parent::getParameterValue('output_format'), "gz")) {
@@ -576,12 +625,53 @@ class PubChemParser extends Bio2RDFizer {
 
 				parent::setCheckpoint('file');
 				$this->setWriteFile($outfile,$gz);
-				$this->parse_compound_file($compounds_dir,$file);
+				$this->parse_compound_file($input_dir,$file);
 				$this->getWriteFile()->close();
 			}
 			closedir($handle);
+
+						$source_file = (new DataResource($this))
+				->setURI("http://www.ncbi.nlm.nih.gov/pccompound")
+				->setTitle("PubChem Compound")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($input_dir)))
+				->setFormat("text/xml")
+				->setFormat("application/zip")	
+				->setPublisher("http://ncbi.nlm.nih.gov/")
+				->setHomepage("http://pubchem.ncbi.nlm.nih.gov/")
+				->setRights("use")
+				->setRights("restricted-by-source-license")
+				->setLicense("ftp://ftp.ncbi.nlm.nih.gov/pubchem/README")
+				->setDataset("http://identifiers.org/pubchem.compound/");
+
+			$prefix = $this->getPccPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubchem/pubchem.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+
+			// write the dataset description
+			$this->setWriteFile($this->getParameterValue('outdir')."/compounds/".$this->getBio2RDFReleaseFile());
+			$this->getWriteFile()->write($dataset_description);
+			$this->getWriteFile()->close();
 		}else{
-			echo "Unable to read directory contents: ".$compounds_dir."\n";
+			echo "Unable to read directory contents: ".$input_dir."\n";
 			exit;
 		}
 	}
@@ -774,13 +864,15 @@ class PubChemParser extends Bio2RDFizer {
 	**/
 	function parse_substances(){
 		$ignore        = array(".","..");
-		$substances_dir = $this->getParameterValue('indir')."/substances/" ; $gz=false;
+		$input_dir = $this->getParameterValue('indir')."/substances/" ; $gz=false;
 		$this->CreateDirectory($this->getParameterValue('outdir')."/substances/");
 
-		if($handle = opendir($substances_dir)){
+		$dataset_description = '';
+
+		if($handle = opendir($input_dir)){
 			while(false !== ($file = readdir($handle))){
 				if(in_array($file, $ignore)) continue;
-				echo "Processing file: ".$substances_dir.$file.PHP_EOL;
+				echo "Processing file: ".$input_dir.$file.PHP_EOL;
 				$outfile = realpath($this->getParameterValue('outdir'))."/substances/".basename($file,".xml.gz").".nt";
 				
 				if(strstr(parent::getParameterValue('output_format'), "gz")) {
@@ -792,12 +884,53 @@ class PubChemParser extends Bio2RDFizer {
 
 				parent::setCheckpoint('file');
 				$this->setWriteFile($outfile,$gz);
-				$this->parse_substance_file($substances_dir,$file);
+				$this->parse_substance_file($input_dir,$file);
 				$this->getWriteFile()->close();
 			}
 			closedir($handle);
+
+			$source_file = (new DataResource($this))
+				->setURI("http://www.ncbi.nlm.nih.gov/pcsubstance")
+				->setTitle("PubChem Substance")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($input_dir)))
+				->setFormat("text/xml")
+				->setFormat("application/zip")	
+				->setPublisher("http://ncbi.nlm.nih.gov/")
+				->setHomepage("http://pubchem.ncbi.nlm.nih.gov/")
+				->setRights("use")
+				->setRights("restricted-by-source-license")
+				->setLicense("ftp://ftp.ncbi.nlm.nih.gov/pubchem/README")
+				->setDataset("http://identifiers.org/pubchem.substance/");
+
+			$prefix = $this->getPcsPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubchem/pubchem.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+
+			// write the dataset description
+			$this->setWriteFile($this->getParameterValue('outdir')."/substances/".$this->getBio2RDFReleaseFile());
+			$this->getWriteFile()->write($dataset_description);
+			$this->getWriteFile()->close();
 		}else{
-			echo "unable to read directory contents: ".$substances_dir."\n";
+			echo "unable to read directory contents: ".$input_dir."\n";
 			exit;
 		}
 	}
