@@ -34,6 +34,7 @@ class PubmedParser extends Bio2RDFizer
 	function __construct($argv) {
 		parent::__construct($argv, "pubmed");
 		parent::addParameter('files',true,'all','all','files to process');
+		parent::addParameter('version',false,'2012','2012','date version of files');
 		parent::initialize();
 	}//constructor
 	
@@ -67,6 +68,47 @@ class PubmedParser extends Bio2RDFizer
 			}
 			closedir($lhandle);
 		}
+
+
+		$source_file = (new DataResource($this))
+			->setURI("http://www.ncbi.nlm.nih.gov/pubmed")
+			->setTitle("NCBI PubMed")
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($ldir)))
+			->setFormat("text/xml")
+			->setFormat("application/zip")	
+			->setPublisher("http://ncbi.nlm.nih.gov/")
+			->setHomepage("http://www.ncbi.nlm.nih.gov/pubmed/")
+			->setRights("use-share-modify")
+			->setLicense("http://www.nlm.nih.gov/databases/license/license.html")
+			->setDataset("http://identifiers.org/pubmed/");
+
+		$prefix = $this->getPcbPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2df.org/release/$bVersion/$prefix")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubchem/pubchem.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")			
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+
+		$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+
+		// write the dataset description
+		$this->setWriteFile($this->getParameterValue('outdir')."/bioassay/".$this->getBio2RDFReleaseFile());
+		$this->getWriteFile()->write($dataset_description);
+		$this->getWriteFile()->close();
 	}//process)dir
 
 	function process_file($infile){
