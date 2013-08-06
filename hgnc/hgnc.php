@@ -181,7 +181,7 @@ class HGNCParser extends Bio2RDFizer {
 				);
 			}			
 			if(!empty($locus_id)){
-				$locus_res = $this->getRes().$hgnc_id."_LOCUS";
+				$locus_res = $this->getRes().$id."_LOCUS";
 				parent::AddRDF(
 					parent::triplify($id_res, $this->getVoc()."locus", $locus_res).
 					parent::triplifyString($locus_res, $this->getVoc()."locus_type",utf8_encode(htmlspecialchars($locus_type))).
