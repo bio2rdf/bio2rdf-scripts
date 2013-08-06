@@ -111,19 +111,45 @@ class OMIMParser extends Bio2RDFizer
 		parent::writeRDFBufferToWriteFile();
 		parent::getWriteFile()->close();
 		
-		// generate the release file
-		$desc = parent::getBio2RDFDatasetDescription(
-			parent::getPrefix(), 
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/omim/omim.php", 
-			parent::getBio2RDFDownloadURL(parent::getPrefix()).$outfile,
-			"http://omim.org", 
-			array("use","no-commercial"), 
-			"http://omim.org/downloads",
-			parent::getParameterValue("omim_api_url"),
-			parent::getDatasetVersion()
-		);
-		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile(parent::getPrefix()));
-		parent::getWriteFile()->write($desc);
+		// generate the dataset description file
+		$source_file = (new DataResource($this))
+		->setURI(parent::getParameterValue('omim_api_url'))
+		->setTitle("OMIM ".parent::getDatasetVersion())
+		->setRetrievedDate( date ("Y-m-d\TG:i:s\Z"))
+		->setFormat("application/json")
+		->setPublisher("http://omim.org")
+		->setHomepage("http://omim.org")
+		->setRights("use")
+		->setRights("no-commercial")
+		->setRights("registration-required")
+		->setLicense("http://www.omim.org/help/agreement")
+		->setDataset("http://identifiers.org/omim/");
+		
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$outfile")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/omim/omim.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")			
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+		
+		$dataset_description = $source_file->toRDF().$output_file->toRDF();
+			
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
 		
 		return TRUE;
@@ -264,7 +290,7 @@ class OMIMParser extends Bio2RDFizer
 		$o = $obj["omim"]["entryList"][0]["entry"];
 		$omim_id = $o['mimNumber'];
 		$omim_uri = parent::getNamespace().$o['mimNumber'];
-		if(isset($o['version']) && !parent::getDatasetVersion()) parent::setDatasetVersion($o['version']);
+		if(isset($o['version'])) parent::setDatasetVersion($o['version']);
 		
 		// add the links
 		parent::addRDF($this->QQuadO_URL($omim_uri, "rdfs:seeAlso", "http://omim.org/entry/".$omim_id));
@@ -525,7 +551,4 @@ class OMIMParser extends Bio2RDFizer
 	} // end parse
 } 
 
-set_error_handler('error_handler');
-$parser = new OMIMParser($argv);
-$parser->Run();
 ?>
