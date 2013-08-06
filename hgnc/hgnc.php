@@ -81,7 +81,9 @@ class HGNCParser extends Bio2RDFizer {
 		echo PHP_EOL;
 		// generate the dataset release file
 		echo "generating dataset release file... ";
-		$desc = parent::getBio2RDFDatasetDescription(
+		$desc = '';
+		//$source_file = ();
+		/*$desc = parent::getBio2RDFDatasetDescription(
 			$this->getPrefix(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/hgnc/hgnc.php", 
 			$this->getBio2RDFDownloadURL($this->getNamespace()),
@@ -93,6 +95,7 @@ class HGNCParser extends Bio2RDFizer {
 		);
 		parent::setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
 		parent::getWriteFile()->write($desc);
+		*/
 		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
 		
