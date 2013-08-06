@@ -154,7 +154,7 @@ class HGNCParser extends Bio2RDFizer {
 			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[39];
 
 			$id_res = $this->getNamespace().$id;
-			$id_label = "hgnc identifier";
+			$id_label = "Gene Symbol for ".$approved_symbol;
 			$id_label_class = "hgnc identifier: ".$id;
 			parent::AddRDF(
 				parent::triplify($id_res, "rdf:type", $this->getVoc()."Gene-Symbol").
