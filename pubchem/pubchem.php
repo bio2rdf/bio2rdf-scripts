@@ -240,6 +240,12 @@ class PubChemParser extends Bio2RDFizer {
 		$this->CreateDirectory($tmp);
 		$this->CreateDirectory($this->getParameterValue('outdir')."/bioassay/");
 
+		parent::setDatasetURI("bio2rdf_dataset:bio2rdf-".$this->getPcbPrefix()."-".date("Ymd");)
+
+		$graph_uri = parent::getGraphURI();
+		//set graph URI to dataset uri
+        	if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+
 		$dataset_description = '';
 
 		if($handle = opendir($input_dir)){
@@ -319,6 +325,8 @@ class PubChemParser extends Bio2RDFizer {
 			else $output_file->setFormat("application/n-quads");
 
 			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			//set graph URI back to default
+			parent::setGraphURI($graph_uri);
 
 			// write the dataset description
 			$this->setWriteFile($this->getParameterValue('outdir')."/bioassay/".$this->getBio2RDFReleaseFile());
@@ -608,6 +616,12 @@ class PubChemParser extends Bio2RDFizer {
 		$input_dir = parent::getParameterValue('indir')."/compounds/" ; $gz=false;
 		parent::createDirectory(parent::getParameterValue('outdir')."/compounds/");
 
+		parent::setDatasetURI("bio2rdf_dataset:bio2rdf-".$this->getPccPrefix()."-".date("Ymd");)
+
+		$graph_uri = parent::getGraphURI();
+		//set graph URI to dataset uri
+        	if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+
 		$dataset_description = '';
 
 		if($handle = opendir($input_dir)){
@@ -630,7 +644,7 @@ class PubChemParser extends Bio2RDFizer {
 			}
 			closedir($handle);
 
-						$source_file = (new DataResource($this))
+			$source_file = (new DataResource($this))
 				->setURI("http://www.ncbi.nlm.nih.gov/pccompound")
 				->setTitle("PubChem Compound")
 				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($input_dir)))
@@ -665,6 +679,8 @@ class PubChemParser extends Bio2RDFizer {
 			else $output_file->setFormat("application/n-quads");
 
 			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			//set graph URI back to default
+			parent::setGraphURI($graph_uri);
 
 			// write the dataset description
 			$this->setWriteFile($this->getParameterValue('outdir')."/compounds/".$this->getBio2RDFReleaseFile());
@@ -866,6 +882,11 @@ class PubChemParser extends Bio2RDFizer {
 		$ignore        = array(".","..");
 		$input_dir = $this->getParameterValue('indir')."/substances/" ; $gz=false;
 		$this->CreateDirectory($this->getParameterValue('outdir')."/substances/");
+		parent::setDatasetURI("bio2rdf_dataset:bio2rdf-".$this->getPcsPrefix()."-".date("Ymd");)
+
+		$graph_uri = parent::getGraphURI();
+		//set graph URI to dataset uri
+        	if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 
 		$dataset_description = '';
 
@@ -924,6 +945,8 @@ class PubChemParser extends Bio2RDFizer {
 			else $output_file->setFormat("application/n-quads");
 
 			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			//set graph URI back to default
+			parent::setGraphURI($graph_uri);
 
 			// write the dataset description
 			$this->setWriteFile($this->getParameterValue('outdir')."/substances/".$this->getBio2RDFReleaseFile());
