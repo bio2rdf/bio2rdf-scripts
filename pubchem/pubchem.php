@@ -240,11 +240,11 @@ class PubChemParser extends Bio2RDFizer {
 		$this->CreateDirectory($tmp);
 		$this->CreateDirectory($this->getParameterValue('outdir')."/bioassay/");
 
-		parent::setDatasetURI("bio2rdf_dataset:bio2rdf-".$this->getPcbPrefix()."-".date("Ymd");)
+		parent::setDatasetURI("bio2rdf_dataset:bio2rdf-".$this->getPcbPrefix()."-".date("Ymd"));
 
 		$graph_uri = parent::getGraphURI();
 		//set graph URI to dataset uri
-        	if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+        if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 
 		$dataset_description = '';
 
@@ -616,11 +616,11 @@ class PubChemParser extends Bio2RDFizer {
 		$input_dir = parent::getParameterValue('indir')."/compounds/" ; $gz=false;
 		parent::createDirectory(parent::getParameterValue('outdir')."/compounds/");
 
-		parent::setDatasetURI("bio2rdf_dataset:bio2rdf-".$this->getPccPrefix()."-".date("Ymd");)
+		parent::setDatasetURI("bio2rdf_dataset:bio2rdf-".$this->getPccPrefix()."-".date("Ymd"));
 
 		$graph_uri = parent::getGraphURI();
 		//set graph URI to dataset uri
-        	if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+        if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 
 		$dataset_description = '';
 
@@ -882,11 +882,11 @@ class PubChemParser extends Bio2RDFizer {
 		$ignore        = array(".","..");
 		$input_dir = $this->getParameterValue('indir')."/substances/" ; $gz=false;
 		$this->CreateDirectory($this->getParameterValue('outdir')."/substances/");
-		parent::setDatasetURI("bio2rdf_dataset:bio2rdf-".$this->getPcsPrefix()."-".date("Ymd");)
+		parent::setDatasetURI("bio2rdf_dataset:bio2rdf-".$this->getPcsPrefix()."-".date("Ymd"));
 
 		$graph_uri = parent::getGraphURI();
 		//set graph URI to dataset uri
-        	if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+        if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 
 		$dataset_description = '';
 
