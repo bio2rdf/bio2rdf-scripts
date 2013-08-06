@@ -49,10 +49,24 @@ class PubmedParser extends Bio2RDFizer
 		$this->setCheckPoint('dataset');
 
 		$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+
+		$graph_uri = parent::getGraphURI();
+
+		$dataset_description = '';
+
+		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+
+		//set graph URI to dataset graph
+		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 		
 		//make sure directories end with slash
 		if(substr($ldir, -1) !== "/"){
 			$ldir = $ldir."/";
+		}
+
+		if(substr($odir, -1) !== "/"){
+			$odir = $odir."/";
 		}
 
 		if ($lhandle = opendir($ldir)) {
@@ -69,20 +83,18 @@ class PubmedParser extends Bio2RDFizer
 			closedir($lhandle);
 		}
 
-
 		$source_file = (new DataResource($this))
 			->setURI("http://www.ncbi.nlm.nih.gov/pubmed")
 			->setTitle("NCBI PubMed")
 			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($ldir)))
 			->setFormat("text/xml")
-			->setFormat("application/zip")	
 			->setPublisher("http://ncbi.nlm.nih.gov/")
 			->setHomepage("http://www.ncbi.nlm.nih.gov/pubmed/")
 			->setRights("use-share-modify")
 			->setLicense("http://www.nlm.nih.gov/databases/license/license.html")
 			->setDataset("http://identifiers.org/pubmed/");
 
-		$prefix = $this->getPcbPrefix();
+		$prefix = parent::getPrefix();
 		$bVersion = parent::getParameterValue('bio2rdf_release');
 		$date = date ("Y-m-d\TG:i:s\Z");
 		$output_file = (new DataResource($this))
@@ -105,8 +117,11 @@ class PubmedParser extends Bio2RDFizer
 
 		$dataset_description .= $source_file->toRDF().$output_file->toRDF();
 
+		//set graph URI back to default
+		parent::setGraphURI($graph_uri);
+
 		// write the dataset description
-		$this->setWriteFile($this->getParameterValue('outdir')."/bioassay/".$this->getBio2RDFReleaseFile());
+		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
 		$this->getWriteFile()->write($dataset_description);
 		$this->getWriteFile()->close();
 	}//process)dir
