@@ -32,6 +32,7 @@ class AffymetrixParser extends Bio2RDFizer
 	function __construct($argv) {
 		parent::__construct($argv,"affymetrix");
 		parent::addParameter('files',true,null,'all','');
+		parent::addParameter('version',false,null,'33','to set another version to parse from');
 		parent::addParameter('download_url',false,null,'http://www.affymetrix.com/support/technical/annotationfilesmain.affx','');
 		parent::initialize();
 	}
@@ -76,36 +77,36 @@ class AffymetrixParser extends Bio2RDFizer
 			}
 		}
 		if(!isset($myfiles)) exit; // nothing to do
-
-
+		$dataset_description = '';
+		
 		// iterate over the files
-
-		// print_r($myfiles);
 		foreach($myfiles AS $rfile) {
-			// download
 			$base_file = substr($rfile,strrpos($rfile,"/")+1);
 			$base_url = substr($rfile,0, strrpos($rfile,"/"));
-			echo "processing $base_file, from $base_url".PHP_EOL;
-			$csv_file = $base_file.".csv";
-			$zip_file = $csv_file.".zip";
-		
-			$lfile = $ldir.$zip_file;
-			if(!file_exists($lfile) || $this->GetParameterValue('download') == true) { 
-				$rfile = $url.$zip_file;
-				trigger_error("Downloading $zip_file from $rfile", E_USER_NOTICE);
-				if(Utils::Download($base_url,array($zip_file),$ldir) === FALSE) {
-					trigger_error("Unable to download $file. skipping", E_USER_WARNING);
-					continue;
-				}
-			}
 			
-			// set the dataset version
+			// get and set the dataset version
 			if(parent::getDatasetVersion() == null) {
 				preg_match("/\.na([0-9]{2})\.annot/",$base_file,$m);
 				if(isset($m[1])) {
 					$this->setDatasetVersion($m[1]);
 				}
 			}
+			if(parent::getDatasetVersion() != parent::getParameterValue('version')) {
+				$base_file = str_replace(
+					"na".parent::getDatasetVersion(),
+					"na".parent::getParameterValue('version'),
+					$base_file);
+			}
+			
+			$csv_file = $base_file.".csv";
+			$zip_file = $csv_file.".zip";
+
+			$lfile = $ldir.$zip_file;
+			if(!file_exists($lfile)) {
+				echo "skipping: $lfile does not exist".PHP_EOL;
+				continue;
+			}
+			echo "processing $base_file, from $base_url".PHP_EOL;
 			
 			// open the zip file
 			$zin = new ZipArchive();
@@ -119,48 +120,64 @@ class AffymetrixParser extends Bio2RDFizer
 				return FALSE;
 			}
 
-			$this->SetReadFile($lfile);
-			$this->GetReadFile()->SetFilePointer($fp);
+			parent::setReadFile($lfile);
+			parent::getReadFile()->setFilePointer($fp);
 
 			// set the write file
-			$outfile = $base_file.'.nt'; $gz=false;
-			if($this->GetParameterValue('graph_uri')) {$outfile = $base_file.'.nq';}
-			if($this->GetParameterValue('gzip')) {
-				$outfile .= '.gz';
-				$gz = true;
-			}			
+			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+			$outfile = 'affymetrix-'.$base_file.".".parent::getParameterValue('output_format');	
+			
 			$this->setWriteFile($odir.$outfile, $gz);
-			
-			// parse the file
 			$this->parse();		
-			
 			parent::getWriteFile()->close();
 			parent::getReadFile()->close();
-			
-			$bio2rdf_download_files[] = $this->getBio2RDFDownloadURL($this->getNamespace()).$outfile; 
-			
 			parent::clear();
-		}
-		
+			
+			// dataset description
+			$source_file = (new DataResource($this))
+			->setURI($rfile)
+			->setTitle("Affymetrix Probeset : $base_file")
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+			->setFormat("text/tab-separated-value")
+			->setFormat("application/zip")	
+			->setPublisher("http://affymetrix.com")
+			->setHomepage("http://www.affymetrix.com/support/technical/annotationfilesmain.affx")
+			->setRights("use")
+			->setRights("no-commercial")
+			->setRights("registration-required")
+			->setLicense("http://www.affymetrix.com/about_affymetrix/legal/index.affx")
+			->setDataset("http://identifiers.org/affy.probeset/");
+			
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$outfile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/affymetrix/affymetrix.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
 
-		// generate the release file
-		$desc = $this->getBio2RDFDatasetDescription(
-			$this->getNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/affymetrix/affymetrix.php", 
-			$bio2rdf_download_files,
-			"dsfsdfs",
-			"http://affymetrix.com/",
-			array("use-share-modify","no-commercial"),
-			null, // license
-			parent::getParameterValue('download_url'),
-			parent::getDatasetVersion()
-		);
-		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
-		$this->getWriteFile()->write($desc);
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+		}
+		// write the dataset description
+		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
+		$this->getWriteFile()->write($dataset_description);
 		$this->getWriteFile()->close();
 		
 		return true;
-	}	
+	}
 	
 	function Parse()
 	{	
