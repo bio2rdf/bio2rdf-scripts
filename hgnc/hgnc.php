@@ -159,7 +159,7 @@ class HGNCParser extends Bio2RDFizer {
 			parent::AddRDF(
 				parent::triplify($id_res, "rdf:type", $this->getVoc()."Gene-Symbol").
 				parent::describeIndividual($id_res, $id_label, $this->getVoc()."gene symbol").
-				parent::describeClass($this->getVoc()."GeneSymbol", $id_label_class)
+				parent::describeClass($this->getVoc()."Gene-Symbol", $id_label_class)
 			);
 			if(!empty($approved_symbol)){
 				parent::AddRDF(
