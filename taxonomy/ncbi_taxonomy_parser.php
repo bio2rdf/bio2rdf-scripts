@@ -92,11 +92,6 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			}	
 		}
 		foreach ($files as $key => $value) {
-			/*if(substr($ldir, -1) == "/"){
-				$lfile = $ldir.$value['filename'];
-			} else {
-				$lfile = $ldir."/".$value['filename'];
-			}*/
 
 			$lfile = $ldir.$value['filename'];
 			if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
@@ -207,6 +202,9 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			$name = str_replace("\t","",trim($a[1]));
 			$unique_name = str_replace("\t","",trim($a[2]));
 			$name_class = str_replace("\t","",trim($a[3]));
+
+		
+
 			if($name_class == "scientific name"){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
@@ -215,52 +213,31 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 				));	
 			}else{
 				$r = rand();
-				$this->AddRDF($this->QQuad(
-					"taxon:".$taxid,
-					"taxon_vocabulary:has_name_class",
-					"taxon_resource:".md5($r.$taxid)
-				));
-				$this->AddRDF($this->QQuad(
-					"taxon_resource:".md5($r.$taxid),
-					"rdf:type",
-					"taxon_resource:name_class"
-				));
-				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".md5($r.$taxid),
-					"taxon_vocabulary:has_value",
-					str_replace("\"","",utf8_encode($name))
-				)); 
-				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".md5($r.$taxid),
-					"rdfs:label",
-					str_replace("\"","",utf8_encode($name))
-				));
-				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".md5($r.$taxid),
-					"rdf:type",
-					preg_replace('/\s+/','',str_replace("\"","",utf8_encode($name_class)))
-				));
+				
+				$name_res = $this->getRes().md5($r.$taxid);
+				$name_label = str_replace("\"","",utf8_encode($name));
+				$name_label_class = "ncbi taxonomy name code for ".$name_res;
+				
+				parent::AddRDF(
+					parent::describeIndividual($name_res, $name_label, $this->getVoc()."name-class").
+					parent::describeClass($this->getVoc()."name-class", $name_label_class)
+				);
+				parent::AddRDF(
+					parent::triplify($name_res, "rdf:type", preg_replace('/\s+/','',str_replace("\"","",utf8_encode($name_class)))
+				);
 			}
 			
-			$this->AddRDF($this->QQuad("taxon:".$taxid, "void:inDataset", $this->getDatasetURI()));
-			//type it
-			$this->AddRDF($this->QQuad(
-				"taxon:".$taxid,
-				"rdf:type",
-				"taxon_vocabulary:taxon"
-			));
+			parent::AddRDF(
+				parent::triplify("taxon:".$taxid, "rdf:type", $this->getVoc()."taxon")
+			);
+
 			//add unique name
 			if($unique_name != "" && $unique_name != null){
-				$this->AddRDF($this->QQuadL(
-					"taxon:".$taxid,
-					"taxon_vocabulary:unique_name",
-					str_replace("\"","",utf8_encode($unique_name))
-				));
+				parent::AddRDF(
+					parent::triplifyString("taxon:".$taxid, $this->getVoc()."unique-name", str_replace("\"","",utf8_encode($unique_name))
+				);
 			}
 			
-			
-			
-			//type it
 			$this->WriteRDFBufferToWriteFile();
 		}//while
 	}//names
