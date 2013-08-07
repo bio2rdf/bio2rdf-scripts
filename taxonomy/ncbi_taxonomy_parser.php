@@ -463,7 +463,16 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			$url = str_replace("\t","",trim($a[4]));
 			$text = str_replace("\t","",trim($a[5]));
 			$taxid_list = explode(" ", str_replace("\t","",trim($a[6])));
-			//create a resource
+
+			$cit_res = $this->getRes().md5("citation_id_".$cit_id);
+			$cit_label = "citation identifier";
+			$cit_label_class = "citation identifier for ".$cit_res;
+
+			parent::AddRDF(
+				parent::describeIndividual($cit_res, $cit_label, $this->getVoc()."citation").
+				parent:describeClass($this->getVoc()."citation", $cit_label_class)
+			);
+			/*//create a resource
 			$this->AddRDF($this->QQuadL(
 				"taxon_resource:".md5("citation_id_".$cit_id),
 				"rdfs:label",
@@ -476,43 +485,38 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 				"taxon_resource:".md5("citation_id_".$cit_id),
 				"rdf:type",
 				"taxon_vocabulary:citation"
-			));
+			));*/
 			if($cit_key != ""){
-				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".md5("citation_id_".$cit_id),
-					"taxon_vocabulary:citation_key",
-					str_replace(array('"','\\'),"",utf8_encode($cit_key))
-				));
+				parent::AddRDF(
+					parent::triplifyString($cit_res, $this->getVoc()."citation_key", str_replace(array('"','\\'),"",utf8_encode($cit_key)))
+				);
 			}
 			if ($pubmed_id != 0 && $pubmed_id != "") {
-				$this->AddRDF($this->QQuad(
-					"taxon_resource:".md5("citation_id_".$cit_id),
-					"taxon_vocabulary:x_pubmed",
-					"pubmed:".$pubmed_id
-				));
+				parent::AddRDF(
+					parent::triplify($cit_res, $this->getVoc()."x-pubmed", "pubmed:".$pubmed_id)
+				);
 			}
 			if($url != 0 && $url != ""){
-				$this->AddRDF($this->QQuadO_URL(
-					"taxon_resource:".md5("citation_id_".$cit_id),
-					"rdfs:seeAlso",
-					$url
-				));
+				parent::AddRDF(
+					parent::QQuaadO_URL($cit_res, "rdfs:seeAlso", $url)
+				);
 			}
 			if($text != 0 && $text != ""){
-				$this->AddRDF($this->QQuadL(
+				parent::AddRDF(
+					parent::triplifyString($cit_res, $this->getVoc()."text", str_replace("\"","",utf8_encode($text)))
+				);
+				/*$this->AddRDF($this->QQuadL(
 					"taxon_resource:".md5("citation_id_".$cit_id),
 					"taxon_vocabulary:text",
 					str_replace("\"","",utf8_encode($text))
-				));
+				));*/
 			}
 			if(count($taxid_list)){
 				foreach ($taxid_list as $aTxid) {
 					$aTxid = trim($aTxid);
-					$this->AddRDF($this->QQuad(
-						"taxon:".$aTxid,
-						"taxon_vocabulary:citation",
-						"taxon_resource:".md5("citation_id_".$cit_id)
-					));
+					parent::AddRDF(
+						parent::triplify($this->GetNamespace().$aTxid, $this->getVoc()."citation", $cit_res)
+					);
 				}
 			}
 			$this->WriteRDFBufferToWriteFile();
