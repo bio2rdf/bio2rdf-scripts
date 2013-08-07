@@ -523,15 +523,6 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 	}//getpackagemap
 
 }//class
-$start = microtime(true);
 
-$p = new NCBITaxonomyParser($argv);
-$p->Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
 
 ?>
