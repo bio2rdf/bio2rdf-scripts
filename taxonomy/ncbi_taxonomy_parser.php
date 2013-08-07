@@ -384,32 +384,24 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			$division_code = str_replace("\t","",trim($a[1]));
 			$name = str_replace("\t","",trim($a[2]));
 			$comments = str_replace("\t","",trim($a[3]));
-			//create a resource
-			$this->AddRDF($this->QQuadL(
-				"taxon_resource:".md5("division_id_".$division_id),
-				"rdfs:label",
-				str_replace("\"","",utf8_encode($name))." [taxon_resource:".$division_id."]"
-			));
-			$this->AddRDF($this->QQuad("taxon_resource:".md5("division_id_".$division_id), "void:inDataset", $this->getDatasetURI()));
-			//type it
-			$this->AddRDF($this->QQuad(
-				"taxon_resource:".md5("division_id_".$division_id),
-				"rdf:type",
-				"taxon_vocabulary:division"	
-			));
+
+			$div_res = $this->getRes().md5("division_id_".$division_id);
+			$div_label = str_replace("\"","",utf8_encode($name));
+			$div_label_class = "ncbi genbank division code for ".$div_res;
+
+			parent::AddRDF(
+				parent::describeIndividual($div_res, $div_label, $this->getVoc()."division").
+				parent::describeClass($this->getVoc()."division", $div_label_class)
+			);
 			//add division code
-			$this->AddRDF($this->QQuadL(
-				"taxon_resource:".md5("division_id_".$division_id),
-				"taxon_vocabulary:division_code",
-				str_replace("\"","",utf8_encode($division_code))
-			));
+			parent::AddRDF(
+				parent::triplifyString($div_res, $this->getVoc()."division_code", str_replace("\"","",utf8_encode($division_code))
+			);
 			//add comments
 			if($comments != ""){
-				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".md5("division_id_".$division_id),
-					"taxon_vocabulary:comments",
-					str_replace("\"","",utf8_encode($comments))
-				));
+				parent::AddRDF(
+					parent::triplifyString($div_res, $this->getVoc()."comments", str_replace("\"","",utf8_encode($comments))
+				);
 			}
 			$this->WriteRDFBufferToWriteFile();
 		}//while
