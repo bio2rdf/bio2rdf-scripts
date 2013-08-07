@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2012 Michel Dumontier
+Copyright (C) 2013 Michel Dumontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -25,76 +25,74 @@ SOFTWARE.
 /**
  * An RDF generator for MGI
  * documentation: ftp://ftp.informatics.jax.org/pub/reports/index.html
- * @version 1.0
+ * @version 2.0
  * @author Michel Dumontier
+ * @author Jose Cruz-Toledo
 */
 
-require('../../php-lib/rdfapi.php');
-class MGIParser extends RDFFactory 
+require(__DIR__.'/../../php-lib/bio2rdfapi.php');
+class MGIParser extends Bio2RDFizer 
 {
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("sider");
-		
-		// set and print application parameters
-		$this->AddParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|HMD_HGNC_Accession','all','all or comma-separated list to process');
-		$this->AddParameter('indir',false,null,'/data/download/mgi/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/mgi/','directory to place rdfized files');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('graph_uri',false,null,null,'specify a graph uri to generate nquads');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'ftp://ftp.informatics.jax.org/pub/reports/');
-
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) {
-			$this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		}
-				
-		return TRUE;
+		parent::__construct($argv, "mgi");
+		parent::addParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|HMD_HGNC_Accession','all','all or comma-separated list to process');
+		parent::addParameter('download_url', false, null,'ftp://ftp.informatics.jax.org/pub/reports/' );
+		parent::initialize();
 	}
 	
 	function Run()
 	{
-		$idir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		$files = $this->GetParameterValue('files');
+		$idir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+		$files = parent::getParameterValue('files');
 		
 		if($files == 'all') {
-			$list = explode('|',$this->GetParameterList('files'));
+			$list = explode('|',parent::getParameterList('files'));
 			array_shift($list);
 		} else {
-			$list = explode('|',$this->GetParameterValue('files'));
+			$list = explode('|',parent::getParameterValue('files'));
 		}
 		
 		foreach($list AS $item) {
-		
 			$lfile = $idir.$item.'.rpt';
-			$rfile = $this->GetParameterValue('download_url').$item.'.rpt';
-			if(!file_exists($lfile) || $this->GetParameterValue('download') == 'true') {
+			$rfile = parent::getParameterValue('download_url').$item.'.rpt';
+			if(!file_exists($lfile) || parent::getParameterValue('download') == 'true') {
 				echo "downloading $item...";
 				Utils::DownloadSingle ($rfile, $lfile);
 			}
-			$this->SetReadFile($lfile,true);
+			parent::setReadFile($lfile,true);
 			
 			echo "Processing $item...";
-			$ofile = $odir."mgi-".$item.'.nt'; $gz=false;
-			if($this->GetParameterValue('graph_uri')) {$ofile = $odir."mgi-".$item.'.nq';;}
-			if($this->GetParameterValue('gzip')) {$ofile .= '.gz';$gz = true;}
+			$ofile = $odir."mgi-".$item.'.nt'; 
+			$gz=false;
+			if(strstr(parent::getParameterValue('output_format'), "gz")) {
+				$ofile .= '.gz';
+				$gz = true;
+			}
 			
-			$this->SetWriteFile($ofile, $gz);
-			
+			parent::setWriteFile($ofile, $gz);
 			$this->$item();
-			
-			$this->GetWriteFile()->Close();
-			$this->GetReadFile()->Close();
+			parent::GetWriteFile()->Close();
+			parent::GetReadFile()->Close();
 			echo "Done".PHP_EOL;
-		}
+		}//foreach
+
+		// generate the dataset release file
+		echo "generating dataset release file... ";
+		$desc = parent::getBio2RDFDatasetDescription(
+			$this->getPrefix(),
+			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mgi/mgi.php", 
+			$this->getBio2RDFDownloadURL($this->getNamespace()),
+			"http://www.informatics.jax.org/",
+			array("use"),
+			"http://www.informatics.jax.org/",
+			parent::getParameterValue('download_url'),
+			parent::getDatasetVersion()
+		);
+		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
+		$this->getWriteFile()->write($desc);
+		$this->getWriteFile()->close();
+		echo "done!".PHP_EOL;
 	}
 	
 	/*
@@ -113,7 +111,7 @@ class MGIParser extends RDFFactory
 	function MGI_PhenotypicAllele($qtl = false)
 	{
 		$line = 0;
-		while($l = $this->GetReadFile()->Read(50000)) {
+		while($l = $this->GetReadFile()->Read(200000)) {
 			$a = explode("\t",$l);
 			$line++;
 			
@@ -124,42 +122,63 @@ class MGIParser extends RDFFactory
 				echo "skipping badly formed line $line++".PHP_EOL;
 				continue;
 			}
-			
-			$this->AddRDF($this->QQuadL($id,"dc:identifier",$a[0]));
-			$this->AddRDF($this->QQuad($id,"rdf:type","mgi_vocabulary:Allele"));
-			//$this->AddRDF($this->QQuadL($id,"rdfs:label",$a[2]." [$id]"));
+
+			$id_label = "mgi id";
+			$id_label_class = "Allele for ".$id;
+			parent::AddRDF(
+				parent::describeIndividual($id, $id_label, $this->getVoc()."Allele").
+				parent::describeClass($this->getVoc()."Allele", $id_label_class)
+			);
+
 			if(trim($a[1])) {
-				$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:allele-symbol",trim($a[1])));
+				parent::AddRDF(
+					parent::triplifyString($id, $this->getVoc()."allele-symbol", trim($a[1]))
+				);
 			}
 			if(trim($a[2])) {
-				$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:allele-name",trim($a[2])));
+				parent::AddRDF(
+					parent::triplifyString($id, $this->getVoc()."allele-name", trim($a[2]))
+				);
 			}
 			if(trim($a[3])) {
-				$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:allele-type",trim($a[3])));
+				parent::AddRDF(
+					parent::triplifyString($id, $this->getVoc()."allele-type", trim($a[3]))
+				);
 			}
 			if(trim($a[4])) {
-				$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-pubmed","pubmed:".$a[4]));
+				parent::AddRDF(
+					parent::triplify($id, $this->getVoc()."x-pubmed", "pubmed:".trim($a[4]))
+				);
 			}
 			if(trim($a[5])) {
 				$marker_id = strtolower($a[5]);
-				$this->AddRDF($this->QQuad($id,"mgi_vocabulary:Genetic-Marker",$marker_id));
-				$this->AddRDF($this->QQuad($marker_id,"rdf:type","mgi_vocabulary:Mouse-Marker"));
-		
+				parent::AddRDF(
+					parent::triplify($id, $this->getVoc()."Genetic-Marker", $marker_id).
+					parent::triplify($marker_id, "rdf:type", $this->getVoc()."Mouse-Marker")
+				);		
 				if(trim($a[6])) {
-					$this->AddRDF($this->QQuadL($marker_id,"mgi_vocabulary:marker-symbol",strtolower($a[6])));
+					parent::AddRDF(
+						parent::triplifyString($marker_id, $this->getVoc()."marker-symbol", trim(strtolower($a[6])))
+					);
 				}
 				if(trim($a[7])) {
-					$this->AddRDF($this->QQuad($marker_id,"mgi_vocabulary:x-refseq","refseq:".$a[7]));
+					parent::AddRDF(
+						parent::triplify($marker_id, $this->getVoc()."x-refseq", "refseq:".trim($a[7]))
+					);
 				}		
 				if(trim($a[8])) {
-					$this->AddRDF($this->QQuad($marker_id,"mgi_vocabulary:x-ensembl","ensembl:".$a[8]));
+					parent::AddRDF(
+						parent::triplify($marker_id, $this->getVoc()."x-ensembl", "ensembl:".trim($a[8]))
+					);
 				}
 			}
 
 			if(trim($a[9])) {
 				$b = explode(",",$a[9]);
 				foreach($b AS $mp) {
-					$this->AddRDF($this->QQuadO_URL($id,"mgi_vocabulary:phenotype",str_replace("MP:","http://purl.obolibrary.org/obo/MP_",$mp)));
+					parent:AddRDF(
+						parent::QQuaadO_URL($id, $this->getVoc()."phenotype", str_replace("MP:","http://purl.obolibrary.org/obo/MP_",$mp))
+					);
 				}
 			}
 		}
@@ -190,18 +209,21 @@ class MGIParser extends RDFFactory
 			$mgi_id  = strtolower($a[0]);
 			$ncbigene_id = "geneid:".trim($a[6]);
 			
-			$this->AddRDF($this->QQuadL($id,"dc:identifier",$id));
-			$this->AddRDF($this->QQuad($id,"rdf:type","mgi_vocabulary:Orthologous-Relationship"));
-			
-			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-mgi",$mgi_id));
-			$this->AddRDF($this->QQuad($mgi_id, "rdf:type", "mgi_vocabulary:Resource"));
-			$this->AddRDF($this->QQuadL($mgi_id, "dc:identifier", $mgi_id));
-			$this->AddRDF($this->QQuadO_URL($mgi_id, "dc:source", "bio2rdf_dataset:mgi"));			
-			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:x-ncbigene",$ncbigene_id));
-			$this->AddRDF($this->QQuad($ncbigene_id, "rdf:type", "hgnc_vocabulary:Resource"));
-			$this->AddRDF($this->QQuadL($ncbigene_id, "dc:identifier", $ncbigene_id));
-			$this->AddRDF($this->QQuadO_URL($ncbigene_id, "dc:source", "bio2rdf_dataset:geneid"));	
-			if($a[4]) $this->AddRDF($this->QQuad($ncbigene_id, "mgi_vocabulary:x-hgnc", strtolower($a[4])));	
+			$id_label = "mgi id";
+			$id_label_class = "Orthologous-Relationship for ".$id;
+			parent::AddRDF(
+				parent::describeIndividual($id, $id_label, $this->getVoc()."Orthologous-Relationship").
+				parent::describeClass($this->getVoc()."Orthologous-Relationship", $id_label_class).
+				parent::triplify($id, $this->getVoc()."x-mgi", "mgi:".$mgi_id).
+				parent::triplify($mgi_id, $this->getVoc()."x-mgi", "mgi:".$mgi_id).
+				parent::describeIndividual($mgi_id, null, null).
+				parent::triplify($id, $this->getVoc()."x-ncbigene", $ncbigene_id)
+			);
+			if($a[4]){
+				parent::AddRDF(
+					parent::triplify($ncbigene_id, "mgi_vocabulary:x-hgnc", strtolower($a[4]))
+				);
+			}
 		}
 		$this->WriteRDFBufferToWriteFile();	
 	}
@@ -219,29 +241,17 @@ class MGIParser extends RDFFactory
 				continue;
 			}
 			$id = strtolower($a[0]);
-			$this->AddRDF($this->QQuadL($id,"rdfs:label",$a[1]." [$id]"));
-			$this->AddRDF($this->QQuadL($id,"dc:identifier",$id));
-			$this->AddRDF($this->QQuadO_URL($id,"dc:source","bio2rdf_dataset:mgi"));
-			$this->AddRDF($this->QQuad($id,"rdf:type","mgi_vocabulary:Strain"));
-			$this->AddRDF($this->QQuadL($id,"mgi_vocabulary:strain-name",$a[1]));
-			$this->AddRDF($this->QQuad($id,"mgi_vocabulary:strain-type","mgi_vocabulary:".str_replace(" ","-",strtolower($a[2]))));
+			$id_label = $a[1];
+			parent::AddRDF(
+				parent::describeIndividual($id, $id_label, $this->getVoc()."Strain").
+				parent::triplify($id, $this->getVoc()."strain-type", "mgi_vocabulary:".str_replace(" ","-",strtolower($a[2])))
+			);
 		}
 		
 		$this->WriteRDFBufferToWriteFile();	
 	
 	}
 }
-$start = microtime(true);
-
-set_error_handler('error_handler');
-$parser = new MGIParser($argv);
-$parser->Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
 
 ?>	
 		
