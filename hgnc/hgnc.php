@@ -30,10 +30,6 @@ SOFTWARE.
  * @author Michel Dumontier
 */
 
-/*
-require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
-require_once(__DIR__.'/../../php-lib/dataresource.php');*/
-
 class HGNCParser extends Bio2RDFizer {
 	private $version = 2.0;
 	function __construct($argv){
