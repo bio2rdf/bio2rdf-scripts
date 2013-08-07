@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2012 Jose Cruz-Toledo
+Copyright (C) 2012 Jose Cruz-Toledo and Michel Dumontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,8 +23,9 @@ SOFTWARE.
 
 /**
  * NCBI Taxonomy parser
- * @version 0.1
+ * @version 2.0
  * @author Jose Cruz-Toledo
+ * @author Michel Dumontier
  * @description ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdump_readme.txt
 */
 /**
