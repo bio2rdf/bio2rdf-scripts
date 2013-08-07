@@ -31,7 +31,7 @@ SOFTWARE.
 */
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
-class EntrezGeneParser extends Bio2RDFizer{
+class NCBIGeneParser extends Bio2RDFizer{
 
 		private $version = null;
 		
