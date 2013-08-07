@@ -67,11 +67,6 @@ class SGDParser extends Bio2RDFizer {
 
 		$ldir = parent::getParameterValue('indir');
 		$rdir = parent::getParameterValue('download_url');
-		
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}
 
 		$rfiles = array(
  			 "dbxref"      => "curation/chromosomal_feature/dbxref.tab",
@@ -116,15 +111,6 @@ class SGDParser extends Bio2RDFizer {
 		$ldir = parent::getParameterValue('indir');
 		$rdir = parent::getParameterValue('download_url');
 		$odir = parent::getParameterValue('outdir');
-
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}
-		
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
 
 		$rfiles = array(
  			 "dbxref"      => "curation/chromosomal_feature/dbxref.tab",
