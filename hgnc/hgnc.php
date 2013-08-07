@@ -27,9 +27,8 @@ SOFTWARE.
  * @version 2.0
  * @author Alison Callahan
  * @author Jose Cruz-Toledo
+ * @author Michel Dumontier
 */
-
-require(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
 class HGNCParser extends Bio2RDFizer {
 	private $version = 2.0;
@@ -58,6 +57,7 @@ class HGNCParser extends Bio2RDFizer {
 			parent::setParameterValue('download',true);
 		}		
 		//download the hgnc file
+		$rfile = null;
 		if(parent::getParameterValue('download') == true) {
 			$rfile = $rdir;
 			echo "downloading $file ... ";
@@ -81,20 +81,45 @@ class HGNCParser extends Bio2RDFizer {
 		echo PHP_EOL;
 		// generate the dataset release file
 		echo "generating dataset release file... ";
-		$desc = parent::getBio2RDFDatasetDescription(
-			$this->getPrefix(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/hgnc/hgnc.php", 
-			$this->getBio2RDFDownloadURL($this->getNamespace()),
-			"http://www.genenames.org",
-			array("use"),
-			"http://www.genenames.org/about/overview",
-			"ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc_complete_set.txt.gz",
-			parent::getDatasetVersion()
-		);
-		parent::setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
-		parent::getWriteFile()->write($desc);
+		$dataset_description = '';
+		$source_file = (new DataResource($this))
+			->setURI($rdir)
+			->setTitle('HUGO Gene Nomenclature Committee (HGNC)')
+			->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+			->setFormat('text/tab-separated-value')
+			->setFormat('application/zip')
+			->setPublisher('http://www.genenames.org/')
+			->setHomepage('http://www.genenames.org/data/gdlw_columndef.html')
+			->setRights('use')
+			->setRights('attribution')
+			->setLicense('http://www.genenames.org/about/overview')
+			->setDataset(parent::getDatasetURI());
+		
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/hgnc/hgnc.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")
+			->setRights("use-share-modify")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+		
 		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+		$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
+		$this->getWriteFile()->write($dataset_description);
+		$this->getWriteFile()->close();
 		
 	}//Run
 
