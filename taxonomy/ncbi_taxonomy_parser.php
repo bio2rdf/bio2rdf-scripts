@@ -32,12 +32,11 @@ SOFTWARE.
 *   ***RELEASE NOTES***
 * -the files merged.dmp and delnodes.dmp are not parsed by this version
 **/
-require("../../php-lib/rdfapi.php");
-class NCBITaxonomyParser extends RDFFactory{
+class NCBITaxonomyParser extends Bio2RDFizer{
 	private $bio2rdf_base = "http://bio2rdf.org/";
 	private $unists_vocab = "taxon_vocabulary:";
 	private $unists_resource = "taxon_resource:";
-	private $version = null; // version of the release data
+	private $version = 2.0; // version of the release data
 
 	private static $packageMap = array(
 		"taxdmp" => array(
@@ -68,24 +67,10 @@ class NCBITaxonomyParser extends RDFFactory{
 	);
 
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("taxon");
-		// set and print application parameters
-		$this->AddParameter('files',true,null,'all|taxdmp|gi2taxid_nucleotide|gi2taxid_protein','','files to process');
-		$this->AddParameter('indir',false,null,'/data/download/taxonomy/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/taxonomy/','directory to place rdfized files');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		return TRUE;
+		parent::__construct($argv);
+		parent::addParameter('files',true,null,'all|taxdmp|gi2taxid_nucleotide|gi2taxid_protein','','files to process');
+		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip');
+		parent::initialize();
 	}//constructor
 
 	public function Run(){
