@@ -84,14 +84,6 @@ class PubChemParser extends Bio2RDFizer {
 		$odir = parent::getParameterValue('outdir');
 		$files = parent::getParameterValue('files');
 
-		if(substr($idir, -1) !== "/"){
-			$idir = $idir."/";
-		}
-		
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
-
 		if($files == 'all') {
 			$files = explode('|', parent::getParameterList('files'));
 			array_shift($files);
