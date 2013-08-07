@@ -524,5 +524,4 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 
 }//class
 
-
 ?>
