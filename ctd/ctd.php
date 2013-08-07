@@ -66,11 +66,6 @@ class CTDParser extends Bio2RDFizer
 		$ldir = parent::getParameterValue('indir');
 		$rdir = parent::getParameterValue('download_url');
 		
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}
-
 		$gz_suffix = ".gz";		
 
 		foreach($files AS $file) {	
@@ -103,15 +98,6 @@ class CTDParser extends Bio2RDFizer
 		$rdir = parent::getParameterValue('download_url');
 		$odir = parent::getParameterValue('outdir');
 			
-		//make sure input and output directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}
-
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
-
 		$graph_uri = parent::getGraphURI();
 		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 
