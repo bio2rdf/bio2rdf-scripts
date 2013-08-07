@@ -92,12 +92,13 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			}	
 		}
 		foreach ($files as $key => $value) {
-			if(substr($ldir, -1) == "/"){
+			/*if(substr($ldir, -1) == "/"){
 				$lfile = $ldir.$value['filename'];
 			} else {
 				$lfile = $ldir."/".$value['filename'];
-			}
+			}*/
 
+			$lfile = $ldir.$value['filename'];
 			if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$this->SetParameterValue('download',true);
@@ -117,7 +118,7 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 				$zinfile = $ldir.$lfile;
 				$zin = new ZipArchive();
 				if ($zin->open($zinfile) === FALSE) {
-					trigger_error("Unable to open $zfile");
+					trigger_error("Unable to open $zinfile");
 					exit;
 				}
 				//now iterate over the files in the ziparchive
@@ -182,12 +183,9 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			$a = explode("\t", $aLine);
 			$gi = trim($a[0]);
 			$txid = trim($a[1]);
-			$this->AddRDF($this->QQuad(
-				"gi:".$gi,
-				"taxon_vocabulary:x_taxid",
-				"taxon:".$txid
-			));
-			$this->AddRDF($this->QQuad("gi:".$gi, "void:inDataset", $this->getDatasetURI()));
+			parent::AddRDF(
+				parent::triplify("gi:".$gi, $this->getVoc()."x-taxid", $this->GetNamespace().$txid)
+			);
 			$this->WriteRDFBufferToWriteFile();
 		}//while
 	}
