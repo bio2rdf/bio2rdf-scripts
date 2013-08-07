@@ -415,40 +415,30 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			$name = str_replace("\t","",trim($a[2]));
 			$translation_table = str_replace("\t","",trim($a[3]));
 			$start_codons = str_replace("\t","",trim($a[4]));
-			//create resource
-			$this->AddRDF($this->QQuadL(
-				"taxon_resource:".md5("gencode_id_".$gencode),
-				"rdfs:label",
-				str_replace("\"","",utf8_encode($name))." [taxon_resource:".$gencode."]"
-			));
-			$this->AddRDF($this->QQuad("taxon_resource:".md5("gencode_id_".$gencode), "void:inDataset", $this->getDatasetURI()));
 
-			//type it
-			$this->AddRDF($this->QQuad(
-				"taxon_resource:".md5("gencode_id_".$gencode),
-				"rdf:type",
-				"taxon_vocabulary:genetic_code"
-			));
+			$gen_res = $this->getres().md5("gencode_id_".$gencode);
+			$gen_label = str_replace("\"","",utf8_encode($name));
+			$gen_label_class = "mitochondrial genetic code for ".$gen_res;
+
+			//create resource
+			parent::AddRDF(
+				parent::describeIndividual($gen_res, $gen_label, $this->getVoc()."genetic_code").
+				parent::describeClass($this->getVoc()."genetic_code", $gen_label_class)
+			);
 			if($abbr != ""){
-				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".md5("gencode_id_".$gencode),
-					"taxon_vocabulary:abbreviation",
-					str_replace("\"","",utf8_encode($abbr))
-				));
+				parent::AddRDF(
+					parent::triplifyString($gen_res, $this->getVoc()."abbreviation", str_replace("\"","",utf8_encode($abbr)))
+				);
 			}
 			if ($translation_table != "") {
-				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".md5("gencode_id_".$gencode),
-					"taxon_vocabulary:translation_table",
-					str_replace("\"","",utf8_encode($translation_table))
-				));
+				parent::AddRDF(
+					parent::triplifyString($gen_res, $this->getVoc()."translation_table", str_replace("\"","",utf8_encode($translation_table))
+				);
 			}
 			if ($start_codons != "") {
-				$this->AddRDF($this->QQuadL(
-					"taxon_resource:".md5("gencode_id_".$gencode),
-					"taxon_vocabulary:start_codons",
-					str_replace("\"","",utf8_encode($start_codons))
-				));
+				parent::AddRDF(
+					parent::triplifyString($gen_res, $this->getVoc()."start_codons", str_replace("\"","",utf8_encode($start_codons)))
+				);
 			}
 			$this->WriteRDFBufferToWriteFile();
 		}//while
@@ -472,20 +462,6 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 				parent::describeIndividual($cit_res, $cit_label, $this->getVoc()."citation").
 				parent:describeClass($this->getVoc()."citation", $cit_label_class)
 			);
-			/*//create a resource
-			$this->AddRDF($this->QQuadL(
-				"taxon_resource:".md5("citation_id_".$cit_id),
-				"rdfs:label",
-				"citation [taxon_resource:citation_id_".$cit_id."]"
-			));
-			$this->AddRDF($this->QQuad("taxon_resource:".md5("citation_id_".$cit_id), "void:inDataset", $this->getDatasetURI()));
-
-			//type it
-			$this->AddRDF($this->QQuad(
-				"taxon_resource:".md5("citation_id_".$cit_id),
-				"rdf:type",
-				"taxon_vocabulary:citation"
-			));*/
 			if($cit_key != ""){
 				parent::AddRDF(
 					parent::triplifyString($cit_res, $this->getVoc()."citation_key", str_replace(array('"','\\'),"",utf8_encode($cit_key)))
@@ -505,11 +481,6 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 				parent::AddRDF(
 					parent::triplifyString($cit_res, $this->getVoc()."text", str_replace("\"","",utf8_encode($text)))
 				);
-				/*$this->AddRDF($this->QQuadL(
-					"taxon_resource:".md5("citation_id_".$cit_id),
-					"taxon_vocabulary:text",
-					str_replace("\"","",utf8_encode($text))
-				));*/
 			}
 			if(count($taxid_list)){
 				foreach ($taxid_list as $aTxid) {
