@@ -194,12 +194,9 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			$a = explode("\t", $aLine);
 			$gi = trim($a[0]);
 			$txid = trim($a[1]);
-			$this->AddRDF($this->QQuad(
-				"gi:".$gi,
-				"taxon_vocabulary:x_taxid",
-				"taxon:".$txid
-			));
-			$this->AddRDF($this->QQuad("gi:".$gi, "void:inDataset", $this->getDatasetURI()));
+			parent::AddRDF(
+				parent::triplify("gi".$gi, $this->getVoc()."x-taxid", $this->GetNamespace().$txid)
+			);
 			$this->WriteRDFBufferToWriteFile();
 		}//while
 	}
