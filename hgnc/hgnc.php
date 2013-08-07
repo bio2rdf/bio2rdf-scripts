@@ -514,6 +514,4 @@ class HGNCParser extends Bio2RDFizer {
 	}//process
 }//HGNCParser
 
-$p = new HGNCParser($argv);
-$p->Run();
 ?>
