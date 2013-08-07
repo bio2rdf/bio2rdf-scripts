@@ -61,10 +61,6 @@ class SIDERParser extends Bio2RDFizer
 		$idir = parent::getParameterValue('indir');
 		$files = parent::getParameterValue('files');
 
-		if(substr($idir, -1) !== "/"){
-			$idir = $idir."/";
-		}
-		
 		if($files == 'all') {
 			$files = explode('|', parent::getParameterList('files'));
 			array_shift($files);
@@ -103,15 +99,6 @@ class SIDERParser extends Bio2RDFizer
 			array_shift($files);
 		} else {
 			$files = explode(',', parent::getParameterValue('files'));
-		}
-
-		//make sure indir and outdir end with a slash
-		if(substr($idir, -1) !== "/"){
-			$idir = $idir."/";
-		}
-
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
 		}
 		
 		parent::setCheckpoint('dataset');
