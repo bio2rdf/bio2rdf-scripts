@@ -203,8 +203,6 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			$unique_name = str_replace("\t","",trim($a[2]));
 			$name_class = str_replace("\t","",trim($a[3]));
 
-		
-
 			if($name_class == "scientific name"){
 				$this->AddRDF($this->QQuadL(
 					"taxon:".$taxid,
@@ -223,7 +221,7 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 					parent::describeClass($this->getVoc()."name-class", $name_label_class)
 				);
 				parent::AddRDF(
-					parent::triplify($name_res, "rdf:type", preg_replace('/\s+/','',str_replace("\"","",utf8_encode($name_class)))
+					parent::triplify($name_res, "rdf:type", preg_replace('/\s+/','',str_replace("\"","",utf8_encode($name_class))))
 				);
 			}
 			
@@ -234,7 +232,7 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			//add unique name
 			if($unique_name != "" && $unique_name != null){
 				parent::AddRDF(
-					parent::triplifyString("taxon:".$taxid, $this->getVoc()."unique-name", str_replace("\"","",utf8_encode($unique_name))
+					parent::triplifyString("taxon:".$taxid, $this->getVoc()."unique-name", str_replace("\"","",utf8_encode($unique_name)))
 				);
 			}
 			
@@ -372,12 +370,12 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			);
 			//add division code
 			parent::AddRDF(
-				parent::triplifyString($div_res, $this->getVoc()."division_code", str_replace("\"","",utf8_encode($division_code))
+				parent::triplifyString($div_res, $this->getVoc()."division_code", str_replace("\"","",utf8_encode($division_code)))
 			);
 			//add comments
 			if($comments != ""){
 				parent::AddRDF(
-					parent::triplifyString($div_res, $this->getVoc()."comments", str_replace("\"","",utf8_encode($comments))
+					parent::triplifyString($div_res, $this->getVoc()."comments", str_replace("\"","",utf8_encode($comments)))
 				);
 			}
 			$this->WriteRDFBufferToWriteFile();
@@ -409,7 +407,7 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			}
 			if ($translation_table != "") {
 				parent::AddRDF(
-					parent::triplifyString($gen_res, $this->getVoc()."translation_table", str_replace("\"","",utf8_encode($translation_table))
+					parent::triplifyString($gen_res, $this->getVoc()."translation_table", str_replace("\"","",utf8_encode($translation_table)))
 				);
 			}
 			if ($start_codons != "") {
@@ -437,7 +435,7 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 
 			parent::AddRDF(
 				parent::describeIndividual($cit_res, $cit_label, $this->getVoc()."citation").
-				parent:describeClass($this->getVoc()."citation", $cit_label_class)
+				parent::describeClass($this->getVoc()."citation", $cit_label_class)
 			);
 			if($cit_key != ""){
 				parent::AddRDF(
