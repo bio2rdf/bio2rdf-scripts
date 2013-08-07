@@ -166,17 +166,20 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		$indir = parent::getParameterValue('indir');
 		if($handle = opendir($indir)) {
 			echo "Processing directory $indir\n";
+
+			$outfile = "clinicaltrials.".parent::getParameterValue('output_format');
+			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+			parent::setWriteFile(parent::getParameterValue("outdir").$outfile,$gz);
+					
 			while(($file = readdir($handle)) !== false){
 				if (in_array($file,$ignore) || is_dir($file) ) continue;
 				$trial_id = basename($file,'.xml');
 				if(parent::getParameterValue('id_list') == '' || in_array($trial_id, $ids)) {
 					echo "Processing $file".PHP_EOL;					
 					$this->process_file($file);
-					
-					$outfile = basename($file,".xml").'.'.parent::getParameterValue('output_format');
-					
+		
 					// make the dataset description
-					$ouri = parent::getGraphURI(parent::getDatasetURI());
+					$ouri = parent::getGraphURI();
 					parent::setGraphURI(parent::getDatasetURI());
 					
 					$rfile = "http://clinicaltrials.gov/ct2/show/".$trial_id."?resultsxml=true";
@@ -194,31 +197,34 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					->setLicense("http://clinicaltrials.gov/ct2/about-site/terms-conditions")
 					->setDataset("http://identifiers.org/clinicaltrials/");
 					
-					$output_file = (new DataResource($this))
-						->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$outfile")
-						->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
-						->setSource($source_file->getURI())
-						->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/clinicaltrials/clinicaltrials.php")
-						->setCreateDate($date)
-						->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-						->setPublisher("http://bio2rdf.org")			
-						->setRights("use-share-modify")
-						->setRights("by-attribution")
-						->setRights("restricted-by-source-license")
-						->setLicense("http://creativecommons.org/licenses/by/3.0/")
-						->setDataset(parent::getDatasetURI());
-
-					$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-					if($gz) $output_file->setFormat("application/gzip");
-					if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
-					else $output_file->setFormat("application/n-quads");
-				
-					fwrite($fp, $source_file->toRDF().$output_file->toRDF());
-					parent::setGraphURI(parent::setDatasetURI($ouri));
+					parent::writeToReleaseFile($source_file->toRDF());
+					parent::setGraphURI($ouri);
 				}
 			}
-			echo "Finished\n.";
+			echo "Finished.".PHP_EOL;
 			closedir($handle);
+			
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$outfile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/clinicaltrials/clinicaltrials.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			parent::writeToReleaseFile($output_file->toRDF());
+			parent::closeReleaseFile();
 
 			// write the dataset description file
 			fclose($fp);
@@ -230,12 +236,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 	**/
 	function process_file($infile) {
 		$indir = parent::getParameterValue('indir');
-		$outfile = parent::getParameterValue("outdir")
-		  .basename($infile,".xml")
-		  .'.'.parent::getParameterValue('output_format');
-		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-		
-		$this->setWriteFile($outfile,$gz);
+
 		$xml = new CXML($indir,basename($infile));
 		$this->setCheckPoint('file');
 		while($xml->Parse("clinical_study") == TRUE) {
@@ -924,10 +925,10 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				echo "There was an error parsing the is_fda_regulated element: $e\n";
 			}
 			
+			parent::writeRDFBufferToWriteFile();
 		}
 		$this->setCheckPoint('record');
 		$this->setCheckPoint('dataset');
-		$this->getWriteFile()->close();
 	}
 	
 	function getString($xpath,$element = null)
