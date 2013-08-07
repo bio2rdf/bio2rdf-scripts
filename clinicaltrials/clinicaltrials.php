@@ -179,7 +179,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$this->process_file($file);
 		
 					// make the dataset description
-					$ouri = parent::getGraphURI(parent::getDatasetURI());
+					$ouri = parent::getGraphURI();
 					parent::setGraphURI(parent::getDatasetURI());
 					
 					$rfile = "http://clinicaltrials.gov/ct2/show/".$trial_id."?resultsxml=true";
@@ -198,10 +198,10 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					->setDataset("http://identifiers.org/clinicaltrials/");
 					
 					parent::writeToReleaseFile($source_file->toRDF());
-					parent::setGraphURI(parent::setDatasetURI($ouri));
+					parent::setGraphURI($ouri);
 				}
 			}
-			echo "Finished\n.";
+			echo "Finished.".PHP_EOL;
 			closedir($handle);
 			
 			$output_file = (new DataResource($this))
