@@ -205,7 +205,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			closedir($handle);
 			
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$outfile")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/clinicaltrials/clinicaltrials.php")
