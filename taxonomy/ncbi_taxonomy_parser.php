@@ -32,7 +32,8 @@ SOFTWARE.
 *   ***RELEASE NOTES***
 * -the files merged.dmp and delnodes.dmp are not parsed by this version
 **/
-require(__DIR__.'/../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/dataresource.php');
 
 class NCBITaxonomyParser extends Bio2RDFizer{
 	private $bio2rdf_base = "http://bio2rdf.org/";
@@ -98,7 +99,6 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 
 
 		$dataset_description = '';
-		print_r($files);exit;
 
 		foreach ($files as $key => $value) {
 
@@ -127,7 +127,36 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 					exit;
 				}
 				//now iterate over the files in the ziparchive
+				$source_file = (new DataResource($this))
+					->setURI($value['file_url'])
+					->setTitle('NCBI Taxonomy filename: '.$key)
+					->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+					->setFormat('text/tab-separated-value')
+					->setFormat('application/zip')
+					->setPublisher('https://www.ncbi.nlm.nih.gov 	')
+					->setHomepage('https://www.ncbi.nlm.nih.gov/taxonomy')
+					->setRights('use')
+					->setRights('attribution')
+					->setLicense('https://www.nlm.nih.gov/copyright.html')
+					->setDataset(parent::getDatasetURI());
 
+				$prefix = parent::getPrefix();
+				$bVersion = parent::getParameterValue('bio2rdf_release');
+				$date = date("Y-m-d\TG:i:s\Z");
+				$output_file = (new DataResource($this))
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/ncbi_taxonomy_parser.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")
+				->setRights("use-share-modify")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+				$dataset_description .= $output_file->toRDF().$source_file->toRDF();
 				foreach($value["contents"] as $k => $fn){
 					if($k == "names" || $k == "nodes" || $k == "citations" 
 						|| $k == "gencode" || $k == "division" 
@@ -162,52 +191,11 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 
 					}//if $k
 				}//foreach
-				/*$source_file = (new DataResource($this))
-					->setURI($value['file_url'])
-					->setTitle('HUGO Gene Nomenclature Committee (HGNC)')
-					->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($lfile)))
-					->setFormat('text/tab-separated-value')
-					->setFormat('application/zip')
-					->setPublisher('http://www.genenames.org/')
-					->setHomepage('http://www.genenames.org/data/gdlw_columndef.html')
-					->setRights('use')
-					->setRights('attribution')
-					->setLicense('http://www.genenames.org/about/overview')
-					->setDataset(parent::getDatasetURI());*/
+				
 			}//if key taxdmp
-			
-			/*
-=======
-			
->>>>>>> Stashed changes
-			// generate the release file
-			
-			/*$output_file = (new DataResource($this))
-			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
-			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
-			->setSource($source_file->getURI())
-			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/hgnc/hgnc.php")
-			->setCreateDate($date)
-			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-			->setPublisher("http://bio2rdf.org")
-			->setRights("use-share-modify")
-			->setRights("restricted-by-source-license")
-			->setLicense("http://creativecommons/licenses/by/3.0/")
-			->setDataset(parent::getDatasetURI());*/
-
-			/*$desc = $this->GetBio2RDFDatasetDescription(
-				$this->GetNamespace(),
-				"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/ncbi_taxonomy_parser.php", 
-				$bio2rdf_download_files,
-				"http://www.ncbi.nlm.nih.gov/taxon",
-				array("use-share-modify"),
-				"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
-				"ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip",
-				$this->version
-			);
-			$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-			$this->GetWriteFile()->Write($desc);
-			$this->GetWriteFile()->Close();*/
+			$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
+			$this->getWriteFile()->write($dataset_description);
+			$this->getWriteFile()->close();
 
 		}
 	}//run
