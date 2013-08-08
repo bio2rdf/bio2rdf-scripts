@@ -7,12 +7,10 @@ Requirements
 The majority of these scripts were created so as to run on Linux servers. Depending on the script you wish to run you will need:
 
 * PHP5
-* Perl 6
-* Ruby(1.9.3)
 * Java 1.5
 * Bio2RDF API (available from: https://github.com/micheldumontier/php-lib)
 
-The Bio2RDF API should be installed in the root directory of the project tree (i.e bio2rdf-scripts).
+The Bio2RDF API should be installed in the root directory of the project tree (i.e sibling to bio2rdf-scripts).
 
 Usage
 -----
