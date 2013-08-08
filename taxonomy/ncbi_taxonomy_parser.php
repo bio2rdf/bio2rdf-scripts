@@ -96,6 +96,10 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			}	
 		}
 
+
+		$dataset_description = '';
+		print_r($files);exit;
+
 		foreach ($files as $key => $value) {
 
 			$lfile = $ldir.$value['filename'];
@@ -123,6 +127,7 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 					exit;
 				}
 				//now iterate over the files in the ziparchive
+
 				foreach($value["contents"] as $k => $fn){
 					if($k == "names" || $k == "nodes" || $k == "citations" 
 						|| $k == "gencode" || $k == "division" 
@@ -154,15 +159,43 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 						$this->$k();
 						$this->GetWriteFile()->Close();
 						echo "done!".PHP_EOL;
-						//$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$gzoutfile;
+
 					}//if $k
 				}//foreach
-
+				/*$source_file = (new DataResource($this))
+					->setURI($value['file_url'])
+					->setTitle('HUGO Gene Nomenclature Committee (HGNC)')
+					->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+					->setFormat('text/tab-separated-value')
+					->setFormat('application/zip')
+					->setPublisher('http://www.genenames.org/')
+					->setHomepage('http://www.genenames.org/data/gdlw_columndef.html')
+					->setRights('use')
+					->setRights('attribution')
+					->setLicense('http://www.genenames.org/about/overview')
+					->setDataset(parent::getDatasetURI());*/
 			}//if key taxdmp
 			
 			/*
+=======
+			
+>>>>>>> Stashed changes
 			// generate the release file
-			$desc = $this->GetBio2RDFDatasetDescription(
+			
+			/*$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/hgnc/hgnc.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")
+			->setRights("use-share-modify")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());*/
+
+			/*$desc = $this->GetBio2RDFDatasetDescription(
 				$this->GetNamespace(),
 				"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/ncbi_taxonomy_parser.php", 
 				$bio2rdf_download_files,
@@ -215,7 +248,6 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 				);
 			}else{
 				$r = rand();
-				
 				$name_res = $this->getRes().md5($r.$taxid);
 				$name_label = str_replace("\"","",utf8_encode($name));
 				$name_label_class = "ncbi taxonomy name class";
@@ -486,6 +518,7 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 	}//getpackagemap
 
 }//class
-$p = new NCBITaxonomyParser($argv);
-$p->run();
+
+$x = new NCBITaxonomyParser($argv);
+$x->run();
 ?>
