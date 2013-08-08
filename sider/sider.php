@@ -119,12 +119,7 @@ class SIDERParser extends Bio2RDFizer
 			$ofile = "sider-".$file.'.'.$suffix; 
 			$gz = false;
 			
-			if(parent::getParameterValue('graph_uri')) {
-				$ofile = "sider-".$file.'.nq';
-			}
-
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$ofile .= '.gz';
 				$gz = true;
 			}
 
