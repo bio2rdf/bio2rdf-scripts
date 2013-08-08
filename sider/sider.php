@@ -60,7 +60,7 @@ class SIDERParser extends Bio2RDFizer
 	function download(){
 		$idir = parent::getParameterValue('indir');
 		$files = parent::getParameterValue('files');
-		
+
 		if($files == 'all') {
 			$files = explode('|', parent::getParameterList('files'));
 			array_shift($files);
@@ -103,31 +103,78 @@ class SIDERParser extends Bio2RDFizer
 		
 		parent::setCheckpoint('dataset');
 
+		$dataset_description = '';
+
+		$graph_uri = parent::getGraphURI();
+		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+
 		foreach($files AS $file) {
 			$lfile = $idir.$file.'.tsv.gz';
+			$rfile = parent::getParameterValue('download_url').$file.'.tsv.gz';
 
-			echo "processing $file... ";
+			echo "Processing $file... ";
 			parent::setReadFile($lfile,true);	
 			
-			$ofile = $odir."sider-".$file.'.nt'; 
+			$suffix = parent::getParameterValue('output_format');
+			$ofile = "sider-".$file.'.'.$suffix; 
 			$gz = false;
 			
-			if(parent::getParameterValue('graph_uri')) {
-				$ofile = $odir."sider-".$file.'.nq';
-			}
-
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$ofile .= '.gz';
 				$gz = true;
 			}
 
-			parent::setWriteFile($ofile, $gz);
+			parent::setWriteFile($odir.$ofile, $gz);
 			$this->$file();
 			parent::getWriteFile()->Close();
 			parent::getReadFile()->Close();
 			echo "done!".PHP_EOL;
+
+			echo "Generating dataset description... ";
+
+			$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle("SIDER Side Effect resource ($file.tsv.gz")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setFormat("text/tab-separated-value")
+				->setFormat("application/gzip")	
+				->setPublisher("http://sideeffects.embl.de/")
+				->setHomepage("http://sideeffects.embl.de/")
+				->setRights("use-share-modify")
+				->setLicense("http://creativecommons.org/licenses/by-nc-sa/3.0/")
+				->setDataset("http://identifiers.org/sider.effect/");
+
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sider/sider.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
 		}//foreach
-		parent::setCheckpoint('dataset');
+
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
+		echo "done!".PHP_EOL;
+
+		//reset graph URI to default value
+		parent::setGraphURI($graph_uri);
+
 	}
 /*
 1 & 2: generic and brand names
