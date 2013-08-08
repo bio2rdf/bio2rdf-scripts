@@ -87,6 +87,10 @@ class SABIORKParser extends Bio2RDFizer
 		if(isset($myfiles)) $total = count($myfiles);
 		$i = 0;
 		parent::setCheckpoint('dataset');
+
+		$graph_uri = parent::getGraphURI();
+		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+
 		foreach($xml->SABIOReactionID AS $rid) {
 			parent::setCheckpoint('file');
 			if(isset($myfiles)) {
@@ -133,6 +137,50 @@ class SABIORKParser extends Bio2RDFizer
 			parent::getWriteFile()->Write($rdf);
 			parent::getWriteFile()->Close();
 		}
+
+		//generate dataset description
+		echo "Generating dataset description... ";
+		$source_file = (new DataResource($this))
+			->setURI("http://sabiork.h-its.org/sabioRestWebServices/searchKineticLaws/biopax")
+			->setTitle("SABIO-RK Biochemical Reaction Kinetics Database")
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+			->setFormat("text/xml")
+			->setPublisher("http://sabio.villa-bosch.de/")
+			->setHomepage("http://sabio.villa-bosch.de/")
+			->setRights("use-share-modify")
+			->setRights("no-commercial")
+			->setLicense("http://sabio.villa-bosch.de/layouts/content/termscondition.gsp")
+			->setDataset("http://identifiers.org/sabiork.reaction/");
+
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+			->setSource($source_file->getURI())
+			->setCreatorsource_file("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sabiork/sabiork.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")			
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+		
+		$dataset_description = $source_file->toRDF().$output_file->toRDF();
+
+		//write dataset description to file
+		parent::setGraphURI($graph_uri);
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
+		echo "done!".PHP_EOL;
 	} // run
 }
 
