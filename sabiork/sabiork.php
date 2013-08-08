@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2012 Michel Dumontier
+Copyright (C) 2013 Michel Dumontier, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -21,46 +21,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-require('../../php-lib/biopax2bio2rdf.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/biopax2bio2rdf.php');
 
 /**
  * SABIORK RDFizer
- * @version 1.0
+ * @version 2.0
  * @author Michel Dumontier
+ * @author Alison Callahan
  * @description http://sabio.villa-bosch.de/layouts/content/docuRESTfulWeb/manual.gsp
 */
-class SABIORKParser extends RDFFactory 
+class SABIORKParser extends Bio2RDFizer 
 {		
 	private $version = null;
 	
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("sabiork");
-		
-		// set and print application parameters
-		$this->AddParameter('files',true,null,'all','entries to process: comma-separated list or hyphen-separated range');
-		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
-		$this->AddParameter('download',false,'true|false','false','Force data download');
-		$this->AddParameter('download_url',false,null,'http://sabiork.h-its.org/sabioRestWebServices/','Download API');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));		
-		
-		return TRUE;
+		parent::__construct($argv, "sabiork");
+		parent::addParameter('files',true,null,'all','entries to process: comma-separated list or hyphen-separated range');
+		parent::addParameter('download_url',false,null,'http://sabiork.h-its.org/sabioRestWebServices/','Download API');
+		parent::initialize();
 	}
 	
 	function Run()
 	{
-		$idir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		$files = $this->GetParameterValue('files');
+		$idir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+		$files = parent::getParameterValue('files');
 	
 		// set the work
 		if($files != 'all') {
@@ -86,9 +72,9 @@ class SABIORKParser extends RDFFactory
 		$getReactionIds_url = $rest_uri."suggestions/SABIOReactionIDs";
 		
 		$reaction_list_file = $idir."reactions.xml";
-		if(!file_exists($reaction_list_file) || $this->GetParameterValue('download') == 'true') {
+		if(!file_exists($reaction_list_file) || parent::getParameterValue('download') == 'true') {
 			$xml = file_get_contents($getReactionIds_url);
-			if(FALSE === $reaction_ids) {
+			if(FALSE === $reaction_list_file) {
 				exit;
 			} 
 			$f = new FileFactory($reaction_list_file);
@@ -100,7 +86,9 @@ class SABIORKParser extends RDFFactory
 		$total = count($xml->SABIOReactionID);
 		if(isset($myfiles)) $total = count($myfiles);
 		$i = 0;
+		parent::setCheckpoint('dataset');
 		foreach($xml->SABIOReactionID AS $rid) {
+			parent::setCheckpoint('file');
 			if(isset($myfiles)) {
 				if(!in_array($rid,$myfiles)) continue;
 			}
@@ -121,7 +109,8 @@ class SABIORKParser extends RDFFactory
 			$buf = file_get_contents("compress.zlib://".$reaction_file);
 	
 			// send for parsing
-			$p = new BioPAX2Bio2RDF();
+			$p = new BioPAX2Bio2RDF($this->getRegistry());
+			
 			$p->SetBuffer($buf)
 				->SetBioPAXVersion(3)
 				->SetBaseNamespace("http://sabio.h-its.org/biopax#")
@@ -130,34 +119,20 @@ class SABIORKParser extends RDFFactory
 			$rdf = $p->Parse();
 			
 			$ofile = "sabiork_$rid.nt";	$gz = false;
-			if($this->GetParameterValue("graph_uri")) {$ofile = "sabiork_$rid.nq";}
-			if($this->GetParameterValue("gzip")) {
-				$gz = true;
-				$ofile .= ".gz";
+			
+			if($this->GetParameterValue("graph_uri")) {
+				$ofile = "sabiork_$rid.nq";
 			}
-			$this->SetWriteFile($odir.$ofile,$gz);
-			$this->GetWriteFile()->Write($rdf);
-			$this->GetWriteFile()->Close();
 			
-			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$ofile; 
-			echo PHP_EOL;
-		}
-			
+			if(strstr(parent::getParameterValue('output_format'), "gz")) {
+				$ofile .= '.gz';
+				$gz = true;
+			}
 
-		// generate the release file
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sabiork/sabiork.php", 
-			$bio2rdf_download_files,
-			"sabiork.h-its.org",
-			array("use-share-modify","no-commercial"),
-			null, // license
-			$this->GetParameterValue('download_url'),
-			$this->version
-		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+			parent::setWriteFile($odir.$ofile,$gz);
+			parent::getWriteFile()->Write($rdf);
+			parent::getWriteFile()->Close();
+		}
 	} // run
 }
 $start = microtime(true);
