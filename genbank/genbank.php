@@ -32,6 +32,7 @@ SOFTWARE.
 *	1. ncftpget
 */
 //TODO: add the following parsers: FEATURES, SEQUENCE, ORIGIN and CONTIG
+//TODO: add url link to sequence
 class GenbankParser extends Bio2RDFizer{
 	function __construct($argv){
 		parent::__construct($argv, "genbank");
@@ -136,7 +137,6 @@ class GenbankParser extends Bio2RDFizer{
 		    	//get the reference section
 		    	$references = $this->retrieveSections("REFERENCE", $sectionsRaw);
 		    	$parsed_refs_arr = $this->parseReferences($references);
-
 				$gb_res = "gi:".$parsed_version_arr['gi'];
 				$gb_label = utf8_encode(htmlspecialchars($parsed_definition_arr[0]));
 
@@ -188,7 +188,7 @@ class GenbankParser extends Bio2RDFizer{
 					}
 					if(isset($aRef['PUBMED'])){
 						parent::AddRDF(
-							parent::triplify($ref_res, $this->getVoc()."x-pubmed", $aRef['PUBMED'])
+							parent::triplify($ref_res, $this->getVoc()."x-pubmed", 'pubmed:'.$aRef['PUBMED'])
 						);
 					}
 					if(isset($aRef['AUTHORS'])){
