@@ -106,7 +106,7 @@ class AffymetrixParser extends Bio2RDFizer
 				echo "skipping: $lfile does not exist".PHP_EOL;
 				continue;
 			}
-			echo "processing $base_file, from $base_url".PHP_EOL;
+			echo "processing $lfile".PHP_EOL;
 			
 			// open the zip file
 			$zin = new ZipArchive();
