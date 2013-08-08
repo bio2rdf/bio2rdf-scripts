@@ -60,15 +60,6 @@ class PubmedParser extends Bio2RDFizer
 		//set graph URI to dataset graph
 		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 		
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}
-
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
-
 		if ($lhandle = opendir($ldir)) {
 			while (($lfilename = readdir($lhandle)) !== FALSE) {
 				if ($lfilename != "." && $lfilename != "..") {
@@ -98,7 +89,7 @@ class PubmedParser extends Bio2RDFizer
 		$bVersion = parent::getParameterValue('bio2rdf_release');
 		$date = date ("Y-m-d\TG:i:s\Z");
 		$output_file = (new DataResource($this))
-			->setURI("http://download.bio2df.org/release/$bVersion/$prefix")
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
 			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 			->setSource($source_file->getURI())
 			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubmed/pubmed.php")
@@ -130,7 +121,8 @@ class PubmedParser extends Bio2RDFizer
 
 		$odir = parent::getParameterValue('outdir');
 
-		$ofile = $odir.basename($infile, ".xml.gz").'.'.parent::getParameterValue('output_format');
+		$suffix = parent::getParameterValue('output_format');
+		$ofile = $odir.basename($infile, ".xml.gz").'.'.$suffix;
 
 		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 
