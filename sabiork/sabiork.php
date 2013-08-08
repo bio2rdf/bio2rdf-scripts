@@ -135,16 +135,6 @@ class SABIORKParser extends Bio2RDFizer
 		}
 	} // run
 }
-$start = microtime(true);
 
-set_error_handler('error_handler');
-$parser = new SABIORKParser($argv);
-$parser->Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
 ?>
 
