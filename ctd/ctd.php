@@ -110,9 +110,7 @@ class CTDParser extends Bio2RDFizer
 
 			$lfile = $ldir.$file.$gz_suffix;
 			$rfile = $rdir.'CTD_'.$file.$suffix;
-			$ofile = "ctd_".$file.".nt";
-			$gz = false;
-
+			
 			if(!file_exists($lfile)) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				if($suffix == ".tsv.gz") {
@@ -122,12 +120,11 @@ class CTDParser extends Bio2RDFizer
 				}
 			}
 
-			if($this->GetParameterValue('graph_uri')) {
-				$ofile = "ctd_".$file.'.nq';
-			}
+			$out_suffix = parent::getParameterValue('output_format');
+			$ofile = "ctd_".$file.".".$out_suffix;
+			$gz = false;
 
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$ofile .= '.gz';
 				$gz = true;
 			}
 
@@ -175,7 +172,7 @@ class CTDParser extends Bio2RDFizer
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date ("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ctd/ctd.php")

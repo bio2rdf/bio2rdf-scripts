@@ -148,14 +148,12 @@ class SGDParser extends Bio2RDFizer {
 				Utils::DownloadSingle ($rfile, $ldir.$lfile);
 			}
 			
-			$ofile = "sgd_".$file.'.nt'; 
+			$suffix = parent::getParameterValue('output_format');
+			$ofile = "sgd_".$file.'.'.$suffix; 
 			
-			$gz=false;
-			
-			if($this->GetParameterValue('graph_uri')) {$ofile = "sgd_".$file.'.nq'; }
-			
+			$gz = false;
+						
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$ofile .= '.gz';
 				$gz = true;
 			}
 			
@@ -195,7 +193,7 @@ class SGDParser extends Bio2RDFizer {
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date ("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sgd/sgd.php")

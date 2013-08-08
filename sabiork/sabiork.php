@@ -122,14 +122,11 @@ class SABIORKParser extends Bio2RDFizer
 				->SetDatasetURI($this->GetDatasetURI());
 			$rdf = $p->Parse();
 			
-			$ofile = "sabiork_$rid.nt";	$gz = false;
-			
-			if($this->GetParameterValue("graph_uri")) {
-				$ofile = "sabiork_$rid.nq";
-			}
+			$suffix = parent::getParameterValue('output_format');
+			$ofile = "sabiork_$rid".".".$suffix;
+			$gz = false;
 			
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$ofile .= '.gz';
 				$gz = true;
 			}
 
