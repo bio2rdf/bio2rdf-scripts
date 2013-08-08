@@ -78,6 +78,7 @@ class GOAParser extends Bio2RDFizer
 			echo "processing $file ... ";
 			$this->process($file);
 			echo "done!";
+			parent::clear();
 
 			//close write file
 			parent::getWriteFile()->close();
