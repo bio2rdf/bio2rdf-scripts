@@ -134,7 +134,7 @@ class GOAParser extends Bio2RDFizer
 	function process($file){
 		$z = 1;
 		while($l = parent::getReadFile()->read(100000)) {
-			if($z == 100) break;
+//			if($z == 100) break;
 			if($l[0] == "!") continue;
 			$fields = explode("\t",$l);
 			if(count($fields) != 17){
