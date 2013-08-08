@@ -115,7 +115,8 @@ class SIDERParser extends Bio2RDFizer
 			echo "Processing $file... ";
 			parent::setReadFile($lfile,true);	
 			
-			$ofile = "sider-".$file.'.nt'; 
+			$suffix = parent::getParameterValue('output_format');
+			$ofile = "sider-".$file.'.'.$suffix; 
 			$gz = false;
 			
 			if(parent::getParameterValue('graph_uri')) {
