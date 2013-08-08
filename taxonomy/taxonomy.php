@@ -227,7 +227,7 @@ class TaxonomyParser extends Bio2RDFizer{
 
 			if($name_class == "scientific name"){
 				parent::AddRDF(
-					parent::triplifyString("taxon:".$taxid, "rdfs:label", str_replace("\"","",utf8_encode($name)))
+					parent::triplifyString(parent::GetNamespace().$taxid, "rdfs:label", str_replace("\"","",utf8_encode($name)))
 				);
 			}else{
 				$r = rand();
@@ -246,7 +246,7 @@ class TaxonomyParser extends Bio2RDFizer{
 			//add unique name
 			if($unique_name != "" && $unique_name != null){
 				parent::AddRDF(
-					parent::triplifyString("taxon:".$taxid, $this->getVoc()."unique-name", str_replace("\"","",utf8_encode($unique_name)))
+					parent::triplifyString(parent::GetNamespace().$taxid, $this->getVoc()."unique-name", str_replace("\"","",utf8_encode($unique_name)))
 				);
 			}
 			
@@ -273,15 +273,15 @@ class TaxonomyParser extends Bio2RDFizer{
 			
 			if($parent_taxid != "" && $taxid != "1"){
 				parent::AddRDF(
-					parent::triplify("taxon:".$taxid, "rdfs:subClassOf", "taxon:".$parent_taxid).
-					parent::triplify("taxon:".$taxid, "rdf:type", "owl:Class")
+					parent::triplify(parent::GetNamespace().$taxid, "rdfs:subClassOf", parent::GetNamespace().$parent_taxid).
+					parent::triplify(parent::GetNamespace().$taxid, "rdf:type", "owl:Class")
 				);
 			}
 			if($rank != ""){
 				parent::AddRDF(
 					parent::triplifyString(
-						"taxon:".$taxid,
-						"taxon_vocabulary:rank",
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."rank",
 						str_replace("\"","",utf8_encode($rank))
 					)
 				);
@@ -289,8 +289,8 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($embl_code != ""){
 				parent::AddRDF(
 					parent::triplifyString(
-						"taxon:".$taxid,
-						"taxon_vocabulary:embl_code",
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."embl_code",
 						str_replace("\"","",utf8_encode($rank))
 					)
 				);
@@ -298,17 +298,17 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($division_id != ""){
 				parent::AddRDF(
 					parent::triplify(
-						"taxon:".$taxid,
-						"taxon_vocabulary:division",
-						"taxon_resource:".md5("division_id_".$division_id)
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."division",
+						$this->getRes().md5("division_id_".$division_id)
 					)
 				);
 			}
 			if($inherited_div_flag != ""){
 				parent::AddRDF(
 					parent::triplifyString(
-						"taxon:".$taxid,
-						"taxon_vocabulary:inherited_division_flag",
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."inherited_division_flag",
 						str_replace("\"","",utf8_encode($inherited_div_flag))
 					)
 				);
@@ -316,17 +316,17 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($gencode_id != ""){
 				parent::AddRDF(
 					parent::triplify(
-						"taxon:".$taxid,
-						"taxon_vocabulary:genetic_code",
-						"taxon_resource:".md5("gencode_id_".$gencode_id)
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."genetic_code",
+						$this->getRes().md5("gencode_id_".$gencode_id)
 					)
 				);
 			}
 			if($inherited_gc_flag != ""){
 				parent::AddRDF(
 					parent::triplifyString(
-						"taxon:".$taxid,
-						"taxon_vocabulary:inherited_gc_flag",
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."inherited_gc_flag",
 						str_replace("\"","",utf8_encode($inherited_gc_flag))
 					)
 				);
@@ -334,8 +334,8 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($mitochondrial_genetic_code_id != ""){
 				parent::AddRDF(
 					parent::triplifyString(
-						"taxon:".$taxid,
-						"taxon_vocabulary:mitochondrial_genetic_code_id",
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."mitochondrial_genetic_code_id",
 						str_replace("\"","",utf8_encode($mitochondrial_genetic_code_id))
 					)
 				);
@@ -343,8 +343,8 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($inherited_mgc_flag != ""){
 				parent::AddRDF(
 					parent::triplifyString(
-						"taxon:".$taxid,
-						"taxon_vocabulary:inherited_mgc_flag",
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."inherited_mgc_flag",
 						str_replace("\"","",utf8_encode($inherited_mgc_flag))
 					)
 				);
@@ -352,8 +352,8 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($genbank_hidden_flag != ""){
 				parent::AddRDF(
 					parent::triplifyString(
-						"taxon:".$taxid,
-						"taxon_vocabulary:genbank_hidden_flag",
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."genbank_hidden_flag",
 						str_replace("\"","",utf8_encode($genbank_hidden_flag))
 					)
 				);
@@ -361,8 +361,8 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($hidden_st_root_flag != ""){
 				parent::AddRDF(
 					parent::triplifyString(
-						"taxon:".$taxid,
-						"taxon_vocabulary:hidden_st_root_flag",
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."hidden_st_root_flag",
 						str_replace("\"","",utf8_encode($hidden_st_root_flag))
 					)
 				);
@@ -370,8 +370,8 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($comments != ""){
 				parent::AddRDF(
 					parent::triplifyString(
-						"taxon:".$taxid,
-						"taxon_vocabulary:comments",
+						parent::GetNamespace().$taxid,
+						$this->getVoc()."comments",
 						str_replace("\"","",utf8_encode($comments))
 					)
 				);
