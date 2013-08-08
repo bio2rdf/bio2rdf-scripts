@@ -44,13 +44,6 @@ class HGNCParser extends Bio2RDFizer {
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
 		$rdir = parent::getParameterValue('download_url');
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}		
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
 		$lfile = $ldir.$file;
 		if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
 			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
@@ -64,12 +57,9 @@ class HGNCParser extends Bio2RDFizer {
 			Utils::DownloadSingle($rfile, $lfile);
 		}
 
-		$ofile = $odir.$file.'.nt'; 
+		$ofile = $odir.basename($file,".txt.gz").".".parent::getParameterValue('output_format');
 		$gz=false;
-		if(strstr(parent::getParameterValue('output_format'), "gz")){			
-			$ofile .= '.gz';
-			$gz = true;
-		}
+		if(strstr(parent::getParameterValue('output_format'), "gz")){$gz = true;}
 		
 		parent::setWriteFile($ofile, $gz);
 		parent::setReadFile($lfile, true);
@@ -177,7 +167,7 @@ class HGNCParser extends Bio2RDFizer {
 			$mouse_genome_database_id_mappeddatasuppliedbyMGI = $fields[38];
 			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[39];
 
-			$id_res = $this->getNamespace().$id;
+			$id_res = $id;
 			$id_label = "Gene Symbol for ".$approved_symbol;
 			$id_label_class = "hgnc identifier: ".$id;
 			parent::AddRDF(
