@@ -31,7 +31,7 @@ SOFTWARE.
 */
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
-class EntrezGeneParser extends Bio2RDFizer{
+class NCBIGeneParser extends Bio2RDFizer{
 
 		private $version = null;
 		
@@ -58,22 +58,23 @@ class EntrezGeneParser extends Bio2RDFizer{
 	  }//constructor
 	  
 	 function Run(){
+	 	if(parent::getParameterValue('download') === true) 
+		{
+			$this->download();
+		}
+		if(parent::getParameterValue('process') === true) 
+		{
+			$this->process();
+		}
+	}//run
+
+	function download(){
 		$ldir = parent::getParameterValue('indir');
-		$odir = parent::getParameterValue('outdir');
 		$rdir = parent::getParameterValue('download_url');
 
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}
-		
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
-
 		//which files are to be converted?
-		$selectedPackage = trim($this->GetParameterValue('files'));		 
-		if($selectedPackage == 'all') {
+		$files = parent::getParameterValue('files');		 
+		if($files == 'all') {
 			$files = $this->getPackageMap();
 		} else {
 			$sel_arr = explode(",",$selectedPackage);
@@ -85,6 +86,7 @@ class EntrezGeneParser extends Bio2RDFizer{
 				}
 			}	
 		}
+
 		//now iterate over the files array
 		foreach ($files as $id => $file){
 			echo "Processing $id ... ";	
@@ -92,7 +94,53 @@ class EntrezGeneParser extends Bio2RDFizer{
 			$lfile = $ldir.$id.".gz";
 
 			// download
-			if(!file_exists($lfile) || parent::getParameterValue('download') == true) { 				
+			//don't use subdirectory GENE_INFO for saving local version of All_data.gene_info.gz
+			if($id == "gene2sts" || $id == "gene2unigene") {
+				$rfile = "compress.zlib://".$rdir.$file;
+			} else {
+				$rfile = $rdir.$file;
+			}
+			Utils::DownloadSingle($rfile, $lfile);
+		}
+
+	}
+
+	function process(){
+
+		$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+		$rdir = parent::getParameterValue('download_url');
+
+		//which files are to be converted?
+		$files = trim($this->GetParameterValue('files'));		 
+		if($files == 'all') {
+			$files = $this->getPackageMap();
+		} else {
+			$sel_arr = explode(",",$selectedPackage);
+			$pm = $this->getPackageMap();
+			$files = array();
+			foreach($sel_arr as $a){
+				if(array_key_exists($a, $pm)){
+					$files[$a] = $pm[$a];
+				}
+			}	
+		}
+
+		//set dataset graph to be dataset URI
+		$graph_uri = parent::getGraphURI();
+		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+
+		$dataset_description = '';
+
+		//now iterate over the files array
+		foreach ($files as $id => $file){
+			echo "Processing $id ... ";	
+
+			$lfile = $ldir.$id.".gz";
+
+			// download
+			if(!file_exists($lfile)) { 		
+				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);		
 				//don't use subdirectory GENE_INFO for saving local version of All_data.gene_info.gz
 				if($id == "gene2sts" || $id == "gene2unigene") {
 					$rfile = "compress.zlib://".$rdir.$file;
@@ -102,7 +150,7 @@ class EntrezGeneParser extends Bio2RDFizer{
 				Utils::DownloadSingle($rfile, $lfile);
 			}
 			
-			$ofile = $odir.$id.".nt"; 
+			$ofile = $id.".nt"; 
 			$gz = false;
 			if(parent::getParameterValue('graph_uri')) {
 				$ofile .= ".nq";
@@ -113,34 +161,63 @@ class EntrezGeneParser extends Bio2RDFizer{
 			}
 
 			parent::setReadFile($lfile, true);
-			parent::setWriteFile($ofile, $gz);
+			parent::setWriteFile($odir.$ofile, $gz);
 			$fnx = $id;
-			echo ' parsing ...';
+			echo ' Processing $id ...'.PHP_EOL;
 			$this->$fnx();
 			echo 'done!'.PHP_EOL;
 			parent::getReadFile()->Close();
 			parent::getWriteFile()->Close();
+
+			// generate the dataset release file
+			echo "Generating dataset description... ";
+			// dataset description
+			$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle("NCBI Gene ($id)")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setFormat("text/tab-separated-value")
+				->setFormat("application/gzip")	
+				->setPublisher("http://www.ncbi.nlm.nih.gov")
+				->setHomepage("http://www.ncbi.nlm.nih.gov/gene")
+				->setRights("use-share-modify")
+				->setLicense("http://www.ncbi.nlm.nih.gov/About/disclaimer.html")
+				->setDataset("http://identifiers.org/ncbigene/");
+
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/gene/entrez_gene.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
 			
 		}//foreach
 		
-		// generate the dataset release file
-		echo "generating dataset release file... ";
-		$desc = parent::getBio2RDFDatasetDescription(
-			$this->getPrefix(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/gene/entrez_gene.php", 
-			$this->getBio2RDFDownloadURL($this->getNamespace()),
-			"http://yeastgenome.org",
-			array("use-share-modify"),
-			"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
-			parent::getParameterValue('download_url'),
-			parent::getDatasetVersion()
-		);
-		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
-		$this->getWriteFile()->write($desc);
-		$this->getWriteFile()->close();
+		//set graph URI back to default value
+		parent::setGraphURI($graph_uri);
+		//write dataset description to file
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
 		
-	}//run
+	}
 
 	#see: ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/README
 	private function gene2vega(){
@@ -673,16 +750,4 @@ class EntrezGeneParser extends Bio2RDFizer{
 		return self::$packageMap;
 	}	
 }
-
-$start = microtime(true);
-
-set_error_handler('error_handler');
-$parser = new EntrezGeneParser($argv);
-$parser-> Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
 ?>
