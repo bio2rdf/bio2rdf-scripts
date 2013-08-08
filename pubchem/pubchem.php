@@ -57,7 +57,7 @@ class PubChemParser extends Bio2RDFizer {
 	function __construct($argv){
 		parent::__construct($argv, "pubchem");
 		parent::addParameter('files',true,'all|compounds|substances|bioassay','all','files to process');
-		parent::addParameter('workspace',false,null,'../../workspace/pubchem/','directory to mount pubchem FTP server');
+		parent::addParameter('workspace',false,null,'/data/download/pubchem/rsync/','directory to mount pubchem FTP server');
 		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nlm.nih.gov/pubchem/');
 		parent::initialize();
 	}
