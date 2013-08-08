@@ -255,10 +255,10 @@ class PubChemParser extends Bio2RDFizer {
 							if(in_array($file, $ignore)) continue;
 
 							echo "Processing file: ".$read_dir.$file.PHP_EOL;
-							$outfile = realpath($this->getParameterValue('outdir'))."/bioassay/".array_shift(explode(".",$dir))."/".basename($file,".xml.gz").".nt";
+							$suffix = parent::getParameterValue('output_format');
+							$outfile = realpath($this->getParameterValue('outdir'))."/bioassay/".array_shift(explode(".",$dir))."/".basename($file,".xml.gz").".".$suffix;
 				
 							if(strstr(parent::getParameterValue('output_format'), "gz")) {
-								$outfile .= '.gz';
 								$gz = true;
 							}							
 							echo "... into ".$outfile.PHP_EOL;
@@ -299,7 +299,7 @@ class PubChemParser extends Bio2RDFizer {
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date ("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2df.org/release/$bVersion/$prefix")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubchem/pubchem.php")
@@ -619,11 +619,13 @@ class PubChemParser extends Bio2RDFizer {
 		if($handle = opendir($input_dir)){
 			while(false !== ($file = readdir($handle))){
 				if(in_array($file, $ignore))continue;
+
 				echo "Processing file: ".$input_dir.$file.PHP_EOL;
-				$outfile = realpath(parent::getParameterValue('outdir'))."/compounds/".basename($file,".xml.gz").".nt";
+
+				$suffix = parent::getParameterValue('output_format');
+				$outfile = realpath(parent::getParameterValue('outdir'))."/compounds/".basename($file,".xml.gz").".".$suffix;
 				
 				if(strstr(parent::getParameterValue('output_format'), "gz")) {
-					$outfile .= '.gz';
 					$gz = true;
 				}
 				
@@ -653,7 +655,7 @@ class PubChemParser extends Bio2RDFizer {
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date ("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2df.org/release/$bVersion/$prefix")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubchem/pubchem.php")
@@ -886,10 +888,11 @@ class PubChemParser extends Bio2RDFizer {
 			while(false !== ($file = readdir($handle))){
 				if(in_array($file, $ignore)) continue;
 				echo "Processing file: ".$input_dir.$file.PHP_EOL;
-				$outfile = realpath($this->getParameterValue('outdir'))."/substances/".basename($file,".xml.gz").".nt";
+
+				$suffix = parent::getParameterValue('output_format');
+				$outfile = realpath($this->getParameterValue('outdir'))."/substances/".basename($file,".xml.gz").".".$suffix;
 				
 				if(strstr(parent::getParameterValue('output_format'), "gz")) {
-					$outfile .= '.gz';
 					$gz = true;
 				}
 				
@@ -919,7 +922,7 @@ class PubChemParser extends Bio2RDFizer {
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date ("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2df.org/release/$bVersion/$prefix")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubchem/pubchem.php")
