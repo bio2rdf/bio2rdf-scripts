@@ -120,7 +120,7 @@ class HGNCParser extends Bio2RDFizer {
 		if (count($header_arr) != 40)
 		{
 			echo PHP_EOL;
-			trigger_error ("Header format is different than expected, please update the script");
+			trigger_error ("Header format is different than expected, please update the script",E_USER_ERROR);
 			exit;
 		}
 
@@ -169,11 +169,10 @@ class HGNCParser extends Bio2RDFizer {
 
 			$id_res = $id;
 			$id_label = "Gene Symbol for ".$approved_symbol;
-			$id_label_class = "hgnc identifier: ".$id;
 			parent::AddRDF(
 				parent::triplify($id_res, "rdf:type", $this->getVoc()."Gene-Symbol").
-				parent::describeIndividual($id_res, $id_label, $this->getVoc()."gene_symbol").
-				parent::describeClass($this->getVoc()."Gene-Symbol", $id_label_class)
+				parent::describeIndividual($id_res, $id_label, $this->getVoc()."Gene-Symbol").
+				parent::describeClass($this->getVoc()."Gene-Symbol", "Official Gene Symbol")
 			);
 			if(!empty($approved_symbol)){
 				parent::AddRDF(
