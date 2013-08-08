@@ -101,7 +101,7 @@ class PubmedParser extends Bio2RDFizer
 			->setURI("http://download.bio2df.org/release/$bVersion/$prefix")
 			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 			->setSource($source_file->getURI())
-			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubchem/pubchem.php")
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pubmed/pubmed.php")
 			->setCreateDate($date)
 			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
 			->setPublisher("http://bio2rdf.org")			
@@ -129,10 +129,6 @@ class PubmedParser extends Bio2RDFizer
 	function process_file($infile){
 
 		$odir = parent::getParameterValue('outdir');
-
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
 
 		$ofile = $odir.basename($infile, ".xml.gz").'.'.parent::getParameterValue('output_format');
 
