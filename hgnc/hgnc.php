@@ -44,13 +44,6 @@ class HGNCParser extends Bio2RDFizer {
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
 		$rdir = parent::getParameterValue('download_url');
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}		
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
 		$lfile = $ldir.$file;
 		if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
 			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
@@ -64,12 +57,9 @@ class HGNCParser extends Bio2RDFizer {
 			Utils::DownloadSingle($rfile, $lfile);
 		}
 
-		$ofile = $odir.$file.'.nt'; 
+		$ofile = $odir.basename($file,".txt.gz").".".parent::getParameterValue('output_format');
 		$gz=false;
-		if(strstr(parent::getParameterValue('output_format'), "gz")){			
-			$ofile .= '.gz';
-			$gz = true;
-		}
+		if(strstr(parent::getParameterValue('output_format'), "gz")){$gz = true;}
 		
 		parent::setWriteFile($ofile, $gz);
 		parent::setReadFile($lfile, true);
@@ -130,7 +120,7 @@ class HGNCParser extends Bio2RDFizer {
 		if (count($header_arr) != 40)
 		{
 			echo PHP_EOL;
-			trigger_error ("Header format is different than expected, please update the script");
+			trigger_error ("Header format is different than expected, please update the script",E_USER_ERROR);
 			exit;
 		}
 
@@ -177,24 +167,24 @@ class HGNCParser extends Bio2RDFizer {
 			$mouse_genome_database_id_mappeddatasuppliedbyMGI = $fields[38];
 			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[39];
 
-			$id_res = $this->getNamespace().$id;
+			$id_res = $id;
 			$id_label = "Gene Symbol for ".$approved_symbol;
-			$id_label_class = "hgnc identifier: ".$id;
 			parent::AddRDF(
+				parent::triplify($id_res, "rdf:type", $this->getVoc()."Gene-Symbol").
 				parent::describeIndividual($id_res, $id_label, $this->getVoc()."Gene-Symbol").
-				parent::describeClass($this->getVoc()."Gene-Symbol", $id_label_class)
+				parent::describeClass($this->getVoc()."Gene-Symbol", "Official Gene Symbol")
 			);
 			if(!empty($approved_symbol)){
 				parent::AddRDF(
 					parent::triplifyString($id_res, $this->getVoc()."approved_symbol",utf8_encode(htmlspecialchars($approved_symbol))).
-					parent::describeProperty($this->getVoc()."approved_symbol", " The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene")
+					parent::describeProperty($this->getVoc()."approved_symbol", "The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene")
 				);
 				
 			}
 			if(!empty($approved_name)){
 				parent::AddRDF(
 					parent::triplifyString($id_res, $this->getVoc()."approved_name",utf8_encode(htmlspecialchars($approved_name))).
-					parent::describeProperty($this->getVoc()."approved_name", " The official gene name that has been approved by the HGNC and is publicly available. Names are approved based on specific HGNC nomenclature guidelines.")
+					parent::describeProperty($this->getVoc()."approved_name", "The official gene name that has been approved by the HGNC and is publicly available. Names are approved based on specific HGNC nomenclature guidelines.")
 				);
 			}			
 			if(!empty($status)){
@@ -396,8 +386,8 @@ class HGNCParser extends Bio2RDFizer {
 				$ccd_ids = explode(", ", $ccd_ids);
 				foreach ($ccd_ids as $ccd_id) {
 					parent::AddRDF(
-						parent::triplify($id_res, $this->getVoc()."x-ccd", "refseq:".trim($ccd_id)).
-						parent::describeProperty($this->getVoc()."x-ccd", "The Consensus CDS (CCDS) project is a collaborative effort to identify a core set of human and mouse protein coding regions that are consistently annotated and of high quality. The long term goal is to support convergence towards a standard set of gene annotations.")
+						parent::triplify($id_res, $this->getVoc()."x-ccds", "ccds:".trim($ccd_id)).
+						parent::describeProperty($this->getVoc()."x-ccds", "The Consensus CDS (CCDS) project is a collaborative effort to identify a core set of human and mouse protein coding regions that are consistently annotated and of high quality. The long term goal is to support convergence towards a standard set of gene annotations.")
 					);
 				}
 			}
@@ -497,7 +487,7 @@ class HGNCParser extends Bio2RDFizer {
 					$rgd_id = trim($rgd_id);
 					if(!empty($rgd_id)){
 						parent::AddRDF(
-							parent::triplify($id_res, $this->getVoc()."x-rgd", "rgd:".trim($rgd_id)).
+							parent::triplify($id_res, $this->getVoc()."x-rgd",  trim($rgd_id)).
 							parent::describeProperty($this->getVoc()."x-rgd", " RGD identifier. In the HTML results page this ID links to the RGD Report for that gene.")
 						);
 					}
