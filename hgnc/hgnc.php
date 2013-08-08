@@ -488,7 +488,7 @@ class HGNCParser extends Bio2RDFizer {
 					$rgd_id = trim($rgd_id);
 					if(!empty($rgd_id)){
 						parent::AddRDF(
-							parent::triplify($id_res, $this->getVoc()."x-rgd", "rgd:".trim($rgd_id)).
+							parent::triplify($id_res, $this->getVoc()."x-rgd",  trim($rgd_id)).
 							parent::describeProperty($this->getVoc()."x-rgd", " RGD identifier. In the HTML results page this ID links to the RGD Report for that gene.")
 						);
 					}
