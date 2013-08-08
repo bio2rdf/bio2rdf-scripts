@@ -34,7 +34,7 @@ class irefindexParser extends Bio2RDFizer
 	function __construct($argv) { //
 		parent::__construct($argv,"irefindex");
 		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|other','all','all or comma-separated list of files to process');
-		parent::addParameter('version',false,null,'10182011'/*'03022013'*/,'dated version of files to download');
+		parent::addParameter('version',false,'03022013|10182011','03022013','dated version of files to download');
 		parent::addParameter('download_url',false,null,'ftp://ftp.no.embnet.org/irefindex/data/current/psi_mitab/MITAB2.6/');
 		parent::initialize();
 	}
@@ -51,6 +51,7 @@ class irefindexParser extends Bio2RDFizer
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
 		$rdir = parent::getParameterValue('download_url');
+			
 		
 		foreach($files AS $file) {
 			$download = parent::getParameterValue('download');
@@ -58,16 +59,17 @@ class irefindexParser extends Bio2RDFizer
 			$zip_file  = $base_file.".zip";
 			$lfile = $ldir.$zip_file;
 			
+			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 			$ofile = "irefindex-".$file.".".parent::getParameterValue('output_format');
-			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;			
-			$download_files[] = $ofile;
 			
 			if(!file_exists($lfile)) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$download = true;
 			}
 			
+			$rfile = "ftp://ftp.no.embnet.org/irefindex/data/current/psi_mitab/MITAB2.6/$zip_file";
 			if($download == true) {
+				echo "downloading $rfile".PHP_EOL;
 				if(FALSE === Utils::Download("ftp://ftp.no.embnet.org",array("/irefindex/data/current/psi_mitab/MITAB2.6/".$zip_file),$ldir)) {
 					trigger_error("Error in Download");
 					return FALSE;
@@ -98,21 +100,52 @@ class irefindexParser extends Bio2RDFizer
 			parent::getWriteFile()->close();
 			$zin->close();
 			echo "Done!".PHP_EOL;
+		
+			$graph_uri = parent::getGraphURI();
+			if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+			
+			// dataset description
+			$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle("iRefIndex ($zip_file")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setFormat("text/tab-separated-value")
+				->setFormat("application/zip")	
+				->setPublisher("http://irefindex.uio.no")
+				->setHomepage("http://irefindex.uio.no")
+				->setRights("use")
+				->setRights("by-attribution")
+				->setRights("no-commercial")
+				->setLicense("http://irefindex.uio.no/wiki/README_MITAB2.6_for_iRefIndex#License")
+				->setDataset("http://identifiers.org/irefindex/");
+
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/irefindex/irefindex.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			parent::setGraphURI($graph_uri);
 		}
 		
-		// generate the release file
-		$desc = parent::getBio2RDFDatasetDescription(
-			parent::getPrefix(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/irefindex/irefindex.php", 
-			$download_files,
-			"http://irefindex.uio.no", 
-			array("use","attribution","no-commercial"), 
-			"http://irefindex.uio.no/wiki/README_MITAB2.6_for_iRefIndex#License",
-			parent::getParameterValue('download_url'),
-			parent::getDatasetVersion()
-		);
-		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile(parent::getPrefix()));
-		parent::getWriteFile()->write($desc);
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
 		
 		return TRUE;
@@ -153,13 +186,14 @@ class irefindexParser extends Bio2RDFizer
 
 			// generate the label
 			// interaction type[52] by method[6]
+			unset($method);
 			if($a[6] != '-') {
 				$qname = $this->ParseString($a[6],$ns,$id,$method);
 				if($qname) parent::addRDF(parent::triplify($iid,parent::getVoc()."method",$qname));
 			}
 
 			$method_label = '';
-			if($method != 'NA' && $method != '-1') $method_label = " identified by $method ";
+			if(isset($method)) $method_label = " identified by $method ";
 			parent::addRDF(
 				parent::describeIndividual($iid,$label.$method_label,parent::getVoc().$type)
 			);

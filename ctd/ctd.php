@@ -42,6 +42,17 @@ class CTDParser extends Bio2RDFizer
 	
 	function Run()
 	{
+		if(parent::getParameterValue('download') === true) 
+		{
+			$this->download();
+		}
+		if(parent::getParameterValue('process') === true) 
+		{
+			$this->process();
+		}
+	}
+
+	function download(){
 
 		// get the file list
 		if(parent::getParameterValue('files') == 'all') {
@@ -53,46 +64,57 @@ class CTDParser extends Bio2RDFizer
 
 		//set directory values
 		$ldir = parent::getParameterValue('indir');
-		$odir = parent::getParameterValue('outdir');
 		$rdir = parent::getParameterValue('download_url');
 		
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}
-		
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
-
 		$gz_suffix = ".gz";		
 
-		foreach($files AS $file) {
+		foreach($files AS $file) {	
+			if($file == 'chem_gene_ixn_types') $suffix = '.tsv';
+			else if($file == 'exposure_ontology') $suffix = '.obo';
+			else $suffix = ".tsv.gz";
+			$lfile = $ldir.$file.$gz_suffix;
+			$rfile = $rdir.'CTD_'.$file.$suffix;
+			if($suffix == ".tsv.gz") {
+				Utils::DownloadSingle ($rfile, $lfile);
+			} else {
+				Utils::DownloadSingle ($rfile, "compress.zlib://".$lfile);
+			}
+		}
+	}
+
+	function process(){
+		// get the file list
+		if(parent::getParameterValue('files') == 'all') {
+			$files = explode("|",parent::getParameterList('files'));
+			array_shift($files);
+		} else {
+			$files = explode(",",parent::getParameterValue('files'));
+		}
+
+		$dataset_description = '';
+
+		//set directory values
+		$ldir = parent::getParameterValue('indir');
+		$rdir = parent::getParameterValue('download_url');
+		$odir = parent::getParameterValue('outdir');
+			
+		$graph_uri = parent::getGraphURI();
+		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+
+		$gz_suffix = ".gz";
+
+		foreach($files as $file){
+			if($file == 'chem_gene_ixn_types') $suffix = '.tsv';
+			else if($file == 'exposure_ontology') $suffix = '.obo';
+			else $suffix = ".tsv.gz";
 
 			$lfile = $ldir.$file.$gz_suffix;
-			$ofile = $odir."ctd_".$file.".nt";
+			$rfile = $rdir.'CTD_'.$file.$suffix;
+			$ofile = "ctd_".$file.".nt";
 			$gz = false;
 
-			if($this->GetParameterValue('graph_uri')) {
-				$ofile = $odir."ctd_".$file.'.nq';
-			}
-
-			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$ofile .= '.gz';
-				$gz = true;
-			}			
-			
 			if(!file_exists($lfile)) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
-				$this->SetParameterValue('download',true);
-			}
-			
-			if(parent::getParameterValue('download') == true) {
-				if($file == 'chem_gene_ixn_types') $suffix = '.tsv';
-				else if($file == 'exposure_ontology') $suffix = '.obo';
-				else $suffix = ".tsv.gz";
-				
-				$rfile = $rdir.'CTD_'.$file.$suffix;
 				if($suffix == ".tsv.gz") {
 					Utils::DownloadSingle ($rfile, $lfile);
 				} else {
@@ -100,45 +122,85 @@ class CTDParser extends Bio2RDFizer
 				}
 			}
 
+			if($this->GetParameterValue('graph_uri')) {
+				$ofile = "ctd_".$file.'.nq';
+			}
+
+			if(strstr(parent::getParameterValue('output_format'), "gz")) {
+				$ofile .= '.gz';
+				$gz = true;
+			}
+
 			echo "Processing ".$file." ...";
-			parent::setWriteFile($ofile, $gz);
+			parent::setWriteFile($odir.$ofile, $gz);
 
 			//set read file
 			parent::setReadFile($lfile, TRUE);
 	
 			$fnx = "CTD_".$file;
-			if($this->$fnx() === FALSE) {
-				trigger_error("Error in $fnx");
-				exit;
-			}
+			$this->$fnx();
 			
-			//write RDF to file
-			parent::writeRDFBufferToWriteFile();
-
 			//close write file
 			parent::getWriteFile()->close();
-			echo "Done!".PHP_EOL;
+			echo "done!".PHP_EOL;
 
-		}//foreach
+			// generate the dataset release file
+			echo "Generating dataset description... ";
 
-		// generate the dataset release file
-		echo "generating dataset release file... ";
-		$desc = parent::getBio2RDFDatasetDescription(
-			$this->getPrefix(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sgd/sgd.php", 
-			$this->getBio2RDFDownloadURL($this->getNamespace()),
-			"http://ctdbase.org", 
-			array("use", "no-commercial"),
-			"http://ctdbase.org/about/legal.jsp",
-			parent::getParameterValue('download_url'),
-			parent::getDatasetVersion()
-		);
-		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
-		$this->getWriteFile()->write($desc);
-		$this->getWriteFile()->close();
+			if($file == "chemicals"){
+				$dataset = "http://identifiers.org/ctd.chemical/";
+			} else if($file == "diseases"){
+				$dataset = "http://identifiers.org/ctd.disease/";
+			} else if ($file == "genes"){
+				$dataset = "http://identifiers.org/ctd.gene/";
+			} else {
+				$dataset = null;
+			}
+			// dataset description
+			$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle("Comparative Toxicogenomics Database ($file.$gz_suffix")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setFormat("text/tab-separated-value")
+				->setFormat("application/gzip")	
+				->setPublisher("http://ctdbase.org/")
+				->setHomepage("http://ctdbase.org/")
+				->setRights("use")
+				->setRights("by-attribution")
+				->setRights("no-commercial")
+				->setLicense("http://ctdbase.org/about/legal.jsp")
+				->setDataset($dataset);
+
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ctd/ctd.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+		}
+
+		parent::setGraphURI($graph_uri);
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
-		
-		return TRUE;
+
 	}
 
 
@@ -162,7 +224,7 @@ function CTD_chemicals()
 		
 		if($first) {
 			if(($c = count($a) != 8)) {
-				trigger_error("Expecting 8 fields, found $c!");return FALSE;
+				trigger_error("CTD_chemicals function expects 8 fields, found $c!".PHP_EOL, E_USER_WARNING);
 			}
 			$first = false;
 		}
@@ -209,7 +271,7 @@ function CTD_chem_gene_ixns()
 		
 		if($first) {
 			if(($c = count($a)) != 11) {
-				trigger_error("Expecting 11 fields, found $c!");return FALSE;
+				trigger_error("CTD_chem_gene_ixns function expects 11 fields, found $c!".PHP_EOL, E_USER_WARNING);
 			}
 			$first = false;
 		}
@@ -287,7 +349,7 @@ function CTD_chemicals_diseases()
 
 		if($first) {
 			if(($c = count($a)) != 10) {
-				trigger_error("Expecting 10 fields, found $c!");return FALSE;
+				trigger_error("CTD_chemicals_diseases function expects 10 fields, found $c!".PHP_EOL, E_USER_WARNING);
 			}
 			$first = false;
 		}
@@ -357,7 +419,7 @@ function CTD_chem_pathways_enriched()
 		$a = explode("\t",trim($l));
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 11) {
-				trigger_error("Expecting 11 fields, found $c!");
+				trigger_error("CTD_chem_pathways_enriched function expects 11 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -400,7 +462,7 @@ function CTD_diseases()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 9) {
-				trigger_error("Expecting 9 fields, found $c!");
+				trigger_error("CTD_diseases function expects 9 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -436,7 +498,7 @@ function CTD_diseases_pathways()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 5) {
-				trigger_error("Expecting 5 fields, found $c!");
+				trigger_error("CTD_diseases_pathways function expects 5 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -478,7 +540,7 @@ function CTD_genes_diseases()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 9) {
-				trigger_error("Expecting 9 fields, found $c!");
+				trigger_error("CTD_genes_diseases function expects 9 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -537,7 +599,7 @@ function CTD_genes_pathways()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 4) {
-				trigger_error("Expecting 4 fields, found $c!");
+				trigger_error("CTD_genes_pathways function expects 4 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -573,7 +635,7 @@ function CTD_Pathways()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 2) {
-				trigger_error("Expecting 2 fields, found $c!");
+				trigger_error("CTD_pathways function expects 2 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -605,16 +667,16 @@ function CTD_Genes()
 	while($l = $this->GetReadFile()->Read()) {
 		if($l[0] == '#') continue;
 		$a = explode("\t",$l);
-		
+
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 5) {
-				trigger_error("Expecting 5 fields, found $c!");
+				trigger_error("CTD_genes function expects 5 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
 		}
-		
+
 		$symbol = str_replace(array("\\/"),array('|'),$a[0]);
 		$label = str_replace("\\+/",'+',$a[1]);
 		$geneid = $a[2];
@@ -656,7 +718,7 @@ function CTD_chem_go_enriched()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 13) {
-				trigger_error("Expecting 13 fields, found $c!");
+				trigger_error("CTD_chem_go_enriched function expects 13 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -693,7 +755,7 @@ function CTD_chem_gene_ixn_types()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 4) {
-				trigger_error("Expecting 4 fields, found $c!");
+				trigger_error("CTD_chem_gene_ixn_types function expects 4 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -716,18 +778,5 @@ function CTD_chem_gene_ixn_types()
 }
 
 } // end class
-
-$start = microtime(true);
-
-set_error_handler('error_handler');
-$parser = new CTDParser($argv);
-$parser->Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
-
 
 ?>

@@ -52,6 +52,8 @@ class GOAParser extends Bio2RDFizer
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
 		$rdir = parent::getParameterValue('download_url');
+		$dataset_description = '';
+		
 		foreach($files as $file){
 			$download = parent::getParameterValue('download');
 			$lfile = $ldir."goa_".$file.".gz";
@@ -60,9 +62,9 @@ class GOAParser extends Bio2RDFizer
 				$download = true;
 			}
 
-			//download all files
+			//download file
+			$rfile = $rdir.strtoupper($file)."/gene_association.goa_".$file.".gz";
 			if($download == true) {
-				$rfile = $rdir.strtoupper($file)."/gene_association.goa_".$file.".gz";
 				echo "downloading $file ... ";
 				file_put_contents($lfile,file_get_contents($rfile));
 			}
@@ -80,25 +82,53 @@ class GOAParser extends Bio2RDFizer
 			//close write file
 			parent::getWriteFile()->close();
 			echo PHP_EOL;
-		}//foreach
+			
+			// dataset description
+			$graph_uri = parent::getGraphURI();
+			if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+			
+			$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle("Gene Ontology Annotation file $file ($rfile")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setFormat("text/tab-separated-value")
+				->setFormat("application/gzip")	
+				->setPublisher("http://www.ebi.ac.uk/")
+				->setHomepage("http://www.ebi.ac.uk/GOA/")
+				->setRights("use")
+				->setLicense("http://www.ebi.ac.uk/GOA/goaHelp.html")
+				->setDataset("http://identifiers.org/goa/");
 
-		// generate the dataset release file
-		echo "generating dataset release file ... ";
-		$desc = parent::getBio2RDFDatasetDescription(
-			parent::getPrefix(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/goa/goa.php", 
-			parent::getBio2RDFDownloadURL($this->getPrefix()),
-			"http://www.ebi.ac.uk/GOA/",
-			array("use"),
-			"http://www.ebi.ac.uk/GOA/goaHelp.html",
-			parent::getParameterValue('download_url'),
-			$this->version
-			);
-		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile($this->getPrefix()));
-		parent::getWriteFile()->write($desc);
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/irefindex/irefindex.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			parent::setGraphURI($graph_uri);
+		}
+		
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
+		
 		echo "done!".PHP_EOL;
-
 	}
 
 	function process($file){
