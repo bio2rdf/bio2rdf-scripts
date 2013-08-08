@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2013 Jose Cruz-Toledo
+Copyright (C) 2013 Jose Cruz-Toledo and Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,15 +23,16 @@ SOFTWARE.
 /**
  * NCBI GenBank parser
  * @version 2.0
+ * @author Alison Callahan
  * @author Jose Cruz-Toledo
  * @description ftp://ftp.ncbi.nlm.nih.gov/genbank/README.genbank
 */
-require(__DIR__.'/../../php-lib/bio2rdfapi.php');
 class GenbankParser extends Bio2RDFizer{
 	function __construct($argv){
 		parent::__construct($argv, "genbank");
-		parent::files('');
-		parent::addParameter('download_url',false,null,'ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc_complete_set.txt.gz');
+		parent::files('files', true, 'all', 'all', 'files to process');
+		parent::addParameter('workspace', false,null,'/data/download/genbank/rsync/', 'directory to place FTP files');
+		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/genbank/');
 		parent::initialize();
 	}
 }
