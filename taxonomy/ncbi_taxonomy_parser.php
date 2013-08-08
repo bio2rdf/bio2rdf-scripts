@@ -32,6 +32,8 @@ SOFTWARE.
 *   ***RELEASE NOTES***
 * -the files merged.dmp and delnodes.dmp are not parsed by this version
 **/
+require(__DIR__.'/../../php-lib/bio2rdfapi.php');
+
 class NCBITaxonomyParser extends Bio2RDFizer{
 	private $bio2rdf_base = "http://bio2rdf.org/";
 	private $unists_vocab = "taxon_vocabulary:";
@@ -67,18 +69,20 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 	);
 
 	function __construct($argv) {
-		parent::__construct($argv);
+		parent::__construct($argv, "taxonomy");
 		parent::addParameter('files',true,null,'all|taxdmp|gi2taxid_nucleotide|gi2taxid_protein','','files to process');
+		parent::addParameter('download', false, null, 'true|false');
 		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip');
 		parent::initialize();
 	}//constructor
 
 	public function Run(){
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
+		$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
 		// make sure we have the zip archive
 		//which files are to be converted?
-		$selectedPackage = trim($this->GetParameterValue('files'));		 
+		$selectedPackage = trim(parent::getParameterValue('files'));
+
 		if($selectedPackage == 'all') {
 			$files = $this->getPackageMap();
 		} else {
@@ -91,26 +95,28 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 				}
 			}	
 		}
+
 		foreach ($files as $key => $value) {
 
 			$lfile = $ldir.$value['filename'];
-			if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
+			if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$this->SetParameterValue('download',true);
 			}
 
 			//download all files [except mapping file]
-			if($this->GetParameterValue('download') == true) {
+			/*if($this->GetParameterValue('download') == true) {
 				$rfile = $value["file_url"];
 				echo "downloading ".var_dump($value["file_url"])." ... ";
 				file_put_contents($lfile,file_get_contents($rfile));
-			}
+			}*/
 
 			if($key == "taxdmp" || $key == "gi2taxid_protein" || $key == "gi2taxid_nucleotide"){
 				//get the name of the zip archive
 				$lfile = $value["filename"];
 				// make sure we have the zip archive
 				$zinfile = $ldir.$lfile;
+				
 				$zin = new ZipArchive();
 				if ($zin->open($zinfile) === FALSE) {
 					trigger_error("Unable to open $zinfile");
@@ -134,27 +140,27 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 							$gzoutfilename = $odir."/".$k;
 						}
 						$gzoutfile = $gzoutfilename.".nt";
+
 						//set the write file
 						$gz=false;
-						if($this->GetParameterValue('graph_uri')) {$gzoutfile = $gzoutfilename.".nq";}
-						if($this->GetParameterValue('gzip')) {
+						if(parent::getParameterValue('output_format', 'gz')) {
 							$gzoutfile .= '.gz';
 							$gz = true;
 						}
-						$this->SetReadFile($ldir.$lfile);
-						$this->GetReadFile()->SetFilePointer($fpin);
-						$this->SetWriteFile($gzoutfile, $gz);
-						
+						parent::setReadFile($ldir.$lfile);
+						parent::getReadFile()->SetFilePointer($fpin);
+						parent::setWriteFile($gzoutfile, $gz);
 						echo "processing $fn...\n";
 						$this->$k();
 						$this->GetWriteFile()->Close();
 						echo "done!".PHP_EOL;
-						$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$gzoutfile;
+						//$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$gzoutfile;
 					}//if $k
 				}//foreach
 
 			}//if key taxdmp
 			
+			/*
 			// generate the release file
 			$desc = $this->GetBio2RDFDatasetDescription(
 				$this->GetNamespace(),
@@ -168,7 +174,7 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 			);
 			$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
 			$this->GetWriteFile()->Write($desc);
-			$this->GetWriteFile()->Close();
+			$this->GetWriteFile()->Close();*/
 
 		}
 	}//run
@@ -215,10 +221,10 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 				$name_label_class = "ncbi taxonomy name class";
 				
 				parent::AddRDF(
-					parent::triplify($name_res, $this->getVoc()."has-value", $name_label).
-					parent::describeIndividual($name_res, $name_label, $this->getVoc()."name-class").
+					parent::triplify($name_res, "rdf:type", "owl:Class").
+					parent::triplifyString($name_res, $this->getVoc()."has-value", $name_label).
 					parent::describeClass($this->getVoc()."name-class", $name_label_class).
-					parent::triplify($name_res, "rdf:type", preg_replace('/\s+/','',str_replace("\"","",utf8_encode($name_class))))
+					parent::triplify($name_res, "rdf:type", $this->getVoc().preg_replace('/\s+/','',str_replace("\"","",utf8_encode($name_class))))
 				);
 			}
 
@@ -480,5 +486,6 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 	}//getpackagemap
 
 }//class
-
+$p = new NCBITaxonomyParser($argv);
+$p->run();
 ?>
