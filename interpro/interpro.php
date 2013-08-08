@@ -97,7 +97,7 @@ class InterproParser extends Bio2RDFizer
 		$bVersion = parent::getParameterValue('bio2rdf_release');
 		$date = date ("Y-m-d\TG:i:s\Z");
 		$output_file = (new DataResource($this))
-			->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$outfile")
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
 			->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
 			->setSource($source_file->getURI())
 			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/interpro/interpro.php")
@@ -136,7 +136,7 @@ class InterproParser extends Bio2RDFizer
 			}
 		}
 		// get a potential id list
-		$id_list = explode(",",parent::getParameterValue("id_list"));
+		if(parent::getParameterValue("id_list") != '') $id_list = explode(",",parent::getParameterValue("id_list"));
 		
 		// now interate over the entries
 		foreach($xml->interpro AS $o) {
