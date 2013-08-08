@@ -172,20 +172,20 @@ class HGNCParser extends Bio2RDFizer {
 			$id_label_class = "hgnc identifier: ".$id;
 			parent::AddRDF(
 				parent::triplify($id_res, "rdf:type", $this->getVoc()."Gene-Symbol").
-				parent::describeIndividual($id_res, $id_label, $this->getVoc()."gene symbol").
+				parent::describeIndividual($id_res, $id_label, $this->getVoc()."gene_symbol").
 				parent::describeClass($this->getVoc()."Gene-Symbol", $id_label_class)
 			);
 			if(!empty($approved_symbol)){
 				parent::AddRDF(
 					parent::triplifyString($id_res, $this->getVoc()."approved_symbol",utf8_encode(htmlspecialchars($approved_symbol))).
-					parent::describeProperty($this->getVoc()."approved_symbol", " The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene")
+					parent::describeProperty($this->getVoc()."approved_symbol", "The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene")
 				);
 				
 			}
 			if(!empty($approved_name)){
 				parent::AddRDF(
 					parent::triplifyString($id_res, $this->getVoc()."approved_name",utf8_encode(htmlspecialchars($approved_name))).
-					parent::describeProperty($this->getVoc()."approved_name", " The official gene name that has been approved by the HGNC and is publicly available. Names are approved based on specific HGNC nomenclature guidelines.")
+					parent::describeProperty($this->getVoc()."approved_name", "The official gene name that has been approved by the HGNC and is publicly available. Names are approved based on specific HGNC nomenclature guidelines.")
 				);
 			}			
 			if(!empty($status)){
@@ -387,8 +387,8 @@ class HGNCParser extends Bio2RDFizer {
 				$ccd_ids = explode(", ", $ccd_ids);
 				foreach ($ccd_ids as $ccd_id) {
 					parent::AddRDF(
-						parent::triplify($id_res, $this->getVoc()."x-ccd", "refseq:".trim($ccd_id)).
-						parent::describeProperty($this->getVoc()."x-ccd", "The Consensus CDS (CCDS) project is a collaborative effort to identify a core set of human and mouse protein coding regions that are consistently annotated and of high quality. The long term goal is to support convergence towards a standard set of gene annotations.")
+						parent::triplify($id_res, $this->getVoc()."x-ccds", "ccds:".trim($ccd_id)).
+						parent::describeProperty($this->getVoc()."x-ccds", "The Consensus CDS (CCDS) project is a collaborative effort to identify a core set of human and mouse protein coding regions that are consistently annotated and of high quality. The long term goal is to support convergence towards a standard set of gene annotations.")
 					);
 				}
 			}
