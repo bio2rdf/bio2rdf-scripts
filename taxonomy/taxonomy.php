@@ -33,7 +33,7 @@ SOFTWARE.
 * -the files merged.dmp and delnodes.dmp are not parsed by this version
 **/
 
-class NCBITaxonomyParser extends Bio2RDFizer{
+class TaxonomyParser extends Bio2RDFizer{
 	
 
 	private static $packageMap = array(
