@@ -136,7 +136,7 @@ class InterproParser extends Bio2RDFizer
 			}
 		}
 		// get a potential id list
-		$id_list = explode(",",parent::getParameterValue("id_list"));
+		if(parent::getParameterValue("id_list") != '') $id_list = explode(",",parent::getParameterValue("id_list"));
 		
 		// now interate over the entries
 		foreach($xml->interpro AS $o) {
