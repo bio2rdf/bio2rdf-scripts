@@ -123,7 +123,7 @@ class irefindexParser extends Bio2RDFizer
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date ("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/irefindex/irefindex.php")

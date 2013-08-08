@@ -121,7 +121,7 @@ class DrugBankParser extends Bio2RDFizer
 				->setDataset("http://identifiers.org/drugbank/");
 			
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$cfile")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$cfile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/drugbank/drugbank.php")
