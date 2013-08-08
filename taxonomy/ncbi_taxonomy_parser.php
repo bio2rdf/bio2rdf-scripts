@@ -34,10 +34,7 @@ SOFTWARE.
 **/
 
 class NCBITaxonomyParser extends Bio2RDFizer{
-	private $bio2rdf_base = "http://bio2rdf.org/";
-	private $unists_vocab = "taxon_vocabulary:";
-	private $unists_resource = "taxon_resource:";
-	private $version = 2.0; // version of the release data
+	
 
 	private static $packageMap = array(
 		"taxdmp" => array(
