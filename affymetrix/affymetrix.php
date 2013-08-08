@@ -201,7 +201,7 @@ class AffymetrixParser extends Bio2RDFizer
 				$header = explode(",",str_replace('"','',trim($l)));
 				$n = count($header);
 				if($n != 41) {
-					trigger_error("Expecting 41 columns, found $n in header on line $line!");
+					trigger_error("Expecting 41 columns, found $n in header on line $line!",E_USER_ERROR);
 					exit;
 				}
 				continue;
@@ -209,7 +209,7 @@ class AffymetrixParser extends Bio2RDFizer
 			$a = explode('","',substr($l,1,-2));
 			$n = count($a);
 			if($n != 41) {
-				trigger_error("Expecting 41 columns, found $n on line $line!");
+				trigger_error("Expecting 41 columns, found $n on line $line!", E_USER_ERROR);
 				exit;
 			}
 			parent::writeRDFBufferToWriteFile();
@@ -218,7 +218,7 @@ class AffymetrixParser extends Bio2RDFizer
 			$qname = "affymetrix:$id";
 			$label = "probeset $a[0] on GeneChip $a[1] ($a[2])";
 			parent::addRDF( 
-				parent::describeClass($qname,$label,null,null,"en",$this->getVoc()."Probeset").
+				parent::describeIndividual($qname,$label,$this->getVoc()."Probeset").
 				parent::describeClass($this->getVoc()."Probeset","Affymetrix probeset")
 			);
 			trigger_error($id,E_USER_NOTICE);
@@ -247,10 +247,10 @@ class AffymetrixParser extends Bio2RDFizer
 					
 					switch ($label) {		
 						case 'GeneChip Array':
-							$array_id = "affymetrix_resource:".str_replace(" ","-",$v);
+							$array_id = parent::getRes().str_replace(" ","-",$v);
 							parent::addRDF(
 								parent::triplify($qname, $this->getVoc()."genechip-array", $array_id).
-								parent::describeClass($array_id,"Affymetrix GeneChip array",null,null,"en",$this->getVoc()."Genechip-Array"));
+								parent::describeClass($array_id,"Affymetrix GeneChip array",$this->getVoc()."Genechip-Array"));
 							break;
 						case 'Gene Ontology Biological Process':
 							if(!isset($rel)) {$rel = 'go-process'; $prefix = "go";}
@@ -293,7 +293,7 @@ class AffymetrixParser extends Bio2RDFizer
 								
 
 							$rel = str_replace(" ","-",strtolower($label));
-							$this->AddRDF($this->QQuad($qname,"affymetrix_vocabulary:$rel", "refseq:$id"));
+							$this->AddRDF($this->triplify($qname,parent::getVoc()."$rel", "refseq:$id"));
 */
 							break;
 						
