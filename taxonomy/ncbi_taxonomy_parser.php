@@ -32,8 +32,6 @@ SOFTWARE.
 *   ***RELEASE NOTES***
 * -the files merged.dmp and delnodes.dmp are not parsed by this version
 **/
-require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
-require_once(__DIR__.'/../../php-lib/dataresource.php');
 
 class NCBITaxonomyParser extends Bio2RDFizer{
 	private $bio2rdf_base = "http://bio2rdf.org/";
@@ -507,6 +505,4 @@ class NCBITaxonomyParser extends Bio2RDFizer{
 
 }//class
 
-$x = new NCBITaxonomyParser($argv);
-$x->run();
 ?>
