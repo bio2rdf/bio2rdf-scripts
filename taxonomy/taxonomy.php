@@ -104,11 +104,11 @@ class TaxonomyParser extends Bio2RDFizer{
 			}
 
 			//download all files [except mapping file]
-			/*if($this->GetParameterValue('download') == true) {
+			if($this->GetParameterValue('download') == true) {
 				$rfile = $value["file_url"];
 				echo "downloading ".var_dump($value["file_url"])." ... ";
 				file_put_contents($lfile,file_get_contents($rfile));
-			}*/
+			}
 
 			if($key == "taxdmp" || $key == "gi2taxid_protein" || $key == "gi2taxid_nucleotide"){
 				//get the name of the zip archive
