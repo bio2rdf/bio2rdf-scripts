@@ -29,8 +29,8 @@ SOFTWARE.
 */
 /**
 * REQUIREMENTS 
-*	1. ncftpget
 */
+//TODO: figure out the downloading of the files
 //TODO: add the following parsers: FEATURES, SEQUENCE, ORIGIN and CONTIG
 //TODO: add url link to sequence
 class GenbankParser extends Bio2RDFizer{
@@ -43,6 +43,7 @@ class GenbankParser extends Bio2RDFizer{
 	}
 
 	function Run(){
+		$dataset_description = '';
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
 		//iterate over the files
@@ -55,12 +56,43 @@ class GenbankParser extends Bio2RDFizer{
 			if(strstr(parent::getParameterValue('output_format'), "gz")){$gz = true;}
 			parent::setWriteFile($ofile, $gz);
 			parent::setReadFile($ldir.$lfile, true);
+
+			$source_file = (new DataResource($this))
+				->setURI(parent::getParameterValue('download_url').basename($aPath))
+				->setTitle('NCBI Genbank filename: '.basename($aPath))
+				->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
+				->setFormat('text/genbank-format')
+				->setFormat('application/zip')
+				->setPublisher('https://www.ncbi.nlm.nih.gov')
+				->setHomepage('https://www.ncbi.nlm.nih.gov/genbank')
+				->setRights('use')
+				->setRights('attribution')
+				->setLicense('https://www.nlm.nih.gov/copyright.html')
+				->setDataset(parent::getDatasetURI());
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/genbank/genbank.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")
+			->setRights("use-share-modify")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+			$dataset_description .= $output_file->toRDF().$source_file->toRDF();
+
 			echo "processing $aPath ...";
 			$this->process();
 			echo "done!".PHP_EOL;
-			parent::getWriteFile()->close();
 
-
+			$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
+			$this->getWriteFile()->write($dataset_description);
+			$this->getWriteFile()->close();
 		}//foreach
 
 	}//run
@@ -141,19 +173,22 @@ class GenbankParser extends Bio2RDFizer{
 				$gb_label = utf8_encode(htmlspecialchars($parsed_definition_arr[0]));
 
 				parent::AddRDF(
-					parent::describeIndividual($gb_res, $gb_label, $this->getVoc()."genbank_record").
+					parent::describeIndividual($gb_res, $gb_label, $this->getVoc()."genbank- record").
 					parent::triplifyString($gb_res, $this->getVoc().'sequence-length', $parsed_locus_arr[0]['sequence_length']).
 					parent::triplifyString($gb_res, $this->getVoc().'strandedness', $parsed_locus_arr[0]['strandedness']).
 					parent::triplify($gb_res, "rdf:type", $this->getRes().$parsed_locus_arr[0]['mol_type']).
 					parent::triplifyString($gb_res, $this->getVoc().'chromosome-shape', $parsed_locus_arr[0]['chromosome_shape']).
 					parent::triplifyString($gb_res, $this->getVoc().'division-name', $parsed_locus_arr[0]['division_name']).
 					parent::triplifyString($gb_res, $this->getVoc().'date-of-entry', $parsed_locus_arr[0]['date']).
-					parent::triplifyString($gb_res, $this->getVoc().'source', utf8_encode($parsed_source_arr[0]))
+					parent::triplifyString($gb_res, $this->getVoc().'source', utf8_encode($parsed_source_arr[0])).
+					parent::QQuadO_URL($gb_res, $this->getVoc().'fasta-seq', 'https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?sendto=on&db=nucest&dopt=fasta&val='.$parsed_version_arr['gi'])
 				);
+
+
 				
 				foreach($parsed_accession_arr[0] as $acc ){
 					parent::AddRDF(
-						parent::triplifyString($gb_res, $this->getVoc()."accession-number", $acc)
+						parent::triplifyString($gb_res, $this->getVoc()."accession", $acc)
 					);
 				}
 				
@@ -199,7 +234,7 @@ class GenbankParser extends Bio2RDFizer{
 					parent::AddRDF(
 						parent::triplify($gb_res, $this->getVoc()."reference", $ref_res).
 						parent::triplifyString($ref_res, $this->getVoc()."coordinates", $aRef['COORDINATES']).
-						parent::triplifyString($ref_res, $this->getVoc()."journal", $aRef['JOURNAL'])
+						parent::triplifyString($ref_res, $this->getVoc()."citation", $aRef['JOURNAL'])
 					);
 				}
 		    	$gb_record_str = "";
