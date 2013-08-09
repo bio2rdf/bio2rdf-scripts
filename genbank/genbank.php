@@ -44,6 +44,18 @@ class GenbankParser extends Bio2RDFizer{
 		$dataset_description = '';
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
+
+		//download
+		if($this->GetParameterValue('download') == true){
+			$list = $this->getFtpFileList('ftp.ncbi.nlm.nih.gov', 'seq.gz');
+			$total = count($list);
+			$counter = 1;
+			foreach($list as $f){
+				echo "downloading file $counter out of $total :".parent::getParameterValue('download_url').$f."... ".PHP_EOL;
+				file_put_contents($ldir.$f,file_get_contents(parent::getParameterValue('download_url').$f));
+				$counter++;
+			}
+		}
 		//iterate over the files
 		$paths = $this->getFilePaths($ldir, 'gz');
 		$lfile = null;
@@ -617,6 +629,33 @@ class GenbankParser extends Bio2RDFizer{
 		}else{
 			trigger_error("Could not open directory ".$dir);
 			exit;
+		}
+		return $rm;
+	}
+
+	/**
+	* Given an FTP uri get a non recursive list of all files of a given extension
+	*/
+	function getFtpFileList($ftp_uri, $extension){
+		$rm = array();
+		// set up basic connection
+		$conn_id = ftp_connect($ftp_uri);
+		$ftp_user = 'anonymous';
+		if (@ftp_login($conn_id, $ftp_user, '')) {
+		  
+		} else {
+		    echo "Couldn't connect as $ftp_user\n";
+		    exit;
+		}
+
+		// get contents of the current directory
+		$contents = ftp_nlist($conn_id, "/genbank");
+		foreach($contents as $aFile){
+
+			preg_match("/.*\/(.*seq\.gz)/", $aFile, $matches);
+			if(count($matches)){
+				$rm[] = $matches[1];
+			}
 		}
 		return $rm;
 	}
