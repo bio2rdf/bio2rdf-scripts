@@ -29,8 +29,7 @@ SOFTWARE.
  * @description ftp://ftp.ncbi.nlm.nih.gov/genbank/gbrel.txt
 */
 
-//TODO: figure out the downloading of the files
-//TODO: add the following parsers: FEATURES (http://www.insdc.org/documents/feature-table) and CONTIG (section:3.4.15 of ftp://ftp.ncbi.nlm.nih.gov/genbank/gbrel.txt)
+//TODO: add the following parsers: FEATURES (http://www.insdc.org/documents/feature-table)
 class GenbankParser extends Bio2RDFizer{
 	function __construct($argv){
 		parent::__construct($argv, "genbank");
@@ -83,17 +82,17 @@ class GenbankParser extends Bio2RDFizer{
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
-			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
-			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
-			->setSource($source_file->getURI())
-			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/genbank/genbank.php")
-			->setCreateDate($date)
-			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-			->setPublisher("http://bio2rdf.org")
-			->setRights("use-share-modify")
-			->setRights("restricted-by-source-license")
-			->setLicense("http://creativecommons/licenses/by/3.0/")
-			->setDataset(parent::getDatasetURI());
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/genbank/genbank.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")
+				->setRights("use-share-modify")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
 			$dataset_description .= $output_file->toRDF().$source_file->toRDF();
 
 			echo "processing $aPath ...";
@@ -173,6 +172,9 @@ class GenbankParser extends Bio2RDFizer{
 		    	if(!empty($segments)){
 		    		$parsed_segments_arr = $this->parseSegment($segments);
 		    	}
+
+		   		//$features = $this->retrieveSections("FEATURES", $sectionsRaw);
+		   		//$parsed_features_arr = $this->parseFeatures($features);
 		    	//get the source section
 		    	$source = $this->retrieveSections("SOURCE", $sectionsRaw);
 		    	$parsed_source_arr = $this->parseSource($source);
@@ -259,6 +261,19 @@ class GenbankParser extends Bio2RDFizer{
 		}//while
 			
 	}
+	/**
+	*
+	*/
+	function parseFeatures($feature_arr){
+		$rm = array();
+		foreach($feature_arr as $feat){
+			$feature_raw = utf8_encode(trim($feat['value']));
+			//print_r($feature_raw);
+			echo "\n***\n";
+		}
+		return $rm;
+	}
+
 	/**
 	* Parse the reference section according to section 3.4.11 of
 	* ftp://ftp.ncbi.nlm.nih.gov/genbank/gbrel.txt
@@ -368,6 +383,7 @@ class GenbankParser extends Bio2RDFizer{
 		
 		return $rm;
 	}
+
 
 
 	/**
