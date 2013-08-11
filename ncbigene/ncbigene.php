@@ -161,7 +161,7 @@ class NCBIGeneParser extends Bio2RDFizer{
 			parent::setReadFile($lfile, true);
 			parent::setWriteFile($odir.$ofile, $gz);
 			$fnx = $id;
-			echo ' Processing $id ...'.PHP_EOL;
+			echo "Processing $id ...".PHP_EOL;
 			$this->$fnx();
 			echo 'done!'.PHP_EOL;
 			parent::getReadFile()->Close();
