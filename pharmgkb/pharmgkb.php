@@ -180,7 +180,6 @@ class PharmGKBParser extends Bio2RDFizer
 			$this->SetWriteFile($odir.$outfile, $gz);
 			
 			foreach($zipentries AS $zipentry) {
-				echo $zipentry.PHP_EOL;
 				if(($fp = $zin->getStream($zipentry)) === FALSE) {
 					trigger_error("Unable to get $file.tsv in ziparchive $lfile");
 					return FALSE;
