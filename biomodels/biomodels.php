@@ -133,7 +133,7 @@ class BiomodelsParser extends Bio2RDFizer
 			// $this->SetReadFile($download_file,true);
 			$buf = file_get_contents("compress.zlib://".$download_file);
 
-			$converter = new BioPAX2Bio2RDF($this->getRegistry());
+			$converter = new BioPAX2Bio2RDF($this);
 			$converter->SetBuffer($buf)
 				->SetBioPAXVersion(3)
 				->SetBaseNamespace("http://identifiers.org/biomodels.db/$id/")
