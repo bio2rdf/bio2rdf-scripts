@@ -106,39 +106,6 @@ class GenbankParser extends Bio2RDFizer{
 
 	}//run
 
-	function sync_files(){
-		$this->setup_ftp();
-		$files = parent::getParameterValue('files');
-		if($files == 'all'){
-			$this->sync_all_files();
-		}
-	}
-
-	function sync_all_files(){
-		$dir = $this->getParameterValue('indir');
-		if($dir == null || strlen($dir) == 0){
-			trigger_error("Could not find input directory!\n");
-			exit;
-		}
-		echo "syncing genbank files...";
-		exec("ncftpget ".parent::getParameterValue('download_url')."*.gz ");
-	}
-
-	/**
-	* Create workspace and mount genbank
-	**/
-	function setup_ftp(){
-		//create workspace if doesn't already exist
-		if($this->CreateDirectory($this->GetParameterValue('workspace')) === TRUE){
-			echo "set up workspace ".$this->GetParameterValue('workspace')."\n";
-		}else{
-			echo "failed to create workspace exiting program";
-			exit;
-		}
-
-		echo "Setting up FTP mount:\n";
-		exec("curlftpfs ".$this->getParameterValue('download_url')." ".$this->getParameterValue('workspace'));
-	}
 	function process(){
 		$gb_record_str = "";
 		while ($aLine = $this->getReadFile()->Read(4096)) {
@@ -173,8 +140,9 @@ class GenbankParser extends Bio2RDFizer{
 		    		$parsed_segments_arr = $this->parseSegment($segments);
 		    	}
 
-		   		//$features = $this->retrieveSections("FEATURES", $sectionsRaw);
-		   		//$parsed_features_arr = $this->parseFeatures($features);
+		   		$features = $this->retrieveSections("FEATURES", $sectionsRaw);
+		   		$parsed_features_arr = $this->parseFeatures($features);
+
 		    	//get the source section
 		    	$source = $this->retrieveSections("SOURCE", $sectionsRaw);
 		    	$parsed_source_arr = $this->parseSource($source);
@@ -262,14 +230,19 @@ class GenbankParser extends Bio2RDFizer{
 			
 	}
 	/**
-	*
+	* Parse the features section of genbank documents according to:
+	* http://www.insdc.org/documents/feature-table
 	*/
 	function parseFeatures($feature_arr){
 		$rm = array();
 		foreach($feature_arr as $feat){
 			$feature_raw = utf8_encode(trim($feat['value']));
-			//print_r($feature_raw);
-			echo "\n***\n";
+			if(strlen($feature_raw)){
+				//remove multiple spaces and newlines
+				$feature_raw = preg_replace('/\s\s*/', ' ', $feature_raw);
+				print_r($feature_raw);
+				echo "\n***\n";
+			}
 		}
 		return $rm;
 	}
@@ -280,9 +253,7 @@ class GenbankParser extends Bio2RDFizer{
 	*/
 	function parseReferences($ref_arr){
 		$rm = array();
-
 		$reference_fields = array("AUTHORS", "TITLE", "JOURNAL", "MEDLINE", "PUBMED", "REMARK");
-
 		foreach($ref_arr as $reference){
 			$ref_raw = utf8_encode(trim($reference['value']));
 			if(strlen($ref_raw)){
@@ -538,6 +509,11 @@ class GenbankParser extends Bio2RDFizer{
 		}
 	}
 
+	/**
+	* Get a copy of the complete feature map with definition and 
+	* comments (when available). See http://www.insdc.org/documents/feature-table 
+	* for reference
+	*/
 	function getFeatures(){
 		$features = array(
 			'assembly_gap' => array(
@@ -968,6 +944,7 @@ class GenbankParser extends Bio2RDFizer{
                       plasmids can contain multiple origins of transfer"
 				),
 		);
+		return $features;
 	}
 
 	/**
