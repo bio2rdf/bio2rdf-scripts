@@ -22,91 +22,46 @@ SOFTWARE.
 */
 
 /**
- * Entrez Gene RDFizer
- * @version 0.2.2
+ * NCBI Gene RDFizer
+ * @version 1.0
  * @author Jose Cruz-Toledo
  * @author Alison Callahan
- * @contributor Michel Dumontier
+ * @author Michel Dumontier
  * @description ftp://ftp.ncbi.nih.gov/gene/DATA/
 */
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
-class NCBIGeneParser extends Bio2RDFizer{
-
-		private $version = null;
+class NCBIGeneParser extends Bio2RDFizer
+{
+	private static $packageMap = array(
+		"geneinfo" => "GENE_INFO/All_Data.gene_info.gz",
+		"gene2accession" => "gene2accession.gz",
+		"gene2ensembl" => "gene2ensembl.gz",
+		"gene2go" => "gene2go.gz",
+		"gene2pubmed" => "gene2pubmed.gz",
+		"gene2refseq" => "gene2refseq.gz",
+		"gene2sts" => "gene2sts",
+		"gene2unigene" => "gene2unigene",
+		"gene2vega" => "gene2vega.gz",					
+	);
 		
-		private static $packageMap = array(
-			"geneinfo" => "GENE_INFO/All_Data.gene_info.gz",
-			"gene2accession" => "gene2accession.gz",
-			"gene2ensembl" => "gene2ensembl.gz",
-			"gene2go" => "gene2go.gz",
-			"gene2pubmed" => "gene2pubmed.gz",
-			"gene2refseq" => "gene2refseq.gz",
-			"gene2sts" => "gene2sts",
-			"gene2unigene" => "gene2unigene",
-			"gene2vega" => "gene2vega.gz",					
-		);
-		
-		function __construct($argv) {
-			parent::__construct($argv,"ncbigene");
+	function __construct($argv) {
+		parent::__construct($argv,"ncbigene");
 			
-			// set and print application parameters
-			parent::addParameter('files',true,'all|geneinfo|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega','','files to process');
-			parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/gene/DATA/');
-			parent::initialize();
-			
-	  }//constructor
+		// set and print application parameters
+		parent::addParameter('files',true,'all|geneinfo|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega','','files to process');
+		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/gene/DATA/');
+		parent::initialize();		
+	}//constructor
 	  
-	 function Run(){
-	 	if(parent::getParameterValue('download') === true) 
-		{
-			$this->download();
-		}
-		if(parent::getParameterValue('process') === true) 
-		{
-			$this->process();
-		}
+	function Run()
+	{
+		$this->process();
 	}//run
 
-	function download(){
-		$ldir = parent::getParameterValue('indir');
-		$rdir = parent::getParameterValue('download_url');
 
-		//which files are to be converted?
-		$files = parent::getParameterValue('files');		 
-		if($files == 'all') {
-			$files = $this->getPackageMap();
-		} else {
-			$sel_arr = explode(",",$selectedPackage);
-			$pm = $this->getPackageMap();
-			$files = array();
-			foreach($sel_arr as $a){
-				if(array_key_exists($a, $pm)){
-					$files[$a] = $pm[$a];
-				}
-			}	
-		}
-
-		//now iterate over the files array
-		foreach ($files as $id => $file){
-			echo "Processing $id ... ";	
-
-			$lfile = $ldir.$id.".gz";
-
-			// download
-			//don't use subdirectory GENE_INFO for saving local version of All_data.gene_info.gz
-			if($id == "gene2sts" || $id == "gene2unigene") {
-				$rfile = "compress.zlib://".$rdir.$file;
-			} else {
-				$rfile = $rdir.$file;
-			}
-			Utils::DownloadSingle($rfile, $lfile);
-		}
-
-	}
-
-	function process(){
-
+	function process()
+	{
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
 		$rdir = parent::getParameterValue('download_url');
@@ -133,46 +88,42 @@ class NCBIGeneParser extends Bio2RDFizer{
 		$dataset_description = '';
 
 		//now iterate over the files array
-		foreach ($files as $id => $file){
-			echo "Processing $id ... ";	
-
-			$lfile = $ldir.$id.".gz";
+		foreach ($files as $module => $rfilename){
+			$file = $module.".gz";
+			$lfile = $ldir.$file;
+			$rfile = $rdir.$rfilename;
 
 			// download
-			if(!file_exists($lfile)) { 		
-				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);		
-				//don't use subdirectory GENE_INFO for saving local version of All_data.gene_info.gz
-				if($id == "gene2sts" || $id == "gene2unigene") {
-					$rfile = "compress.zlib://".$rdir.$file;
-				} else {
-					$rfile = $rdir.$file;
+			if(!file_exists($lfile) || parent::getParameterValue('download') == true) {
+				trigger_error("$lfile not found. Will attempt to download.", E_USER_NOTICE);		
+				$myfile = $lfile;
+				if($module == "gene2sts" || $module == "gene2unigene") {
+					$myfile = "compress.zlib://".$lfile;
 				}
-				Utils::DownloadSingle($rfile, $lfile);
-			}
-			
-			$suffix = parent::getParameterValue('output_format');
-			$ofile = $id.".".$suffix; 
-			$gz = false;
-			
-			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$gz = true;
+				Utils::DownloadSingle($rfile, $myfile);
 			}
 
+			if(parent::getParameterValue('process') === false) continue; 
+			
+			$ofile = $module.".".parent::getParameterValue('output_format');
+
+			$gz = false;
+			if(strstr(parent::getParameterValue('output_format'), "gz")) $gz = true;
+
+			echo "Processing $module ... ";	
 			parent::setReadFile($lfile, true);
 			parent::setWriteFile($odir.$ofile, $gz);
-			$fnx = $id;
-			echo "Processing $id ...".PHP_EOL;
+			$fnx = $module;
 			$this->$fnx();
 			echo 'done!'.PHP_EOL;
-			parent::getReadFile()->Close();
-			parent::getWriteFile()->Close();
+			parent::getReadFile()->close();
+			parent::getWriteFile()->close();
 
 			// generate the dataset release file
-			echo "Generating dataset description... ";
 			// dataset description
 			$source_file = (new DataResource($this))
 				->setURI($rfile)
-				->setTitle("NCBI Gene ($id)")
+				->setTitle("NCBI Gene ($module)")
 				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
 				->setFormat("text/tab-separated-value")
 				->setFormat("application/gzip")	
@@ -189,7 +140,7 @@ class NCBIGeneParser extends Bio2RDFizer{
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 				->setSource($source_file->getURI())
-				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/gene/entrez_gene.php")
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ncbigene/ncbigene.php")
 				->setCreateDate($date)
 				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
 				->setPublisher("http://bio2rdf.org")			
@@ -210,6 +161,7 @@ class NCBIGeneParser extends Bio2RDFizer{
 		//set graph URI back to default value
 		parent::setGraphURI($graph_uri);
 		//write dataset description to file
+		echo "Generating dataset description... ";
 		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
@@ -351,7 +303,7 @@ class NCBIGeneParser extends Bio2RDFizer{
 					//status
 					$this->AddRDF(
 						parent::triplifyString($this->getNamespace().$aGeneId, $this->getVoc()."has_status", $status).
-						parent::describeProperty($this->getVoc()."has_status", "Relationship between a gene and its Entrez Gene status")
+						parent::describeProperty($this->getVoc()."has_status", "Relationship between a gene and its NCBI Gene status")
 					);
 					//RNA nucleotide accession
 					if($rnaNucleotideAccession != "-"){
@@ -651,7 +603,7 @@ class NCBIGeneParser extends Bio2RDFizer{
 						parent::triplify($geneid, $this->getVoc()."has_taxid", $taxid).
 						parent::triplifyString($geneid, $this->getVoc()."has_symbol", $symbol).
 						parent::triplifyString($geneid, $this->getVoc()."has_locus_tag", addslashes(stripslashes($locusTag))).
-						parent::describeClass($this->getVoc()."Gene", "An Entrez Gene gene").
+						parent::describeClass($this->getVoc()."Gene", "An NCBI Gene gene").
 						parent::describeProperty($this->getVoc()."has_locus_tag", "Relationship between a gene and a locus tag")
 					);
 
@@ -659,7 +611,7 @@ class NCBIGeneParser extends Bio2RDFizer{
 					if($type_of_gene != '-') {
 						$this->AddRDF(
 							parent::triplify($geneid, "rdf:type", $this->getVoc().$type_of_gene."-gene").
-							parent::describeClass($this->getVoc().$type_of_gene."-gene", "An Entrez Gene ".$type_of_gene."-gene")
+							parent::describeClass($this->getVoc().$type_of_gene."-gene", "An NCBI Gene ".$type_of_gene."-gene")
 						);
 					} 
 					
