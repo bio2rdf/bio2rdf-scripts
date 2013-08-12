@@ -201,7 +201,6 @@ class PharmGKBParser extends Bio2RDFizer
 				echo "done!".PHP_EOL;
 
 				// generate the dataset release file
-				echo "Generating dataset description... ";
 				$source_file = (new DataResource($this))
 					->setURI($rfile)
 					->setTitle("Pharmacogenomics Knowledge Base ($zipentry)")
@@ -240,7 +239,8 @@ class PharmGKBParser extends Bio2RDFizer
 			}
 			$this->GetWriteFile()->Close();
 		} // foreach
-	
+
+		echo "Generating dataset description... ";
 		parent::setGraphURI($graph_uri);
 		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
 		parent::getWriteFile()->write($dataset_description);
@@ -259,16 +259,20 @@ class PharmGKBParser extends Bio2RDFizer
 	5 Alternate Names	
 	6 Alternate Symbols	
 	7 Is Genotyped	
-	9 Is VIP	
-	12 Has Variant Annotation
+	8 Is VIP	
+	9 Has Variant Annotation
+	10 Has CPIC Dosing Guideline
 	*/
 	function genes()
 	{
-		if(($n = count(explode("\t",$this->GetReadFile()->Read()))) != 10) {
-			trigger_error("Found $n columns in gene file - expecting 10!", E_USER_WARNING);
+		$h = explode("\t",parent::getReadFile()->read());
+		$expected_columns = 11;
+		if(($n = count($h)) != $expected_columns) {
+			trigger_error("Found $n columns in gene file - expecting $expected_columns!", E_USER_WARNING);
+			return false;			
 		}
 
-		while($l = $this->GetReadFile()->Read(200000)) {
+		while($l = parent::getReadFile()->read(200000)) {
 			$a = explode("\t",$l);
 			
 			$id = parent::getNamespace().$a[0];
@@ -1234,7 +1238,6 @@ class PharmGKBParser extends Bio2RDFizer
 		$entry = false;
 		while($l = $this->GetReadFile()->Read(20000)) {
 			$a = explode("\t",trim($l));
-			print_r($a);
 			if(strlen(trim($l)) == 0) {
 				// end of entry
 				$entry = false;
