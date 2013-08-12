@@ -71,7 +71,7 @@ class NCBIGeneParser extends Bio2RDFizer
 		if($files == 'all') {
 			$files = $this->getPackageMap();
 		} else {
-			$sel_arr = explode(",",$selectedPackage);
+			$sel_arr = explode(",",$files);
 			$pm = $this->getPackageMap();
 			$files = array();
 			foreach($sel_arr as $a){
@@ -538,7 +538,7 @@ class NCBIGeneParser extends Bio2RDFizer
 					
 					// $this->AddRDF($this->QQuad($geneid,"geneid_vocabulary:has_taxid",$taxid));
 					$this->AddRDF(
-						parent::triplify($this->getNamespace().$aGeneId, $this->getVoc().$goCategory, "go:".$goid).
+						parent::triplify($this->getNamespace().$aGeneId, $this->getVoc().$goCategory, $goid).
 						parent::describeProperty($this->getVoc().$goCategory, "Relationship between a gene and a GO $goCategory")
 					);
 
@@ -554,7 +554,7 @@ class NCBIGeneParser extends Bio2RDFizer
 							parent::triplify($eid, $this->getVoc()."evidence", "eco:$evidenceCode").
 							parent::triplify($eid, $this->getVoc()."gene", $this->getNamespace().$aGeneId).
 							parent::triplifyString($eid, $this->getVoc()."go_category", $goCategory).
-							parent::triplify($eid, $this->getVoc()."go_term", "go:".$goid).
+							parent::triplify($eid, $this->getVoc()."go_term", $goid).
 							parent::describeProperty($this->getVoc()."has_gene-".$goCategory."_association", "Relationship between a gene and a gene-$goCategory-association")
 
 						);
