@@ -156,7 +156,7 @@ class SABIORKParser extends Bio2RDFizer
 			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/")
 			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
 			->setSource($source_file->getURI())
-			->setCreatorsource_file("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sabiork/sabiork.php")
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sabiork/sabiork.php")
 			->setCreateDate($date)
 			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
 			->setPublisher("http://bio2rdf.org")			
