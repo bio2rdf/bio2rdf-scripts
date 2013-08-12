@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2012 Michel Dumontier
+Copyright (C) 2013 Michel Dumontier, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -20,50 +20,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-require('../../php-lib/biopax2bio2rdf.php');
-
 /**
  * BioModels RDFizer
- * @version 1.0 
+ * @version 2.0 
  * @author Michel Dumontier
+ * @author Alison Callahan
  * @description http://www.ebi.ac.uk/biomodels-main/
 */
-class BiomodelsParser extends RDFFactory 
+
+require_once(__DIR__.'/../../php-lib/biopax2bio2rdf.php');
+
+class BiomodelsParser extends Bio2RDFizer 
 {	
-	private $version = null;
 	
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("biomodels");
+		parent::__construct($argv, "biomodels");
 		
 		// set and print application parameters
-		$this->AddParameter('files',true,null,'all|curated|biomodel#|start#-end#','entries to process: comma-separated list or hyphen-separated range');
-		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'http://www.ebi.ac.uk/biomodels/models-main/publ/');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));		
-		
-		return TRUE;
+		parent::addParameter('files',true,null,'all|curated|biomodel#|start#-end#','entries to process: comma-separated list or hyphen-separated range');
+		parent::addParameter('download_url',false,null,'http://www.ebi.ac.uk/biomodels/models-main/publ/');
+		parent::initialize();
 	}
 	
 	function Run()
 	{	
 		// directory shortcuts
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
+		$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
 		
 		// get the work specified
-		$list = trim($this->GetParameterValue('files'));
+		$list = trim(parent::getParameterValue('files'));
 		if($list == 'all') {
 			// call the getAllModelsId webservice
 			$file = $ldir."all_models.json";
@@ -108,17 +94,21 @@ class BiomodelsParser extends RDFFactory
 				}
 			}		
 		}
+
+		$graph_uri = parent::getGraphURI();
+		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 		
 		// set the write file
-		$outfile = 'biomodels.nt'; $gz=false;
-		if($this->GetParameterValue('graph_uri')) {$outfile = 'biomodels.nq';}
-		if($this->GetParameterValue('gzip')) {
-			$outfile .= '.gz';
+		$suffix = parent::getParameterValue('output_format');
+		$outfile = 'biomodels'.'.'.$suffix;
+		$gz=false;
+
+		if(strstr(parent::getParameterValue('output_format'), "gz")) {
 			$gz = true;
 		}
-		$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$outfile; 
 		
-		$this->SetWriteFile($odir.$outfile, $gz);
+		$dataset_description = '';
+		parent::setWriteFile($odir.$outfile, $gz);
 		
 		// iterate over the entries
 		$i = 0;
@@ -126,11 +116,11 @@ class BiomodelsParser extends RDFFactory
 		foreach($entries AS $id) {
 			echo "processing ".(++$i)." of $total - biomodel# ".$id;
 			$download_file = $ldir.$id.".owl.gz";
+			$url =  parent::getParameterValue('download_url')."$id/$id-biopax3.owl";
 			// download if the file doesn't exist or we are told to
 			if(!file_exists($download_file) || $this->GetParameterValue('download') == 'true') {
 				// download
 				echo " - downloading";
-				$url = $this->GetParameterValue('download_url')."$id/$id-biopax3.owl";
 				$buf = file_get_contents($url);
 				if(strlen($buf) != 0)  {
 					file_put_contents("compress.zlib://".$download_file, $buf);
@@ -139,52 +129,76 @@ class BiomodelsParser extends RDFFactory
 			}
 			
 			// load entry, parse and write to file
-			echo " - parsing";
+			echo " - parsing... ";
 			// $this->SetReadFile($download_file,true);
 			$buf = file_get_contents("compress.zlib://".$download_file);
-			
-			$converter = new BioPAX2Bio2RDF();
+
+			$converter = new BioPAX2Bio2RDF($this->getRegistry());
 			$converter->SetBuffer($buf)
 				->SetBioPAXVersion(3)
 				->SetBaseNamespace("http://identifiers.org/biomodels.db/$id/")
 				->SetBio2RDFNamespace("http://bio2rdf.org/biomodels:".$id."_")
 				->SetDatasetURI($this->GetDatasetURI());
-			$this->AddRDF($converter->Parse());
-			$this->WriteRDFBufferToWriteFile();
-		
-			echo PHP_EOL;
-		}
-		$this->GetWriteFile()->Close();
 
-		// generate the release file
-		$this->DeleteBio2RDFReleaseFiles($odir);
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/biomodels/biomodels.php", 
-			$bio2rdf_download_files,
-			"http://www.ebi.ac.uk/biomodels-main/",
-			array("use-share-modify"),
-			null, // license
-			$this->GetParameterValue('download_url'),
-			$this->version
-		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+			$rdf = $converter->Parse();
+			parent::addRDF($rdf);
+			parent::writeRDFBufferToWriteFile();
+			parent::getWriteFile()->Close();
 		
+			echo "done!".PHP_EOL;
+
+			//generate dataset description
+			echo "Generating dataset description for BioModel # $id... ";
+			$source_file = (new DataResource($this))
+			->setURI($url)
+			->setTitle("EBI BioModels Database - BioModel # $id")
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($download_file)))
+			->setFormat("rdf/xml")
+			->setPublisher("http://www.ebi.ac.uk/")
+			->setHomepage("http://www.ebi.ac.uk/biomodels-main/")
+			->setRights("use-share-modify")
+			->setLicense("http://www.ebi.ac.uk/biomodels-main/termsofuse")
+			->setDataset("http://identifiers.org/biomodels.db/");
+
+			$dataset_description .= $source_file->toRDF();
+			echo "done!".PHP_EOL;
+
+		}//foreach
+
+		echo "Generating dataset description for Bio2RDF BioModels... ";
+
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/biomodels/biomodels.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")			
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+		
+		$dataset_description .= $output_file->toRDF();
+
+		//write dataset description to file
+		parent::setGraphURI($graph_uri);
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
+		echo "done!".PHP_EOL;
+
 		return true;
 	}	
-
 }
-$start = microtime(true);
 
-set_error_handler('error_handler');
-$parser = new BiomodelsParser($argv);
-$parser->Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
 ?>
