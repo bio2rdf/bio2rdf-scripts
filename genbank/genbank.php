@@ -538,6 +538,438 @@ class GenbankParser extends Bio2RDFizer{
 		}
 	}
 
+	function getFeatures(){
+		$features = array(
+			'assembly_gap' => array(
+				'definition' => 'gap between two components of a CON record that is part of a genome assembly',
+				'comment' => "the location span of the assembly_gap feature for an 
+		      unknown gap is 100 bp, with the 100 bp indicated as
+		      100 n's in sequence"
+				),
+			'attenuator' => array(
+				'definition' => '1) region of DNA at which regulation of termination of
+                         transcription occurs, which controls the expression
+                         of some bacterial operons;
+                      2) sequence segment located between the promoter and the
+                         first structural gene that causes partial termination
+                         of transcription',
+				),
+			'C_region' => array(
+				'definition' => 'constant region of immunoglobulin light and heavy 
+                      chains, and T-cell receptor alpha, beta, and gamma 
+                      chains; includes one or more exons depending on the 
+                      particular chain',
+				),
+			'CAAT_signal' => array(
+				'definition' => ' CAAT box; part of a conserved sequence located about 75
+                      bp up-stream of the start point of eukaryotic
+                      transcription units which may be involved in RNA
+                      polymerase binding; consensus=GG(C or T)CAATCT [1,2].',
+				),
+			'CDS' => array(
+				'definition' => 'coding sequence; sequence of nucleotides that
+                      corresponds with the sequence of amino acids in a
+                      protein (location includes stop codon); 
+                      feature includes amino acid conceptual translation.',
+                'comment' => 'codon_start has valid value of 1 or 2 or 3, indicating
+                      the offset at which the first complete codon of a coding
+                      feature can be found, relative to the first base of
+                      that feature;
+                      /transl_table defines the genetic code table used if
+                      other than the universal genetic code table;
+                      genetic code exceptions outside the range of the specified
+                      tables is reported in /transl_except qualifier;
+                      /protein_id consists of a stable ID portion (3+5 format
+                      with 3 position letters and 5 numbers) plus a version 
+                      number after the decimal point; when the protein 
+                      sequence encoded by the CDS changes, only the version 
+                      number of the /protein_id value is incremented; the
+                      stable part of the /protein_id remains unchanged and as 
+                      a result will permanently be associated with a given 
+                      protein;'
+				),
+			'centromere' => array(
+				'definition' => 'region of biological interest identified as a centromere and
+                      which has been experimentally characterized;',
+                'comment' => 'the centromere feature describes the interval of DNA 
+                      that corresponds to a region where chromatids are held 
+                      and a kinetochore is formed'
+				),
+			'D-loop' => array(
+				'definition' => 'displacement loop; a region within mitochondrial DNA in
+                      which a short stretch of RNA is paired with one strand
+                      of DNA, displacing the original partner DNA strand in
+                      this region; also used to describe the displacement of a
+                      region of one strand of duplex DNA by a single stranded
+                      invader in the reaction catalyzed by RecA protein'
+				),
+			'D_segment' => array(
+				'definition' => 'Diversity segment of immunoglobulin heavy chain, and 
+                      T-cell receptor beta chain;'
+				),
+			'enhancer' => array(
+				'definition' => ' a cis-acting sequence that increases the utilization of
+                      (some)  eukaryotic promoters, and can function in either
+                      orientation and in any location (upstream or downstream)
+                      relative to the promoter;'
+				),
+			'exon' => array(
+				'definition' => "region of genome that codes for portion of spliced mRNA, 
+                      rRNA and tRNA; may contain 5'UTR, all CDSs and 3' UTR; "
+				),
+			'gap' => array(
+				'definition' => 'gap in the sequence',
+				'comment' => "the location span of the gap feature for an unknown 
+                      gap is 100 bp, with the 100 bp indicated as 100 n's in 
+                      the sequence.  Where estimated length is indicated by 
+                      an integer, this is indicated by the same number of 
+                      n's in the sequence. 
+                      No upper or lower limit is set on the size of the gap."
+				),
+			'GC_signal' => array(
+				'definition' => "GC box; a conserved GC-rich region located upstream of
+                      the start point of eukaryotic transcription units which
+                      may occur in multiple copies or in either orientation;
+                      consensus=GGGCGG;"
+				),
+			'gene' => array(
+				'definition' => 'region of biological interest identified as a gene 
+                      and for which a name has been assigned;',
+                'comment' => "the gene feature describes the interval of DNA that 
+                      corresponds to a genetic trait or phenotype; the feature is,
+                      by definition, not strictly bound to it's positions at the 
+                      ends;  it is meant to represent a region where the gene is 
+                      located."
+				),
+			'iDNA' => array(
+				'definition' => "intervening DNA; DNA which is eliminated through any of
+                      several kinds of recombination;",
+                'comment' => 'e.g., in the somatic processing of immunoglobulin genes.'
+				),
+			'intron' => array(
+				'definition' => "a segment of DNA that is transcribed, but removed from
+                      within the transcript by splicing together the sequences
+                      (exons) on either side of it;"
+				),
+			'J_segment' => array(
+				'definition' => "joining segment of immunoglobulin light and heavy 
+                      chains, and T-cell receptor alpha, beta, and gamma 
+                      chains;"
+				),
+			'LTR' => array(
+				'definition' => "long terminal repeat, a sequence directly repeated at
+                      both ends of a defined sequence, of the sort typically
+                      found in retroviruses;"
+				),
+			'mat_peptide' => array(
+				'definition' => " mature peptide or protein coding sequence; coding
+                      sequence for the mature or final peptide or protein
+                      product following post-translational modification; the
+                      location does not include the stop codon (unlike the
+                      corresponding CDS);"
+				),
+			'misc_binding' => array(
+				'definition' => "site in nucleic acid which covalently or non-covalently
+                      binds another moiety that cannot be described by any
+                      other binding key (primer_bind or protein_bind);",
+                'comment' => 'note that the key RBS is used for ribosome binding sites'
+				),
+			'misc_difference' => array(
+				'definition' => "feature sequence is different from that presented 
+                      in the entry and cannot be described by any other 
+                      Difference key (unsure, old_sequence, 
+                      variation, or modified_base);",
+				'comment' => "the misc_difference feature key should be used to 
+                      describe variability that arises as a result of 
+                      genetic manipulation (e.g. site directed mutagenesis);
+                      use /replace=\"\" to annotate deletion, e.g. 
+                      misc_difference 412..433
+                                      /replace=\"\""
+				),
+			'misc_feature' => array(
+				'definition' => "region of biological interest which cannot be described
+                      by any other feature key; a new or rare feature;",
+                'comment' => "this key should not be used when the need is merely to 
+                      mark a region in order to comment on it or to use it in 
+                      another feature's location"
+				),
+			'-35_signal' => array(
+				'definition' => "a conserved hexamer about 35 bp upstream of the start
+                      point of bacterial transcription units; consensus=TTGACa
+                      or TGTTGACA;"
+				),
+			'-10_signal' => array(
+				'definition' => "Pribnow box; a conserved region about 10 bp upstream of
+                      the start point of bacterial transcription units which
+                      may be involved in binding RNA polymerase;
+                      consensus=TAtAaT [1,2,3,4];"
+				),
+			"5'UTR" => array(
+				'definition' => "region at the 5' end of a mature transcript (preceding 
+                      the initiation codon) that is not translated into a 
+                      protein;"
+				),
+			"3'UTR" => array(
+				'definition' => "region at the 3' end of a mature transcript (following 
+                      the stop codon) that is not translated into a protein;"
+				),
+			'V_segment' => array(
+				'definition' => "variable segment of immunoglobulin light and heavy
+                      chains, and T-cell receptor alpha, beta, and gamma
+                      chains; codes for most of the variable region (V_region)
+                      and the last few amino acids of the leader peptide;",
+				),
+			'variation' => array(
+				'definition' => "a related strain contains stable mutations from the same
+                      gene (e.g., RFLPs, polymorphisms, etc.) which differ
+                      from the presented sequence at this location (and
+                      possibly others);",
+				'comment' => "used to describe alleles, RFLP's,and other naturally occurring 
+                      mutations and  polymorphisms; variability arising as a result 
+                      of genetic manipulation (e.g. site directed mutagenesis) should 
+                      be described with the misc_difference feature;
+                      use /replace=\"\" to annotate deletion, e.g. 
+                      variation   4..5
+                                  /replace=\"\"  "
+				),
+			'V_region' => array(
+				'definition' => "variable region of immunoglobulin light and heavy
+                      chains, and T-cell receptor alpha, beta, and gamma
+                      chains;  codes for the variable amino terminal portion;
+                      can be composed of V_segments, D_segments, N_regions,
+                      and J_segments;"
+				),
+			'unsure' => array(
+				'definition' => "author is unsure of exact sequence in this region;",
+				'comment' => " use /replace=\"\" to annotate deletion, e.g. 
+                      Unsure      11..15
+                                  /replace=\"\""
+				),
+			'tRNA' => array(
+				'definition' => " mature transfer RNA, a small RNA molecule (75-85 bases
+                      long) that mediates the translation of a nucleic acid
+                      sequence into an amino acid sequence;"
+				),
+			'transit_peptide' => array(
+				'definition' => "transit peptide coding sequence; coding sequence for an
+                      N-terminal domain of a nuclear-encoded organellar
+                      protein; this domain is involved in post-translational
+                      import of the protein into the organelle;"
+				),
+			'tmRNA' => array(
+				'definition' => "transfer messenger RNA; tmRNA acts as a tRNA first,
+                      and then as an mRNA that encodes a peptide tag; the
+                      ribosome translates this mRNA region of tmRNA and attaches
+                      the encoded peptide tag to the C-terminus of the
+                      unfinished protein; this attached tag targets the protein for
+                      destruction or proteolysis;"
+				),
+			'telomere' => array(
+				'definition' => "region of biological interest identified as a telomere 
+                      and which has been experimentally characterized;",
+                'comment' => 'the telomere feature describes the interval of DNA 
+                      that corresponds to a specific structure at the end of   
+                      the linear eukaryotic chromosome which is required for                
+		      the integrity and maintenance of the end; this region
+                      is unique compared to the rest of the chromosome and 
+                      represent the physical end of the chromosome;'
+				),
+			'terminator' => array(
+				'definition' => "sequence of DNA located either at the end of the
+                      transcript that causes RNA polymerase to terminate 
+                      transcription;"
+				),
+			'TATA_signal' => array(
+				'definition' => "TATA box; Goldberg-Hogness box; a conserved AT-rich
+                      septamer found about 25 bp before the start point of
+                      each eukaryotic RNA polymerase II transcript unit which
+                      may be involved in positioning the enzyme  for correct 
+                      initiation; consensus=TATA(A or T)A(A or T) [1,2];"
+				),
+			'STS' => array(
+				'definition' => "sequence tagged site; short, single-copy DNA sequence
+                      that characterizes a mapping landmark on the genome and
+                      can be detected by PCR; a region of the genome can be
+                      mapped by determining the order of a series of STSs;",
+                'comment' => "STS location to include primer(s) in primer_bind key or
+                      primers."
+				),
+			'stem_loop' => array(
+				'definition' => "hairpin; a double-helical region formed by base-pairing
+                      between adjacent (inverted) complementary sequences in a
+                      single strand of RNA or DNA."
+				),
+			'source' => array(
+				'definition' => "identifies the biological source of the specified span of
+                      the sequence; this key is mandatory; more than one source
+                      key per sequence is allowed; every entry/record will have, as a
+                      minimum, either a single source key spanning the entire
+                      sequence or multiple source keys, which together, span the
+                      entire sequence.",
+                'comment' => "transgenic sequences must have at least two source feature
+                      keys; in a transgenic sequence the source feature key
+                      describing the organism that is the recipient of the DNA
+                      must span the entire sequence;
+                      see Appendix IV /organelle for a list of <organelle_value>"
+				),
+			'S_region' => array(
+				'definition' => "switch region of immunoglobulin heavy chains;  
+                      involved in the rearrangement of heavy chain DNA leading 
+                      to the expression of a different immunoglobulin class 
+                      from the same B-cell;"
+				),
+			'sig_peptide' => array(
+				'definition' => "signal peptide coding sequence; coding sequence for an
+                      N-terminal domain of a secreted protein; this domain is
+                      involved in attaching nascent polypeptide to the
+                      membrane leader sequence;"
+				),
+			'rRNA' => array(
+				'definition' => "mature ribosomal RNA; RNA component of the
+                      ribonucleoprotein particle (ribosome) which assembles
+                      amino acids into proteins.",
+                'comment' => "rRNA sizes should be annotated with the /product
+                      Qualifier"
+				),
+			'rep_origin' => array(
+				'definition' => "origin of replication; starting site for duplication of
+                      nucleic acid to give two identical copies; ",
+                'comment' => "/direction has valid values: RIGHT, LEFT, or BOTH."
+				),
+			'repeat_region' => array(
+				'definition' => "region of genome containing repeating units;"
+				),
+			'RBS' => array(
+				'definition' => " ribosome binding site;",
+				'comment' => 'in prokaryotes, known as the Shine-Dalgarno sequence: is
+                      located 5 to 9 bases upstream of the initiation codon;
+                      consensus GGAGGT [1,2].'
+				),
+			'protein_bind' => array(
+				'definition' => "non-covalent protein binding site on nucleic acid;",
+				'comment' => "note that RBS is used for ribosome binding sites."
+				),
+			'promoter' => array(
+				'definition' => "region on a DNA molecule involved in RNA polymerase
+                      binding to initiate transcription;"
+				),
+			'primer_bind' => array(
+				'definition' => "non-covalent primer binding site for initiation of
+                      replication, transcription, or reverse transcription;
+                      includes site(s) for synthetic e.g., PCR primer elements;",
+                'comment' => " used to annotate the site on a given sequence to which a primer 
+                      molecule binds - not intended to represent the sequence of the
+                      primer molecule itself; PCR components and reaction times may 
+                      be stored under the \"\/PCR_conditions\" qualifier; 
+                      since PCR reactions most often involve pairs of primers,
+                      a single primer_bind key may use the order() operator
+                      with two locations, or a pair of primer_bind keys may be
+                      used."
+				),
+			'prim_transcript' => array(
+				'definition' => "primary (initial, unprocessed) transcript;  includes 5'
+                      untranslated region (5'UTR), coding sequences
+                      (CDS, exon), intervening sequences (intron) and 3'
+                      untranslated region (3'UTR);"
+				),
+			'precursor_RNA' => array(
+				'definition' => "any RNA species that is not yet the mature RNA product;
+                      may include 5' untranslated region (5'UTR), coding
+                      sequences (CDS, exon), intervening sequences (intron)
+                      and 3' untranslated region (3'UTR);",
+                'comment' => 'used for RNA which may be the result of 
+                      post-transcriptional processing;  if the RNA in question 
+                      is known not to have been processed, use the 
+                      prim_transcript key.'
+				),
+			'polyA_site' => array(
+				'definition' => "site on an RNA transcript to which will be added adenine
+                      residues by post-transcriptional polyadenylation;"
+				),
+			'misc_recomb' => array(
+				'definition' => "site of any generalized, site-specific or replicative
+                      recombination event where there is a breakage and
+                      reunion of duplex DNA that cannot be described by other
+                      recombination keys or qualifiers of source key 
+                      (/proviral);"
+				),
+			'misc_RNA' => array(
+				'definition' => "any transcript or RNA product that cannot be defined by
+                      other RNA keys (prim_transcript, precursor_RNA, mRNA,
+                      5'UTR, 3'UTR, exon, CDS, sig_peptide, transit_peptide,
+                      mat_peptide, intron, polyA_site, ncRNA, rRNA and tRNA);"
+				),
+			'misc_signal' => array(
+				'definition' => "any region containing a signal controlling or altering
+                      gene function or expression that cannot be described by
+                      other signal keys (promoter, CAAT_signal, TATA_signal,
+                      -35_signal, -10_signal, GC_signal, RBS, polyA_signal,
+                      enhancer, attenuator, terminator, and rep_origin)."
+				),
+			'misc_structure' => array(
+				'definition' => "any secondary or tertiary nucleotide structure or 
+                      conformation that cannot be described by other Structure
+                      keys (stem_loop and D-loop);"
+				),
+			'mobile_element' => array(
+				'definition' => "region of genome containing mobile elements;"
+				),
+			'modified_base' => array(
+				'definition' => "the indicated nucleotide is a modified nucleotide and
+                      should be substituted for by the indicated molecule
+                      (given in the mod_base qualifier value)",
+                'comment' => 'value is limited to the restricted vocabulary for 
+                      modified base abbreviations;'
+				),
+			'mRNA' => array(
+				'definition' => "messenger RNA; includes 5'untranslated region (5'UTR),
+                      coding sequences (CDS, exon) and 3'untranslated region
+                      (3'UTR);"
+				),
+			'ncRNA' => array(
+				'definition' => "a non-protein-coding gene, other than ribosomal RNA and
+                      transfer RNA, the functional molecule of which is the RNA
+                      transcript;",
+                'comment' => 'the ncRNA feature is not used for ribosomal and transfer
+                      RNA annotation, for which the rRNA and tRNA feature keys
+                      should be used, respectively;'
+				),
+			'N_region' => array(
+				'definition' => "extra nucleotides inserted between rearranged 
+                      immunoglobulin segments."
+				),
+			'old_sequence' => array(
+				'definition' => "the presented sequence revises a previous version of the
+                      sequence at this location;",
+                'comment' => "/replace=\"\" is used to annotate deletion, e.g. 
+                      old_sequence 12..15
+                      /replace=\"\" 
+                      NOTE: This feature key is not valid in entries/records
+                      created from 15-Oct-2007."
+				),
+			'polyA_signal' => array(
+				'definition' => "recognition region necessary for endonuclease cleavage
+                      of an RNA transcript that is followed by polyadenylation;
+                      consensus=AATAAA [1];"
+				),
+			'operon' => array(
+				'definition' => "region containing polycistronic transcript including a cluster of
+                      genes that are under the control of the same regulatory sequences/promotor
+                      and in the same biological pathway"
+				),
+			'oriT' => array(
+				'definition' => "rigin of transfer; region of a DNA molecule where transfer is
+                      initiated during the process of conjugation or mobilization",
+                'comment' => "rep_origin should be used for origins of replication; 
+                      /direction has legal values RIGHT, LEFT and BOTH, however only                
+                      RIGHT and LEFT are valid when used in conjunction with the oriT  
+                      feature;
+                      origins of transfer can be present in the chromosome; 
+                      plasmids can contain multiple origins of transfer"
+				),
+		);
+	}
+
 	/**
 	* Retrieve the full name of a division code
 	* given its 3 letter abbreviation
