@@ -113,8 +113,7 @@ class SABIORKParser extends Bio2RDFizer
 			$buf = file_get_contents("compress.zlib://".$reaction_file);
 	
 			// send for parsing
-			$p = new BioPAX2Bio2RDF($this->getRegistry());
-			
+			$p = new BioPAX2Bio2RDF($this);
 			$p->SetBuffer($buf)
 				->SetBioPAXVersion(3)
 				->SetBaseNamespace("http://sabio.h-its.org/biopax#")
