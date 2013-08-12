@@ -408,32 +408,26 @@ class PharmGKBParser extends Bio2RDFizer
 		}
 		return $ns.":".$id;
 	}
-	/*
-	0 PharmGKB Accession Id	
-	1 Name	
-	2 Generic Names	
-	3 Trade Names	
-	4 Brand Mixtures	
-	5 Type	
-	6 Cross References	
-	7 SMILES
-	8 External Vocabulary
-
-	0 PA164748388	
-	1 diphemanil methylsulfate
-	2 
-	3 Prantal		
-	4 
-	5 Drug/Small Molecule	
-	6 drugBank:DB00729,pubChemCompound:6126,pubChemSubstance:149020		
-	7 
-	8 ATC:A03AB(Synthetic anticholinergics, quaternary ammonium compounds)
-
-	*/
+/*
+[0] => PharmGKB Accession Id
+[1] => Name
+[2] => Generic Names
+[3] => Trade Names
+[4] => Brand Mixtures
+[5] => Type
+[6] => Cross-references
+[7] => SMILES
+[8] => Dosing Guideline
+[9] => External Vocabulary
+*/
 	function drugs()
 	{
 		$declared = '';
-		$this->GetReadFile()->Read(1000); // first line is header
+		$h = explode("\t",$this->GetReadFile()->Read(1000)); // first line is header
+		if(count($h) != 10) {
+			trigger_error("Change in number of columns for drugs file",E_USER_ERROR);
+			return FALSE;
+		}
 		while($l = $this->GetReadFile()->Read(200000)) {
 			$a = explode("\t",$l);
 			$id = parent::getNamespace().$a[0];
@@ -510,17 +504,17 @@ class PharmGKBParser extends Bio2RDFizer
 					}
 				}
 			}
-			if(trim($a[8])) {
+			if(trim($a[9])) {
 				// External Vocabulary
 				// ATC:H01AC(Somatropin and somatropin agonists),ATC:V04CD(Tests for pituitary function)
 				// ATC:D07AB(Corticosteroids, moderately potent (group II)) => this is why you don't use brackets and commas as separators.
-				$b = explode(',',trim($a[8]),2);
+				$b = explode(',',trim($a[9]),2);
 				foreach($b as $c) {
 					preg_match_all("/ATC:([A-Z0-9]+)\((.*)\)$/",$c,$m);
 					if(isset($m[1][0])) {
 						$atc = "atc:".$m[1][0];
 						parent::addRDF(
-							parent::triplify($id, parent::getVoc()."xref", $atc)
+							parent::triplify($id, parent::getVoc()."x-atc", $atc)
 						);
 						if(!isset($declared[$atc])) {
 							$declared[$atc] = '';
@@ -531,18 +525,25 @@ class PharmGKBParser extends Bio2RDFizer
 					}
 				}
 			}
+			parent::WriteRDFBufferToWriteFile();
 		}
-		parent::WriteRDFBufferToWriteFile();
 	}
 
-	/*
-	0 PharmGKB Accession Id	
-	1 Name	
-	2 Alternate Names
-	*/
+/*
+    [0] => PharmGKB Accession Id
+    [1] => Name
+    [2] => Alternate Names
+    [3] => Cross-references
+    [4] => External Vocabulary
+*/
 	function diseases()
 	{
-	  $this->GetReadFile()->Read(10000);
+		$h = explode("\t",$this->GetReadFile()->Read(10000)); // first line is header
+		if(count($h) != 5) {
+			trigger_error("Change in number of columns for diseases file",E_USER_ERROR);
+			return FALSE;
+		}
+
 	  while($l = $this->GetReadFile()->Read(10000)) {
 		$a = explode("\t",$l);
 			
@@ -578,24 +579,24 @@ class PharmGKBParser extends Bio2RDFizer
 		parent::addRDF(
 			parent::triplify($id, "owl:sameAs", $sameID)
 		);
-		if(isset($a[4]) && trim($a[4]) != '') {	  
-			$d = preg_match_all('/(MeSH|SnoMedCT|UMLS):([A-Z0-9]+)\(([^\)]+)\)/',$a[4],$m, PREG_SET_ORDER);
+		if(isset($a[4]) && trim($a[4]) != '') {	 
+			$d = preg_match_all('/[,]?([^\:]+):([A-Za-z0-9]+)\(([^\)]+)\)/',$a[4],$m, PREG_SET_ORDER);
 			foreach($m AS $n) {
-				$n[1] = strtolower($n[1]);
-				if($n[1] == 'snomedct') $n[1] = 'snomed';
-				$id2 = $n[1].':'.$n[2];
-				parent::addRDF(
-					parent::triplify($id, "rdfs:seeAlso", $id2)
-				);
-				if(isset($n[3]) && $n[2] != $n[3]){
+				if(isset($n[1]) && isset($n[2]) && !strstr($n[1]," ")) {
+					$id2 = $n[1].':'.$n[2];
 					parent::addRDF(
-						parent::triplifyString($id2, "rdfs:label", str_replace(array("\'", "\""),array("\\\'", ""),$n[3]))
+						parent::triplify($id, "pharmgkb_vocabulary:xref", $id2)
 					);
+					if(isset($n[3]) && $n[2] != $n[3]){
+						parent::addRDF(
+							parent::triplifyString($id2, "rdfs:label", str_replace(array("\'", "\""),array("\\\'", ""),$n[3]))
+						);
+					}
 				}
-			}	  
+			}
 		}
+		parent::writeRDFBufferToWriteFile();
 	  }
-	  parent::writeRDFBufferToWriteFile();
 	}
 
 	/*
@@ -615,7 +616,12 @@ class PharmGKBParser extends Bio2RDFizer
 	function variant_annotations()
 	{ 
 		$hash = ''; // md5 hash list
-		$this->GetReadFile()->Read();
+		$h = explode("\t",$this->GetReadFile()->Read(100000)); // first line is header
+		if(count($h) != 12) {
+			triger_error("Change in number of columns for variant annotations file",E_USER_ERROR);
+			return FALSE;
+		}
+	
 		while($l = $this->GetReadFile()->Read(10000)) {
 			$a = explode("\t",$l);
 			$id = parent::getNamespace().$a[11];
@@ -757,16 +763,16 @@ class PharmGKBParser extends Bio2RDFizer
 	*/
 	function relationships()
 	{
-		$columns = 11;
 		$declared = '';
 		$hash = ''; // md5 hash list
 		$h = explode("\t", $this->GetReadFile()->Read());
+		if(count($h) != 11) {
+			trigger_error("Change in number of columns for relationships file (again)");
+			return FALSE;
+		}
+
 		while($l = $this->GetReadFile()->Read(10000)) {
 			$a = explode("\t",$l);
-			if(count($a) != $columns) {
-				trigger_error("Change in number of columns for relationships file");
-				return FALSE;
-			}
 		
 			// id1
 			$ns1 = parent::getNamespace();
@@ -1238,6 +1244,7 @@ class PharmGKBParser extends Bio2RDFizer
 
 	function pathways()
 	{
+		/** @todo changed completely */
 		$entry = false;
 		while($l = $this->GetReadFile()->Read(20000)) {
 			$a = explode("\t",trim($l));
