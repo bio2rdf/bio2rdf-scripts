@@ -196,8 +196,6 @@ class BiomodelsParser extends Bio2RDFizer
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
-
-		return true;
 	}	
 }
 
