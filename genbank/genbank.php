@@ -117,7 +117,7 @@ class GenbankParser extends Bio2RDFizer{
 		    	$sectionsRaw = $this->parseGenbankRaw($gb_record_str);
 		    	/**
 		    	* SECTIONS being parsed:
-		    	* locus, definition, accession, version, keywords, segment, source, reference,
+		    	* locus, definition, accession, version, keywords, segment, source, reference, features
 		    	*/
 		    	//get locus section(s)
 		    	$locus = $this->retrieveSections("LOCUS", $sectionsRaw);
@@ -146,6 +146,13 @@ class GenbankParser extends Bio2RDFizer{
 		    	//get the source section
 		    	$source = $this->retrieveSections("SOURCE", $sectionsRaw);
 		    	$parsed_source_arr = $this->parseSource($source);
+
+		    	$contig = $this->retrieveSections("CONTIG", $sectionsRaw);
+		    	if(!empty($contig)){
+		    		$parsed_contig_arr = $this->parseContig($contig);
+		    	}
+		    	
+
 		    	//get the reference section
 		    	$references = $this->retrieveSections("REFERENCE", $sectionsRaw);
 		    	$parsed_refs_arr = $this->parseReferences($references);
@@ -153,7 +160,7 @@ class GenbankParser extends Bio2RDFizer{
 				$gb_label = utf8_encode(htmlspecialchars($parsed_definition_arr[0]));
 
 				parent::AddRDF(
-					parent::describeIndividual($gb_res, $gb_label, $this->getVoc()."genbank- record").
+					parent::describeIndividual($gb_res, $gb_label, $this->getVoc()."genbank-record").
 					parent::triplifyString($gb_res, $this->getVoc().'sequence-length', $parsed_locus_arr[0]['sequence_length']).
 					parent::triplifyString($gb_res, $this->getVoc().'strandedness', $parsed_locus_arr[0]['strandedness']).
 					parent::triplify($gb_res, "rdf:type", $this->getRes().$parsed_locus_arr[0]['mol_type']).
@@ -165,7 +172,54 @@ class GenbankParser extends Bio2RDFizer{
 				);
 				
 				foreach ($parsed_features_arr as $aFeature) {
-					print_r($aFeature);
+					//getFeatures
+					$type = $aFeature['type'];
+					$feat_desc = $this->getFeatures($type);
+					$label =  preg_replace('/\s\s*/', ' ', $feat_desc['definition']);
+					$comment = null;
+					$value = $aFeature['value'];
+					$value_arr = explode("/", $value);
+					$location = preg_replace('/\n/', '',$value_arr[0]);
+					$class_id = parent::getVoc().md5($type);
+					$feat_res = parent::getRes().md5($type.$location.$gb_res);
+					$feat_label = utf8_encode($type." ".$location." for ".$gb_res);
+
+
+					if(isset($feat_desc['comment'])){
+						$comment = $feat_desc['comment'];
+						$comment = preg_replace('/\s\s*/', ' ', $comment);
+						$label .= " ".$comment;
+					}
+
+
+					parent::AddRDF(
+						parent::describeClass($class_id, $label, parent::getVoc()."Feature").
+						parent::describeIndividual($feat_res, $feat_label,  $class_id).
+						parent::triplify($gb_res, $this->getVoc()."has-feature", $feat_res)
+					);
+
+
+					foreach($value_arr as $aL){
+						//check if aL has an equals in it
+						$p = "/(\S+)\=(.*)/";
+						preg_match($p, $aL, $m);
+						if(count($m)){
+							if($m[1] == "db_xref"){
+								parent::AddRDF(
+									parent::triplify($feat_res, "rdfs:seeAlso", str_replace("\"", "", $m[2]))
+								);
+							}else{
+								parent::AddRDF(
+									parent::triplifyString($feat_res, $this->getVoc().$m[1], utf8_encode(str_replace("\"", "", $m[2])))
+								);
+							}
+						}
+					}
+
+					
+
+					
+					
 				}
 	
 				foreach($parsed_accession_arr[0] as $acc ){
@@ -179,7 +233,13 @@ class GenbankParser extends Bio2RDFizer{
 						parent::triplifyString($gb_res, $this->getVoc()."versioned-accession", $parsed_version_arr['versioned_accession'])
 					);
 				}
-				
+				if(isset($parsed_contig_arr)){
+					foreach ($parsed_contig_arr as $aContig) {
+						parent::AddRDF(
+							parent::triplifyString($gb_res, $this->getVoc()."contig", parent::safeLiteral($aContig))
+						);
+					}
+				}
 				foreach($parsed_keyword_arr as $akw){
 					parent::AddRDF(
 						parent::triplifyString($gb_res, $this->getVoc()."keyword", $akw)
@@ -228,7 +288,6 @@ class GenbankParser extends Bio2RDFizer{
 		    if(count($matches) == 0){
 		    	$gb_record_str .= $aLine;
 		    }
-		    exit;
 		}//while
 			
 	}
@@ -240,8 +299,6 @@ class GenbankParser extends Bio2RDFizer{
 
 		$out = array();
 		//get a copy of the features array 
-		$features = $this->getFeatures();
-		$feat_keys = array_keys($features);
 		foreach($feature_arr as $feat){
 			$feature_raw = utf8_encode(trim($feat['value']));
 
@@ -355,6 +412,14 @@ class GenbankParser extends Bio2RDFizer{
 		return $rm;
 	}
 
+	function parseContig($source_arr){
+		$rm = array();
+		foreach($source_arr as $s){
+			$s_r = utf8_encode(trim($s['value']));
+			$rm[] = $s_r;
+		}
+		return $rm;
+	}
 
 	/**
 	* Parse the segment section according to section 3.4.9 of
@@ -529,11 +594,11 @@ class GenbankParser extends Bio2RDFizer{
 	}
 
 	/**
-	* Get a copy of the complete feature map with definition and 
-	* comments (when available). See http://www.insdc.org/documents/feature-table 
-	* for reference
+	* Get a  feature map with definition and 
+	* comments (when available) for a given key. See http://www.insdc.org/documents/feature-table 
+	* for reference 
 	*/
-	function getFeatures(){
+	function getFeatures($aKey){
 		$features = array(
 			'assembly_gap' => array(
 				'definition' => 'gap between two components of a CON record that is part of a genome assembly',
@@ -963,6 +1028,16 @@ class GenbankParser extends Bio2RDFizer{
                       plasmids can contain multiple origins of transfer"
 				),
 		);
+		if(strlen($aKey)){
+			if(array_key_exists($aKey, $features)){
+				return $features[$aKey];
+			}else{
+				trigger_error("Could not find key: ".$aKey."\n", E_USER_NOTICE);
+			}
+		}else{
+			trigger_error("Invalid key: ".$key."\n", E_USER_ERROR);
+			exit;
+		}
 		return $features;
 	}
 
