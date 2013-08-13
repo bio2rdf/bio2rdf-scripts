@@ -142,6 +142,7 @@ class GenbankParser extends Bio2RDFizer{
 
 		   		$features = $this->retrieveSections("FEATURES", $sectionsRaw);
 		   		$parsed_features_arr = $this->parseFeatures($features);
+		   		print_r($parsed_features_arr);exit;
 
 		    	//get the source section
 		    	$source = $this->retrieveSections("SOURCE", $sectionsRaw);
@@ -232,33 +233,33 @@ class GenbankParser extends Bio2RDFizer{
 	* http://www.insdc.org/documents/feature-table
 	*/
 	function parseFeatures($feature_arr){
-		$rm = array();
+
+		$out = array();
 		//get a copy of the features array 
 		$features = $this->getFeatures();
 		$feat_keys = array_keys($features);
 		foreach($feature_arr as $feat){
 			$feature_raw = utf8_encode(trim($feat['value']));
-			echo "\n\n".$feature_raw."\n\n";
 
 			$arr = explode("\n", $feature_raw);
-			print_r($arr);exit;
-			if(strlen($feature_raw)){
-				//remove multiple spaces and newlines
-				$feature_raw = preg_replace('/\s\s*/', ' ', $feature_raw);
-				//now construct a regex for every section
-				$regex_string = "(.*)";
-				$regex_groups = array();
-				foreach($feat_keys as $aKey){
-					if(strpos($feature_raw, $aKey)){
-						$regex_string .= "\s+".$aKey."\s+(.*)";
-						$regex_groups[] = $aKey;
-					}
-				}//foreach
-				$regex = "/".$regex_string."/";
-				echo "\n".$feature_raw."\n".$regex."\n";exit;
+			$count = 0;
+			foreach($arr as $aLine){
+				$p1 = "/^\s{5}(\S+)\s+(.*)/";
+				$p2 = "/^\s{20,}(.*)/";
+				preg_match($p1, $aLine, $m1);
+				preg_match($p2, $aLine, $m2);
+				if(count($m1)){
+					$out[$count] = array('type'=> $m1[1], 'value'=>$m1[2]);
+					$count ++;
+					continue;
+				}
+				if(count($m2)){
+					$value = $out[$count-1]['value'];
+					$out[$count-1]['value'] = $value.PHP_EOL.$m2[1];
+				}
 			}
 		}
-		return $rm;
+		return $out;
 	}
 
 	/**
