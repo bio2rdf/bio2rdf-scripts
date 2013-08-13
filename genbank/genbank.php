@@ -164,8 +164,6 @@ class GenbankParser extends Bio2RDFizer{
 					parent::QQuadO_URL($gb_res, $this->getVoc().'fasta-seq', 'https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?sendto=on&db=nucest&dopt=fasta&val='.$parsed_version_arr['gi'])
 				);
 
-
-				
 				foreach($parsed_accession_arr[0] as $acc ){
 					parent::AddRDF(
 						parent::triplifyString($gb_res, $this->getVoc()."accession", $acc)
@@ -235,13 +233,29 @@ class GenbankParser extends Bio2RDFizer{
 	*/
 	function parseFeatures($feature_arr){
 		$rm = array();
+		//get a copy of the features array 
+		$features = $this->getFeatures();
+		$feat_keys = array_keys($features);
 		foreach($feature_arr as $feat){
 			$feature_raw = utf8_encode(trim($feat['value']));
+			echo "\n\n".$feature_raw."\n\n";
+
+			$arr = explode("\n", $feature_raw);
+			print_r($arr);exit;
 			if(strlen($feature_raw)){
 				//remove multiple spaces and newlines
 				$feature_raw = preg_replace('/\s\s*/', ' ', $feature_raw);
-				print_r($feature_raw);
-				echo "\n***\n";
+				//now construct a regex for every section
+				$regex_string = "(.*)";
+				$regex_groups = array();
+				foreach($feat_keys as $aKey){
+					if(strpos($feature_raw, $aKey)){
+						$regex_string .= "\s+".$aKey."\s+(.*)";
+						$regex_groups[] = $aKey;
+					}
+				}//foreach
+				$regex = "/".$regex_string."/";
+				echo "\n".$feature_raw."\n".$regex."\n";exit;
 			}
 		}
 		return $rm;
