@@ -142,7 +142,6 @@ class GenbankParser extends Bio2RDFizer{
 
 		   		$features = $this->retrieveSections("FEATURES", $sectionsRaw);
 		   		$parsed_features_arr = $this->parseFeatures($features);
-		   		print_r($parsed_features_arr);exit;
 
 		    	//get the source section
 		    	$source = $this->retrieveSections("SOURCE", $sectionsRaw);
@@ -164,7 +163,11 @@ class GenbankParser extends Bio2RDFizer{
 					parent::triplifyString($gb_res, $this->getVoc().'source', utf8_encode($parsed_source_arr[0])).
 					parent::QQuadO_URL($gb_res, $this->getVoc().'fasta-seq', 'https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?sendto=on&db=nucest&dopt=fasta&val='.$parsed_version_arr['gi'])
 				);
-
+				
+				foreach ($parsed_features_arr as $aFeature) {
+					print_r($aFeature);
+				}
+	
 				foreach($parsed_accession_arr[0] as $acc ){
 					parent::AddRDF(
 						parent::triplifyString($gb_res, $this->getVoc()."accession", $acc)
@@ -225,6 +228,7 @@ class GenbankParser extends Bio2RDFizer{
 		    if(count($matches) == 0){
 		    	$gb_record_str .= $aLine;
 		    }
+		    exit;
 		}//while
 			
 	}
