@@ -354,7 +354,9 @@ class GenbankParser extends Bio2RDFizer{
 						if($field == "COORDINATES"){
 							$tmp_coord = $matches[$i+1];
 							preg_match('/.*\((.*)\)/', $tmp_coord, $matchesc);
-							$tmp_ref[$field] = $matchesc[1];
+							if(count($matchesc) && isset($matchesc[1])){							
+								$tmp_ref[$field] = $matchesc[1];
+							}
 						} else {
 							$tmp_ref[$field] = $matches[$i+1];
 						}
