@@ -31,15 +31,15 @@ SOFTWARE.
 
 class WormbaseParser extends Bio2RDFizer {
 
-	function __construct($argv, $path) {
+	function __construct($argv) {
 		parent::__construct($argv, "wormbase");
-		parent::addParameter('files', true, null, 'all|geneIDs|functional_description|gene_association|gene_interactions|phenotype_association','all','files to process');
-		parent::addParameter('release', true, null, 'WS235')
-		parent::addParameter('download_url', false, null 'ftp://ftp.wormbase.org/pub/wormbase/')
+		parent::addParameter('files', true, 'all|geneIDs|functional_descriptions|gene_associations|gene_interactions|phenotype_associations','all','files to process');
+		parent::addParameter('release', true, null, 'WS235');
+		parent::addParameter('download_url', false, null,'ftp://ftp.wormbase.org/pub/wormbase/');
 		parent::initialize();
 	}//constructor
 	
-	public function Run(){
+	public function run(){
 
 		if(parent::getParameterValue('download') === true) 
 		{
@@ -62,19 +62,19 @@ class WormbaseParser extends Bio2RDFizer {
 		}
 
 		$remote_files = array(
-			"geneIDs" => "species/c_elegans/annotation/geneIDs/c_elegans.".parent::parameterValue('release').".geneIDs.txt.gz",
-			"functional_description" => "species/c_elegans/annotation/functional_descriptions/c_elegans.".parent::getParameterValue('release').".functional_descriptions.txt.gz",
-			"gene_association" => "releases/".parent::getParameterValue('release')."/ONTOLOGY/gene_association.".parent::getParameterValue('release').".wb.ce",
-			"gene_interactions" => "species/c_elegans/annotation/gene_interactions/c_elegans.".parent::parameterValue('release').".gene_interactions.txt.gz",
-			"phenotype_association" => "releases/".parent::getParameterValue('release')."/ONTOLOGY/phenotype_association.".parent::getParameterValue('release').".wb"
+			"geneIDs" => "species/c_elegans/annotation/geneIDs/c_elegans.".parent::getParameterValue('release').".geneIDs.txt.gz",
+			"functional_descriptions" => "species/c_elegans/annotation/functional_descriptions/c_elegans.".parent::getParameterValue('release').".functional_descriptions.txt.gz",
+			"gene_associations" => "releases/".parent::getParameterValue('release')."/ONTOLOGY/gene_association.".parent::getParameterValue('release').".wb.ce",
+			"gene_interactions" => "species/c_elegans/annotation/gene_interactions/c_elegans.".parent::getParameterValue('release').".gene_interactions.txt.gz",
+			"phenotype_associations" => "releases/".parent::getParameterValue('release')."/ONTOLOGY/phenotype_association.".parent::getParameterValue('release').".wb"
 		);
 
 		$local_files = array(
-			"geneIDs" => "c_elegans.".parent::parameterValue('release').".geneIDs.txt.gz",
-			"functional_description" => parent::getParameterValue('release').".functional_descriptions.txt.gz",
-			"gene_association" => "gene_association.".parent::getParameterValue('release').".wb.ce",
-			"gene_interactions" => "c_elegans.".parent::parameterValue('release').".gene_interactions.txt.gz",
-			"phenotype_association" => "phenotype_association.".parent::getParameterValue('release').".wb"
+			"geneIDs" => "c_elegans.".parent::getParameterValue('release').".geneIDs.txt.gz",
+			"functional_descriptions" => parent::getParameterValue('release').".functional_descriptions.txt.gz",
+			"gene_associations" => "gene_association.".parent::getParameterValue('release').".wb.ce",
+			"gene_interactions" => "c_elegans.".parent::getParameterValue('release').".gene_interactions.txt.gz",
+			"phenotype_associations" => "phenotype_association.".parent::getParameterValue('release').".wb"
 		);
 
 		//set directory values
@@ -84,7 +84,9 @@ class WormbaseParser extends Bio2RDFizer {
 		foreach($files as $file){
 			$rfile = $rdir.$remote_files[$file];
 			$lfile = $ldir.$local_files[$file];
-			parent::downloadSingle($rfile, $lfile);
+			echo "Downloading ".$rfile."... ";
+			Utils::DownloadSingle($rfile, $lfile);
+			echo "done!".PHP_EOL;
 		}
 		
 	}
@@ -97,19 +99,42 @@ class WormbaseParser extends Bio2RDFizer {
 			$files = explode(",",parent::getParameterValue('files'));
 		}
 
+		$remote_files = array(
+			"geneIDs" => "species/c_elegans/annotation/geneIDs/c_elegans.".parent::getParameterValue('release').".geneIDs.txt.gz",
+			"functional_descriptions" => "species/c_elegans/annotation/functional_descriptions/c_elegans.".parent::getParameterValue('release').".functional_descriptions.txt.gz",
+			"gene_associations" => "releases/".parent::getParameterValue('release')."/ONTOLOGY/gene_association.".parent::getParameterValue('release').".wb.ce",
+			"gene_interactions" => "species/c_elegans/annotation/gene_interactions/c_elegans.".parent::getParameterValue('release').".gene_interactions.txt.gz",
+			"phenotype_associations" => "releases/".parent::getParameterValue('release')."/ONTOLOGY/phenotype_association.".parent::getParameterValue('release').".wb"
+		);
+
 		$local_files = array(
-			"geneIDs" => "c_elegans.".parent::parameterValue('release').".geneIDs.txt.gz",
-			"functional_description" => parent::getParameterValue('release').".functional_descriptions.txt.gz",
-			"gene_association" => "gene_association.".parent::getParameterValue('release').".wb.ce",
-			"gene_interactions" => "c_elegans.".parent::parameterValue('release').".gene_interactions.txt.gz",
-			"phenotype_association" => "phenotype_association.".parent::getParameterValue('release').".wb"
+			"geneIDs" => "c_elegans.".parent::getParameterValue('release').".geneIDs.txt.gz",
+			"functional_descriptions" => parent::getParameterValue('release').".functional_descriptions.txt.gz",
+			"gene_associations" => "gene_association.".parent::getParameterValue('release').".wb.ce",
+			"gene_interactions" => "c_elegans.".parent::getParameterValue('release').".gene_interactions.txt.gz",
+			"phenotype_associations" => "phenotype_association.".parent::getParameterValue('release').".wb"
 		);
 
 		$idir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
+		$rdir = parent::getParameterValue('download_url');
+
+		$dataset_description = '';
+
+		$graph_uri = parent::getGraphURI();
+		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 
 		foreach($files as $file){
 			$lfile = $idir.$local_files[$file];
+			$rfile = $rdir.$remote_files[$file];
+
+			if(!file_exists($lfile)) {
+				trigger_error($lfile." not found. Will attempt to download.".PHP_EOL, E_USER_WARNING);
+				echo "Downloading $rfile... ";
+				Utils::DownloadSingle($rfile, $lfile);
+				echo "done!".PHP_EOL;
+			}
+
 			if(strstr($lfile, "gz")){
 				parent::setReadFile($lfile, TRUE);
 			} else {
@@ -117,19 +142,63 @@ class WormbaseParser extends Bio2RDFizer {
 			}
 
 			$suffix = parent::getParameterValue('output_format');
-			$ofile = $file.".".$suffix;
+			$ofile = "wormbase_celegans_".parent::getParameterValue('release')."_".$file.".".$suffix;
 
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
 				$gz = true;
 			}
 
-			$this->SetWriteFile($odir.$file, $gz);
+			parent::setWriteFile($odir.$ofile, $gz);
 
-			echo "Processing $file... "
+			echo "Processing $file... ";
 			$fnx = $file;
 			$this-> $fnx();
-			echo "done!";
+			echo "done!".PHP_EOL;
+
+			parent::getWriteFile()->close();
+
+			// generate the dataset release file
+			echo "Generating dataset description for $ofile... ";
+			// dataset description
+			$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle("WormBase C. elegans Release ".parent::getParameterValue('release')." subset ($file)")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setFormat("text/tab-separated-value")
+				->setFormat("application/gzip")	
+				->setPublisher("http://wormbase.org/")
+				->setHomepage("http://wormbase.org/")
+				->setRights("use")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://www.wormbase.org/about/policies")
+				->setDataset("http://identifiers.org/wormbase/");
+
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/wormbase/wormbase.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			echo "done!".PHP_EOL;
 		}
+		parent::setGraphURI($graph_uri);
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
 	}
 
 	function geneIDs(){
@@ -137,7 +206,7 @@ class WormbaseParser extends Bio2RDFizer {
 		while($l = $this->GetReadFile()->Read()){
 			if($l[0] == '#') continue;
 			
-			$data = explode("\t",trim($l));
+			$data = explode(",",trim($l));
 
 			if($first) {
 				if(($c = count($data) != 3)) {
@@ -147,24 +216,24 @@ class WormbaseParser extends Bio2RDFizer {
 			}
 			//add the rdf:type
 
-			$id = parent::getNamespace().$gene_IDs[0];
-			$gene_label = "WormBase gene ".$gene_IDs[1]." with cosmid name ".$gene_IDs[2];
+			$id = parent::getNamespace().$data[0];
+			$gene_label = "WormBase gene ".$data[1]." with cosmid name ".$data[2];
 
 			parent::addRDF(
 				parent::describeIndividual($id, $gene_label, parent::getVoc()."Gene")
 			);
 			
 			//add gene approved name
-			if ($gene_IDs[1] != '') {
+			if ($data[1] != '') {
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."has_approved_gene_name", $gene_IDs[1])
+					parent::triplifyString($id, parent::getVoc()."has_approved_gene_name", $data[1])
 				);
 			}
 			#Add cosmid name 
-			if ($gene_IDs[2] != '') {
-				$cosmid_id = parent::getRes().$gene_IDs[2];
+			if ($data[2] != '') {
+				$cosmid_id = parent::getRes().$data[2];
 				parent::addRDF(
-					parent::describeIndividual($cosmid_id, "Gene/cosmid name for ".$gene_IDs[0], parent::getVoc()."Cosmid_gene")
+					parent::describeIndividual($cosmid_id, "Gene/cosmid name for ".$data[0], parent::getVoc()."Cosmid_gene").
 					parent::triplify($id, parent::getVoc()."has_sequence/cosmid_name", $cosmid_id)
 				);
 			}				
@@ -172,7 +241,7 @@ class WormbaseParser extends Bio2RDFizer {
 		}//while
 	}# Funcion Gene_IDs
 			
-	function functional_description(){
+	function functional_descriptions(){
 		
 		$start = '/(^WBGene[0-9]+)\s/';
 		$end = '/^=\n/';
@@ -190,28 +259,29 @@ class WormbaseParser extends Bio2RDFizer {
 			if (preg_match($end,$l)== 1 ){
 				$collect = false;
 				parent::addRDF(
-					parent::triplifyString(parent::getNamespace().$WBGene, parent::getVoc()."gene_description", $current_description)
+					parent::triplifyString(parent::getNamespace().$WBGene, parent::getVoc()."gene_description", trim($current_description))
 				);
 				$current_description='';
 			}
 				
 			if ($collect ==  true){
-				$current_description = $current_description.rtrim($l);
+				$current_description = $current_description." ".rtrim($l);
 			}
 		}
 		parent::WriteRDFBufferToWriteFile();
 	}#function functional_descri
 			
-	private function gene_association(){
+	private function gene_associations(){
 
-		while($l = parent::getReadFile->Read()){
+		while($l = parent::getReadFile()->Read()){
+			if($l[0] == '#') continue;
 
 			$data = explode("\t", $l);
 			$gene = $data[1];
-			$go = $data[3];
-			$papers = $data[4];
-			$evidence_type = $data[5];
-			$taxon = $data[9];
+			$go = $data[4];
+			$papers = $data[5];
+			$evidence_type = $data[6];
+			$taxon = $data[12];
 
 			$go_evidence_type = array(
 				'IC'=>'eco:0000001', 
@@ -221,6 +291,8 @@ class WormbaseParser extends Bio2RDFizer {
 				'IGI'=>'eco:0000316',
 				'IMP'=>'eco:0000315',
 				'IPI'=>'eco:0000021',
+				'ISM' => 'eco:0000202',
+				'ISO' => 'eco:0000201',
 				'ISS'=>'eco:0000044',
 				'NAS'=>'eco:0000034',
 				'ND'=>'eco:0000035',
@@ -232,21 +304,26 @@ class WormbaseParser extends Bio2RDFizer {
 			$association_label = $gene." ".$go." association";
 			parent::addRDF(
 				parent::describeIndividual($association_id, $association_label, parent::getVoc()."Gene-GO-Association").
-				parent::triplify($association_id, parent::getVoc()."evidence_type", $go_evidence_type[$evidence_type]).
 				parent::triplify($association_id, parent::getVoc()."gene", parent::getNamespace().$gene).
 				parent::triplify($association_id, parent::getVoc()."go_term", $go).
 				parent::triplify($association_id, parent::getVoc()."taxon", $taxon)
 			);
 
+			if($evidence_type !== ''){
+				parent::addRDF(				
+					parent::triplify($association_id, parent::getVoc()."evidence_type", $go_evidence_type[$evidence_type])
+				);
+			}
+
 			$split_papers = explode("|", $papers);
 			foreach($split_papers as $paper){
 				$paper_id = null;
 				$split_paper = explode(":", $paper);
-				if($paper[0] == "PMID"){
-					$paper_id = "pubmed:".$paper[1];
-				} elseif($paper[0] == "WB_REF"){
-					$paper_id = parent::getNamespace().$paper[1];
-					$paper_label = "Wormbase paper ".$paper[1];
+				if($split_paper[0] == "PMID"){
+					$paper_id = "pubmed:".$split_paper[1];
+				} elseif($split_paper[0] == "WB_REF"){
+					$paper_id = parent::getNamespace().$split_paper[1];
+					$paper_label = "Wormbase paper ".$split_paper[1];
 					parent::addRDF(
 						parent::describeIndividual($paper_id, $paper_label, parent::getVoc()."Publication") 
 					);
@@ -260,9 +337,11 @@ class WormbaseParser extends Bio2RDFizer {
 	}
 	
 	//phenotype association 
- 	function phenotype_association(){
+ 	function phenotype_associations(){
 
  		while($l = parent::getReadFile()->Read()){
+ 			if($l[0] == '#') continue;
+
  			$data = explode("\t", $l);
 
  			$gene = $data[1];
@@ -273,10 +352,10 @@ class WormbaseParser extends Bio2RDFizer {
 
  			if($not == "NOT"){
 
- 				$pa_id = parent::getRes().md5($gene.$not.$phenotype.$paper.$variant);
+ 				$pa_id = parent::getRes().md5($gene.$not.$phenotype.$paper.$var_rnai);
  				$pa_label = "Gene-phenotype non-association between ".$gene." and ".$phenotype." under condition ".$var_rnai;
 
- 				$npa_id = parent::getRes().md5($gene.$not.$phenotype.$paper.$variant."negative property assertion");
+ 				$npa_id = parent::getRes().md5($gene.$not.$phenotype.$paper.$var_rnai."negative property assertion");
  				$npa_label = "Negative property assertion stating that gene ".$gene. "is not associated with phenotype ".$phenotype;
 
  				parent::addRDF(
@@ -298,7 +377,7 @@ class WormbaseParser extends Bio2RDFizer {
 	 			}
  				
  				parent::addRDF(
- 					parent::describeIndividual($npa_id, $npa_label, "owl:NegativeObjectPropertyAssertion")
+ 					parent::describeIndividual($npa_id, $npa_label, "owl:NegativeObjectPropertyAssertion").
  					parent::triplify($npa_id, "owl:sourceIndividual", parent::getNamespace().$gene).
  					parent::triplify($npa_id, "owl:assertionProperty", parent::getVoc()."has-associated-phenotype").
  					parent::triplify($npa_id, "owl:targetIndividual", parent::getNamespace().$phenotype)
@@ -307,7 +386,7 @@ class WormbaseParser extends Bio2RDFizer {
  				
 
  			} else {
- 				$pa_id = parent::getRes().md5($gene.$phenotype.$paper.$variant);
+ 				$pa_id = parent::getRes().md5($gene.$phenotype.$paper.$var_rnai);
  				$pa_label = "Gene-phenotype association between ".$gene." and ".$phenotype." under condition ".$var_rnai;
  				parent::addRDF(
  					parent::describeIndividual($pa_id, $pa_label, parent::getVoc()."Gene-Phenotype-Association").
@@ -328,15 +407,14 @@ class WormbaseParser extends Bio2RDFizer {
 	 				);
 	 			}
  			}
-
- 			
+ 			parent::WriteRDFBufferToWriteFile();
  		}//while
-		parent::WriteRDFBufferToWriteFile();
 	} ##phenotype_association
 	
 	private function gene_interactions(){
 		#1 Regular expression to cath the data
 		while($l = parent::getReadFile()->Read()){
+			if($l[0] == '#') continue;
 
 			$data = explode("\t", $l);
 			$interaction = $data[0];
@@ -367,7 +445,7 @@ class WormbaseParser extends Bio2RDFizer {
 				);
 
 				$npa_id = parent::getRes().md5($interaction_id."negative property assertion");
-				$npa_label = "Negative property assertion stating that ".$gene1." and ".$gene2."do not have a ".$interaction_type." interaction";
+				$npa_label = "Negative property assertion stating that ".$gene1." and ".$gene2." do not have a ".$interaction_type." interaction";
 				
 				parent::addRDF(
 					parent::describeIndividual($npa_id, $npa_label, "owl:NegativeObjectPropertyAssertion").
@@ -385,7 +463,7 @@ class WormbaseParser extends Bio2RDFizer {
 					parent::triplify(parent::getNamespace().$gene1, $int_pred, parent::getNamespace().$gene2)
 				);
 			} else {
-				$interaction_label = $int_additional_info." ".strtolower($interaction_type). "interaction between ".$gene1." and ".$gene2;
+				$interaction_label = $int_additional_info." ".strtolower($interaction_type). " interaction between ".$gene1." and ".$gene2;
 				parent::addRDF(
 					parent::describeIndividual($interaction_id, $interaction_label, parent::getVoc().$int_additional_info."-".$interaction_type."-Interaction").
 					parent::describeClass(parent::getVoc().$int_additional_info."-".$interaction_type."-Interaction", $int_additional_info." ".$interaction_type." Interaction", parent::getVoc().$interaction_type."-Interaction").
