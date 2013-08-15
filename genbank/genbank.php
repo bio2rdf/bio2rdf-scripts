@@ -258,8 +258,10 @@ class GenbankParser extends Bio2RDFizer{
 				foreach($parsed_refs_arr as $aRef){
 					$r = rand();
 					$ref_res = $this->getRes().md5($r);
+					$ref_label = "reference for ".$gb_res;
 					if(isset($aRef['TITLE'])){
 						parent::AddRDF(
+							parent::describeIndividual($ref_res, $ref_label, $this->getVoc()."reference").
 							parent::triplifyString($ref_res, $this->getVoc()."title", $aRef['TITLE'])
 						);
 					}
