@@ -33,100 +33,104 @@ class WormbaseParser extends Bio2RDFizer {
 
 	function __construct($argv, $path) {
 		parent::__construct($argv, "wormbase");
-		// set and print application parameters
-		$this->AddParameter('files',true,null,'|all|geneIDs|functional_description|gene_association|gene_interactions|phenotype_association','','files to process'); #The files subject to RDF from wormbase
+		parent::addParameter('files', true, null, 'all|geneIDs|functional_description|gene_association|gene_interactions|phenotype_association','all','files to process');
+		parent::addParameter('release', true, null, 'WS235')
+		parent::addParameter('download_url', false, null 'ftp://ftp.wormbase.org/pub/wormbase/')
 		parent::initialize();
 	}//constructor
 	
 	public function Run(){
-		//input files
-		$ldir = $this->GetParameterValue('indir');
-		//output dir
-		$odir = $this->GetParameterValue('outdir');
-		if(substr($ldir, -1) == "/"):
-		else: 
-			$ldir = $ldir."/";
-		endif;
-		if(substr($odir, -1) == "/"):
-		else: 
-			$odir = $odir."/";
-		endif;
-		$selectedPackage = trim($this->GetParameterValue('files'));	#File to rdfsize
-		$convertTheseFiles = array();
-		if($selectedPackage == 'all'):
-			$convertTheseFiles=array('geneIDs','functional_description','gene_association','gene_interactions','phenotype_association');
-		else:
-			$sel_arr = explode(",",$selectedPackage);
-			$convertTheseFiles = $sel_arr;
-		endif;	 
-		foreach($convertTheseFiles as $k => $v){
-			##llamar una funcion para geneIds
-			if($v == "geneIDs"):
-				//seteamos el archivo que se parsearea
-				$lfile = "c_elegans.WS235.geneIDs.txt";
-				//create a file pointer
-				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
-				$fout = "Gene_IDs.rdf";
-				$this->SetReadFile($ldir.$lfile);
-				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($odir.$fout, false);
-				echo "starting with ".$lfile."\n";
-				$this->geneIDs(); #Entra a la funcion geneIDs
-			endif;
-			## llama a la funcion para functional descriptions
-			if($v == "functional_description"):
-				//seteamos el archivo que se parsearea
-				$lfile = "c_elegans.WS235.functional_descriptions.txt";
-				//create a file pointer
-				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
-				$fout = "Genes_functional_descriptions.rdf";
-				$this->SetReadFile($ldir.$lfile);
-				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($odir.$fout, false);
-				echo "starting with ".$lfile."\n";
-				$this->functional_descri();
-			endif;
-			##call the function for gene_association
-			if($v == "gene_association"):
-				//seteamos el archivo que se parsearea
-				$lfile = "gene_association.WS235.wb"; # real file  gene_association.WS235.wb
-				//create a file pointer
-				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
-				$fout = "gene_association.rdf";
-				$this->SetReadFile($ldir.$lfile);
-				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($odir.$fout, false);
-				echo "starting with ".$lfile."\n";
-				$this->gene_association_F();
-			endif;	
-			##call the function for phenotype_association
-			if($v == "phenotype_association"):
-				//seteamos el archivo que se parsearea
-				$lfile = "phenotype_association.WS235.wb"; # phenotype_association.WS235.wb
-				//create a file pointer
-				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
-				$fout = "phenotype_association.rdf";
-				$this->SetReadFile($ldir.$lfile);
-				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($odir.$fout, false);
-				echo "starting with ".$lfile."\n";
-				$this->phenotype_association_F();
-			endif;	
-			if($v == "gene_interactions"):
-				//seteamos el archivo que se parsearea
-				$lfile = "c_elegans.WS235.gene_interactions.txt"; # real file c_elegans.WS235.gene_interactions.txt
-				//create a file pointer
-				$fp = fopen($ldir.$lfile, "r") or die("Could not open file !\n");
-				$fout = "gene_interactions.rdf";
-				$this->SetReadFile($ldir.$lfile);
-				$this->GetReadFile()->SetFilePointer($fp);
-				$this->SetWriteFile($odir.$fout, false);
-				echo "starting with ".$lfile."\n";
-				$this->gene_interactions_F();					
-			endif;
-			$this->GetWriteFile()->Close();
+
+		if(parent::getParameterValue('download') === true) 
+		{
+			$this->download();
 		}
-	} #Run
+		if(parent::getParameterValue('process') === true) 
+		{
+			$this->process();
+		}
+
+	}
+
+	function download(){
+		// get the file list
+		if(parent::getParameterValue('files') == 'all') {
+			$files = explode("|",parent::getParameterList('files'));
+			array_shift($files);
+		} else {
+			$files = explode(",",parent::getParameterValue('files'));
+		}
+
+		$remote_files = array(
+			"geneIDs" => "species/c_elegans/annotation/geneIDs/c_elegans.".parent::parameterValue('release').".geneIDs.txt.gz",
+			"functional_description" => "species/c_elegans/annotation/functional_descriptions/c_elegans.".parent::getParameterValue('release').".functional_descriptions.txt.gz",
+			"gene_association" => "releases/".parent::getParameterValue('release')."/ONTOLOGY/gene_association.".parent::getParameterValue('release').".wb.ce",
+			"gene_interactions" => "species/c_elegans/annotation/gene_interactions/c_elegans.".parent::parameterValue('release').".gene_interactions.txt.gz",
+			"phenotype_association" => "releases/".parent::getParameterValue('release')."/ONTOLOGY/phenotype_association.".parent::getParameterValue('release').".wb"
+		);
+
+		$local_files = array(
+			"geneIDs" => "c_elegans.".parent::parameterValue('release').".geneIDs.txt.gz",
+			"functional_description" => parent::getParameterValue('release').".functional_descriptions.txt.gz",
+			"gene_association" => "gene_association.".parent::getParameterValue('release').".wb.ce",
+			"gene_interactions" => "c_elegans.".parent::parameterValue('release').".gene_interactions.txt.gz",
+			"phenotype_association" => "phenotype_association.".parent::getParameterValue('release').".wb"
+		);
+
+		//set directory values
+		$ldir = parent::getParameterValue('indir');
+		$rdir = parent::getParameterValue('download_url');
+
+		foreach($files as $file){
+			$rfile = $rdir.$remote_files[$file];
+			$lfile = $ldir.$local_files[$file];
+			parent::downloadSingle($rfile, $lfile);
+		}
+		
+	}
+
+	function process(){
+		if(parent::getParameterValue('files') == 'all') {
+			$files = explode("|",parent::getParameterList('files'));
+			array_shift($files);
+		} else {
+			$files = explode(",",parent::getParameterValue('files'));
+		}
+
+		$local_files = array(
+			"geneIDs" => "c_elegans.".parent::parameterValue('release').".geneIDs.txt.gz",
+			"functional_description" => parent::getParameterValue('release').".functional_descriptions.txt.gz",
+			"gene_association" => "gene_association.".parent::getParameterValue('release').".wb.ce",
+			"gene_interactions" => "c_elegans.".parent::parameterValue('release').".gene_interactions.txt.gz",
+			"phenotype_association" => "phenotype_association.".parent::getParameterValue('release').".wb"
+		);
+
+		$idir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+
+		foreach($files as $file){
+			$lfile = $idir.$local_files[$file];
+			if(strstr($lfile, "gz")){
+				parent::setReadFile($lfile, TRUE);
+			} else {
+				parent::setReadFile($lfile, FALSE);
+			}
+
+			$suffix = parent::getParameterValue('output_format');
+			$ofile = $file.".".$suffix;
+
+			if(strstr(parent::getParameterValue('output_format'), "gz")) {
+				$gz = true;
+			}
+
+			$this->SetWriteFile($odir.$file, $gz);
+
+			echo "Processing $file... "
+			$fnx = $file;
+			$this-> $fnx();
+			echo "done!";
+		}
+	}
 
 	function geneIDs(){
 		$first = true;
@@ -164,7 +168,7 @@ class WormbaseParser extends Bio2RDFizer {
 					parent::triplify($id, parent::getVoc()."has_sequence/cosmid_name", $cosmid_id)
 				);
 			}				
-			$this->WriteRDFBufferToWriteFile();
+			parent::WriteRDFBufferToWriteFile();
 		}//while
 	}# Funcion Gene_IDs
 			
@@ -194,13 +198,11 @@ class WormbaseParser extends Bio2RDFizer {
 			if ($collect ==  true){
 				$current_description = $current_description.rtrim($l);
 			}
-				
-			$this->WriteRDFBufferToWriteFile();
 		}
-		
+		parent::WriteRDFBufferToWriteFile();
 	}#function functional_descri
 			
-	private function gene_association_F(){
+	private function gene_association(){
 
 		while($l = parent::getReadFile->Read()){
 
@@ -254,10 +256,11 @@ class WormbaseParser extends Bio2RDFizer {
 				);
 			}//foreach
 		}//while
-	} //gene_association_F function
+		parent::WriteRDFBufferToWriteFile();
+	}
 	
 	//phenotype association 
- 	function phenotype_association_F(){
+ 	function phenotype_association(){
 
  		while($l = parent::getReadFile()->Read()){
  			$data = explode("\t", $l);
@@ -268,368 +271,133 @@ class WormbaseParser extends Bio2RDFizer {
  			$paper = $data[5];
  			$var_rnai = $data[7];
 
-
- 			parent::addRDF(
- 				parent::describeIndividual($pa_id, $pa_label, parent::getVoc()."Gene-Phenotype-Association").
- 				parent::triplify($pa_id, parent::getVoc()."gene", parent::getNamespace().$gene).
- 			);
-
  			if($not == "NOT"){
- 				$npa_id = parent::getRes().md5($gene.$phenotype.$paper.$variant."negative property assertion");
+
+ 				$pa_id = parent::getRes().md5($gene.$not.$phenotype.$paper.$variant);
+ 				$pa_label = "Gene-phenotype non-association between ".$gene." and ".$phenotype." under condition ".$var_rnai;
+
+ 				$npa_id = parent::getRes().md5($gene.$not.$phenotype.$paper.$variant."negative property assertion");
  				$npa_label = "Negative property assertion stating that gene ".$gene. "is not associated with phenotype ".$phenotype;
+
  				parent::addRDF(
- 					parent::describeIndividual($npa_id, $npa_label, "owl:NegativePropertyAssertion")
+	 				parent::describeIndividual($pa_id, $pa_label, parent::getVoc()."Gene-Phenotype-Non-Association").
+	 				parent::triplify($pa_id, parent::getVoc()."gene", parent::getNamespace().$gene).
+	 				parent::triplify($pa_id, parent::getVoc()."phenotype", parent::getNamespace().$phenotype)
+ 				);
+
+ 				if(strstr($var_rnai, "WBVar")){
+	 				parent::addRDF(
+	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "Variant of ".$gene, parent::getVoc()."Gene-Variant").
+	 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", parent::getNamespace().$var_rnai)
+	 				);
+	 			} elseif(strstr($var_rnai, "WBRNAi")){
+	 				parent::addRDF(
+	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "RNAi knockdown experiment targeting gene ".$gene." that does NOT result in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
+	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", parent::getNamespace().$var_rnai)
+	 				);
+	 			}
+ 				
+ 				parent::addRDF(
+ 					parent::describeIndividual($npa_id, $npa_label, "owl:NegativeObjectPropertyAssertion")
  					parent::triplify($npa_id, "owl:sourceIndividual", parent::getNamespace().$gene).
- 					parent::triplify($npa_id, "owl:assertionProperty", parent::getVoc()."phenotype").
+ 					parent::triplify($npa_id, "owl:assertionProperty", parent::getVoc()."has-associated-phenotype").
  					parent::triplify($npa_id, "owl:targetIndividual", parent::getNamespace().$phenotype)
  				);
+
+ 				
+
  			} else {
  				$pa_id = parent::getRes().md5($gene.$phenotype.$paper.$variant);
  				$pa_label = "Gene-phenotype association between ".$gene." and ".$phenotype." under condition ".$var_rnai;
  				parent::addRDF(
- 					parent::triplify($pa_id, parent::getVoc()."phenotype", parent::getNamespace().$phenotype)
+ 					parent::describeIndividual($pa_id, $pa_label, parent::getVoc()."Gene-Phenotype-Association").
+ 					parent::triplify($pa_id, parent::getVoc()."gene", parent::getNamespace().$gene).
+ 					parent::triplify($pa_id, parent::getVoc()."phenotype", parent::getNamespace().$phenotype).
+ 					parent::triplify(parent::getNamespace().$gene, parent::getVoc()."has-associated-phenotype", parent::getNamespace().$phenotype)
  				);
+
+ 				if(strstr($var_rnai, "WBVar")){
+	 				parent::addRDF(
+	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "Variant of ".$gene, parent::getVoc()."Gene-Variant").
+	 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", parent::getNamespace().$var_rnai)
+	 				);
+	 			} elseif(strstr($var_rnai, "WBRNAi")){
+	 				parent::addRDF(
+	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "RNAi knockdown experiment targeting gene ".$gene." resulting in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
+	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", parent::getNamespace().$var_rnai)
+	 				);
+	 			}
  			}
 
- 			if(strstr($var_rnai, "WBVar")){
- 				parent::addRDF(
- 					parent::describeIndividual(parent::getNamespace().$var_rnai, "Variant of ".$gene, parent::getVoc()."Gene-Variant").
- 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", parent::getNamespace().$var_rnai)
- 				);
- 			} elseif(strstr($var_rnai, "WBRNAi")){
- 				parent::addRDF(
- 					parent::describeIndividual(parent::getNamespace().$var_rnai, "RNAi knockdown experiment", parent::getVoc()."RNAi-Knockdown-Experiment").
- 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", parent::getNamespace().$var_rnai)
- 				);
- 			}
+ 			
  		}//while
-
 		parent::WriteRDFBufferToWriteFile();
 	} ##phenotype_association
 	
-	private function gene_interactions_F(){
+	private function gene_interactions(){
 		#1 Regular expression to cath the data
-		$wbgi= '/(^WBInteraction[0-9]+)/';
-		$itype='/(Genetic|Physical|Predicted|Regulatory)/';
-		$ad_info='/(Enhancement|Epistasis|Genetic_interaction|Mutual_enhancement|Mutual_suppression|N\/A|No_interaction|Suppression|Synthetic)/';
-		$wbgs='/^.+\s(WBGene[0-9]+)\s.+\s(WBGene[0-9]+)/';
-		$Dicto=array('WBI'=>'','I_type'=>'','Ad_info'=>'','WBG1'=>'','WBG2'=>'');
-		while($aLine = $this->GetReadFile()->Read(200000)):
-				if (preg_match($wbgi,$aLine,$matches)==1):
-					$Dicto['WBI']=$matches[1];
-				endif;	
-				if (preg_match($itype,$aLine,$matches)==1):
-					$Dicto['I_type']=$matches[1];
-				endif;	
-				if (preg_match($ad_info,$aLine,$matches)==1):
-					$Dicto['Ad_info']=$matches[1];
-				endif;	
-				if (preg_match($wbgs,$aLine,$matches)==1):
-					$Dicto['WBG1']=$matches[1];
-					$Dicto['WBG2']=$matches[2];
-				endif;		
-				$this->Resource_relations($Dicto,"Inter");
-				$Dicto=array('WBI'=>'','I_type'=>'','Ad_info'=>'','WBG1'=>'','WBG2'=>'');
-		endwhile;
-		echo "Done! gene_interactions.rdf wrote \n";
-	} //enf gene interaction F
-	
-	
-	##common function for Dict objects to RDFsize
-	private function Resource_relations($Gene_dicto,$resource){ 
-		if ($resource=='Gene'): //$Dicto=array('WBG'=>'','GO'=>array(),'Pubmed'=>array(),'Tax'=>array(),'Go_Evi'=>array());
-		##GO evidence
-		$GO_Evidence= array('IC'=>'Inferred_by_Curator', 'IDA'=>'Inferred_from_Direct_Assay', 'IEA'=>'Inferred_from_Electronic_Annotation', 'IEP'=>'Inferred_from_Expression_Pattern', 'IGI'=>'Inferred_from_Genetic_Interaction','IMP'=>'Inferred_from_Mutant_Phenotype','IPI'=>'Inferred_from_Physical_Interaction','ISS'=>'Inferred_from_Sequence_(or_Structural)_Similarity','NAS'=>'Non-traceable_Author_Statement','ND'=>'No_Biological_Data_available','RCA'=>'Inferred_from_Reviewed_Computational_Analysis','TAS'=>'Traceable_Author_Statement');
-		$n=0;
-		foreach ($Gene_dicto['Go_Evi'] as $current_GO_evi) {
-		  $evi_type=$GO_Evidence[$current_GO_evi];
-		  $current_GO=$Gene_dicto['GO'][$n];
-		  ##Ad evidence resource type
-		  $this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:".$Gene_dicto['WBG'].$current_GO_evi.$current_GO,
-						"rdf:type",
-						"wormbase_vocabulary:".$evi_type
-					)
-				);
-			##Ad the relation beetween gene and direct relation object			  
-				$this->AddRDF(
-				$this->QQuad(
-					"wormbase_resource:".$Gene_dicto['WBG'].$current_GO_evi.$Gene_dicto['GO'][$n],
-					"wormbase_vocabulary:sourceIndividual",
-					"wormbase_resource:".$Gene_dicto['WBG']
-					)
-				);
-			##Ad the relation beetween direct relation object and GO			  
-				$this->AddRDF(
-				$this->QQuad(
-					"wormbase_resource:".$Gene_dicto['WBG'].$current_GO_evi.$Gene_dicto['GO'][$n],
-					"wormbase_vocabulary:targetIndividual",
-					"go:".$Gene_dicto['GO'][$n]
-					)
-				);	
-				$n=$n+1;
-			} //foreach GOevidence	
-			##TaxID
-			foreach ($Gene_dicto['Tax'] as $current_Tax) {
-				$this->AddRDF(
-				$this->QQuad(
-					"wormbase_resource:".$Gene_dicto['WBG'],
-					"wormbase_vocabulary:is_associated_with",
-					"taxon:".$current_Tax
-					)
-				);
-			} //foreach taxonomy	
-			##Pubmed
-			foreach ($Gene_dicto['Pubmed'] as $current_Pub) {
-				$this->AddRDF(
-				$this->QQuad(
-					"wormbase_resource:".$Gene_dicto['WBG'],
-					"wormbase_vocabulary:is_associated_with",
-					"pubmed:".$current_Pub 
-					)
-				);
-			} //foreach pubmed	
-		$this->WriteRDFBufferToWriteFile();	 
-		elseif ($resource=='Phenotype'): //$Dicto=array('WBG'=>'','fenotipo'=>array( [NOT] WBPhenotype:0001413|RNAiWBRNAi00090769),'variante'=>array(),'ARNi'=>array()); 
-	//		$variantes_list=array(); #to be shure of not overwrite the same resource two times or more.
-		//	$rnai_list=array(); #to be shure of not overwrite the same resource two times or more.
-			## write RDF for variants
-			foreach ($Gene_dicto['variante'] as $vari):  
-				##add rdf type for variants	
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:".$vari,
-						"rdf:type",
-						"wormbase_vocabulary:Gene_variant"
-					)
-				);
-				//add the rdfs:label
-				$this->AddRDF(
-					$this->QQuadL(
-						"wormbase_resource:".$vari,
-						"rdfs:label",
-						"Wormbase Gene variant of ".$Gene_dicto['WBG'].",["."wormbase:".$vari."]"
-					)
-				);	
-				##add relation of gene->variant
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:".$Gene_dicto['WBG'],
-						"wormbase_vocabulary:has_variant",
-						"wormbase_resource:".$vari
-					)
-				);
-			endforeach;
-			foreach ($Gene_dicto['ARNi'] as $rnai):
-				##add rdf type for rnai	
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:".$rnai,
-						"rdf:type",
-						"wormbase_vocabulary:knockdown(RNAi)"
-					)
-				);
-				//add the rdfs:label
-				$this->AddRDF(
-					$this->QQuadL(
-						"wormbase_resource:".$rnai,
-						"rdfs:label",
-						"Wormbase ".$Gene_dicto['WBG']." knockdown RNAi experiment ,["."wormbase:".$rnai."]"
-					)
-				);	
-				##add relation of gene->rnai
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:".$Gene_dicto['WBG'],
-						"wormbase_vocabulary:is_target_in",
-						"wormbase_resource:".$rnai
-					)
-				);
-			endforeach;
-			foreach($Gene_dicto['fenotipo'] as $gen_phen):
-	//		echo $gen_phen."\n"; 
-			$components=explode("|",$gen_phen);
-	//		var_dump($components);
-				if (preg_match('/NOT\s(.+)/',$components[0],$matches)==1):
-					##add rdf type for owl:NegativePropertyAssertion	
-					$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$matches[1]."|".$components[1], ## How to generate the uniq id here.
-							"rdf:type",
-							"owl:NegativePropertyAssertion" ##has to also included inside of wormbase vocabulary?
-						)
-					);
-					##add the indivisual source for owl:NegativePropertyAssertion
-					$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$matches[1]."|".$components[1], ## How to generate the uniq id here.
-							"owl:sourceIndividual",
-							"wormbase_resource:".$components[1]
-						)
-					);
-					##add the indivisual source for owl:NegativePropertyAssertion
-					$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$matches[1]."|".$components[1], ## How to generate the uniq id here.
-							"owl:assertionProperty",
-							"wormbase_vocabulary:has_phenotype"
-						)
-					);
-					##add the individual target for owl:NegativePropertyAssertion
-					$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$matches[1]."-".$components[1], ## How to generate the uniq id here.
-							"owl:targetIndividual",
-							"wormbase_resource:".$matches[1]
-						)
-					);					
-				else:
-				##add the positive relation between variant|RNA with phenotype
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:".$components[1],
-						"wormbase_vocabulary:has_phenotype",
-						"wormbase_resource:".$components[0]
-					)
-				);
-				endif;	
-			endforeach;
-			$this->WriteRDFBufferToWriteFile();	 
-			
-		elseif ($resource=='Inter'): //$Dicto=array('WBI'=>'','I_type'=>'','Ad_info'=>'','WBG1'=>'','WBG2'=>'');
-			##add the RDF relations
-			#1 WBI resource,type 4 tipos dependindo
-			//add the rdf:type for WBI
-				if ($Gene_dicto['I_type']=='Genetic'): //Genetic|Physical|Predicted|Regulatory
-					$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$Gene_dicto['WBI'],
-							"rdf:type",
-							"wormbase_vocabulary:Genetic_Interaction"
-						)
-					);
-				elseif ($Gene_dicto['I_type']=='Physical'): 
-					$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$Gene_dicto['WBI'],
-							"rdf:type",
-							"wormbase_vocabulary:Physical_Interaction"
-						)
-					);
-				elseif ($Gene_dicto['I_type']=='Predicted'): 
-					$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$Gene_dicto['WBI'],
-							"rdf:type",
-							"wormbase_vocabulary:Predicted_Interaction"
-						)
-					);
-				elseif ($Gene_dicto['I_type']=='Regulatory'): 
-					$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$Gene_dicto['WBI'],
-							"rdf:type",
-							"wormbase_vocabulary:Regulatory_Interaction"
-						)
-					);
-				endif;
-				#2 WBI label texto indica genA y B
-				$this->AddRDF(
-					$this->QQuadL(
-						"wormbase_resource:".$Gene_dicto['WBI'],
-						"rdfs:label",
-						"Wormbase ".$Gene_dicto['I_type']." interaction between ".$Gene_dicto['WBG1']." and ".$Gene_dicto['WBG2']
-					)
-				);					
-			
-			# 4 WBI invole resourse gene A y B
-				$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$Gene_dicto['WBI'],
-							"wormbase_vocabulary:involves",
-							"wormbase_resource:".$Gene_dicto['WBG1']
-						)
-					);
-				$this->AddRDF(
-						$this->QQuad(
-							"wormbase_resource:".$Gene_dicto['WBI'],
-							"wormbase_vocabulary:involves",
-							"wormbase_resource:".$Gene_dicto['WBG2']
-						)
-					);
-			#3 WBI has details Ad info (one of this is a negative relation) Enhancement|Epistasis|Genetic_interaction|Mutual_enhancement|Mutual_suppression|N\/A|No_interaction|Suppression|Synthetic
-			if ($Gene_dicto['Ad_info']=='No_interaction'):
-				##add rdf type for owl:NegativePropertyAssertion	
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:Not".$Gene_dicto['WBI'], 
-						"rdf:type",
-						"owl:NegativePropertyAssertion" ##
-					)
-				);
-				##add the indivisual source for owl:NegativePropertyAssertion
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:Not".$Gene_dicto['WBI'],  ## How to generate the uniq id here.
-						"owl:sourceIndividual",
-						"wormbase_resource:".$Gene_dicto['WBI'] ##it comes from WBGI#
-					)
-				);
-				##add the propertyefor owl:NegativePropertyAssertion
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:Not".$Gene_dicto['WBI'], ## How to generate the uniq id here.
-						"owl:assertionProperty",
-						"wormbase_vocabulary:involves"
-					)
-				);
-				##add the individual target for owl:NegativePropertyAssertion
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:Not".$Gene_dicto['WBI'], ## How to generate the uniq id here.
-						"owl:targetIndividual",
-						"wormbase_resource:".$Gene_dicto['WBG1']
-					)
-				);	
-				$this->AddRDF(
-					$this->QQuad(
-						"wormbase_resource:Not".$Gene_dicto['WBI'], ## How to generate the uniq id here.
-						"owl:targetIndividual",
-						"wormbase_resource:".$Gene_dicto['WBG2']
-					)
-				);
-			else:
-				$this->AddRDF(
-						$this->QQuadL(
-							"wormbase_resource:".$Gene_dicto['WBI'],
-							"wormbase_vocabulary:Aditional_information",
-							"Aditional interaction information: ".$Gene_dicto['Ad_info']
-						)
-					);
-			endif;			
-		$this->WriteRDFBufferToWriteFile();	
-		endif;
-	} //Dict_relations
-	
-	
-} ## LA clase
-$pwd = `pwd`;
-if (count($argv) == 1 or $argv[1]=="-h|help"):
- echo "\n";
- echo ' no arguments supply runing with default parametes '."\n"; 
- echo "\n";
- echo " php wormbase_parser.php file=all indir=$pwd outdir=$pwd \n";	
- echo " Other usage look like this: \n";
- echo " php wormbase_parser.php file=gene_association intdir=/my/specific/folder \n";
- echo " It possible to supply more than one file separate by commas. Accepted files are the following : ";
- echo " geneIDs,functional_description, gene_association, gene_interactions phenotype_association or all \n";
- echo " indir=directory to download into and parse from \n";
- echo " outdir=directory to place rdfized files \n";
+		while($l = parent::getReadFile()->Read()){
 
- $argv[1]='files=all';
-endif; 
-$p = new WormbaseParser($argv, $pwd);
-$p->Run();
+			$data = explode("\t", $l);
+			$interaction = $data[0];
+			$interaction_type = $data[1];
+			$int_additional_info = $data[2];
+			$gene1 = $data[3];
+			$gene2 = $data[6];
+
+			$interaction_id = parent::getNamespace().$interaction;
+
+			if($interaction_type == "Genetic"){
+				$int_pred = parent::getVoc()."genetically-interacts-with";
+			} elseif($interaction_type == "Physical"){
+				$int_pred = parent::getVoc()."physically-interacts-with";
+			} elseif($interaction_type == "Predicted"){
+				$int_pred = parent::getVoc()."predicted-to-interact-with";
+			} elseif($interaction_type == "Regulatory"){
+				$int_pred = parent::getVoc()."regulates";
+			}//elseif
+
+			if($int_additional_info == "No_interaction"){
+				$interaction_label = "No ".strtolower($interaction_type)." interaction between ".$gene1." and ".$gene2;
+
+				parent::addRDF(
+					parent::describeIndividual($interaction_id, $interaction_label, parent::getVoc().$interaction_type."-Non-Interaction").
+					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene1).
+					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene2)
+				);
+
+				$npa_id = parent::getRes().md5($interaction_id."negative property assertion");
+				$npa_label = "Negative property assertion stating that ".$gene1." and ".$gene2."do not have a ".$interaction_type." interaction";
+				
+				parent::addRDF(
+					parent::describeIndividual($npa_id, $npa_label, "owl:NegativeObjectPropertyAssertion").
+					parent::triplify($npa_id, "owl:sourceIndividual", parent::getNamespace().$gene1).
+					parent::triplify($npa_id, "owl:targetIndividual", parent::getNamespace().$gene2).
+					parent::triplify($npa_id, "owl:assertionProperty", $int_pred)
+				);
+
+			} elseif($int_additional_info == "N/A" || $int_additional_info == "Genetic_interaction") {
+				$interaction_label = $interaction_type." interaction between ".$gene1." and ".$gene2;
+				parent::addRDF(
+					parent::describeIndividual($interaction_id, $interaction_label, parent::getVoc().$interaction_type."-Interaction").
+					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene1).
+					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene2).
+					parent::triplify(parent::getNamespace().$gene1, $int_pred, parent::getNamespace().$gene2)
+				);
+			} else {
+				$interaction_label = $int_additional_info." ".strtolower($interaction_type). "interaction between ".$gene1." and ".$gene2;
+				parent::addRDF(
+					parent::describeIndividual($interaction_id, $interaction_label, parent::getVoc().$int_additional_info."-".$interaction_type."-Interaction").
+					parent::describeClass(parent::getVoc().$int_additional_info."-".$interaction_type."-Interaction", $int_additional_info." ".$interaction_type." Interaction", parent::getVoc().$interaction_type."-Interaction").
+					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene1).
+					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene2).
+					parent::triplify(parent::getNamespace().$gene1, $int_pred, parent::getNamespace().$gene2)
+				);
+			}//else
+		}//while
+		parent::WriteRDFBufferToWriteFile();
+	}
+}
+
 ?> 
 
