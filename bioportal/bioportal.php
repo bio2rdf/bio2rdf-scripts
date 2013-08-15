@@ -398,14 +398,14 @@ class BioportalParser extends Bio2RDFizer
 					$c = explode(" ",$a[1]);
 					if(count($c) == 1) { // just a class					
 						parent::getRegistry()->parseQName($c[0],$ns,$id);
-						$intersection_of .= '<'.parent::getRegistry()->getFQURI("$ns:$id").'>';
+						$intersection_of .= '_:b'.$bid.' <'.parent::getRegistry()->getFQURI('rdfs:subClassOf').'> <'.parent::getRegistry()->getFQURI("$ns:$id")."> $graph_uri .".PHP_EOL;
 						$buf .= parent::triplify($tid,"rdfs:subClassOf","$ns:$id");
 					} else if(count($c) == 2) { // an expression						
 						parent::getRegistry()->parseQName($c[0],$pred_ns,$pred_id);
 						parent::getRegistry()->parseQName($c[1],$obj_ns,$obj_id);
 						
 						$intersection_of .= '_:b'.$bid.' <'.parent::getRegistry()->getFQURI('owl:onProperty').'> <'.parent::getRegistry()->getFQURI("obo_vocabulary:".$pred_id)."> $graph_uri .".PHP_EOL;
-						$intersection_of .= '_:b'.$bid.'. <'.parent::getRegistry()->getFQURI('owl:someValuesFrom').'> <'.parent::getRegistry()->getFQURI("$obj_ns:$obj_id").">  $graph_uri .".PHP_EOL;
+						$intersection_of .= '_:b'.$bid.' <'.parent::getRegistry()->getFQURI('owl:someValuesFrom').'> <'.parent::getRegistry()->getFQURI("$obj_ns:$obj_id").">  $graph_uri .".PHP_EOL;
 						
 						$buf .= parent::triplify($tid,"obo_vocabulary:$pred_id","$obj_ns:$obj_id");
 					}
