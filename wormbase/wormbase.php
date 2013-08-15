@@ -34,7 +34,7 @@ class WormbaseParser extends Bio2RDFizer {
 	function __construct($argv) {
 		parent::__construct($argv, "wormbase");
 		parent::addParameter('files', true, 'all|geneIDs|functional_descriptions|gene_associations|gene_interactions|phenotype_associations','all','files to process');
-		parent::addParameter('release', true, null, 'WS235');
+		parent::addParameter('release', true, null, 'WS235', 'Release version of WormBase');
 		parent::addParameter('download_url', false, null,'ftp://ftp.wormbase.org/pub/wormbase/');
 		parent::initialize();
 	}//constructor
@@ -269,9 +269,9 @@ class WormbaseParser extends Bio2RDFizer {
 			}
 		}
 		parent::WriteRDFBufferToWriteFile();
-	}#function functional_descri
+	}
 			
-	private function gene_associations(){
+	function gene_associations(){
 
 		while($l = parent::getReadFile()->Read()){
 			if($l[0] == '#') continue;
@@ -409,10 +409,9 @@ class WormbaseParser extends Bio2RDFizer {
  			}
  			parent::WriteRDFBufferToWriteFile();
  		}//while
-	} ##phenotype_association
+	}
 	
-	private function gene_interactions(){
-		#1 Regular expression to cath the data
+	function gene_interactions(){
 		while($l = parent::getReadFile()->Read()){
 			if($l[0] == '#') continue;
 
