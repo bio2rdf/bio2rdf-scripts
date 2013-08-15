@@ -22,7 +22,7 @@ SOFTWARE.
 */
 
 /**
- * SABIORK RDFizer
+ * WormBase RDFizer
  * @version 2.0
  * @author Juan Jose Cifuentes
  * @author Alison Callahan
