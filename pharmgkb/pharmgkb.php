@@ -39,7 +39,7 @@ class PharmGKBParser extends Bio2RDFizer
 	
 	function __construct($argv) {
 		parent::__construct($argv, "pharmgkb");
-		$this->AddParameter('files',true,'all|drugs|genes|diseases|relationships|pathways|rsid|variant_annotations|offsides|twosides','all','all or comma-separated list of files to process');
+		$this->AddParameter('files',true,'all|drugs|genes|diseases|relationships|rsid|variant_annotations|offsides|twosides','all','all or comma-separated list of files to process'); /** pathways **/
 		$this->AddParameter('download_url',false,null,'http://www.pharmgkb.org/commonFileDownload.action?filename=');
 		parent::initialize();
 	}
@@ -155,9 +155,9 @@ class PharmGKBParser extends Bio2RDFizer
 				$zipentries = array('clinical_ann_metadata.tsv','var_drug_ann.tsv','var_pheno_ann.tsv','var_fa_ann.tsv'); //'study_parameters.tsv'
 			else if($file == "pathways") {
 				for( $i = 0; $i < $zin->numFiles; $i++ ){ 
-				    $stat = $zin->statIndex( $i ); 
-				    $entry = $stat['name'];
-				    $ext = pathinfo($entry, PATHINFO_EXTENSION); 
+					$stat = $zin->statIndex( $i ); 
+					$entry = $stat['name'];
+					$ext = pathinfo($entry, PATHINFO_EXTENSION); 
 					if($ext != "txt"){
 						$zipentries[] = $entry;
 					}
@@ -191,9 +191,12 @@ class PharmGKBParser extends Bio2RDFizer
 					if($zipentry == "clinical_ann_metadata.tsv") $fnx = "clinical_ann_metadata";
 					else $fnx = 'variant_annotation';
 					echo "processing $zipentry..";
+				} else if($file == 'pathways') {
+					$fnx = 'pathways';
+					echo "processing $fnx ($zipentry)... ";
 				} else {
 					$fnx = $file;	
-					echo "processing $fnx... ";
+					echo "processing $fnx ... ";
 				}
 					
 				$this->$fnx();
@@ -201,7 +204,6 @@ class PharmGKBParser extends Bio2RDFizer
 				echo "done!".PHP_EOL;
 
 				// generate the dataset release file
-				echo "Generating dataset description... ";
 				$source_file = (new DataResource($this))
 					->setURI($rfile)
 					->setTitle("Pharmacogenomics Knowledge Base ($zipentry)")
@@ -240,7 +242,8 @@ class PharmGKBParser extends Bio2RDFizer
 			}
 			$this->GetWriteFile()->Close();
 		} // foreach
-	
+
+		echo "Generating dataset description... ";
 		parent::setGraphURI($graph_uri);
 		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
 		parent::getWriteFile()->write($dataset_description);
@@ -259,16 +262,20 @@ class PharmGKBParser extends Bio2RDFizer
 	5 Alternate Names	
 	6 Alternate Symbols	
 	7 Is Genotyped	
-	9 Is VIP	
-	12 Has Variant Annotation
+	8 Is VIP	
+	9 Has Variant Annotation
+	10 Has CPIC Dosing Guideline
 	*/
 	function genes()
 	{
-		if(($n = count(explode("\t",$this->GetReadFile()->Read()))) != 10) {
-			trigger_error("Found $n columns in gene file - expecting 10!", E_USER_WARNING);
+		$h = explode("\t",parent::getReadFile()->read());
+		$expected_columns = 11;
+		if(($n = count($h)) != $expected_columns) {
+			trigger_error("Found $n columns in gene file - expecting $expected_columns!", E_USER_WARNING);
+			return false;			
 		}
 
-		while($l = $this->GetReadFile()->Read(200000)) {
+		while($l = parent::getReadFile()->read(200000)) {
 			$a = explode("\t",$l);
 			
 			$id = parent::getNamespace().$a[0];
@@ -401,32 +408,26 @@ class PharmGKBParser extends Bio2RDFizer
 		}
 		return $ns.":".$id;
 	}
-	/*
-	0 PharmGKB Accession Id	
-	1 Name	
-	2 Generic Names	
-	3 Trade Names	
-	4 Brand Mixtures	
-	5 Type	
-	6 Cross References	
-	7 SMILES
-	8 External Vocabulary
-
-	0 PA164748388	
-	1 diphemanil methylsulfate
-	2 
-	3 Prantal		
-	4 
-	5 Drug/Small Molecule	
-	6 drugBank:DB00729,pubChemCompound:6126,pubChemSubstance:149020		
-	7 
-	8 ATC:A03AB(Synthetic anticholinergics, quaternary ammonium compounds)
-
-	*/
+/*
+[0] => PharmGKB Accession Id
+[1] => Name
+[2] => Generic Names
+[3] => Trade Names
+[4] => Brand Mixtures
+[5] => Type
+[6] => Cross-references
+[7] => SMILES
+[8] => Dosing Guideline
+[9] => External Vocabulary
+*/
 	function drugs()
 	{
 		$declared = '';
-		$this->GetReadFile()->Read(1000); // first line is header
+		$h = explode("\t",$this->GetReadFile()->Read(1000)); // first line is header
+		if(count($h) != 10) {
+			trigger_error("Change in number of columns for drugs file",E_USER_ERROR);
+			return FALSE;
+		}
 		while($l = $this->GetReadFile()->Read(200000)) {
 			$a = explode("\t",$l);
 			$id = parent::getNamespace().$a[0];
@@ -503,17 +504,17 @@ class PharmGKBParser extends Bio2RDFizer
 					}
 				}
 			}
-			if(trim($a[8])) {
+			if(trim($a[9])) {
 				// External Vocabulary
 				// ATC:H01AC(Somatropin and somatropin agonists),ATC:V04CD(Tests for pituitary function)
 				// ATC:D07AB(Corticosteroids, moderately potent (group II)) => this is why you don't use brackets and commas as separators.
-				$b = explode(',',trim($a[8]),2);
+				$b = explode(',',trim($a[9]),2);
 				foreach($b as $c) {
 					preg_match_all("/ATC:([A-Z0-9]+)\((.*)\)$/",$c,$m);
 					if(isset($m[1][0])) {
 						$atc = "atc:".$m[1][0];
 						parent::addRDF(
-							parent::triplify($id, parent::getVoc()."xref", $atc)
+							parent::triplify($id, parent::getVoc()."x-atc", $atc)
 						);
 						if(!isset($declared[$atc])) {
 							$declared[$atc] = '';
@@ -524,18 +525,25 @@ class PharmGKBParser extends Bio2RDFizer
 					}
 				}
 			}
+			parent::WriteRDFBufferToWriteFile();
 		}
-		parent::WriteRDFBufferToWriteFile();
 	}
 
-	/*
-	0 PharmGKB Accession Id	
-	1 Name	
-	2 Alternate Names
-	*/
+/*
+    [0] => PharmGKB Accession Id
+    [1] => Name
+    [2] => Alternate Names
+    [3] => Cross-references
+    [4] => External Vocabulary
+*/
 	function diseases()
 	{
-	  $this->GetReadFile()->Read(10000);
+		$h = explode("\t",$this->GetReadFile()->Read(10000)); // first line is header
+		if(count($h) != 5) {
+			trigger_error("Change in number of columns for diseases file",E_USER_ERROR);
+			return FALSE;
+		}
+
 	  while($l = $this->GetReadFile()->Read(10000)) {
 		$a = explode("\t",$l);
 			
@@ -571,24 +579,24 @@ class PharmGKBParser extends Bio2RDFizer
 		parent::addRDF(
 			parent::triplify($id, "owl:sameAs", $sameID)
 		);
-		if(isset($a[4]) && trim($a[4]) != '') {	  
-			$d = preg_match_all('/(MeSH|SnoMedCT|UMLS):([A-Z0-9]+)\(([^\)]+)\)/',$a[4],$m, PREG_SET_ORDER);
+		if(isset($a[4]) && trim($a[4]) != '') {	 
+			$d = preg_match_all('/[,]?([^\:]+):([A-Za-z0-9]+)\(([^\)]+)\)/',$a[4],$m, PREG_SET_ORDER);
 			foreach($m AS $n) {
-				$n[1] = strtolower($n[1]);
-				if($n[1] == 'snomedct') $n[1] = 'snomed';
-				$id2 = $n[1].':'.$n[2];
-				parent::addRDF(
-					parent::triplify($id, "rdfs:seeAlso", $id2)
-				);
-				if(isset($n[3]) && $n[2] != $n[3]){
+				if(isset($n[1]) && isset($n[2]) && !strstr($n[1]," ")) {
+					$id2 = $n[1].':'.$n[2];
 					parent::addRDF(
-						parent::triplifyString($id2, "rdfs:label", str_replace(array("\'", "\""),array("\\\'", ""),$n[3]))
+						parent::triplify($id, "pharmgkb_vocabulary:xref", $id2)
 					);
+					if(isset($n[3]) && $n[2] != $n[3]){
+						parent::addRDF(
+							parent::triplifyString($id2, "rdfs:label", str_replace(array("\'", "\""),array("\\\'", ""),$n[3]))
+						);
+					}
 				}
-			}	  
+			}
 		}
+		parent::writeRDFBufferToWriteFile();
 	  }
-	  parent::writeRDFBufferToWriteFile();
 	}
 
 	/*
@@ -608,7 +616,12 @@ class PharmGKBParser extends Bio2RDFizer
 	function variant_annotations()
 	{ 
 		$hash = ''; // md5 hash list
-		$this->GetReadFile()->Read();
+		$h = explode("\t",$this->GetReadFile()->Read(100000)); // first line is header
+		if(count($h) != 12) {
+			triger_error("Change in number of columns for variant annotations file",E_USER_ERROR);
+			return FALSE;
+		}
+	
 		while($l = $this->GetReadFile()->Read(10000)) {
 			$a = explode("\t",$l);
 			$id = parent::getNamespace().$a[11];
@@ -736,36 +749,36 @@ class PharmGKBParser extends Bio2RDFizer
 	}
 
 	/*
-	Entity1_id        - PA267, rs5186, Haplotype for PA121
-	Entity1_type      - Drug, Gene, VariantLocation, Disease, Haplotype, Association       
-	Entity2_id	      - PA267, rs5186, Haplotype for PA121
-	Entity2_type	  - Drug, Gene, VariantLocation, Disease, Haplotype, Association       
-	Evidence	      - VariantAnnotation, Pathway, VIP, ClinicalAnnotation, DosingGuideline, DrugLabel, Annotation
-	Evidence Sources        - Publication
-	Pharmacodynamic 	- Y
-	Pharmacokinetic		- Y
-
-	Entity1_id      Entity1_type    Entity2_id      Entity2_type    Evidence        Association     PK      PD      PMIDs
-	PA445738        Disease PA134866404     Gene    VariantAnnotation       associated              PD      21912425
-
+	0 Entity1_id        - PA267, rs5186, Haplotype for PA121
+	1 Entity1_name  
+	2 Entity1_type      - Drug, Gene, VariantLocation, Disease, Haplotype, Association     
+	3 Entity2_id	      - PA267, rs5186, Haplotype for PA121
+	4 Entity2_name  
+	5 Entity2_type	  - Drug, Gene, VariantLocation, Disease, Haplotype, Association       
+	6 Evidence	      - VariantAnnotation, Pathway, VIP, ClinicalAnnotation, DosingGuideline, DrugLabel, Annotation
+	7 Association
+	8 Pharmacokinetic		- Y
+	9 P harmacodynamic 	- Y
+	10 PMIDS
 	*/
 	function relationships()
 	{
 		$declared = '';
 		$hash = ''; // md5 hash list
-		$this->GetReadFile()->Read();
+		$h = explode("\t", $this->GetReadFile()->Read());
+		if(count($h) != 11) {
+			trigger_error("Change in number of columns for relationships file (again)");
+			return FALSE;
+		}
+
 		while($l = $this->GetReadFile()->Read(10000)) {
 			$a = explode("\t",$l);
-			if(count($a) != 9) {
-				trigger_error("Change in number of columns for relationships file");
-				return FALSE;
-			}
 		
 			// id1
 			$ns1 = parent::getNamespace();
 			$id1 = $a[0];
 			$id1 = str_replace(" ","_",$id1);
-			$type1 = $a[1];
+			$type1 = $a[2];
 			if($id1[0] == 'r') {
 				$ns1 = 'dbsnp:';
 			} else if($id1[0] == 'H') {
@@ -774,9 +787,9 @@ class PharmGKBParser extends Bio2RDFizer
 
 			// id2
 			$ns2 = parent::getNamespace();
-			$id2 = $a[2];
+			$id2 = $a[3];
 			$id2 = str_replace(" ","_",$id2);
-			$type2 = $a[3];
+			$type2 = $a[5];
 			if($id2[0] == 'r') {
 				$ns2 = 'dbsnp:';
 			} else if($id2[0] == 'H') {
@@ -791,7 +804,7 @@ class PharmGKBParser extends Bio2RDFizer
 			$id = parent::getRes()."association_".$id1."_".$id2;
 			$association = $type1.' '.$type2.' Association';
 			parent::addRDF(
-				parent::describeIndividual($id, $assocation, parent::getVoc().strtolower($type1)."-".strtolower($type2)."-Association").
+				parent::describeIndividual($id, $association, parent::getVoc().strtolower($type1)."-".strtolower($type2)."-Association").
 				parent::triplify($id, parent::getVoc().strtolower($type1), $ns1.$id1).
 				parent::triplify($id, parent::getVoc().strtolower($type2), $ns2.$id2).
 				parent::describeClass(parent::getVoc().strtolower($type1)."-".strtolower($type2)."-Association", "PharmGKB $type1 $type2 Association").
@@ -799,7 +812,7 @@ class PharmGKBParser extends Bio2RDFizer
 				parent::describeProperty(parent::getVoc().strtolower($type2), "Relationship between a PharmGKB association and a $type2")
 			);
 			
-			$b = explode(',',$a[4]);
+			$b = explode(',',$a[7]);
 			foreach($b AS $c) {
 				parent::addRDF(
 					parent::triplifyString($id, parent::getVoc()."association_type", $c)
@@ -809,27 +822,27 @@ class PharmGKBParser extends Bio2RDFizer
 				parent::describeProperty(parent::getVoc()."association_type", "Relationship between a PharmGKB association and its type")
 			);
 
-			if($a[6]){
+			if($a[8]){
 				parent::addRDF(
 					parent::triplifyString($id, parent::getVoc()."pk_relationship", "true")
 				);
 			}
-			if($a[7]){
+			if($a[9]){
 				parent::addRDF(
 					parent::triplifyString($id, parent::getVoc()."pd_relationship", "true")
 				);
 			}
-			$a[8] = trim($a[8]);
-			if($a[8]) {
-				$b = explode(',',$a[8]);
+			$a[10] = trim($a[10]);
+			if($a[10]) {
+				$b = explode(';',$a[10]);
 				foreach($b AS $pubmed_id) {
 					parent::addRDF(
 						parent::triplify($id, parent::getVoc()."article", "pubmed:".$pubmed_id)
 					);
 				}
 			}
+			parent::writeRDFBufferToWriteFile();
 		}
-		parent::writeRDFBufferToWriteFile();
 	}
 
 
@@ -1231,10 +1244,10 @@ class PharmGKBParser extends Bio2RDFizer
 
 	function pathways()
 	{
+		/** @todo changed completely */
 		$entry = false;
 		while($l = $this->GetReadFile()->Read(20000)) {
 			$a = explode("\t",trim($l));
-			print_r($a);
 			if(strlen(trim($l)) == 0) {
 				// end of entry
 				$entry = false;
@@ -1273,8 +1286,8 @@ class PharmGKBParser extends Bio2RDFizer
 					parent::describeProperty(parent::getVoc()."chemical", "Relationship between a PharmGKB entity and a chemical")
 				);
 			}
+			parent::writeRDFBufferToWriteFile();
 		}
-		parent::writeRDFBufferToWriteFile();
 	}
 
 	/*
