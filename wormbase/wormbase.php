@@ -372,6 +372,7 @@ class WormbaseParser extends Bio2RDFizer {
 	 			} elseif(strstr($var_rnai, "WBRNAi")){
 	 				parent::addRDF(
 	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "RNAi knockdown experiment targeting gene ".$gene." that does NOT result in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
+	 					parent::triplify(parent::getNamespace().$var_rnai, parent::getVoc()."target-gene", parent::getNamespace().$gene).
 	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", parent::getNamespace().$var_rnai)
 	 				);
 	 			}
@@ -382,8 +383,6 @@ class WormbaseParser extends Bio2RDFizer {
  					parent::triplify($npa_id, "owl:assertionProperty", parent::getVoc()."has-associated-phenotype").
  					parent::triplify($npa_id, "owl:targetIndividual", parent::getNamespace().$phenotype)
  				);
-
- 				
 
  			} else {
  				$pa_id = parent::getRes().md5($gene.$phenotype.$paper.$var_rnai);
@@ -403,6 +402,8 @@ class WormbaseParser extends Bio2RDFizer {
 	 			} elseif(strstr($var_rnai, "WBRNAi")){
 	 				parent::addRDF(
 	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "RNAi knockdown experiment targeting gene ".$gene." resulting in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
+	 					parent::triplify(parent::getNamespace().$var_rnai, parent::getVoc()."target-gene", parent::getNamespace().$gene).
+	 					parent::triplify(parent::getNamespace().$var_rnai, parent::getVoc()."resulting-phenotype", parent::getNamespace().$phenotype).
 	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", parent::getNamespace().$var_rnai)
 	 				);
 	 			}
