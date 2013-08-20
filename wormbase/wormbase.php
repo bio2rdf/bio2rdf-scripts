@@ -350,6 +350,8 @@ class WormbaseParser extends Bio2RDFizer {
  			$paper = $data[5];
  			$var_rnai = $data[7];
 
+
+
  			if($not == "NOT"){
 
  				$pa_id = parent::getRes().md5($gene.$not.$phenotype.$paper.$var_rnai);
@@ -370,10 +372,15 @@ class WormbaseParser extends Bio2RDFizer {
 	 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", parent::getNamespace().$var_rnai)
 	 				);
 	 			} elseif(strstr($var_rnai, "WBRNAi")){
+	 				$var_rnai_id = parent::getNamespace().$var_rnai;
+		 			$var_rnai_label = "RNAi ".$var_rnai;
+		 			$rnai_exp_id = parent::getRes().$var_rnai."_".$gene."_".$phenotype;
 	 				parent::addRDF(
-	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "RNAi knockdown experiment targeting gene ".$gene." that does NOT result in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
-	 					parent::triplify(parent::getNamespace().$var_rnai, parent::getVoc()."target-gene", parent::getNamespace().$gene).
-	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", parent::getNamespace().$var_rnai)
+	 					parent::describeIndividual($var_rnai_id, $var_rnai_label, parent::getVoc()."RNAi").
+	 					parent::describeIndividual($rnai_exp_id, "RNAi knockdown experiment targeting gene ".$gene." that does NOT result in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
+	 					parent::triplify($rnai_exp_id, parent::getVoc()."target-gene", parent::getNamespace().$gene).
+	 					parent::triplify($rnai_exp_id, parent::getVoc()."rnai", $var_rnai_id).
+	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", $rnai_exp_id)
 	 				);
 	 			}
  				
@@ -400,11 +407,16 @@ class WormbaseParser extends Bio2RDFizer {
 	 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", parent::getNamespace().$var_rnai)
 	 				);
 	 			} elseif(strstr($var_rnai, "WBRNAi")){
+	 				$var_rnai_id = parent::getNamespace().$var_rnai;
+		 			$var_rnai_label = "RNAi ".$var_rnai;
+	 				$rnai_exp_id = parent::getRes().$var_rnai."_".$gene."_".$phenotype;
 	 				parent::addRDF(
-	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "RNAi knockdown experiment targeting gene ".$gene." resulting in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
-	 					parent::triplify(parent::getNamespace().$var_rnai, parent::getVoc()."target-gene", parent::getNamespace().$gene).
-	 					parent::triplify(parent::getNamespace().$var_rnai, parent::getVoc()."resulting-phenotype", parent::getNamespace().$phenotype).
-	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", parent::getNamespace().$var_rnai)
+	 					parent::describeIndividual($var_rnai_id, $var_rnai_label, parent::getVoc()."RNAi").
+	 					parent::describeIndividual($rnai_exp_id, "RNAi knockdown experiment targeting gene ".$gene." resulting in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
+	 					parent::triplify($rnai_exp_id, parent::getVoc()."target-gene", parent::getNamespace().$gene).
+	 					parent::triplify($rnai_exp_id, parent::getVoc()."resulting-phenotype", parent::getNamespace().$phenotype).
+	 					parent::triplify($rnai_exp_id, parent::getVoc()."rnai", $var_rnai_id).
+	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", $rnai_exp_id)
 	 				);
 	 			}
  			}
