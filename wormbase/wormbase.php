@@ -329,7 +329,7 @@ class WormbaseParser extends Bio2RDFizer {
 					);
 				}
 				parent::addRDF(
-					parent::triplify($association_id, parent::getVoc()."Publication", $paper_id)
+					parent::triplify($association_id, parent::getVoc()."publication", $paper_id)
 				);
 			}//foreach
 		}//while
