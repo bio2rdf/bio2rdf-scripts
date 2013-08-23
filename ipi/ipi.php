@@ -135,6 +135,224 @@ class IPIParser extends Bio2RDFizer{
 		}
 	}
 
+	private function gene_xrefs(){
+		while($aLine = $this->getReadFile()->Read(4096)){
+			$tLine = explode("\t", $aLine);
+			if(!$this->startsWith($tLine[0], "#")){
+				$chromosome = null;
+				$cosmid = array();
+				$start_coord = null;
+				$gene_symbol = null;
+				$end_coord = null;
+				$strand = array();
+				$gene_location = array();
+				$ensembl_id = array();
+				$gene_id = null;
+				$ipi_ids = array();
+				$uniprotkb_ids = array();
+				$uniprot_tre = array();
+				$ensembl_peptide_id = array();
+				$refseq_ids = array();
+				$tair_ids = array();
+				$hinv_ids = array();
+				$unigene_ids = array();
+				$ccds_ids = array();
+				$refseq_gis = array();
+				$vega_genes = array();
+				$vega_peptides = array();
+				
+				
+				if(count(isset($tLine[0]))){
+					@$chr_arr = readIdentifiers($tLine[0]);
+					if($chr_arr[0] != "Un"){
+						$chromosome = $chr_arr[0];
+					}
+				}
+				
+				if(count(isset($tLine[1]))){
+					@$cosmid = readIdentifiers($tLine[1]);
+				}
+				
+				if(count(isset($tLine[2]))){
+					@$start_coord_t = readIdentifiers($tLine[2]);
+					if(count($start_coord_t) == 1){
+						$start_coord = $start_coord_t[0];
+					}
+				}
+
+				if(count(isset($tLine[3]))){
+					@$end_coord_t = readIdentifiers($tLine[3]);
+					if(count($end_coord_t) == 1){
+						$end_coord = $end_coord_t[0];
+					}
+				}
+				if(count(isset($tLine[4]))){
+					@$strand = readIdentifiers($tLine[4]);
+				}
+				
+				if(count(isset($tLine[5]))){
+					@$gene_location = readIdentifiers($tLine[5]);
+				}
+			
+				if(count(isset($tLine[6]))){
+					@$ensembl_id = readIdentifiers($tLine[6]);
+				}
+				if(count(isset($tLine[8]))){
+					@$gene_id_t = readIdentifiers($tLine[8]);
+					if (count($gene_id_t) == 2){
+						$gene_id  = $gene_id_t[0];
+						$gene_symbol = $gene_id_t[1];
+					}
+				}
+				if(count(isset($tLine[9]))){
+					@$ipi_ids = readIdentifiers($tLine[9]);
+				}
+				if(count(isset($tLine[10]))){
+					@$uniprotkb_ids = readIdentifiers($tLine[10]);
+				}
+				if(count(isset($tLine[11]))){
+					@$uniprot_tre = readIdentifiers($tLine[11]);
+				}
+				if(count(isset($tLine[12]))){
+					@$ensembl_peptide_id = readIdentifiers($tLine[12]);
+				}
+				if(count(isset($tLine[13]))){
+					@$refseq_ids = readIdentifiers($tLine[13]);
+				}
+				if(count(isset($tLine[14]))){
+					@$tair_ids = readIdentifiers($tLine[14]);
+				}
+				if(count(isset($tLine[15]))){
+					@$hinv_ids = readIdentifiers($tLine[15]);
+				}
+				if(count(isset($tLine[16]))){
+					@$unigene_ids = readIdentifiers($tLine[16]);
+				}
+				if(count(isset($tLine[17]))){
+					@$ccds_ids = readIdentifiers($tLine[17]);
+				}
+				if(count(isset($tLine[18]))){
+					@$refseq_gis = readIdentifiers($tLine[18]);
+				}
+				if(count(isset($tLine[19]))){
+					@$vega_genes = readIdentifiers($tLine[19]);
+				}
+				if(count(isset($tLine[20]))){
+					@$refseq_ids = readIdentifiers($tLine[20]);
+				}
+				//lets make some RDF
+				if(count($gene_id)){
+					$res = "gene:".$gene_id;
+					parent::AddRDF(
+						parent::triplifyString($res, $this->getVoc()."gene-symbol", $gene_symbol).
+						parent::triplifyString($res, $this->getVoc()."chromosome", $chromosome).
+						parent::triplifyString($res, $this->getVoc()."start-coordinate", $start_coord).
+						parent::triplifyString($res, $this->getVoc()."end-coordinate", $end_coord)
+					);				
+				}
+				if(count($strand)){
+					parent::AddRDF(
+						parent::triplifyString($res, $this->getVoc()."strand", $strand[0])
+					);
+				}
+				if(count($ensembl_id)){
+					foreach($ensembl_id as $x){
+						parent::AddRDF(
+							parent::triplify($res, $this->getVoc()."x-ensembl", "ensembl:".$x)
+						);
+					}
+				}
+				if(count($gene_location)){
+					foreach($gene_location as $x){
+						parent::AddRDF(
+							parent::triplifyString($res, $this->getVoc()."gene-location", $x)
+						);
+					}
+				}
+				if(count($ipi_ids)){
+					foreach($ipi_ids as $x){
+						parent::AddRDF(
+							parent::triplify($res, $this->getVoc()."x-ipi", "ipi:".$x)
+						);
+					}
+				}
+				if(count($uniprotkb_ids)){
+					foreach($uniprotkb_ids as $x){
+						parent::AddRDF(
+							parent::triplify($res, $this->getVoc()."x-uniprot", "uniprot:".$x)
+						);
+					}
+				}
+				if(count($uniprotkb_tre)){
+					foreach($uniprotkb_tre as $x){
+						parent::AddRDF(
+							parent::triplify($res, $this->getVoc()."x-uniprot", "uniprot:".$x)
+						);
+					}
+				}
+				if(count($ensembl_peptide_id)){
+					foreach($ensembl_peptide_id as $x){
+						parent::AddRDF(
+							parent::triplify($res, $this->getVoc()."x-ensembl", "ensembl:".$x)
+						);
+					}
+				}
+				if(count($refseq_ids)){
+					foreach($refseq_ids as $x){
+						parent::AddRDF(
+							parent::triplify($res, $this->getVoc()."x-refseq", "refseq:".$x)
+						);
+					}
+				}
+				if(count($tair_ids)){
+					foreach($tair_ids as $x){
+						parent::AddRDF(
+							parent::triplify($res, $this->getVoc()."x-tair", "tair:".$x)
+						);
+					}
+				}
+				if(count($hinv_ids)){
+					foreach($hinv_ids as $x){
+						parent::AddRDF(
+							parent::triplify($res, $this->getVoc()."x-hinv", "hinv:".$x)
+						);
+					}
+				}
+				if(count($unigene_ids)){
+					foreach($unigene_ids as $x){
+						parent::AddRDF(
+							parent::triplify($res, $this->getVoc()."x-unigene", "unigene:".$x)
+						);
+					}
+				}
+				if(count($refseq_gis)){
+					foreach($refseq_gis as $x){
+						if(count($x) != 0 && $x != "\n" && $x != ""){
+							parent::AddRDF(
+								parent::triplify($res, $this->getVoc()."x-refseq", "refseq:".$x)
+							);
+						}
+					}
+				}
+				$this->WriteRDFBufferToWriteFile();
+			}
+		}
+	}
+
+	private function gi2ipi(){
+		while($aLine = $this->getReadFile()->Read(4096)){
+			preg_match("/(\d+)\t(\w+)/", $aLine, $matches);
+			if(count($matches)){
+				$ipi_res = $this->getVoc().$matches[2];
+				$gi_res = "gi:".$matches[1];
+				parent::AddRDF(
+					parent::triplify($ipi_res, $this->getVoc()."x-gi", $gi_res)
+				);
+				$this->WriteRDFBufferToWriteFile();
+			}
+		}
+	}
+
 	private function species_xrefs(){
 		while($aLine = $this->getReadFile()->Read(4096)){
 			$tLine = explode("\t", $aLine);
@@ -382,22 +600,10 @@ class IPIParser extends Bio2RDFizer{
 					}
 				}
 			}
-
-
-
-			
 			$this->WriteRDFBufferToWriteFile();
-
 		}//while
 	}
 
-	private function gene_xrefs(){
-		echo "c";
-	}
-
-	private function gi2ipi(){
-		echo "b";
-	}
 
 	private function getPackageMap(){
 		return self::$packageMap;
