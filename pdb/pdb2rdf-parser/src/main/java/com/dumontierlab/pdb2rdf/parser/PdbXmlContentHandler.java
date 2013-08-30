@@ -43,8 +43,8 @@ public class PdbXmlContentHandler extends ContentHandlerState {
 		super(model, new UriBuilder());
 		this.parseAtomSites = parseAtomSites;
 		getRdfModel().setNsPrefix("dcterms", "http://purl.org/dc/terms/");
-		getRdfModel().setNsPrefix("ss", PdbOwlVocabulary.DEFAULT_NAMESPACE);
-		getRdfModel().setNsPrefix("pdb", PdbOwlVocabulary.DEFAULT_NAMESPACE);
+		getRdfModel().setNsPrefix("ss", PdbOwlVocabulary.VOCABULARY_NAMESPACE);
+		getRdfModel().setNsPrefix("pdb", PdbOwlVocabulary.VOCABULARY_NAMESPACE);
 	}
 
 	@Override

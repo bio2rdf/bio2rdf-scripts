@@ -30,8 +30,8 @@
 			<artifactId>jline</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.hp.hpl.jena</groupId>
-			<artifactId>arq</artifactId>
+			<groupId>org.apache.jena</groupId>
+			<artifactId>jena-arq</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

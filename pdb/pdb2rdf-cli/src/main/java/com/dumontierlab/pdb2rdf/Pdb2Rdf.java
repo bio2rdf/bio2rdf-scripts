@@ -73,6 +73,7 @@ import com.hp.hpl.jena.rdf.model.RDFWriterF;
 import com.hp.hpl.jena.rdf.model.impl.RDFWriterFImpl;
 
 /**
+ * @autor Jose Cruz-Toledo
  * @author Alexander De Leon
  */
 public class Pdb2Rdf {
@@ -82,10 +83,8 @@ public class Pdb2Rdf {
 	private static final String STATSFILE_NAME = "pdb2rdf-stats.txt";
 
 	public static void main(String[] args) {
-
 		Options options = createOptions();
 		CommandLineParser parser = createCliParser();
-
 		try {
 			CommandLine cmd = parser.parse(options, args);
 			if (cmd.hasOption("help")) {
@@ -101,8 +100,6 @@ public class Pdb2Rdf {
 				generateStatsFromRDF(cmd);
 			} else if (cmd.hasOption("load")) {
 				load(cmd, stats);
-			} else if (cmd.hasOption("bigdata")) {
-				loadBigData(cmd, stats);
 			} else if (cmd.hasOption("ontology")) {
 				printOntology();
 			} else {
@@ -384,139 +381,6 @@ public class Pdb2Rdf {
 		}
 	}
 
-	private static void loadBigData(final CommandLine cmd) {
-		loadBigData(cmd, null);
-	}
-
-	private static void loadBigData(final CommandLine cmd, final Map<String, Double> stats) {
-		// DetailLevel detailLevel = null;
-		// if (cmd.hasOption("detailLevel")) {
-		// try {
-		// detailLevel = Enum.valueOf(DetailLevel.class,
-		// cmd.getOptionValue("detailLevel"));
-		// } catch (IllegalArgumentException e) {
-		// LOG.fatal("Invalid argument value for detailLevel option", e);
-		// System.exit(1);
-		// }
-		// }
-		// final DetailLevel f_detailLevel = detailLevel;
-		//
-		// String filePath = cmd.getOptionValue("bigdata");
-		// if (filePath == null) {
-		// LOG.fatal("You need to specify the path the BigData DB file");
-		// System.exit(1);
-		// }
-		// File journal = new File(filePath);
-		// if (!journal.exists()) {
-		// LOG.info("Creating file: " + filePath);
-		// try {
-		// journal.createNewFile();
-		// } catch (IOException e) {
-		// LOG.fatal("Unable to create file: " + filePath);
-		// System.exit(1);
-		// }
-		// }
-		// // create big data properties
-		// Properties properties = new Properties();
-		// try {
-		// properties.load(Pdb2Rdf.class.getResourceAsStream("/fastload.properties"));
-		// } catch (IOException e1) {
-		// LOG.warn("Unable to read bigdata configuration: /fastload.properties");
-		// }
-		// properties.setProperty(BigdataSail.Options.FILE,
-		// journal.getAbsolutePath());
-		//
-		// // instantiate a sail
-		// BigdataSail sail = new BigdataSail(properties);
-		// final Repository repo = new BigdataSailRepository(sail);
-		// try {
-		// repo.initialize();
-		// } catch (RepositoryException e) {
-		// LOG.fatal("Unable to initialize SAIL repository", e);
-		// System.exit(1);
-		// }
-		//
-		// final ExecutorService pool = getThreadPool(cmd);
-		// final ProgressMonitor monitor = getProgressMonitor();
-		// final Pdb2RdfInputIterator i = processInput(cmd);
-		// final int inputSize = i.size();
-		// final AtomicInteger progressCount = new AtomicInteger();
-		//
-		// while (i.hasNext()) {
-		// final InputSource input = i.next();
-		// pool.execute(new Runnable() {
-		// public void run() {
-		// PdbXmlParser parser = new PdbXmlParser();
-		// PdbRdfModel model = null;
-		// try {
-		// if (f_detailLevel != null) {
-		// model = parser.parse(input, new PdbRdfModel(), f_detailLevel);
-		// } else {
-		// model = parser.parse(input, new PdbRdfModel());
-		// }
-		//
-		// RepositoryConnection cxn = repo.getConnection();
-		// cxn.setAutoCommit(false);
-		// try {
-		// for (StmtIterator staments = model.listStatements();
-		// staments.hasNext();) {
-		// Statement statement = staments.next();
-		//
-		// Resource s = new URIImpl(statement.getSubject().getURI());
-		// URIImpl p = new URIImpl(statement.getPredicate().getURI());
-		// RDFNode obj = statement.getObject();
-		// Value o = null;
-		// if (obj.isLiteral()) {
-		// LiteralImpl literal = null;
-		// if (((Literal) obj).getDatatype() != null) {
-		// literal = new LiteralImpl(((Literal) obj).getString(), new URIImpl(
-		// ((Literal) obj).getDatatype().getURI()));
-		// } else if (((Literal) obj).getLanguage() != null
-		// && ((Literal) obj).getLanguage().length() != 0) {
-		// literal = new LiteralImpl(((Literal) obj).getString(), ((Literal)
-		// obj)
-		// .getLanguage());
-		// } else {
-		// literal = new LiteralImpl(((Literal) obj).getString());
-		// }
-		// o = literal;
-		// } else {
-		// o = new URIImpl(((com.hp.hpl.jena.rdf.model.Resource) obj).getURI());
-		// }
-		// cxn.add(new StatementImpl(s, p, o));
-		// }
-		// cxn.commit();
-		// } catch (Exception ex) {
-		// cxn.rollback();
-		// throw ex;
-		// } finally {
-		// // close the repository connection
-		// cxn.close();
-		// }
-		// if (stats != null) {
-		// updateStats(stats, model);
-		// }
-		// if (monitor != null) {
-		// monitor.setProgress(progressCount.incrementAndGet(), inputSize);
-		// }
-		//
-		// } catch (Exception e) {
-		// LOG.error("Uanble to parse input for pdb=" + (model != null ?
-		// model.getPdbId() : "null"), e);
-		// }
-		// }
-		// });
-		// }
-		//
-		// pool.shutdown();
-		// while (!pool.isTerminated()) {
-		// try {
-		// pool.awaitTermination(1, TimeUnit.SECONDS);
-		// } catch (InterruptedException e) {
-		// break;
-		// }
-		// }
-	}
 
 	private static ProgressMonitor getProgressMonitor() {
 		try {
@@ -610,9 +474,7 @@ public class Pdb2Rdf {
 				.withDescription("Number of threads (default: number of processing units * 2)").hasArg(true)
 				.create("threads");
 		options.addOption(threadsOption);
-		Option bigdataOption = OptionBuilder.withArgName("DB path")
-				.withDescription("Load the triples into a BigData journal file.").hasArg(true).create("bigdata");
-		options.addOption(bigdataOption);
+		
 		options.addOption(
 				"stats",
 				false,

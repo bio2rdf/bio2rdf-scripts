@@ -15,34 +15,40 @@
 		<version>1.3</version>
 	</parent>
 
-<!--	<scm>
-		<connection>scm:svn:https://pdb2rdf.googlecode.com/svn/pdb2rdf/trunk</connection>
-		<developerConnection>scm:svn:https://pdb2rdf.googlecode.com/svn/pdb2rdf/trunk</developerConnection>
-		<url>http://code.google.com/p/pdb2rdf/source/browse/#svn/pdb2rdf/trunk</url>
-	</scm>
--->
+	<!-- <scm> <connection>scm:svn:https://pdb2rdf.googlecode.com/svn/pdb2rdf/trunk</connection> 
+		<developerConnection>scm:svn:https://pdb2rdf.googlecode.com/svn/pdb2rdf/trunk</developerConnection> 
+		<url>http://code.google.com/p/pdb2rdf/source/browse/#svn/pdb2rdf/trunk</url> 
+		</scm> -->
 	<modules>
 		<module>pdb2rdf-cli</module>
 		<module>pdb2rdf-parser</module>
 		<module>pdb2rdf-cluster</module>
-		<!--<module>pdb2rdf-gae</module>
-		<module>pdb2rdf-service</module>
-		<module>pdb2rdf-ui</module>
-		<module>pdb2rdf-tools</module>-->
+		<!--<module>pdb2rdf-gae</module> <module>pdb2rdf-service</module> <module>pdb2rdf-ui</module> 
+			<module>pdb2rdf-tools</module> -->
 	</modules>
 
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>com.hp.hpl.jena</groupId>
+			<!--<dependency>
+				 <groupId>com.hp.hpl.jena</groupId>
 				<artifactId>jena</artifactId>
 				<version>2.6.2-modified</version>
-			</dependency>
+			</dependency>-->
+			<!--<dependency> <groupId>com.hp.hpl.jena</groupId> <artifactId>arq</artifactId> 
+				<version>2.8.3</version> </dependency> -->
+
 			<dependency>
-				<groupId>com.hp.hpl.jena</groupId>
-				<artifactId>arq</artifactId>
-				<version>2.8.3</version>
+	<groupId>org.apache.jena</groupId>
+	<artifactId>jena-arq</artifactId>
+	<version>2.9.3</version>
+</dependency>
+            
+			<dependency>
+				<groupId>org.apache.jena</groupId>
+				<artifactId>jena-core</artifactId>
+				<version>2.7.3</version>
 			</dependency>
+
 			<dependency>
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
@@ -67,7 +73,7 @@
 				<artifactId>slf4j-log4j12</artifactId>
 				<version>1.5.8</version>
 			</dependency>
-			<dependency>
+			  <dependency>
 				<groupId>com.openlinksw</groupId>
 				<artifactId>virtuoso-jdbc3</artifactId>
 				<version>6.0.0-tp1</version>
@@ -87,7 +93,7 @@
 				<artifactId>jline</artifactId>
 				<version>0.9.94</version>
 			</dependency>
-			<dependency>
+			<!-- <dependency>
 				<groupId>com.bigdata</groupId>
 				<artifactId>bigdata</artifactId>
 				<version>0.8b-260609</version>
@@ -105,7 +111,7 @@
 						<artifactId>slf4j-simple</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>
+			</dependency>-->
 			<dependency>
 				<groupId>org.mortbay.jetty</groupId>
 				<artifactId>jetty</artifactId>
@@ -131,16 +137,9 @@
 				<artifactId>org.restlet.ext.servlet</artifactId>
 				<version>2.0-M3</version>
 			</dependency>
-			<!--<dependency>
-				<groupId>com.google.gwt</groupId>
-				<artifactId>gwt-user</artifactId>
-				<version>1.7.0</version>
-			</dependency>
-			<dependency>
-				<groupId>com.dumontierlab.capac</groupId>
-				<artifactId>rink</artifactId>
-				<version>0.0.4</version>
-			</dependency>-->
+			<!--<dependency> <groupId>com.google.gwt</groupId> <artifactId>gwt-user</artifactId> 
+				<version>1.7.0</version> </dependency> <dependency> <groupId>com.dumontierlab.capac</groupId> 
+				<artifactId>rink</artifactId> <version>0.0.4</version> </dependency> -->
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>

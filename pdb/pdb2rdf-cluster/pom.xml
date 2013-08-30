@@ -1,16 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>pdb2rdf</artifactId>
-    <groupId>com.dumontierlab</groupId>
-    <version>2.0.0</version>
-  </parent>
-  <groupId>com.dumontierlab</groupId>
-  <artifactId>pdb2rdf-cluster</artifactId>
-  <version>2.0.0</version>
-  <name>PDB RDFizer Cluster Server</name>  
-  <dependencies>
-  		<dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>pdb2rdf</artifactId>
+		<groupId>com.dumontierlab</groupId>
+		<version>2.0.0</version>
+	</parent>
+	<groupId>com.dumontierlab</groupId>
+	<artifactId>pdb2rdf-cluster</artifactId>
+	<version>2.0.0</version>
+	<name>PDB RDFizer Cluster Server</name>
+	<dependencies>
+		<dependency>
 			<groupId>com.dumontierlab</groupId>
 			<artifactId>pdb2rdf-cli</artifactId>
 			<version>${project.version}</version>
@@ -20,9 +21,17 @@
 			<groupId>org.mortbay.jetty</groupId>
 			<artifactId>jetty</artifactId>
 		</dependency>
-  </dependencies>
-  
-  <build>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -51,5 +60,5 @@
 			</plugin>
 		</plugins>
 	</build>
-  
+
 </project>

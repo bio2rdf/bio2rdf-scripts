@@ -203,7 +203,9 @@ public class ContentHandlerState implements ContentHandler {
 	}
 
 	protected Resource createResource(UriPattern pattern, String... params) {
-		return getRdfModel().createResource(getUriBuilder().buildUri(pattern, params));
+		Resource rm = getRdfModel().createResource(getUriBuilder().buildUri(pattern, params));
+		//getRdfModel().addS
+		return rm;
 	}
 
 	protected String getBufferContent() {

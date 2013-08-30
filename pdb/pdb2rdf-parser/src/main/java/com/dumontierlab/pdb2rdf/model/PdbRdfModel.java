@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Dumontierlab
+ * Copyright (c) 2013 Dumontierlab
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -63,6 +63,7 @@ import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.ReificationStyle;
 
 /**
+ * @author Jose Cruz-Toledo
  * @author Alexander De Leon
  */
 public class PdbRdfModel implements Model {
@@ -888,6 +889,15 @@ public class PdbRdfModel implements Model {
 	/* -------------------------------------- */
 	protected void setModel(Model model) {
 		this.model = model;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.hp.hpl.jena.rdf.model.ModelGraphInterface#wrapAsResource(com.hp.hpl.jena.graph.Node)
+	 */
+	@Override
+	public Resource wrapAsResource(Node n) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
