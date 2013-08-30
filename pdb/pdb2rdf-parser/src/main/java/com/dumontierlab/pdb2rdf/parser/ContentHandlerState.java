@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Dumontierlab
+ * Copyright (c) 2013 Dumontierlab
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -32,15 +32,19 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import com.dumontierlab.pdb2rdf.model.PdbRdfModel;
+import com.dumontierlab.pdb2rdf.parser.vocabulary.PdbOwlVocabulary;
 import com.dumontierlab.pdb2rdf.parser.vocabulary.PdbXmlVocabulary;
 import com.dumontierlab.pdb2rdf.parser.vocabulary.uri.UriBuilder;
 import com.dumontierlab.pdb2rdf.parser.vocabulary.uri.UriPattern;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.XSD;
+import com.hp.hpl.jena.rdf.model.Statement;
 
 /**
  * @author Alexander De Leon
+ * @author  Jose Cruz-Toledo
  */
 public class ContentHandlerState implements ContentHandler {
 
@@ -204,7 +208,8 @@ public class ContentHandlerState implements ContentHandler {
 
 	protected Resource createResource(UriPattern pattern, String... params) {
 		Resource rm = getRdfModel().createResource(getUriBuilder().buildUri(pattern, params));
-		//getRdfModel().addS
+		Statement x = getRdfModel().createStatement(rm, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		getRdfModel().add(x);
 		return rm;
 	}
 
