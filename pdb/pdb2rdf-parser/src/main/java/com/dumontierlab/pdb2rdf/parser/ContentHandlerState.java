@@ -208,8 +208,6 @@ public class ContentHandlerState implements ContentHandler {
 
 	protected Resource createResource(UriPattern pattern, String... params) {
 		Resource rm = getRdfModel().createResource(getUriBuilder().buildUri(pattern, params));
-		Statement x = getRdfModel().createStatement(rm, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
-		getRdfModel().add(x);
 		return rm;
 	}
 

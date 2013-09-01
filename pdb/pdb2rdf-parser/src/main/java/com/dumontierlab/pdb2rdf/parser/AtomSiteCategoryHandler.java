@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Dumontierlab
+ * Copyright (c) 2013 Dumontierlab
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -42,6 +42,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 import com.hp.hpl.jena.vocabulary.XSD;
 
 /**
+ * @author Jose Cruz-Toledo
  * @author Alexander De Leon
  */
 public class AtomSiteCategoryHandler extends ContentHandlerState {
@@ -755,6 +756,8 @@ public class AtomSiteCategoryHandler extends ContentHandlerState {
 			chainResource = createResource(Bio2RdfPdbUriPattern.CHAIN, pdbId, chainId);
 			if (!getRdfModel().containsResource(chainResource)) {
 				getRdfModel().add(chainResource, RDF.type, PdbOwlVocabulary.Class.Chain.resource());
+				getRdfModel().add(RDFS.label, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+				
 				getRdfModel().add(chainResource, RDFS.label, "Chain " + chainId);
 			}
 		}

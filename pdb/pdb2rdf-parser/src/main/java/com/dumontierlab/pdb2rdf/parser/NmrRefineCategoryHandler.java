@@ -53,8 +53,7 @@ public class NmrRefineCategoryHandler extends ContentHandlerState {
 		getRdfModel().add(x, RDF.type, PdbOwlVocabulary.Class.RefinementMethod.resource());
 		getRdfModel().add(x, RDFS.label, "The method used to determine the structure.", "en");
 		getRdfModel().add(x, PdbOwlVocabulary.DataProperty.hasValue.property(), value, "en");
-		// getRdfModel().add(refinement,
-		// PdbOwlVocabulary.ObjectProperty.hasMeht.property(), x);
+		
 	}
 
 	private void createNMRDetails(String value) {

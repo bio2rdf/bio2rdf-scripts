@@ -19,7 +19,9 @@
  * THE SOFTWARE.
  */
 package com.dumontierlab.pdb2rdf.model;
-
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -29,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.dumontierlab.pdb2rdf.parser.vocabulary.PdbOwlVocabulary;
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
@@ -61,6 +64,8 @@ import com.hp.hpl.jena.shared.Command;
 import com.hp.hpl.jena.shared.Lock;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.ReificationStyle;
+import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * @author Jose Cruz-Toledo
@@ -73,9 +78,19 @@ public class PdbRdfModel implements Model {
 
 	public PdbRdfModel() {
 		model = ModelFactory.createDefaultModel();
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		String datestr = dateFormat.format(date);
+		Resource distribution = model.createResource("http://download.bio2rdf.org/release/3/pdb");
+		model.add(distribution, RDFS.label, "Bio2RDF v3 RDF version of pdb (generated at "+datestr+")");
+		model.add(distribution, RDF.type, PdbOwlVocabulary.Class.Distribution.resource());
+		
+		
+	//	Statement st = model.createStatement
 	}
 
 	public PdbRdfModel(Model rdfModel) {
+		this();
 		model = rdfModel;
 	}
 
@@ -105,22 +120,44 @@ public class PdbRdfModel implements Model {
 	}
 
 	public Model add(Resource s, Property p, RDFNode o) {
-		return model.add(s, p, o);
+		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement z = model.createStatement(o.asResource(), RDF.type,PdbOwlVocabulary.Class.Resource.resource());
+		model.add(x);
+		model.add(y);
+		model.add(z);
+		return model.add(s,p,o);
 	}
 
 	public Model add(Resource s, Property p, String o, boolean wellFormed) {
+		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		model.add(x);
+		model.add(y);
 		return model.add(s, p, o, wellFormed);
 	}
 
 	public Model add(Resource s, Property p, String lex, RDFDatatype datatype) {
+		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		model.add(x);
+		model.add(y);
 		return model.add(s, p, lex, datatype);
 	}
 
 	public Model add(Resource s, Property p, String o, String l) {
+		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		model.add(x);
+		model.add(y);
 		return model.add(s, p, o, l);
 	}
 
 	public Model add(Resource s, Property p, String o) {
+		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		model.add(x);
+		model.add(y);
 		return model.add(s, p, o);
 	}
 

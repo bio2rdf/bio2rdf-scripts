@@ -40,9 +40,13 @@ public class PdbOwlVocabulary {
 	private static final OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
 	static {
 		model.setNsPrefix("pdb", PdbOwlVocabulary.VOCABULARY_NAMESPACE);
+		model.setNsPrefix("dcterms", "http://purl.org/dc/terms/");
+		model.setNsPrefix("foaf", "http://xmlns.com/foaf/0.1/");
+		
 	}
 
 	public static enum Class {
+		Distribution("http://bio2rdf.org/dcat:Distribution"),
 		Resource(VOCABULARY_NAMESPACE+"Resource"),
 		PdbRecord(VOCABULARY_NAMESPACE + "PdbRecord"),
 		Experiment(VOCABULARY_NAMESPACE + "Experiment"),
@@ -481,6 +485,7 @@ public class PdbOwlVocabulary {
 	};
 
 	public static enum ObjectProperty {
+		distribution("http://bio2rdf.org/dcat:distribution"),
 		isParticipantIn(VOCABULARY_NAMESPACE + "isParticipantIn"),
 		hasProduct(VOCABULARY_NAMESPACE + "hasProduct"),
 		hasPublication(VOCABULARY_NAMESPACE + "hasPublication"),
