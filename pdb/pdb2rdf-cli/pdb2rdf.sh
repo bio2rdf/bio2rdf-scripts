@@ -6,7 +6,7 @@ CLASSPATH="$CLASSPATH$i:"
 done
 
 #Set the maximum RAM used by this program
-MEMORY=2g
+MEMORY=4g
 
 #OPTS="-ea -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8010"
 OPTS="-ea -Dlog4j.configuration=file:log4j.properties"
