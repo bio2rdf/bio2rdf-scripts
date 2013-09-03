@@ -20,13 +20,21 @@
  */
 package com.dumontierlab.pdb2rdf.parser;
 
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.Lang;
 import org.junit.Test;
 
+import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.XSD;
 
@@ -44,7 +52,6 @@ public class JenaExample {
 
 		// Add a namespace prefix
 		rdf.setNsPrefix("ex", NAMESPACE);
-
 		// Create two resource: a and b
 		Resource a = rdf.createResource(NAMESPACE + "a");
 		Resource b = rdf.createResource(NAMESPACE + "b");
@@ -60,6 +67,19 @@ public class JenaExample {
 
 		// print the RDF in RDF/XML
 		rdf.write(System.out, "RDF/XML");
+		
+		Dataset ds = TDBFactory.createDataset();
+		ds.addNamedModel("http://test.org", rdf);
+		
+		
+		Model m = ds.getNamedModel("http://test.org");
+		StringWriter sw = new StringWriter();
+		// Write as N-Quads
+		RDFDataMgr.write(sw, ds, Lang.NQUADS) ;
+		
+		System.out.println(sw);
+		
+		
 
 	}
 

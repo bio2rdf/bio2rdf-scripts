@@ -439,19 +439,7 @@ public class Pdb2Rdf {
 	@SuppressWarnings("static-access")
 	private static Options createOptions() {
 		Options options = new Options();
-		options.addOption("load", false, "Load the resulting RDF into a Virtuoso triple store");
-		Option userOption = OptionBuilder.withArgName("value").hasOptionalArgs(1)
-				.withDescription("Virtuoso username (default: dba)").hasArg(true).create("username");
-		options.addOption(userOption);
-		Option passwordOption = OptionBuilder.withArgName("value").hasOptionalArgs(1)
-				.withDescription("Virtuoso password (default: dba)").hasArg(true).create("password");
-		options.addOption(passwordOption);
-		Option hostOption = OptionBuilder.withArgName("value").hasOptionalArgs(1)
-				.withDescription("Virtuoso host address (default: localhost)").hasArg(true).create("host");
-		options.addOption(hostOption);
-		Option portOption = OptionBuilder.withArgName("value").hasOptionalArgs(1)
-				.withDescription("Virtuoso iSQL port number (default: 1111)").hasArg(true).create("port");
-		options.addOption(portOption);
+		
 		options.addOption("help", false, "Print this message");
 		Option formatOption = OptionBuilder.withArgName("RDF/XML|N-TRIPLE|N3").hasOptionalArgs(1)
 				.withDescription("RDF output format (default: RDF/XMl)").hasArg(true).create("format");

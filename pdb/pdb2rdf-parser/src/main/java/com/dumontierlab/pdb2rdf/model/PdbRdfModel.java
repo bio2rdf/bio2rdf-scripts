@@ -36,7 +36,7 @@ import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.query.QueryHandler;
+import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.rdf.model.Alt;
 import com.hp.hpl.jena.rdf.model.AnonId;
 import com.hp.hpl.jena.rdf.model.Bag;
@@ -122,10 +122,10 @@ public class PdbRdfModel implements Model {
 	public Model add(Resource s, Property p, RDFNode o) {
 		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
 		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
-		Statement z = model.createStatement(o.asResource(), RDF.type,PdbOwlVocabulary.Class.Resource.resource());
+		//Statement z = model.createStatement(o.asResource(), RDF.type,PdbOwlVocabulary.Class.Resource.resource());
 		model.add(x);
 		model.add(y);
-		model.add(z);
+	//	model.add(z);
 		return model.add(s,p,o);
 	}
 
@@ -758,9 +758,7 @@ public class PdbRdfModel implements Model {
 		return model.query(s);
 	}
 
-	public QueryHandler queryHandler() {
-		return model.queryHandler();
-	}
+
 
 	public Model read(InputStream in, String base, String lang) {
 		return model.read(in, base, lang);
