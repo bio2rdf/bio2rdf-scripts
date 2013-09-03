@@ -19,6 +19,7 @@
  * THE SOFTWARE.
  */
 package com.dumontierlab.pdb2rdf.model;
+
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -33,6 +34,8 @@ import java.util.Map;
 
 import com.dumontierlab.pdb2rdf.parser.vocabulary.PdbOwlVocabulary;
 import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.datatypes.xsd.impl.XSDDateType;
 import com.hp.hpl.jena.graph.Graph;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -76,11 +79,18 @@ public class PdbRdfModel implements Model {
 
 	private Model model;
 	private String pdbId;
+	private String date;
+	private Resource dataset;
+	private Property inDataset;
 
 	public PdbRdfModel() {
 		model = ModelFactory.createDefaultModel();
-		model.setNsPrefix("dcterms", "http://purl.org/dc/terms/");
-		model.setNsPrefix("pav", "http://purl.org/pav/");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
+		Date d = new Date();
+		date = dateFormat.format(d);
+		dataset = model.createResource("http://bio2rdf.org/bio2rdf.dataset:"+date);
+		model.add(dataset, RDF.type, model.createResource("http://rdfs.org/ns/void#Dataset"));
+		inDataset = model.createProperty("http://rdfs.org/ns/void#inDataset");
 	}
 
 	public PdbRdfModel(Model rdfModel) {
@@ -89,26 +99,92 @@ public class PdbRdfModel implements Model {
 	}
 
 	/**
-	 * This method adds to this model the information about the input file used to create this RDF document
+	 * This method adds to this model the information about the input file used
+	 * to create this RDF document
 	 */
-	public void addInputFileInformation(){
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date date = new Date();
-		String datestr = dateFormat.format(date);
-		if(this.getPdbId() != null){
-			Property retrievedOn = model.createProperty("http://purl.org/pav/retrievedOn");
-			Property publisher = model.createProperty("http://purl.org/dc/terms/publisher");
-			Property format = model.createProperty("http://purl.org/dc/terms/format");
-			Resource inputFile = model.createResource("http://www.rcsb.org/pdb/files/"+this.getPdbId()+".xml.gz");
-			model.add(inputFile, RDFS.label, "PDB entry ID: "+this.getPdbId()+" (retrieved on "+datestr+")");
-			model.add(inputFile, RDF.type, PdbOwlVocabulary.Class.Distribution.resource());
-			model.add(inputFile, retrievedOn, datestr);
-			model.add(inputFile, publisher, "http://www.rcsb.org/");
-			model.add(inputFile, format, "text/xml");
+	public void addInputFileInformation() {
+		if (this.getPdbId() != null) {
+			Property retrievedOn = model
+					.createProperty("http://purl.org/pav/retrievedOn");
+			Property publisher = model
+					.createProperty("http://purl.org/dc/terms/publisher");
+			Property format = model
+					.createProperty("http://purl.org/dc/terms/format");
+			Property license = model
+					.createProperty("http://purl.org/dc/terms/license");
+			Property rights = model
+					.createProperty("http://purl.org/dc/terms/rights");
+			Resource lic = model
+					.createResource("http://www.rcsb.org/pdb/static.do?p=general_information/about_pdb/pdb_advisory.html");
+			
+			model.add(this.getSourceFileResource(), RDFS.label, "PDB entry ID: " + this.getPdbId()
+					+ " (retrieved on " + this.getDate() + ")");
+			model.add(this.getSourceFileResource(), RDF.type,
+					PdbOwlVocabulary.Class.Distribution.resource());
+			model.add(this.getSourceFileResource(), retrievedOn, this.getDate(), XSDDateType.XSDdate);
+			model.add(this.getSourceFileResource(), publisher, "http://www.rcsb.org/");
+			model.add(this.getSourceFileResource(), format, "text/xml");
+			model.add(this.getSourceFileResource(), license, lic);
+			model.add(this.getSourceFileResource(), rights, "use");
 		}
-		
+	}
+	/**
+	 * This method adds to this model the information about the output file generated
+	 * by this program
+	 */
+	public void addRDFFileInformation(){
+		if(this.getPdbId() != null){
+			Property title = model
+					.createProperty("http://purl.org/dc/terms/title");
+			Property format = model
+					.createProperty("http://purl.org/dc/terms/format");
+			Property source = model.createProperty("http://purl.org/dc/terms/source");
+			Property license = model
+					.createProperty("http://purl.org/dc/terms/license");
+			Property created = model.createProperty("http://purl.org/dc/terms/created");
+			Property creator = model.createProperty("http://purl.org/dc/terms/creator");
+			Property rights = model
+					.createProperty("http://purl.org/dc/terms/rights");
+			Property pu = model.createProperty("http://purl.org/dc/terms/publisher");
+			Resource rdfFile = model.createResource("http://download.bio2rdf.org/release/3/pdb/"+this.getPdbId());
+			Resource c = model.createResource("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/pdb");
+			Resource publisher = model.createResource("http://bio2rdf.org");
+			Resource cc = model.createResource("http://creativecommons.org/licenses/by/3.0/");
+			Property dist = model.createProperty("http://bio2rdf.org/dcat:distribution");
+			model.add(rdfFile, RDF.type, PdbOwlVocabulary.Class.Distribution.resource());
+			model.add(rdfFile, title, "Bio2RDF R3 version of PDB record "+this.getPdbId());
+			model.add(rdfFile, license, cc);
+			model.add(rdfFile, rights, "use-share-modify");
+			model.add(rdfFile, rights, "by-attribution");
+			model.add(rdfFile, rights, "restricted-by-source-license");
+			model.add(rdfFile, RDFS.label, "Bio2RDF R3 version of PDB record "+this.getPdbId());
+			model.add(rdfFile, created, this.getDate(),XSDDatatype.XSDdate);
+			model.add(rdfFile, source, this.getSourceFileResource());
+			model.add(rdfFile, creator, c);
+			model.add(rdfFile, pu, publisher);
+			model.add(rdfFile, format, "application/gzip");
+			model.add(this.getDatasetResource(), dist, rdfFile);
+		}
 	}
 	
+	public Property getInDatasetProperty(){
+		return this.inDataset;
+	}
+
+	public Resource getDatasetResource(){
+		return this.dataset;
+	}
+	
+	public Resource getSourceFileResource(){
+		return  model
+				.createResource("http://www.rcsb.org/pdb/files/"
+						+ this.getPdbId() + ".xml.gz");
+	}
+	
+	private String getDate() {
+		return this.date;
+	}
+
 	public String getPdbId() {
 		return pdbId;
 	}
@@ -135,42 +211,53 @@ public class PdbRdfModel implements Model {
 	}
 
 	public Model add(Resource s, Property p, RDFNode o) {
-		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
-		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
-		//Statement z = model.createStatement(o.asResource(), RDF.type,PdbOwlVocabulary.Class.Resource.resource());
+		Statement x = model.createStatement(s, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
+		// Statement z = model.createStatement(o.asResource(),
+		// RDF.type,PdbOwlVocabulary.Class.Resource.resource());
 		model.add(x);
 		model.add(y);
-	//	model.add(z);
-		return model.add(s,p,o);
+		// model.add(z);
+		return model.add(s, p, o);
 	}
 
 	public Model add(Resource s, Property p, String o, boolean wellFormed) {
-		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
-		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement x = model.createStatement(s, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
 		model.add(x);
 		model.add(y);
 		return model.add(s, p, o, wellFormed);
 	}
 
 	public Model add(Resource s, Property p, String lex, RDFDatatype datatype) {
-		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
-		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement x = model.createStatement(s, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
 		model.add(x);
 		model.add(y);
 		return model.add(s, p, lex, datatype);
 	}
 
 	public Model add(Resource s, Property p, String o, String l) {
-		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
-		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement x = model.createStatement(s, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
 		model.add(x);
 		model.add(y);
 		return model.add(s, p, o, l);
 	}
 
 	public Model add(Resource s, Property p, String o) {
-		Statement x = model.createStatement(s, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
-		Statement y = model.createStatement(p, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
+		Statement x = model.createStatement(s, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
+		Statement y = model.createStatement(p, RDF.type,
+				PdbOwlVocabulary.Class.Resource.resource());
 		model.add(x);
 		model.add(y);
 		return model.add(s, p, o);
@@ -413,7 +500,9 @@ public class PdbRdfModel implements Model {
 	}
 
 	public Resource createResource(String uri) {
-		return model.createResource(uri);
+		Resource rm = model.createResource(uri);
+		model.add(rm, this.getInDatasetProperty(), this.getDatasetResource());
+		return rm;
 	}
 
 	public Seq createSeq() {
@@ -428,11 +517,13 @@ public class PdbRdfModel implements Model {
 		return model.createStatement(s, p, o);
 	}
 
-	public Statement createStatement(Resource s, Property p, String o, boolean wellFormed) {
+	public Statement createStatement(Resource s, Property p, String o,
+			boolean wellFormed) {
 		return model.createStatement(s, p, o, wellFormed);
 	}
 
-	public Statement createStatement(Resource s, Property p, String o, String l, boolean wellFormed) {
+	public Statement createStatement(Resource s, Property p, String o,
+			String l, boolean wellFormed) {
 		return model.createStatement(s, p, o, l, wellFormed);
 	}
 
@@ -641,23 +732,28 @@ public class PdbRdfModel implements Model {
 		model.leaveCriticalSection();
 	}
 
-	public StmtIterator listLiteralStatements(Resource subject, Property predicate, boolean object) {
+	public StmtIterator listLiteralStatements(Resource subject,
+			Property predicate, boolean object) {
 		return model.listLiteralStatements(subject, predicate, object);
 	}
 
-	public StmtIterator listLiteralStatements(Resource subject, Property predicate, char object) {
+	public StmtIterator listLiteralStatements(Resource subject,
+			Property predicate, char object) {
 		return model.listLiteralStatements(subject, predicate, object);
 	}
 
-	public StmtIterator listLiteralStatements(Resource subject, Property predicate, double object) {
+	public StmtIterator listLiteralStatements(Resource subject,
+			Property predicate, double object) {
 		return model.listLiteralStatements(subject, predicate, object);
 	}
 
-	public StmtIterator listLiteralStatements(Resource subject, Property predicate, long object) {
+	public StmtIterator listLiteralStatements(Resource subject,
+			Property predicate, long object) {
 		return model.listLiteralStatements(subject, predicate, object);
 	}
 
-	public StmtIterator listLiteralStatements(Resource arg0, Property arg1, float arg2) {
+	public StmtIterator listLiteralStatements(Resource arg0, Property arg1,
+			float arg2) {
 		return model.listLiteralStatements(arg0, arg1, arg2);
 	}
 
@@ -725,11 +821,13 @@ public class PdbRdfModel implements Model {
 		return model.listStatements(s, p, o);
 	}
 
-	public StmtIterator listStatements(Resource subject, Property predicate, String object, String lang) {
+	public StmtIterator listStatements(Resource subject, Property predicate,
+			String object, String lang) {
 		return model.listStatements(subject, predicate, object, lang);
 	}
 
-	public StmtIterator listStatements(Resource subject, Property predicate, String object) {
+	public StmtIterator listStatements(Resource subject, Property predicate,
+			String object) {
 		return model.listStatements(subject, predicate, object);
 	}
 
@@ -772,8 +870,6 @@ public class PdbRdfModel implements Model {
 	public Model query(Selector s) {
 		return model.query(s);
 	}
-
-
 
 	public Model read(InputStream in, String base, String lang) {
 		return model.read(in, base, lang);
@@ -941,8 +1037,12 @@ public class PdbRdfModel implements Model {
 		this.model = model;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.hp.hpl.jena.rdf.model.ModelGraphInterface#wrapAsResource(com.hp.hpl.jena.graph.Node)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.hp.hpl.jena.rdf.model.ModelGraphInterface#wrapAsResource(com.hp.hpl
+	 * .jena.graph.Node)
 	 */
 	@Override
 	public Resource wrapAsResource(Node n) {

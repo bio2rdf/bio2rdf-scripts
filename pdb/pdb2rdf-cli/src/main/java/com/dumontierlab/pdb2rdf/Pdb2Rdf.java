@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -45,6 +47,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 
@@ -66,11 +71,13 @@ import com.dumontierlab.pdb2rdf.util.Pdb2RdfInputIteratorAdapter;
 import com.dumontierlab.pdb2rdf.util.PdbsIterator;
 import com.dumontierlab.pdb2rdf.util.ProgressMonitor;
 import com.dumontierlab.pdb2rdf.util.Statistics;
+import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.RDFWriterF;
 import com.hp.hpl.jena.rdf.model.impl.RDFWriterFImpl;
+import com.hp.hpl.jena.tdb.TDBFactory;
 
 /**
  * @autor Jose Cruz-Toledo
@@ -229,6 +236,8 @@ public class Pdb2Rdf {
 						}
 						//add the input file information
 						model.addInputFileInformation();
+						//add the outputFile information();
+						model.addRDFFileInformation();
 						if (outDir != null) {
 							File directory = new File(outDir, model.getPdbId().substring(1, 3));
 							synchronized (lock) {
@@ -239,8 +248,19 @@ public class Pdb2Rdf {
 							File file = new File(directory, model.getPdbId() + ".rdf.gz");
 							out = new GZIPOutputStream(new FileOutputStream(file));
 						}
+						if(cmd.getOptionValue("format").equalsIgnoreCase("NQUADs")){
+							Dataset ds = TDBFactory.createDataset();
+							ds.addNamedModel(model.getDatasetResource().toString(), model);
+							StringWriter sw = new StringWriter();
+							RDFDataMgr.write(sw, ds, Lang.NQUADS);
+							
+							out.write(sw.toString().getBytes(Charset.forName("UTF-8")));
+							ds.close();
+		
+						}else{
+							writer.write(model, out, null);
+						}
 						
-						writer.write(model, out, null);
 						if (stats != null) {
 							updateStats(stats, model);
 						}
@@ -278,7 +298,9 @@ public class Pdb2Rdf {
 		RDFWriterF writerFactory = new RDFWriterFImpl();
 		RDFWriter writer = writerFactory.getWriter("RDF/XML");
 		if (cmd.hasOption("format")) {
-			writer = writerFactory.getWriter(cmd.getOptionValue("format"));
+			if(!cmd.getOptionValue("format").equalsIgnoreCase("NQUADS")){
+				writer = writerFactory.getWriter(cmd.getOptionValue("format"));
+			}
 		}
 		return writer;
 	}
@@ -443,7 +465,7 @@ public class Pdb2Rdf {
 		Options options = new Options();
 		
 		options.addOption("help", false, "Print this message");
-		Option formatOption = OptionBuilder.withArgName("RDF/XML|N-TRIPLE|N3").hasOptionalArgs(1)
+		Option formatOption = OptionBuilder.withArgName("RDF/XML|N-TRIPLE|N3|NQUADS").hasOptionalArgs(1)
 				.withDescription("RDF output format (default: RDF/XMl)").hasArg(true).create("format");
 		options.addOption(formatOption);
 		Option dirOption = OptionBuilder.withArgName("path").withDescription("Directory where input files are located")

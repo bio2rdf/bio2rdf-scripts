@@ -41,8 +41,6 @@ public class PdbOwlVocabulary {
 	static {
 		model.setNsPrefix("pdb", PdbOwlVocabulary.VOCABULARY_NAMESPACE);
 		model.setNsPrefix("dcterms", "http://purl.org/dc/terms/");
-		model.setNsPrefix("foaf", "http://xmlns.com/foaf/0.1/");
-		
 	}
 
 	public static enum Class {
