@@ -28,6 +28,7 @@ SOFTWARE.
  * @version 1.0
  * @author Michel Dumontier
 */
+require_once(__DIR__.'/../../arc2/ARC2.php'); // available on git @ https://github.com/semsol/arc2.git
 
 class BioportalParser extends Bio2RDFizer
 {
@@ -83,6 +84,7 @@ class BioportalParser extends Bio2RDFizer
 			$oid = (string) $d->ontologyId;			
 			$label = (string) $d->displayLabel;
 			$abbv = (string) strtolower($d->abbreviation);
+			$format = strtolower((string) $d->format);
 			$filename = (string) $d->filenames->string;
 			if(strstr($filename,".zip")) $zip = true;
 			else $zip = false;
@@ -93,20 +95,19 @@ class BioportalParser extends Bio2RDFizer
 
 			if($include_list[0] != 'all') {
 				// ignore if we don't find it in the include list OR we do find it in the exclude list
-				if( (array_search($abbv,$include_list) === FALSE)
-					|| (array_search($abbv,$exclude_list) !== FALSE) ) {
-					// echo "skipping $abbv".PHP_EOL;
+				if( (array_search($ns,$include_list) === FALSE)
+					|| (array_search($ns,$exclude_list) !== FALSE) ) {
+					 //echo "skipping $label ($abbv id=$oid format=$format)".PHP_EOL;
 					continue;
 				}
 			}
 			
-			$format = strtolower((string) $d->format);
 			$suf = '';
 			if($format == 'obo') $suf = 'obo';
 			if($format == "owl") $suf = "owl";
-			if($format == "owl-dl") $suf = "owl";
-			if($format == "owl-full") $suf = "owl";
-			if($format == "LEXGRID-XML") $suf = "xml";
+			if($format == "owl-dl") $format = $suf = "owl";
+			if($format == "owl-full") $format = $suf = "owl";
+			if($format == "LEXGRID-XML") $format = $suf = "xml";
 			if($format == 'protege' || $format == 'umls-rela' || $format == "rrf") {
 				continue;  // we can't manage these yet
 			}
@@ -128,7 +129,7 @@ class BioportalParser extends Bio2RDFizer
 			if(!file_exists($lfile)|| parent::getParameterValue('download') == 'true') {
 				if(in_array($oid, array(1114,1029,1144,1052,1013,1011,1369,1249,1490,1544,1576,1578,1627,1630,1649,1655,1656,1661,1670,1694,1697,3007,3017,3032,3038,3043,3045,3047,3062,3092,3094,3104,3136,3146,3147,3157,3167,3184,3185,3186,3191,3192,3194,3195,3197,3199,3200,3205,3206,3211,3212,3224,3230,3231,3232,3237,3241,3258,3261,3264))) {
 					// skip
-					echo "not accessible, skipping".PHP_EOL;
+					echo "$label ($abbv id=$oid) : not permitted, skipping".PHP_EOL;
 					continue;
 				}
 				echo "Downloading $label ($abbv id=$oid) ... ";
@@ -138,35 +139,177 @@ class BioportalParser extends Bio2RDFizer
 				else $lz = "compress.zlib://".$lfile;
 				$ret = Utils::DownloadSingle($rfile,$lz,true);
 				if($ret === false) {
+					echo "Unable to download $label".PHP_EOL;
 					continue;
 				}
-				echo " done.".PHP_EOL;
+				echo " download complete.".PHP_EOL;
 			}
-			
-			// set read and write files
-			if($format == 'obo') {
-				//&& !strstr($lfile,".zip")) {
-				//&& (!file_exists($ofile.".gz") || parent::getParameterValue('download') == 'true')) {
-				
+		
+			if(isset($ofile)) {
 				parent::setReadFile($lfile, true);
 				$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 				parent::setWriteFile($ofile,$gz);
 			
 				// process
-				echo "Processing $label ($abbv id=$oid) ... ";
-				if($format == 'obo') $this->OBO2RDF($abbv);
+				echo "Processing $label ($abbv id=$oid format=$format) into $ofile ... ";
+				if($format == 'obo') {
+					//$this->OBO2RDF($abbv);
+				} else if($format == 'owl') {
+					$this->OWL2RDF($abbv);
+					print_r($this->unmapped_uri);
+					unset($this->unmapped_uri);
+				} else {
+					echo "no processor for $label (format $format)".PHP_EOL;
+				}
+				
 				// @todo process owl files
 				echo "Done!".PHP_EOL;
-				parent::clear();
 				parent::getReadFile()->close();
+				parent::writeRDFBufferToWriteFile();
 				parent::getWriteFile()->close();
-			} else {
-				echo "no processor for $lfile".PHP_EOL;
+				parent::clear();
 			}
 		}
-		
+	}
+
+	private function OWL2RDF($abbv)
+	{
+		$filename = parent::getReadFile()->getFilename();
+		$buf = file_get_contents("compress.zlib://".$filename);
+
+		$parser = ARC2::getRDFXMLParser('file://'.$filename);
+		$parser->parse("http://bio2rdf.org/bioportal#", $buf);
+		$triples = $parser->getTriples();
+		foreach($triples AS $i => $a) {
+			$this->TriplifyMap($a, $abbv);
+			parent::writeRDFBufferToWriteFile();
+		}
+		parent::clear();
 	}
 	
+	// parse the URI into the base and fragment. find the corresponding prefix and bio2rdf_uri. 
+	public function parseURI($uri)
+	{
+		$a['uri'] = $uri;
+		$delims = array("#","_","/");
+		foreach($delims AS $delim) {
+			if(($pos = strrpos($uri,$delim)) !== FALSE) {
+				$a['base_uri'] = substr($uri,0,$pos+1);
+				$a['fragment'] = substr($uri,$pos+1);
+
+				$a['prefix'] = parent::getRegistry()->getPrefixFromURI($a['base_uri']);
+				if(isset($a['prefix'])) {
+					$a['bio2rdf_uri'] = 'http://bio2rdf.org/'.$a['prefix'].':'.$a['fragment'];
+					$p_uri = parent::getRegistry()->getEntryValueByKey($a['prefix'], 'providerURI');
+					if(isset($p_uri)) {
+						if($p_uri == $a['base_uri']) {
+							$a['is_provider_uri'] = true;
+						}
+						$a['provider_uri'] = $p_uri;
+					}
+					break;
+				}
+				
+			}
+		}
+		if(!isset($a['base_uri'])) $a['base_uri'] = $uri;
+		return $a;
+	}
+	
+
+	public function TriplifyMap($a, $prefix)
+	{
+		$defaults = parent::getRegistry()->getDefaultURISchemes();
+		$bio2rdf_priority = true;
+		$mapping = false;
+
+		// subject
+		if($a['s_type'] == 'bnode') $a['s'] = 'http://bio2rdf.org/'.$prefix.'_resource:'.substr($a['s'],2);
+		$u = $this->parseURI($a['s']);
+		$s_uri = $u['uri'];
+		if(isset($u['prefix'])) {
+			if(!in_array($u['prefix'],$defaults)) {
+				if($bio2rdf_priority) {
+					$s_uri = $u['bio2rdf_uri'];
+					if($mapping) {
+						parent::addRDF(
+							parent::triplify($s_uri,'owl:sameAs',$u['uri'])
+						);
+					}
+				} else if($mapping) {
+					parent::addRDF(
+						parent::triplify($u['uri'],'owl:sameAs',$u['bio2rdf_uri'])
+					);
+				}
+			}
+		} else {
+			// add to the registry of uris not found
+			if(!isset($this->unmapped_uri[$u['base_uri']])) $this->unmapped_uri[$u['base_uri']] = 1;
+			else $this->unmapped_uri[$u['base_uri']]++;
+		}
+
+		// predicate
+		$u = $this->parseURI($a['p']);
+		$p_uri = $u['uri'];
+		if(isset($u['prefix'])) {
+			if(!in_array($u['prefix'],$defaults)) {
+				if($bio2rdf_priority) {
+					$p_uri = $u['bio2rdf_uri'];
+					if($mapping) {
+						parent::addRDF(
+							parent::triplify($p_uri,'owl:sameAs',$u['uri'])
+						);
+					}
+				} else if($mapping) {
+					parent::addRDF(
+						parent::triplify($u['uri'],'owl:sameAs',$u['bio2rdf_uri'])
+					);
+				}
+			}
+		} else {
+			// add to the registry of uris not found
+			if(!isset($this->unmapped_uri[$u['base_uri']])) $this->unmapped_uri[$u['base_uri']] = 1;
+			else $this->unmapped_uri[$u['base_uri']]++;
+		}
+
+		if($a['o_type'] == 'uri' || $a['o_type'] == 'bnode') {
+			if($a['o_type'] == 'bnode') $a['o'] = 'http://bio2rdf.org/'.$prefix.'_resource:'.substr($a['o'],2);
+			$u = $this->parseURI($a['o']);
+			$o_uri = $u['uri'];
+			if(isset($u['prefix'])) {
+				if(!in_array($u['prefix'],$defaults)) {
+					if($bio2rdf_priority) {
+						$o_uri = $u['bio2rdf_uri'];
+						if($mapping) {
+							parent::addRDF(
+								parent::triplify($o_uri,'owl:sameAs',$u['uri'])
+							);
+						}
+					} else if($mapping) {
+						parent::addRDF(
+							parent::triplify($u['uri'],'owl:sameAs',$u['bio2rdf_uri'])
+						);
+					}						
+				}
+			} else {
+				// add to the registry of uris not found
+				if(!isset($this->unmapped_uri[$u['base_uri']])) $this->unmapped_uri[$u['base_uri']] = 1;
+				else $this->unmapped_uri[$u['base_uri']]++;
+			}
+		
+			// add the triple
+			parent::addRDF(
+				parent::triplify($s_uri,$p_uri,$o_uri)
+			);
+			
+		} else {
+			parent::addRDF(
+				parent::triplifyString($s_uri,$p_uri,$a['o'],(($a['o_datatype'] == '')?null:$a['o_datatype']),(($a['o_lang'] == '')?null:$a['o_lang']))
+			);			
+		}
+	
+	}
+			   
 	
 	function OBO2RDF($abbv)
 	{
@@ -398,14 +541,14 @@ class BioportalParser extends Bio2RDFizer
 					$c = explode(" ",$a[1]);
 					if(count($c) == 1) { // just a class					
 						parent::getRegistry()->parseQName($c[0],$ns,$id);
-						$intersection_of .= '<'.parent::getRegistry()->getFQURI("$ns:$id").'>';
+						$intersection_of .= '_:b'.$bid.' <'.parent::getRegistry()->getFQURI('rdfs:subClassOf').'> <'.parent::getRegistry()->getFQURI("$ns:$id")."> $graph_uri .".PHP_EOL;
 						$buf .= parent::triplify($tid,"rdfs:subClassOf","$ns:$id");
 					} else if(count($c) == 2) { // an expression						
 						parent::getRegistry()->parseQName($c[0],$pred_ns,$pred_id);
 						parent::getRegistry()->parseQName($c[1],$obj_ns,$obj_id);
 						
 						$intersection_of .= '_:b'.$bid.' <'.parent::getRegistry()->getFQURI('owl:onProperty').'> <'.parent::getRegistry()->getFQURI("obo_vocabulary:".$pred_id)."> $graph_uri .".PHP_EOL;
-						$intersection_of .= '_:b'.$bid.'. <'.parent::getRegistry()->getFQURI('owl:someValuesFrom').'> <'.parent::getRegistry()->getFQURI("$obj_ns:$obj_id").">  $graph_uri .".PHP_EOL;
+						$intersection_of .= '_:b'.$bid.' <'.parent::getRegistry()->getFQURI('owl:someValuesFrom').'> <'.parent::getRegistry()->getFQURI("$obj_ns:$obj_id").">  $graph_uri .".PHP_EOL;
 						
 						$buf .= parent::triplify($tid,"obo_vocabulary:$pred_id","$obj_ns:$obj_id");
 					}
