@@ -2,14 +2,16 @@
 This is the Bio2RDF parser for the PDB dataset. The files used for the conversion are the PDBML files.
 
 ##Requirements
+Make sure that the following software is installed and accessible to your users PATH:
 	1. Sun Java JRE 1.6 or above+
 	2. Apache Maven 2.2.0 or above+
 
 ##Building
+Run the following command to build the following:
 	mvn clean install
 
 ##Downloading source files
-	This PDB RDFizer converts PDBML files to Bio2RDF R3 compliant linked data. To download and mirror the entire set of PDB files download and run the following Rsync script: https://gist.github.com/jctoledo/6426686
+This PDB RDFizer converts PDBML files to Bio2RDF R3 compliant linked data. To download and mirror the entire set of PDB files download and run this [rsync script](https://gist.github.com/jctoledo/6426686)
 
 ##Contents
 
