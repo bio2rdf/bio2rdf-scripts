@@ -90,7 +90,6 @@ public class Pdb2Rdf {
 			if (cmd.hasOption("help")) {
 				printUsage();
 			}
-
 			Map<String, Double> stats = null;
 			if (cmd.hasOption("stats")) {
 				stats = new HashMap<String, Double>();
@@ -105,7 +104,6 @@ public class Pdb2Rdf {
 			} else {
 				printRdf(cmd, stats);
 			}
-
 			if (stats != null) {
 				try {
 					outputStats(cmd, stats);
@@ -185,6 +183,7 @@ public class Pdb2Rdf {
 		PdbOwlVocabulary.getOntology().write(System.out);
 	}
 
+	@SuppressWarnings("unused")
 	private static void printRdf(final CommandLine cmd) {
 		printRdf(cmd, null);
 	}
@@ -192,7 +191,6 @@ public class Pdb2Rdf {
 	private static void printRdf(final CommandLine cmd, final Map<String, Double> stats) {
 		final File outDir = getOutputDirectory(cmd);
 		final RDFWriter writer = getWriter(cmd);
-
 		final ProgressMonitor monitor = getProgressMonitor();
 		Pdb2RdfInputIterator i = processInput(cmd);
 		final int inputSize = i.size();
@@ -229,6 +227,8 @@ public class Pdb2Rdf {
 						} else {
 							model = parser.parse(input, new PdbRdfModel());
 						}
+						//add the input file information
+						model.addInputFileInformation();
 						if (outDir != null) {
 							File directory = new File(outDir, model.getPdbId().substring(1, 3));
 							synchronized (lock) {
@@ -239,6 +239,7 @@ public class Pdb2Rdf {
 							File file = new File(directory, model.getPdbId() + ".rdf.gz");
 							out = new GZIPOutputStream(new FileOutputStream(file));
 						}
+						
 						writer.write(model, out, null);
 						if (stats != null) {
 							updateStats(stats, model);
@@ -246,6 +247,7 @@ public class Pdb2Rdf {
 						if (monitor != null) {
 							monitor.setProgress(progressCount.incrementAndGet(), inputSize);
 						}
+						
 					} catch (Exception e) {
 						String id = null;
 						if (model != null) {

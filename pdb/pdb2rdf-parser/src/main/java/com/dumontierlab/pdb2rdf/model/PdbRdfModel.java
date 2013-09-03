@@ -64,6 +64,7 @@ import com.hp.hpl.jena.shared.Command;
 import com.hp.hpl.jena.shared.Lock;
 import com.hp.hpl.jena.shared.PrefixMapping;
 import com.hp.hpl.jena.shared.ReificationStyle;
+import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
@@ -78,15 +79,8 @@ public class PdbRdfModel implements Model {
 
 	public PdbRdfModel() {
 		model = ModelFactory.createDefaultModel();
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		Date date = new Date();
-		String datestr = dateFormat.format(date);
-		Resource distribution = model.createResource("http://download.bio2rdf.org/release/3/pdb");
-		model.add(distribution, RDFS.label, "Bio2RDF v3 RDF version of pdb (generated at "+datestr+")");
-		model.add(distribution, RDF.type, PdbOwlVocabulary.Class.Distribution.resource());
-		
-		
-	//	Statement st = model.createStatement
+		model.setNsPrefix("dcterms", "http://purl.org/dc/terms/");
+		model.setNsPrefix("pav", "http://purl.org/pav/");
 	}
 
 	public PdbRdfModel(Model rdfModel) {
@@ -94,6 +88,27 @@ public class PdbRdfModel implements Model {
 		model = rdfModel;
 	}
 
+	/**
+	 * This method adds to this model the information about the input file used to create this RDF document
+	 */
+	public void addInputFileInformation(){
+		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		Date date = new Date();
+		String datestr = dateFormat.format(date);
+		if(this.getPdbId() != null){
+			Property retrievedOn = model.createProperty("http://purl.org/pav/retrievedOn");
+			Property publisher = model.createProperty("http://purl.org/dc/terms/publisher");
+			Property format = model.createProperty("http://purl.org/dc/terms/format");
+			Resource inputFile = model.createResource("http://www.rcsb.org/pdb/files/"+this.getPdbId()+".xml.gz");
+			model.add(inputFile, RDFS.label, "PDB entry ID: "+this.getPdbId()+" (retrieved on "+datestr+")");
+			model.add(inputFile, RDF.type, PdbOwlVocabulary.Class.Distribution.resource());
+			model.add(inputFile, retrievedOn, datestr);
+			model.add(inputFile, publisher, "http://www.rcsb.org/");
+			model.add(inputFile, format, "text/xml");
+		}
+		
+	}
+	
 	public String getPdbId() {
 		return pdbId;
 	}
