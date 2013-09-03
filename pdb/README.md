@@ -16,8 +16,7 @@ This PDB RDFizer converts PDBML files to Bio2RDF R3 compliant linked data. This 
 
 ##Contents
 
-1. **pdb2rdf-cli**:
-
+* **pdb2rdf-cli**:
 The command line interface for this parser. Once you have installed the software go to pdb2rdf-cli/target and extract `pdb2rdf-cli-2.0.0-bin.zip`. This file contains `pdb2rdf.sh` an executable shell script that can be used to execute this rdfizer. Here are some example execution types:
 
     1. Print the help:
@@ -29,12 +28,10 @@ The command line interface for this parser. Once you have installed the software
     4. Generate the output of this RDFizer as N-Quads
        ./pdb2rdf.sh -dir /path/to/pdbml/files -out /path/to/outputdir -format NQUADS;
 
-2. **pdb2rdf-parser**:
-
+* **pdb2rdf-parser**:
 This module holds the set of classes that convert the PDBML file format to Bio2RDF compliant RDF.
 
-3. **pdb2rdf-cluster**:
-
+* **pdb2rdf-cluster**:
 The cluster edition of this parser. Once you have installed the software go to pdb2rdf-cluster/target and extract `pdb2rdf-cluster-2.0.0-bin.zip`. This file contains `run.sh` an executable shell script that can be used to initialize a PDBML file server onto which other `pdb2rdf.sh` instances can connect to. Here are some example execution types:
 
     1. Print the help:
