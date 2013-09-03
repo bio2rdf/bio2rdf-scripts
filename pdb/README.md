@@ -6,7 +6,10 @@ This is the Bio2RDF parser for the PDB dataset. The files used for the conversio
 	2. Apache Maven 2.2.0 or above+
 
 ##Building
-	1. Simply run: mvn clean install
+	mvn clean install
+
+##Downloading source files
+	This PDB RDFizer converts PDBML files to Bio2RDF R3 compliant linked data. To download and mirror the entire set of PDB files download and run the following Rsync script: https://gist.github.com/jctoledo/6426686
 
 ##Contents
 
@@ -14,7 +17,7 @@ This is the Bio2RDF parser for the PDB dataset. The files used for the conversio
    The command line interface for this parser. Once you have installed the software go to pdb2rdf-cli/target and extract `pdb2rdf-cli-2.0.0-bin.zip`. This file contains `pdb2rdf.sh` an executable shell script that can be used to execute this rdfizer. Here are some example execution types:
      1. Print the help:
        `./pdb2rdf.sh -help`
-     2. Convert one PDB file given its id and store the output in /tmp/output/:
+     2. Convert one PDB record given its id and store the output in /tmp/output/:
        `./pdb2rdf.sh -out /tmp/output`
      3. Convert all PDB entries found in a given directory:
        `./pdb2rdf.sh -dir`
