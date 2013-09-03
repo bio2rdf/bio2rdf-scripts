@@ -77,6 +77,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.RDFWriterF;
 import com.hp.hpl.jena.rdf.model.impl.RDFWriterFImpl;
+import com.hp.hpl.jena.shared.NoWriterForLangException;
 import com.hp.hpl.jena.tdb.TDBFactory;
 
 /**
@@ -299,7 +300,13 @@ public class Pdb2Rdf {
 		RDFWriter writer = writerFactory.getWriter("RDF/XML");
 		if (cmd.hasOption("format")) {
 			if(!cmd.getOptionValue("format").equalsIgnoreCase("NQUADS")){
+				try{
 				writer = writerFactory.getWriter(cmd.getOptionValue("format"));
+				}catch(NoWriterForLangException e){
+					System.out.println("Invalid format option selected!");
+					e.printStackTrace();
+					System.exit(0);
+				}
 			}
 		}
 		return writer;
