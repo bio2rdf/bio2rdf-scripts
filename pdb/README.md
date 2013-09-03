@@ -32,7 +32,7 @@ The command line interface for this parser. Once you have installed the software
 This module holds the set of classes that convert the PDBML file format to Bio2RDF compliant RDF.
 
 * **pdb2rdf-cluster**:
-The cluster edition of this parser. Once you have installed the software go to pdb2rdf-cluster/target and extract `pdb2rdf-cluster-2.0.0-bin.zip`. This file contains `run.sh` an executable shell script that can be used to initialize a PDBML file server onto which other `pdb2rdf.sh` instances can connect to. Here are some example execution types:
+The cluster edition of this parser. Use this module if you have multiple computers that can be used to simultaneously convert PDBML files into RDF Once you have installed the software go to pdb2rdf-cluster/target and extract `pdb2rdf-cluster-2.0.0-bin.zip`. This file contains `run.sh` an executable shell script that can be used to initialize a PDBML file server onto which other `pdb2rdf.sh` instances can connect to. Here are some example execution types:
 
     1. Print the help:
 	./run.sh
@@ -41,7 +41,7 @@ The cluster edition of this parser. Once you have installed the software go to p
  
 Once initialized pdb2rdf.sh clients can connect to the server in the following manner:
 	
-	`./pdb2rdf.sh hasdk lskad jlaskdj LSK j`
+	./pdb2rdf.sh -cluster 192.168.1.123:8123 -out /tmp/output/directory
 	
 
 
