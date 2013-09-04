@@ -247,6 +247,7 @@ variant).
 			$a = explode("\t",$l);
 			if($a[0]) $snps[] = "rs".$a[0];
 		}
+		$snps = array_unique($snps);
 		fclose($fp);
 		return $snps;
 	}
