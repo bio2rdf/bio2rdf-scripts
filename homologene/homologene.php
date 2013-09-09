@@ -28,7 +28,7 @@ SOFTWARE.
  * @author Jose Cruz-Toledo
 */
 
-require(__DIR__.'/../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
 class HomologeneParser extends Bio2RDFizer{
 	
