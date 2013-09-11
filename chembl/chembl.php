@@ -37,7 +37,7 @@ class ChemblParser extends Bio2RDFizer {
 	function __construct($argv) {
 		parent::__construct($argv, "chembl");
 		
-		parent::addParameter('tables',true,'all|activities|assays|components|compounds|documents|domains|protein_families|targets','all','all or comma-separated list of files to process');
+		parent::addParameter('files',true,'all|activities|assays|components|compounds|documents|domains|protein_families|targets','all','all or comma-separated list of files to process');
 		parent::addParameter('mysqluser',true,null,'dba','set the user to access the mysql chembl database');
 		parent::addParameter('mysqlpass',true,null,'dba','set the password of the user to access the mysql chembl database');
 		parent::addParameter('db_name',true,null,'chembl_16','the database to access');
