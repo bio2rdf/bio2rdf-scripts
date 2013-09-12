@@ -38,7 +38,7 @@ class BiomodelsParser extends Bio2RDFizer
 		
 		// set and print application parameters
 		parent::addParameter('files',true,null,'all|curated|biomodel#|start#-end#','entries to process: comma-separated list or hyphen-separated range');
-		parent::addParameter('download_url',false,null,'http://www.ebi.ac.uk/biomodels/models-main/publ/');
+		parent::addParameter('download_url',false,null,'http://www.ebi.ac.uk/biomodels/models-main/');
 		parent::initialize();
 	}
 	
@@ -116,16 +116,21 @@ class BiomodelsParser extends Bio2RDFizer
 		foreach($entries AS $id) {
 			echo "processing ".(++$i)." of $total - biomodel# ".$id;
 			$download_file = $ldir.$id.".owl.gz";
-			$url =  parent::getParameterValue('download_url')."$id/$id-biopax3.owl";
+			$url =  parent::getParameterValue('download_url')."publ/$id/$id-biopax3.owl";
 			// download if the file doesn't exist or we are told to
 			if(!file_exists($download_file) || $this->GetParameterValue('download') == 'true') {
 				// download
 				echo " - downloading";
-				$buf = file_get_contents($url);
-				if(strlen($buf) != 0)  {
-					file_put_contents("compress.zlib://".$download_file, $buf);
-					// usleep(500000); // limit of 4 requests per second
+				$ret = utils::downloadsingle($url,'compress.zlib://'.$download_file, true);
+				if($ret === false) {
+					echo "\nTrying non-curated model";
+					$url = parent::getParametervalue('download_url')."uncura_publ/$id/$id-biopax3.owl";
+					$ret = utils::downloadsingle($url,'compress.zlib://'.$download_file, true);		
+					if($ret === false) {
+						continue;
+					}		
 				}
+				echo " - downloaded";
 			}
 			
 			// load entry, parse and write to file
@@ -143,12 +148,8 @@ class BiomodelsParser extends Bio2RDFizer
 			$rdf = $converter->Parse();
 			parent::addRDF($rdf);
 			parent::writeRDFBufferToWriteFile();
-			parent::getWriteFile()->Close();
 		
-			echo "done!".PHP_EOL;
-
 			//generate dataset description
-			echo "Generating dataset description for BioModel # $id... ";
 			$source_file = (new DataResource($this))
 			->setURI($url)
 			->setTitle("EBI BioModels Database - BioModel # $id")
@@ -165,7 +166,7 @@ class BiomodelsParser extends Bio2RDFizer
 
 		}//foreach
 
-		echo "Generating dataset description for Bio2RDF BioModels... ";
+		parent::getWriteFile()->close();
 
 		$prefix = parent::getPrefix();
 		$bVersion = parent::getParameterValue('bio2rdf_release');
