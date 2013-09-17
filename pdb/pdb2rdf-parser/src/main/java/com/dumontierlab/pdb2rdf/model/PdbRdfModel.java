@@ -85,10 +85,10 @@ public class PdbRdfModel implements Model {
 
 	public PdbRdfModel() {
 		model = ModelFactory.createDefaultModel();
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
 		Date d = new Date();
 		date = dateFormat.format(d);
-		dataset = model.createResource("http://bio2rdf.org/bio2rdf.dataset:"+date);
+		dataset = model.createResource("http://bio2rdf.org/bio2rdf.dataset:pdb-"+date);
 		model.add(dataset, RDF.type, model.createResource("http://rdfs.org/ns/void#Dataset"));
 		inDataset = model.createProperty("http://rdfs.org/ns/void#inDataset");
 	}
