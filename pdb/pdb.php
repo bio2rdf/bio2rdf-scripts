@@ -23,7 +23,8 @@ SOFTWARE.
 
 /**
 * Bio2RDF PDB PHP rdfizer
-* Uses pdb2rdf.sh
+* Uses pdb2rdf.sh and runs pdb2rdf with the following parameters:
+* -format NQUADs -detailLevel RESIDUE
 * @version 1.0
 * @author Jose Cruz-Toledo
 **/
