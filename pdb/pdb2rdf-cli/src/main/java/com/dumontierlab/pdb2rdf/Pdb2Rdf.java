@@ -137,12 +137,14 @@ public class Pdb2Rdf {
 		Map<String, Double> stats = new HashMap<String, Double>();
 		Statistics statistics = new Statistics();
 		try {
-			InputInterator input = new DirectoryIterator(new File(dir), cmd.hasOption("gzip"));
+			InputInterator input = new DirectoryIterator(new File(dir),
+					cmd.hasOption("gzip"));
 			while (input.hasNext()) {
 				try {
 					Model model = ModelFactory.createDefaultModel();
 					model.read(input.next(), "");
-					statistics.mergeStats(statistics.getStatistics(model), stats);
+					statistics.mergeStats(statistics.getStatistics(model),
+							stats);
 				} catch (Exception e) {
 					LOG.warn("Fail to read input file", e);
 				}
@@ -167,7 +169,8 @@ public class Pdb2Rdf {
 		}
 	}
 
-	private static void outputStats(CommandLine cmd, Map<String, Double> stats) throws FileNotFoundException {
+	private static void outputStats(CommandLine cmd, Map<String, Double> stats)
+			throws FileNotFoundException {
 		File outputDir = getOutputDirectory(cmd);
 		File statsFile = null;
 		if (outputDir != null) {
@@ -196,7 +199,8 @@ public class Pdb2Rdf {
 		printRdf(cmd, null);
 	}
 
-	private static void printRdf(final CommandLine cmd, final Map<String, Double> stats) {
+	private static void printRdf(final CommandLine cmd,
+			final Map<String, Double> stats) {
 		final File outDir = getOutputDirectory(cmd);
 		final RDFWriter writer = getWriter(cmd);
 		final ProgressMonitor monitor = getProgressMonitor();
@@ -225,50 +229,63 @@ public class Pdb2Rdf {
 					try {
 						if (cmd.hasOption("detailLevel")) {
 							try {
-								DetailLevel detailLevel = Enum.valueOf(DetailLevel.class,
+								DetailLevel detailLevel = Enum.valueOf(
+										DetailLevel.class,
 										cmd.getOptionValue("detailLevel"));
-								model = parser.parse(input, new PdbRdfModel(), detailLevel);
+								model = parser.parse(input, new PdbRdfModel(),
+										detailLevel);
 							} catch (IllegalArgumentException e) {
-								LOG.fatal("Invalid argument value for detailLevel option", e);
+								LOG.fatal(
+										"Invalid argument value for detailLevel option",
+										e);
 								System.exit(1);
 							}
 						} else {
 							model = parser.parse(input, new PdbRdfModel());
 						}
-						//add the input file information
+						// add the input file information
 						model.addInputFileInformation();
-						//add the outputFile information();
+						// add the outputFile information();
 						model.addRDFFileInformation();
 						if (outDir != null) {
-							File directory = new File(outDir, model.getPdbId().substring(1, 3));
+							File directory = new File(outDir, model.getPdbId()
+									.substring(1, 3));
 							synchronized (lock) {
 								if (!directory.exists()) {
 									directory.mkdir();
 								}
 							}
-							File file = new File(directory, model.getPdbId() + ".rdf.gz");
-							out = new GZIPOutputStream(new FileOutputStream(file));
+							File file = new File(directory, model.getPdbId()
+									+ ".rdf.gz");
+							out = new GZIPOutputStream(new FileOutputStream(
+									file));
 						}
-						if(cmd.getOptionValue("format").equalsIgnoreCase("NQUADs")){
-							Dataset ds = TDBFactory.createDataset();
-							ds.addNamedModel(model.getDatasetResource().toString(), model);
-							StringWriter sw = new StringWriter();
-							RDFDataMgr.write(sw, ds, Lang.NQUADS);
-							
-							out.write(sw.toString().getBytes(Charset.forName("UTF-8")));
-							ds.close();
-		
-						}else{
-							writer.write(model, out, null);
+						if (cmd.hasOption("format")) {
+							if (cmd.getOptionValue("format").equalsIgnoreCase(
+									"NQUADs")) {
+								Dataset ds = TDBFactory.createDataset();
+								ds.addNamedModel(model.getDatasetResource()
+										.toString(), model);
+								StringWriter sw = new StringWriter();
+								RDFDataMgr.write(sw, ds, Lang.NQUADS);
+
+								out.write(sw.toString().getBytes(
+										Charset.forName("UTF-8")));
+								ds.close();
+
+							}
 						}
 						
+						writer.write(model, out, null);
+
 						if (stats != null) {
 							updateStats(stats, model);
 						}
 						if (monitor != null) {
-							monitor.setProgress(progressCount.incrementAndGet(), inputSize);
+							monitor.setProgress(
+									progressCount.incrementAndGet(), inputSize);
 						}
-						
+
 					} catch (Exception e) {
 						String id = null;
 						if (model != null) {
@@ -299,10 +316,11 @@ public class Pdb2Rdf {
 		RDFWriterF writerFactory = new RDFWriterFImpl();
 		RDFWriter writer = writerFactory.getWriter("RDF/XML");
 		if (cmd.hasOption("format")) {
-			if(!cmd.getOptionValue("format").equalsIgnoreCase("NQUADS")){
-				try{
-				writer = writerFactory.getWriter(cmd.getOptionValue("format"));
-				}catch(NoWriterForLangException e){
+			if (!cmd.getOptionValue("format").equalsIgnoreCase("NQUADS")) {
+				try {
+					writer = writerFactory.getWriter(cmd
+							.getOptionValue("format"));
+				} catch (NoWriterForLangException e) {
 					System.out.println("Invalid format option selected!");
 					e.printStackTrace();
 					System.exit(0);
@@ -336,7 +354,8 @@ public class Pdb2Rdf {
 		DetailLevel detailLevel = null;
 		if (cmd.hasOption("detailLevel")) {
 			try {
-				detailLevel = Enum.valueOf(DetailLevel.class, cmd.getOptionValue("detailLevel"));
+				detailLevel = Enum.valueOf(DetailLevel.class,
+						cmd.getOptionValue("detailLevel"));
 			} catch (IllegalArgumentException e) {
 				LOG.fatal("Invalid argument value for detailLevel option", e);
 				System.exit(1);
@@ -362,7 +381,8 @@ public class Pdb2Rdf {
 			}
 		}
 
-		final VirtuosoDaoFactory factory = new VirtuosoDaoFactory(host, port, username, password);
+		final VirtuosoDaoFactory factory = new VirtuosoDaoFactory(host, port,
+				username, password);
 		ExecutorService pool = getThreadPool(cmd);
 
 		final ProgressMonitor monitor = getProgressMonitor();
@@ -382,8 +402,9 @@ public class Pdb2Rdf {
 					UriBuilder uriBuilder = new UriBuilder();
 					PdbRdfModel model = null;
 					try {
-						model = new VirtPdbRdfModel(factory, Bio2RdfPdbUriPattern.PDB_GRAPH, uriBuilder, factory
-								.getTripleStoreDao());
+						model = new VirtPdbRdfModel(factory,
+								Bio2RdfPdbUriPattern.PDB_GRAPH, uriBuilder,
+								factory.getTripleStoreDao());
 						if (f_detailLevel != null) {
 							parser.parse(input, model, f_detailLevel);
 						} else {
@@ -393,11 +414,14 @@ public class Pdb2Rdf {
 							updateStats(stats, model);
 						}
 						if (monitor != null) {
-							monitor.setProgress(progressCount.incrementAndGet(), inputSize);
+							monitor.setProgress(
+									progressCount.incrementAndGet(), inputSize);
 						}
 
 					} catch (Exception e) {
-						LOG.error("Uanble to parse input for pdb=" + (model != null ? model.getPdbId() : "null"), e);
+						LOG.error("Uanble to parse input for pdb="
+								+ (model != null ? model.getPdbId() : "null"),
+								e);
 					}
 				}
 			});
@@ -412,7 +436,6 @@ public class Pdb2Rdf {
 		}
 	}
 
-
 	private static ProgressMonitor getProgressMonitor() {
 		try {
 			return new ConsoleProgressMonitorImpl();
@@ -424,7 +447,9 @@ public class Pdb2Rdf {
 
 	private static void printUsage() {
 		HelpFormatter helpFormatter = new HelpFormatter();
-		helpFormatter.printHelp("pdb2rdf [OPTIONS] [[PDB ID 1] [PDB ID 2] ...]", createOptions());
+		helpFormatter.printHelp(
+				"pdb2rdf [OPTIONS] [[PDB ID 1] [PDB ID 2] ...]",
+				createOptions());
 	}
 
 	private static CommandLineParser createCliParser() {
@@ -440,14 +465,16 @@ public class Pdb2Rdf {
 					LOG.fatal("Cannot access file: " + file);
 					System.exit(1);
 				}
-				return new Pdb2RdfInputIteratorAdapter(new FileIterator(file, gzip));
+				return new Pdb2RdfInputIteratorAdapter(new FileIterator(file,
+						gzip));
 			} else if (cmd.hasOption("dir")) {
 				File dir = new File(cmd.getOptionValue("dir"));
 				if (!dir.exists() || !dir.canRead() || !dir.canExecute()) {
 					LOG.fatal("Cannot access directory: " + dir);
 					System.exit(1);
 				}
-				return new Pdb2RdfInputIteratorAdapter(new DirectoryIterator(dir, gzip));
+				return new Pdb2RdfInputIteratorAdapter(new DirectoryIterator(
+						dir, gzip));
 			} else if (cmd.hasOption("cluster")) {
 				String url = cmd.getOptionValue("cluster");
 				return new ClusterIterator(url);
@@ -470,30 +497,43 @@ public class Pdb2Rdf {
 	@SuppressWarnings("static-access")
 	private static Options createOptions() {
 		Options options = new Options();
-		
+
 		options.addOption("help", false, "Print this message");
-		Option formatOption = OptionBuilder.withArgName("RDF/XML|N-TRIPLE|N3|NQUADS").hasOptionalArgs(1)
-				.withDescription("RDF output format (default: RDF/XMl)").hasArg(true).create("format");
+		Option formatOption = OptionBuilder
+				.withArgName("RDF/XML|N-TRIPLE|N3|NQUADS").hasOptionalArgs(1)
+				.withDescription("RDF output format (default: RDF/XMl)")
+				.hasArg(true).create("format");
 		options.addOption(formatOption);
-		Option dirOption = OptionBuilder.withArgName("path").withDescription("Directory where input files are located")
+		Option dirOption = OptionBuilder.withArgName("path")
+				.withDescription("Directory where input files are located")
 				.hasArg(true).create("dir");
 		options.addOption(dirOption);
-		Option clusterOption = OptionBuilder.withArgName("URL")
-				.withDescription("URL of the cluster head where input will be acquired").hasArg(true).create("cluster");
+		Option clusterOption = OptionBuilder
+				.withArgName("URL")
+				.withDescription(
+						"URL of the cluster head where input will be acquired")
+				.hasArg(true).create("cluster");
 		options.addOption(clusterOption);
 
-		Option fileOption = OptionBuilder.withArgName("path").withDescription("Input file").hasArg(true).create("file");
+		Option fileOption = OptionBuilder.withArgName("path")
+				.withDescription("Input file").hasArg(true).create("file");
 		options.addOption(fileOption);
 		options.addOption("gzip", false, "Input is given as gzip file(s)");
-		Option outDirOption = OptionBuilder.withArgName("path")
-				.withDescription("Directory where output RDF files will be created").hasArg(true).create("out");
+		Option outDirOption = OptionBuilder
+				.withArgName("path")
+				.withDescription(
+						"Directory where output RDF files will be created")
+				.hasArg(true).create("out");
 		options.addOption(outDirOption);
-		options.addOption("ontology", false, "Prints the ontology for the PDB namespace");
-		Option threadsOption = OptionBuilder.withArgName("number")
-				.withDescription("Number of threads (default: number of processing units * 2)").hasArg(true)
-				.create("threads");
+		options.addOption("ontology", false,
+				"Prints the ontology for the PDB namespace");
+		Option threadsOption = OptionBuilder
+				.withArgName("number")
+				.withDescription(
+						"Number of threads (default: number of processing units * 2)")
+				.hasArg(true).create("threads");
 		options.addOption(threadsOption);
-		
+
 		options.addOption(
 				"stats",
 				false,
@@ -502,8 +542,10 @@ public class Pdb2Rdf {
 				"statsFromRDF",
 				false,
 				"Generates statistics from RDF files (located in the directory spefied by -dir). The stats are output to the file pdb2rdf-stats.txt (in output directory, if one is specified, or in the current directory otherwise)");
-		Option noAtomSitesOption = OptionBuilder.hasArg(true)
-				.withDescription("Specify detail level: COMPLETE | ATOM | RESIDUE | EXPERIMENT | METADATA ")
+		Option noAtomSitesOption = OptionBuilder
+				.hasArg(true)
+				.withDescription(
+						"Specify detail level: COMPLETE | ATOM | RESIDUE | EXPERIMENT | METADATA ")
 				.create("detailLevel");
 		options.addOption(noAtomSitesOption);
 		return options;
@@ -513,7 +555,8 @@ public class Pdb2Rdf {
 		int numberOfThreads = Runtime.getRuntime().availableProcessors();
 		if (cmd.hasOption("threads")) {
 			try {
-				numberOfThreads = Integer.parseInt(cmd.getOptionValue("threads"));
+				numberOfThreads = Integer.parseInt(cmd
+						.getOptionValue("threads"));
 			} catch (NumberFormatException e) {
 				LOG.fatal("Invalid number of threads", e);
 				System.exit(1);
@@ -527,10 +570,13 @@ public class Pdb2Rdf {
 		final Object monitor = new Object();
 		int numberOfThreads = getNumberOfThreads(cmd);
 		LOG.info("Using " + numberOfThreads + " threads.");
-		ThreadPoolExecutor threadPool = new ThreadPoolExecutor(numberOfThreads, numberOfThreads, 10, TimeUnit.MINUTES,
-				new ArrayBlockingQueue<Runnable>(1), new RejectedExecutionHandler() {
+		ThreadPoolExecutor threadPool = new ThreadPoolExecutor(numberOfThreads,
+				numberOfThreads, 10, TimeUnit.MINUTES,
+				new ArrayBlockingQueue<Runnable>(1),
+				new RejectedExecutionHandler() {
 					@Override
-					public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+					public void rejectedExecution(Runnable r,
+							ThreadPoolExecutor executor) {
 						synchronized (monitor) {
 							try {
 								monitor.wait();
