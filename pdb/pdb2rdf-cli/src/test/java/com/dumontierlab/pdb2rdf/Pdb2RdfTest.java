@@ -50,7 +50,7 @@ public class Pdb2RdfTest {
 
 	@Test
 	public void test() {
-	//	String [] args = new String[]{"-gzip","-detailLevel", "RESIDUE","-dir" ,"/media/320/bio2rdf/data/download/pdb", "-out", "/media/320/bio2rdf/data/rdf/pdb"};
+	//	String [] args = new String[]{"-gzip","-detailLevel", "RESIDUE","-dir" ,"/media/320/bio2rdf/data/download/pdb", "-out", "/media/320/bio2rdf/data/rdf/pdb", "-format", "NQUADs"};
 		String[] args = new String[]{"-out", "/tmp", "1Y27"};
 		Pdb2Rdf.main(args);
 	}

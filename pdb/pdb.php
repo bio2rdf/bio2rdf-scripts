@@ -42,6 +42,7 @@ class PDBParser extends Bio2RDFizer{
 		$d = $this->checkDependencies();
 		if($d){
 			//build pdb2rdf
+			echo "building pdb2rdf...".PHP_EOL;
 			$cmd = "mvn clean install -DskipTests -f ".__DIR__."/pom.xml";
 			$build_out = shell_exec($cmd);
 			$out_ver = $this->verifyMavenBuildOutput($build_out);
@@ -57,7 +58,12 @@ class PDBParser extends Bio2RDFizer{
 					trigger_error("Could not extract pdb2rdf!", E_USER_ERROR);
 				}
 				//now get ready to run pdb2rdf.sh
-				
+				if(!$this->runPdb2Rdf($ldir, $odir)){
+					trigger_error("Could not run Pdb2RDF correctly!", E_USER_ERROR);
+					exit;
+				}else{
+					echo "done!\n";
+				}
 			}else{
 				trigger_error("Could not build pdb2rdf. Please try manually!", E_USER_ERROR);
 			}
@@ -66,6 +72,28 @@ class PDBParser extends Bio2RDFizer{
 			trigger_error("Dependencies not met!", E_USER_ERROR);
 			exit;
 		}
+	}
+
+	private function runPdb2Rdf($inputDir, $outputDir){
+		//first find the filename and version of the cli
+		$dir = __DIR__."/pdb2rdf-cli/target";
+		$dh = opendir($dir);
+		$version = null;
+		while(false !== ($fn = readdir($dh))) {
+			$pattern = "/pdb2rdf-cli-(.*)-bin.zip/";
+			preg_match($pattern, $fn, $matches);
+			if(count($matches)){
+				$version = $matches[1];
+			}
+		}
+		if($version != null){
+			$cmd = __DIR__."/pdb2rdf-cli/target/pdb2rdf-cli-".$version."/./pdb2rdf.sh";
+			echo "running pdb2rdf... ".PHP_EOL;
+			$cmd .= " -gzip -dir ".$inputDir." -out ".$outputDir. " -format NQUADs -detailLevel RESIDUE";
+			$s = exec($cmd);
+			return true; 
+		}
+		return false;
 	}
 
 	private function extractCli(){
