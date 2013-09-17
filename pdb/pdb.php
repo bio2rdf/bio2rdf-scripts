@@ -56,6 +56,8 @@ class PDBParser extends Bio2RDFizer{
 				if(!$this->extractCli()){
 					trigger_error("Could not extract pdb2rdf!", E_USER_ERROR);
 				}
+				//now get ready to run pdb2rdf.sh
+				
 			}else{
 				trigger_error("Could not build pdb2rdf. Please try manually!", E_USER_ERROR);
 			}
@@ -67,19 +69,32 @@ class PDBParser extends Bio2RDFizer{
 	}
 
 	private function extractCli(){
-		$d = __DIR__."/pdb2rdf-cli/target/pdb2rdf-cli-2.0.0-bin.zip";
-		$zip = new ZipArchive;
-		$res = $zip->open($d);
-		if($res === TRUE){
-			$zip->extractTo(__DIR__."/pdb2rdf-cli/target/");
-			//TODO:: finishme make pdb2rdf.sh executable
-			$zip->close();
-			echo 'extracted pdb2rdf-cli'.PHP_EOL;
-			return true;
-		}else{
-			trigger_error("Could not extract pdb2rdf-cli", E_USER_ERROR);
-			exit;
+		//first find the filename and version of the cli
+		$dir = __DIR__."/pdb2rdf-cli/target";
+		$dh = opendir($dir);
+		$version = null;
+		while(false !== ($fn = readdir($dh))) {
+			$pattern = "/pdb2rdf-cli-(.*)-bin.zip/";
+			preg_match($pattern, $fn, $matches);
+			if(count($matches)){
+				$version = $matches[1];
+			}
 		}
+		if($version != null){
+			$d = __DIR__."/pdb2rdf-cli/target/pdb2rdf-cli-".$version."-bin.zip";
+			$zip = new ZipArchive;
+			$res = $zip->open($d);
+			if($res === TRUE){
+				$zip->extractTo(__DIR__."/pdb2rdf-cli/target/");
+				$zip->close();
+				chmod(__DIR__."/pdb2rdf-cli/target/pdb2rdf-cli-".$version."/pdb2rdf.sh", 0777);
+				echo 'extracted pdb2rdf-cli'.PHP_EOL;
+				return true;
+			}else{
+				trigger_error("Could not extract pdb2rdf-cli", E_USER_ERROR);
+				exit;
+			}
+		}		
 		return false;
 	}
 
