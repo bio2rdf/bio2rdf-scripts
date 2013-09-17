@@ -30,7 +30,7 @@
  * @description Bio2RDF parser for ChEMBL SQL dump loaded into a MySQL database
 */
 
-require('../../php-lib/bio2rdfapi.php')
+require('../../php-lib/bio2rdfapi.php');
 
 class ChemblParser extends Bio2RDFizer {
 
