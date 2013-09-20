@@ -44,6 +44,7 @@ class ChemblParser extends Bio2RDFizer {
 		parent::addParameter('mysqlpass',true,null,'dba','set the password of the user to access the mysql chembl database');
 		parent::addParameter('db_name',true,null,'chembl_16','the database to access');
 		parent::addParameter('db_ip', true, null, 'localhost', 'the IP of the MySQL server hosting the database to access');
+		parent::addParameter('db_port', true, null, '3306', 'the port of the MySQL server hosting the database to access');
 		parent::initialize();			
 	}
 
@@ -63,11 +64,12 @@ class ChemblParser extends Bio2RDFizer {
 	function connect_to_db(){
 
 		$ip = parent::getParameterValue("db_ip");
+		$port = parent::getParameterValue("db_port");
 		$user = parent::getParameterValue("mysqluser");
 		$pwd = parent::getParameterValue("mysqlpass");
 		$db = parent::getParameterValue("db_name");
 
-		$connection = new mysqli($ip, $user, $pwd, $db);
+		$connection = new mysqli($ip, $user, $pwd, $db, $port);
 
 		if ($connection->connect_errno) {
 	    	printf("Connection failed: %s\n", $connection->connect_error);
