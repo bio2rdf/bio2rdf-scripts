@@ -129,154 +129,224 @@ public class AtomSiteCategoryHandler extends ContentHandlerState {
 	private final Map<String, Collection<Resource>> residues;
 	private Resource chemicalSubstanceResource;
 
-	public AtomSiteCategoryHandler(PdbRdfModel rdfModel, UriBuilder uriBuilder, String pdbId,
-			Map<String, Collection<Resource>> residues) {
+	public AtomSiteCategoryHandler(PdbRdfModel rdfModel, UriBuilder uriBuilder,
+			String pdbId, Map<String, Collection<Resource>> residues) {
 		super(rdfModel, uriBuilder);
 		this.pdbId = pdbId;
 		this.residues = residues;
 	}
 
 	@Override
-	public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
+	public void startElement(String uri, String localName, String name,
+			Attributes attributes) throws SAXException {
 		if (PdbXmlVocabulary.ATOM_SITE.equals(localName)) {
 			atomSiteId = attributes.getValue(PdbXmlVocabulary.ID_ATT);
-		} else if (PdbXmlVocabulary.AUTH_ASYM_ID.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.AUTH_ASYM_ID.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.AUTH_ATOM_ID.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.AUTH_ATOM_ID.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.AUTH_COMP_ID.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.AUTH_COMP_ID.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.AUTH_SEQ_ID.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.AUTH_SEQ_ID.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.MODEL_NUMBER.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.MODEL_NUMBER.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.B_EQUIVALENT_GEOMETRIC_MEAN.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.B_EQUIVALENT_GEOMETRIC_MEAN
+				.equals(localName) && !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.B_EQUIVALENT_GEOMETRIC_MEAN_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.B_EQUIVALENT_GEOMETRIC_MEAN_ESD
+				.equals(localName) && !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.B_ISO_OR_EQUIVALENT.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.B_ISO_OR_EQUIVALENT.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.B_ISO_OR_EQUIVALENT_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.B_ISO_OR_EQUIVALENT_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.CARTN_X.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.CARTN_X.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.CARTN_X_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.CARTN_X_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.CARTN_Y.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.CARTN_Y.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.CARTN_Y_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.CARTN_Y_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.CARTN_Z.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.CARTN_Z.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.CARTN_Z_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.CARTN_Z_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.U_EQUIVALENT_GEOMETRIC_MEAN.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.U_EQUIVALENT_GEOMETRIC_MEAN
+				.equals(localName) && !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.U_EQUIVALENT_GEOMETRIC_MEAN_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.U_EQUIVALENT_GEOMETRIC_MEAN_ESD
+				.equals(localName) && !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.U_ISO_OR_EQUIVALENT.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.U_ISO_OR_EQUIVALENT.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.U_ISO_OR_EQUIVALENT_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.U_ISO_OR_EQUIVALENT_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.WYCKOFF_SYMBOL.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.WYCKOFF_SYMBOL.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B11.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B11.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B11_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B11_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B12.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B12.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B12_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B12_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B13.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B13.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B13_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B13_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B22.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B22.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B22_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B22_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B23.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B23.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B23_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B23_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B33.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B33.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B33_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_B33_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U11.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U11.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U11_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U11_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U12.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U12.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U12_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U12_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U13.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U13.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U13_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U13_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U22.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U22.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U22_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U22_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U23.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U23.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U23_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U23_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U33.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U33.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U33_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_U33_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ANISO_RATIO.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ANISO_RATIO.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.ATTACHED_HYDROGENS.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.ATTACHED_HYDROGENS.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.CALC_ATTACHED_ATOM.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.CALC_ATTACHED_ATOM.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.CHEMICAL_CONN_NUMBER.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.CHEMICAL_CONN_NUMBER.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.CONSTRAINTS.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.CONSTRAINTS.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.DISORDER_ASSEMBLY.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.DISORDER_ASSEMBLY.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.DISORDER_GROUP.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.DISORDER_GROUP.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.FOOTNOTE_ID.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.FOOTNOTE_ID.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_X.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.FRACTION_X.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_X_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.FRACTION_X_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_Y.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.FRACTION_Y.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_Y_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.FRACTION_Y_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_Z.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.FRACTION_Z.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_Z_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.FRACTION_Z_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.GROUP_PDB.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.GROUP_PDB.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.OCCUPANCY.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.OCCUPANCY.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.OCCUPANCY_ESD.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.OCCUPANCY_ESD.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.PDBX_FORMAL_CHARGE.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.PDBX_FORMAL_CHARGE.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.PDBX_NCS_DOM_ID.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.PDBX_NCS_DOM_ID.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.PDBX_TLS_GROUP_ID.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.PDBX_TLS_GROUP_ID.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.RESTRAINTS.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.RESTRAINTS.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.SYMMETRY_MULTIPLICITY.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.SYMMETRY_MULTIPLICITY.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.TYPE_SYMBOL.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.TYPE_SYMBOL.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.LABEL_COMP_ID.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.LABEL_COMP_ID.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
-		} else if (PdbXmlVocabulary.LABEL_ENTITY_ID.equals(localName) && !isNil(attributes)) {
+		} else if (PdbXmlVocabulary.LABEL_ENTITY_ID.equals(localName)
+				&& !isNil(attributes)) {
 			startBuffering();
 		}
 
@@ -284,219 +354,287 @@ public class AtomSiteCategoryHandler extends ContentHandlerState {
 	}
 
 	@Override
-	public void endElement(String uri, String localName, String name) throws SAXException {
+	public void endElement(String uri, String localName, String name)
+			throws SAXException {
 		if (PdbXmlVocabulary.ATOM_SITE.equals(localName)) {
 			createRdf();
 			clear();
-		} else if (PdbXmlVocabulary.AUTH_ASYM_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.AUTH_ASYM_ID.equals(localName)
+				&& isBuffering()) {
 			chainId = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.AUTH_ATOM_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.AUTH_ATOM_ID.equals(localName)
+				&& isBuffering()) {
 			atomName = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.AUTH_COMP_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.AUTH_COMP_ID.equals(localName)
+				&& isBuffering()) {
 			residueId = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.AUTH_SEQ_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.AUTH_SEQ_ID.equals(localName)
+				&& isBuffering()) {
 			chainPosition = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.AUTH_SEQ_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.AUTH_SEQ_ID.equals(localName)
+				&& isBuffering()) {
 			chainPosition = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.MODEL_NUMBER.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.MODEL_NUMBER.equals(localName)
+				&& isBuffering()) {
 			modelNumber = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.B_EQUIVALENT_GEOMETRIC_MEAN.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.B_EQUIVALENT_GEOMETRIC_MEAN
+				.equals(localName) && isBuffering()) {
 			bEquivGeomMean = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.B_EQUIVALENT_GEOMETRIC_MEAN_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.B_EQUIVALENT_GEOMETRIC_MEAN_ESD
+				.equals(localName) && isBuffering()) {
 			bEquivGeomMeanEsd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.B_ISO_OR_EQUIVALENT.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.B_ISO_OR_EQUIVALENT.equals(localName)
+				&& isBuffering()) {
 			bIsoOrEquiv = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.B_ISO_OR_EQUIVALENT_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.B_ISO_OR_EQUIVALENT_ESD.equals(localName)
+				&& isBuffering()) {
 			bIsoOrEquivEsd = getBufferContent();
 			stopBuffering();
 		} else if (PdbXmlVocabulary.CARTN_X.equals(localName) && isBuffering()) {
 			cartnX = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.CARTN_X_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.CARTN_X_ESD.equals(localName)
+				&& isBuffering()) {
 			cartnXEsd = getBufferContent();
 			stopBuffering();
 		} else if (PdbXmlVocabulary.CARTN_Y.equals(localName) && isBuffering()) {
 			cartnY = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.CARTN_Y_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.CARTN_Y_ESD.equals(localName)
+				&& isBuffering()) {
 			cartnYEsd = getBufferContent();
 			stopBuffering();
 		} else if (PdbXmlVocabulary.CARTN_Z.equals(localName) && isBuffering()) {
 			cartnZ = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.CARTN_Z_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.CARTN_Z_ESD.equals(localName)
+				&& isBuffering()) {
 			cartnZEsd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.U_EQUIVALENT_GEOMETRIC_MEAN.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.U_EQUIVALENT_GEOMETRIC_MEAN
+				.equals(localName) && isBuffering()) {
 			uEquivGeomMean = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.U_EQUIVALENT_GEOMETRIC_MEAN_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.U_EQUIVALENT_GEOMETRIC_MEAN_ESD
+				.equals(localName) && isBuffering()) {
 			uEquivGeomMeanEsd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.U_ISO_OR_EQUIVALENT.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.U_ISO_OR_EQUIVALENT.equals(localName)
+				&& isBuffering()) {
 			uIsoOrEquiv = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.U_ISO_OR_EQUIVALENT_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.U_ISO_OR_EQUIVALENT_ESD.equals(localName)
+				&& isBuffering()) {
 			uIsoOrEquivEsd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.WYCKOFF_SYMBOL.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.WYCKOFF_SYMBOL.equals(localName)
+				&& isBuffering()) {
 			wyckoffSymbol = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B11.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B11.equals(localName)
+				&& isBuffering()) {
 			anisoB11 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B11_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B11_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoB11Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B12.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B12.equals(localName)
+				&& isBuffering()) {
 			anisoB12 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B12_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B12_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoB12Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B13.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B13.equals(localName)
+				&& isBuffering()) {
 			anisoB13 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B13_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B13_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoB13Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B22.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B22.equals(localName)
+				&& isBuffering()) {
 			anisoB22 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B22_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B22_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoB22Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B23.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B23.equals(localName)
+				&& isBuffering()) {
 			anisoB23 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B23_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B23_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoB23Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B33.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B33.equals(localName)
+				&& isBuffering()) {
 			anisoB33 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_B33_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_B33_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoB33Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U11.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U11.equals(localName)
+				&& isBuffering()) {
 			anisoU11 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U11_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U11_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoU11Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U12.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U12.equals(localName)
+				&& isBuffering()) {
 			anisoU12 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U12_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U12_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoU12Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U13.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U13.equals(localName)
+				&& isBuffering()) {
 			anisoU13 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U13_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U13_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoU13Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U22.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U22.equals(localName)
+				&& isBuffering()) {
 			anisoU22 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U22_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U22_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoU22Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U23.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U23.equals(localName)
+				&& isBuffering()) {
 			anisoU23 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U23_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U23_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoU23Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U33.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U33.equals(localName)
+				&& isBuffering()) {
 			anisoU33 = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_U33_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_U33_ESD.equals(localName)
+				&& isBuffering()) {
 			anisoU33Esd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ANISO_RATIO.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ANISO_RATIO.equals(localName)
+				&& isBuffering()) {
 			anisoRatio = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.ATTACHED_HYDROGENS.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.ATTACHED_HYDROGENS.equals(localName)
+				&& isBuffering()) {
 			attachedHydrogens = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.CALC_ATTACHED_ATOM.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.CALC_ATTACHED_ATOM.equals(localName)
+				&& isBuffering()) {
 			calcAttachedAtom = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.CHEMICAL_CONN_NUMBER.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.CHEMICAL_CONN_NUMBER.equals(localName)
+				&& isBuffering()) {
 			chemicalConnNumber = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.CONSTRAINTS.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.CONSTRAINTS.equals(localName)
+				&& isBuffering()) {
 			constraints = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.DISORDER_ASSEMBLY.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.DISORDER_ASSEMBLY.equals(localName)
+				&& isBuffering()) {
 			disorderAssembly = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.DISORDER_GROUP.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.DISORDER_GROUP.equals(localName)
+				&& isBuffering()) {
 			disorderGroup = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.FOOTNOTE_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.FOOTNOTE_ID.equals(localName)
+				&& isBuffering()) {
 			footnoteId = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_X.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.FRACTION_X.equals(localName)
+				&& isBuffering()) {
 			fractX = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_X_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.FRACTION_X_ESD.equals(localName)
+				&& isBuffering()) {
 			fractXEsd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_Y.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.FRACTION_Y.equals(localName)
+				&& isBuffering()) {
 			fractY = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_Y_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.FRACTION_Y_ESD.equals(localName)
+				&& isBuffering()) {
 			fractYEsd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_Z.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.FRACTION_Z.equals(localName)
+				&& isBuffering()) {
 			fractZ = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.FRACTION_Z_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.FRACTION_Z_ESD.equals(localName)
+				&& isBuffering()) {
 			fractZEsd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.GROUP_PDB.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.GROUP_PDB.equals(localName)
+				&& isBuffering()) {
 			groupPDB = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.OCCUPANCY.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.OCCUPANCY.equals(localName)
+				&& isBuffering()) {
 			occupancy = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.OCCUPANCY_ESD.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.OCCUPANCY_ESD.equals(localName)
+				&& isBuffering()) {
 			occupancyEsd = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.PDBX_FORMAL_CHARGE.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.PDBX_FORMAL_CHARGE.equals(localName)
+				&& isBuffering()) {
 			pdbxFormalCharge = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.PDBX_NCS_DOM_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.PDBX_NCS_DOM_ID.equals(localName)
+				&& isBuffering()) {
 			pdbxNcsDomId = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.PDBX_TLS_GROUP_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.PDBX_TLS_GROUP_ID.equals(localName)
+				&& isBuffering()) {
 			pdbxTlsGroupId = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.RESTRAINTS.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.RESTRAINTS.equals(localName)
+				&& isBuffering()) {
 			restraints = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.SYMMETRY_MULTIPLICITY.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.SYMMETRY_MULTIPLICITY.equals(localName)
+				&& isBuffering()) {
 			symmetryMultiplicity = getBufferContent();
 			stopBuffering();
 
-		} else if (PdbXmlVocabulary.LABEL_COMP_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.LABEL_COMP_ID.equals(localName)
+				&& isBuffering()) {
 			labelCompId = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.LABEL_ENTITY_ID.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.LABEL_ENTITY_ID.equals(localName)
+				&& isBuffering()) {
 			labelEntityId = getBufferContent();
 			stopBuffering();
-		} else if (PdbXmlVocabulary.TYPE_SYMBOL.equals(localName) && isBuffering()) {
+		} else if (PdbXmlVocabulary.TYPE_SYMBOL.equals(localName)
+				&& isBuffering()) {
 			createAtomType(getBufferContent());
 		}
 
@@ -540,98 +678,143 @@ public class AtomSiteCategoryHandler extends ContentHandlerState {
 	}
 
 	private void createFormalCharge() {
-		Resource quality = createResource(Bio2RdfPdbUriPattern.FORMAL_CHARGE, pdbId, atomSiteId);
-		getRdfModel().add(getAtomLocationResource(), PdbOwlVocabulary.ObjectProperty.hasFormalCharge.property(),
+		Resource quality = createResource(Bio2RdfPdbUriPattern.FORMAL_CHARGE,
+				pdbId, atomSiteId);
+		getRdfModel().add(getAtomLocationResource(),
+				PdbOwlVocabulary.ObjectProperty.hasFormalCharge.property(),
 				quality);
-		getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasValue.property(),
+		getRdfModel().add(quality,
+				PdbOwlVocabulary.DataProperty.hasValue.property(),
 				createDecimalLiteral(pdbxFormalCharge));
-		getRdfModel().add(quality, RDF.type, PdbOwlVocabulary.Class.PartialCharge.resource());
+		getRdfModel().add(quality, RDF.type,
+				PdbOwlVocabulary.Class.PartialCharge.resource());
 	}
 
 	private void createOccupancy() {
-		// TODO: ADD TYPE FOR QUALITY
-		Resource quality = createResource(Bio2RdfPdbUriPattern.OCCUPANCY, pdbId, atomSiteId);
-		getRdfModel().add(getAtomLocationResource(), PdbOwlVocabulary.ObjectProperty.hasOccupancy.property(), quality);
-		getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasValue.property(), createDecimalLiteral(occupancy));
-		getRdfModel().add(quality, RDF.type, PdbOwlVocabulary.Class.AtomOccupancy.resource());
+		Resource quality = createResource(Bio2RdfPdbUriPattern.OCCUPANCY,
+				pdbId, atomSiteId);
+		getRdfModel().add(getAtomLocationResource(),
+				PdbOwlVocabulary.ObjectProperty.hasOccupancy.property(),
+				quality);
+		getRdfModel().add(quality,
+				PdbOwlVocabulary.DataProperty.hasValue.property(),
+				createDecimalLiteral(occupancy));
+		getRdfModel().add(quality, RDF.type,
+				PdbOwlVocabulary.Class.AtomOccupancy.resource());
 		if (occupancyEsd != null) {
-			getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasStandardDeviation.property(),
-					createDecimalLiteral(occupancyEsd));
+			getRdfModel().add(
+					quality,
+					PdbOwlVocabulary.DataProperty.hasStandardDeviation
+							.property(), createDecimalLiteral(occupancyEsd));
 		}
 	}
 
 	private void createCartnZ() {
-		Resource quality = createResource(Bio2RdfPdbUriPattern.CARTN_Z, pdbId, atomSiteId);
-		getRdfModel()
-				.add(getAtomLocationResource(), PdbOwlVocabulary.ObjectProperty.hasZCoordinate.property(), quality);
-		getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasValue.property(), createDecimalLiteral(cartnZ));
-		getRdfModel().add(quality, RDF.type, PdbOwlVocabulary.Class.ZCartesianCoordinate.resource());
+		Resource quality = createResource(Bio2RdfPdbUriPattern.CARTN_Z, pdbId,
+				atomSiteId);
+		getRdfModel().add(getAtomLocationResource(),
+				PdbOwlVocabulary.ObjectProperty.hasZCoordinate.property(),
+				quality);
+		getRdfModel().add(quality,
+				PdbOwlVocabulary.DataProperty.hasValue.property(),
+				createDecimalLiteral(cartnZ));
+		getRdfModel().add(quality, RDF.type,
+				PdbOwlVocabulary.Class.ZCartesianCoordinate.resource());
 		if (cartnZEsd != null) {
-			getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasStandardDeviation.property(),
-					createDecimalLiteral(cartnZEsd));
+			getRdfModel().add(
+					quality,
+					PdbOwlVocabulary.DataProperty.hasStandardDeviation
+							.property(), createDecimalLiteral(cartnZEsd));
 		}
 	}
 
 	private void createCartnY() {
-		Resource quality = createResource(Bio2RdfPdbUriPattern.CARTN_Y, pdbId, atomSiteId);
-		getRdfModel()
-				.add(getAtomLocationResource(), PdbOwlVocabulary.ObjectProperty.hasYCoordinate.property(), quality);
-		getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasValue.property(), createDecimalLiteral(cartnY));
-		getRdfModel().add(quality, RDF.type, PdbOwlVocabulary.Class.YCartesianCoordinate.resource());
+		Resource quality = createResource(Bio2RdfPdbUriPattern.CARTN_Y, pdbId,
+				atomSiteId);
+		getRdfModel().add(getAtomLocationResource(),
+				PdbOwlVocabulary.ObjectProperty.hasYCoordinate.property(),
+				quality);
+		getRdfModel().add(quality,
+				PdbOwlVocabulary.DataProperty.hasValue.property(),
+				createDecimalLiteral(cartnY));
+		getRdfModel().add(quality, RDF.type,
+				PdbOwlVocabulary.Class.YCartesianCoordinate.resource());
 		if (cartnYEsd != null) {
-			getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasStandardDeviation.property(),
-					createDecimalLiteral(cartnYEsd));
+			getRdfModel().add(
+					quality,
+					PdbOwlVocabulary.DataProperty.hasStandardDeviation
+							.property(), createDecimalLiteral(cartnYEsd));
 		}
 	}
 
 	private void createCartnX() {
-		Resource quality = createResource(Bio2RdfPdbUriPattern.CARTN_X, pdbId, atomSiteId);
-		getRdfModel()
-				.add(getAtomLocationResource(), PdbOwlVocabulary.ObjectProperty.hasXCoordinate.property(), quality);
-		getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasValue.property(), createDecimalLiteral(cartnX));
-		getRdfModel().add(quality, RDF.type, PdbOwlVocabulary.Class.XCartesianCoordinate.resource());
+		Resource quality = createResource(Bio2RdfPdbUriPattern.CARTN_X, pdbId,
+				atomSiteId);
+		getRdfModel().add(getAtomLocationResource(),
+				PdbOwlVocabulary.ObjectProperty.hasXCoordinate.property(),
+				quality);
+		getRdfModel().add(quality,
+				PdbOwlVocabulary.DataProperty.hasValue.property(),
+				createDecimalLiteral(cartnX));
+		getRdfModel().add(quality, RDF.type,
+				PdbOwlVocabulary.Class.XCartesianCoordinate.resource());
 		if (cartnXEsd != null) {
-			getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasStandardDeviation.property(),
-					createDecimalLiteral(cartnXEsd));
+			getRdfModel().add(
+					quality,
+					PdbOwlVocabulary.DataProperty.hasStandardDeviation
+							.property(), createDecimalLiteral(cartnXEsd));
 		}
 
 	}
 
 	private void createBIsoOrEquiv() {
-		Resource quality = createResource(Bio2RdfPdbUriPattern.B_ISO_OR_EQUIVALENT, pdbId, atomSiteId);
-		getRdfModel().add(getAtomLocationResource(),
-				PdbOwlVocabulary.ObjectProperty.hasIsotropicAtomicDisplacement.property(), quality);
-		getRdfModel()
-				.add(quality, PdbOwlVocabulary.DataProperty.hasValue.property(), createDecimalLiteral(bIsoOrEquiv));
-		getRdfModel().add(quality, RDF.type, PdbOwlVocabulary.Class.IsotropicAtomicDisplacement.resource());
+		Resource quality = createResource(
+				Bio2RdfPdbUriPattern.B_ISO_OR_EQUIVALENT, pdbId, atomSiteId);
+		getRdfModel().add(
+				getAtomLocationResource(),
+				PdbOwlVocabulary.ObjectProperty.hasIsotropicAtomicDisplacement
+						.property(), quality);
+		getRdfModel().add(quality,
+				PdbOwlVocabulary.DataProperty.hasValue.property(),
+				createDecimalLiteral(bIsoOrEquiv));
+		getRdfModel().add(quality, RDF.type,
+				PdbOwlVocabulary.Class.IsotropicAtomicDisplacement.resource());
 		if (bIsoOrEquivEsd != null) {
-			getRdfModel().add(quality, PdbOwlVocabulary.DataProperty.hasStandardDeviation.property(),
-					createDecimalLiteral(bIsoOrEquivEsd));
+			getRdfModel().add(
+					quality,
+					PdbOwlVocabulary.DataProperty.hasStandardDeviation
+							.property(), createDecimalLiteral(bIsoOrEquivEsd));
 		}
 
 	}
 
 	private Resource getAtomResource() {
-		assert chainId != null && atomName != null && residueId != null && chainPosition != null : "The chainId, atomName, residueId and chainPosition are needed for creating this resorce";
+		assert chainId != null && atomName != null && residueId != null
+				&& chainPosition != null : "The chainId, atomName, residueId and chainPosition are needed for creating this resorce";
 		if (atomResource == null) {
-			atomResource = createResource(Bio2RdfPdbUriPattern.ATOM, pdbId, chainId, chainPosition,
+			atomResource = createResource(Bio2RdfPdbUriPattern.ATOM, pdbId,
+					chainId, chainPosition,
 					UriUtil.urlEncode(UriUtil.replacePrimes(atomName)));
-			if (!getRdfModel().containsResource(atomResource)) {
-				if (groupPDB.equals(PdbXmlVocabulary.PDB_GROUP_ATOM_VALUE)) {
-					getRdfModel().add(getResidue(), PdbOwlVocabulary.ObjectProperty.hasPart.property(), atomResource);
-				} else {
-					getRdfModel().add(atomResource, PdbOwlVocabulary.ObjectProperty.isPartOf.property(),
-							getChemicalSubstanceResource());
-				}
-				getRdfModel().add(atomResource, RDFS.label, atomName);
+
+			if (groupPDB.equals(PdbXmlVocabulary.PDB_GROUP_ATOM_VALUE)) {
+				getRdfModel().add(getResidue(),
+						PdbOwlVocabulary.ObjectProperty.hasPart.property(),
+						atomResource);
+			} else {
+				getRdfModel().add(atomResource,
+						PdbOwlVocabulary.ObjectProperty.isPartOf.property(),
+						getChemicalSubstanceResource());
 			}
+			getRdfModel().add(atomResource, RDFS.label, atomName);
 		}
 		return atomResource;
 	}
 
 	private Resource getChemicalSubstanceResource() {
 		if (chemicalSubstanceResource == null) {
-			chemicalSubstanceResource = createResource(Bio2RdfPdbUriPattern.CHEMICAL_SUBSTANCE, pdbId, labelEntityId);
+			chemicalSubstanceResource = createResource(
+					Bio2RdfPdbUriPattern.CHEMICAL_SUBSTANCE, pdbId,
+					labelEntityId);
 		}
 		return chemicalSubstanceResource;
 	}
@@ -639,29 +822,35 @@ public class AtomSiteCategoryHandler extends ContentHandlerState {
 	private Resource getModelResource() {
 		assert modelNumber != null : "The model number is needed for creating this resource";
 		if (modelResource == null) {
-			modelResource = createResource(Bio2RdfPdbUriPattern.MODEL, pdbId, modelNumber);
+			modelResource = createResource(Bio2RdfPdbUriPattern.MODEL, pdbId,
+					modelNumber);
 			// add the statement that the structure determination has product
 			// this model
-			if (!getRdfModel().containsResource(modelResource)) {
-				Resource structureDetermination = createResource(Bio2RdfPdbUriPattern.STRUCTURE_DETERMINATION, pdbId);
-				getRdfModel().add(structureDetermination, PdbOwlVocabulary.ObjectProperty.hasProduct.property(),
-						modelResource);
-				getRdfModel().add(modelResource, RDF.type, PdbOwlVocabulary.Class.Model.resource());
-				getRdfModel().add(modelResource, RDFS.label, "Model " + modelNumber);
+			Resource structureDetermination = createResource(
+					Bio2RdfPdbUriPattern.STRUCTURE_DETERMINATION, pdbId);
+			getRdfModel().add(structureDetermination,
+					PdbOwlVocabulary.ObjectProperty.hasProduct.property(),
+					modelResource);
+			getRdfModel().add(modelResource, RDF.type,
+					PdbOwlVocabulary.Class.Model.resource());
+			getRdfModel()
+					.add(modelResource, RDFS.label, "Model " + modelNumber);
 
-				// add link to uniprot
-				Pdb2Rdf2Uniprot uniprot = new Pdb2Rdf2Uniprot(pdbId);
-				List<String> uniprotMappings = uniprot.getUniprotMappings();
-				for (String uniprotId : uniprotMappings) {
-					getRdfModel().add(modelResource, PdbOwlVocabulary.ObjectProperty.hasCrossReference.property(),
-							createUniprotResource(uniprotId));
-				}
-				List<String> goMappings = uniprot.getGoMappings();
-				for (String goId : goMappings) {
-					getRdfModel().add(modelResource, PdbOwlVocabulary.ObjectProperty.hasCrossReference.property(),
-							createGoResource(goId));
-				}
-
+			// add link to uniprot
+			Pdb2Rdf2Uniprot uniprot = new Pdb2Rdf2Uniprot(pdbId);
+			List<String> uniprotMappings = uniprot.getUniprotMappings();
+			for (String uniprotId : uniprotMappings) {
+				getRdfModel().add(
+						modelResource,
+						PdbOwlVocabulary.ObjectProperty.hasCrossReference
+								.property(), createUniprotResource(uniprotId));
+			}
+			List<String> goMappings = uniprot.getGoMappings();
+			for (String goId : goMappings) {
+				getRdfModel().add(
+						modelResource,
+						PdbOwlVocabulary.ObjectProperty.hasCrossReference
+								.property(), createGoResource(goId));
 			}
 		}
 		return modelResource;
@@ -669,73 +858,100 @@ public class AtomSiteCategoryHandler extends ContentHandlerState {
 
 	private Resource createUniprotResource(String uniprotId) {
 		Resource uniprot = getRdfModel().createResource(
-				getUriBuilder().buildUri(Bio2RdfPdbUriPattern.UNIPROT_CROSS_REFERENCE, pdbId, uniprotId));
-		getRdfModel().add(uniprot, RDF.type, PdbOwlVocabulary.Class.UniprotCrossReference.resource());
-		getRdfModel().add(uniprot, PdbOwlVocabulary.DataProperty.hasValue.property(),
+				getUriBuilder().buildUri(
+						Bio2RdfPdbUriPattern.UNIPROT_CROSS_REFERENCE, pdbId,
+						uniprotId));
+		getRdfModel().add(uniprot, RDF.type,
+				PdbOwlVocabulary.Class.UniprotCrossReference.resource());
+		getRdfModel().add(uniprot,
+				PdbOwlVocabulary.DataProperty.hasValue.property(),
 				getRdfModel().createLiteral(uniprotId));
-		getRdfModel().add(uniprot, RDFS.seeAlso, getUriBuilder().buildUri(Bio2RdfPdbUriPattern.UNIPROT, uniprotId));
+		getRdfModel().add(
+				uniprot,
+				RDFS.seeAlso,
+				getUriBuilder().buildUri(Bio2RdfPdbUriPattern.UNIPROT,
+						uniprotId));
 		return uniprot;
 	}
 
 	private Resource createGoResource(String goId) {
 		Resource goResource = getRdfModel().createResource(
-				getUriBuilder().buildUri(Bio2RdfPdbUriPattern.GO_CROSS_REFERENCE, pdbId, goId));
-		getRdfModel().add(goResource, RDF.type, PdbOwlVocabulary.Class.GoCrossReference.resource());
-		getRdfModel().add(goResource, PdbOwlVocabulary.DataProperty.hasValue.property(),
+				getUriBuilder().buildUri(
+						Bio2RdfPdbUriPattern.GO_CROSS_REFERENCE, pdbId, goId));
+		getRdfModel().add(goResource, RDF.type,
+				PdbOwlVocabulary.Class.GoCrossReference.resource());
+		getRdfModel().add(goResource,
+				PdbOwlVocabulary.DataProperty.hasValue.property(),
 				getRdfModel().createLiteral(goId));
-		getRdfModel().add(goResource, RDFS.seeAlso, getUriBuilder().buildUri(Bio2RdfPdbUriPattern.GO, goId));
+		getRdfModel().add(goResource, RDFS.seeAlso,
+				getUriBuilder().buildUri(Bio2RdfPdbUriPattern.GO, goId));
 		return goResource;
 	}
 
 	private Resource getAtomLocationResource() {
 		assert modelNumber != null : "The model number is needed for creating this resource";
 		if (atomLocationResource == null) {
-			atomLocationResource = createResource(Bio2RdfPdbUriPattern.ATOM_SPATIAL_LOCATION, pdbId, atomSiteId);
-			getRdfModel().add(getModelResource(), PdbOwlVocabulary.ObjectProperty.hasPart.property(),
+			atomLocationResource = createResource(
+					Bio2RdfPdbUriPattern.ATOM_SPATIAL_LOCATION, pdbId,
+					atomSiteId);
+			getRdfModel().add(getModelResource(),
+					PdbOwlVocabulary.ObjectProperty.hasPart.property(),
 					atomLocationResource);
-			getRdfModel().add(getAtomResource(), PdbOwlVocabulary.ObjectProperty.hasSpatialLocation.property(),
-					atomLocationResource);
-			getRdfModel().add(atomLocationResource, RDF.type, PdbOwlVocabulary.Class.AtomSpatialLocation.resource());
+			getRdfModel().add(
+					getAtomResource(),
+					PdbOwlVocabulary.ObjectProperty.hasSpatialLocation
+							.property(), atomLocationResource);
+			getRdfModel().add(atomLocationResource, RDF.type,
+					PdbOwlVocabulary.Class.AtomSpatialLocation.resource());
 
 		}
 		return atomLocationResource;
 	}
 
 	private Resource getResidue() {
+		PdbRdfModel m = getRdfModel();
 		assert chainId != null && chainPosition != null && labelCompId != null : "The chain name and position is needed for creating this resource";
-		if (residueResource == null) {
-			residueResource = createResource(Bio2RdfPdbUriPattern.RESIDUE, pdbId, chainId, chainPosition);
-			if (!getRdfModel().containsResource(residueResource)) {
-				addResidue(residueResource, labelCompId);
-				// getRdfModel().add(residueResource, RDFS.label, residueId);
-				getRdfModel().add(residueResource, RDF.type, PdbOwlVocabulary.Class.Residue.resource());
-
-				int pos = Integer.parseInt(chainPosition);
-				if (pos != 1) {
-					Resource previousResidueResource = createResource(Bio2RdfPdbUriPattern.RESIDUE, pdbId, chainId,
-							Integer.toString(pos - 1));
-					getRdfModel().add(previousResidueResource,
-							PdbOwlVocabulary.ObjectProperty.isImmediatelyBefore.property(), residueResource);
-				}
-
-				getRdfModel().add(residueResource, PdbOwlVocabulary.ObjectProperty.isPartOf.property(),
-						getChemicalSubstanceResource());
-
-				// Add its position on the chain
-				Resource chainPositionResource = createResource(Bio2RdfPdbUriPattern.CHAIN_POSITION, pdbId, chainId,
-						chainPosition);
-				getRdfModel().add(residueResource, PdbOwlVocabulary.ObjectProperty.hasChainPosition.property(),
-						chainPositionResource);
-				getRdfModel().add(chainPositionResource, RDF.type, PdbOwlVocabulary.Class.ChainPosition.resource());
-				getRdfModel().add(chainPositionResource, PdbOwlVocabulary.DataProperty.hasValue.property(),
-						createLiteral(chainPosition, XSD.integer.getURI()));
-				getRdfModel().add(chainPositionResource, PdbOwlVocabulary.ObjectProperty.isPartOf.property(),
-						getChain());
-				getRdfModel().add(chainPositionResource, RDFS.label,
-						"Position " + chainPosition + " on chain " + chainId);
-
+		residueResource = createResource(Bio2RdfPdbUriPattern.RESIDUE, pdbId,
+				chainId, chainPosition);
+		if (residueResource != null && m != null) {
+			addResidue(residueResource, labelCompId);
+			// getRdfModel().add(residueResource, RDFS.label, residueId);
+			getRdfModel().add(residueResource, RDF.type,
+					PdbOwlVocabulary.Class.Residue.resource());
+			int pos = Integer.parseInt(chainPosition);
+			if (pos != 1) {
+				Resource previousResidueResource = createResource(
+						Bio2RdfPdbUriPattern.RESIDUE, pdbId, chainId,
+						Integer.toString(pos - 1));
+				getRdfModel().add(
+						previousResidueResource,
+						PdbOwlVocabulary.ObjectProperty.isImmediatelyBefore
+								.property(), residueResource);
 			}
+			getRdfModel().add(residueResource,
+					PdbOwlVocabulary.ObjectProperty.isPartOf.property(),
+					getChemicalSubstanceResource());
+
+			// Add its position on the chain
+			Resource chainPositionResource = createResource(
+					Bio2RdfPdbUriPattern.CHAIN_POSITION, pdbId, chainId,
+					chainPosition);
+			getRdfModel()
+					.add(residueResource,
+							PdbOwlVocabulary.ObjectProperty.hasChainPosition
+									.property(), chainPositionResource);
+			getRdfModel().add(chainPositionResource, RDF.type,
+					PdbOwlVocabulary.Class.ChainPosition.resource());
+			getRdfModel().add(chainPositionResource,
+					PdbOwlVocabulary.DataProperty.hasValue.property(),
+					createLiteral(chainPosition, XSD.integer.getURI()));
+			getRdfModel().add(chainPositionResource,
+					PdbOwlVocabulary.ObjectProperty.isPartOf.property(),
+					getChain());
+			getRdfModel().add(chainPositionResource, RDFS.label,
+					"Position " + chainPosition + " on chain " + chainId);
 		}
+
 		return residueResource;
 	}
 
@@ -753,13 +969,14 @@ public class AtomSiteCategoryHandler extends ContentHandlerState {
 
 	private Resource getChain() {
 		if (chainResource == null) {
-			chainResource = createResource(Bio2RdfPdbUriPattern.CHAIN, pdbId, chainId);
-			if (!getRdfModel().containsResource(chainResource)) {
-				getRdfModel().add(chainResource, RDF.type, PdbOwlVocabulary.Class.Chain.resource());
-				getRdfModel().add(RDFS.label, RDF.type, PdbOwlVocabulary.Class.Resource.resource());
-				
-				getRdfModel().add(chainResource, RDFS.label, "Chain " + chainId);
-			}
+			chainResource = createResource(Bio2RdfPdbUriPattern.CHAIN, pdbId,
+					chainId);
+			getRdfModel().add(chainResource, RDF.type,
+					PdbOwlVocabulary.Class.Chain.resource());
+			getRdfModel().add(RDFS.label, RDF.type,
+					PdbOwlVocabulary.Class.Resource.resource());
+			getRdfModel().add(chainResource, RDFS.label, "Chain " + chainId);
+
 		}
 		return chainResource;
 	}
