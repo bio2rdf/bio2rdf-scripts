@@ -30,7 +30,7 @@
  * @description Bio2RDF parser for ChEMBL SQL dump loaded into a MySQL database
 */
 
-require('../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'../../php-lib/bio2rdfapi.php');
 
 class ChemblParser extends Bio2RDFizer {
 
@@ -40,12 +40,13 @@ class ChemblParser extends Bio2RDFizer {
 		parent::__construct($argv, "chembl");
 		
 		parent::addParameter('files',true,'all|activities|assays|components|compounds|documents|domains|protein_families|targets','all','all or comma-separated list of files to process');
-		parent::addParameter('mysqluser',true,null,'dba','set the user to access the mysql chembl database');
-		parent::addParameter('mysqlpass',true,null,'dba','set the password of the user to access the mysql chembl database');
+		parent::addParameter('db_user',true,null,'dba','set the user to access the mysql chembl database');
+		parent::addParameter('db_pass',true,null,'dba','set the password of the user to access the mysql chembl database');
 		parent::addParameter('db_name',true,null,'chembl_16','the database to access');
 		parent::addParameter('db_ip', true, null, 'localhost', 'the IP of the MySQL server hosting the database to access');
 		parent::addParameter('db_port', true, null, '3306', 'the port of the MySQL server hosting the database to access');
 		parent::initialize();			
+
 	}
 
 	function run(){
@@ -65,8 +66,8 @@ class ChemblParser extends Bio2RDFizer {
 
 		$ip = parent::getParameterValue("db_ip");
 		$port = parent::getParameterValue("db_port");
-		$user = parent::getParameterValue("mysqluser");
-		$pwd = parent::getParameterValue("mysqlpass");
+		$user = parent::getParameterValue("db_user");
+		$pwd = parent::getParameterValue("db_pass");
 		$db = parent::getParameterValue("db_name");
 
 		$connection = new mysqli($ip, $user, $pwd, $db, $port);
