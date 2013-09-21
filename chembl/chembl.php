@@ -30,6 +30,8 @@
  * @description Bio2RDF parser for ChEMBL SQL dump loaded into a MySQL database
 */
 
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
+
 class ChemblParser extends Bio2RDFizer {
 
 	private $version = null ;
@@ -38,11 +40,13 @@ class ChemblParser extends Bio2RDFizer {
 		parent::__construct($argv, "chembl");
 		
 		parent::addParameter('files',true,'all|activities|assays|components|compounds|documents|domains|protein_families|targets','all','all or comma-separated list of files to process');
-		parent::addParameter('mysqluser',true,null,'dba','set the user to access the mysql chembl database');
-		parent::addParameter('mysqlpass',true,null,'dba','set the password of the user to access the mysql chembl database');
+		parent::addParameter('db_user',true,null,'dba','set the user to access the mysql chembl database');
+		parent::addParameter('db_pass',true,null,'dba','set the password of the user to access the mysql chembl database');
 		parent::addParameter('db_name',true,null,'chembl_16','the database to access');
 		parent::addParameter('db_ip', true, null, 'localhost', 'the IP of the MySQL server hosting the database to access');
+		parent::addParameter('db_port', true, null, '3306', 'the port of the MySQL server hosting the database to access');
 		parent::initialize();			
+
 	}
 
 	function run(){
@@ -61,11 +65,12 @@ class ChemblParser extends Bio2RDFizer {
 	function connect_to_db(){
 
 		$ip = parent::getParameterValue("db_ip");
-		$user = parent::getParameterValue("mysqluser");
-		$pwd = parent::getParameterValue("mysqlpass");
+		$port = parent::getParameterValue("db_port");
+		$user = parent::getParameterValue("db_user");
+		$pwd = parent::getParameterValue("db_pass");
 		$db = parent::getParameterValue("db_name");
 
-		$connection = new mysqli($ip, $user, $pwd, $db);
+		$connection = new mysqli($ip, $user, $pwd, $db, $port);
 
 		if ($connection->connect_errno) {
 	    	printf("Connection failed: %s\n", $connection->connect_error);
@@ -99,17 +104,17 @@ class ChemblParser extends Bio2RDFizer {
 
 		//start generating dataset description file
 		$dataset_description = '';
-		$source_file = (new DataResource($this))
-				->setURI("ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest")
-				->setTitle("EBI ChEMBL database")
-				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", time()))
-				->setFormat("SQL")
-				->setPublisher("http://www.ebi.ac.uk")
-				->setHomepage("http://www.ebi.ac.uk/chembl/")
-				->setRights("use-share-modify")
-				->setRights("by-attribution")
-				->setLicense("ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/LICENSE")
-				->setDataset("http://identifiers.org/chembl/");
+		$source_file = new DataResource($this);
+		$source_file->setURI("ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest");
+		$source_file->setTitle("EBI ChEMBL database");
+		$source_file->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", time()));
+		$source_file->setFormat("SQL");
+		$source_file->setPublisher("http://www.ebi.ac.uk");
+		$source_file->setHomepage("http://www.ebi.ac.uk/chembl/");
+		$source_file->setRights("use-share-modify");
+		$source_file->setRights("by-attribution");
+		$source_file->setLicense("ftp://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/LICENSE");
+		$source_file->setDataset("http://identifiers.org/chembl/");
 
 		$dataset_description .= $source_file->toRDF();
 
@@ -141,19 +146,19 @@ class ChemblParser extends Bio2RDFizer {
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date ("Y-m-d\TG:i:s\Z");
-			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix $file data (generated at $date)")
-				->setSource($source_file->getURI())
-				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/chembl/chembl.php")
-				->setCreateDate($date)
-				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-				->setPublisher("http://bio2rdf.org")			
-				->setRights("use-share-modify")
-				->setRights("by-attribution")
-				->setRights("restricted-by-source-license")
-				->setLicense("http://creativecommons.org/licenses/by/3.0/")
-				->setDataset(parent::getDatasetURI());
+			$output_file = new DataResource($this);
+			$output_file->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile");
+			$output_file->setTitle("Bio2RDF v$bVersion RDF version of $prefix $file data (generated at $date)");
+			$output_file->setSource($source_file->getURI());
+			$output_file->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/chembl/chembl.php");
+			$output_file->setCreateDate($date);
+			$output_file->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html");
+			$output_file->setPublisher("http://bio2rdf.org");			
+			$output_file->setRights("use-share-modify");
+			$output_file->setRights("by-attribution");
+			$output_file->setRights("restricted-by-source-license");
+			$output_file->setLicense("http://creativecommons.org/licenses/by/3.0/");
+			$output_file->setDataset(parent::getDatasetURI());
 
 			if($gz) $output_file->setFormat("application/gzip");
 			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
