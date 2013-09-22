@@ -153,7 +153,7 @@ class BioportalParser extends Bio2RDFizer
 				// process
 				echo "Processing $label ($abbv id=$oid format=$format) into $ofile ... ";
 				if($format == 'obo') {
-					//$this->OBO2RDF($abbv);
+					$this->OBO2RDF($abbv);
 				} else if($format == 'owl') {
 					$this->OWL2RDF($abbv);
 					print_r($this->unmapped_uri);
