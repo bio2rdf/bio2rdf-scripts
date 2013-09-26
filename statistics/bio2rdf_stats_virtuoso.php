@@ -70,6 +70,8 @@ if($options['port'] == 'isql_port'){
 $cmd_pre = "$isql -S ".$options['port']." -U ".$options['user']." -P ".$options['pass']." verbose=on banner=off prompt=off echo=ON errors=stdout exec="."'SPARQL "; 
 $cmd_post = "'";
 
+
+$dataset_uri = get_void_dataset_uri();
 echo '# of triples'.PHP_EOL;
 $triples = get_number_of_triples();
 echo '# of unique subjects'.PHP_EOL;
@@ -131,6 +133,29 @@ function get_number_of_triples(){
 		return $results;
 	} else {
 		return null;
+	}
+}
+
+function get_void_dataset_uri(){
+	GLOBAL $cmd_pre;
+	GLOBAL $cmd_post;
+	$q = "select ?x where {?w <http://rdfs.org/ns/void#inDataset> ?x.}LIMIT 1";
+	$cmd = $cmd_pre.$q.$cmd_post;
+	$out = "";
+	try{
+		$out = execute_isql_command($cmd);
+	}catch(Exception $e){
+		echo 'iSQL error: '.$e->getMessage();
+		return null;
+	}
+	$sr = explode("Type HELP; for help and EXIT; to exit.\n", $out);
+	$sr2 = explode("\n\n", $sr[1]);
+	$r = trim($sr2[0]);
+	if(strlen($r)){
+		return $r;
+	}else{
+		throw new Exception("Could not find a valid dataset uri! Terminating program.");
+		exit;
 	}
 }
 
@@ -513,62 +538,56 @@ function write_unique_object_count($fh, $obj_count){
 
 function write_type_counts($fh, $type_counts){
 	GLOBAL $options;
+	GLOBAL $dataset_uri;
 	if($type_counts !== null){
 		foreach($type_counts as $type => $count){
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#classes", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count")));
-			#add the dataset type
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://bio2rdf.org/dataset_vocabulary:has_type", $type));
-			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://bio2rdf.org/dataset_vocabulary:has_count", $count));
 			#now create a resource for the class partition
 			$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$type.$count."type_count");
+			fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#class", $type));
 			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#entities", $count));
 			#now connect it back to the corresponding void:dataset
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://rdfs.org/ns/void#classPartition", $partition_res));
+			fwrite($fh, Quad($dataset_uri, "http://rdfs.org/ns/void#classPartition", $partition_res));
 		}//foreach
 	}//if
 }
 
 function write_predicate_literal_counts($fh, $pred_literal_counts){
 	GLOBAL $options;
+	GLOBAL $dataset_uri;
 	if($pred_literal_counts !== null){
 		foreach($pred_literal_counts as $pred => $count){
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_predicate_literal_count", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count")));
-			#add the dataset type
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://bio2rdf.org/dataset_vocabulary:has_predicate", $pred));
-			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://bio2rdf.org/dataset_vocabulary:has_count", $count));
 			//now create a resource for the property partition
 			$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$count."predicate_literal_count");
+			#add the dataset type
+			fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#property", $pred));
 			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#entities", $count));
 			//now connect it back to the void:dataset
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://rdfs.org/ns/void#propertyPartition", $partition_res));
+			fwrite($fh, Quad($dataset_uri, "http://rdfs.org/ns/void#propertyPartition", $partition_res));
 		}//foreach
 	}//if
 }
 
 function write_predicate_object_counts($fh, $pred_obj_counts){
+	GLOBAL $dataset_uri;
 	GLOBAL $options;
 	if($pred_obj_counts !== null){
 		foreach($pred_obj_counts as $pred => $count){
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_predicate_object_count", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_object_count")));
-			#add the dataset type
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_object_count"), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_object_count"), "http://bio2rdf.org/dataset_vocabulary:has_predicate", $pred));
-			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_object_count"), "http://bio2rdf.org/dataset_vocabulary:has_count", $count));
 			#create a resource for the property partition
-			$part_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$count."predicate_object_count");
-			fwrite($fh, Quad($part_res, "http://rdfs.org/ns/void#property", $pred));
-			fwrite($fh, QuadLiteral($part_res, "http://rdfs.org/ns/void#entities", $count));
-			//now connect it back to the void:dataset
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_object_count"), "http://rdfs.org/ns/void#propertyPartition", $part_res));
+			$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$count."predicate_object_count");
+			#add the dataset type
+			fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
+			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#property", $pred));
+			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#entities", $count));
+			#now connect it back to the void:dataset 
+			fwrite($fh, Quad($dataset_uri, "http://rdfs.org/ns/void#propertyPartition", $partition_res));
 		}
 	}
 }
 
 function write_unique_subject_predicate_unique_object_literal_counts($fh, $counts){
+	GLOBAL $dataset_uri;
 	GLOBAL $options;
 	if($counts !== null){
 		foreach($counts as $pred => $count){
