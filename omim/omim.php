@@ -323,7 +323,7 @@ class OMIMParser extends Bio2RDFizer
 				}
 				
 				// parse the omim references
-				preg_match_all("/\(([0-9]{6})\)/",$section['textSection']['textSectionContent'],$m);
+				preg_match_all("/\{([0-9]{6})\}/",$section['textSection']['textSectionContent'],$m);
 				if(isset($m[1][0])) {
 					foreach($m[1] AS $oid) {
 						parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."refers-to", "omim:$oid"));
