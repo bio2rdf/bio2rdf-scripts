@@ -516,8 +516,16 @@ function write_type_counts($fh, $type_counts){
 	if($type_counts !== null){
 		foreach($type_counts as $type => $count){
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#classes", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count")));
+			#add the dataset type
+			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://bio2rdf.org/dataset_vocabulary:has_type", $type));
 			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://bio2rdf.org/dataset_vocabulary:has_count", $count));
+			#now create a resource for the class partition
+			$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$type.$count."type_count");
+			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#class", $type));
+			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#entities", $count));
+			#now connect it back to the corresponding void:dataset
+			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$type.$count."type_count"), "http://rdfs.org/ns/void#classPartition", $partition_res));
 		}//foreach
 	}//if
 }
