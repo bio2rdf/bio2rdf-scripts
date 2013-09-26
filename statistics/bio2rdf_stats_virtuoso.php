@@ -500,6 +500,7 @@ function write_unique_predicate_count($fh, $pred_count){
 	GLOBAL $options;
 	if($pred_count !== null){
 		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#properties", $pred_count));
+
 	}
 }
 
@@ -526,6 +527,8 @@ function write_predicate_literal_counts($fh, $pred_literal_counts){
 	if($pred_literal_counts !== null){
 		foreach($pred_literal_counts as $pred => $count){
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_predicate_literal_count", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count")));
+			fwrite("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset");
+
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://bio2rdf.org/dataset_vocabulary:has_predicate", $pred));
 			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://bio2rdf.org/dataset_vocabulary:has_count", $count));
 		}//foreach
