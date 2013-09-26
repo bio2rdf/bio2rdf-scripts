@@ -527,10 +527,14 @@ function write_predicate_literal_counts($fh, $pred_literal_counts){
 	if($pred_literal_counts !== null){
 		foreach($pred_literal_counts as $pred => $count){
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_predicate_literal_count", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count")));
-			fwrite("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset");
-
+			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://bio2rdf.org/dataset_vocabulary:has_predicate", $pred));
 			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://bio2rdf.org/dataset_vocabulary:has_count", $count));
+			//now create a resource for the dataset property dataset
+			$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$count."predicate_literal_count");
+			fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
+			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#property", $pred));
+			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#entities", $count));
 		}//foreach
 	}//if
 }
