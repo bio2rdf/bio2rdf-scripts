@@ -530,11 +530,12 @@ function write_predicate_literal_counts($fh, $pred_literal_counts){
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://bio2rdf.org/dataset_vocabulary:has_predicate", $pred));
 			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://bio2rdf.org/dataset_vocabulary:has_count", $count));
-			//now create a resource for the dataset property dataset
+			//now create a resource for the property partition
 			$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$count."predicate_literal_count");
-			fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#property", $pred));
-			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#entities", $count));
+			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#entities", $count));
+			//now connect it back to the void:dataset
+			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred.$count."predicate_literal_count"), "http://rdfs.org/ns/void#propertyPartition", $partition_res));
 		}//foreach
 	}//if
 }
