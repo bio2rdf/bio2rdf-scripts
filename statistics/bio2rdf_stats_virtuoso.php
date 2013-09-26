@@ -113,34 +113,25 @@ fclose($out_handle);
 
 //get total number of triples
 function get_number_of_triples(){
-	
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
 	$qry = "select count(*) where {  graph ?g  {?x ?y ?z}  FILTER regex(?g, \"bio2rdf\") }";
-	
 	$cmd = $cmd_pre.$qry.$cmd_post;
-	
 	$out = "";
-	
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
 	}
-
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
-	
-		$results = trim($split_results_2[0]);
-	
+	$results = trim($split_results_2[0]);
 	if (preg_match("/^0 Rows./is", $results) === 0) {
 		return $results;
 	} else {
 		return null;
 	}
-	
 }
 
 //get number of unique subjects
@@ -486,6 +477,7 @@ function execute_isql_command($cmd){
 function write_endpoint_details($fh){
 	GLOBAL $options;
 	fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/dataset_vocabulary:Endpoint"));
+	fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 	fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://www.w3.org/2000/01/rdf-schema#label", $options['url']." SPARQL endpoint"));
 	fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_url", $options['url']));
 }
