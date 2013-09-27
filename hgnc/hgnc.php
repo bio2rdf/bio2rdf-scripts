@@ -29,6 +29,7 @@ SOFTWARE.
  * @author Jose Cruz-Toledo
  * @author Michel Dumontier
 */
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
 class HGNCParser extends Bio2RDFizer {
 	private $version = 2.0;
