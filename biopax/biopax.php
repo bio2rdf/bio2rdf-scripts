@@ -27,7 +27,7 @@ SOFTWARE.
  * @author Michel Dumontier
  * @description 
 */
-require('../../php-lib/rdfapi.php');
+require_once(__DIR__.'/../../php-lib/rdfapi.php');
 class BioPAXParser extends RDFFactory 
 {		
 	function __construct($argv) {
@@ -229,6 +229,6 @@ class BioPAXParser extends RDFFactory
 set_error_handler('error_handler');
 $parser = new BioPAXParser($argv);
 $parser->Run();
-
 	
+
 	
