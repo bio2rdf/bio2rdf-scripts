@@ -591,7 +591,7 @@ class ChemblParser extends Bio2RDFizer {
 
 				$component_classes_sql = 'SELECT * FROM `component_class` WHERE `component_id`="'.$component_id.'"';
 				$component_classes_result = $connection->query($component_classes_sql);
-				while($component_classes_row = $component_classes_row->fetch_assoc()){
+				while($component_classes_row = $component_classes_result->fetch_assoc()){
 					$protein_class_id = $component_classes_row['protein_class_id'];
 					parent::addRDF(
 						parent::triplify($cid, parent::getVoc()."protein-family", parent::getRes()."PROTEIN_FAMILY_".$protein_class_id)
