@@ -28,6 +28,8 @@ SOFTWARE.
 * @description 
 */
 
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
+
 class RefSeqParser extends Bio2RDFizer{
 	function __construct($argv){
 		parent::__construct($argv, "refseq");
@@ -61,33 +63,34 @@ class RefSeqParser extends Bio2RDFizer{
 			if(strstr(parent::getParameterValue('output_format'), "gz")){$gz = true;}
 			parent::setWriteFile($ofile, $gz);
 			parent::setReadFile($ldir.$lfile, true);
-			$source_file = (new DataResource($this))
-				->setURI(parent::getParameterValue('download_url').basename($aPath))
-				->setTitle('NCBI Genbank filename: '.basename($aPath))
-				->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
-				->setFormat('text/refseq-format')
-				->setFormat('application/zip')
-				->setPublisher('https://www.ncbi.nlm.nih.gov')
-				->setHomepage('https://www.ncbi.nlm.nih.gov/refseq')
-				->setRights('use')
-				->setRights('attribution')
-				->setLicense('https://www.nlm.nih.gov/copyright.html')
-				->setDataset(parent::getDatasetURI());
+			$source_file = new DataResource($this);
+			$source_file->setURI(parent::getParameterValue('download_url').basename($aPath));
+			$source_file->setTitle('NCBI Genbank filename: '.basename($aPath));
+			$source_file->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)));
+			$source_file->setFormat('text/refseq-format');
+			$source_file->setFormat('application/zip');
+			$source_file->setPublisher('https://www.ncbi.nlm.nih.gov');
+			$source_file->setHomepage('https://www.ncbi.nlm.nih.gov/refseq');
+			$source_file->setRights('use');
+			$source_file->setRights('attribution');
+			$source_file->setLicense('https://www.nlm.nih.gov/copyright.html');
+			$source_file->setDataset(parent::getDatasetURI());
+
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date("Y-m-d\TG:i:s\Z");
-			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
-				->setSource($source_file->getURI())
-				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/refseq/refseq.php")
-				->setCreateDate($date)
-				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-				->setPublisher("http://bio2rdf.org")
-				->setRights("use-share-modify")
-				->setRights("restricted-by-source-license")
-				->setLicense("http://creativecommons/licenses/by/3.0/")
-				->setDataset(parent::getDatasetURI());
+			$output_file = new DataResource($this);
+			$output_file->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix");
+			$output_file->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)");
+			$output_file->setSource($source_file->getURI());
+			$output_file->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/refseq/refseq.php");
+			$output_file->setCreateDate($date);
+			$output_file->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html");
+			$output_file->setPublisher("http://bio2rdf.org");
+			$output_file->setRights("use-share-modify");
+			$output_file->setRights("restricted-by-source-license");
+			$output_file->setLicense("http://creativecommons/licenses/by/3.0/");
+			$output_file->setDataset(parent::getDatasetURI());;
 			$dataset_description .= $output_file->toRDF().$source_file->toRDF();
 
 			echo "processing $aPath ...";
