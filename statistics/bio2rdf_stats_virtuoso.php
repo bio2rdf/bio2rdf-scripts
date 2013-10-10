@@ -597,7 +597,7 @@ function write_unique_object_count($fh, $obj_count){
 function write_unique_literal_count($fh, $lit_count){
 	GLOBAL $options;
 	GLOBAL $dataset_uri;
-	if($lit_count !== null){
+	if($lit_count !== null && $dataset_uri !== null && strlen($dataset_uri)>0){
 		#create a resource for the class partition
 		$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url'].$lit_count."literal_counts");
 		fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
