@@ -92,16 +92,12 @@ echo '# of predicate-literals'.PHP_EOL;
 $pred_literals = get_predicate_literal_counts();
 echo '# of unique subject-predicate-literals'.PHP_EOL;
 $pred_subj_literals = get_unique_subject_predicate_unique_object_literal_counts();
-
 echo '# of unique subject-predicate-objects'.PHP_EOL;
 $pred_subj_objects = get_unique_subject_predicate_unique_object_counts();
-
 echo '# of type-relation-types'.PHP_EOL;
 $type_relations = get_type_relation_type_counts();
-/*
-echo '# of types'.PHP_EOL;
-$types = get_type_counts();
-*/
+echo 'dataset predicate dataset frequencies'.PHP_EOL;
+$ds_pred_ds_freqs = get_dataset_predicate_dataset_freqs();
 
 
 
@@ -125,8 +121,7 @@ write_predicate_literal_counts($out_handle, $pred_literals);
 write_unique_subject_predicate_unique_object_counts($out_handle, $pred_subj_objects);
 write_unique_subject_predicate_unique_object_literal_counts($out_handle, $pred_subj_literals);
 write_type_relation_type_counts($out_handle, $type_relations);
-
-//write_type_counts($out_handle, $types);
+write_dataset_predicate_dataset_counts($out_handle, $ds_pred_ds_freqs);
 
 
 //close outfile
@@ -479,6 +474,38 @@ function get_unique_subject_predicate_unique_object_counts(){
 	
 }
 
+function get_dataset_predicate_dataset_freqs(){
+	GLOBAL $cmd_pre;
+	GLOBAL $cmd_post;
+	$q = "select distinct ?p ?z ?z2 COUNT(?x) where { graph ?g {?x a ?z. ?x2 a ?z2 . ?x ?p ?x2 .FILTER regex(?z, \"_vocabulary:Resource\").FILTER regex(?z2, \"_vocabulary:Resource\").FILTER (?z != ?z2) .} FILTER regex(?g, \"bio2rdf\") }";
+	$cmd = $cmd_pre.$q.$cmd_post;
+	$out = '';
+	try{
+		$out = execute_isql_command($cmd);
+	} catch (Exception $e){
+		echo 'iSQL error: ' .$e->getMessage();
+		return null;
+	}
+	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
+	$split_results_2 = explode("\n\n", $split_results[1]);
+	$results = trim($split_results_2[0]);
+	if (preg_match("/^0 Rows./is", $results) === 0) {
+		$results_arr = array();
+		$lines = explode("\n", $results);
+		foreach ($lines as $line) {
+			$split_line = preg_split('/[[:space:]]+/', $line);
+			$results_arr[$split_line[0]]["dataset1"] = $split_line[1];
+			$results_arr[$split_line[0]]["dataset2"] = $split_line[2];
+			$results_arr[$split_line[0]]["count"] = $split_line[3];
+		}
+		return $results_arr;
+	}else{
+		return null;
+	}
+
+}	
+
+
 //get the number of distinct subject and object types for each predicate
 function get_type_relation_type_counts(){
 	GLOBAL $cmd_pre;
@@ -762,6 +789,27 @@ function write_unique_subject_predicate_unique_object_counts($fh, $counts){
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#linkPredicate", $pred));
 		}
 	}
+}
+
+function write_dataset_predicate_dataset_counts($fh, $counts){
+	GLOBAL $dataset_uri;
+	GLOBAL $options;
+	if ($counts !== null){
+		foreach($counts as $pred => $count){
+			#create a linkset resource
+			$i = rand();
+			$linkset_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$i);
+			#type it
+			fwrite($fh, Quad($linkset_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet"));
+			#connect it to the dataset uri
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#target", $dataset_uri));
+			#add subjects target
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#subjectsTarget", $count["dataset1"]));
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#objectsTarget", $count["dataset2"]));
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#linkPredicate", $pred));
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#triples", $count["count"]));
+		}//foreach
+	}//if
 }
 
 function write_type_relation_type_counts($fh, $counts){
