@@ -164,27 +164,20 @@ function get_void_dataset_uri(){
 
 //get number of unique subjects
 function get_unique_subject_count(){
-	
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
 	$qry = "select count(distinct ?x) where { graph ?g {?x ?y ?z} FILTER regex(?g, \"bio2rdf\") } ";
-	
 	$cmd = $cmd_pre.$qry.$cmd_post;
-	
 	$out = "";
-	
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
 	}
-
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
 	$results = trim($split_results_2[0]);
-	
 	if (preg_match("/^0 Rows./is", $results) === 0) {
 		return $results;
 	} else {
@@ -192,29 +185,28 @@ function get_unique_subject_count(){
 	}
 }
 
+#select distinct ?y count(?z)  where { graph ?g {?x ?y ?z} FILTER regex(?g, "bio2rdf") }
+//get the distinct predicates and their frequencies
+function get_distinct_predicate_frequency(){
+
+}
+
 //get number of unique predicates
 function get_unique_predicate_count(){
-	
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
 	$qry = "select count(distinct ?y) where { graph ?g {?x ?y ?z} FILTER regex(?g, \"bio2rdf\") } ";
-	
 	$cmd = $cmd_pre.$qry.$cmd_post;
-	
 	$out = "";
-	
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
 	}
-	
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
 	$results = trim($split_results_2[0]);
-	
 	if (preg_match("/^0 Rows./is", $results) === 0) {
 		return $results;
 	} else {
@@ -233,6 +225,14 @@ function get_unique_literal_count(){
 		$out =execute_isql_command($cmd);
 	}catch (Exception $e){
 		echo 'iSQL error: '.$e->getMessage();
+		return null;
+	}
+	$s_r = explode("Type HELP; for help and EXIT; to exit.\n", $out);
+	$s_r_2 = explode("\n\n", $s_r[1]);
+	$r = trim($s_r_2[0]);
+	if(preg_match("/^0 Rows./is",$r) === 0){
+		return $r;
+	}else{
 		return null;
 	}
 }
@@ -262,32 +262,22 @@ function get_unique_object_count(){
 
 //get number of unique types
 function get_type_counts(){
-	
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
 	$qry = "select ?type (COUNT(?s) AS ?c) where  { graph ?g {?s a ?type} FILTER regex(?g, \"bio2rdf\") } order by DESC(?c)";
-	
 	$cmd = $cmd_pre.$qry.$cmd_post;
-	
 	$out = "";
-	
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
 	}
-	
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
-	
 	$results = trim($split_results_2[0]);
-	
 	if (preg_match("/^0 Rows./is", $results) === 0) {
-
 		$results_arr = array();
-	
 		$lines = explode("\n", $results);
 		foreach($lines as $line){
 				$split_line = preg_split('/[[:space:]]+/', $line);
@@ -301,36 +291,27 @@ function get_type_counts(){
 
 //get predicates and the number of unique literals they link to
 function get_predicate_literal_counts(){
-	
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
 	$qry = "select ?p (COUNT(?o) AS ?c) where { graph ?g { ?s ?p ?o . FILTER isLiteral(?o) . } FILTER regex(?g, \"bio2rdf\") } ORDER BY DESC(?c)";
-	
 	$cmd = $cmd_pre.$qry.$cmd_post;
-	
 	$out = "";
-	
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
 	}
-	
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
 	$results = trim($split_results_2[0]);
-	
 	if (preg_match("/^0 Rows./is", $results) === 0) {			
 		$results_arr = array();
-		
 		$lines = explode("\n", $results);
 		foreach($lines as $line){
 				$split_line = preg_split('/[[:space:]]+/', $line);
 				$results_arr[$split_line[0]] = $split_line[1];
 		}
-
 		return $results_arr;
 	} else {
 			return null;
