@@ -67,7 +67,7 @@ if($options['port'] == 'isql_port'){
 }
 
 //isql commands pre and post
-$cmd_pre = "$isql -S ".$options['port']." -U ".$options['user']." -P '".$options['pass']."' verbose=on banner=off prompt=off echo=ON errors=stdout exec="."'SPARQL "; 
+$cmd_pre = "$isql -S ".$options['port']." -U ".$options['user']." -P ".$options['pass']." verbose=on banner=off prompt=off echo=ON errors=stdout exec="."'SPARQL "; 
 $cmd_post = "'";
 
 
