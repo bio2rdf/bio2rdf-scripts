@@ -240,7 +240,7 @@ function get_unique_literal_count(){
 function get_unique_object_count(){
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	$qry = "select count(distinct ?z) where { graph ?g {?x ?y ?z} FILTER regex(?g, \"bio2rdf\") } ";
+	$qry = "select count(distinct ?z) where { graph ?g {?x ?y ?z. FILTER isIRI(?z).} FILTER regex(?g, \"bio2rdf\") } ";
 	$cmd = $cmd_pre.$qry.$cmd_post;
 	$out = "";
 	try {
