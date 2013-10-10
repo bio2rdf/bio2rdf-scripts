@@ -109,6 +109,7 @@ write_unique_subject_count($out_handle, $subjects);
 write_unique_predicate_count($out_handle, $predicates);
 write_distinct_predicate_frequency($out_handle, $pred_frequencies);
 write_unique_object_count($out_handle, $objects);
+write_distinct_entities($out_handle, $subjects, $predicates, $objects, $literals);
 write_type_counts($out_handle, $types);
 write_predicate_literal_counts($out_handle, $pred_literals);
 write_predicate_object_counts($out_handle, $pred_objects);
@@ -536,6 +537,14 @@ function write_unique_predicate_count($fh, $pred_count){
 	if($pred_count !== null){
 		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#properties", $pred_count));
 
+	}
+}
+
+function write_distinct_entities($fh, $obj_count, $pred_count, $subj_count, $lit_count){
+	GLOBAL $options;
+	if($obj_count !== null && $subj_count !== null && $pred_count !== null && $lit_count !== null){
+		$total = $obj_count+$subj_count+$pred_count+$lit_count;
+		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']),"http://rdfs.org/ns/void#entities", $total));
 	}
 }
 
