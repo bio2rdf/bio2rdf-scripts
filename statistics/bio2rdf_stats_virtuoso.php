@@ -120,11 +120,11 @@ write_distinct_entities($out_handle, $subjects, $predicates, $objects, $literals
 write_distinct_type_frequency($out_handle, $type_frequencies);
 write_predicate_object_counts($out_handle, $pred_objects_count);
 write_predicate_literal_counts($out_handle, $pred_literals);
+write_unique_subject_predicate_unique_object_counts($out_handle, $pred_subj_objects);
 
 
 //write_type_counts($out_handle, $types);
 write_unique_subject_predicate_unique_object_literal_counts($out_handle, $pred_subj_literals);
-write_unique_subject_predicate_unique_object_counts($out_handle, $pred_subj_objects);
 write_type_relation_type_counts($out_handle, $type_relations);
 
 //close outfile
@@ -701,12 +701,38 @@ function write_unique_subject_predicate_unique_object_literal_counts($fh, $count
 
 function write_unique_subject_predicate_unique_object_counts($fh, $counts){
 	GLOBAL $options;
+	GLOBAL $dataset_uri;
 	if($counts !== null){
 		foreach($counts as $pred => $count){
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://bio2rdf.org/dataset_vocabulary:has_predicate_unique_subject_unique_object_count", "http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred."predicate_subject_object_count")));
-			fwrite($fh, Quad("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred."predicate_subject_object_count"), "http://bio2rdf.org/dataset_vocabulary:has_predicate", $pred));
-			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred."predicate_subject_object_count"), "http://bio2rdf.org/dataset_vocabulary:has_subject_count", $count["count"]["subject_count"]));
-			fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url'].$pred."predicate_subject_object_count"), "http://bio2rdf.org/dataset_vocabulary:has_object_count", $count["count"]["object_count"]));
+			#create a linkset resource
+			$i = rand();
+			$linkset_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$i."p_u_o_c");
+			#type it
+			fwrite($fh, Quad($linkset_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet"));
+			//add the target dataset uri
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#target", $dataset_uri));
+			#create a dataset res
+			$j = rand();
+			$dataset_res_one = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$j);
+			#type it
+			fwrite($fh, Quad($dataset_res_one, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
+			#add the class
+			fwrite($fh, Quad($dataset_res_one, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Class"));
+			fwrite($fh, QuadLiteral($dataset_res_one, "http://rdfs.org/ns/void#entities", $count["count"]["subject_count"]));
+			#connect it to the linkset
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#objectsTarget", $dataset_res_one));
+			#create another dataset res
+			$k = rand();
+			$dataset_res_two = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$k);
+			#type it
+			fwrite($fh, Quad($dataset_res_two, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
+			#add the class
+			fwrite($fh, Quad($dataset_res_two, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Class"));
+			fwrite($fh, QuadLiteral($dataset_res_two, "http://rdfs.org/ns/void#entities", $count["count"]["object_count"]));
+			#connect it to the linkset
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#objectsTarget", $dataset_res_two));
+			#add the link predicate to the linkset
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#linkPredicate", $pred));
 		}
 	}
 }
