@@ -86,7 +86,8 @@ echo '# of types and their frequencies'.PHP_EOL;
 $type_frequencies = get_distinct_type_frequency();
 echo '# of distinct predicates and their frequencies'.PHP_EOL;
 $pred_frequencies = get_distinct_predicate_frequency();
-
+echo '# of preidcate and distinct objects'.PHP_EOL;
+$pred_objects = get_predicate_object_counts();
 
 /*
 echo '# of types'.PHP_EOL;
@@ -95,8 +96,7 @@ $types = get_type_counts();
 
 echo '# of predicate-literals'.PHP_EOL;
 $pred_literals = get_predicate_literal_counts();
-echo '# of preidcate-objects'.PHP_EOL;
-$pred_objects = get_predicate_object_counts();
+
 echo '# of unique subject-predicate-literals'.PHP_EOL;
 $pred_subj_literals = get_unique_subject_predicate_unique_object_literal_counts();
 echo '# of unique subject-predicate-objects'.PHP_EOL;
@@ -386,7 +386,7 @@ function get_predicate_literal_counts(){
 function get_predicate_object_counts(){
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	$qry = "select ?p (COUNT(?o) AS ?c) where { graph ?g { ?s ?p ?o . FILTER isIRI(?o) . } FILTER regex(?g, \"bio2rdf\") } ORDER BY DESC(?c)";
+	$qry = "select ?p (COUNT(distinct ?o) AS ?c) where { graph ?g { ?s ?p ?o . FILTER isIRI(?o) . } FILTER regex(?g, \"bio2rdf\") } ORDER BY DESC(?c)";
 	$cmd = $cmd_pre.$qry.$cmd_post;
 	$out = "";
 	try {
