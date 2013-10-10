@@ -102,6 +102,7 @@ $out_handle = fopen($out_file, 'a');
 //write stats N3 to outfile
 write_endpoint_details($out_handle);
 write_triple_count($out_handle, $triples);
+write_unique_literal_count($out_handle, $literals);
 write_unique_subject_count($out_handle, $subjects);
 write_unique_predicate_count($out_handle, $predicates);
 write_unique_object_count($out_handle, $objects);
@@ -537,12 +538,18 @@ function write_unique_object_count($fh, $obj_count){
 }
 
 
-/*function write_unique_literal_count($fh, $lit_count){
+function write_unique_literal_count($fh, $lit_count){
 	GLOBAL $options;
 	if($lit_count !== null){
-		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#y"))
+		#create a resource for the class partition
+		$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url'].$lit_count."literal_counts");
+		fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
+		fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Literal"));
+		fwrite($fh, QuadLiteral($partition_res,"http://rdfs.org/ns/void#entities", $lit_count));
+		#now connect it back to tthe corresponding void:dataset
+		fwrite($fh, Quad($dataset_uri, "http://rdfs.org/ns/void#classPartition", $partition_res));
 	}
-}*/
+}
 
 function write_type_counts($fh, $type_counts){
 	GLOBAL $options;
