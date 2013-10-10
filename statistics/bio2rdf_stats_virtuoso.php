@@ -88,14 +88,14 @@ echo '# of distinct predicates and their frequencies'.PHP_EOL;
 $pred_frequencies = get_distinct_predicate_frequency();
 echo '# of preidcate and distinct objects'.PHP_EOL;
 $pred_objects_count = get_predicate_object_counts();
+echo '# of predicate-literals'.PHP_EOL;
+$pred_literals = get_predicate_literal_counts();
 
 /*
 echo '# of types'.PHP_EOL;
 $types = get_type_counts();
 */
 
-echo '# of predicate-literals'.PHP_EOL;
-$pred_literals = get_predicate_literal_counts();
 
 echo '# of unique subject-predicate-literals'.PHP_EOL;
 $pred_subj_literals = get_unique_subject_predicate_unique_object_literal_counts();
@@ -119,10 +119,10 @@ write_unique_object_count($out_handle, $objects);
 write_distinct_entities($out_handle, $subjects, $predicates, $objects, $literals);
 write_distinct_type_frequency($out_handle, $type_frequencies);
 write_predicate_object_counts($out_handle, $pred_objects_count);
+write_predicate_literal_counts($out_handle, $pred_literals);
 
 
 //write_type_counts($out_handle, $types);
-write_predicate_literal_counts($out_handle, $pred_literals);
 write_unique_subject_predicate_unique_object_literal_counts($out_handle, $pred_subj_literals);
 write_unique_subject_predicate_unique_object_counts($out_handle, $pred_subj_objects);
 write_type_relation_type_counts($out_handle, $type_relations);
@@ -596,22 +596,6 @@ function write_type_counts($fh, $type_counts){
 
 
 
-function write_predicate_literal_counts($fh, $pred_literal_counts){
-	GLOBAL $options;
-	GLOBAL $dataset_uri;
-	if($pred_literal_counts !== null){
-		foreach($pred_literal_counts as $pred => $count){
-			//now create a resource for the property partition
-			$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$count."predicate_literal_count");
-			#add the dataset type
-			fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
-			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#property", $pred));
-			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#entities", $count));
-			//now connect it back to the void:dataset
-			fwrite($fh, Quad($dataset_uri, "http://rdfs.org/ns/void#propertyPartition", $partition_res));
-		}//foreach
-	}//if
-}
 
 function write_distinct_type_frequency($fh, $type_frequencies){
 	GLOBAL $dataset_uri;
@@ -673,6 +657,34 @@ function write_predicate_object_counts($fh, $pred_obj_counts){
 		}
 	}
 }
+
+function write_predicate_literal_counts($fh, $pred_literal_counts){
+	GLOBAL $options;
+	GLOBAL $dataset_uri;
+	if($pred_literal_counts !== null){
+		foreach($pred_literal_counts as $pred => $count){
+			#create a resource for the linkset
+			$linkset_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($options['url'].$pred.$count."predicate_literal_count");
+			#type it
+			fwrite($fh, Quad($linkset_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet"));
+			//add the target dataset uri
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#target", $dataset_uri));
+			#add the linkPredicate
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#linkPredicate", $pred));
+			#now create a dataset resource
+			$i = rand();
+			$ds_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($i.$pred.$count."dataset-res");
+			#type it
+			fwrite($fh, Quad($ds_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
+			#add the class
+			fwrite($fh, Quad($ds_res, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Literal"));
+			fwrite($fh, QuadLiteral($ds_res, "http://rdfs.org/ns/void#entities", $count));
+			#now connect back to linkset using void:objectstarget
+			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#objectsTarget", $ds_res));
+		}//foreach
+	}//if
+}
+
 
 function write_unique_subject_predicate_unique_object_literal_counts($fh, $counts){
 	GLOBAL $dataset_uri;
