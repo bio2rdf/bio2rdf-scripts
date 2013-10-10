@@ -388,23 +388,17 @@ function get_predicate_object_counts(){
 
 //get number of unique subjects and object literals for each predicate
 function get_unique_subject_predicate_unique_object_literal_counts(){
-	
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
 	$qry = "select ?p COUNT(DISTINCT ?s) COUNT(DISTINCT ?o) where { graph ?g { ?s ?p ?o . FILTER isLiteral(?o) } FILTER regex(?g, \"bio2rdf\") }";
-	
 	$cmd = $cmd_pre.$qry.$cmd_post;
-	
 	$out = "";
-	
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
 	}
-	
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
 	
@@ -424,7 +418,6 @@ function get_unique_subject_predicate_unique_object_literal_counts(){
 	} else {
 		return null;
 	}
-	
 }
 
 //get number of unique subjects and object IRIs for each predicate
