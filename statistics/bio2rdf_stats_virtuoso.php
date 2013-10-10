@@ -596,6 +596,7 @@ function write_unique_object_count($fh, $obj_count){
 
 function write_unique_literal_count($fh, $lit_count){
 	GLOBAL $options;
+	GLOBAL $dataset_uri;
 	if($lit_count !== null){
 		#create a resource for the class partition
 		$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url'].$lit_count."literal_counts");
@@ -807,7 +808,7 @@ function write_dataset_predicate_dataset_counts($fh, $counts){
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#subjectsTarget", $count["dataset1"]));
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#objectsTarget", $count["dataset2"]));
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#linkPredicate", $pred));
-			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#triples", $count["count"]));
+			fwrite($fh, QuadLiteral($linkset_res, "http://rdfs.org/ns/void#triples", $count["count"]));
 		}//foreach
 	}//if
 }
