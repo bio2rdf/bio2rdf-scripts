@@ -67,7 +67,7 @@ if($options['port'] == 'isql_port'){
 }
 
 //isql commands pre and post
-$cmd_pre = "$isql -S ".$options['port']." -U ".$options['user']." -P ".$options['pass']." verbose=on banner=off prompt=off echo=ON errors=stdout exec="."'SPARQL "; 
+$cmd_pre = "$isql -S ".$options['port']." -U ".$options['user']." -P '".$options['pass']."' verbose=on banner=off prompt=off echo=ON errors=stdout exec="."'SPARQL "; 
 $cmd_post = "'";
 
 
@@ -84,6 +84,8 @@ echo '# of unique literals'.PHP_EOL;
 $literals = get_unique_literal_count();
 echo '# of types'.PHP_EOL;
 $types = get_type_counts();
+echo '# of distinct predicates and their frequencies'.PHP_EOL;
+$pred_frequencies = get_distinct_predicate_frequency();
 echo '# of predicate-literals'.PHP_EOL;
 $pred_literals = get_predicate_literal_counts();
 echo '# of preidcate-objects'.PHP_EOL;
@@ -105,6 +107,7 @@ write_triple_count($out_handle, $triples);
 write_unique_literal_count($out_handle, $literals);
 write_unique_subject_count($out_handle, $subjects);
 write_unique_predicate_count($out_handle, $predicates);
+write_distinct_predicate_frequency($out_handle, $pred_frequencies);
 write_unique_object_count($out_handle, $objects);
 write_type_counts($out_handle, $types);
 write_predicate_literal_counts($out_handle, $pred_literals);
@@ -185,11 +188,6 @@ function get_unique_subject_count(){
 	}
 }
 
-#select distinct ?y count(?z)  where { graph ?g {?x ?y ?z} FILTER regex(?g, "bio2rdf") }
-//get the distinct predicates and their frequencies
-function get_distinct_predicate_frequency(){
-
-}
 
 //get number of unique predicates
 function get_unique_predicate_count(){
@@ -287,6 +285,36 @@ function get_type_counts(){
 	} else {
 		return null;		
 	}//else
+}
+
+
+#select distinct ?y count(?z)  where { graph ?g {?x ?y ?z} FILTER regex(?g, "bio2rdf") }
+//get the distinct predicates and their frequencies
+function get_distinct_predicate_frequency(){
+	GLOBAL $cmd_pre;
+	GLOBAL $cmd_post;
+	$q = "select distinct ?y count(?z)  where { graph ?g {?x ?y ?z} FILTER regex(?g, \"bio2rdf\") }";
+	$cmd = $cmd_pre.$q.$cmd_post;
+	try{
+		$out = execute_isql_command($cmd);
+	}catch(Exception $e){
+		echo 'iSQL error: '.$e->getMessage();
+	}
+	$sr = explode("Type HELP; for help and EXIT; to exit.\n", $out);
+	$sr2 = explode("\n\n", $sr[1]);
+	$results = trim($sr2[0]);
+	if(preg_match("/^0 Rows./is", $results) ===0){
+		$res_arr = array();
+		$lines = explode("\n", $results);
+		foreach($lines as $line){
+			$sl = preg_split('/[[:space:]]+/', $line);
+			$res_arr[$sl[0]] = $sl[1];
+		}
+		return $res_arr;
+	}else{
+		return null;
+	}
+
 }
 
 //get predicates and the number of unique literals they link to
@@ -548,6 +576,8 @@ function write_type_counts($fh, $type_counts){
 	}//if
 }
 
+
+
 function write_predicate_literal_counts($fh, $pred_literal_counts){
 	GLOBAL $options;
 	GLOBAL $dataset_uri;
@@ -563,6 +593,24 @@ function write_predicate_literal_counts($fh, $pred_literal_counts){
 			fwrite($fh, Quad($dataset_uri, "http://rdfs.org/ns/void#propertyPartition", $partition_res));
 		}//foreach
 	}//if
+}
+
+
+function write_distinct_predicate_frequency($fh, $pred_frequencies){
+	GLOBAL $dataset_uri;
+	GLOBAL $options;
+	if($pred_frequencies !== null){
+		foreach($pred_frequencies as $pred => $count){
+			#create a resource for the property partition
+			$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($pred.$count."predicate_freq");
+			#add the dataset type
+			fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
+			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#property", $pred));
+			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#triples", $count));
+			#now connect it to the dataset
+			fwrite($fh, Quad($dataset_uri, "http://rdfs.org/ns/void#propertyPartition", $partition_res));
+		}
+	}	
 }
 
 function write_predicate_object_counts($fh, $pred_obj_counts){
