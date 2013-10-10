@@ -82,10 +82,17 @@ echo '# of unique objects'.PHP_EOL;
 $objects = get_unique_object_count();
 echo '# of unique literals'.PHP_EOL;
 $literals = get_unique_literal_count();
-echo '# of types'.PHP_EOL;
-$types = get_type_counts();
+echo '# of types and their frequencies'.PHP_EOL;
+$type_frequencies = get_distinct_type_frequency();
 echo '# of distinct predicates and their frequencies'.PHP_EOL;
 $pred_frequencies = get_distinct_predicate_frequency();
+
+
+/*
+echo '# of types'.PHP_EOL;
+$types = get_type_counts();
+*/
+
 echo '# of predicate-literals'.PHP_EOL;
 $pred_literals = get_predicate_literal_counts();
 echo '# of preidcate-objects'.PHP_EOL;
@@ -110,7 +117,10 @@ write_unique_predicate_count($out_handle, $predicates);
 write_distinct_predicate_frequency($out_handle, $pred_frequencies);
 write_unique_object_count($out_handle, $objects);
 write_distinct_entities($out_handle, $subjects, $predicates, $objects, $literals);
-write_type_counts($out_handle, $types);
+write_distinct_type_frequency($out_handle, $type_frequencies);
+
+
+//write_type_counts($out_handle, $types);
 write_predicate_literal_counts($out_handle, $pred_literals);
 write_predicate_object_counts($out_handle, $pred_objects);
 write_unique_subject_predicate_unique_object_literal_counts($out_handle, $pred_subj_literals);
@@ -287,7 +297,33 @@ function get_type_counts(){
 		return null;		
 	}//else
 }
-
+#select  distinct ?z count( ?z)  where { graph ?g {?x a ?z} FILTER regex(?g, "bio2rdf") }
+//get the distinct types and their frequencies
+function get_distinct_type_frequency(){
+	GLOBAL $cmd_pre;
+	GLOBAL $cmd_post;
+	$q = "select distinct ?z count(?z)  where { graph ?g {?x a ?z} FILTER regex(?g, \"bio2rdf\") }";
+	$cmd = $cmd_pre.$q.$cmd_post;
+	try{
+		$out = execute_isql_command($cmd);
+	}catch(Exception $e){
+		echo 'iSQL error: '.$e->getMessage();
+	}
+	$sr = explode("Type HELP; for help and EXIT; to exit.\n", $out);
+	$sr2 = explode("\n\n", $sr[1]);
+	$results = trim($sr2[0]);
+	if(preg_match("/^0 Rows./is", $results) ===0){
+		$res_arr = array();
+		$lines = explode("\n", $results);
+		foreach($lines as $line){
+			$sl = preg_split('/[[:space:]]+/', $line);
+			$res_arr[$sl[0]] = $sl[1];
+		}
+		return $res_arr;
+	}else{
+		return null;
+	}
+}
 
 #select distinct ?y count(?z)  where { graph ?g {?x ?y ?z} FILTER regex(?g, "bio2rdf") }
 //get the distinct predicates and their frequencies
@@ -315,7 +351,6 @@ function get_distinct_predicate_frequency(){
 	}else{
 		return null;
 	}
-
 }
 
 //get predicates and the number of unique literals they link to
@@ -349,37 +384,27 @@ function get_predicate_literal_counts(){
 
 //get predicates and the number of unique IRIs they link to
 function get_predicate_object_counts(){
-	
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
 	$qry = "select ?p (COUNT(?o) AS ?c) where { graph ?g { ?s ?p ?o . FILTER isIRI(?o) . } FILTER regex(?g, \"bio2rdf\") } ORDER BY DESC(?c)";
-	
 	$cmd = $cmd_pre.$qry.$cmd_post;
-	
 	$out = "";
-	
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
 	}
-	
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
-	
 	$results = trim($split_results_2[0]);
-	
 	if (preg_match("/^0 Rows./is", $results) === 0) {	
 		$results_arr = array();
-		
 		$lines = explode("\n", $results);
 		foreach($lines as $line){
 				$split_line = preg_split('/[[:space:]]+/', $line);
 				$results_arr[$split_line[0]] = $split_line[1];
 		}
-
 		return $results_arr;
 	} else {
 		return null;
@@ -422,31 +447,22 @@ function get_unique_subject_predicate_unique_object_literal_counts(){
 
 //get number of unique subjects and object IRIs for each predicate
 function get_unique_subject_predicate_unique_object_counts(){
-	
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
 	$qry = "select ?p COUNT(DISTINCT ?s) COUNT(DISTINCT ?o) where { graph ?g { ?s ?p ?o . FILTER isIRI(?o) } FILTER regex(?g, \"bio2rdf\") }";
-	
 	$cmd = $cmd_pre.$qry.$cmd_post;
-	
 	$out = "";
-	
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
 	}
-	
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
 	$results = trim($split_results_2[0]);
-	
 	if (preg_match("/^0 Rows./is", $results) === 0) {
-	
 		$results_arr = array();
-		
 		$lines = explode("\n", $results);
 		foreach($lines as $line){
 				$split_line = preg_split('/[[:space:]]+/', $line);
@@ -597,6 +613,22 @@ function write_predicate_literal_counts($fh, $pred_literal_counts){
 	}//if
 }
 
+function write_distinct_type_frequency($fh, $type_frequencies){
+	GLOBAL $dataset_uri;
+	GLOBAL $options;
+	if($type_frequencies !== null){
+		foreach($type_frequencies as $type => $count){
+			#create a resource for the property partition
+			$partition_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($type.$count."type_frequencies");
+			#add the dataset type
+			fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
+			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#class", $type));
+			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#entities", $count));
+			#now connect it to the dataset
+			fwrite($fh, Quad($dataset_uri, "http://rdfs.org/ns/void#classPartition", $partition_res));
+		}
+	}	
+}
 
 function write_distinct_predicate_frequency($fh, $pred_frequencies){
 	GLOBAL $dataset_uri;
@@ -608,7 +640,7 @@ function write_distinct_predicate_frequency($fh, $pred_frequencies){
 			#add the dataset type
 			fwrite($fh, Quad($partition_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			fwrite($fh, Quad($partition_res, "http://rdfs.org/ns/void#property", $pred));
-			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#triples", $count));
+			fwrite($fh, QuadLiteral($partition_res, "http://rdfs.org/ns/void#entities", $count));
 			#now connect it to the dataset
 			fwrite($fh, Quad($dataset_uri, "http://rdfs.org/ns/void#propertyPartition", $partition_res));
 		}
