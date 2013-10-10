@@ -80,6 +80,8 @@ echo '# of unique predicates'.PHP_EOL;
 $predicates = get_unique_predicate_count();
 echo '# of unique objects'.PHP_EOL;
 $objects = get_unique_object_count();
+echo '# of unique literals'.PHP_EOL;
+$literals = get_unique_literal_count();
 echo '# of types'.PHP_EOL;
 $types = get_type_counts();
 echo '# of predicate-literals'.PHP_EOL;
@@ -219,29 +221,37 @@ function get_unique_predicate_count(){
 	}
 }
 
-//get number of unique objects
-function get_unique_object_count(){
-	
+//get the number of unique literals
+function get_unique_literal_count(){
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
-	$qry = "select count(distinct ?z) where { graph ?g {?x ?y ?z} FILTER regex(?g, \"bio2rdf\") } ";
-	
-	$cmd = $cmd_pre.$qry.$cmd_post;
-	
+	$q = "select count(distinct ?z) where { graph ?g { ?x ?y ?z. FILTER isLiteral(?z).}FILTER regex(?g , \"bio2rdf\")}";
+	$cmd = $cmd_pre.$q.$cmd_post;
 	$out = "";
-	
+	try{
+		$out =execute_isql_command($cmd);
+	}catch (Exception $e){
+		echo 'iSQL error: '.$e->getMessage();
+		return null;
+	}
+}
+
+//get number of unique objects
+function get_unique_object_count(){
+	GLOBAL $cmd_pre;
+	GLOBAL $cmd_post;
+	$qry = "select count(distinct ?z) where { graph ?g {?x ?y ?z} FILTER regex(?g, \"bio2rdf\") } ";
+	$cmd = $cmd_pre.$qry.$cmd_post;
+	$out = "";
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
 	}
-	
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
 	$results = trim($split_results_2[0]);
-	
 	if (preg_match("/^0 Rows./is", $results) === 0) {
 		return $results;
 	} else {
@@ -449,31 +459,22 @@ function get_unique_subject_predicate_unique_object_counts(){
 
 //get the number of distinct subject and object types for each predicate
 function get_type_relation_type_counts(){
-	
 	GLOBAL $cmd_pre;
 	GLOBAL $cmd_post;
-	
 	$qry = "select ?p ?stype COUNT(DISTINCT ?s) ?otype COUNT(DISTINCT ?o) where { graph ?g { ?s a ?stype .  ?s ?p ?o . ?o a ?otype . } FILTER regex(?g, \"bio2rdf\") }";
-	
 	$cmd = $cmd_pre.$qry.$cmd_post;
-	
 	$out = "";
-	
 	try {
 		$out = execute_isql_command($cmd);
 	} catch (Exception $e){
 		echo 'iSQL error: ' .$e->getMessage();
 		return null;
-	}
-	
+	}	
 	$split_results = explode("Type HELP; for help and EXIT; to exit.\n", $out);
 	$split_results_2 = explode("\n\n", $split_results[1]);
 	$results = trim($split_results_2[0]);
-	
 	if (preg_match("/^0 Rows./is", $results) === 0) {
-	
-		$results_arr = array();
-		
+		$results_arr = array();		
 		$lines = explode("\n", $results);
 		foreach($lines as $line){
 				$split_line = preg_split('/[[:space:]]+/', $line);
@@ -487,7 +488,6 @@ function get_type_relation_type_counts(){
 	} else {
 		return null;
 	}
-
 }
 
 function execute_isql_command($cmd){
@@ -535,6 +535,14 @@ function write_unique_object_count($fh, $obj_count){
 		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#distinctObjects", $obj_count));
 	}
 }
+
+
+/*function write_unique_literal_count($fh, $lit_count){
+	GLOBAL $options;
+	if($lit_count !== null){
+		fwrite($fh, QuadLiteral("http://bio2rdf.org/dataset_resource:".md5($options['url']), "http://rdfs.org/ns/void#y"))
+	}
+}*/
 
 function write_type_counts($fh, $type_counts){
 	GLOBAL $options;
