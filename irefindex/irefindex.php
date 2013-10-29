@@ -401,7 +401,7 @@ class irefindexParser extends Bio2RDFizer
 	function Parse4IDLabel($str,&$id,&$label)
 	{
 		$id='';$label='';
-		preg_match("/([a-zA-Z0-9]+)\((.*)\)/",$str,$m);
+		preg_match("/([^()]+)\((.*)\)/",$str,$m);
 		if(isset($m[1])) {
 			$id = $m[1];
 			$label = $m[2];
