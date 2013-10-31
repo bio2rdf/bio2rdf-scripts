@@ -31,6 +31,7 @@ SOFTWARE.
 //path to isql executable
 $isql = "/usr/local/virtuoso-opensource/bin/isql";
 
+
 //command line options
 $options = array(
  "port" => "isql_port",
