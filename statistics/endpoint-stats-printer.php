@@ -189,9 +189,9 @@ function makeEndpoints ($aFileName){
 					}
 					if(strlen($info['http_port']) && strlen($info['ns']) && strlen($info['isql_port'])){
 						$returnMe[$info['ns']] = array(
-							'endpoint_url' => 'http://s2.semanticscience.org:'.$info['http_port'].'/sparql',
-							//'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org:".$info['http_port']."/sparql",
-//							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org/sparql",
+							//'endpoint_url' => 'http://s2.semanticscience.org:'.$info['http_port'].'/sparql',
+							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org:".$info['http_port']."/sparql",
+							//'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org/sparql",
 							'graph_uri' => "http://bio2rdf.org/bio2rdf-".$info['ns']."-statistics",
 							'isql_port' => $info['isql_port'],
 							);
@@ -205,9 +205,6 @@ function makeEndpoints ($aFileName){
 	}
 	return $returnMe;
 }
-
-
-
 
 function makeHTML($endpoint_stats, $endpoint_desc){
 	//create one html file per endpoint
@@ -230,7 +227,7 @@ function makeHTML($endpoint_stats, $endpoint_desc){
 				$html .= addBio2RDFDetails($d['endpoint_url'], $desc['namespace']);
 				$html .= "</div>";
 				$html .= "<div id='container'> <div id='items'></div>";
-				$html .= addBasicStatsTable($d['endpoint_url'],$d['triples'],$d['unique_subjects'],$d['unique_predicates'],$d['unique_objects'] );
+				$html .= addBasicStatsTable($d['endpoint_url'],$d['triples'],$d['unique_subjects'],$d['unique_predicates'],$d['unique_objects'] , $d['unique_literals']);
 				$html .= addUniqueTypesTable($d['endpoint_url'],$d['type_counts']);
 				$html .= addPredicateObjLinks($d['endpoint_url'],$d['predicate_object_links']);
 				$html .= addPredicateLiteralLinks($d['endpoint_url'],$d['predicate_literals']);
@@ -378,13 +375,14 @@ function addUniqueTypesTable($endpointURL, $typeArray){
 	$rm .= "</tbody></table>";
 	return $rm;
 }
-function addBasicStatsTable($endpoint_url, $numOfTriples, $unique_subjects, $unique_predicates, $unique_objects){
+function addBasicStatsTable($endpoint_url, $numOfTriples, $unique_subjects, $unique_predicates, $unique_objects, $unique_literals){
 	$rm ="<h2>Basic data metrics</h2><table><thead><th></th><th></th></thead><tbody>";
 	$rm .= "<tr><td>Endpoint URL</td><td><a href=\"".$endpoint_url."\">".$endpoint_url."</a></td></tr>";
 	$rm .= "<tr><td>Number of Triples</td><td>".$numOfTriples."</td></tr>";
 	$rm .= "<tr><td>Unique Subject count</td><td>".$unique_subjects."</td></tr>";
 	$rm .= "<tr><td>Unique Predicate count</td><td>".$unique_predicates."</td></tr>";
 	$rm .= "<tr><td>Unique Object count</td><td>".$unique_objects."</td></tr>";
+	$rm .= "<tr><td>Unique Literal count</td><td>".$unique_literals."</td></tr>";
 	$rm .= "</tbody></table>";
 	return $rm;
 }
@@ -501,14 +499,6 @@ function retrieveStatistics(&$endpoint_arr){
 				//nsns counts
 				$nsnsJSON = trim(@file_get_contents(nsQ($endpoint_url,$dataset_graph_uri)));
 				$endpoint_arr[$name]["nsnscounts"] = getNSNSCounts($nsnsJSON);
-				//get the date
-				$dateJson = trim(@file_get_contents(getDatasetDateQuery($endpoint_url)));
-				$endpoint_arr[$name]['date'] = getDate2($dateJson);
-				
-				
-				
-				
-				
 				
 			}else{
 				$warn .= "WARNING :: Endpoint ".$name." does not have all of required information! (missing either the endpoint or graph uri!)!\n";
@@ -843,7 +833,6 @@ function q15($endpoint_url, $graph_url){
 }
 
 function q6($endpoint_url, $graph_url){
-	//TODO: change type of ?ot to rdfs:Resource
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
 		$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
@@ -851,7 +840,7 @@ function q6($endpoint_url, $graph_url){
 		$t .= "?linkset <http://rdfs.org/ns/void#target> <".$graph_url.">.";
 		$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
 		$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?ot .";
-		$t .= "?ot <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Class> .";
+		$t .= "?ot <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Resource> .";
 		$t .= "?ot <http://rdfs.org/ns/void#entities> ?oc .";
 		$t .= "}";
 		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
@@ -878,7 +867,6 @@ function q7($endpoint_url, $graph_url){
 	}
 }
 function q8($endpoint_url, $graph_url){
-	//TODO: change object target type from rdfs:Class to rdfs:Resource
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
 		$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
@@ -886,7 +874,7 @@ function q8($endpoint_url, $graph_url){
 		$t .= "?linkset <http://rdfs.org/ns/void#subjectsTarget> ?sT .";
 		$t .= "?sT <http://rdfs.org/ns/void#entities> ?sc .";
 		$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?oT .";
-		$t .= "?oT <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Class> .";
+		$t .= "?oT <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Resource> .";
 		$t .= "?oT <http://rdfs.org/ns/void#entities> ?oc .";
 		$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
 		$t .= "}";

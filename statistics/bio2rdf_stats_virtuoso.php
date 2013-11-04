@@ -678,7 +678,7 @@ function write_predicate_object_counts($fh, $pred_obj_counts){
 			#type it
 			fwrite($fh, Quad($ds_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			#add the class
-			fwrite($fh, Quad($ds_res, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Class"));
+			fwrite($fh, Quad($ds_res, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource"));
 			fwrite($fh, QuadLiteral($ds_res, "http://rdfs.org/ns/void#entities", $count));
 			#now connect back to linkset using void:objectstarget
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#objectsTarget", $ds_res));			
@@ -770,7 +770,7 @@ function write_unique_subject_predicate_unique_object_counts($fh, $counts){
 			#type it
 			fwrite($fh, Quad($dataset_res_one, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			#add the class
-			fwrite($fh, Quad($dataset_res_one, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Class"));
+			fwrite($fh, Quad($dataset_res_one, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource"));
 			fwrite($fh, QuadLiteral($dataset_res_one, "http://rdfs.org/ns/void#entities", $count["count"]["subject_count"]));
 			#connect it to the linkset
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#subjectsTarget", $dataset_res_one));
@@ -780,7 +780,7 @@ function write_unique_subject_predicate_unique_object_counts($fh, $counts){
 			#type it
 			fwrite($fh, Quad($dataset_res_two, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			#add the class
-			fwrite($fh, Quad($dataset_res_two, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Class"));
+			fwrite($fh, Quad($dataset_res_two, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource"));
 			fwrite($fh, QuadLiteral($dataset_res_two, "http://rdfs.org/ns/void#entities", $count["count"]["object_count"]));
 			#connect it to the linkset
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#objectsTarget", $dataset_res_two));
