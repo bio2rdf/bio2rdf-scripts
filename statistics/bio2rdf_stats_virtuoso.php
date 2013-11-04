@@ -31,6 +31,7 @@ SOFTWARE.
 //path to isql executable
 $isql = "/usr/local/virtuoso-opensource/bin/isql";
 
+
 //command line options
 $options = array(
  "port" => "isql_port",
@@ -623,8 +624,6 @@ function write_type_counts($fh, $type_counts){
 }
 
 
-
-
 function write_distinct_type_frequency($fh, $type_frequencies){
 	GLOBAL $dataset_uri;
 	GLOBAL $options;
@@ -660,6 +659,7 @@ function write_distinct_predicate_frequency($fh, $pred_frequencies){
 }
 
 function write_predicate_object_counts($fh, $pred_obj_counts){
+	//TODO: change type rdfs:Class to rdfs:Resource
 	GLOBAL $dataset_uri;
 	GLOBAL $options;
 	if($pred_obj_counts !== null){
@@ -674,11 +674,11 @@ function write_predicate_object_counts($fh, $pred_obj_counts){
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#linkPredicate", $pred));
 			#now create a dataset resource
 			$i = rand();
-			$ds_res = "http://bio2rdf.org/dataset_resource:".md5($options['url']).md5($i.$pred.$count."dataset");
+			$ds_res = "http://bio2rdf.org/dataset_resource:".md5($dataset_uri).md5($i.$pred.$count."dataset");
 			#type it
 			fwrite($fh, Quad($ds_res, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			#add the class
-			fwrite($fh, Quad($ds_res, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Class"));
+			fwrite($fh, Quad($ds_res, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource"));
 			fwrite($fh, QuadLiteral($ds_res, "http://rdfs.org/ns/void#entities", $count));
 			#now connect back to linkset using void:objectstarget
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#objectsTarget", $ds_res));			
@@ -770,7 +770,7 @@ function write_unique_subject_predicate_unique_object_counts($fh, $counts){
 			#type it
 			fwrite($fh, Quad($dataset_res_one, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			#add the class
-			fwrite($fh, Quad($dataset_res_one, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Class"));
+			fwrite($fh, Quad($dataset_res_one, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource"));
 			fwrite($fh, QuadLiteral($dataset_res_one, "http://rdfs.org/ns/void#entities", $count["count"]["subject_count"]));
 			#connect it to the linkset
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#subjectsTarget", $dataset_res_one));
@@ -780,7 +780,7 @@ function write_unique_subject_predicate_unique_object_counts($fh, $counts){
 			#type it
 			fwrite($fh, Quad($dataset_res_two, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#Dataset"));
 			#add the class
-			fwrite($fh, Quad($dataset_res_two, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Class"));
+			fwrite($fh, Quad($dataset_res_two, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource"));
 			fwrite($fh, QuadLiteral($dataset_res_two, "http://rdfs.org/ns/void#entities", $count["count"]["object_count"]));
 			#connect it to the linkset
 			fwrite($fh, Quad($linkset_res, "http://rdfs.org/ns/void#objectsTarget", $dataset_res_two));
