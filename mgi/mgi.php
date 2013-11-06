@@ -177,7 +177,7 @@ class MGIParser extends Bio2RDFizer
                                 $b = explode(",",$a[9]);
                                 foreach($b AS $mp) {
                                         parent::AddRDF(
-                                                parent::QQuaadO_URL($id, $this->getVoc()."phenotype", str_replace("MP:","http://purl.obolibrary.org/obo/MP_",$mp))
+                                                parent::QQuadO_URL($id, $this->getVoc()."phenotype", str_replace("MP:","http://purl.obolibrary.org/obo/MP_",$mp))
                                         );
                                 }
                         }
@@ -329,7 +329,7 @@ class MGIParser extends Bio2RDFizer
                         $line ++;
                         if(count($a) != 3) {
                                 echo "Expecting 3 columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
-                                if($error++ == 10) {echo "found 10 errors. quiting!"; return;}
+                                if($errors++ == 10) {echo "found 10 errors. quitting!"; return;}
                                 continue;
                         }
                         $id = strtolower($a[0]);
