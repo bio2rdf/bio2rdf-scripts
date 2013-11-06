@@ -176,7 +176,7 @@ class MGIParser extends Bio2RDFizer
                         if(trim($a[9])) {
                                 $b = explode(",",$a[9]);
                                 foreach($b AS $mp) {
-                                        parent:AddRDF(
+                                        parent::AddRDF(
                                                 parent::QQuaadO_URL($id, $this->getVoc()."phenotype", str_replace("MP:","http://purl.obolibrary.org/obo/MP_",$mp))
                                         );
                                 }
