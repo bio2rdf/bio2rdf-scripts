@@ -50,7 +50,7 @@ class MGIParser extends Bio2RDFizer
                         $list = explode('|',parent::getParameterList('files'));
                         array_shift($list);
                 } else {
-                        $list = explode('|',parent::getParameterValue('files'));
+                        $list = explode(',',parent::getParameterValue('files'));
                 }
                 
                 foreach($list AS $item) {
@@ -119,7 +119,7 @@ class MGIParser extends Bio2RDFizer
                         if($a[0][0] == "#") continue;
                         
                         if(count($a) != 11) {
-                                echo "skipping badly formed line $line++".PHP_EOL;
+                                echo "Expecting 11 columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
                                 continue;
                         }
 
@@ -200,77 +200,77 @@ class MGIParser extends Bio2RDFizer
         function MGI_PhenoGenoMP(){
                 $line = 1;
                 while($l = $this->GetReadFile()->Read(248000)) {
-                        $a = explode("\t",$l);
-                
-                        $line++;
-                        if($a[0][0] == "#") continue;
+                    $a = explode("\t",$l);
+            
+                    $line++;
+                    if($a[0][0] == "#") continue;
 
-                        if(count($a) == 6) {
-                                //make identifier for row
-                                $id = $this->getRes().md5($a[0].$a[1].$a[2].$a[3].$a[4].$a[5]);
-                                //echo $id;
-                        }
-                        else{
-                                //echo "skipping badly formed line $line".PHP_EOL;
-                                continue;
-                        }                       
-                        
-                        
-                        
-                        //describe this individual
-                        $id_label = "Genotype-phenotype association between ".$a[1]." and ".$a[3]." for model(s) ".trim($a[5]);
-                        $class_label = "Genotype-phenotype association";
+                    if(count($a) == 6) {
+                        //make identifier for row
+                        $id = $this->getRes().md5($a[0].$a[1].$a[2].$a[3].$a[4].$a[5]);
+                        //echo $id;
+                    }
+                    else {
+                        //echo "skipping badly formed line $line".PHP_EOL;
+                        continue;
+                    }                       
+                    
+                    
+                    
+                    //describe this individual
+                    $id_label = "Genotype-phenotype association between ".$a[1]." and ".$a[3]." for model(s) ".trim($a[5]);
+                    $class_label = "Genotype-phenotype association";
+                    parent::AddRDF(
+                        parent::describeIndividual($id, $id_label, $this->getVoc()."Genotype-phenotype-association").
+                        parent::describeClass($this->getVoc()."Genotype-phenotype-association", $class_label)
+                    );
+
+                    // model id's seperated by commas -> break into strings, and set as ID
+                    $b = explode(",",$a[5]);
+                    foreach($b AS $mp) {
+                        $mp = strtolower(trim($mp));
                         parent::AddRDF(
-                                parent::describeIndividual($id, $id_label, $this->getVoc()."Genotype-phenotype-association").
-                                parent::describeClass($this->getVoc()."Genotype-phenotype-association", $class_label)
+                                parent::triplify($id, $this->getVoc()."model-id", $mp)
                         );
 
-                        // model id's seperated by commas -> break into strings, and set as ID
-                        $b = explode(",",$a[5]);
-                        foreach($b AS $mp) {
-                                $mp = strtolower(trim($mp));
-                                parent::AddRDF(
-                                        parent::triplify($id, $this->getVoc()."model-id", $mp)
-                                );
+                    }
 
-                        }
+                    //get allelic composition
+                    if(trim($a[0])) {
+                    parent::AddRDF(
+                            parent::triplifyString($id, $this->getVoc()."allele-composition", trim($a[0]))
+                        );
+                    }
 
-                        //get allelic composition
-                        if(trim($a[0])) {
-                        parent::AddRDF(
-                                 parent::triplifyString($id, $this->getVoc()."allele-composition", trim($a[0]))
-                                );
-                        }
+                    //get the allele symbol for this association
+                    if(trim($a[1])) {
+                    parent::AddRDF(
+                            parent::triplifyString($id, $this->getVoc()."allele-symbol", trim($a[1]))
+                        );
+                    }
 
-                        //get the allele symbol for this association
-                        if(trim($a[1])) {
-                        parent::AddRDF(
-                                parent::triplifyString($id, $this->getVoc()."allele-symbol", trim($a[1]))
-                                );
-                        }
+                    //get genetic composition
+                    if(trim($a[2])) {
+                    parent::AddRDF(
+                            parent::triplifyString($id, $this->getVoc()."genetic-background", trim($a[2]))
+                        );
+                    }
 
-                        //get genetic composition
-                        if(trim($a[2])) {
-                        parent::AddRDF(
-                                parent::triplifyString($id, $this->getVoc()."genetic-background", trim($a[2]))
-                                );
-                        }
+                    //get mammalian phenotype ID
+                    if(trim($a[3])) {
+                    parent::AddRDF(
+                            parent::triplify($id, $this->getVoc()."mammalian-phenotype-id", trim($a[3]))
+                        );
+                    }
 
-                        //get mammalian phenotype ID
-                        if(trim($a[3])) {
-                        parent::AddRDF(
-                                parent::triplify($id, $this->getVoc()."mammalian-phenotype-id", trim($a[3]))
-                                );
-                        }
+                    //get pubmed ID
+                    if(trim($a[4])) {
+                    parent::AddRDF(
+                            parent::triplify($id, $this->getVoc()."pubmed-id", "pubmed:".trim($a[4]))
+                        );
+                    }
 
-                        //get pubmed ID
-                        if(trim($a[4])) {
-                        parent::AddRDF(
-                                parent::triplify($id, $this->getVoc()."pubmed-id", trim($a[4]))
-                                );
-                        }
-
-                $this->WriteRDFBufferToWriteFile();
+                    $this->WriteRDFBufferToWriteFile();
                 }
                 
         }//closes function
@@ -293,7 +293,7 @@ class MGIParser extends Bio2RDFizer
                         $a = explode("\t",$l);
                         $line ++;
                         if(count($a) != 7) {
-                                echo "incorrect number of columns at line $line!".PHP_EOL;
+                                echo "Expecting 7 columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
                                 continue;
                         }
                         
