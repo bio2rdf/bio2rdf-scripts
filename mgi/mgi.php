@@ -153,7 +153,7 @@ class MGIParser extends Bio2RDFizer
                         if(trim($a[5])) {
                                 $marker_id = strtolower($a[5]);
                                 parent::AddRDF(
-                                        parent::triplify($id, $this->getVoc()."Genetic-Marker", $marker_id).
+                                        parent::triplify($id, $this->getVoc()."genetic-marker", $marker_id).
                                         parent::triplify($marker_id, "rdf:type", $this->getVoc()."Mouse-Marker")
                                 );              
                                 if(trim($a[6])) {
@@ -230,7 +230,7 @@ class MGIParser extends Bio2RDFizer
                     foreach($b AS $mp) {
                         $mp = strtolower(trim($mp));
                         parent::AddRDF(
-                                parent::triplify($id, $this->getVoc()."model-id", $mp)
+                                parent::triplify($id, $this->getVoc()."mouse-marker", $mp)
                         );
 
                     }
