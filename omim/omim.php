@@ -167,7 +167,7 @@ class OMIMParser extends Bio2RDFizer
 		if(parent::getParameterValue('download')==true) {
 			// connect
 			if(!isset($ftp)) {
-				$host = 'grcf.jhmi.edu';
+				$host = 'ftp.omim.org';
 				echo "connecting to $host ...";
 				$ftp = ftp_connect($host);
 				if(!$ftp) {
