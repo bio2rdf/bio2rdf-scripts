@@ -256,7 +256,7 @@ class DrugBankParser extends Bio2RDFizer
                     }
                 } else if($v != '') {
                     parent::addRDF(
-                        parent::triplifyString($pid,parent::getVoc().$k,addslashes((string)$v))
+                        parent::triplifyString($pid,parent::getVoc().$k,(string)$v)
                     );
                 }
                 
@@ -332,7 +332,7 @@ class DrugBankParser extends Bio2RDFizer
         $description = null;
 
         if(isset($x->description) && $x->description != '') {
-            $description = addslashes(trim((string)$x->description));
+            $description = trim((string)$x->description);
         }       
         
         parent::addRDF(
@@ -496,7 +496,7 @@ class DrugBankParser extends Bio2RDFizer
          foreach($x->{"calculated-properties"} AS $properties) {
              foreach($properties AS $property) {
                  $type   = "".$property->kind;
-                 $value  = addslashes($property->value);
+                 $value  = $property->value;
                  $source = "".$property->source;            
                     
                  $id = "drugbank_resource:calculated_property_".$dbid."_".($counter++);
@@ -796,10 +796,10 @@ class DrugBankParser extends Bio2RDFizer
                     $l = $item->$item_name;
                     if(isset($l->$list_item_name)) {
                         foreach($l->$list_item_name AS $k) {
-                            $this->AddRDF($this->triplifyString($id,$predicate,addslashes(ucfirst($k))));
+                            $this->AddRDF($this->triplifyString($id,$predicate,ucfirst($k)));
                         }
                     } else {
-                        $this->AddRDF($this->triplifyString($id,$predicate,addslashes(ucfirst($l))));
+                        $this->AddRDF($this->triplifyString($id,$predicate,ucfirst($l)));
                     }
                 }
             }
