@@ -429,6 +429,7 @@ function CTD_chem_pathways_enriched()
 		
 		$this->AddRDF(
 			parent::triplify("mesh:".$chemical_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
+			parent::triplifyString("mesh:".$chemical_id, $this->getVoc()."pvalue", $a[6]).
 			parent::describeProperty($this->getVoc()."pathway", "Relation between a CTD entity and a pathway it is associated with")
 		);
 		parent::WriteRDFBufferToWriteFile();
