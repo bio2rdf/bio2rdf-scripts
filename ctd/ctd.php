@@ -447,7 +447,6 @@ X 1 DiseaseID (MeSH or OMIM accession identifier)
   6 ParentTreeNumbers
   7 Synonyms
   8 SlimMappings
-
 */
 function CTD_diseases()
 {
@@ -514,7 +513,6 @@ function CTD_diseases_pathways()
 	}
 	return TRUE;
 }
-
 
 /*
   0 GeneSymbol
