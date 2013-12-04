@@ -429,6 +429,7 @@ function CTD_chem_pathways_enriched()
 		
 		$this->AddRDF(
 			parent::triplify("mesh:".$chemical_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
+			parent::triplifyString("mesh:".$chemical_id, $this->getVoc()."pvalue", $a[6]).
 			parent::describeProperty($this->getVoc()."pathway", "Relation between a CTD entity and a pathway it is associated with")
 		);
 		parent::WriteRDFBufferToWriteFile();
@@ -447,7 +448,6 @@ X 1 DiseaseID (MeSH or OMIM accession identifier)
   6 ParentTreeNumbers
   7 Synonyms
   8 SlimMappings
-
 */
 function CTD_diseases()
 {
@@ -514,7 +514,6 @@ function CTD_diseases_pathways()
 	}
 	return TRUE;
 }
-
 
 /*
   0 GeneSymbol
