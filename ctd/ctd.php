@@ -434,7 +434,7 @@ function CTD_chem_pathways_enriched()
 			parent::describeIndividual($pathway_resource_id, $pathway_resource_label, parent::getVoc()."Chemical-Pathway-Association").
 			parent::triplify($pathway_resource_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
 			parent::triplify($pathway_resource_id, parent::getVoc()."chemical", "mesh:".$chemical_id).
-			parent::triplifyString($pathway_resource_id, $this->getVoc()."p-value", $a[6])
+			parent::triplifyString($pathway_resource_id, $this->getVoc()."p-value", $a[6], "xsd:double")
 		);
 		parent::WriteRDFBufferToWriteFile();
 	}
