@@ -190,10 +190,12 @@ class AffymetrixParser extends Bio2RDFizer
 				// dataset attributes
 				$a = explode('=',trim($l));
 				$r = $this->getVoc().substr($a[0],2);
-				parent::addRDF( 
-					parent::triplifyString( parent::getDatasetURI(), $r, $a[1]).
-					parent::describe($r,"$r")
-				);
+				if(isset($a[1])) {
+					parent::addRDF( 
+						parent::triplifyString( parent::getDatasetURI(), $r, $a[1]).
+						parent::describe($r,"$r")
+					);
+				}
 				continue;
 			}
 			if($first == true) {			
@@ -256,7 +258,8 @@ class AffymetrixParser extends Bio2RDFizer
 							$array_id = parent::getRes().str_replace(" ","-",$v);
 							parent::addRDF(
 								parent::triplify($qname, $this->getVoc()."genechip-array", $array_id).
-								parent::describeIndividual($array_id,"Affymetrix GeneChip array",$this->getVoc()."Genechip-Array")
+								parent::describeIndividual($array_id,"Affymetrix $v GeneChip array",$this->getVoc()."Genechip-Array").
+								parent::describeClass($this->getVoc()."Genechip-Array","Affymetrix GeneChip array")
 							);
 							break;
 						case 'Gene Ontology Biological Process':
@@ -283,16 +286,23 @@ class AffymetrixParser extends Bio2RDFizer
 								if($prefix == '---' || $id == '---') continue;
 								else if($prefix == 'gb' || $prefix == 'gb_htc') $prefix = 'genbank';
 								else if($prefix == 'ncbibacterial') $prefix = 'gi';
+								else if($prefix == 'ncbi_bacterial') $prefix = 'gi';
 								else if($prefix == 'ens') $prefix = 'ensembl';
 								else if($prefix == 'ncbi_mito' || $prefix == 'ncbi_organelle') $prefix = 'refseq';
 								else if($prefix == 'affx' || $prefix == 'unknown') $prefix = 'affymetrix';
 								else if($prefix == 'tigr_2004_08') $prefix = 'tigr';
 								else if($prefix == 'tigr-plantta') $prefix = 'genbank';
 								else if($prefix == 'newrs.gi') $prefix = 'gi';
+								else if($prefix == 'newRS.gi') $prefix = 'gi';
 								else if($prefix == 'primate_viral') $prefix = 'genbank';
 								else if($prefix == 'jgi-bacterial') $prefix = 'ncbigene';
 								else if($prefix == 'tb') $prefix = 'tuberculist';
+								else if($prefix == 'pa') $prefix = 'pseudomonas';
 								else if($prefix == 'gi|53267') {$prefix = 'gi';$id='53267';}
+								else if($prefix == 'broad-tcup') {
+									$e = explode("-",$id);
+									$id = $e[0];
+								}
 								else if($prefix == 'organelle') {
 									$e = explode("-",$id);
 									$id = $e[0];
