@@ -40,7 +40,7 @@ class dbSNPParser extends Bio2RDFizer
 	function __construct($argv) {
 		parent::__construct($argv,'dbsnp');	
 		// set and print application parameters
-		parent::addParameter('files',true,null,'all','all|omim|snp#,snp#');
+		parent::addParameter('files',true,null,'all','all|clinical|omim|snp#,snp#');
 		parent::addParameter('download_url',false,null,'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=snp&retmode=xml&id=','the download url for individual snps');
 		parent::initialize();
 	}
@@ -53,7 +53,9 @@ class dbSNPParser extends Bio2RDFizer
 		// get the snps from pharmgkb
 		$snps = explode(",",parent::getParameterValue('files'));
 		
-		if($snps[0] == 'omim') {
+		if($snps[0] == 'clinical') {
+			$snps = $this->getSNPs();
+		} else if($snps[0] == 'omim') {
 			$lfile = $ldir.'snp_omimvar.txt';
 			if(!file_exists($lfile) || (parent::getParameterValue('download') == true)) {
 				$ret = utils::DownloadSingle('ftp://ftp.ncbi.nlm.nih.gov/snp/Entrez/snp_omimvar.txt',$lfile);
@@ -139,6 +141,32 @@ class dbSNPParser extends Bio2RDFizer
 		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
+	}
+
+
+	function getSNPs()
+	{
+	
+		$lfile = $this->getParameterValue("indir")."ncbi-snps.xml";
+		if(!file_exists($lfile) || $this->getParameterValue('download') == true) {
+			$retmax = 100000;
+			$url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=snp&retmax=$retmax&term=%22pathogenic%22[Clinical%20Significance]%20or%20%22drug-response%22[Clinical%20Significance]%20or%20%22probable%20pathogenic%22[Clinical%20Significance]%20OR%20%22other%22[Clinical%20Significance]";
+			$ret = file_get_contents($url);
+			if($ret === FALSE) {
+				trigger_error("Unable to get snps from ncbi eutils",E_USER_ERROR);
+				return FALSE;
+			}
+			$ret = file_put_contents($lfile, $ret);
+			if($ret === FALSE) {
+				trigger_error("Unable to save snps into $lfile",E_USER_ERROR);
+				return FALSE;
+			}
+		}
+		// load the file
+		$xml = simplexml_load_file($lfile);
+		$json = json_encode($xml);
+		$a = json_decode($json,TRUE);
+		return $a['IdList']['Id'];
 	}
 
 
