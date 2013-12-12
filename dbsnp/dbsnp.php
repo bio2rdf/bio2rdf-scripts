@@ -183,7 +183,7 @@ class dbSNPParser extends Bio2RDFizer
 			
 			// attributes
 			parent::addRDF(
-				parent::describeIndividual($id,$rsid,(string) str_replace(" ","",(string) $o->attributes()->snpClass)).
+				parent::describeIndividual($id,$rsid,parent::getVoc().((string) str_replace(" ","-",(string) $o->attributes()->snpClass))).
 				parent::triplifyString($id,parent::getVoc()."snp-class",(string) $o->attributes()->snpClass).
 				parent::triplifyString($id,parent::getVoc()."snp-type",(string) $o->attributes()->snpType).
 				parent::triplifyString($id,parent::getVoc()."mol-type",(string) $o->attributes()->molType).
