@@ -173,43 +173,45 @@ class HGNCParser extends Bio2RDFizer {
 			parent::AddRDF(
 				parent::triplify($id_res, "rdf:type", $this->getVoc()."Gene-Symbol").
 				parent::describeIndividual($id_res, $id_label, $this->getVoc()."Gene-Symbol").
-				parent::describeClass($this->getVoc()."Gene-Symbol", "Official Gene Symbol")
+				parent::describeClass($this->getVoc()."Gene-Symbol", "HGNC Official Gene Symbol")
 			);
 			if(!empty($approved_symbol)){
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."approved_symbol",utf8_encode(htmlspecialchars($approved_symbol))).
-					parent::describeProperty($this->getVoc()."approved_symbol", "The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene")
+					parent::triplifyString($id_res, $this->getVoc()."approved-symbol",utf8_encode(htmlspecialchars($approved_symbol))).
+					parent::describeProperty($this->getVoc()."approved-symbol", "HGNC approved gene symbol","The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene")
 				);
 				
 			}
 			if(!empty($approved_name)){
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."approved_name",utf8_encode(htmlspecialchars($approved_name))).
-					parent::describeProperty($this->getVoc()."approved_name", "The official gene name that has been approved by the HGNC and is publicly available. Names are approved based on specific HGNC nomenclature guidelines.")
+					parent::triplifyString($id_res, $this->getVoc()."approved-name",utf8_encode(htmlspecialchars($approved_name))).
+					parent::describeProperty($this->getVoc()."approved-name","HGNC approved name", "The official gene name that has been approved by the HGNC and is publicly available. Names are approved based on specific HGNC nomenclature guidelines.")
 				);
 			}			
 			if(!empty($status)){
+				$s = $this->getVoc().str_replace(" ","-",$status);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."status",utf8_encode(htmlspecialchars($status))).
-					parent::describeProperty($this->getVoc()."status", "Indicates whether the gene is classified as: Approved - these genes have HGNC-approved gene symbols. Entry withdrawn - these previously approved genes are no longer thought to exist. Symbol withdrawn - a previously approved record that has since been merged into a another record.")
+					parent::triplify($id_res, $this->getVoc()."status",$s).
+					parent::describeProperty($this->getVoc()."status","HGNC status", "Indicates whether the gene is classified as: Approved - these genes have HGNC-approved gene symbols. Entry withdrawn - these previously approved genes are no longer thought to exist. Symbol withdrawn - a previously approved record that has since been merged into a another record.").
+					parent::describeClass($s,$status,$this->getVoc()."Status")
 				);
 			}			
 			if(!empty($locus_id)){
 				$locus_res = $this->getRes().$id."_LOCUS";
 				parent::AddRDF(
 					parent::triplify($id_res, $this->getVoc()."locus", $locus_res).
-					parent::triplifyString($locus_res, $this->getVoc()."locus_type",utf8_encode(htmlspecialchars($locus_type))).
-					parent::triplifyString($locus_res, $this->getVoc()."locus_group", utf8_encode(htmlspecialchars($locus_group))).
-					parent::describeProperty($this->getVoc()."locus_type", "Specifies the type of locus described by the given entry").
-					parent::describeProperty($this->getVoc()."locus_group", "Groups locus types together into related sets. Below is a list of groups and the locus types within the group")
+					parent::triplifyString($locus_res, $this->getVoc()."locus-type",utf8_encode(htmlspecialchars($locus_type))).
+					parent::triplifyString($locus_res, $this->getVoc()."locus-group", utf8_encode(htmlspecialchars($locus_group))).
+					parent::describeProperty($this->getVoc()."locus-type", "locus type","Specifies the type of locus described by the given entry").
+					parent::describeProperty($this->getVoc()."locus-group", "locus group", "Groups locus types together into related sets. Below is a list of groups and the locus types within the group")
 				);
 			}
 			if(!empty($previous_symbols)){
 				$previous_symbols = explode(", ", $previous_symbols);
 				foreach($previous_symbols as $previous_symbol){
 					parent::AddRDF(
-						parent::triplifyString($id_res, $this->getVoc()."previous_symbol", utf8_encode(htmlspecialchars($previous_symbol))).
-						parent::describeProperty($this->getVoc()."previous_symbol", "Symbols previously approved by the HGNC for this gene")
+						parent::triplifyString($id_res, $this->getVoc()."previous-symbol", utf8_encode(htmlspecialchars($previous_symbol))).
+						parent::describeProperty($this->getVoc()."previous-symbol", "HGNC previous symbol","Symbols previously approved by the HGNC for this gene")
 					);
 				}
 			}
@@ -218,8 +220,8 @@ class HGNCParser extends Bio2RDFizer {
 				foreach($previous_names as $previous_name){
 					$previous_name = str_replace("\"", "", $previous_name);
 					parent::AddRDF(
-						parent::triplifyString($id_res, $this->getVoc()."previous_name",  utf8_encode(htmlspecialchars($previous_name))).
-						parent::describeProperty($this->getVoc()."previous_name", "Gene names previously approved by the HGNC for this gene")
+						parent::triplifyString($id_res, $this->getVoc()."previous-name",  utf8_encode(htmlspecialchars($previous_name))).
+						parent::describeProperty($this->getVoc()."previous-name", "HGNC previous name","Gene names previously approved by the HGNC for this gene")
 					);
 				}
 			}
@@ -228,7 +230,7 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($synonyms as $synonym) {
 					parent::AddRDF(
 						parent::triplifyString($id_res, $this->getVoc()."synonym",  utf8_encode(htmlspecialchars($synonym))).
-						parent::describeProperty($this->getVoc()."synonym", "Other symbols used to refer to this gene")
+						parent::describeProperty($this->getVoc()."synonym", "synonym","Other symbols used to refer to this gene")
 					);
 				}
 			}
@@ -237,51 +239,51 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($name_synonyms as $name_synonym) {
 					$name_synonym = str_replace("\"", "", $name_synonym);
 					parent::AddRDF(
-						parent::triplifyString($id_res, $this->getVoc()."name_synonym",  utf8_encode(htmlspecialchars($name_synonym))).
-						parent::describeProperty($this->getVoc()."name_synonym", " Other names used to refer to this gene")
+						parent::triplifyString($id_res, $this->getVoc()."name-synonym",  utf8_encode(htmlspecialchars($name_synonym))).
+						parent::describeProperty($this->getVoc()."name-synonym", "name synonym","Other names used to refer to this gene")
 					);
 				}
 			}
 			if(!empty($chromosome)){
 				parent::AddRDF(
 					parent::triplifyString($id_res, $this->getVoc()."chromosome",  utf8_encode(htmlspecialchars($chromosome))).
-					parent::describeProperty($this->getVoc()."chromosome", "Indicates the location of the gene or region on the chromosome")
+					parent::describeProperty($this->getVoc()."chromosome", "chromosome", "Indicates the location of the gene or region on the chromosome")
 				);
 			}
 			if(!empty($date_approved)){
 				$date = date_parse($date_approved);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."date_approved", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
-					parent::describeProperty($this->getVoc()."date_approved", "Date the gene symbol and name were approved by the HGNC")
+					parent::triplifyString($id_res, $this->getVoc()."date-approved", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+					parent::describeProperty($this->getVoc()."date-approved", "date approved","Date the gene symbol and name were approved by the HGNC")
 				);
 			}
 			if(!empty($date_modified)){
 				$date = date_parse($date_modified);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."date_modified", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
-					parent::describeProperty($this->getVoc()."date_modified", "if applicable, the date the entry was modified by the HGNC")
+					parent::triplifyString($id_res, $this->getVoc()."date-modified", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+					parent::describeProperty($this->getVoc()."date-modified", "date modified", "the date the entry was modified by the HGNC")
 				);
 			}
 			if(!empty($date_symbol_changed)){
 				$date = date_parse($date_symbol_changed);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."date_symbol_changed", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
-					parent::describeProperty($this->getVoc()."date_symbol_changed", "If applicable, the date the gene symbol was last changed by the HGNC from a previously approved symbol. Many genes receive approved symbols and names which are viewed as temporary (eg C2orf#) or are non-ideal when considered in the light of subsequent information. In the case of individual genes a change to the name (and subsequently the symbol) is only made if the original name is seriously misleading")
+					parent::triplifyString($id_res, $this->getVoc()."date-symbol-changed", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+					parent::describeProperty($this->getVoc()."date-symbol-changed", "date symbol changed","The date the gene symbol was last changed by the HGNC from a previously approved symbol. Many genes receive approved symbols and names which are viewed as temporary (eg C2orf#) or are non-ideal when considered in the light of subsequent information. In the case of individual genes a change to the name (and subsequently the symbol) is only made if the original name is seriously misleading")
 				);
 			}
 			if(!empty($date_name_changed)){
 				$date = date_parse($date_name_changed);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."date_name_changed", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
-					parent::describeProperty($this->getVoc()."date_name_changed", "If applicable, the date the gene name was last changed by the HGNC from a previously approved name")
+					parent::triplifyString($id_res, $this->getVoc()."date-name-changed", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+					parent::describeProperty($this->getVoc()."date-name-changed", "date name changed", "The date the gene name was last changed by the HGNC from a previously approved name")
 				);
 			}
 			if(!empty($accession_numbers)){
 				$accession_numbers = explode(", ", $accession_numbers);
 				foreach ($accession_numbers as $accession_number) {
 					parent::AddRDF(
-						parent::triplifyString($id_res, $this->getVoc()."accession_number",  utf8_encode(htmlspecialchars($accession_number))).
-						parent::describeProperty($this->getVoc()."accession_number", "Accession numbers for each entry selected by the HGNC")
+						parent::triplifyString($id_res, $this->getVoc()."accession",  utf8_encode(htmlspecialchars($accession_number))).
+						parent::describeProperty($this->getVoc()."accession", "accession number", "Accession numbers for each entry selected by the HGNC")
 					);
 				}
 			}
@@ -289,21 +291,21 @@ class HGNCParser extends Bio2RDFizer {
 				$enzyme_ids = explode(", ", $enzyme_ids);
 				foreach ($enzyme_ids as $enzyme_id) {
 					parent::AddRDF(
-						parent::triplifyString($id_res, $this->getVoc()."enzyme_id",  utf8_encode(htmlspecialchars($enzyme_id))).
-						parent::describeProperty($this->getVoc()."enzyme_id", "Enzyme entries have Enzyme Commission (EC) numbers associated with them that indicate the hierarchical functional classes to which they belong")
+						parent::triplifyString($id_res, $this->getVoc()."x-ec",  utf8_encode(htmlspecialchars($enzyme_id))).
+						parent::describeProperty($this->getVoc()."x-ec","Enzyme Commission (EC) number", "Enzyme entries have Enzyme Commission (EC) numbers associated with them that indicate the hierarchical functional classes to which they belong")
 					);
 				}
 			}
 			if(!empty($entrez_gene_id)){
 				parent::AddRDF(
-					parent::triplify($id_res, $this->getVoc()."x-geneid",  "geneid:$entrez_gene_id").
-					parent::describeProperty($this->getVoc()."x-geneid", "Entrez Gene at the NCBI provide curated sequence and descriptive information about genetic loci including official nomenclature, synonyms, sequence accessions, phenotypes, EC numbers, MIM numbers, UniGene clusters, homology, map locations, and related web sites. In the HTML results page this ID links to the Entrez Gene page for that gene. Entrez Gene has replaced LocusLink.")
+					parent::triplify($id_res, $this->getVoc()."x-ncbigene",  "ncbigene:$entrez_gene_id").
+					parent::describeProperty($this->getVoc()."x-ncbigene", "NCBI Gene", "NCBI Gene provides curated sequence and descriptive information about genetic loci including official nomenclature, synonyms, sequence accessions, phenotypes, EC numbers, MIM numbers, UniGene clusters, homology, map locations, and related web sites")
 				);
 			}
 			if(!empty($ensembl_gene_id)){
 				parent::AddRDF(
 					parent::triplify($id_res, $this->getVoc()."x-ensembl", "ensembl:$ensembl_gene_id").
-					parent::describeProperty($this->getVoc()."x-ensembl", "This column contains a manually curated Ensembl Gene ID")
+					parent::describeProperty($this->getVoc()."x-ensembl", "Ensembl Gene")
 				);
 			}
 
@@ -312,7 +314,7 @@ class HGNCParser extends Bio2RDFizer {
 					$mouse_genome_database_id = substr($mouse_genome_database_id, 4);
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-mgi", "mgi:$mouse_genome_database_id").
-						parent::describeProperty($this->getVoc()."x-mgi", " MGI identifier. In the HTML results page this ID links to the MGI Report for that gene.")
+						parent::describeProperty($this->getVoc()."x-mgi", "MGI entry")
 					);
 				}
 			}
@@ -322,8 +324,8 @@ class HGNCParser extends Bio2RDFizer {
 					preg_match('/href="(\S+)"/', $specialist_database_link, $matches);
 					if(!empty($matches[1])){
 						parent::AddRDF(
-							parent::QQuadO_URL($id_res, $this->getVoc()."specialist_database_link",  $matches[1]).
-							parent::describeProperty($this->getVoc()."specialist_database_link", "This column contains links to specialist databases with a particular interest in that symbol/gene (also see Specialist Database IDs).")
+							parent::QQuadO_URL($id_res, $this->getVoc()."xref",  $matches[1]).
+							parent::describeProperty($this->getVoc()."xref", "Specialist database references.")
 						);
 					}
 				}
@@ -333,7 +335,7 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($pubmed_ids as $pubmed_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-pubmed", "pubmed:".trim($pubmed_id)).
-						parent::describeProperty($this->getVoc()."x-pubmed", "Identifier that links to published articles relevant to the entry in the NCBI's PubMed database.")
+						parent::describeProperty($this->getVoc()."x-pubmed", "NCBI PubMed entry","Identifier that links to published articles relevant to the entry in the NCBI's PubMed database.")
 					);
 				}
 			}
@@ -342,35 +344,35 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($refseq_ids as $refseq_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-refseq", "refseq:".trim($refseq_id)).
-						parent::describeProperty($this->getVoc()."x-refseq", "The Reference Sequence (RefSeq) identifier for that entry, provided by the NCBI. As we do not aim to curate all variants of a gene only one selected RefSeq is displayed per gene report. RefSeq aims to provide a comprehensive, integrated, non-redundant set of sequences, including genomic DNA, transcript (RNA), and protein products. RefSeq identifiers are designed to provide a stable reference for gene identification and characterization, mutation analysis, expression studies, polymorphism discovery, and comparative analyses. In the HTML results page this ID links to the RefSeq page for that entry.")
+						parent::describeProperty($this->getVoc()."x-refseq", "NCBI Refseq entry","The Reference Sequence (RefSeq) identifier for that entry, provided by the NCBI. As we do not aim to curate all variants of a gene only one selected RefSeq is displayed per gene report. RefSeq aims to provide a comprehensive, integrated, non-redundant set of sequences, including genomic DNA, transcript (RNA), and protein products. RefSeq identifiers are designed to provide a stable reference for gene identification and characterization, mutation analysis, expression studies, polymorphism discovery, and comparative analyses. In the HTML results page this ID links to the RefSeq page for that entry.")
 					);
 				}
 			}
 			if(!empty($gene_family_tag)){
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."gene_family_tag",  utf8_encode(htmlspecialchars($gene_family_tag))).
-					parent::describeProperty($this->getVoc()."gene_family_tag", "Tag used to designate a gene family or group the gene has been assigned to, according to either sequence similarity or information from publications, specialist advisors for that family or other databases. Families/groups may be either structural or functional, therefore a gene may belong to more than one family/group. These tags are used to generate gene family or grouping specific pages at genenames.org and do not necessarily reflect an official nomenclature. Each gene family has an associated gene family tag and gene family description. If a particular gene is a member of more than one gene family, the tags and the descriptions will be shown in the same order.")
+					parent::triplifyString($id_res, $this->getVoc()."gene-family-tag",  utf8_encode(htmlspecialchars($gene_family_tag))).
+					parent::describeProperty($this->getVoc()."gene-family-tag", "Gene Family Tag","Tag used to designate a gene family or group the gene has been assigned to, according to either sequence similarity or information from publications, specialist advisors for that family or other databases. Families/groups may be either structural or functional, therefore a gene may belong to more than one family/group. These tags are used to generate gene family or grouping specific pages at genenames.org and do not necessarily reflect an official nomenclature. Each gene family has an associated gene family tag and gene family description. If a particular gene is a member of more than one gene family, the tags and the descriptions will be shown in the same order.")
 				);
 			}
 
 			if(!empty($gene_family_description)){
 				$gene_family_description = str_replace("\"", "", $gene_family_description);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."gene_family_description",  utf8_encode(htmlspecialchars($gene_family_description))).
-					parent::describeProperty($this->getVoc()."gene_family_description", "Name given to a particular gene family. The gene family description has an associated gene family tag. Gene families are used to group genes according to either sequence similarity or information from publications, specialist advisors for that family or other databases. Families/groups may be either structural or functional, therefore a gene may belong to more than one family/group.")
+					parent::triplifyString($id_res, $this->getVoc()."gene-family-description",  utf8_encode(htmlspecialchars($gene_family_description))).
+					parent::describeProperty($this->getVoc()."gene-family-description", "gene family name","Name given to a particular gene family. The gene family description has an associated gene family tag. Gene families are used to group genes according to either sequence similarity or information from publications, specialist advisors for that family or other databases. Families/groups may be either structural or functional, therefore a gene may belong to more than one family/group.")
 				);
 			}
 			if(!empty($record_type)){
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."record_type",  utf8_encode(htmlspecialchars($record_type)))
+					parent::triplifyString($id_res, $this->getVoc()."record-type",  utf8_encode(htmlspecialchars($record_type)))
 				);
 			}
 			if(!empty($primary_ids)){
 				$primary_ids = explode(", ", $primary_ids);
 				foreach ($primary_ids as $primary_id) {
 					parent::AddRDF(
-						parent::triplifyString($id_res, $this->getVoc()."primary_id",  utf8_encode(htmlspecialchars($primary_id))).
-						parent::describeProperty($this->getVoc()."primary_id", "The primary Id given to this record")
+						parent::triplifyString($id_res, $this->getVoc()."primary-id",  utf8_encode(htmlspecialchars($primary_id))).
+						parent::describeProperty($this->getVoc()."primary-id", "primary identifier")
 					);
 				}
 			}
@@ -378,8 +380,8 @@ class HGNCParser extends Bio2RDFizer {
 				$secondary_ids = explode(", ", $secondary_ids);
 				foreach ($secondary_ids as $secondary_id) {
 					parent::AddRDF(
-						parent::triplifyString($id_res, $this->getVoc()."secondary_id",  utf8_encode(htmlspecialchars($secondary_id))).
-						parent::describeProperty($this->getVoc()."secondary_id", "The secondary Id given to this record")
+						parent::triplifyString($id_res, $this->getVoc()."secondary-id",  utf8_encode(htmlspecialchars($secondary_id))).
+						parent::describeProperty($this->getVoc()."secondary-id", "secondary identifier")
 					);
 				}
 			}
@@ -388,7 +390,7 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($ccd_ids as $ccd_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-ccds", "ccds:".trim($ccd_id)).
-						parent::describeProperty($this->getVoc()."x-ccds", "The Consensus CDS (CCDS) project is a collaborative effort to identify a core set of human and mouse protein coding regions that are consistently annotated and of high quality. The long term goal is to support convergence towards a standard set of gene annotations.")
+						parent::describeProperty($this->getVoc()."x-ccds", "consensus CDS entry","The Consensus CDS (CCDS) project is a collaborative effort to identify a core set of human and mouse protein coding regions that are consistently annotated and of high quality. The long term goal is to support convergence towards a standard set of gene annotations.")
 					);
 				}
 			}
@@ -397,31 +399,28 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($vega_ids as $vega_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-vega", "vega:".trim($vega_id)).
-						parent::describeProperty($this->getVoc()."x-vega", "This contains a curated VEGA gene ID")
+						parent::describeProperty($this->getVoc()."x-vega", "VEGA gene entry")
 					);
 				}
 			}
 			if(!empty($locus_specific_databases)){
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."locus_specific_databases",  utf8_encode(htmlspecialchars($locus_specific_databases))).
-					parent::describeProperty($this->getVoc()."locus_specific_databases", " This contains a list of links to databases or database entries pertinent to the gene")
+					parent::triplifyString($id_res, $this->getVoc()."locus-specific-xref",  utf8_encode(htmlspecialchars($locus_specific_databases))).
+					parent::describeProperty($this->getVoc()."locus-specific-xref", "locus specific xref", "This contains a list of links to databases or database entries pertinent to the gene")
 				);
 			}
 			if(!empty($entrez_gene_id_mappeddatasuppliedbyNCBI)){
 				$entrez_gene_id_mappeddatasuppliedbyNCBI = explode(", ", $entrez_gene_id_mappeddatasuppliedbyNCBI);
 				foreach ($entrez_gene_id_mappeddatasuppliedbyNCBI as $gene_id) {
 					if(strstr($gene_id, ":") !== FALSE){
-						$gene_id = explode(":", $gene_id);
-						parent::AddRDF(
-							parent::triplify($id_res, $this->getVoc()."x-geneid", "geneid:".trim($gene_id[1])).
-							parent::describeProperty($this->getVoc()."x-geneid", "This column contains a manually curated Ensembl Gene ID")
-						);
-					} else {
-						parent::AddRDF(
-							parent::triplify($id_res, $this->getVoc()."x-geneid", "geneid:".trim($gene_id)).
-							parent::describeProperty($this->getVoc()."x-geneid", "This column contains a manually curated Ensembl Gene ID")
-						);
-					}					
+						$a = explode(":", $gene_id);
+						$gene_id = $a[1];
+					}
+					parent::AddRDF(
+						parent::triplify($id_res, $this->getVoc()."x-ncbigene", "ncbigene:".trim($gene_id)).
+						parent::describeProperty($this->getVoc()."x-ncbigene", "NCBI Gene entry")
+					);
+								
 				}
 			}
 			if(!empty($omim_id_mappeddatasuppliedbyNCBI)){
@@ -429,7 +428,7 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($omim_id_mappeddatasuppliedbyNCBI as $omim_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-omim", "omim:".trim($omim_id)).
-						parent::describeProperty($this->getVoc()."x-omim", "Identifier provided by Online Mendelian Inheritance in Man (OMIM) at the NCBI. This database is described as a catalog of human genes and genetic disorders containing textual information and links to MEDLINE and sequence records in the Entrez system, and links to additional related resources at NCBI and elsewhere. In the HTML results page this ID links to the OMIM page for that entry.")
+						parent::describeProperty($this->getVoc()."x-omim", "OMIM entry","Identifier provided by Online Mendelian Inheritance in Man (OMIM) at the NCBI. This database is described as a catalog of human genes and genetic disorders containing textual information and links to MEDLINE and sequence records in the Entrez system, and links to additional related resources at NCBI and elsewhere. In the HTML results page this ID links to the OMIM page for that entry.")
 					);
 				}
 			}
@@ -438,7 +437,7 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($refseq_mappeddatasuppliedbyNCBI as $refseq_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-refseq", "refseq:".trim($refseq_id)).
-						parent::describeProperty($this->getVoc()."x-refseq", " The Reference Sequence (RefSeq) identifier for that entry, provided by the NCBI. As we do not aim to curate all variants of a gene only one selected RefSeq is displayed per gene report. RefSeq aims to provide a comprehensive, integrated, non-redundant set of sequences, including genomic DNA, transcript (RNA), and protein products. RefSeq identifiers are designed to provide a stable reference for gene identification and characterization, mutation analysis, expression studies, polymorphism discovery, and comparative analyses. In the HTML results page this ID links to the RefSeq page for that entry.")
+						parent::describeProperty($this->getVoc()."x-refseq", "NCBI Refseq entry","The Reference Sequence (RefSeq) identifier for that entry, provided by the NCBI. As we do not aim to curate all variants of a gene only one selected RefSeq is displayed per gene report. RefSeq aims to provide a comprehensive, integrated, non-redundant set of sequences, including genomic DNA, transcript (RNA), and protein products. RefSeq identifiers are designed to provide a stable reference for gene identification and characterization, mutation analysis, expression studies, polymorphism discovery, and comparative analyses. In the HTML results page this ID links to the RefSeq page for that entry.")
 					);
 				}
 			}
@@ -447,7 +446,7 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($uniprot_id_mappeddatasuppliedbyUniProt as $uniprot_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-uniprot", "uniprot:".trim($uniprot_id)).
-						parent::describeProperty($this->getVoc()."x-uniprot", " The UniProt identifier, provided by the EBI. The UniProt Protein Knowledgebase is described as a curated protein sequence database that provides a high level of annotation, a minimal level of redundancy and high level of integration with other databases. In the HTML results page this ID links to the UniProt page for that entry.")
+						parent::describeProperty($this->getVoc()."x-uniprot", "Uniprot entry","The UniProt identifier, provided by the EBI. The UniProt Protein Knowledgebase is described as a curated protein sequence database that provides a high level of annotation, a minimal level of redundancy and high level of integration with other databases. In the HTML results page this ID links to the UniProt page for that entry.")
 					);
 				}
 			}
@@ -456,7 +455,7 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($ensembl_id_mappeddatasuppliedbyEnsembl as $ensembl_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-ensembl", "ensembl:".trim($refseq_id)).
-						parent::describeProperty($this->getVoc()."x-ensembl", " The Ensembl ID is derived from the current build of the Ensembl database and provided by the Ensembl team.")
+						parent::describeProperty($this->getVoc()."x-ensembl", "Ensembl entry","The Ensembl ID is derived from the current build of the Ensembl database and provided by the Ensembl team.")
 					);
 				}
 			}
@@ -466,7 +465,7 @@ class HGNCParser extends Bio2RDFizer {
 				foreach ($ucsc_id_mappeddatasuppliedbyUCSC as $ucsc_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-ucsc", "ucsc:".trim($ucsc_id)).
-						parent::describeProperty($this->getVoc()."x-ucsc", "  The UCSC ID is derived from the current build of the UCSC database")
+						parent::describeProperty($this->getVoc()."x-ucsc", "UCSC entry")
 					);
 				}
 			}
@@ -478,7 +477,7 @@ class HGNCParser extends Bio2RDFizer {
 					}
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-mgi", "mgi:".trim($mgi_id)).
-						parent::describeProperty($this->getVoc()."x-mgi", " MGI identifier. In the HTML results page this ID links to the MGI Report for that gene.")
+						parent::describeProperty($this->getVoc()."x-mgi", "MGI entry")
 					);
 				}
 			}
@@ -489,7 +488,7 @@ class HGNCParser extends Bio2RDFizer {
 					if(!empty($rgd_id)){
 						parent::AddRDF(
 							parent::triplify($id_res, $this->getVoc()."x-rgd",  trim($rgd_id)).
-							parent::describeProperty($this->getVoc()."x-rgd", " RGD identifier. In the HTML results page this ID links to the RGD Report for that gene.")
+							parent::describeProperty($this->getVoc()."x-rgd", "RGD entry")
 						);
 					}
 				}
