@@ -127,8 +127,9 @@ class AffymetrixParser extends Bio2RDFizer
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 			$outfile = 'affymetrix-'.$base_file.".".parent::getParameterValue('output_format');	
 			
+			$this->setDatasetURI("bio2rdf.dataset:bio2rdf-affymetrix-$base_file");
 			$this->setWriteFile($odir.$outfile, $gz);
-			$this->parse();		
+			$this->parse($base_file);		
 			parent::getWriteFile()->close();
 			parent::getReadFile()->close();
 			parent::clear();
@@ -179,7 +180,7 @@ class AffymetrixParser extends Bio2RDFizer
 		return true;
 	}
 	
-	function Parse()
+	function Parse($file)
 	{	
 		parent::getReadFile()->read(); // skip the first comment line
 		$line = 1;
@@ -199,6 +200,7 @@ class AffymetrixParser extends Bio2RDFizer
 				$first = false;
 				// header
 				$header = explode(",",str_replace('"','',trim($l)));
+//				print_r($header);exit;
 				$n = count($header);
 				if($n != 41) {
 					trigger_error("Expecting 41 columns, found $n in header on line $line!",E_USER_ERROR);
@@ -254,7 +256,8 @@ class AffymetrixParser extends Bio2RDFizer
 							$array_id = parent::getRes().str_replace(" ","-",$v);
 							parent::addRDF(
 								parent::triplify($qname, $this->getVoc()."genechip-array", $array_id).
-								parent::describeClass($array_id,"Affymetrix GeneChip array",$this->getVoc()."Genechip-Array"));
+								parent::describeIndividual($array_id,"Affymetrix GeneChip array",$this->getVoc()."Genechip-Array")
+							);
 							break;
 						case 'Gene Ontology Biological Process':
 							if(!isset($rel)) {$rel = 'go-process'; $prefix = "go";}
@@ -352,7 +355,6 @@ class AffymetrixParser extends Bio2RDFizer
 					
 					} //  switch
 				} // else
-				
 			}
 			$this->WriteRDFBufferToWriteFile();
 		}

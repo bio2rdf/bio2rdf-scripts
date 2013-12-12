@@ -392,19 +392,19 @@ class OMIMParser extends Bio2RDFizer
 							
 							// parse out the vocab references
 							preg_match_all("/\{([0-9A-Za-z \:\-\.]+)\}|;/",$coded_phenotype,$codes);
-							//preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$coded_phenotype,$m);
+							//preg_match_all("/((UMLS|HPO HP|SNOMEDCT|ICD10CM|ICD9CM|EOM ID)\:[A-Z0-9]+)/",$coded_phenotype,$m);
 							if(isset($codes[1][0])) {
 								foreach($codes[1] AS $entry) {
 									$entries = explode(" ",trim($entry));
 									foreach($entries AS $e) {
+										if($e == "HPO" || $e == "EOM") continue;
 										$this->getRegistry()->parseQName($e,$ns,$id);
 										if(!isset($ns) || $ns == '') {
-											if($id == "HPO") continue;
 											$b = explode(".",$id);
 											$ns = "omim"; 
 											$id = $b[0];
 										} else {
-											$ns = str_replace(array("icd10cm","icd9cm","snomedct"), array("icd10","icd9","snomed"), $ns);
+											$ns = str_replace(array("id","icd10cm","icd9cm","snomedct"), array("eom","icd10","icd9","snomed"), $ns);
 										}
 										parent::addRDF(parent::triplify($phenotype_id, "rdfs:seeAlso", "$ns:$id"));
 										parent::addRDF(parent::triplify($uri, parent::getVoc()."refers-to", "$ns:$id"));										
@@ -514,9 +514,13 @@ class OMIMParser extends Bio2RDFizer
 					case 'icd9cmIDs':                  $ns = 'icd9';break;
 					case 'umlsIDs':                    $ns = 'umls';break;
 					case 'wormbaseIDs':                $ns = 'wormbase';break;
-					
+					case 'diseaseOntologyIDs':	   $ns = 'do';break;
 					
 					// specifically ignorning
+					case 'geneTests':
+					case 'geneticAllianceIDs':  // #
+					case 'nextGxDx':
+					case 'nbkIDs': // NBK1207;;Alport Syndrome and Thin Basement Membrane Nephropathy
 					case 'newbornScreeningUrls':  
 					case 'decipherUrls':
 					case 'geneReviewShortNames':      
@@ -531,7 +535,7 @@ class OMIMParser extends Bio2RDFizer
 						break;
 					
 					default:
-						echo "external link $k $id".PHP_EOL;
+						echo "unhandled external link $k $id".PHP_EOL;
 				}
 			
 			
@@ -541,7 +545,7 @@ class OMIMParser extends Bio2RDFizer
 						$b = explode(";;",$id); // multiple ids//names
 						foreach($b AS $c) {
 							if(is_numeric($c) == TRUE) {
-								parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."xref", $ns.':'.$c)); 
+								parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-$ns", $ns.':'.$c)); 
 						}}
 					}
 				}
