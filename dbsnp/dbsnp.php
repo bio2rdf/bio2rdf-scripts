@@ -52,7 +52,8 @@ class dbSNPParser extends Bio2RDFizer
 		
 		// get the snps from pharmgkb
 		$snps = explode(",",parent::getParameterValue('files'));
-		
+		if($snps == 'all') $snps = 'clinical'; // for now.
+
 		if($snps[0] == 'clinical') {
 			$snps = $this->getSNPs();
 		} else if($snps[0] == 'omim') {
@@ -65,15 +66,16 @@ class dbSNPParser extends Bio2RDFizer
 			// @todo get the pharmgkb variants
 			
 		} else if($snps[0] == 'all') {
-			// @todo get the big list somehow
+			// @todo get the big list
 			
 		}
 
 		$outfile = $odir."dbsnp.".parent::getParameterValue('output_format');
 		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 		parent::setWriteFile($outfile, $gz);
-		
-		foreach($snps AS $snp) {
+		$nsnps = count($snps);
+
+		foreach($snps AS $i => $snp) {
 			$file = $snp.'.xml';
 			$infile = $ldir.$file;
 			
@@ -95,7 +97,7 @@ class dbSNPParser extends Bio2RDFizer
 			}
 			
 			// process
-			echo "Processing $snp".PHP_EOL;
+			echo "Processing $snp ($i/$n)".PHP_EOL;
 			$this->parse($infile);
 			parent::writeRDFBufferToWriteFile();
 
