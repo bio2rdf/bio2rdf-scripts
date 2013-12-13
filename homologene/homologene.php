@@ -59,7 +59,7 @@ class HomologeneParser extends Bio2RDFizer{
 			file_put_contents($lfile,file_get_contents($rfile));
 		}
 
-		$ofile = $odir.$file.parent::getParameterValue('output_format'); 
+		$ofile = $odir.$file.'.'.parent::getParameterValue('output_format'); 
 		$gz= strstr(parent::getParameterValue('output_format'), "gz")?$gz=true:$gz=false;
 
 		parent::setReadFile($lfile);
