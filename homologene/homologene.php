@@ -26,6 +26,7 @@ SOFTWARE.
  * @version 2.0
  * @author Alison Callahan
  * @author Jose Cruz-Toledo
+ * @author Michel Dumontier
 */
 
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
@@ -46,17 +47,10 @@ class HomologeneParser extends Bio2RDFizer{
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
 		$rdir = $this->GetParameterValue('download_url');		
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}		
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}		
 		$lfile = $ldir.$file;
-		if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
-				trigger_error($file." not found. Will attempt to download.", E_USER_NOTICE);
-				parent::setParameterValue('download',true);
+		if(!file_exists($lfile)) {
+			trigger_error($file." not found. Will attempt to download.", E_USER_NOTICE);
+			parent::setParameterValue('download',true);
 		}
 		//download
 		if($this->GetParameterValue('download') == true){
@@ -65,11 +59,9 @@ class HomologeneParser extends Bio2RDFizer{
 			file_put_contents($lfile,file_get_contents($rfile));
 		}
 
-		$ofile = $odir.$file.'.nt'; $gz=false;
-		if(strstr(parent::getParameterValue('output_format'), "gz")) {
-			$ofile .= '.gz';
-			$gz = true;
-		}
+		$ofile = $odir.$file.parent::getParameterValue('output_format'); 
+		$gz= strstr(parent::getParameterValue('output_format'), "gz")?$gz=true:$gz=false;
+
 		parent::setReadFile($lfile);
 		parent::setWriteFile($ofile, $gz);
 		echo "processing $file... ";
@@ -83,9 +75,9 @@ class HomologeneParser extends Bio2RDFizer{
 			$this->getPrefix(),
 			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/homologene/homologene.php", 
 			$this->getBio2RDFDownloadURL($this->getNamespace()),
-			"http://www.genenames.org",
-			array("use"),
-			"http://www.genenames.org/about/overview",
+			"http://www.ncbi.nlm.nih.gov/homologene",
+			array("use","modify","redistribute","by-attribution"),
+			"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
 			parent::getParameterValue('download_url'),
 			parent::getDatasetVersion()
 		);
@@ -123,8 +115,8 @@ class HomologeneParser extends Bio2RDFizer{
 				parent::describeProperty($this->getVoc()."x-ncbigene", "Link to NCBI GeneId")
 			);
 			parent::AddRDF(
-				parent::triplifyString($hid_res, $this->getVoc()."gene_symbol",  utf8_encode(htmlspecialchars($genesymbol))).
-				parent::describeProperty($this->getVoc()."gene_symbol", "The gene symbol used")
+				parent::triplifyString($hid_res, $this->getVoc()."gene-symbol",  utf8_encode(htmlspecialchars($genesymbol))).
+				parent::describeProperty($this->getVoc()."gene-symbol", "Link to gene symbol")
 			);
 			parent::AddRDF(
 				parent::triplify($hid_res, $this->getVoc()."x-gi", "$gi").
