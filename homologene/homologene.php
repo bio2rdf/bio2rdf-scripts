@@ -116,39 +116,37 @@ class HomologeneParser extends Bio2RDFizer{
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			$parsed_line = $this->parse_homologene_tab_line($aLine);
 			$hid = "homologene:".$parsed_line["hid"];
-			$hid_res = $this->getNamespace().$hid;
-			$hid_label = "homologene id";
-			$hid_label_class = "homologene group for ".$hid_res;
+			$hid_label = "homologene group ".$parsed_line['hid'];
 
 			parent::AddRDF(
-				parent::describeIndividual($hid_res, $hid_label, $this->getVoc()."Homologene-Group").
-				parent::describeClass($this->getVoc()."Homologene-Group", $hid_label_class )
+				parent::describeIndividual($hid, $hid_label, $this->getVoc()."Homologene-Group").
+				parent::describeClass($this->getVoc()."Homologene-Group", "Homologene Group" )
 			);
 
-			$geneid = "geneid:".$parsed_line["geneid"];
-			$taxid = "taxon:".$parsed_line["taxid"];
+			$geneid = "ncbigene:".$parsed_line["geneid"];
+			$taxid = "taxid:".$parsed_line["taxid"];
 			$gi = "gi:".$parsed_line["gi"];
 			$genesymbol = str_replace("\\", "", $parsed_line["genesymbol"]);
 			$refseq = "refseq:".$parsed_line["refseq"];
 
 			parent::AddRDF(
-				parent::triplify($hid_res, $this->getVoc()."x-taxid", "$taxid").
+				parent::triplify($hid, $this->getVoc()."x-taxid", $taxid).
 				parent::describeProperty($this->getVoc()."x-taxid", "Link to NCBI taxonomy")
 			);
 			parent::AddRDF(
-				parent::triplify($hid_res, $this->getVoc()."x-ncbigene", "$geneid").
+				parent::triplify($hid, $this->getVoc()."x-ncbigene", $geneid).
 				parent::describeProperty($this->getVoc()."x-ncbigene", "Link to NCBI GeneId")
 			);
 			parent::AddRDF(
-				parent::triplifyString($hid_res, $this->getVoc()."gene-symbol",  utf8_encode(htmlspecialchars($genesymbol))).
+				parent::triplifyString($hid, $this->getVoc()."gene-symbol",  utf8_encode(htmlspecialchars($genesymbol))).
 				parent::describeProperty($this->getVoc()."gene-symbol", "Link to gene symbol")
 			);
 			parent::AddRDF(
-				parent::triplify($hid_res, $this->getVoc()."x-gi", "$gi").
+				parent::triplify($hid, $this->getVoc()."x-gi", $gi).
 				parent::describeProperty($this->getVoc()."x-gi", "Link to NCBI GI")
 			);
 			parent::AddRDF(
-				parent::triplify($hid_res, $this->getVoc()."x-refseq", "$refseq").
+				parent::triplify($hid, $this->getVoc()."x-refseq", $refseq).
 				parent::describeProperty($this->getVoc()."x-refseq", "Link to NCBI Refseq")
 			);	
 			$this->WriteRDFBufferToWriteFile();
