@@ -34,8 +34,8 @@ class irefindexParser extends Bio2RDFizer
 	function __construct($argv) { //
 		parent::__construct($argv,"irefindex");
 		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|other','all','all or comma-separated list of files to process');
-		parent::addParameter('version',false,'03022013|10182011','03022013','dated version of files to download');
-		parent::addParameter('download_url',false,null,'ftp://ftp.no.embnet.org/irefindex/data/current/psi_mitab/MITAB2.6/');
+		parent::addParameter('version',false,'08122013|03022013|10182011','08122013','dated version of files to download');
+		parent::addParameter('download_url',false,null,'http://irefindex.org/download/irefindex/data/current/psi_mitab/MITAB2.6/');
 		parent::initialize();
 	}
 	
@@ -67,10 +67,10 @@ class irefindexParser extends Bio2RDFizer
 				$download = true;
 			}
 			
-			$rfile = "ftp://ftp.no.embnet.org/irefindex/data/current/psi_mitab/MITAB2.6/$zip_file";
+			$rfile = $rdir.$zip_file;
 			if($download == true) {
 				echo "downloading $rfile".PHP_EOL;
-				if(FALSE === Utils::Download("ftp://ftp.no.embnet.org",array("/irefindex/data/current/psi_mitab/MITAB2.6/".$zip_file),$ldir)) {
+				if(FALSE === Utils::DownloadSingle($rfile,$lfile)) {
 					trigger_error("Error in Download");
 					return FALSE;
 				}
@@ -189,6 +189,7 @@ class irefindexParser extends Bio2RDFizer
 			unset($method);
 			if($a[6] != '-') {
 				$qname = $this->ParseString($a[6],$ns,$id,$method);
+				if($ns == "innatedb allergy") $ns = "innatedb"; 
 				if($qname) parent::addRDF(parent::triplify($iid,parent::getVoc()."method",$qname));
 			}
 
