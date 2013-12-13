@@ -251,30 +251,26 @@ class HGNCParser extends Bio2RDFizer {
 				);
 			}
 			if(!empty($date_approved)){
-				$date = date_parse($date_approved);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."date-approved", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+					parent::triplifyString($id_res, $this->getVoc()."date-approved", $date_approved, "xsd:date").
 					parent::describeProperty($this->getVoc()."date-approved", "date approved","Date the gene symbol and name were approved by the HGNC")
 				);
 			}
 			if(!empty($date_modified)){
-				$date = date_parse($date_modified);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."date-modified", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+					parent::triplifyString($id_res, $this->getVoc()."date-modified", $date_modified, "xsd:date").
 					parent::describeProperty($this->getVoc()."date-modified", "date modified", "the date the entry was modified by the HGNC")
 				);
 			}
 			if(!empty($date_symbol_changed)){
-				$date = date_parse($date_symbol_changed);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."date-symbol-changed", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+					parent::triplifyString($id_res, $this->getVoc()."date-symbol-changed", $date_symbol_changed, "xsd:date").
 					parent::describeProperty($this->getVoc()."date-symbol-changed", "date symbol changed","The date the gene symbol was last changed by the HGNC from a previously approved symbol. Many genes receive approved symbols and names which are viewed as temporary (eg C2orf#) or are non-ideal when considered in the light of subsequent information. In the case of individual genes a change to the name (and subsequently the symbol) is only made if the original name is seriously misleading")
 				);
 			}
 			if(!empty($date_name_changed)){
-				$date = date_parse($date_name_changed);
 				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."date-name-changed", $date["month"]."-".$date["day"]."-".$date["year"], "xsd:date").
+					parent::triplifyString($id_res, $this->getVoc()."date-name-changed", $date_name_changed, "xsd:date").
 					parent::describeProperty($this->getVoc()."date-name-changed", "date name changed", "The date the gene name was last changed by the HGNC from a previously approved name")
 				);
 			}
@@ -498,6 +494,7 @@ class HGNCParser extends Bio2RDFizer {
 		}//while
 		
 	}//process
+
 }//HGNCParser
 
 ?>
