@@ -59,7 +59,7 @@ class IProClassParser extends Bio2RDFizer
 		$ofile = 'iproclass.'.parent::getParameterValue('output_format'); 
 		$gz = (strstr(parent::getParameterValue('output_format'), "gz"))?true:false;
 
-		parent::setReadFile($lfile);
+		parent::setReadFile($lfile, true);
 		parent::setWriteFile($odir.$ofile, $gz);
 		echo "processing $file... ";
 		$this->process();
