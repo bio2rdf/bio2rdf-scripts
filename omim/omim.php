@@ -299,7 +299,7 @@ class OMIMParser extends Bio2RDFizer
 		// parse titles
 		$titles = $o['titles'];
 		parent::addRDF(
-			parent::describeIndividual($omim_uri, $titles['preferredTitle'], parent::getVoc()."".str_replace("/","-", ucfirst($type)), $titles['preferredTitle']));
+			parent::describeIndividual($omim_uri, $titles['preferredTitle'], parent::getVoc().str_replace(array(" ","/"),"-", ucfirst($type)), $titles['preferredTitle']));
 		
 		if(isset($titles['preferredTitle'])) {
 			parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."preferred-title", $titles['preferredTitle']));
