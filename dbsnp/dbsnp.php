@@ -52,7 +52,7 @@ class dbSNPParser extends Bio2RDFizer
 		
 		// get the snps from pharmgkb
 		$snps = explode(",",parent::getParameterValue('files'));
-		if($snps == 'all') $snps = 'clinical'; // for now.
+		if($snps[0] == 'all') $snps[0] = 'clinical'; // for now.
 
 		if($snps[0] == 'clinical') {
 			$snps = $this->getSNPs();
@@ -62,7 +62,7 @@ class dbSNPParser extends Bio2RDFizer
 				$ret = utils::DownloadSingle('ftp://ftp.ncbi.nlm.nih.gov/snp/Entrez/snp_omimvar.txt',$lfile);
 			}
 			$snps = $this->processOMIMVar($lfile);
-		} else if($snp[0] == 'pharmgkb') {
+		} else if($snps[0] == 'pharmgkb') {
 			// @todo get the pharmgkb variants
 			
 		} else if($snps[0] == 'all') {
@@ -73,7 +73,7 @@ class dbSNPParser extends Bio2RDFizer
 		$outfile = $odir."dbsnp.".parent::getParameterValue('output_format');
 		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 		parent::setWriteFile($outfile, $gz);
-		$nsnps = count($snps);
+		$n = count($snps);
 
 		foreach($snps AS $i => $snp) {
 			$file = $snp.'.xml';
@@ -182,17 +182,24 @@ class dbSNPParser extends Bio2RDFizer
 		foreach($entry->children() AS $o) {
 			$rsid = "rs".$o->attributes()->rsId;
 			$id = parent::getNamespace().$rsid;
-			
+			$snpclass = parent::getVoc().((string)$o->attributes()->snpClass);
+			$moltype  = parent::getVoc().((string)$o->attributes()->molType);
 			// attributes
 			parent::addRDF(
 				parent::describeIndividual($id,$rsid,parent::getVoc().((string) str_replace(" ","-",(string) $o->attributes()->snpClass))).
-				parent::triplifyString($id,parent::getVoc()."snp-class",(string) $o->attributes()->snpClass).
-				parent::triplifyString($id,parent::getVoc()."snp-type",(string) $o->attributes()->snpType).
-				parent::triplifyString($id,parent::getVoc()."mol-type",(string) $o->attributes()->molType).
-				parent::triplifyString($id,parent::getVoc()."genotype",(string) $o->attributes()->genotype).
-				parent::triplify($id,parent::getVoc()."taxid","ncbitaxon:".(string) $o->attributes()->taxId)
+				parent::triplify($id,parent::getVoc()."snp-class",$snpclass).
+				parent::describeClass($snpclass,(string)$o->attributes()->snpClass, parent::getVoc()."SNPclass").
+				parent::triplify($id,parent::getVoc()."mol-type",$moltype).
+				parent::describeClass($moltype,(string)$o->attributes()->molType, parent::getVoc()."Moltype").
+				parent::triplify($id,parent::getVoc()."taxid","taxonomy:".(string) $o->attributes()->taxId)
 			);
-			
+			$genotype = (string)$o->attributes()->genoType;
+			if($genotype) {
+				parent::addRDF(
+					parent::triplifyString($id,parent::getVoc()."genotype",parent::getVoc().$genotype, "xsd:bool")
+				);
+			}
+
 			// frequency
 			
 			// create/update
