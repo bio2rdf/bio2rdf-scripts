@@ -35,7 +35,7 @@ class MGIParser extends Bio2RDFizer
 {
         function __construct($argv) {
                 parent::__construct($argv, "mgi");
-                parent::addParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|HMD_HGNC_Accession|MGI_PhenoGenoMP','all','all or comma-separated list to process');
+                parent::addParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|MGI_PhenoGenoMP','all','all or comma-separated list to process');
                 parent::addParameter('download_url', false, null,'ftp://ftp.informatics.jax.org/pub/reports/' );
                 parent::initialize();
         }
@@ -52,7 +52,7 @@ class MGIParser extends Bio2RDFizer
                 } else {
                         $list = explode(',',parent::getParameterValue('files'));
                 }
-                
+		$dataset_description = '';                
                 foreach($list AS $item) {
                         $lfile = $idir.$item.'.rpt';
                         $rfile = parent::getParameterValue('download_url').$item.'.rpt';
@@ -63,34 +63,54 @@ class MGIParser extends Bio2RDFizer
                         parent::setReadFile($lfile,true);
                         
                         echo "Processing $item...";
-                        $ofile = $odir."mgi-".$item.'.nt'; 
-                        $gz=false;
-                        if(strstr(parent::getParameterValue('output_format'), "gz")) {
-                                $ofile .= '.gz';
-                                $gz = true;
-                        }
-                        
+                        $ofile = $odir.$item.'.'.parent::getParameterValue('output_format'); 
+                        $gz= strstr(parent::getParameterValue('output_format'), "gz")?true:false;
+
                         parent::setWriteFile($ofile, $gz);
                         $this->$item();
                         parent::GetWriteFile()->Close();
                         parent::GetReadFile()->Close();
                         echo "Done".PHP_EOL;
+
+                        $source_file = (new DataResource($this))
+                                ->setURI($rfile)
+                                ->setTitle("MGI $item")
+                                ->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+                                ->setFormat("text")
+                                ->setPublisher("http://www.informatics.jax.org")
+                                ->setHomepage("http://www.informatics.jax.org")
+                                ->setRights("use")
+                                ->setLicense("http://www.informatics.jax.org/mgihome/other/copyright.shtml")
+                                ->setDataset("http://identifiers.org/mgi/");
+
+                        $prefix = parent::getPrefix();
+                        $bVersion = parent::getParameterValue('bio2rdf_release');
+                        $date = date ("Y-m-d\TG:i:s\Z");
+                        $output_file = (new DataResource($this))
+                                ->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+                                ->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+                                ->setSource($source_file->getURI())
+                                ->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mgi/mgi.php")
+                                ->setCreateDate($date)
+                                ->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+                                ->setPublisher("http://bio2rdf.org")
+                                ->setRights("use-share-modify")
+                                ->setRights("by-attribution")
+                                ->setRights("restricted-by-source-license")
+                                ->setLicense("http://creativecommons.org/licenses/by/3.0/")
+                                ->setDataset(parent::getDatasetURI());
+
+                        if($gz) $output_file->setFormat("application/gzip");
+                        if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+                        else $output_file->setFormat("application/n-quads");
+
+                        $dataset_description .= $source_file->toRDF().$output_file->toRDF();
+
                 }//foreach
 
                 // generate the dataset release file
-                echo "generating dataset release file... ";
-                $desc = parent::getBio2RDFDatasetDescription(
-                        $this->getPrefix(),
-                        "https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mgi/mgi.php", 
-                        $this->getBio2RDFDownloadURL($this->getNamespace()),
-                        "http://www.informatics.jax.org/",
-                        array("use"),
-                        "http://www.informatics.jax.org/",
-                        parent::getParameterValue('download_url'),
-                        parent::getDatasetVersion()
-                );
-                $this->setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
-                $this->getWriteFile()->write($desc);
+ 		$this->setWriteFile($odir.parent::getBio2RDFReleaseFile());
+                $this->getWriteFile()->write($dataset_description);
                 $this->getWriteFile()->close();
                 echo "done!".PHP_EOL;
         }
@@ -123,11 +143,10 @@ class MGIParser extends Bio2RDFizer
                                 continue;
                         }
 
-                        $id_label = "mgi id";
-                        $id_label_class = "Allele for ".$id;
+                        $id_label = $a[1].", ".$a[2];
                         parent::AddRDF(
                                 parent::describeIndividual($id, $id_label, $this->getVoc()."Allele").
-                                parent::describeClass($this->getVoc()."Allele", $id_label_class)
+                                parent::describeClass($this->getVoc()."Allele", "MGI Allele")
                         );
 
                         if(trim($a[1])) {
@@ -154,7 +173,8 @@ class MGIParser extends Bio2RDFizer
                                 $marker_id = strtolower($a[5]);
                                 parent::AddRDF(
                                         parent::triplify($id, $this->getVoc()."genetic-marker", $marker_id).
-                                        parent::triplify($marker_id, "rdf:type", $this->getVoc()."Mouse-Marker")
+                                        parent::triplify($marker_id, "rdf:type", $this->getVoc()."Mouse-Marker").
+					parent::describeClass($this->getVoc()."Mouse-Marker","MGI Marker")
                                 );              
                                 if(trim($a[6])) {
                                         parent::AddRDF(
