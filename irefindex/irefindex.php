@@ -189,8 +189,12 @@ class irefindexParser extends Bio2RDFizer
 			unset($method);
 			if($a[6] != '-') {
 				$qname = $this->ParseString($a[6],$ns,$id,$method);
-				if($ns == "innatedb allergy") $ns = "innatedb"; 
-				if($qname) parent::addRDF(parent::triplify($iid,parent::getVoc()."method",$qname));
+				if($ns == "psi-mi") {
+					$b = explode(":", str_replace('"','',$id));
+					$ns = $b[0]; $id = $b[1];
+				} 
+				$qname = "$ns:$id";
+				parent::addRDF(parent::triplify($iid,parent::getVoc()."method",$qname));
 			}
 
 			$method_label = '';
