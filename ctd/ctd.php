@@ -426,10 +426,15 @@ function CTD_chem_pathways_enriched()
 
 		$this->getRegistry()->parseQName($a[4], $pathway_ns, $pathway_id);
 		if($pathway_ns == "react") $pathway_ns = "reactome";
+
+		$pathway_resource_id = parent::getRes().md5($chemical_id.$pathway_ns.$pathway_id.$a[6]);
+		$pathway_resource_label = "Chemical-pathway association between mesh:".$chemical_id." and ".$pathway_ns.":".$pathway_id." with p-value ".$a[6];
 		
 		$this->AddRDF(
-			parent::triplify("mesh:".$chemical_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
-			parent::describeProperty($this->getVoc()."pathway", "Relation between a CTD entity and a pathway it is associated with")
+			parent::describeIndividual($pathway_resource_id, $pathway_resource_label, parent::getVoc()."Chemical-Pathway-Association").
+			parent::triplify($pathway_resource_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
+			parent::triplify($pathway_resource_id, parent::getVoc()."chemical", "mesh:".$chemical_id).
+			parent::triplifyString($pathway_resource_id, $this->getVoc()."p-value", $a[6], "xsd:double")
 		);
 		parent::WriteRDFBufferToWriteFile();
 	}
@@ -447,7 +452,6 @@ X 1 DiseaseID (MeSH or OMIM accession identifier)
   6 ParentTreeNumbers
   7 Synonyms
   8 SlimMappings
-
 */
 function CTD_diseases()
 {
@@ -514,7 +518,6 @@ function CTD_diseases_pathways()
 	}
 	return TRUE;
 }
-
 
 /*
   0 GeneSymbol
