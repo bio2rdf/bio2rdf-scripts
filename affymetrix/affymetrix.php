@@ -127,7 +127,6 @@ class AffymetrixParser extends Bio2RDFizer
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 			$outfile = 'affymetrix-'.$base_file.".".parent::getParameterValue('output_format');	
 			
-			$this->setDatasetURI("bio2rdf.dataset:bio2rdf-affymetrix-$base_file");
 			$this->setWriteFile($odir.$outfile, $gz);
 			$this->parse($base_file);		
 			parent::getWriteFile()->close();
@@ -288,8 +287,8 @@ class AffymetrixParser extends Bio2RDFizer
 								else if($prefix == 'ncbibacterial') $prefix = 'gi';
 								else if($prefix == 'ncbi_bacterial') $prefix = 'gi';
 								else if($prefix == 'ens') $prefix = 'ensembl';
-								else if($prefix == 'ncbi_mito' || $prefix == 'ncbi_organelle') $prefix = 'refseq';
-								else if($prefix == 'affx' || $prefix == 'unknown') $prefix = 'affymetrix';
+								else if($prefix == 'ncbi_mito' || $prefix == 'ncbi_organelle' || $prefix == 'organelle') $prefix = 'refseq';
+								else if($prefix == 'affx' || $prefix == 'unknown' || $prefix == "prop") $prefix = 'affymetrix';
 								else if($prefix == 'tigr_2004_08') $prefix = 'tigr';
 								else if($prefix == 'tigr-plantta') $prefix = 'genbank';
 								else if($prefix == 'newrs.gi') $prefix = 'gi';
@@ -305,8 +304,8 @@ class AffymetrixParser extends Bio2RDFizer
 								}
 								else if($prefix == 'organelle') {
 									$e = explode("-",$id);
+									$prefix = 'genbank';
 									$id = $e[0];
-
 								}
 								parent::addRDF(
 									parent::triplify($qname,$this->getVoc()."transcript-assignment", "$prefix:$id").
