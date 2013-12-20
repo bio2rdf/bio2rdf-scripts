@@ -252,7 +252,6 @@ class PharmGKBParser extends Bio2RDFizer
 	
 	}
 
-	//PharmGKB Accession Id   Entrez Id       Ensembl Id      Name    Symbol  Alternate Names Alternate Symbols       Is VIP  Has Variant Annotation  Cross-references
 	/*
 	0 PharmGKB Accession Id	
 	1 Entrez Id	
@@ -261,15 +260,18 @@ class PharmGKBParser extends Bio2RDFizer
 	4 Symbol	
 	5 Alternate Names	
 	6 Alternate Symbols	
-	7 Is Genotyped	
-	8 Is VIP	
-	9 Has Variant Annotation
+	7 Is VIP	
+	8 Has Variant Annotation
+	9 cross-references
 	10 Has CPIC Dosing Guideline
+	11 Chromosome
+	12 Chromosome Start
+	13 Chromosome End
 	*/
 	function genes()
 	{
 		$h = explode("\t",parent::getReadFile()->read());
-		$expected_columns = 11;
+		$expected_columns = 14;
 		if(($n = count($h)) != $expected_columns) {
 			trigger_error("Found $n columns in gene file - expecting $expected_columns!", E_USER_WARNING);
 			return false;			
@@ -277,7 +279,6 @@ class PharmGKBParser extends Bio2RDFizer
 
 		while($l = parent::getReadFile()->read(200000)) {
 			$a = explode("\t",$l);
-			
 			$id = parent::getNamespace().$a[0];
 
 			//add gene to gene_names_array for cross reference in clinical annotation function
@@ -292,8 +293,7 @@ class PharmGKBParser extends Bio2RDFizer
 			parent::addRDF(
 				parent::QQuadO_URL($id, "rdfs:seeAlso", "http://pharmgkb.org/gene/".$a[0]).
 				parent::QQuadO_URL($id, "owl:sameAs", "http://www4.wiwiss.fu-berlin.de/diseasome/resource/genes/".$a[0]).
-				parent::QQuadO_URL($id, "owl:sameAs", "http://dbpedia.org/resource/".$a[0]).
-				parent::QQuadO_URL($id, "owl:sameAs", "http://purl.org/net/tcm/tcm.lifescience.ntu.edu.tw/id/gene/".$a[0])
+				parent::QQuadO_URL($id, "owl:sameAs", "http://dbpedia.org/resource/".$a[0])
 			);
 			
 			if($a[1]){
@@ -350,13 +350,13 @@ class PharmGKBParser extends Bio2RDFizer
 					parent::describeProperty(parent::getVoc()."is-vip", "Relationship between a PharmGKB gene and its vip status")
 				);
 			}
-
 			if($a[8]){
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."is-genotyped", $a[8]).
-					parent::describeProperty(parent::getVoc()."is-genotyped", "Relationship between a PharmGKB gene and its genotyped status")
+					parent::triplifyString($id, parent::getVoc()."has-variant-annotation", $a[8]).
+					parent::describeProperty(parent::getVoc()."has-variant-annotation", "Relationship between a PharmGKB gene and whether it has a variant annotation")
 				);
 			}
+
 			if($a[9]) {
 				$b = explode(",",$a[9]);
 				foreach($b AS $xref) {
@@ -364,7 +364,7 @@ class PharmGKBParser extends Bio2RDFizer
 					if(!$xref) continue;
 					
 					$url = false;
-					$x = $this->MapXrefs($xref, $url);
+					$x = $this->MapXrefs($xref, $url, $ns, $id);
 					if($url == true) {
 						parent::addRDF(
 							parent::QQuadO_URL($id, parent::getVoc()."xref", $x)
@@ -372,16 +372,25 @@ class PharmGKBParser extends Bio2RDFizer
 						
 					} else {
 						parent::addRDF(
-							parent::triplify($id, parent::getVoc()."xref", $x)
+							parent::triplify($id, parent::getVoc()."x-$ns", $x)
 						);
 					}
 				}
 			}
+			if($a[10]) {
+				parent::addRDF(
+					parent::triplifyString($id,parent::getVoc()."chromosome",$a[10]).
+					parent::describeProperty(parent::getVoc()."chrosomome","Relationship between a PharmGKB gene and its chromosomal position").
+					parent::triplifyString($id,parent::getVoc()."chromosome-start",$a[11]).
+					parent::triplifyString($id,parent::getVoc()."chromosome-end",$a[12])
+				);
+			}
 			parent::WriteRDFBufferToWriteFile();
+
 		}
 	}
 
-	function MapXrefs($xref, &$url = false)
+	function MapXrefs($xref, &$url = false, &$ns = null, &$id = null)
 	{
 		$xrefs = array(
 			"humancycgene" => "humancyc",
