@@ -298,13 +298,13 @@ class PharmGKBParser extends Bio2RDFizer
 			
 			if($a[1]){
 				parent::addRDF(
-					parent::triplify($id, "owl:sameAs", "ncbigene:".$a[1])
+					parent::triplify($id, parent::getVoc()."x-ncbigene", "ncbigene:".$a[1])
 				);
 			} 
 
 			if($a[2]){
 				parent::addRDF(
-					parent::triplify($id, "owl:sameAs", "ensembl:".$a[2])
+					parent::triplify($id, parent::getVoc()."x-ensembl", "ensembl:".$a[2])
 				);
 			}
 
@@ -364,10 +364,10 @@ class PharmGKBParser extends Bio2RDFizer
 					if(!$xref) continue;
 					
 					$url = false;
-					$x = $this->MapXrefs($xref, $url, $ns, $id);
+					$x = $this->MapXrefs($xref, $url, $ns, $id2);
 					if($url == true) {
 						parent::addRDF(
-							parent::QQuadO_URL($id, parent::getVoc()."xref", $x)
+							parent::QQuadO_URL($id, parent::getVoc()."x-$ns", $x)
 						);
 						
 					} else {
@@ -394,7 +394,7 @@ class PharmGKBParser extends Bio2RDFizer
 	{
 		$xrefs = array(
 			"humancycgene" => "humancyc",
-			"entrezgene" => "geneid",
+			"entrezgene" => "ncbigene",
 			"refseqdna" => "refseq",
 			"refseqprotein" => "refseq",
 			"refseqrna" => "refseq",
@@ -415,7 +415,8 @@ class PharmGKBParser extends Bio2RDFizer
 		if($ns2) {
 			$id = $id2;
 		}
-		return $ns.":".$id;
+		$qname = "$ns:$id";
+		return $qname;
 	}
 /*
 [0] => PharmGKB Accession Id
