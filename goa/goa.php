@@ -70,14 +70,15 @@ class GOAParser extends Bio2RDFizer
 			}
 
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-			$ofile = $odir."goa_".$file.".".parent::getParameterValue('output_format'); 	
+			$ofile = "goa_".$file.".".parent::getParameterValue('output_format'); 	
 		
 			parent::setReadFile($lfile, TRUE);
-			parent::setWriteFile($ofile, $gz);
+			parent::setWriteFile($odir.$ofile, $gz);
 			
 			echo "processing $file ... ";
 			$this->process($file);
 			echo "done!";
+			parent::clear();
 
 			//close write file
 			parent::getWriteFile()->close();
@@ -134,7 +135,7 @@ class GOAParser extends Bio2RDFizer
 	function process($file){
 		$z = 1;
 		while($l = parent::getReadFile()->read(100000)) {
-			if($z == 100) break;
+//			if($z == 100) break;
 			if($l[0] == "!") continue;
 			$fields = explode("\t",$l);
 			if(count($fields) != 17){

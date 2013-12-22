@@ -33,15 +33,24 @@ class Bio2RDFApp extends Application
 		// get the parsers;
 		$parsers = $this->getParsers();
 		parent::addParameter('parser',true,implode("|",$parsers),null,'bio2rdf parser to run');
-		parent::setParameters($argv,true);
+		if(parent::setParameters($argv,true) === FALSE) {
+			if(parent::getParameterValue('parser') == '') {
+				parent::printParameters();
+				exit;
+			}
+		}
 
 		// now get the file and run it
 		$parser_name = parent::getParameterValue('parser');
 		$file = $parser_name.'/'.$parser_name.'.php';
+		if(!file_exists($file)) {
+			trigger_error("$file does not exist", E_USER_ERROR);
+			exit(-1);
+		}
 		require($file);
-		$parser_class = $parser_name."Parser";	
+		$parser_class = str_replace(".","",$parser_name)."Parser";	
 		$parser = new $parser_class($argv);
-		
+				
 		$start = microtime(true);
 		$parser->Run();
 		

@@ -127,8 +127,9 @@ class AffymetrixParser extends Bio2RDFizer
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 			$outfile = 'affymetrix-'.$base_file.".".parent::getParameterValue('output_format');	
 			
+			$this->setDatasetURI("bio2rdf.dataset:bio2rdf-affymetrix-$base_file");
 			$this->setWriteFile($odir.$outfile, $gz);
-			$this->parse();		
+			$this->parse($base_file);		
 			parent::getWriteFile()->close();
 			parent::getReadFile()->close();
 			parent::clear();
@@ -179,7 +180,7 @@ class AffymetrixParser extends Bio2RDFizer
 		return true;
 	}
 	
-	function Parse()
+	function Parse($file)
 	{	
 		parent::getReadFile()->read(); // skip the first comment line
 		$line = 1;
@@ -199,6 +200,7 @@ class AffymetrixParser extends Bio2RDFizer
 				$first = false;
 				// header
 				$header = explode(",",str_replace('"','',trim($l)));
+//				print_r($header);exit;
 				$n = count($header);
 				if($n != 41) {
 					trigger_error("Expecting 41 columns, found $n in header on line $line!",E_USER_ERROR);
@@ -235,6 +237,10 @@ class AffymetrixParser extends Bio2RDFizer
 						$d = explode(" // ",$c);
 						if($r == 'symbol') $d[0] = str_replace(" ","-",$d[0]);
 						$s = $this->getRegistry()->getPreferredPrefix($r);
+						if($s == "ec") {
+							$e = explode(":",$d[0]);
+							$d[0] = $e[1]; 
+						}
 						$this->addRDF(
 							parent::triplify($qname,$this->getVoc()."x-$s", "$s:".$d[0]).
 							parent::describeProperty($this->getVoc()."x-$s","a relation to $s")
@@ -250,7 +256,8 @@ class AffymetrixParser extends Bio2RDFizer
 							$array_id = parent::getRes().str_replace(" ","-",$v);
 							parent::addRDF(
 								parent::triplify($qname, $this->getVoc()."genechip-array", $array_id).
-								parent::describeClass($array_id,"Affymetrix GeneChip array",$this->getVoc()."Genechip-Array"));
+								parent::describeIndividual($array_id,"Affymetrix GeneChip array",$this->getVoc()."Genechip-Array")
+							);
 							break;
 						case 'Gene Ontology Biological Process':
 							if(!isset($rel)) {$rel = 'go-process'; $prefix = "go";}
@@ -274,12 +281,23 @@ class AffymetrixParser extends Bio2RDFizer
 								$id = $d[0];
 								$prefix = $d[2];
 								if($prefix == '---' || $id == '---') continue;
-								if($prefix == 'gb' || $prefix == 'gb_htc') $prefix = 'genbank';
-								if($prefix == 'ncbibacterial') $prefix = 'gi';
-								if($prefix == 'ens') $prefix = 'ensembl';
-								if($prefix == 'ncbi_mito' || $prefix == 'ncbi_organelle') $prefix = 'refseq';
-								if($prefix == 'affx' || $prefix == 'unknown') $prefix = 'affymetrix';
-								
+								else if($prefix == 'gb' || $prefix == 'gb_htc') $prefix = 'genbank';
+								else if($prefix == 'ncbibacterial') $prefix = 'gi';
+								else if($prefix == 'ens') $prefix = 'ensembl';
+								else if($prefix == 'ncbi_mito' || $prefix == 'ncbi_organelle') $prefix = 'refseq';
+								else if($prefix == 'affx' || $prefix == 'unknown') $prefix = 'affymetrix';
+								else if($prefix == 'tigr_2004_08') $prefix = 'tigr';
+								else if($prefix == 'tigr-plantta') $prefix = 'genbank';
+								else if($prefix == 'newrs.gi') $prefix = 'gi';
+								else if($prefix == 'primate_viral') $prefix = 'genbank';
+								else if($prefix == 'jgi-bacterial') $prefix = 'ncbigene';
+								else if($prefix == 'tb') $prefix = 'tuberculist';
+								else if($prefix == 'gi|53267') {$prefix = 'gi';$id='53267';}
+								else if($prefix == 'organelle') {
+									$e = explode("-",$id);
+									$id = $e[0];
+
+								}
 								parent::addRDF(
 									parent::triplify($qname,$this->getVoc()."transcript-assignment", "$prefix:$id").
 									parent::describeProperty($this->getVoc()."transcript-assignment","transcript assignment"));
@@ -337,7 +355,6 @@ class AffymetrixParser extends Bio2RDFizer
 					
 					} //  switch
 				} // else
-				
 			}
 			$this->WriteRDFBufferToWriteFile();
 		}

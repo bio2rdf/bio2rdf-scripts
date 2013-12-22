@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<PDBx:datablock datablockName="1Y26"
+   xmlns:PDBx="http://pdbml.pdb.org/schema/pdbx-v32.xsd"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://pdbml.pdb.org/schema/pdbx-v32.xsd pdbx-v32.xsd">
+
+   <PDBx:refineCategory>
+      <PDBx:refine entry_id="1Y26" pdbx_refine_id="X-RAY DIFFRACTION">
+         <PDBx:B_iso_mean>56.777</PDBx:B_iso_mean>
+         <PDBx:aniso_B11>-3.33</PDBx:aniso_B11>
+         <PDBx:aniso_B12>0.00</PDBx:aniso_B12>
+         <PDBx:aniso_B13>0.00</PDBx:aniso_B13>
+         <PDBx:aniso_B22>1.66</PDBx:aniso_B22>
+         <PDBx:aniso_B23>0.00</PDBx:aniso_B23>
+         <PDBx:aniso_B33>1.66</PDBx:aniso_B33>
+         <PDBx:correlation_coeff_Fo_to_Fc>0.951</PDBx:correlation_coeff_Fo_to_Fc>
+         <PDBx:correlation_coeff_Fo_to_Fc_free>0.927</PDBx:correlation_coeff_Fo_to_Fc_free>
+         <PDBx:details>HYDROGENS HAVE BEEN ADDED IN THE RIDING POSITIONS</PDBx:details>
+         <PDBx:ls_R_factor_R_free>0.29733</PDBx:ls_R_factor_R_free>
+         <PDBx:ls_R_factor_R_free_error xsi:nil="true" />
+         <PDBx:ls_R_factor_R_free_error_details xsi:nil="true" />
+         <PDBx:ls_R_factor_R_work>0.23145</PDBx:ls_R_factor_R_work>
+         <PDBx:ls_R_factor_all xsi:nil="true" />
+         <PDBx:ls_R_factor_obs>0.23445</PDBx:ls_R_factor_obs>
+         <PDBx:ls_d_res_high>2.10</PDBx:ls_d_res_high>
+         <PDBx:ls_d_res_low>20.00</PDBx:ls_d_res_low>
+         <PDBx:ls_number_parameters xsi:nil="true" />
+         <PDBx:ls_number_reflns_R_free>563</PDBx:ls_number_reflns_R_free>
+         <PDBx:ls_number_reflns_all xsi:nil="true" />
+         <PDBx:ls_number_reflns_obs>11230</PDBx:ls_number_reflns_obs>
+         <PDBx:ls_number_restraints xsi:nil="true" />
+         <PDBx:ls_percent_reflns_R_free>4.8</PDBx:ls_percent_reflns_R_free>
+         <PDBx:ls_percent_reflns_obs>97.66</PDBx:ls_percent_reflns_obs>
+         <PDBx:ls_redundancy_reflns_obs xsi:nil="true" />
+         <PDBx:ls_wR_factor_R_free xsi:nil="true" />
+         <PDBx:ls_wR_factor_R_work xsi:nil="true" />
+         <PDBx:occupancy_max xsi:nil="true" />
+         <PDBx:occupancy_min xsi:nil="true" />
+         <PDBx:overall_FOM_free_R_set xsi:nil="true" />
+         <PDBx:overall_FOM_work_R_set xsi:nil="true" />
+         <PDBx:overall_SU_B>15.808</PDBx:overall_SU_B>
+         <PDBx:overall_SU_ML>0.212</PDBx:overall_SU_ML>
+         <PDBx:overall_SU_R_Cruickshank_DPI xsi:nil="true" />
+         <PDBx:overall_SU_R_free xsi:nil="true" />
+         <PDBx:pdbx_R_Free_selection_details>RANDOM</PDBx:pdbx_R_Free_selection_details>
+         <PDBx:pdbx_data_cutoff_high_absF xsi:nil="true" />
+         <PDBx:pdbx_data_cutoff_high_rms_absF xsi:nil="true" />
+         <PDBx:pdbx_data_cutoff_low_absF xsi:nil="true" />
+         <PDBx:pdbx_isotropic_thermal_model xsi:nil="true" />
+         <PDBx:pdbx_ls_cross_valid_method>THROUGHOUT</PDBx:pdbx_ls_cross_valid_method>
+         <PDBx:pdbx_ls_sigma_F>1.</PDBx:pdbx_ls_sigma_F>
+         <PDBx:pdbx_ls_sigma_I xsi:nil="true" />
+         <PDBx:pdbx_method_to_determine_struct>SIRAS</PDBx:pdbx_method_to_determine_struct>
+         <PDBx:pdbx_overall_ESU_R>0.287</PDBx:pdbx_overall_ESU_R>
+         <PDBx:pdbx_overall_ESU_R_Free>0.241</PDBx:pdbx_overall_ESU_R_Free>
+         <PDBx:pdbx_overall_phase_error xsi:nil="true" />
+         <PDBx:pdbx_solvent_ion_probe_radii>0.80</PDBx:pdbx_solvent_ion_probe_radii>
+         <PDBx:pdbx_solvent_shrinkage_radii>0.80</PDBx:pdbx_solvent_shrinkage_radii>
+         <PDBx:pdbx_solvent_vdw_probe_radii>1.20</PDBx:pdbx_solvent_vdw_probe_radii>
+         <PDBx:pdbx_starting_model xsi:nil="true" />
+         <PDBx:pdbx_stereochem_target_val_spec_case xsi:nil="true" />
+         <PDBx:pdbx_stereochemistry_target_values>MAXIMUM LIKELIHOOD</PDBx:pdbx_stereochemistry_target_values>
+         <PDBx:solvent_model_details>BABINET MODEL WITH MASK</PDBx:solvent_model_details>
+         <PDBx:solvent_model_param_bsol xsi:nil="true" />
+         <PDBx:solvent_model_param_ksol xsi:nil="true" />
+      </PDBx:refine>
+   </PDBx:refineCategory>
+</PDBx:datablock>

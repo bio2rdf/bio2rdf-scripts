@@ -28,6 +28,7 @@
 
 $options = array(
 	"instances_file" => "instances/file/path/",
+	"lsr_file" => "/path/to/lsr" 
 );
 
 
@@ -65,17 +66,11 @@ $endpoints_desc = parseDescriptions($endpoints, $lsr_arr);
 $endpoint_stats = retrieveStatistics($endpoints);
 makeHTML($endpoint_stats, $endpoints_desc);
 
-
-
-
 /***************/
 /** FUNCTIONS **/
 /***************/
 function print_usage($argv, $argc){
-	$options = array(
-		"instances_file" => "/instances/file/path/",
-		"lsr_file" => "/path/to/lsr",
-	);
+	global $options;
 
 	// show command line options
 	if($argc == 1) {
@@ -114,7 +109,6 @@ function parseDescriptions($anEndpointArr, $anLsr_arr){
 	foreach ($anEndpointArr as $endpoint_name => $val) {
 		//search for $endpoint_name in anLsrArr and attach
 		//its description to $rm
-		//print_r($anLsr_arr);exit;
 		if(array_key_exists($endpoint_name, $anLsr_arr)){
 			$rm[$endpoint_name]['description'] = $anLsr_arr[$endpoint_name]['description'];
 			$rm[$endpoint_name]['name'] = $anLsr_arr[$endpoint_name]['name'];
@@ -195,8 +189,9 @@ function makeEndpoints ($aFileName){
 					}
 					if(strlen($info['http_port']) && strlen($info['ns']) && strlen($info['isql_port'])){
 						$returnMe[$info['ns']] = array(
+							//'endpoint_url' => 'http://s2.semanticscience.org:'.$info['http_port'].'/sparql',
 							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org:".$info['http_port']."/sparql",
-//							'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org/sparql",
+							//'endpoint_url' => 'http://cu.'.$info['ns'].".bio2rdf.org/sparql",
 							'graph_uri' => "http://bio2rdf.org/bio2rdf-".$info['ns']."-statistics",
 							'isql_port' => $info['isql_port'],
 							);
@@ -210,9 +205,6 @@ function makeEndpoints ($aFileName){
 	}
 	return $returnMe;
 }
-
-
-
 
 function makeHTML($endpoint_stats, $endpoint_desc){
 	//create one html file per endpoint
@@ -235,8 +227,8 @@ function makeHTML($endpoint_stats, $endpoint_desc){
 				$html .= addBio2RDFDetails($d['endpoint_url'], $desc['namespace']);
 				$html .= "</div>";
 				$html .= "<div id='container'> <div id='items'></div>";
-				$html .= addBasicStatsTable($d['endpoint_url'],$d['triples'],$d['unique_subjects'],$d['unique_predicates'],$d['unique_objects'] );
-				$html .= addUniqueTypesTable($d['endpoint_url'],$d['unique_types']);
+				$html .= addBasicStatsTable($d['endpoint_url'],$d['triples'],$d['unique_subjects'],$d['unique_predicates'],$d['unique_objects'] , $d['unique_literals']);
+				$html .= addUniqueTypesTable($d['endpoint_url'],$d['type_counts']);
 				$html .= addPredicateObjLinks($d['endpoint_url'],$d['predicate_object_links']);
 				$html .= addPredicateLiteralLinks($d['endpoint_url'],$d['predicate_literals']);
 				$html .= addSubjectCountPredicateObjectCount($d['endpoint_url'],$d['subject_count_predicate_object_count']);
@@ -383,13 +375,14 @@ function addUniqueTypesTable($endpointURL, $typeArray){
 	$rm .= "</tbody></table>";
 	return $rm;
 }
-function addBasicStatsTable($endpoint_url, $numOfTriples, $unique_subjects, $unique_predicates, $unique_objects){
+function addBasicStatsTable($endpoint_url, $numOfTriples, $unique_subjects, $unique_predicates, $unique_objects, $unique_literals){
 	$rm ="<h2>Basic data metrics</h2><table><thead><th></th><th></th></thead><tbody>";
 	$rm .= "<tr><td>Endpoint URL</td><td><a href=\"".$endpoint_url."\">".$endpoint_url."</a></td></tr>";
 	$rm .= "<tr><td>Number of Triples</td><td>".$numOfTriples."</td></tr>";
 	$rm .= "<tr><td>Unique Subject count</td><td>".$unique_subjects."</td></tr>";
 	$rm .= "<tr><td>Unique Predicate count</td><td>".$unique_predicates."</td></tr>";
 	$rm .= "<tr><td>Unique Object count</td><td>".$unique_objects."</td></tr>";
+	$rm .= "<tr><td>Unique Literal count</td><td>".$unique_literals."</td></tr>";
 	$rm .= "</tbody></table>";
 	return $rm;
 }
@@ -464,44 +457,49 @@ function retrieveStatistics(&$endpoint_arr){
 		foreach($endpoint_arr as $name => $details){
 			$endpoint_url = $details["endpoint_url"];
 			$graph_uri = $details["graph_uri"];
+			$dataset_graph_uri = getDatasetGraphUri($endpoint_url);
 			if(strlen($endpoint_url) != 0 && strlen($graph_uri) != 0){
 				//now retrieve each of the stats
-				//nsns counts
-				$nsnsJSON = trim(@file_get_contents(nsQ($endpoint_url,$graph_uri)));
-				$endpoint_arr[$name]["nsnscounts"] = getNSNSCounts($nsnsJSON);
 				//numOfTriples
-				$numOfTriplesJson = trim(@file_get_contents(q1($endpoint_url,$graph_uri)));
+				$numOfTriplesJson = trim(@file_get_contents(q1($endpoint_url,$dataset_graph_uri)));
 				$endpoint_arr[$name]["triples"] = getNumOfTriples($numOfTriplesJson);
-				//get the date
-				$dateJson = trim(@file_get_contents(getDatasetDateQuery($endpoint_url)));
-				$endpoint_arr[$name]['date'] = getDate2($dateJson);
 				//numOfSubjects
-				$numOfSubjectsJson = trim(@file_get_contents(q2($endpoint_url,$graph_uri)));
+				$numOfSubjectsJson = trim(@file_get_contents(q2($endpoint_url,$dataset_graph_uri)));
 				$endpoint_arr[$name]["unique_subjects"] = getNumOfSubjects($numOfSubjectsJson);
 				//numOfPredicates
-				$numOfPredicatesJson = trim(@file_get_contents(q3($endpoint_url,$graph_uri)));
+				$numOfPredicatesJson = trim(@file_get_contents(q3($endpoint_url,$dataset_graph_uri)));
 				$endpoint_arr[$name]["unique_predicates"] = getNumOfPredicates($numOfPredicatesJson);
 				//numOfUniqueObjects
-				$numOfObjectsJson = trim(@file_get_contents(q4($endpoint_url,$graph_uri)));
+				$numOfObjectsJson = trim(@file_get_contents(q4($endpoint_url,$dataset_graph_uri)));
 				$endpoint_arr[$name]["unique_objects"] = getNumOfObjects($numOfObjectsJson);
+				//numofuniqueliterals
+				$numOfLiteralsJson = trim(@file_get_contents(q14($endpoint_url,$dataset_graph_uri)));
+				$endpoint_arr[$name]["unique_literals"] = getNumOfUniqueLiterals($numOfLiteralsJson);
 				//numOfTypes
-				$numOfTypesJson = trim(@file_get_contents(q5($endpoint_url,$graph_uri)));
-				$endpoint_arr[$name]["unique_types"] = getNumOfTypes($numOfTypesJson);
-				//unique predicate-object links and their frequencies
-				$numOfPredObjectFreqsJson = trim(@file_get_contents(q6($endpoint_url,$graph_uri)));
+				$typeCountsJson = trim(@file_get_contents(q5($endpoint_url,$dataset_graph_uri)));
+				$endpoint_arr[$name]["type_counts"] = getNumOfTypes($typeCountsJson);
+				//predicateCounts => e.g. this predicate is used 15 times
+				$predicateCountsJson = trim(@file_get_contents(q15($endpoint_url,$dataset_graph_uri)));
+				$endpoint_arr[$name]["pred_counts"] = getPredicateCounts($predicateCountsJson);
+				//unique predicate-IRI links and their frequencies e.g. this predicate links to IRIs 14 times
+				$numOfPredObjectFreqsJson = trim(@file_get_contents(q6($endpoint_url,$dataset_graph_uri)));
 				$endpoint_arr[$name]["predicate_object_links"] = getPredObjFreq($numOfPredObjectFreqsJson);
 				//unique predicate-literal links and their frequencies
-				$numOfUniquePredicateLiteralLinksandFreqsJson = trim(@file_get_contents(q7($endpoint_url,$graph_uri)));
+				$numOfUniquePredicateLiteralLinksandFreqsJson = trim(@file_get_contents(q7($endpoint_url,$dataset_graph_uri)));
 				$endpoint_arr[$name]["predicate_literals"] = getPredLitLinks($numOfUniquePredicateLiteralLinksandFreqsJson);
-				//unique subject-predicate-unique object links and their frequencies
-				$numOfSubjectPredicateUniqueObjectJson = trim(@file_get_contents(q8($endpoint_url,$graph_uri)));
-				$endpoint_arr[$name]["subject_count_predicate_object_count"] = getSubPredObjLinks($numOfSubjectPredicateUniqueObjectJson);
 				//unique subject-predicate-unique literal links and their frequencies
-				$numOfSubjectPredUniqueLitJson = trim(@file_get_contents(q9($endpoint_url,$graph_uri)));
+				$numOfSubjectPredUniqueLitJson = trim(@file_get_contents(q9($endpoint_url,$dataset_graph_uri)));
 				$endpoint_arr[$name]["subject_count_predicate_literal_count"] = getSubPredLitLinks($numOfSubjectPredUniqueLitJson);
+				//unique subject-predicate-unique object links and their frequencies
+				$numOfSubjectPredicateUniqueObjectJson = trim(@file_get_contents(q8($endpoint_url,$dataset_graph_uri)));
+				$endpoint_arr[$name]["subject_count_predicate_object_count"] = getSubPredObjLinks($numOfSubjectPredicateUniqueObjectJson);
 				//unique subject type-predicate-object type links and their frequencies
-				$numOfSubjectTypePredicateObjectJson = trim(@file_get_contents(q10($endpoint_url,$graph_uri)));
+				$numOfSubjectTypePredicateObjectJson = trim(@file_get_contents(q10($endpoint_url,$dataset_graph_uri)));
 				$endpoint_arr[$name]["subject_type_predicate_object_type"] = getSubTypePredObjType($numOfSubjectTypePredicateObjectJson);
+				//nsns counts
+				$nsnsJSON = trim(@file_get_contents(nsQ($endpoint_url,$dataset_graph_uri)));
+				$endpoint_arr[$name]["nsnscounts"] = getNSNSCounts($nsnsJSON);
+				
 			}else{
 				$warn .= "WARNING :: Endpoint ".$name." does not have all of required information! (missing either the endpoint or graph uri!)!\n";
 			}
@@ -519,10 +517,10 @@ function getSubTypePredObjType($aJSON){
 	if(isset($decoded->results)){
 		$results_raw = $decoded->results;
 		foreach($results_raw->bindings as $ab){
-			$aP = $ab->aPred->value;
-			$oCount = $ab->objCount->value;
-			$objType = $ab->objType->value;
-			$subCount = $ab->subjectCount->value;
+			$aP = $ab->pred->value;
+			$oCount = $ab->oc->value;
+			$objType = $ab->objectType->value;
+			$subCount = $ab->sc->value;
 			$subType = $ab->subjectType->value;
 			$returnMe[$aP]["object_type"] = $objType;
 			$returnMe[$aP]["object_count"] = $oCount;
@@ -539,7 +537,7 @@ function getSubPredLitLinks($aJSON){
 	if(isset($decoded->results)){
 		$results_raw = $decoded->results;
 		foreach($results_raw->bindings as $ab){
-			$aP = $ab->p->value;
+			$aP = $ab->pred->value;
 			$sC = $ab->sc->value;
 			$lC = $ab->lc->value;
 			$returnMe[$aP]["subject_count"] = $sC;
@@ -554,9 +552,9 @@ function getSubPredObjLinks($aJSON){
 	if(isset($decoded->results)){
 		$results_raw = $decoded->results;
 		foreach($results_raw->bindings as $ab){
-			$aP = $ab->aP->value;
-			$oC = $ab->oC->value;
-			$sC = $ab->sC->value;
+			$aP = $ab->pred->value;
+			$oC = $ab->oc->value;
+			$sC = $ab->sc->value;
 			$returnMe[$aP]["object_count"] = $oC;
 			$returnMe[$aP]["subject_count"] = $sC;
 		}
@@ -570,8 +568,8 @@ function getPredLitLinks($aJSON){
 	if(isset($decoded->results)){
 		$results_raw = $decoded->results;
 		foreach($results_raw->bindings as $ab){
-			$aP = $ab->aP->value;
-			$count = $ab->aC->value;
+			$aP = $ab->pred->value;
+			$count = $ab->lc->value;
 			$returnMe[$aP] = $count;
 		}
 	}
@@ -583,8 +581,8 @@ function getPredObjFreq($aJSON){
 	if(isset($decoded->results)){
 		$results_raw = $decoded->results;
 		foreach($results_raw->bindings as $ab){
-			$aP = $ab->aP->value;
-			$count = $ab->aC->value;
+			$aP = $ab->pred->value;
+			$count = $ab->oc->value;
 			$returnMe[$aP] = $count;
 		}
 	}
@@ -593,20 +591,19 @@ function getPredObjFreq($aJSON){
 function getNSNSCounts($aJS){
 	$rm = array();
 	$decoded = json_decode($aJS);
+	//print_r($decoded);exit;
 	if(isset($decoded->results)){
-		$rr = $decoded->results;
-		foreach($rr->bindings as $r){
-			$key = $r->x->value;
-			if(!array_key_exists($key, $rm)){
-				$count = $r->count->value;
-				$ns1 = $r->ns1->value;
-				$ns2 = $r->ns2->value;
-				$rm[$key] = array(
-					'count' => $count,
-					'ns1' => $ns1,
-					'ns2' => $ns2,
-					);
-			}
+		$results_raw = $decoded->results;
+		foreach($results_raw->bindings as $ab){
+			$aP = $ab->pred->value;
+			$sT = $ab->sT->value;
+			$oT = $ab->oT->value;
+			$count = $ab->triples->value;
+			$rm[$aP] = array(
+				'count' => $count,
+				'ns1' => $sT,
+				'ns2' => $oT,
+			);
 		}
 	}
 	return $rm;
@@ -614,10 +611,11 @@ function getNSNSCounts($aJS){
 function getNumOfTypes($aJSON){
 	$returnMe = array();
 	$decoded = json_decode($aJSON);
+	
 	if(isset($decoded->results)){
 		$results_raw = $decoded->results;
 		foreach($results_raw->bindings as $ab){
-			$aT = $ab->at->value;
+			$aT = $ab->type->value;
 			$count = $ab->tc->value;
 			$returnMe[$aT] = $count;
 		}
@@ -690,28 +688,68 @@ function getNumOfTriples($aJSON){
 	return $count;
 }
 
-function nsQ($endpoint_url, $graph_url){
-	$rm = "";
-	if(strlen($endpoint_url) !=0 && strlen($graph_url) != 0){
-		$t = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> select * from <";
-		$t .= $graph_url."> where { ?x a data_vocab:Namespace_Namespace_Count.";
-		$t .= " ?x <http://bio2rdforg/dataset_vocabulary:has_nsns_count_value> ?count.";
-		$t .= " ?x data_vocab:namespace ?ns1.";
-		$t .= " ?x data_vocab:namespace ?ns2.";
-		$t .= " FILTER (?ns1 != ?ns2).}";
-		$rm = $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
-		return $rm;
+function getNumOfUniqueLiterals($aJSON){
+	$decoded = json_decode($aJSON);
+	$count = -1;
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		if(isset($results_raw->bindings[0])){
+			$count = $results_raw->bindings[0]->lc->value;
+		}else{
+			$count = -1;
+		}
+	}
+	return $count;
+}
+
+function getPredicateCounts($aJSON){
+	$returnMe = array();
+	$decoded = json_decode($aJSON);
+	
+	if(isset($decoded->results)){
+		$results_raw = $decoded->results;
+		foreach($results_raw->bindings as $ab){
+			$aP = $ab->pred->value;
+			$count = $ab->pc->value;
+			$returnMe[$aP] = $count;
+		}
+	}
+	return $returnMe;
+
+}
+
+
+
+function getDatasetGraphUri($endpoint_url){
+	if(strlen($endpoint_url) != 0){
+		$q = "select ?x where {?w <http://rdfs.org/ns/void#inDataset> ?x.}LIMIT 1";
+		$url = $endpoint_url."?default-graph-uri=&query=".urlencode($q)."&format=json";
+		//now get the json
+		$j = trim(@file_get_contents($url));
+		$decoded = json_decode($j);
+		if(isset($decoded->results)){
+			$rr = $decoded->results;
+			//echo $rr."\n@#($#@*$)(#@*$)#@($*#@)$(#@*\n";exit;
+			foreach($rr->bindings as $r){
+				$rm = $r->x->value;
+				if(strlen($rm)){
+					return $rm;
+				}else{
+					return null;
+				}
+			}
+		}
 	}else{
-		return false;
+		return null;
 	}
 }
 
+#get the number of triples
 function q1($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE {  ?endpoint a data_vocab:Endpoint. ?endpoint data_vocab:has_triple_count ?tc .}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = 'SELECT * FROM <'.$graph_url.'> WHERE{ <'.$graph_url.'> <http://rdfs.org/ns/void#triples> ?tc.}';
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
 	}else{
 		return false;
@@ -720,9 +758,8 @@ function q1($endpoint_url, $graph_url){
 function q2($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE { ?endpoint a data_vocab:Endpoint. ?endpoint data_vocab:has_unique_subject_count ?sc .}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = 'SELECT * FROM <'.$graph_url.'> WHERE{ <'.$graph_url.'> <http://rdfs.org/ns/void#distinctSubjects> ?sc.}';
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
 	}else{
 		return false;
@@ -731,9 +768,8 @@ function q2($endpoint_url, $graph_url){
 function q3($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE { ?endpoint a data_vocab:Endpoint. ?endpoint data_vocab:has_unique_predicate_count ?pc .}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = 'SELECT * FROM <'.$graph_url.'> WHERE{ <'.$graph_url.'> <http://rdfs.org/ns/void#properties> ?pc.}';
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
 	}else{
 		return false;
@@ -742,31 +778,72 @@ function q3($endpoint_url, $graph_url){
 function q4($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE { ?endpoint a data_vocab:Endpoint. ?endpoint data_vocab:has_unique_object_count ?oc .}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = 'SELECT * FROM <'.$graph_url.'> WHERE{ <'.$graph_url.'> <http://rdfs.org/ns/void#distinctObjects> ?oc.}'; 
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
 	}else{
 		return false;
 	}
 }
+
+function q14($endpoint_url, $graph_url){
+	$returnMe = "";
+	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
+		$t = "SELECT * FROM <".$graph_url."> WHERE { <".$graph_url.'> <http://rdfs.org/ns/void#classPartition> ?partition .'; 
+		$t .= "?partition a <http://rdfs.org/ns/void#Dataset> .";
+		$t .= "?partition <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Literal> .";
+		$t .= "?partition <http://rdfs.org/ns/void#entities> ?lc .";
+		$t .= "}";
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
+		return $returnMe;
+	}else{
+		return false;
+	}
+}
+
 function q5($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE { ?endpoint a data_vocab:Endpoint. ?endpoint <http://bio2rdf.org/dataset_vocabulary:has_type_count> ?atype . ?atype <http://bio2rdf.org/dataset_vocabulary:has_count> ?tc. ?atype <http://bio2rdf.org/dataset_vocabulary:has_type> ?at.}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = "SELECT * FROM <".$graph_url."> WHERE { <".$graph_url.'> <http://rdfs.org/ns/void#classPartition> ?partition .'; 
+		$t .= "?partition a <http://rdfs.org/ns/void#Dataset> .";
+		$t .= "?partition <http://rdfs.org/ns/void#class> ?type .";
+		$t .= "?partition <http://rdfs.org/ns/void#entities> ?tc .";
+		$t .= "FILTER(?type != <http://www.w3.org/2000/01/rdf-schema#Literal>).";
+		$t .= "}";
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
 	}else{
 		return false;
 	}
 }
+
+function q15($endpoint_url, $graph_url){
+	$returnMe = "";
+	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
+		$t = "SELECT * FROM <".$graph_url."> WHERE { <".$graph_url.'> <http://rdfs.org/ns/void#propertyPartition> ?partition .'; 
+		$t .= "?partition a <http://rdfs.org/ns/void#Dataset> .";
+		$t .= "?partition <http://rdfs.org/ns/void#property> ?pred .";
+		$t .= "?partition <http://rdfs.org/ns/void#entities> ?pc .";
+		$t .= "}";
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
+		return $returnMe;
+	}else{
+		return false;
+	}
+}
+
 function q6($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE { ?endpoint a data_vocab:Endpoint. ?endpoint <http://bio2rdf.org/dataset_vocabulary:has_predicate_object_count> ?anObject. ?anObject <http://bio2rdf.org/dataset_vocabulary:has_count> ?aC. ?anObject <http://bio2rdf.org/dataset_vocabulary:has_predicate> ?aP.}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
+		$t .= "?linkset a <http://rdfs.org/ns/void#LinkSet>.";
+		$t .= "?linkset <http://rdfs.org/ns/void#target> <".$graph_url.">.";
+		$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
+		$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?ot .";
+		$t .= "?ot <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Resource> .";
+		$t .= "?ot <http://rdfs.org/ns/void#entities> ?oc .";
+		$t .= "}";
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
 	}else{
 		return false;
@@ -775,9 +852,15 @@ function q6($endpoint_url, $graph_url){
 function q7($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE { ?endpoint a data_vocab:Endpoint. ?endpoint <http://bio2rdf.org/dataset_vocabulary:has_predicate_literal_count> ?anObject. ?anObject <http://bio2rdf.org/dataset_vocabulary:has_count> ?aC. ?anObject <http://bio2rdf.org/dataset_vocabulary:has_predicate> ?aP.}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
+		$t .= "?linkset a <http://rdfs.org/ns/void#LinkSet>.";
+		$t .= "?linkset <http://rdfs.org/ns/void#target> <".$graph_url.">.";
+		$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
+		$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?ot .";
+		$t .= "?ot <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Literal> .";
+		$t .= "?ot <http://rdfs.org/ns/void#entities> ?lc .";
+		$t .= "}";
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
 	}else{
 		return false;
@@ -786,9 +869,17 @@ function q7($endpoint_url, $graph_url){
 function q8($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE { ?endpoint a data_vocab:Endpoint. ?endpoint <http://bio2rdf.org/dataset_vocabulary:has_predicate_unique_subject_unique_object_count> ?anObject . ?anObject <http://bio2rdf.org/dataset_vocabulary:has_predicate> ?aP. ?anObject <http://bio2rdf.org/dataset_vocabulary:has_object_count> ?oC . ?anObject <http://bio2rdf.org/dataset_vocabulary:has_subject_count> ?sC .}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
+		$t .= "?linkset <http://rdfs.org/ns/void#target> <".$graph_url.">.";
+		$t .= "?linkset <http://rdfs.org/ns/void#subjectsTarget> ?sT .";
+		$t .= "?sT <http://rdfs.org/ns/void#entities> ?sc .";
+		$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?oT .";
+		$t .= "?oT <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Resource> .";
+		$t .= "?oT <http://rdfs.org/ns/void#entities> ?oc .";
+		$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
+		$t .= "}";
+
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
 	}else{
 		return false;
@@ -797,9 +888,17 @@ function q8($endpoint_url, $graph_url){
 function q9($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE {  ?endpoint a data_vocab:Endpoint. ?endpoint <http://bio2rdf.org/dataset_vocabulary:has_predicate_unique_subject_unique_literal_count> ?anObj. ?anObj <http://bio2rdf.org/dataset_vocabulary:has_predicate> ?p. ?anObj <http://bio2rdf.org/dataset_vocabulary:has_subject_count> ?sc. ?anObj <http://bio2rdf.org/dataset_vocabulary:has_literal_count> ?lc.}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
+		$t .= "?linkset <http://rdfs.org/ns/void#target> <".$graph_url.">.";
+		$t .= "?linkset <http://rdfs.org/ns/void#subjectsTarget> ?sT .";
+		$t .= "?sT <http://rdfs.org/ns/void#entities> ?sc .";
+		$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?oT .";
+		$t .= "?oT <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Literal> .";
+		$t .= "?oT <http://rdfs.org/ns/void#entities> ?lc .";
+		$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
+		$t .= "}";
+
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
 	}else{
 		return false;
@@ -808,10 +907,34 @@ function q9($endpoint_url, $graph_url){
 function q10($endpoint_url, $graph_url){
 	$returnMe = "";
 	if(strlen($endpoint_url) != 0 && strlen($graph_url)){
-		$template = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT * FROM <";
-		$template .= $graph_url."> WHERE { ?endpoint a data_vocab:Endpoint. ?endpoint <http://bio2rdf.org/dataset_vocabulary:has_type_relation_type_count> ?anObj. ?anObj <http://bio2rdf.org/dataset_vocabulary:has_subject_type> ?subjectType. ?anObj <http://bio2rdf.org/dataset_vocabulary:has_subject_count> ?subjectCount. ?anObj <http://bio2rdf.org/dataset_vocabulary:has_predicate> ?aPred. ?anObj <http://bio2rdf.org/dataset_vocabulary:has_object_count> ?objCount. ?anObj <http://bio2rdf.org/dataset_vocabulary:has_object_type> ?objType.}";
-		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($template)."&format=json";
+		$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
+		$t .= "?linkset <http://rdfs.org/ns/void#target> <".$graph_url.">.";
+		$t .= "?linkset <http://rdfs.org/ns/void#subjectsTarget> ?sT .";
+		$t .= "?sT <http://rdfs.org/ns/void#entities> ?sc .";
+		$t .= "?sT <http://rdfs.org/ns/void#class> ?subjectType .";
+		$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?oT .";
+		$t .= "?oT <http://rdfs.org/ns/void#class> ?objectType .";
+		$t .= "?oT <http://rdfs.org/ns/void#entities> ?oc .";
+		$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
+		$t .= "}";
+		$returnMe .= $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
 		return $returnMe;
+	}else{
+		return false;
+	}
+}
+
+function nsQ($endpoint_url, $graph_url){
+	$rm = "";
+	if(strlen($endpoint_url) !=0 && strlen($graph_url) != 0){
+		$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
+		$t .= "?linkset <http://rdfs.org/ns/void#target> <".$graph_url.">.";
+		$t .= "?linkset <http://rdfs.org/ns/void#subjectsTarget> ?sT .";
+		$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?oT .";
+		$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
+		$t .= "?linkset <http://rdfs.org/ns/void#triples> ?triples.}";
+		$rm = $endpoint_url."?default-graph-uri=&query=".urlencode($t)."&format=json";
+		return $rm;
 	}else{
 		return false;
 	}
