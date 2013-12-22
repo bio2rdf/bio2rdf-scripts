@@ -71,7 +71,7 @@ class BioportalParser extends Bio2RDFizer
 		if(parent::getParameterValue('exclude') != '') {
 			$exclude_list = explode(",",parent::getParameterValue('exclude'));
 		}
-		
+
 		// now go through the list of ontologies
 		$c = file_get_contents($olist);
 		if(($root = simplexml_load_string($c)) === FALSE) {
@@ -93,6 +93,8 @@ class BioportalParser extends Bio2RDFizer
 			if(!$ns) $ns = $abbv;
 			// echo "$oid [$ns] -- $abbv --  $label".PHP_EOL;
 
+			if(array_search($ns,$exclude_list) !== FALSE) continue;
+
 			if($include_list[0] != 'all') {
 				// ignore if we don't find it in the include list OR we do find it in the exclude list
 				if( (array_search($ns,$include_list) === FALSE)
@@ -101,7 +103,7 @@ class BioportalParser extends Bio2RDFizer
 					continue;
 				}
 			}
-			
+			set_time_limit(5000);			
 			$suf = '';
 			if($format == 'obo') $suf = 'obo';
 			if($format == "owl") $suf = "owl";
@@ -156,7 +158,7 @@ class BioportalParser extends Bio2RDFizer
 					$this->OBO2RDF($abbv);
 				} else if($format == 'owl') {
 					$this->OWL2RDF($abbv);
-					print_r($this->unmapped_uri);
+					if(isset($this->unmapped_uri)) print_r($this->unmapped_uri);
 					unset($this->unmapped_uri);
 				} else {
 					echo "no processor for $label (format $format)".PHP_EOL;
@@ -438,13 +440,13 @@ class BioportalParser extends Bio2RDFizer
 				// id-validation-regexp:\"REACT_[0-9\]\{1\,4}\\.[0-9\]\{1\,3}|[0-9\]+\"
 				//$a[1] = 'id-validation-regexp:\"REACT_[0-9\]\{1\,4}\\.[0-9\]\{1\,3}|[0-9\]+\"';
 					if(substr($a[1],0,4) == "http") {
-						$buf .= parent::triplify($tid,"rdfs:seeAlso", $a[1]);
+						$buf .= parent::triplify($tid,"rdfs:seeAlso", str_replace( array(" ",'"wiki"',"\\"), array("+","",""), $a[1]));
 					} else {
 						$b = explode(":",$a[1],2);
 						if(substr($b[1],0,4) == "http") {
 							$buf .= parent::triplify($tid,"rdfs:seeAlso", stripslashes($b[1]));
 						} else {
-							$ns = str_replace(" ","",strtolower($b[0]));
+							$ns = str_replace(array(" ","\\",) ,"",strtolower($b[0]));
 							$id = trim($b[1]);
 														
 							// there may be a comment to remove
@@ -453,8 +455,26 @@ class BioportalParser extends Bio2RDFizer
 								$id = substr($id,0,$pos);
 							}
 							$id = stripslashes($id);
-				
-							$buf .= parent::triplify($tid,"obo_vocabulary:x-$ns", "$ns:$id");
+							// there may be a source statement to remove
+							$id = preg_replace("/{.*\}/","",$id);
+							if($ns == "pmid") {
+								$ns = "pubmed";
+								$y = explode(" ",$id);
+								$id = $y[0];
+							}
+							if($ns == "xx") continue;
+							if($ns == "icd9cm") {
+								$y = explode(" ",$id);
+								$id = $y[0];
+							}
+							if($ns == "xref; umls_cui") continue; 
+							if($ns == "submitter") $ns = "chebi.submitter";
+							if($ns == "wikipedia" || $ns == "mesh") $id = str_replace(" ","+",$id);
+							if($ns == "id-validation-regexp") {
+								$buf .= parent::triplifyString($tid,"obo_vocabulary:$ns", addslashes($id));
+							} else {
+								$buf .= parent::triplify($tid,"obo_vocabulary:x-$ns", "$ns:$id");
+							}
 						}
 					}
 				} else if($a[0] == "synonym") {
@@ -514,7 +534,7 @@ class BioportalParser extends Bio2RDFizer
 				} else if($a[0] == "alt_id") {
 					parent::getRegistry()->parseQname($a[1],$ns,$id);
 					if($id != 'curators') {
-						$buf .= parent::triplify("$ns:$id","rdfs:seeAlso",$tid);
+						$buf .= parent::triplify("$ns:$id","rdfs:seeAlso",stripslashes($tid));
 					}
 					
 				} else if($a[0] == "is_a") {
