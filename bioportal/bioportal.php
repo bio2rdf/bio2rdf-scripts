@@ -128,6 +128,7 @@ class BioportalParser extends Bio2RDFizer
 			}
 
 			// download
+			$rfile = 'http://rest.bioontology.org/bioportal/virtual/download/'.$oid.'?apikey='.parent::getParameterValue('ncbo_api_key');
 			if(!file_exists($lfile)|| parent::getParameterValue('download') == 'true') {
 				if(in_array($oid, array(1114,1029,1144,1052,1013,1011,1369,1249,1490,1544,1576,1578,1627,1630,1649,1655,1656,1661,1670,1694,1697,3007,3017,3032,3038,3043,3045,3047,3062,3092,3094,3104,3136,3146,3147,3157,3167,3184,3185,3186,3191,3192,3194,3195,3197,3199,3200,3205,3206,3211,3212,3224,3230,3231,3232,3237,3241,3258,3261,3264))) {
 					// skip
@@ -135,7 +136,6 @@ class BioportalParser extends Bio2RDFizer
 					continue;
 				}
 				echo "Downloading $label ($abbv id=$oid) ... ";
-				$rfile = 'http://rest.bioontology.org/bioportal/virtual/download/'.$oid.'?apikey='.parent::getParameterValue('ncbo_api_key');
 				
 				if($zip) $lz = $lfile;
 				else $lz = "compress.zlib://".$lfile;
@@ -163,7 +163,42 @@ class BioportalParser extends Bio2RDFizer
 				} else {
 					echo "no processor for $label (format $format)".PHP_EOL;
 				}
-				
+				$date = date ("Y-m-d\TG:i:s\Z");
+				$bVersion = parent::getParameterValue('bio2rdf_release');
+				$source_file = (new DataResource($this))
+                                	->setURI($rfile)
+                                	->setTitle("$label")
+                                	->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+                                	->setFormat("obo")
+                                	->setPublisher("http://www.bioontology.org")
+                                	->setHomepage("http://bioportal.bioontology.org/")
+                                	->setRights("use-share-modify")
+                                	->setLicense("http://www.bioontology.org/terms")
+                                	->setDataset("http://identifiers.org/$abbv");
+
+				$output_file = (new DataResource($this))
+                                	->setURI("http://download.bio2rdf.org/release/$bVersion/bioportal/$ofile")
+                                	->setTitle("Bio2RDF v$bVersion RDF version of $abbv")
+                                	->setSource($source_file->getURI())
+                                	->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/bioportal/bioportal.php")
+                                	->setCreateDate($date)
+                                	->setHomepage("http://download.bio2rdf.org/release/$bVersion/bioportal/bioportal.html")
+                                	->setPublisher("http://bio2rdf.org")
+                                	->setRights("use-share-modify")
+                                	->setRights("by-attribution")
+                                	->setRights("restricted-by-source-license")
+                                	->setLicense("http://creativecommons.org/licenses/by/3.0/");
+
+					if($gz) $output_file->setFormat("application/gzip");
+        	                	if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+                	        	else $output_file->setFormat("application/n-quads");
+
+				if(!isset($dd)) {
+					$dd = fopen($odir.'bio2rdf-bioportal.nt',"w");
+				}
+                        	fwrite($dd, $source_file->toRDF().$output_file->toRDF());
+				fflush($dd);
+
 				// @todo process owl files
 				echo "Done!".PHP_EOL;
 				parent::getReadFile()->close();
@@ -172,6 +207,7 @@ class BioportalParser extends Bio2RDFizer
 				parent::clear();
 			}
 		}
+		if(isset($dd)) fclose($dd);
 	}
 
 	private function OWL2RDF($abbv)
@@ -202,7 +238,7 @@ class BioportalParser extends Bio2RDFizer
 				$a['prefix'] = parent::getRegistry()->getPrefixFromURI($a['base_uri']);
 				if(isset($a['prefix'])) {
 					$a['bio2rdf_uri'] = 'http://bio2rdf.org/'.$a['prefix'].':'.$a['fragment'];
-					$p_uri = parent::getRegistry()->getEntryValueByKey($a['prefix'], 'providerURI');
+					$p_uri = parent::getRegistry()->getEntryValueByKey($a['prefix'], 'provider-uri');
 					if(isset($p_uri)) {
 						if($p_uri == $a['base_uri']) {
 							$a['is_provider_uri'] = true;
@@ -311,7 +347,7 @@ class BioportalParser extends Bio2RDFizer
 		}
 	
 	}
-			   
+
 	
 	function OBO2RDF($abbv)
 	{
