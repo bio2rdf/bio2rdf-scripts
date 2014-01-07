@@ -71,6 +71,7 @@ class MGIParser extends Bio2RDFizer
                         parent::GetWriteFile()->Close();
                         parent::GetReadFile()->Close();
                         echo "Done".PHP_EOL;
+			parent::clear();
 
                         $source_file = (new DataResource($this))
                                 ->setURI($rfile)
@@ -88,7 +89,7 @@ class MGIParser extends Bio2RDFizer
                         $date = date ("Y-m-d\TG:i:s\Z");
                         $output_file = (new DataResource($this))
                                 ->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
-                                ->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+                                ->setTitle("Bio2RDF v$bVersion RDF version of $item in $prefix")
                                 ->setSource($source_file->getURI())
                                 ->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mgi/mgi.php")
                                 ->setCreateDate($date)
@@ -105,6 +106,7 @@ class MGIParser extends Bio2RDFizer
                         else $output_file->setFormat("application/n-quads");
 
                         $dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			
 
                 }//foreach
 
@@ -173,8 +175,8 @@ class MGIParser extends Bio2RDFizer
                                 $marker_id = strtolower($a[5]);
                                 parent::AddRDF(
                                         parent::triplify($id, $this->getVoc()."genetic-marker", $marker_id).
-                                        parent::triplify($marker_id, "rdf:type", $this->getVoc()."Mouse-Marker").
-					parent::describeClass($this->getVoc()."Mouse-Marker","MGI Marker")
+                                        parent::triplify($marker_id, "rdf:type", $this->getVoc()."MGI-Marker").
+					parent::describeClass($this->getVoc()."MGI-Marker","MGI Marker")
                                 );              
                                 if(trim($a[6])) {
                                         parent::AddRDF(
@@ -337,10 +339,10 @@ class MGIParser extends Bio2RDFizer
                         parent::AddRDF(
                                 parent::describeIndividual($id, $a[1], $this->getVoc()."MGI-Marker").
                                 parent::describeClass($this->getVoc()."MGI-Marker", "MGI Marker").
-                                parent::triplify($id, "rdf:type", $this->getRes().str_replace(" ","-",$a[4])).
                                 parent::triplifyString($id, parent::getVoc()."symbol", $a[1]).
                                 parent::triplifyString($id, parent::getVoc()."status", $a[2]).
-                                parent::triplifyString($id, parent::getVoc()."name", $a[3]).
+                                parent::triplify($id, "rdf:type", $this->getRes().str_replace(" ","-",$a[3])).
+                                parent::triplifyString($id, parent::getVoc()."name", $a[4]).
                                 parent::triplifyString($id, parent::getVoc()."cm-position", $a[5]).
                                 parent::triplifyString($id, parent::getVoc()."chromosome", $a[6])
                         );
@@ -382,6 +384,7 @@ class MGIParser extends Bio2RDFizer
                         $id_label = $a[1];
                         parent::AddRDF(
                                 parent::describeIndividual($id, $id_label, $this->getVoc()."Strain").
+				parent::describeClass($this->getVoc()."Strain", "MGI Strain").
                                 parent::triplify($id, $this->getVoc()."strain-type", "mgi_vocabulary:".str_replace(" ","-",strtolower($a[2])))
                         );
                 }
