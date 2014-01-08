@@ -124,8 +124,8 @@ class TaxonomyParser extends Bio2RDFizer{
 				//now iterate over the files in the ziparchive
 				$source_file = (new DataResource($this))
 					->setURI($value['file_url'])
-					->setTitle('NCBI Taxonomy filename: '.$key)
-					->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+					->setTitle('NCBI Taxonomy - '.$key)
+					->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
 					->setFormat('text/tab-separated-value')
 					->setFormat('application/zip')
 					->setPublisher('https://www.ncbi.nlm.nih.gov 	')
@@ -140,7 +140,7 @@ class TaxonomyParser extends Bio2RDFizer{
 				$date = date("Y-m-d\TG:i:s\Z");
 				$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $key")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/ncbi_taxonomy_parser.php")
 				->setCreateDate($date)
@@ -477,7 +477,7 @@ class TaxonomyParser extends Bio2RDFizer{
 			}
 			if($url != 0 && $url != ""){
 				parent::AddRDF(
-					parent::QQuaadO_URL($cit_res, "rdfs:seeAlso", $url)
+					parent::triplify($cit_res, "rdfs:seeAlso", $url)
 				);
 			}
 			if($text != 0 && $text != ""){
