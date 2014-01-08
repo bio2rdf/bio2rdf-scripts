@@ -124,7 +124,7 @@ class irefindexParser extends Bio2RDFizer
 			$date = date ("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $file")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/irefindex/irefindex.php")
 				->setCreateDate($date)
@@ -161,7 +161,7 @@ class irefindexParser extends Bio2RDFizer
 		}
 
 		// check # of columns
-		while($l = parent::getReadFile()->read(100000)) {
+		while($l = parent::getReadFile()->read(500000)) {
 			$a = explode("\t",trim($l));
 
 			// 13 is the original identifier
