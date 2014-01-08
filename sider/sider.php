@@ -469,9 +469,6 @@ e.g. from different clinical trials or for different levels of severeness.
 					parent::describeClass($meddra_id,$label)				
 				);
 
-print_r($a).PHP_EOL;
-echo parent::getRDF();
-parent::deleteRDF();
 			parent::setCheckpoint('record');
 		}
 		parent::setCheckpoint('file');
