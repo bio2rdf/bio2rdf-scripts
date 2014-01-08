@@ -34,6 +34,7 @@ require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
 class SIDERParser extends Bio2RDFizer 
 {
+
 	function __construct($argv) {
 		parent::__construct($argv, "sider");
 		
@@ -143,12 +144,14 @@ class SIDERParser extends Bio2RDFizer
 				->setLicense("http://creativecommons.org/licenses/by-nc-sa/3.0/")
 				->setDataset("http://identifiers.org/sider.effect/");
 
+			if($file == "label_mapping") $source_file->setLicense("http://creativecommons.org/publicdomain/zero/1.0/");
+
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date ("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $file")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sider/sider.php")
 				->setCreateDate($date)
@@ -204,23 +207,30 @@ class SIDERParser extends Bio2RDFizer
 
 		$declared = null;
 		while($l = parent::getReadFile()->Read()) {
-
 			parent::setCheckpoint('record');
 
 			$a = explode("\t",$l);
-			
 			$id = parent::getNamespace().urlencode(trim($a[6]));
-			
+
+			$label = $a[1];
+			$names = explode(";",strtolower(trim($a[1])));
+			array_unique($names);
+			asort($names);
+			if($a[2] == "combination") {
+				$label = implode(";",$names);
+			}
+
 			parent::addRDF(
-				parent::describeIndividual($id, null, parent::getVoc()."Compound")
+				parent::describeIndividual($id, $label, parent::getVoc()."Drug", $a[6]).
+				parent::describeClass(parent::getVoc()."Drug","SIDER Drug")
 			);
 		
 			if(trim($a[0])) {
 				$brand_label = strtolower(trim($a[0]));
 				$brand_qname = parent::getRes().md5($brand_label);
 				parent::addRDF(
-					parent::describeIndividual($brand_qname, $brand_label, parent::getVoc()."Brand-Drug")
-
+					parent::describeIndividual($brand_qname, $brand_label, parent::getVoc()."Brand-Drug").
+					parent::describeClass(parent::getVoc()."Brand-Drug","Brand Drug")
 				);
 
 				parent::addRDF(
@@ -228,13 +238,12 @@ class SIDERParser extends Bio2RDFizer
 				);
 			}
 			if(trim($a[1])) {
-				$b = explode(";",strtolower(trim($a[1])));
-				$b = array_unique($b);
-				foreach($b AS $generic_name) {
+				foreach($names AS $generic_name) {
 					$generic_label = trim($generic_name);
 					$generic_qname = parent::getRes().md5($generic_label);
 					parent::addRDF(
-						parent::describeIndividual($generic_qname, $generic_label, parent::getVoc()."Generic-Drug")
+						parent::describeIndividual($generic_qname, $generic_label, parent::getVoc()."Generic-Drug").
+						parent::describeClass(parent::getVoc()."Generic-Drug","Generic Drug")
 					);
 
 					parent::addRDF(
@@ -262,6 +271,9 @@ class SIDERParser extends Bio2RDFizer
 			}
 
 			if($a[4]){
+				parent::addRDF(
+					parent::triplify($id, parent::getVoc()."stitch-stereo-compound-id", "stitch:".$a[4])
+				);
 				$pubchemcompound = $this->GetPCFromStereo($a[4]);
 				parent::addRDF(
 					parent::triplify($id, parent::getVoc()."pubchem-stereo-compound-id", "pubchemcompound:".$pubchemcompound)
@@ -370,21 +382,26 @@ e.g. from different clinical trials or for different levels of severeness.
 */
 	function meddra_freq_parsed()
 	{
+		$cols = 12;
 		$i = 1;
 		parent::setCheckpoint('file');
-
-		while($l = parent::getReadFile()->Read()) {
-
+		while($l = parent::getReadFile()->read()) {
 			parent::setCheckpoint('record');
 
 			$a = explode("\t",str_replace("%","",$l));
-			$label_id = parent::getNamespace().urlencode($a[2]);
+			if(count($a) != $cols) {
+				trigger_error("Expecting $cols, but found ".count($a)." instead... skipping file!");
+				return false; 
+			}
+			$label = $a[2];
+			$label_id = parent::getNamespace().urlencode($label);
 			$effect_id = "umls:".$a[3];
 			
-			$id = parent::getRes()."F".$i++;
-			$label = "MedDRA side effect details for drug ".$a[2]." and effect ".$a[4];
+			$id = parent::getRes().md5($a[2].$a[3].$a[6]);
+			$label = "$a[4] in $label $a[2]";
 			parent::addRDF(
-				parent::describeIndividual($id, $label, parent::getVoc()."Drug-Effect")
+				parent::describeIndividual($id, $label, parent::getVoc()."Drug-Effect").
+				parent::describeClass(parent::getVoc()."Drug-Effect","SIDER Drug-Effect")
 			);
 
 			parent::addRDF(
@@ -405,43 +422,56 @@ e.g. from different clinical trials or for different levels of severeness.
 				);
 			}
 
-			if($a[6]){
-				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."frequency", $a[6], "xsd:float")
-				);
-			}
-
-			if($a[7]){
-				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."lower-frequency", $a[7])
-				);
-			}
-
-			if($a[8]){
-				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."upper-frequency", $a[8])
-				);
-			}
-			
-			if($a[10]) {
-				$meddra_id = "umls:$a[10]";
-				$label = null;
-				if(trim($a[11])) $label = strtolower(trim($a[11]));
+				$fid = $id.md5($a[5].$a[6].$a[7].$a[8]);
+//				$fid = $id.($i++);
+				$flabel = $a[6];
+				$ftype  = parent::getVoc().$a[6]."-Frequency";
+				$number = false;
+				if(is_numeric($a[6])) {
+					$flabel = $a[6]."%";
+					$ftype  = parent::getVoc()."Specified-Frequency";
+					$number = true;
+				}
+				if($a[7] != $a[8]) {
+					$flabel .= "($a[7]-$a[8])";
+					$ftype = parent::getVoc()."Range-Frequency";
+				}
 
 				parent::addRDF(
-					parent::describeIndividual($meddra_id, $label, parent::getVoc()."Effect")
+					parent::triplify($id,parent::getVoc()."reported-frequency",$fid).
+					parent::describeIndividual($fid,$flabel,parent::getVoc().$ftype)
 				);
-
-				parent::addRDF(
-					parent::triplify($id, parent::getVoc()."meddra-effect", $meddra_id)
-				);
-
-				if($a[9]){
+		
+				if($number == true) {
 					parent::addRDF(
-						parent::triplifyString($meddra_id, parent::getVoc()."meddra-concept-level", $a[9])
+						parent::triplifyString($fid, parent::getVoc()."frequency", $a[6]/100)
+					);
+				} else {
+					parent::addRDF(
+						parent::triplifyString($fid, parent::getVoc()."frequency", $a[6])
 					);
 				}
-			}
+			//	if($a[7] != $a[8]){
+					parent::addRDF(
+						parent::triplifyString($fid, parent::getVoc()."lower-frequency", $a[7]).
+						parent::triplifyString($fid, parent::getVoc()."upper-frequency", $a[8])
+					);
+			//	}
+
+				$meddra_id = "umls:$a[10]";
+				$label = "";
+				if(trim($a[11])) $label = strtolower(trim($a[11]));
+				$rel = "preferred-term";
+				if($a[9] != "LLT") $rel = "lower-level-term";	
+			
+				parent::addRDF(
+					parent::triplify($fid, parent::getVoc().$rel, $meddra_id).
+					parent::describeClass($meddra_id,$label)				
+				);
+
+print_r($a).PHP_EOL;
+echo parent::getRDF();
+parent::deleteRDF();
 			parent::setCheckpoint('record');
 		}
 		parent::setCheckpoint('file');
