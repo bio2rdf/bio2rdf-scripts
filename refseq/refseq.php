@@ -40,45 +40,56 @@ class RefSeqParser extends Bio2RDFizer{
 		$dataset_description = '';
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
+
 		//download
-		if($this->GetParameterValue('download') == true){
-			$list = $this->getFtpFileList('ftp.ncbi.nlm.nih.gov', '/refseq/release/complete/','gpff.gz');
-			$total = count($list);
-			$counter = 1;
-			foreach($list as $f){
-				echo "downloading file $counter out of $total :".parent::getParameterValue('download_url').$f."... ".PHP_EOL;
-				file_put_contents($ldir.$f,file_get_contents(parent::getParameterValue('download_url').$f));
-				$counter++;
+		echo "Getting FTP file list".PHP_EOL;
+		$list = $this->getFtpFileList('ftp.ncbi.nlm.nih.gov', '/refseq/release/complete/','/(complete\.[0-9]+\.protein\.gpff\.gz)/');
+		asort($list);
+		$counter = 1;
+		$total = count($list);
+		foreach($list as $f){
+			$lfile = $ldir.$f;
+			if(!file_exists($lfile) || $this->getParameterValue('download') == true){
+				$rfile = parent::getParameterValue('download_url').$f;
+				echo "Downloading file ".($counter++)." out of $total : $rfile ... ".PHP_EOL;
+				utils::DownloadSingle($rfile,$lfile);
 			}
 		}//if download
 		//iterate over the files
-		$paths = $this->getFilePaths($ldir, 'gz');
-		$lfile = null;
-		foreach($paths as $aPath){
-			$lfile = $aPath;
-			$ofile = $odir.basename($aPath,".gz").".".parent::getParameterValue('output_format');
-			$gz = false;
-			if(strstr(parent::getParameterValue('output_format'), "gz")){$gz = true;}
+		$files = $this->getFilePaths($ldir, 'gz');
+		asort($files);
+		foreach($files as $f){
+			$lfile = $ldir.$f;
+			$ofile = $odir.basename($f,".gz").".".parent::getParameterValue('output_format');
+			$gz = (strstr(parent::getParameterValue('output_format'), "gz"))?true:false;
 			parent::setWriteFile($ofile, $gz);
-			parent::setReadFile($ldir.$lfile, true);
+			parent::setReadFile($lfile, true);
+
+			echo "processing $f ...";
+			$this->process();
+			echo "done!".PHP_EOL;
+
+			$this->getReadFile()->close();
+			$this->getWriteFile()->close();
+
 			$source_file = (new DataResource($this))
-				->setURI(parent::getParameterValue('download_url').basename($aPath))
-				->setTitle('NCBI Genbank filename: '.basename($aPath))
+				->setURI(parent::getParameterValue('download_url').$lfile)
+				->setTitle("NCBI RefSeq - $f")
 				->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
 				->setFormat('text/refseq-format')
 				->setFormat('application/zip')
-				->setPublisher('https://www.ncbi.nlm.nih.gov')
-				->setHomepage('https://www.ncbi.nlm.nih.gov/refseq')
+				->setPublisher('http://www.ncbi.nlm.nih.gov')
+				->setHomepage('http://www.ncbi.nlm.nih.gov/refseq')
 				->setRights('use')
 				->setRights('attribution')
-				->setLicense('https://www.nlm.nih.gov/copyright.html')
+				->setLicense('http://www.nlm.nih.gov/copyright.html')
 				->setDataset(parent::getDatasetURI());
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $file")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/refseq/refseq.php")
 				->setCreateDate($date)
@@ -89,16 +100,11 @@ class RefSeqParser extends Bio2RDFizer{
 				->setLicense("http://creativecommons/licenses/by/3.0/")
 				->setDataset(parent::getDatasetURI());
 			$dataset_description .= $output_file->toRDF().$source_file->toRDF();
-
-			echo "processing $aPath ...";
-			$this->process();
-			echo "done!".PHP_EOL;
-
-			$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
-			$this->getWriteFile()->write($dataset_description);
-			$this->getWriteFile()->close();
+			break;
 		}//for
-
+		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
+		$this->getWriteFile()->write($dataset_description);
+		$this->getWriteFile()->close();
 	}//run
 
 
@@ -1030,7 +1036,7 @@ class RefSeqParser extends Bio2RDFizer{
 	* Given an FTP uri get a non recursive list of all files of a given extension
 	* located inside a given path
 	*/
-	function getFtpFileList($ftp_uri, $path,  $extension){
+	function getFtpFileList($ftp_uri, $path, $regex){
 		$rm = array();
 		// set up basic connection
 		$conn_id = ftp_connect($ftp_uri);
@@ -1044,8 +1050,8 @@ class RefSeqParser extends Bio2RDFizer{
 		// get contents of the current directory
 		$contents = ftp_nlist($conn_id, $path);
 		foreach($contents as $aFile){
-			$reg_exp = "/.*\/(.*".$extension.")/";
-			preg_match($reg_exp, $aFile, $matches);
+//			$reg_exp = "/.*\/(.*".$extension.")/";
+			preg_match($regex, $aFile, $matches);
 			if(count($matches)){
 				$rm[] = $matches[1];
 			}
