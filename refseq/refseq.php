@@ -75,7 +75,7 @@ class RefSeqParser extends Bio2RDFizer{
 			$source_file = (new DataResource($this))
 				->setURI(parent::getParameterValue('download_url').$lfile)
 				->setTitle("NCBI RefSeq - $f")
-				->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
+				->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($lfile)))
 				->setFormat('text/refseq-format')
 				->setFormat('application/zip')
 				->setPublisher('http://www.ncbi.nlm.nih.gov')
@@ -89,7 +89,7 @@ class RefSeqParser extends Bio2RDFizer{
 			$date = date("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $file")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $f")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/refseq/refseq.php")
 				->setCreateDate($date)
