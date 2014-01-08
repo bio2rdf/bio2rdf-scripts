@@ -142,8 +142,8 @@ class SGDParser extends Bio2RDFizer {
 
 			$rfile = $rdir.$rfiles[$file];
 
-			if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
-				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
+			if(!file_exists($ldir.$lfile) && parent::getParameterValue('download') == false) {
+				trigger_error($ldir.$lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				
 				Utils::DownloadSingle ($rfile, $ldir.$lfile);
 			}
@@ -175,12 +175,11 @@ class SGDParser extends Bio2RDFizer {
 			echo PHP_EOL;
 
 			// generate the dataset release file
-			echo "Generating dataset description... ".PHP_EOL;
 			// dataset description
 			$source_file = (new DataResource($this))
 				->setURI($rfile)
 				->setTitle("Saccharomyces Genome Database ($file)")
-				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
 				->setFormat("text/tab-separated-value")
 				->setFormat("application/gzip")	
 				->setPublisher("http://www.yeastgenome.org/")
@@ -218,6 +217,7 @@ class SGDParser extends Bio2RDFizer {
 		parent::setGraphURI($graph_uri);
 
 		//write dataset description to file
+		echo "Generating dataset description... ".PHP_EOL;
 		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
