@@ -92,10 +92,12 @@ class SGDParser extends Bio2RDFizer {
 			}
 			
 			//download all files [except mapping file]
-			if($file !== "mapping") {
+			if($file != "mapping") {
 				$rfile = $rdir.$rfiles[$file];
 				echo "Downloading $file ... ";
 				Utils::DownloadSingle ($rfile, $lfile);
+			} else {
+				file_put_contents($lfile,"");
 			}
 		}
 	}
@@ -142,9 +144,8 @@ class SGDParser extends Bio2RDFizer {
 
 			$rfile = $rdir.$rfiles[$file];
 
-			if(!file_exists($ldir.$lfile) && parent::getParameterValue('download') == false) {
-				trigger_error($ldir.$lfile." not found. Will attempt to download.", E_USER_NOTICE);
-				
+			if(!file_exists($ldir.$lfile) && parent::getParameterValue('download') == false && $file != 'mapping') {
+				trigger_error($ldir.$lfile." not found. Will attempt to download.", E_USER_NOTICE);				
 				Utils::DownloadSingle ($rfile, $ldir.$lfile);
 			}
 			
