@@ -51,7 +51,7 @@ class irefindexParser extends Bio2RDFizer
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
 		$rdir = parent::getParameterValue('download_url');
-			
+		$dataset_description = '';		
 		
 		foreach($files AS $file) {
 			$download = parent::getParameterValue('download');
