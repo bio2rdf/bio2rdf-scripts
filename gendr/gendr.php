@@ -210,17 +210,33 @@ class GendrParser extends Bio2RDFizer {
 				parent::triplify($gendr_id, parent::getVoc()."x-ncbigene", "ncbigene:".$geneid).
 				parent::triplifyString($gendr_id, parent::getVoc()."gene-name", $gene_name).
 				parent::triplifyString($gendr_id, parent::getVoc()."gene-symbol", $gene_symbol).
-				parent::triplifyString($gendr_id, parent::getVoc()."species-name", $species_name).
 				parent::describeIndividual($association_id, $association_label, parent::getVoc()."Gene-Phenotype-Association").
-				parent::triplify($association_id, parent::getVoc()."gene", "ncbigene:".$geneid).
+				parent::triplify($association_id, parent::getVoc()."gene", $gendr_id).
 				parent::triplify($association_id, parent::getVoc()."phenotype", parent::getVoc()."Diet-Induced-Life-Span-Variant")
 			);
 
 			if($species_name == "Caenorhabditis elegans"){
 				parent::addRDF(
-					parent::triplify($association_id, parent::getVoc()."phenotype", "wormbase:WBPhenotype:0001837")
+					parent::triplify($association_id, parent::getVoc()."phenotype", "wormbase:WBPhenotype:0001837").
+					parent::triplify($association_id, parent::getVoc()."taxon", "taxon:6239")
 				);
-			}
+			} else if($species_name == "Saccharomyces cerevisiae"){
+				parent::addRDF(
+					parent::triplify($association_id, parent::getVoc()."taxon", "taxon:4932")
+				);
+			} else if($species_name == "Schizosaccharomyces pombe"){
+				parent::addRDF(
+					parent::triplify($association_id, parent::getVoc()."taxon", "taxon:9896")
+				);
+			} else if($species_name == "Drosophila melanogaster"){
+				parent::addRDF(
+					parent::triplify($association_id, parent::getVoc()."taxon", "taxon:7227")
+				);
+			} else if($species_name == "Mus musculus"){
+				parent::addRDF(
+					parent::triplify($association_id, parent::getVoc()."taxon", "taxon:10090")
+				);
+			} 
 
 			if(!empty($references)){
 				$split_refs = explode(",", $references);
@@ -256,12 +272,15 @@ class GendrParser extends Bio2RDFizer {
 
 			$id = parent::getRes().md5($gene_id.$total_datasets.$total_ovexp.$total_underexp.$p_value.$expression);
 			$evidence_id = parent::getRes().md5($gene_id.$total_datasets.$total_ovexp.$total_underexp.$p_value.$expression."_evidence");
-			$label = ucfirst($expression)."-expression of ".$mgi_symbol." based on microarray-results from ".$total_datasets." datasets, with p-value ".$p_value;
+			$label = "Dietary restriction induced ".$expression."-expression of ".$mgi_symbol." based on microarray results from ".$total_datasets." datasets, with p-value ".$p_value;
 
 			parent::addRDF(
-				parent::describeIndividual($id, $label, parent::getVoc()."Gene".ucfirst($expression)."Expression").
+				parent::describeIndividual($id, $label, parent::getVoc()."Gene-".ucfirst($expression)."-Expression").
 				parent::triplify($id, parent::getVoc()."gene", "ncbigene:".$geneid).
+				parent::triplifyString("ncbigene:".$geneid, parent::getVoc()."mgi-gene-symbol", $mgi_symbol).
+				parent::triplifyString("ncbigene:".$geneid, parent::getVoc()."mgi-gene-description", $mgi_description).
 				parent::triplify($id, parent::getVoc()."evidence", $evidence_id).
+				parent::triplifyString($id, parent::getVoc()."perturbation-context", "dietary restriction").
 				parent::triplifyString($evidence_id, parent::getVoc()."total-number-datasets", $total_datasets).
 				parent::triplifyString($evidence_id, parent::getVoc()."total-number-datasets-overexpressed", $total_ovexp).
 				parent::triplifyString($evidence_id, parent::getVoc()."total-number-datasets-underexpressed", $total_underexp).
