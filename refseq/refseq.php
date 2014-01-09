@@ -100,7 +100,6 @@ class RefSeqParser extends Bio2RDFizer{
 				->setLicense("http://creativecommons/licenses/by/3.0/")
 				->setDataset(parent::getDatasetURI());
 			$dataset_description .= $output_file->toRDF().$source_file->toRDF();
-			break;
 		}//for
 		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
 		$this->getWriteFile()->write($dataset_description);
