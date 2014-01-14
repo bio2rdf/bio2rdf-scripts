@@ -48,6 +48,7 @@ class BioportalParser extends Bio2RDFizer
 	
 	function Run()
 	{
+		$dataset_description = '';
 		$idir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
 		
@@ -118,17 +119,18 @@ class BioportalParser extends Bio2RDFizer
 			unset($ofile);
 			$files = count($d->filenames->string);
 			if($files == 1) {
-				if(!$zip) $lfile = $idir.$ns.".".$suf.".gz";
-				else $lfile = $idir.$ns.".".$suf;
+				if(!$zip) $file = $ns.".".$suf.".gz";
+				else $file = $ns.".".$suf;
 				$ofile = $odir.$ns.".".parent::getParameterValue('output_format');
 			} else {
 				// probably a zipfile
 				$zip = true;
-				$lfile = $idir.$ns.".zip";
+				$file = $ns.".zip";
 			}
+			$lfile = $idir.$file;
 
 			// download
-			$rfile = 'http://rest.bioontology.org/bioportal/virtual/download/'.$oid.'?apikey='.parent::getParameterValue('ncbo_api_key');
+			$rfile = 'http://rest.bioontology.org/bioportal/virtual/download/'.$oid;
 			if(!file_exists($lfile)|| parent::getParameterValue('download') == 'true') {
 				if(in_array($oid, array(1114,1029,1144,1052,1013,1011,1369,1249,1490,1544,1576,1578,1627,1630,1649,1655,1656,1661,1670,1694,1697,3007,3017,3032,3038,3043,3045,3047,3062,3092,3094,3104,3136,3146,3147,3157,3167,3184,3185,3186,3191,3192,3194,3195,3197,3199,3200,3205,3206,3211,3212,3224,3230,3231,3232,3237,3241,3258,3261,3264))) {
 					// skip
@@ -139,7 +141,9 @@ class BioportalParser extends Bio2RDFizer
 				
 				if($zip) $lz = $lfile;
 				else $lz = "compress.zlib://".$lfile;
-				$ret = Utils::DownloadSingle($rfile,$lz,true);
+				$rfile2 = $file.'?apikey='.parent::getParameterValue('ncbo_api_key');
+
+				$ret = Utils::DownloadSingle($rfile2,$lz,true);
 				if($ret === false) {
 					echo "Unable to download $label".PHP_EOL;
 					continue;
@@ -154,11 +158,13 @@ class BioportalParser extends Bio2RDFizer
 			
 				// process
 				echo "Processing $label ($abbv id=$oid format=$format) into $ofile ... ";
+				set_time_limit(0);
 				if($format == 'obo') {
 					$this->OBO2RDF($abbv);
 				} else if($format == 'owl') {
 					$this->OWL2RDF($abbv);
 					if(isset($this->unmapped_uri)) print_r($this->unmapped_uri);
+					@print_r($this->unmapped_uri);
 					unset($this->unmapped_uri);
 				} else {
 					echo "no processor for $label (format $format)".PHP_EOL;
@@ -205,9 +211,49 @@ class BioportalParser extends Bio2RDFizer
 				parent::writeRDFBufferToWriteFile();
 				parent::getWriteFile()->close();
 				parent::clear();
+
+			$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle($abbv)
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setFormat("text/$format")
+				->setRights("use");
+
+			$e = parent::getRegistry()->getEntry($ns);
+			if($e['organization']) $source_file->setPublisher($e['organization']);
+			if($e['homepage']) $source_file->setHomepage($e['homepage']);
+			if($e['license']) $source_file->setLicense($e['license']);
+			if($e['miriam']) $source_file->setDataset("http://identifiers.org/$ns/");
+			
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2rdf.org/release/$bVersion/bioportal/$file")
+				->setTitle("Bio2RDF v$bVersion RDF version of $ns from BioPortal")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/bioportal/bioportal.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/bioportal/bioportal.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+
 			}
 		}
-		if(isset($dd)) fclose($dd);
+		echo "Generating dataset description... ";
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
+		echo "done!".PHP_EOL;
 	}
 
 	private function OWL2RDF($abbv)
@@ -454,10 +500,13 @@ class BioportalParser extends Bio2RDFizer
 				} else if($a[0] == "id") {	
 					parent::getRegistry()->parseQName($a[1],$ns,$id);					
 					$tid = "$ns:$id";
-					$buf .= parent::triplify($tid,"rdfs:isDefinedBy",$ouri);
-					
+//					$buf .= parent::describeClass($tid,null,"owl:Class");
+//					$buf .= parent::triplify($tid,"rdfs:isDefinedBy",$ouri);					
 				} else if($a[0] == "name") {
-					$t = parent::triplifyString($tid,"rdfs:label",str_replace(array("\"", "'"), array("","\\\'"), stripslashes($a[1]))." [$tid]");
+//					$t = parent::triplifyString($tid,"rdfs:label",str_replace(array("\"", "'"), array("","\\\'"), stripslashes($a[1]))." [$tid]");
+					$label = str_replace(array("\"", "'"), array("","\\\'"), stripslashes($a[1]));
+					$t = parent::describeClass($tid,$label,"owl:Class");
+					$t .= parent::triplify($tid,"rdfs:isDefinedBy",$ouri);					
 					$min .= $t;
 					$buf .= $t;
 					
