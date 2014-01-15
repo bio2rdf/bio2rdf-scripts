@@ -23,9 +23,10 @@ SOFTWARE.
 
 /**
  * MeSH Gene RDFizer
- * @version 0.3
+ * @version 1.0
  * @author Jose Cruz-Toledo
  * @author Jose Miguel Vives
+ * @author Michel Dumontier
  * @description This parser transforms the 2013 MeSH ASCII data to Bio2RDF compliant Linked Data. 
  * To download the original data files please visit http://www.nlm.nih.gov/cgi/request.meshdata
  * and register.
@@ -35,9 +36,9 @@ SOFTWARE.
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 class MeshParser extends Bio2RDFizer{
 	private static $packageMap = array(
-		"descriptor_records" => "d2013.bin",
-		"qualifier_records" => "q2013.bin",
-		"supplementary_records" => "c2013.bin"					
+		"descriptor_records" => "dYEAR.bin",
+		"qualifier_records" => "qYEAR.bin",
+		"supplementary_records" => "cYEAR.bin"					
 	);
 	private static $descriptor_data_elements = array(
 		"AN" =>	"annotation",
@@ -149,6 +150,8 @@ class MeshParser extends Bio2RDFizer{
 	function __construct($argv) {
 		parent::__construct($argv, "mesh");
 		parent::addParameter('files', true, 'all|descriptor_records|qualifier_records|supplementary_records', 'all', 'all or comma-separated list of files to process');
+		parent::addParameter('download_url',false,'','ftp://nlmpubs.nlm.nih.gov/online/mesh/.asciimesh/','default ftp location');
+		parent::addParameter('year', false, '','2014',"Year to process");
 		parent::initialize();
 	  }//constructor
 
@@ -169,39 +172,40 @@ class MeshParser extends Bio2RDFizer{
 
 	  	$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
 		
 	  	//now iterate over the files array
-		foreach ($files as $k => $aFile){	
-			$ext = substr(strrchr($this->getPackageMap()[$k],'.'),1);
-			if($ext == 'bin'){
-				$lfile = $ldir.$aFile;
+		$year = parent::getParameterValue('year');
+		foreach ($files as $k => $fpattern){
+			$file = str_replace("YEAR",$year,$fpattern);
+			$lfile = $ldir.$file;
+			$rfile = parent::getParameterValue("download_url").$file;
+
+			// download if necessary
+			if(!file_exists($lfile) || parent::getParameterValue('download') == "true") {
+				echo "Downloading $file ... ";
+				$ret = utils::downloadSingle($rfile,$lfile);
+				if($ret === FALSE) {
+					trigger_error("Unable to get $file", E_USER_ERROR);
+					continue;
+				}
+				echo "done!".PHP_EOL;
 			}
 
 			//set the outfile
-			$outfile = $odir."mesh_".$aFile.'.nt'; 
-			$gz=false;
-			if(strstr(parent::getParameterValue('output_format'), "gz")){
-				$outfile .= '.gz';
-				$gz = true;
-			}
-			parent::setWriteFile($outfile, $gz);
+			$ofile = $odir."mesh_".$k.".".parent::getParameterValue('output_format'); 
+			$gz= strstr(parent::getParameterValue('output_format'), "gz")?true:false;
+
 			parent::setReadFile($lfile, FALSE);
+			parent::setWriteFile($ofile, $gz);
 			$fnx = $k;
 			echo "processing $k ...";
 			$this->$fnx();
-			echo "done!\n";
+
 			//write RDF to file
 			parent::writeRDFBufferToWriteFile();
-			//close write file
 			parent::getWriteFile()->close();
-			echo PHP_EOL;
+			echo "done!".PHP_EOL;
+
 		}//foreach
 		// generate the dataset release file
 		echo "generating dataset release file... ";
