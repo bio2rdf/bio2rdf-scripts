@@ -67,6 +67,7 @@ class RefSeqParser extends Bio2RDFizer{
 
 			echo "processing $f ...";
 			$this->process();
+			parent::clear();
 			echo "done!".PHP_EOL;
 
 			$this->getReadFile()->close();
