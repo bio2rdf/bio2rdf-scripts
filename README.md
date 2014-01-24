@@ -19,5 +19,5 @@ Each script is run independently. See README files inside each script directory.
 Contact Us
 ---------
 For more information visit http://bio2rdf.org or http://dumontierlab.com
----
+---------------------------------------------------------------------
 Licensed under [MIT License](http://en.wikipedia.org/wiki/MIT_License), see [license page](https://github.com/bio2rdf/bio2rdf-scripts/wiki/MIT-License) for details.
