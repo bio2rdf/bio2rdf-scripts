@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2011-2013 Michel Dumontier
+Copyright (C) 2011-2013 Michel Dumontier, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -34,7 +34,7 @@ class irefindexParser extends Bio2RDFizer
 	function __construct($argv) { //
 		parent::__construct($argv,"irefindex");
 		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|other','all','all or comma-separated list of files to process');
-		parent::addParameter('version',false,'03022013|10182011','03022013','dated version of files to download');
+		parent::addParameter('version',false,'08122013|03022013|10182011','08122013','dated version of files to download');
 		parent::addParameter('download_url',false,null,'ftp://ftp.no.embnet.org/irefindex/data/current/psi_mitab/MITAB2.6/');
 		parent::initialize();
 	}
@@ -168,9 +168,10 @@ class irefindexParser extends Bio2RDFizer
 			$ids = explode("|",$a[13],2);
 			parent::getRegistry()->parseQName($ids[0],$ns,$str);
 			
-			$this->Parse4IDLabel($str,$id,$label);
-			$id = str_replace('"','',$id);
-			$iid = "$ns:$id";
+			$data = $this->ParseIDLabelArray($str);
+			$id = str_replace('"','', trim($data["id"]));
+			$label = trim($data["label"]);
+			$iid = $ns.":".$id;
 
 			// get the type
 			if($a[52] == "X") {
@@ -188,8 +189,12 @@ class irefindexParser extends Bio2RDFizer
 			// interaction type[52] by method[6]
 			unset($method);
 			if($a[6] != '-') {
-				$qname = $this->ParseString($a[6],$ns,$id,$method);
-				if($qname) parent::addRDF(parent::triplify($iid,parent::getVoc()."method",$qname));
+				$data = $this->ParseStringArray($a[6]);
+				$method = trim($data["label"]);
+				$qname = trim($data["ns"]).":".trim($data["id"]);
+				if($qname) {
+					parent::addRDF(parent::triplify($iid,parent::getVoc()."method",$qname));
+				} 
 			}
 
 			$method_label = '';
@@ -202,12 +207,13 @@ class irefindexParser extends Bio2RDFizer
 				parent::QQuadO_URL($iid,"rdfs:seeAlso","http://wodaklab.org/iRefWeb/interaction/show/".$a[50])
 			);
 
-			// set the interators
+			// set the interactors
 			for($i=0;$i<=1;$i++) {
 				$p = 'a';
 				if($i == 1) $p = 'b';
 
-				$interactor = $this->ParseString($a[$i],$ns,$id,$label);
+				$data = $this->ParseStringArray($a[$i]);
+				$interactor = trim($data["ns"]).":".trim($data["id"]);
 				parent::addRDF(
 					parent::triplify($iid,parent::getVoc()."interactor_$p",$interactor)
 				);
@@ -215,7 +221,8 @@ class irefindexParser extends Bio2RDFizer
 				// biological role
 				$role = $a[16+$i];
 				if($role != '-') {
-					$qname = $this->ParseString($role,$ns,$id,$label);
+					$data = $this->ParseStringArray($role);
+					$qname = trim($data["ns"]).":".trim($data["id"]);
 					if($qname != "mi:0000") {
 						parent::addRDF(
 							parent::triplify($iid,parent::getVoc()."interactor_$p"."_biological_role",$qname)
@@ -225,7 +232,8 @@ class irefindexParser extends Bio2RDFizer
 				// experimental role
 				$role = $a[18+$i];
 				if($role != '-') {
-					$qname = $this->ParseString($role,$ns,$id,$label);
+					$data = $this->ParseStringArray($role);
+					$qname = trim($data["ns"]).":".trim($data["id"]);
 					if($qname != "mi:0000") {
 						parent::addRDF(
 							parent::triplify($iid,parent::getVoc()."interactor_$p"."_experimental_role",$qname)
@@ -235,7 +243,8 @@ class irefindexParser extends Bio2RDFizer
 				// interactor type
 				$type = $a[20+$i];
 				if($type != '-') {
-					$qname = $this->ParseString($type,$ns,$id,$label);
+					$data = $this->ParseStringArray($type);
+					$qname = trim($data["ns"]).":".trim($data["id"]);
 					parent::addRDF(
 						parent::triplify($interactor,"rdf:type",$qname)
 					);
@@ -253,7 +262,8 @@ class irefindexParser extends Bio2RDFizer
 					);
 					$tax = $a[9+($i-2)];
 					if($tax && $tax != '-' && $tax != '-1') {
-						$taxid = $this->ParseString($tax,$ns,$id,$label);
+						$data = $this->ParseStringArray($tax);
+						$taxid = trim($data["ns"]).":".trim($data["id"]);
 						parent::addRDF(
 							parent::triplify($irogid,parent::getVoc()."x-taxonomy",$taxid)
 						);
@@ -262,7 +272,9 @@ class irefindexParser extends Bio2RDFizer
 
 				$list = explode("|",$a[3]);
 				foreach($list AS $item) {
-					$qname = $this->ParseString($item,$ns,$id,$label);
+					$data = $this->ParseStringArray($item);
+					$ns = trim($data["ns"]);
+					$qname = $ns.":".trim($data["id"]);
 					if($ns && $ns != 'irefindex_rogid' && $ns != 'irefindex_irogid') {
 						parent::addRDF(
 							parent::triplify($qname,parent::getVoc()."taxon-sequence-identical-group",$irogid)
@@ -285,7 +297,9 @@ class irefindexParser extends Bio2RDFizer
 
 				$list = explode("|",$a[3]);
 				foreach($list AS $item) {
-					$qname = $this->ParseString($item,$ns,$id,$label);
+					$data = $this->ParseStringArray($item);
+					$ns = trim($data["ns"]);
+					$qname = $ns.":".trim($data["id"]);
 					if($ns && $ns != 'crogid' && $ns != 'icrogid') {
 						parent::addRDF(
 							parent::triplify($qname,parent::getVoc()."taxon-sequence-similar-group",$icrogid)
@@ -298,7 +312,8 @@ class irefindexParser extends Bio2RDFizer
 			$list = explode("|",$a[8]);
 			foreach($list AS $item) {
 				if($item == '-' && $item != 'pubmed:0') continue;
-				$qname = $this->ParseString($item,$ns,$id,$label);
+				$data = $this->ParseStringArray($item);
+				$qname = trim($data["ns"]).":".trim($data["id"]);
 				parent::addRDF(
 					parent::triplify($iid,parent::getVoc()."article",$qname)
 				);
@@ -306,7 +321,8 @@ class irefindexParser extends Bio2RDFizer
 			
 			// MI interaction type
 			if($a[11] != '-' && $a[11] != 'NA') {
-				$qname = $this->ParseString($a[11],$ns,$id,$label);
+				$data = $this->ParseStringArray($a[11]);
+				$qname = trim($data["ns"]).":".trim($data["id"]);
 				parent::addRDF(parent::triplify($iid,"rdf:type",$qname));
 				if(!isset($defined[$qname])) {
 					$defined[$qname] = '';
@@ -318,7 +334,8 @@ class irefindexParser extends Bio2RDFizer
 			
 			// source
 			if($a[12] != '-') {
-				$qname = $this->ParseString($a[12],$ns,$id,$label);
+				$data = $this->ParseStringArray($a[12]);
+				$qname = trim($data["ns"]).":".trim($data["id"]);
 				parent::addRDF(
 					parent::triplify($iid,parent::getVoc()."source",$qname)
 				);
@@ -327,7 +344,9 @@ class irefindexParser extends Bio2RDFizer
 			// confidence
 			$list = explode("|",$a[14]);
 			foreach($list AS $item) {
-				$this->ParseString($item,$ns,$id,$label);
+				$data = $this->ParseStringArray($item);
+				$ns = trim($data["ns"]);
+				$id = trim($data["id"]);
 				if($ns == 'lpr') {
 					//  lowest number of distinct interactions that any one article reported
 					parent::addRDF(
@@ -355,7 +374,8 @@ class irefindexParser extends Bio2RDFizer
 
 			// host organism
 			if($a[28] != '-') {
-				$qname = $this->ParseString($a[28],$ns,$id,$label);
+				$data = $this->ParseStringArray($a[28]);
+				$qname = trim($data["ns"]).":".trim($data["id"]);
 				parent::addRDF(
 					parent::triplify($iid,parent::getVoc()."host-organism",$qname)
 				);
@@ -382,31 +402,50 @@ class irefindexParser extends Bio2RDFizer
 		}
 	}
 
-	function ParseString($string,&$ns,&$id,&$label)
-	{
+	function ParseStringArray($string){
 		parent::getRegistry()->parseQName($string,$ns,$str);
-		$this->Parse4IDLabel($str,$id,$label);
-		$label = trim($label);
-		$id = trim($id);
-		if($ns == 'other' || $ns == 'xx') $ns = '';
-		if($ns == 'complex') $ns = 'rogid';
-		if($ns == 'hpr' || $ns == 'lpr' || $ns == 'hp' || $ns == 'np') return '';
 		
-		if($ns) {
-			return "$ns:$id";
-		} else return '';
+		$rm = $this->ParseIDLabelArray($str);
+		
+		if($rm !== null){
+			$id = trim($rm["id"]);
+			$label = trim($rm["label"]);
+			if($ns == 'other' || $ns == 'xx') $ns = '';
+			if($ns == 'complex') $ns = 'rogid';
 
+			$returnMe = array();
+			$returnMe["label"] = $label;
+			$returnMe["id"] = $id;
+			$returnMe["ns"] = $ns;
+			return $returnMe;
+		} else {
+			return null;
+		}
 	}
 
-	function Parse4IDLabel($str,&$id,&$label)
-	{
-		$id='';$label='';
-		preg_match("/([^()]+)\((.*)\)/",$str,$m);
-		if(isset($m[1])) {
+	function ParseIDLabelArray($string){
+		preg_match("/([^()\s]+)(\((.*)\)|(\s*.*))/", $string, $m);
+		if(isset($m[1])){
 			$id = $m[1];
-			$label = $m[2];
+			$label = '';
+			if(isset($m[3]) && !empty($m[3])){
+				$label = $m[3];
+			} elseif(isset($m[4]) && !empty($m[4])){
+				$label = $m[4];
+			}
+			$first = substr($label, 0, 1);
+			if($first == "("){
+				$label = trim($label, "()");
+				if(strpos($label, "(")){
+					$label .= ")";
+				}
+			}
+			$returnMe = array();
+			$returnMe["id"] = $id;
+			$returnMe["label"] = $label;
+			return $returnMe;
 		} else {
-			$id = $str;
+			return null;
 		}
 	}
 	
