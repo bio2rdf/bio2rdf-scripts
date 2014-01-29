@@ -137,7 +137,7 @@ class AffymetrixParser extends Bio2RDFizer
 			$source_file = (new DataResource($this))
 			->setURI($rfile)
 			->setTitle("Affymetrix Probeset : $base_file")
-			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+			->setRetrievedDate( date ("Y-m-d\TH:i:sP", filemtime($lfile)))
 			->setFormat("text/tab-separated-value")
 			->setFormat("application/zip")	
 			->setPublisher("http://affymetrix.com")
@@ -150,7 +150,7 @@ class AffymetrixParser extends Bio2RDFizer
 			
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
-			$date = date ("Y-m-d\TG:i:s\Z");
+			$date = date ("Y-m-d\TH:i:sP");
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
@@ -190,8 +190,15 @@ class AffymetrixParser extends Bio2RDFizer
 				$a = explode('=',trim($l));
 				$r = $this->getVoc().substr($a[0],2);
 				if(isset($a[1])) {
+					$v = $a[1];
+					if($r == "affymetrix_vocabulary:genome-version-create_date") {
+						$x = explode("-",$a[1]);
+						if($x[2] == "00") $x[2] = "01";
+						$v = implode("-",$x);
+					}		
+
 					parent::addRDF( 
-						parent::triplifyString( parent::getDatasetURI(), $r, $a[1]).
+						parent::triplifyString( parent::getDatasetURI(), $r, $v).
 						parent::describe($r,"$r")
 					);
 				}
@@ -333,8 +340,8 @@ class AffymetrixParser extends Bio2RDFizer
 								array_shift($m);
 								list($m,$day,$year) = $m;
 								$month = $this->getMonth($m);
+								if(!$day || $day == "0") $day = "01";
 								$date = $year."-".$month."-".str_pad($day,2,"0",STR_PAD_LEFT)."T00:00:00Z";
-								
 								parent::addRDF(
 									parent::triplifyString($qname,$this->getVoc().$rel,$date,"xsd:dateTime").
 									parent::describeProperty($this->getVoc().$rel,"$rel"));
