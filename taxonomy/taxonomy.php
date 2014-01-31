@@ -125,7 +125,7 @@ class TaxonomyParser extends Bio2RDFizer{
 				$source_file = (new DataResource($this))
 					->setURI($value['file_url'])
 					->setTitle('NCBI Taxonomy - '.$key)
-					->setRetrievedDate(date("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
+					->setRetrievedDate(date("Y-m-d\TH:i:sP", filemtime($ldir.$lfile)))
 					->setFormat('text/tab-separated-value')
 					->setFormat('application/zip')
 					->setPublisher('http://www.ncbi.nlm.nih.gov')
@@ -137,12 +137,12 @@ class TaxonomyParser extends Bio2RDFizer{
 
 				$prefix = parent::getPrefix();
 				$bVersion = parent::getParameterValue('bio2rdf_release');
-				$date = date("Y-m-d\TG:i:s\Z");
+				$date = date("Y-m-d\TH:i:sP");
 				$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $key")
 				->setSource($source_file->getURI())
-				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/ncbi_taxonomy_parser.php")
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/taxonomy/taxonomy.php")
 				->setCreateDate($date)
 				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
 				->setPublisher("http://bio2rdf.org")
@@ -162,20 +162,10 @@ class TaxonomyParser extends Bio2RDFizer{
 							trigger_error("Unable to get pointer to $fn in $zinfile");
 							exit("failed\n");
 						}
-						//ensure that there is a slash between directory name and filename
-						if(substr($odir, -1) == "/"){
-							$gzoutfilename = $odir.$k;
-						} else {
-							$gzoutfilename = $odir."/".$k;
-						}
-						$gzoutfile = $gzoutfilename.".nt";
+						$gzoutfile = $odir."taxonomy-$k".".".parent::getParameterValue('output_format');
 
 						//set the write file
-						$gz=false;
-						if(parent::getParameterValue('output_format', 'gz')) {
-							$gzoutfile .= '.gz';
-							$gz = true;
-						}
+						$gz= strstr(parent::getParameterValue('output_format'), 'gz')?true:false;
 						parent::setReadFile($ldir.$lfile);
 						parent::getReadFile()->SetFilePointer($fpin);
 						parent::setWriteFile($gzoutfile, $gz);
@@ -183,7 +173,7 @@ class TaxonomyParser extends Bio2RDFizer{
 						$this->$k();
 						$this->GetWriteFile()->Close();
 						echo "done!".PHP_EOL;
-
+						parent::clear();
 					}//if $k
 				}//foreach
 				
