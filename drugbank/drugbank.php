@@ -104,12 +104,12 @@ class DrugBankParser extends Bio2RDFizer
 			$source_version = parent::getDatasetVersion();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$prefix = parent::getPrefix();
-			$date = date ("Y-m-d\TG:i:s\Z");
+			$date = date ("Y-m-d\TH:i:sP");
 			// dataset description
 			$source_file = (new DataResource($this))
 				->setURI($rfile)
 				->setTitle("DrugBank ($file)")
-				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($indir.$file)))
+				->setRetrievedDate( date ("Y-m-d\TH:i:sP", filemtime($indir.$file)))
 				->setFormat("application/xml")
 				->setFormat("application/zip")
 				->setPublisher("http://drugbank.ca")
@@ -708,6 +708,7 @@ class DrugBankParser extends Bio2RDFizer
                      $ddi_id = parent::getRes().$dbid."_".$ddi->drug;
                      parent::addRDF(
                         parent::triplify("drugbank:".$ddi->drug,parent::getVoc()."ddi-interactor-in","".$ddi_id).
+                        parent::triplify("drugbank:".$dbid,parent::getVoc()."ddi-interactor-in","".$ddi_id).
                         parent::describeIndividual($ddi_id,"DDI between $name and ".$ddi->name." - ".trim($this->SafeLiteral($ddi->description)),parent::getVoc()."Drug-Drug-Interaction").
 		 	parent::describeClass(parent::getVoc()."Drug-Drug-Interaction","drug-drug interaction")
                      );
