@@ -50,7 +50,7 @@ class Bio2RDFApp extends Application
 		require($file);
 		$parser_class = str_replace(".","",$parser_name)."Parser";	
 		$parser = new $parser_class($argv);
-				
+set_time_limit(0);				
 		$start = microtime(true);
 		$parser->Run();
 		
@@ -81,6 +81,7 @@ class Bio2RDFApp extends Application
 	}
 }
 
+set_time_limit(0);
 set_error_handler('error_handler');
 $a = new Bio2RDFApp($argv);
 ?>
