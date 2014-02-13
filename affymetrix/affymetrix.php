@@ -136,8 +136,8 @@ class AffymetrixParser extends Bio2RDFizer
 			// dataset description
 			$source_file = (new DataResource($this))
 			->setURI($rfile)
-			->setTitle("Affymetrix Probeset : $base_file")
-			->setRetrievedDate( date ("Y-m-d\TH:i:sP", filemtime($lfile)))
+			->setTitle("Affymetrix Probeset: $base_file")
+			->setRetrievedDate( parent::getDate(filemtime($lfile)))
 			->setFormat("text/tab-separated-value")
 			->setFormat("application/zip")	
 			->setPublisher("http://affymetrix.com")
@@ -150,10 +150,10 @@ class AffymetrixParser extends Bio2RDFizer
 			
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
-			$date = date ("Y-m-d\TH:i:sP");
+			$date = parent::getDate();
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $base_file ")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/affymetrix/affymetrix.php")
 				->setCreateDate($date)
@@ -170,6 +170,7 @@ class AffymetrixParser extends Bio2RDFizer
 			else $output_file->setFormat("application/n-quads");
 			
 			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+//echo  $dataset_description;exit;
 		}
 		// write the dataset description
 		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
