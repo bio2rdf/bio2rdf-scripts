@@ -135,7 +135,7 @@ class SIDERParser extends Bio2RDFizer
 			$source_file = (new DataResource($this))
 				->setURI($rfile)
 				->setTitle("SIDER Side Effect resource ($file.tsv.gz")
-				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setRetrievedDate( parent::getDate(filemtime($lfile)))
 				->setFormat("text/tab-separated-value")
 				->setFormat("application/gzip")	
 				->setPublisher("http://sideeffects.embl.de/")
@@ -148,7 +148,7 @@ class SIDERParser extends Bio2RDFizer
 
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
-			$date = date ("Y-m-d\TG:i:s\Z");
+			$date = parent::getDate();
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $file")
