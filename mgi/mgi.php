@@ -35,7 +35,7 @@ class MGIParser extends Bio2RDFizer
 {
         function __construct($argv) {
                 parent::__construct($argv, "mgi");
-                parent::addParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|MGI_PhenoGenoMP','all','all or comma-separated list to process');
+                parent::addParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|MGI_PhenoGenoMP|MRK_Sequence','all','all or comma-separated list to process');
                 parent::addParameter('download_url', false, null,'ftp://ftp.informatics.jax.org/pub/reports/' );
                 parent::initialize();
         }
@@ -71,6 +71,7 @@ class MGIParser extends Bio2RDFizer
                         parent::GetWriteFile()->Close();
                         parent::GetReadFile()->Close();
                         echo "Done".PHP_EOL;
+			parent::clear();
 
                         $source_file = (new DataResource($this))
                                 ->setURI($rfile)
@@ -88,7 +89,7 @@ class MGIParser extends Bio2RDFizer
                         $date = date ("Y-m-d\TG:i:s\Z");
                         $output_file = (new DataResource($this))
                                 ->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
-                                ->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+                                ->setTitle("Bio2RDF v$bVersion RDF version of $item in $prefix")
                                 ->setSource($source_file->getURI())
                                 ->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mgi/mgi.php")
                                 ->setCreateDate($date)
@@ -105,6 +106,7 @@ class MGIParser extends Bio2RDFizer
                         else $output_file->setFormat("application/n-quads");
 
                         $dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			
 
                 }//foreach
 
@@ -173,8 +175,8 @@ class MGIParser extends Bio2RDFizer
                                 $marker_id = strtolower($a[5]);
                                 parent::AddRDF(
                                         parent::triplify($id, $this->getVoc()."genetic-marker", $marker_id).
-                                        parent::triplify($marker_id, "rdf:type", $this->getVoc()."Mouse-Marker").
-					parent::describeClass($this->getVoc()."Mouse-Marker","MGI Marker")
+                                        parent::triplify($marker_id, "rdf:type", $this->getVoc()."MGI-Marker").
+					parent::describeClass($this->getVoc()."MGI-Marker","MGI Marker")
                                 );              
                                 if(trim($a[6])) {
                                         parent::AddRDF(
@@ -297,47 +299,73 @@ class MGIParser extends Bio2RDFizer
         
 
 
-        function HMD_HGNC_Accession()
+        function MRK_Sequence()
         {
-                /*
-                MGI Marker Accession ID 
-                Mouse Marker Symbol     
-                Mouse Marker Name       
-                Mouse Entrez Gene ID    
-                HGNC ID 
-                HGNC Human Marker Symbol        
-                Human Entrez Gene ID
-                */      
+                
+/*
+0-MGI Marker Accession ID	
+1-Marker Symbol	
+2-Status	
+3-Marker Type	
+4-Marker Name	
+5-cM Position	
+6-Chromosome	
+7-Genome Coordinate Start
+8-Genome Coordinate End	
+9-Strand	
+10-GenBank Accession IDs (pipe-delimited)	
+11-RefSeq Transcript ID (if any)	
+12-VEGA Transcript ID (if any)	
+13-Ensembl Transcript ID (if any)	
+14-UniProt ID (if any)	
+15-TrEMBL ID (if any)	
+16-VEGA protein ID (if any)	
+17-Ensembl protein ID (if any)	
+18-RefSeq protein ID (if any)	
+19-Unigene ID (if any)
+*/
+		$cols = 20;
                 $line = 0;
-                while($l = $this->GetReadFile()->Read(50000)) {
+		$h = $this->getReadFile()->read(50000);
+                while($l = $this->GetReadFile()->Read(500000)) {
                         $a = explode("\t",$l);
                         $line ++;
-                        if(count($a) != 7) {
-                                echo "Expecting 7 columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
+                        if(count($a) != $cols) {
+                                echo "Expecting $cols columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
                                 continue;
                         }
                         
-                        $id = "mgi_resource:".$line;
-                        $mgi_id  = strtolower($a[0]);
-                        $ncbigene_id = "geneid:".trim($a[6]);
-                        
-                        $id_label = "mgi id";
-                        $id_label_class = "Orthologous-Relationship for ".$id;
+                        $id  = strtolower($a[0]);
                         parent::AddRDF(
-                                parent::describeIndividual($id, $id_label, $this->getVoc()."Orthologous-Relationship").
-                                parent::describeClass($this->getVoc()."Orthologous-Relationship", $id_label_class).
-                                parent::triplify($id, $this->getVoc()."x-mgi", "mgi:".$mgi_id).
-                                parent::triplify($mgi_id, $this->getVoc()."x-mgi", "mgi:".$mgi_id).
-                                parent::describeIndividual($mgi_id, null, null).
-                                parent::triplify($id, $this->getVoc()."x-ncbigene", $ncbigene_id)
+                                parent::describeIndividual($id, $a[1], $this->getVoc()."MGI-Marker").
+                                parent::describeClass($this->getVoc()."MGI-Marker", "MGI Marker").
+                                parent::triplifyString($id, parent::getVoc()."symbol", $a[1]).
+                                parent::triplifyString($id, parent::getVoc()."status", $a[2]).
+                                parent::triplify($id, "rdf:type", $this->getRes().str_replace(" ","-",$a[3])).
+                                parent::triplifyString($id, parent::getVoc()."name", $a[4]).
+                                parent::triplifyString($id, parent::getVoc()."cm-position", $a[5]).
+                                parent::triplifyString($id, parent::getVoc()."chromosome", $a[6])
                         );
-                        if($a[4]){
-                                parent::AddRDF(
-                                        parent::triplify($ncbigene_id, "mgi_vocabulary:x-hgnc", strtolower($a[4]))
-                                );
-                        }
+			$start_pos = 10;
+			$list = array("genbank","refseq-transcript","vega-transcript","ensembl-transcript","uniprot","trembl","vega-protein","ensembl-protein","refseq-protein","unigene");
+			$list_len = count($list);
+			for($i=0;$i<$list_len;$i++) {
+				$value = trim($a[$i+$start_pos]);
+				if($value) {
+					$rel = $list[$i];
+					$b = explode("-",$list[$i]);
+					$ns = $b[0];
+					
+					$ids = explode("|",$value);
+					foreach($ids AS $mid) {
+						parent::addRDF(
+	        		                        parent::triplify($id, $this->getVoc()."x-$rel", "$ns:$mid")
+						);
+					}
+				}
+			}
+	                $this->writeRDFBufferToWriteFile();
                 }
-                $this->WriteRDFBufferToWriteFile();     
         } //closes function
         
         function MGI_Strain()
@@ -356,6 +384,7 @@ class MGIParser extends Bio2RDFizer
                         $id_label = $a[1];
                         parent::AddRDF(
                                 parent::describeIndividual($id, $id_label, $this->getVoc()."Strain").
+				parent::describeClass($this->getVoc()."Strain", "MGI Strain").
                                 parent::triplify($id, $this->getVoc()."strain-type", "mgi_vocabulary:".str_replace(" ","-",strtolower($a[2])))
                         );
                 }
