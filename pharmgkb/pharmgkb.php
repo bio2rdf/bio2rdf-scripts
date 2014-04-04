@@ -40,7 +40,7 @@ class PharmGKBParser extends Bio2RDFizer
 	function __construct($argv) {
 		parent::__construct($argv, "pharmgkb");
 		$this->AddParameter('files',true,'all|drugs|genes|diseases|relationships|rsid|variant_annotations|offsides|twosides','all','all or comma-separated list of files to process'); /** pathways **/
-		$this->AddParameter('download_url',false,null,'http://www.pharmgkb.org/commonFileDownload.action?filename=');
+		$this->AddParameter('download_url',false,null,'https://www.pharmgkb.org/download.do?dlCls=common&objId=');
 		parent::initialize();
 	}
 	
@@ -55,8 +55,8 @@ class PharmGKBParser extends Bio2RDFizer
 		}
 	}
 	
-	function download(){
-
+	function download()
+	{
 		// get the file list
 		if($this->GetParameterValue('files') == 'all') {
 			$files = explode("|",$this->GetParameterList('files'));
@@ -75,22 +75,30 @@ class PharmGKBParser extends Bio2RDFizer
 					echo "Contact PharmGKB to get access to variants/clinical variants; save file as annotations.zip".PHP_EOL;
 					continue;
 				}
+			} else if($file == "relationships") {
+				$lfile = $ldir."relationships.zip";
+				if(!file_exists($lfile)) {
+					echo "Contact PharmGKB to get access to relationships; save file as relationships.zip".PHP_EOL;
+					continue;
+				}				
 			} else {
 				$lfile = $ldir.$file.".zip";
 			}
 			
 			// download
 			$rfile = $rdir.$file.".zip";
+			echo "Downloading $file ...";
 			if($file == 'offsides') {
-				Utils::DownloadSingle('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip', $lfile);
+				Utils::DownloadSingle('https://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip', $lfile);
 			} elseif($file == 'twosides') {
-				Utils::DownloadSingle('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip', $lfile);
+				Utils::DownloadSingle('https://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip', $lfile);
 			} elseif($file == 'pathways') {
-				Utils::DownloadSingle('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'-tsv.zip', $lfile);
+				Utils::DownloadSingle('https://www.pharmgkb.org/download.do?dlCls=common&objId='.$file.'-tsv.zip', $lfile);
 			} else {
-				Utils::DownloadSingle('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.'.zip', $lfile);
+				Utils::DownloadSingle('https://www.pharmgkb.org/download.do?dlCls=common&objId='.$file.'.zip', $lfile);
 			}
 					
+			echo "done.".PHP_EOL;
 		}
 	}
 
@@ -198,7 +206,7 @@ class PharmGKBParser extends Bio2RDFizer
 					$fnx = $file;	
 					echo "processing $fnx ... ";
 				}
-					
+	
 				$this->$fnx();
 				parent::writeRDFBufferToWriteFile();
 				echo "done!".PHP_EOL;
@@ -252,7 +260,6 @@ class PharmGKBParser extends Bio2RDFizer
 	
 	}
 
-	//PharmGKB Accession Id   Entrez Id       Ensembl Id      Name    Symbol  Alternate Names Alternate Symbols       Is VIP  Has Variant Annotation  Cross-references
 	/*
 	0 PharmGKB Accession Id	
 	1 Entrez Id	
@@ -261,15 +268,18 @@ class PharmGKBParser extends Bio2RDFizer
 	4 Symbol	
 	5 Alternate Names	
 	6 Alternate Symbols	
-	7 Is Genotyped	
-	8 Is VIP	
-	9 Has Variant Annotation
+	7 Is VIP	
+	8 Has Variant Annotation
+	9 cross-references
 	10 Has CPIC Dosing Guideline
+	11 Chromosome
+	12 Chromosome Start
+	13 Chromosome End
 	*/
 	function genes()
 	{
 		$h = explode("\t",parent::getReadFile()->read());
-		$expected_columns = 11;
+		$expected_columns = 14;
 		if(($n = count($h)) != $expected_columns) {
 			trigger_error("Found $n columns in gene file - expecting $expected_columns!", E_USER_WARNING);
 			return false;			
@@ -277,7 +287,6 @@ class PharmGKBParser extends Bio2RDFizer
 
 		while($l = parent::getReadFile()->read(200000)) {
 			$a = explode("\t",$l);
-			
 			$id = parent::getNamespace().$a[0];
 
 			//add gene to gene_names_array for cross reference in clinical annotation function
@@ -291,20 +300,19 @@ class PharmGKBParser extends Bio2RDFizer
 			// link data
 			parent::addRDF(
 				parent::QQuadO_URL($id, "rdfs:seeAlso", "http://pharmgkb.org/gene/".$a[0]).
-				parent::QQuadO_URL($id, "owl:sameAs", "http://www4.wiwiss.fu-berlin.de/diseasome/resource/genes/".$a[0]).
-				parent::QQuadO_URL($id, "owl:sameAs", "http://dbpedia.org/resource/".$a[0]).
-				parent::QQuadO_URL($id, "owl:sameAs", "http://purl.org/net/tcm/tcm.lifescience.ntu.edu.tw/id/gene/".$a[0])
+				parent::QQuadO_URL($id, "rdfs:seeAlso", "http://www4.wiwiss.fu-berlin.de/diseasome/resource/genes/".$a[0]).
+				parent::QQuadO_URL($id, "rdfs:seeAlso", "http://dbpedia.org/resource/".$a[0])
 			);
 			
 			if($a[1]){
 				parent::addRDF(
-					parent::triplify($id, "owl:sameAs", "ncbigene:".$a[1])
+					parent::triplify($id, parent::getVoc()."x-ncbigene", "ncbigene:".$a[1])
 				);
 			} 
 
 			if($a[2]){
 				parent::addRDF(
-					parent::triplify($id, "owl:sameAs", "ensembl:".$a[2])
+					parent::triplify($id, parent::getVoc()."x-ensembl", "ensembl:".$a[2])
 				);
 			}
 
@@ -350,13 +358,13 @@ class PharmGKBParser extends Bio2RDFizer
 					parent::describeProperty(parent::getVoc()."is-vip", "Relationship between a PharmGKB gene and its vip status")
 				);
 			}
-
 			if($a[8]){
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."is-genotyped", $a[8]).
-					parent::describeProperty(parent::getVoc()."is-genotyped", "Relationship between a PharmGKB gene and its genotyped status")
+					parent::triplifyString($id, parent::getVoc()."has-variant-annotation", $a[8]).
+					parent::describeProperty(parent::getVoc()."has-variant-annotation", "Relationship between a PharmGKB gene and whether it has a variant annotation")
 				);
 			}
+
 			if($a[9]) {
 				$b = explode(",",$a[9]);
 				foreach($b AS $xref) {
@@ -364,28 +372,43 @@ class PharmGKBParser extends Bio2RDFizer
 					if(!$xref) continue;
 					
 					$url = false;
-					$x = $this->MapXrefs($xref, $url);
+					$x = $this->MapXrefs($xref, $url, $ns, $id2);
 					if($url == true) {
 						parent::addRDF(
-							parent::QQuadO_URL($id, parent::getVoc()."xref", $x)
+							parent::QQuadO_URL($id, parent::getVoc()."x-$ns", $x)
 						);
 						
 					} else {
 						parent::addRDF(
-							parent::triplify($id, parent::getVoc()."xref", $x)
+							parent::triplify($id, parent::getVoc()."x-$ns", $x)
 						);
 					}
 				}
 			}
+			if($a[10]) {
+				parent::addRDF(
+					parent::triplifyString($id,parent::getVoc()."cpic-dosing-guideline",$a[10])
+				);
+			}
+
+			if($a[11]) {
+				parent::addRDF(
+					parent::triplifyString($id,parent::getVoc()."chromosome",$a[11]).
+					parent::describeProperty(parent::getVoc()."chrosomome","Relationship between a PharmGKB gene and its chromosomal position").
+					parent::triplifyString($id,parent::getVoc()."chromosome-start",$a[12]).
+					parent::triplifyString($id,parent::getVoc()."chromosome-end",$a[13])
+				);
+			}
 			parent::WriteRDFBufferToWriteFile();
+
 		}
 	}
 
-	function MapXrefs($xref, &$url = false)
+	function MapXrefs($xref, &$url = false, &$ns = null, &$id = null)
 	{
 		$xrefs = array(
 			"humancycgene" => "humancyc",
-			"entrezgene" => "geneid",
+			"entrezgene" => "ncbigene",
 			"refseqdna" => "refseq",
 			"refseqprotein" => "refseq",
 			"refseqrna" => "refseq",
@@ -406,7 +429,8 @@ class PharmGKBParser extends Bio2RDFizer
 		if($ns2) {
 			$id = $id2;
 		}
-		return $ns.":".$id;
+		$qname = "$ns:$id";
+		return $qname;
 	}
 /*
 [0] => PharmGKB Accession Id
@@ -758,7 +782,7 @@ class PharmGKBParser extends Bio2RDFizer
 	6 Evidence	      - VariantAnnotation, Pathway, VIP, ClinicalAnnotation, DosingGuideline, DrugLabel, Annotation
 	7 Association
 	8 Pharmacokinetic		- Y
-	9 P harmacodynamic 	- Y
+	9 Pharmacodynamic 	- Y
 	10 PMIDS
 	*/
 	function relationships()
@@ -766,12 +790,12 @@ class PharmGKBParser extends Bio2RDFizer
 		$declared = '';
 		$hash = ''; // md5 hash list
 		$h = explode("\t", $this->GetReadFile()->Read());
+
 		if(count($h) != 11) {
-			trigger_error("Change in number of columns for relationships file (again)");
+			trigger_error("Change in number of columns for relationships file (again)", E_USER_ERROR);
 			return FALSE;
 		}
-
-		while($l = $this->GetReadFile()->Read(10000)) {
+		while($l = $this->getReadFile()->read(100000)) {
 			$a = explode("\t",$l);
 		
 			// id1
