@@ -92,10 +92,12 @@ class SGDParser extends Bio2RDFizer {
 			}
 			
 			//download all files [except mapping file]
-			if($file !== "mapping") {
+			if($file != "mapping") {
 				$rfile = $rdir.$rfiles[$file];
 				echo "Downloading $file ... ";
 				Utils::DownloadSingle ($rfile, $lfile);
+			} else {
+				file_put_contents($lfile,"");
 			}
 		}
 	}
@@ -142,9 +144,8 @@ class SGDParser extends Bio2RDFizer {
 
 			$rfile = $rdir.$rfiles[$file];
 
-			if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
-				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
-				
+			if(!file_exists($ldir.$lfile) && parent::getParameterValue('download') == false && $file != 'mapping') {
+				trigger_error($ldir.$lfile." not found. Will attempt to download.", E_USER_NOTICE);				
 				Utils::DownloadSingle ($rfile, $ldir.$lfile);
 			}
 			
@@ -175,12 +176,11 @@ class SGDParser extends Bio2RDFizer {
 			echo PHP_EOL;
 
 			// generate the dataset release file
-			echo "Generating dataset description... ".PHP_EOL;
 			// dataset description
 			$source_file = (new DataResource($this))
 				->setURI($rfile)
 				->setTitle("Saccharomyces Genome Database ($file)")
-				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
 				->setFormat("text/tab-separated-value")
 				->setFormat("application/gzip")	
 				->setPublisher("http://www.yeastgenome.org/")
@@ -218,6 +218,7 @@ class SGDParser extends Bio2RDFizer {
 		parent::setGraphURI($graph_uri);
 
 		//write dataset description to file
+		echo "Generating dataset description... ".PHP_EOL;
 		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
@@ -236,7 +237,7 @@ class SGDParser extends Bio2RDFizer {
 			$rel = "";
 
 			switch($ns) {
-				case "AspGD":
+/*				case "AspGD":
 					$ns = 'aspgd';
 					$rel = $seealso;
 					break;
@@ -252,51 +253,54 @@ class SGDParser extends Bio2RDFizer {
 					$ns = 'dip'; $rel = $sameas;
 					$suf='gp';
 					break;
-				case "EBI":
-					
+*/				case "EBI":					
 					if($type == "UniParc ID") {
 						$ns='uniparc'; 
-						$rel = $sameas;
+//						$rel = $sameas;
 						$suf='gp';
 						break;
 					}
 
 					if($type == "UniProt/Swiss-Prot ID") {
 						$ns='uniprot';
-						$rel=$sameas;
+//						$rel=$sameas;
 						$suf='gp';
 						break;
 					}
 					
 					if($type == "UniProt/TrEMBL ID") {
 						$ns='trembl';
-						$rel=$sameas;
+//						$rel=$sameas;
 						$suf='gp';
 						break;
 					}
 					break;
 				
-				case "EUROSCARF":
+/*				case "EUROSCARF":
 					$ns = 'euroscarf';
 					$rel=$sameas;
 					break;
-				case "GenBank/EMBL/DDBJ":
+*/				case "GenBank/EMBL/DDBJ":
 					$ns = 'genbank';
-					$rel=$sameas;
+//					$rel=$sameas;
 					break;
-				case "GermOnline":
+/*				case "GermOnline":
 					$ns = 'germonline';
 					$rel=$sameas;
 					break;
-				case "IUBMB":
+*/				case "IUBMB":
 					$ns = 'ec';
 					$rel=$seealso;
 					break;
-				case "MetaCyc":
+/*				case "MetaCyc":
 					$ns = 'metacyc';
 					$rel=$seealso;
 					break;
-				case "NCBI":
+				case "PomBase":
+					$ns = 'pombase';
+					$rel=$seealso;
+					break;
+*/				case "NCBI":
 					if($type == "DNA accession ID") {
 						$ns='genbank'; 
 						$rel=$sameas;  
@@ -304,7 +308,7 @@ class SGDParser extends Bio2RDFizer {
 					}
 
 					if($type == "Gene ID") {
-						$ns='geneid';
+						$ns='ncbigene';
 						$rel=$sameas;
 						break;
 					}
@@ -329,10 +333,10 @@ class SGDParser extends Bio2RDFizer {
 						$suf='gp';
 						break;
 					}
-				case "TCDB":
-					$ns = 'tcdb';$rel=$seealso;break;
+//				case "TCDB":
+//					$ns = 'tcdb';$rel=$seealso;break;
 				default:
-					echo "unable to map $ns : $id to $sgdid".PHP_EOL;
+//					echo "unable to map $ns : $id to $sgdid".PHP_EOL;
 			}
 			
 			if($rel) { 
@@ -340,14 +344,14 @@ class SGDParser extends Bio2RDFizer {
 					$qname = "sgd_resource:".$sgdid.$suf;
 					//if the entity is not an sgd entity but a bio2rdf sgd entity, use the sgd_resource namespace
 					$this->addRDF(
-							parent::triplify($qname,$this->getVoc().$rel, "$ns:$id")
+						parent::triplify($qname,$this->getVoc()."x-$ns", "$ns:$id")
 					);
 				
 				} else {
 					//otherwise use the sgd namespace
 					$qname = "sgd:".$sgdid.$suf;
 					$this->addRDF(
-						parent::triplify($qname,$this->getVoc().$rel, "$ns:$id")
+						parent::triplify($qname,$this->getVoc()."x-$ns", "$ns:$id")
 					);
 				}//else
 			}//if
