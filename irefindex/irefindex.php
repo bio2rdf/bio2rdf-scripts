@@ -35,7 +35,7 @@ class irefindexParser extends Bio2RDFizer
 		parent::__construct($argv,"irefindex");
 		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|other','all','all or comma-separated list of files to process');
 		parent::addParameter('version',false,'08122013|03022013|10182011','08122013','dated version of files to download');
-		parent::addParameter('download_url',false,null,'ftp://ftp.no.embnet.org/irefindex/data/current/psi_mitab/MITAB2.6/');
+		parent::addParameter('download_url',false,null,'http://irefindex.org/download/irefindex/data/current/psi_mitab/MITAB2.6/');
 		parent::initialize();
 	}
 	
@@ -67,10 +67,10 @@ class irefindexParser extends Bio2RDFizer
 				$download = true;
 			}
 			
-			$rfile = "ftp://ftp.no.embnet.org/irefindex/data/current/psi_mitab/MITAB2.6/$zip_file";
+			$rfile = $rdir.$zip_file;
 			if($download == true) {
 				echo "downloading $rfile".PHP_EOL;
-				if(FALSE === Utils::Download("ftp://ftp.no.embnet.org",array("/irefindex/data/current/psi_mitab/MITAB2.6/".$zip_file),$ldir)) {
+				if(FALSE === Utils::DownloadSingle($rfile,$lfile)) {
 					trigger_error("Error in Download");
 					return FALSE;
 				}
@@ -124,7 +124,7 @@ class irefindexParser extends Bio2RDFizer
 			$date = date ("Y-m-d\TG:i:s\Z");
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $file")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/irefindex/irefindex.php")
 				->setCreateDate($date)
@@ -161,7 +161,7 @@ class irefindexParser extends Bio2RDFizer
 		}
 
 		// check # of columns
-		while($l = parent::getReadFile()->read(100000)) {
+		while($l = parent::getReadFile()->read(500000)) {
 			$a = explode("\t",trim($l));
 
 			// 13 is the original identifier
