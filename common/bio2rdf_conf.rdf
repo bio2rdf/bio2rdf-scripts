@@ -1,7 +1,0 @@
-@prefix b: <http://bio2rdf.org/bio2rdf_vocabulary:>
-<> b:download_directory <file:///data/download/> ;
-   b:rdf_directory <file:///data/rdf/> ;
-   b:ncbo_apikey "" ;
-
-
- 
