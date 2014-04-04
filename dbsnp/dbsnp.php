@@ -40,7 +40,7 @@ class dbSNPParser extends Bio2RDFizer
 	function __construct($argv) {
 		parent::__construct($argv,'dbsnp');	
 		// set and print application parameters
-		parent::addParameter('files',true,null,'all','all|omim|snp#,snp#');
+		parent::addParameter('files',true,null,'all','all|clinical|omim|snp#,snp#');
 		parent::addParameter('download_url',false,null,'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=snp&retmode=xml&id=','the download url for individual snps');
 		parent::initialize();
 	}
@@ -52,26 +52,30 @@ class dbSNPParser extends Bio2RDFizer
 		
 		// get the snps from pharmgkb
 		$snps = explode(",",parent::getParameterValue('files'));
-		
-		if($snps[0] == 'omim') {
+		if($snps[0] == 'all') $snps[0] = 'clinical'; // for now.
+
+		if($snps[0] == 'clinical') {
+			$snps = $this->getSNPs();
+		} else if($snps[0] == 'omim') {
 			$lfile = $ldir.'snp_omimvar.txt';
 			if(!file_exists($lfile) || (parent::getParameterValue('download') == true)) {
 				$ret = utils::DownloadSingle('ftp://ftp.ncbi.nlm.nih.gov/snp/Entrez/snp_omimvar.txt',$lfile);
 			}
 			$snps = $this->processOMIMVar($lfile);
-		} else if($snp[0] == 'pharmgkb') {
+		} else if($snps[0] == 'pharmgkb') {
 			// @todo get the pharmgkb variants
 			
 		} else if($snps[0] == 'all') {
-			// @todo get the big list somehow
+			// @todo get the big list
 			
 		}
 
 		$outfile = $odir."dbsnp.".parent::getParameterValue('output_format');
 		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 		parent::setWriteFile($outfile, $gz);
-		
-		foreach($snps AS $snp) {
+		$n = count($snps);
+
+		foreach($snps AS $i => $snp) {
 			$file = $snp.'.xml';
 			$infile = $ldir.$file;
 			
@@ -93,7 +97,7 @@ class dbSNPParser extends Bio2RDFizer
 			}
 			
 			// process
-			echo "Processing $snp".PHP_EOL;
+			echo "Processing $snp ($i/$n)".PHP_EOL;
 			$this->parse($infile);
 			parent::writeRDFBufferToWriteFile();
 
@@ -142,6 +146,32 @@ class dbSNPParser extends Bio2RDFizer
 	}
 
 
+	function getSNPs()
+	{
+	
+		$lfile = $this->getParameterValue("indir")."ncbi-snps.xml";
+		if(!file_exists($lfile) || $this->getParameterValue('download') == true) {
+			$retmax = 100000;
+			$url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=snp&retmax=$retmax&term=%22pathogenic%22[Clinical%20Significance]%20or%20%22drug-response%22[Clinical%20Significance]%20or%20%22probable%20pathogenic%22[Clinical%20Significance]%20OR%20%22other%22[Clinical%20Significance]";
+			$ret = file_get_contents($url);
+			if($ret === FALSE) {
+				trigger_error("Unable to get snps from ncbi eutils",E_USER_ERROR);
+				return FALSE;
+			}
+			$ret = file_put_contents($lfile, $ret);
+			if($ret === FALSE) {
+				trigger_error("Unable to save snps into $lfile",E_USER_ERROR);
+				return FALSE;
+			}
+		}
+		// load the file
+		$xml = simplexml_load_file($lfile);
+		$json = json_encode($xml);
+		$a = json_decode($json,TRUE);
+		return $a['IdList']['Id'];
+	}
+
+
 	function parse($file)
 	{	
 		$xml = new CXML($file);		
@@ -152,17 +182,24 @@ class dbSNPParser extends Bio2RDFizer
 		foreach($entry->children() AS $o) {
 			$rsid = "rs".$o->attributes()->rsId;
 			$id = parent::getNamespace().$rsid;
-			
+			$snpclass = parent::getVoc().((string)$o->attributes()->snpClass);
+			$moltype  = parent::getVoc().((string)$o->attributes()->molType);
 			// attributes
 			parent::addRDF(
-				parent::describeIndividual($id,$rsid,(string) str_replace(" ","",(string) $o->attributes()->snpClass)).
-				parent::triplifyString($id,parent::getVoc()."snp-class",(string) $o->attributes()->snpClass).
-				parent::triplifyString($id,parent::getVoc()."snp-type",(string) $o->attributes()->snpType).
-				parent::triplifyString($id,parent::getVoc()."mol-type",(string) $o->attributes()->molType).
-				parent::triplifyString($id,parent::getVoc()."genotype",(string) $o->attributes()->genotype).
-				parent::triplify($id,parent::getVoc()."taxid","ncbitaxon:".(string) $o->attributes()->taxId)
+				parent::describeIndividual($id,$rsid,parent::getVoc().((string) str_replace(" ","-",(string) $o->attributes()->snpClass))).
+				parent::triplify($id,parent::getVoc()."snp-class",$snpclass).
+				parent::describeClass($snpclass,(string)$o->attributes()->snpClass, parent::getVoc()."SNPclass").
+				parent::triplify($id,parent::getVoc()."mol-type",$moltype).
+				parent::describeClass($moltype,(string)$o->attributes()->molType, parent::getVoc()."Moltype").
+				parent::triplify($id,parent::getVoc()."taxid","taxonomy:".(string) $o->attributes()->taxId)
 			);
-			
+			$genotype = (string)$o->attributes()->genoType;
+			if($genotype) {
+				parent::addRDF(
+					parent::triplifyString($id,parent::getVoc()."genotype",parent::getVoc().$genotype, "xsd:bool")
+				);
+			}
+
 			// frequency
 			
 			// create/update
