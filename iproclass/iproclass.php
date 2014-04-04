@@ -28,12 +28,8 @@ SOFTWARE.
  * @author Jose Cruz-Toledo
 */
 
-require(__DIR__.'/../../php-lib/bio2rdfapi.php');
-
-class IProClassParser extends Bio2RDFizer{
-
-	private $version = 2.0;
-
+class IProClassParser extends Bio2RDFizer
+{
 	public function __construct($argv) {
 		parent::__construct($argv, "iproclass");
 		parent::addParameter('files',true,'all','all','files to process');
@@ -48,34 +44,23 @@ class IProClassParser extends Bio2RDFizer{
 		$odir = $this->GetParameterValue('outdir');
 		$rdir = $this->GetParameterValue('download_url');
 
-		//make sure directories end with slash
-		if(substr($ldir, -1) !== "/"){
-			$ldir = $ldir."/";
-		}
-		if(substr($odir, -1) !== "/"){
-			$odir = $odir."/";
-		}
 		$lfile = $ldir.$file;
-		if(!file_exists($lfile) && $this->GetParameterValue('download') == false) {
-			trigger_error($file." not found. Will attempt to download.", E_USER_NOTICE);
+		if(!file_exists($lfile)) {
+			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 			parent::setParameterValue('download',true);
 		}
 		
 		//download all files 
+		$rfile = $rdir.$file;
 		if($this->GetParameterValue('download') == true) {
-			$rfile = $rdir.$file;
 			echo "downloading $file... ";
-			file_put_contents($lfile,file_get_contents($rfile));
+			utils::DownloadSingle($rfile,$lfile);
 		}
+		$ofile = 'iproclass.'.parent::getParameterValue('output_format'); 
+		$gz = (strstr(parent::getParameterValue('output_format'), "gz"))?true:false;
 
-		$ofile = $odir.'iproclass.nt'; 
-		$gz = false;
-		if(strstr(parent::getParameterValue('output_format'), "gz")) {
-			$ofile .= '.gz';
-			$gz = true;
-		}
-		parent::setReadFile($lfile);
-		parent::setWriteFile($ofile, $gz);
+		parent::setReadFile($lfile, true);
+		parent::setWriteFile($odir.$ofile, $gz);
 		echo "processing $file... ";
 		$this->process();
 		echo "done!".PHP_EOL;
@@ -83,18 +68,42 @@ class IProClassParser extends Bio2RDFizer{
 		parent::getWriteFile()->close();
 		
 		echo "generating dataset release file... ";
-		$desc = parent::getBio2RDFDatasetDescription(
-			$this->getPrefix(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/iproclass/iproclass.php", 
-			$this->getBio2RDFDownloadURL($this->getNamespace()),
-			"http://pir.georgetown.edu/iproclass",
-			array("restricted-by-source-license"),
-			"http://pir.georgetown.edu/pirwww/about/linkpir.shtml",
-			parent::getParameterValue('download_url'),
-			parent::getDatasetVersion()
-		);
-		parent::setWriteFile($odir.$this->getBio2RDFReleaseFile($this->GetNamespace()));
-		parent::getWriteFile()->write($desc);
+		$source_file = (new DataResource($this))
+                                ->setURI($rfile)
+                                ->setTitle("iProClass")
+                                ->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+                                ->setFormat("text/tab-separated-value")
+                                ->setFormat("application/gzip")
+                                ->setPublisher("http://pir.georgetown.edu")
+                                ->setHomepage("http://pir.georgetown.edu/iproclass")
+                                ->setRights("use-share-modify")
+                                ->setLicense("http://pir.georgetown.edu/pirwww/about/linkpir.shtml")
+                                ->setDataset("http://identifiers.org/iproclass/");
+
+                        $prefix = parent::getPrefix();
+                        $bVersion = parent::getParameterValue('bio2rdf_release');
+                        $date = date ("Y-m-d\TG:i:s\Z");
+                        $output_file = (new DataResource($this))
+                                ->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+                                ->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+                                ->setSource($source_file->getURI())
+                                ->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/iproclass/iproclass.php")
+                                ->setCreateDate($date)
+                                ->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+                                ->setPublisher("http://bio2rdf.org")
+                                ->setRights("use-share-modify")
+                                ->setRights("by-attribution")
+                                ->setRights("restricted-by-source-license")
+                                ->setLicense("http://creativecommons.org/licenses/by/3.0/")
+                                ->setDataset(parent::getDatasetURI());
+
+                        
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+		$dataset_description = $source_file->toRDF().$output_file->toRDF();
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
 
 		echo "done!".PHP_EOL;
@@ -217,7 +226,7 @@ class IProClassParser extends Bio2RDFizer{
 				$uniref_100_ids = explode("; ", $uniref_100);
 				foreach ($uniref_100_ids as $uniref_100_id) {
 					parent::AddRDF(
-						parent::QQuaadO_URL($id_res, "rdfs:seeAlso", "http://uniprot.org/uniref/".$uniref_100_id)
+						parent::QQuadO_URL($id_res, "rdfs:seeAlso", "http://uniprot.org/uniref/".$uniref_100_id)
 					);
 				}
 			}
@@ -226,7 +235,7 @@ class IProClassParser extends Bio2RDFizer{
 				$uniref_90_ids = explode("; ", $uniref_90);
 				foreach ($uniref_90_ids as $uniref_90_id) {
 					parent::AddRDF(
-						parent::QQuaadO_URL($id_res, "rdfs:seeAlso", "http://uniprot.org/uniref/".$uniref_90_id)
+						parent::QQuadO_URL($id_res, "rdfs:seeAlso", "http://uniprot.org/uniref/".$uniref_90_id)
 					);
 				}
 			}
@@ -235,7 +244,7 @@ class IProClassParser extends Bio2RDFizer{
 				$uniref_50_ids = explode("; ", $uniref_50);
 				foreach ($uniref_50_ids as $uniref_50_id) {
 					parent::AddRDF(
-						parent::QQuaadO_URL($id_res, "rdfs:seeAlso", "http://uniprot.org/uniref/".$uniref_50_id)
+						parent::QQuadO_URL($id_res, "rdfs:seeAlso", "http://uniprot.org/uniref/".$uniref_50_id)
 					);
 				}
 			}
@@ -245,7 +254,7 @@ class IProClassParser extends Bio2RDFizer{
 				foreach ($uniparc_ids as $uniparc_id) {
 					parent::AddRDF(
 						parent::triplify($id_res, $this->getVoc()."x-uniparc", "uniparc:".$uniparc_id).
-						parent::QQuaadO_URL($id_res, "rdfs:seeAlso", "http://uniprot.org/uniparc/".$uniparc_id)
+						parent::QQuadO_URL($id_res, "rdfs:seeAlso", "http://uniprot.org/uniparc/".$uniparc_id)
 					);
 				}
 			}
