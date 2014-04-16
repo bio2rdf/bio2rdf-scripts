@@ -505,7 +505,7 @@ class BioportalParser extends Bio2RDFizer
 				} else if($a[0] == "name") {
 //					$t = parent::triplifyString($tid,"rdfs:label",str_replace(array("\"", "'"), array("","\\\'"), stripslashes($a[1]))." [$tid]");
 					$label = str_replace(array("\"", "'"), array("","\\\'"), stripslashes($a[1]));
-					$t = parent::describeClass($tid,$label,"owl:Class");
+					$t = parent::describeIndividual($tid,$label,"owl:Class");
 					$t .= parent::triplify($tid,"rdfs:isDefinedBy",$ouri);					
 					$min .= $t;
 					$buf .= $t;
