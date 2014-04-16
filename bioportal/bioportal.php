@@ -141,7 +141,7 @@ class BioportalParser extends Bio2RDFizer
 				
 				if($zip) $lz = $lfile;
 				else $lz = "compress.zlib://".$lfile;
-				$rfile2 = $file.'?apikey='.parent::getParameterValue('ncbo_api_key');
+				$rfile2 = $rfile.'?apikey='.parent::getParameterValue('ncbo_api_key');
 
 				$ret = Utils::DownloadSingle($rfile2,$lz,true);
 				if($ret === false) {
