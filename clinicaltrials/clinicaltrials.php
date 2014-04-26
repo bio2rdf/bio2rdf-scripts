@@ -943,8 +943,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 							parent::triplifyString($group_uri,"dc:description",$description)
 						);
 					}
-					// serious events
-					parent::deleteRDF();  // remove me!
+					// events	
 					$event_list = array("serious_events","other_events");
 					foreach($event_list AS $e) {
 						$i = 1;
@@ -982,7 +981,6 @@ class ClinicalTrialsParser extends Bio2RDFizer
 							}
 						}
 					}
-					echo parent::getRDF();exit;
 				}
 					
 			} catch(Exception $e) {
