@@ -710,7 +710,7 @@ class DrugBankParser extends Bio2RDFizer
                         parent::triplify("drugbank:".$ddi->drug,parent::getVoc()."ddi-interactor-in","".$ddi_id).
                         parent::triplify("drugbank:".$dbid,parent::getVoc()."ddi-interactor-in","".$ddi_id).
                         parent::describeIndividual($ddi_id,"DDI between $name and ".$ddi->name." - ".trim($this->SafeLiteral($ddi->description)),parent::getVoc()."Drug-Drug-Interaction").
-		 	parent::describeClass(parent::getVoc()."Drug-Drug-Interaction","drug-drug interaction")
+						parent::describeClass(parent::getVoc()."Drug-Drug-Interaction","drug-drug interaction")
                      );
                  }
              }
