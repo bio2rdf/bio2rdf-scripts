@@ -140,6 +140,7 @@ class DrugBankParser extends Bio2RDFizer
 		$xml = new CXML($ldir,$infile);
 		while($xml->parse("drug") == TRUE) {
 			$this->parseDrugEntry($xml);
+			//break;
 		}
 		unset($xml);
     }
@@ -182,11 +183,15 @@ class DrugBankParser extends Bio2RDFizer
     {
         $id = (string)$x->id;
         $pid = "drugbank:".$id;
+		$lid = parent::getRes().$did."_".$id; // local pivot to keep the action between the drug and target
         $name = (string) $x->name;
 
         parent::addRDF(
             parent::describeIndividual($pid,$name,parent::getVoc().ucfirst($type)).
-			parent::triplify($did,parent::getVoc().$type,$pid)
+			parent::triplify($did,parent::getVoc().$type,$pid).
+			parent::describeIndividual($lid,"$did to $pid relation",parent::getVoc()."$type-relation").
+			parent::triplify($lid,parent::getVoc()."drug",$did).
+			parent::triplify($lid,parent::getVoc()."$type",$pid)
         );
     
         // iterate over all the child nodes
@@ -196,82 +201,67 @@ class DrugBankParser extends Bio2RDFizer
             if(!$v->children()) {
                 
                 // special cases
-                if($k == "references") {
+                if($k == "references") { // for local pivot
                     $a = preg_match_all("/pubmed\/([0-9]+)/",$v,$m);
                     if(isset($m[1])) {
                         foreach($m[1] AS $pmid) {
                             parent::addRDF(
-                                parent::triplify($pid,parent::getVoc()."article","pubmed:".$pmid)
+                                parent::triplify($lid,parent::getVoc()."reference","pubmed:".$pmid)
                             );  
                         }
                     }
                 } else if($v != '') {
-                    parent::addRDF(
-                        parent::triplifyString($pid,parent::getVoc().$k,(string)$v)
-                    );
+					if($k == 'known-action') {  // for local pivot
+						parent::addRDF(
+							parent::triplifyString($lid,parent::getVoc().$k,(string)$v)
+						);
+					} else {
+						parent::addRDF(
+							parent::triplifyString($pid,parent::getVoc().$k,(string)$v)
+						);
+					}
                 }
                 
             } else {
                 // work with nested elements
                 
-                // special cases
-                if($k == "species") {
-                    parent::addRDF(
-                        parent::triplify($pid,parent::getVoc()."species","taxonomy:".$v->{'uniprot-taxon-id'})
-                    );  
-                
-                } else {
-                    // default handling for collections
-                    $found = false;
-                    $list_name = $k;
-                    $item_name = substr($k,0,-1);
-                    foreach($v->children() AS $k2 => $v2) {
+               
+				// default handling for collections
+				$found = false;
+				$list_name = $k;
+				$item_name = substr($k,0,-1);
+				foreach($v->children() AS $k2 => $v2) {
+					if($k2 == "action") {
+						$aid = str_replace(array(" ","/"),"-",$v2);
+						parent::addRDF(
+							parent::describeIndividual($lid,$v2,parent::getVoc()."Action",$v2).
+							parent::triplify($lid,parent::getVoc()."action",parent::getVoc().$aid)
+						);
+					} else {
 						
-                        if(!$v2->children() && $k2 == $item_name) {
-                            parent::addRDF(
-                                parent::triplifyString($pid,parent::getVoc().$item_name,"".$v2)
-                            );
-                            $found = true;
-                        } else {
-							
-							foreach($v2->children() AS $k3 => $v3) {
-								if(!$v3->children()) {
-									parent::addRDF(
-										parent::triplifyString($pid,parent::getVoc().$k3, "".$v3)
-									);
-								} else {
-									 if($k3 == 'external-identifiers') {
-										foreach($v3 AS $k4 => $v4) {
-											$ns = $this->NSMap($v4->resource);
-											$id = (string) $v4->identifier;
-											$id = str_replace("HGNC:","",$id);
-											parent::addRDF(
-												parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
-											);
-										}
-									 } else {
-										// @todo 
-									 }
-								}
+						foreach($v2->children() AS $k3 => $v3) {
+							if(!$v3->children()) {
+								parent::addRDF(
+									parent::triplifyString($pid,parent::getVoc().$k3, "".$v3)
+								);
+							} else {
+								 if($k3 == 'external-identifiers') {
+									foreach($v3 AS $k4 => $v4) {
+										$ns = $this->NSMap($v4->resource);
+										$id = (string) $v4->identifier;
+										$id = str_replace("HGNC:","",$id);
+										parent::addRDF(
+											parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
+										);
+									}
+								 } else {
+									// @todo 
+								 }
 							}
-							
-						
-                            // need special handling
-                            if($k == 'external-identifiers') {
-                                $ns = $this->NSMap($v2->resource);
-                                if($ns == "genecards") $id = str_replace(array(" "),array("_"),$id);
-
-                                parent::addRDF(
-                                    parent::triplify($pid,parent::getVoc()."x-$ns","$ns:$id")
-                                );
-                            } elseif($k == 'pfams') {
-                                parent::addRDF(
-                                    parent::triplify($pid,parent::getVoc()."x-pfam","pfam:".$v2->identifier)
-                                );
-                            }   
-                         } // special handlers
+						}
+				
                     }
-                 } // default handler
+                 } // foreach
             }
          }
     }
