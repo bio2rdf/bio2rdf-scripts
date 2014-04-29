@@ -133,69 +133,6 @@ class DrugBankParser extends Bio2RDFizer
         parent::closeReleaseFile();
 		parent::getWriteFile()->close();
     }
-	
-	function parse_target_ids($ldir,$infile)
-	{
-		/*
-		[0] => ID
-		[1] => Name
-		[2] => Gene Name
-		[3] => GenBank Protein ID
-		[4] => GenBank Gene ID
-		[5] => UniProt ID
-		[6] => Uniprot Title
-		[7] => PDB ID
-		[8] => GeneCard ID
-		[9] => GenAtlas ID
-		[10] => HGNC ID
-		[11] => HPRD ID
-		[12] => Species Category
-		[13] => Species
-		[14] => Drug IDs
-		*/
-		$csv_file = basename($infile,".zip");
-		$lfile = $ldir.$infile;
-		$zin = new ZipArchive();
-		if ($zin->open($lfile) === FALSE) {
-			trigger_error("Unable to open $lfile");
-			exit;
-		}
-		if(($fp = $zin->getStream($csv_file)) === FALSE) {
-			trigger_error("Unable to get $csv_file in ziparchive $lfile");
-			return FALSE;
-		}
-		parent::setReadFile($lfile);
-		parent::getReadFile()->setFilePointer($fp);
-		
-		$header = explode(",",parent::getReadFile()->read());
-		while($l = parent::getReadFile()->read(500000)) {		
-			$a = str_getcsv($l);
-			$tid = 'drugbank_target:'.$a[0];
-			
-			if($a[2] && $a[2] != '""') parent::addRDF(parent::triplifyString($tid,parent::getVoc().'gene-name',$a[2]));
-			if($a[3] && $a[3] != '""') parent::addRDF(parent::triplify($tid,parent::getVoc().'x-gi',"gi:".$a[3]));
-			if($a[4] && $a[4] != '""') parent::addRDF(parent::triplifyString($tid,parent::getVoc().'gene-locus',$a[4]));
-			if($a[5] && $a[5] != '""') {
-				parent::addRDF(parent::triplify($tid,parent::getVoc().'x-uniprot',"uniprot:".$a[5]));
-				if($a[6] && $a[6] != '""') parent::addRDF(parent::triplifyString("uniprot:".$a[5],"rdfs:label",$a[6]));
-			}
-			if($a[7] && $a[7] != '""') parent::addRDF(parent::triplify($tid,parent::getVoc().'x-pdb',"pdb:".$a[7]));
-			if($a[8] && $a[8] != '""') {
-				$a[8] = str_replace(" ","_",$a[8]);
-				parent::addRDF(parent::triplify($tid,parent::getVoc().'x-genecards',"genecards:".$a[8]));
-			}
-			if($a[9] && $a[9] != '""') parent::addRDF(parent::triplify($tid,parent::getVoc().'x-genatlas','genatlas:'.$a[9]));
-			if($a[10] && $a[10] != '""') {
-				if($a[10][0] == "G") $a[10] = "H".$a[10];
-				if($a[10][0] != 'H') $a[10] = 'hgnc:'.$a[10];
-				parent::addRDF(parent::triplify($tid,parent::getVoc().'x-hgnc',$a[10]));
-			}
-			if($a[11] && $a[11] != '""') parent::addRDF(parent::triplify($tid,parent::getVoc().'x-hprd','hprd:'.$a[11]));
-		
-			parent::writeRDFBufferToWriteFile();
-		}
-		parent::getReadFile()->close();
-	}
 
 
     function parse_drugbank($ldir,$infile)
@@ -203,19 +140,53 @@ class DrugBankParser extends Bio2RDFizer
 		$xml = new CXML($ldir,$infile);
 		while($xml->parse("drug") == TRUE) {
 			$this->parseDrugEntry($xml);
-			break;
 		}
 		unset($xml);
     }
+	
+	    
+    function NSMap($source)
+    {
+        $source = strtolower($source);
+        switch($source) {
+            case 'uniprotkb':
+                return 'uniprot';
+            case "pubchem compound":
+                return 'pubchemcompound';
+            case 'pubchem substance':
+                return 'pubchemsubstance';
+            case 'drugs product database (dpd)':
+                return 'dpd';
+            case 'kegg compound':
+            case 'kegg drug':
+                return 'kegg';
+            case 'national drug code directory':
+                return 'ndc';       
+            case 'guide to pharmacology':
+                return 'gtp';
+            case 'human protein reference database (hprd)':
+                return 'hprd';
+            case 'genbank gene database':
+				return 'genbank';
+            case 'genbank protein database':
+                return 'gi';
+            case 'hugo gene nomenclature committee (hgnc)':
+                return 'hgnc';
+                
+            default:
+                return strtolower($source);
+        }
+    }
     
-    function parsePartnerEntry(&$x,$type)
+    function parsePartnerEntry($did, &$x,$type)
     {
         $id = (string)$x->id;
         $pid = "drugbank:".$id;
         $name = (string) $x->name;
 
         parent::addRDF(
-            parent::describeIndividual($pid,$name,parent::getVoc().$type)
+            parent::describeIndividual($pid,$name,parent::getVoc().ucfirst($type)).
+			parent::triplify($did,parent::getVoc().$type,$pid)
         );
     
         // iterate over all the child nodes
@@ -250,18 +221,41 @@ class DrugBankParser extends Bio2RDFizer
                     );  
                 
                 } else {
-                    
                     // default handling for collections
                     $found = false;
                     $list_name = $k;
                     $item_name = substr($k,0,-1);
                     foreach($v->children() AS $k2 => $v2) {
+						
                         if(!$v2->children() && $k2 == $item_name) {
                             parent::addRDF(
                                 parent::triplifyString($pid,parent::getVoc().$item_name,"".$v2)
                             );
                             $found = true;
                         } else {
+							
+							foreach($v2->children() AS $k3 => $v3) {
+								if(!$v3->children()) {
+									parent::addRDF(
+										parent::triplifyString($pid,parent::getVoc().$k3, "".$v3)
+									);
+								} else {
+									 if($k3 == 'external-identifiers') {
+										foreach($v3 AS $k4 => $v4) {
+											$ns = $this->NSMap($v4->resource);
+											$id = (string) $v4->identifier;
+											$id = str_replace("HGNC:","",$id);
+											parent::addRDF(
+												parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
+											);
+										}
+									 } else {
+										// @todo 
+									 }
+								}
+							}
+							
+						
                             // need special handling
                             if($k == 'external-identifiers') {
                                 $ns = $this->NSMap($v2->resource);
@@ -409,16 +403,16 @@ class DrugBankParser extends Bio2RDFizer
 						parent::triplify($did,parent::getVoc()."packager",$pid)
 					);                
                     if(!isset($defined[$pid])) {
-                         $defined[$pid] = '';
-                            parent::addRDF(
-                                parent::describe($pid,"".$item->name[0],null,null)
-                            );
+                        $defined[$pid] = '';
+						parent::addRDF(
+							parent::describe($pid,"".$item->name[0],null,null)
+						);
 
-                            if(strstr($item->url,"http://") && $item->url != "http://BASF Corp."){
-                                parent::addRDF(
-                                    $this->triplify($pid,"rdfs:seeAlso","".$item->url[0])
-                                );
-                            }    
+						if(strstr($item->url,"http://") && $item->url != "http://BASF Corp."){
+							parent::addRDF(
+								$this->triplify($pid,"rdfs:seeAlso","".$item->url[0])
+							);
+						}    
                     }
                  }
              }
@@ -555,13 +549,14 @@ class DrugBankParser extends Bio2RDFizer
          }
      }
 	
+	// partners
 	$partners = array('target','enzyme','transporter','carrier');
     foreach($partners AS $partner) {
 		$plural = $partner.'s';
 		if(isset($x->$plural)) {
 			foreach($x->$plural AS $list) {
 				foreach($list->$partner AS $item) {  
-					$this->parsePartnerEntry($item,$partner);
+					$this->parsePartnerEntry($did,$item,$partner);
 					parent::writeRDFBufferToWriteFile();
 				}
 			}
@@ -625,38 +620,7 @@ class DrugBankParser extends Bio2RDFizer
         
 	parent::writeRDFBufferToWriteFile();
     }
-    
-    function NSMap($source)
-    {
-        $source = strtolower($source);
-        switch($source) {
-            case 'uniprotkb':
-                return 'uniprot';
-            case "pubchem compound":
-                return 'pubchemcompound';
-            case 'pubchem substance':
-                return 'pubchemsubstance';
-            case 'drugs product database (dpd)':
-                return 'dpd';
-            case 'kegg compound':
-            case 'kegg drug':
-                return 'kegg';
-            case 'national drug code directory':
-                return 'ndc';       
-            case 'guide to pharmacology':
-                return 'gtp';
-            case 'human protein reference database (hprd)':
-                return 'hprd';
-            case 'genbank gene database':
-            case 'genbank protein database':
-                return 'genbank';
-            case 'hugo gene nomenclature committee (hgnc)':
-                return 'hgnc';
-                
-            default:
-                return strtolower($source);
-        }
-    }
+
     
     function AddLinkedResource(&$x, $id, $list_name,$item_name,$ns)
     {
