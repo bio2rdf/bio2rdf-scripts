@@ -236,7 +236,6 @@ class ClinicalTrialsParser extends Bio2RDFizer
 	**/
 	function process_file($infile) {
 		$indir = parent::getParameterValue('indir');
-
 		$xml = new CXML($indir,basename($infile));
 		$this->setCheckPoint('file');
 		while($xml->Parse("clinical_study") == TRUE) {
@@ -897,7 +896,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			}
 
 			###############################################################################
-			# mesh terms for the invervention browse
+			# mesh terms for the intervention browse
 			###############################################################################
 			try {
 				$mesh_terms = $root->xpath('//intervention_browse/mesh_term');
@@ -925,6 +924,69 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				echo "There was an error parsing the is_fda_regulated element: $e\n";
 			}
 			
+			################################################################################
+			# events 
+			################################################################################
+			try{
+				$reported_events = @array_shift($root->xpath('//reported_events'));
+				if($reported_events){
+					// groups
+					$groups = @array_shift($reported_events->xpath('./group_list'));
+					foreach($groups AS $group) {
+						$group_id = $group->attributes()->group_id;
+						$group_uri = parent::getRes().$nct_id."/group/".$group_id;
+						$title = $this->getString('//title');
+						$description = $this->getString('//description');
+						parent::addRDF(
+							parent::triplifyString($group_uri,"rdfs:label","$id $title").
+							parent::triplify($group_uri,"rdf:type",parent::getVoc()."Group").
+							parent::triplifyString($group_uri,"dc:description",$description)
+						);
+					}
+					// events	
+					$event_list = array("serious_events","other_events");
+					foreach($event_list AS $e) {
+						$i = 1;
+						$eventtype = @array_shift($reported_events->xpath('./'.$e));
+						$vocab = $this->getString('./default_vocab',$eventtype);
+						$assessment = $this->getString('./default_assessment', $eventtype);
+						$assessment_uri = parent::getVoc().md5($assessment);
+						$categories = @array_shift($eventtype->xpath('./category_list'));
+						foreach($categories AS $category) {
+							$major_title = $this->getString('./title', $category);
+							$events = @array_shift($category->xpath('./event_list'));
+							foreach($events AS $event) {
+								$subtitle = (string) $this->getString('./sub_title',$event);
+								$subtitle_uri = parent::getVoc().md5($subtitle);
+								parent::addRDF(
+									parent::triplifyString($subtitle_uri,"rdfs:label",$subtitle).
+									parent::triplifyString($subtitle_uri,"rdf:type",parent::getVoc()."Event-Type")
+								);
+								
+								foreach($event AS $count) {
+									if(!isset($count->attributes()->group_id)) continue;
+									$count_uri = parent::getRes().$nct_id."/$e/".$i++;
+									$group_uri = parent::getRes().$nct_id."/group/".$count->attributes()->group_id;
+									
+									parent::addRDF(
+										parent::triplifyString($count_uri,"rdfs:label", "$subtitle").
+										parent::triplify($count_uri,"rdf:type",$subtitle_uri).
+										parent::triplify($count_uri,parent::getVoc()."group",$group_uri).
+										parent::triplify($count_uri,parent::getVoc()."default-assessment",$assessment_uri).
+										parent::triplifyString($count_uri,parent::getVoc()."number-events",$count->attributes()->events).
+										parent::triplifyString($count_uri,parent::getVoc()."subjects-affected",$count->attributes()->subjects_affected).
+										parent::triplifyString($count_uri,parent::getVoc()."subjects-at-risk",$count->attributes()->subjects_at_risk)
+									);
+								}
+							}
+						}
+					}
+				}
+					
+			} catch(Exception $e) {
+				echo "Error in parsing reported events".PHP_EOL;
+			}
+
 			parent::writeRDFBufferToWriteFile();
 		}
 		$this->setCheckPoint('record');
