@@ -683,8 +683,11 @@ class MeshParser extends Bio2RDFizer{
 				}
 				if($k == "MN"){
 					foreach($v as $kv => $vv){
+						$vid = parent::getNamespace().$vv;
+						$vlabel = utf8_encode(htmlspecialchars($vv));
 						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$qde['MN'], utf8_encode(htmlspecialchars($vv))).
+							parent::describeIndividual($vid,$vlabel,parent::getVoc()."Tree-Entry",$vlabel).
+							parent::triplify($dr_res, $this->getVoc().$qde['MN'], $vid).
 							parent::describeProperty($this->getVoc().$qde['MN'], "Relationship between a descriptor record and its MeSH Tree Number")
 						);
 					}
