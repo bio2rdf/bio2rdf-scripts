@@ -791,8 +791,11 @@ class MeshParser extends Bio2RDFizer{
 				}
 				if($k == "ST"){
 					foreach($v as $kv => $vv){
-						parent::AddRDF(
-							parent::triplifyString($dr_res, $this->getVoc().$qde['ST'], utf8_encode(htmlspecialchars($vv))).
+                                                $vid = parent::getNamespace().$vv;
+                                                $vlabel = utf8_encode(htmlspecialchars($vv));
+  						parent::AddRDF(
+							parent::describeIndividual($vid,$vlabel,parent::getVoc()."Semantic-Type",$vlabel).
+							parent::triplify($dr_res, $this->getVoc().$qde['ST'], $vid).
 							parent::describeProperty($this->getVoc().$qde['ST'], "Relationship between a descriptor record and its semantic type")
 						);
 					}
