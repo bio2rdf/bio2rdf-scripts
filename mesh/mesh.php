@@ -690,6 +690,11 @@ class MeshParser extends Bio2RDFizer{
 							parent::triplify($dr_res, $this->getVoc().$qde['MN'], $vid).
 							parent::describeProperty($this->getVoc().$qde['MN'], "Relationship between a descriptor record and its MeSH Tree Number")
 						);
+						if(FALSE !== ($pos = strrpos($vv,"."))) {
+							$pid = parent::getNamespace().substr($vv,0,$pos);
+							parent::addRDF(parent::triplify($vid,"rdfs:subClassOf",$pid));
+						}
+
 					}
 				}
 				if($k == "MR"){
@@ -792,6 +797,7 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "ST"){
 					foreach($v as $kv => $vv){
                                                 $vid = parent::getNamespace().$vv;
+						$pid = parent::getNamespace().substr($vv,0,strrpos($vv,".")-1);
                                                 $vlabel = utf8_encode(htmlspecialchars($vv));
   						parent::AddRDF(
 							parent::describeIndividual($vid,$vlabel,parent::getVoc()."Semantic-Type",$vlabel).
