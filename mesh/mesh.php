@@ -36,9 +36,9 @@ SOFTWARE.
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 class MeshParser extends Bio2RDFizer{
 	private static $packageMap = array(
-		"descriptor_records" => "dYEAR.bin",
-		"qualifier_records" => "qYEAR.bin",
-		"supplementary_records" => "cYEAR.bin"					
+		"descriptors" => "dYEAR.bin",
+		"qualifiers" => "qYEAR.bin",
+		"supplementary" => "cYEAR.bin"					
 	);
 	private static $descriptor_data_elements = array(
 		"AN" =>	"annotation",
@@ -149,7 +149,7 @@ class MeshParser extends Bio2RDFizer{
 	private $version = 0.3;
 	function __construct($argv) {
 		parent::__construct($argv, "mesh");
-		parent::addParameter('files', true, 'all|descriptor_records|qualifier_records|supplementary_records', 'all', 'all or comma-separated list of files to process');
+		parent::addParameter('files', true, 'all|descriptors|qualifiers|supplementary', 'all', 'all or comma-separated list of files to process');
 		parent::addParameter('download_url',false,'','ftp://nlmpubs.nlm.nih.gov/online/mesh/.asciimesh/','default ftp location');
 		parent::addParameter('year', false, '','2014',"Year to process");
 		parent::initialize();
@@ -225,7 +225,7 @@ class MeshParser extends Bio2RDFizer{
 		echo "done!".PHP_EOL;
 	}//run
 
-	private function supplementary_records(){
+	private function supplementary(){
 		$sup_rec = "";
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
@@ -241,7 +241,7 @@ class MeshParser extends Bio2RDFizer{
 			}			
 		}
 	}
-	private function descriptor_records(){
+	private function descriptors(){
 		$descriptor_record = "";
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
@@ -258,7 +258,7 @@ class MeshParser extends Bio2RDFizer{
 		}
 	}
 
-	private function qualifier_records(){
+	private function qualifiers(){
 		$qualifier_record = "";
 		while($aLine = $this->GetReadFile()->Read(200000)){
 			preg_match("/^\n$/", $aLine, $matches);
