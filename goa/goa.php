@@ -66,7 +66,8 @@ class GOAParser extends Bio2RDFizer
 			$rfile = $rdir.strtoupper($file)."/gene_association.goa_".$file.".gz";
 			if($download == true) {
 				echo "downloading $file ... ";
-				file_put_contents($lfile,file_get_contents($rfile));
+				//file_put_contents($lfile,file_get_contents($rfile));
+				utils::DownloadSingle($rfile,$lfile);
 			}
 
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
