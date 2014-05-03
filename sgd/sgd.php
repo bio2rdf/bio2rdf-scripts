@@ -29,7 +29,7 @@ SOFTWARE.
 */
 
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
-require_once(__DIR__.'/../common/php/oboparser.php');
+
 
 class SGDParser extends Bio2RDFizer {
 	private $version = null;
@@ -96,6 +96,7 @@ class SGDParser extends Bio2RDFizer {
 				$rfile = $rdir.$rfiles[$file];
 				echo "Downloading $file ... ";
 				Utils::DownloadSingle ($rfile, $lfile);
+				echo "done".PHP_EOL;
 			} else {
 				file_put_contents($lfile,"");
 			}
@@ -355,13 +356,14 @@ class SGDParser extends Bio2RDFizer {
 					);
 				}//else
 			}//if
-				
+			parent::writeRDFBufferToWriteFile();	
 		}//while
 
 		return TRUE;
 	}//dbxref
 
-	function features(){
+	function features()
+	{
 
 		while($l = $this->GetReadFile()->Read(4098)) {
 			if($l[0] == '!') continue;
@@ -572,6 +574,7 @@ class SGDParser extends Bio2RDFizer {
 					);
 				}
 			}
+			parent::writeRDFBufferToWriteFile();
 		}//while
 		return TRUE;
 	}//features
@@ -624,6 +627,7 @@ class SGDParser extends Bio2RDFizer {
 				parent::describeProperty($this->getVoc()."query-stop", "Relationship between an SGD domain alignment and its query end position").
 				parent::describeProperty($this->getVoc()."e-value", "Relationship between an SGD domain alignment and its e-value")
 			);
+			parent::writeRDFBufferToWriteFile();
 		}
 		return TRUE;
 	}//domains
@@ -678,6 +682,7 @@ class SGDParser extends Bio2RDFizer {
 					parent::describeClass($this->getVoc().$type, "$type")
 				);
 			}
+			parent::writeRDFBufferToWriteFile();
 		}
 		return TRUE;
 	}//protein
@@ -743,6 +748,7 @@ class SGDParser extends Bio2RDFizer {
 				}//if
 			}//if
 			$z++;
+			parent::writeRDFBufferToWriteFile();
 		}//while
 		return TRUE;
 	}//goa
@@ -773,7 +779,8 @@ class SGDParser extends Bio2RDFizer {
 			$this->AddRDF(
 				parent::triplify($subject, $predicate, $object).
 				parent::describeProperty($predicate, "$predicate")
-			);			
+			);	
+			parent::writeRDFBufferToWriteFile();			
 		}		
 		return TRUE;
 	}//goslim
@@ -797,6 +804,7 @@ class SGDParser extends Bio2RDFizer {
 					parent::triplify($id, $this->getVoc()."has-proper-part", $this->getRes().$d[3]."gp")
 				);
 			}
+			parent::writeRDFBufferToWriteFile();
 		}//while
 		return TRUE;
 	}//complex
@@ -805,6 +813,7 @@ class SGDParser extends Bio2RDFizer {
 
 		$apofile = $this->GetParameterValue('ncbo_download_dir')."apo.obo";
 		if(!file_exists($apofile)) {
+			require_once(__DIR__.'/../common/php/oboparser.php');
 			$this->GetLatestNCBOOntology('1222',$this->GetParameterValue('ncbo_api_key'),$apofile);
 		}
 		
@@ -880,6 +889,7 @@ class SGDParser extends Bio2RDFizer {
 					);
 				}
 			}//foreach
+			parent::writeRDFBufferToWriteFile();
 		}//while
 		return TRUE;
 	}//interaction
@@ -889,6 +899,7 @@ class SGDParser extends Bio2RDFizer {
 		/** get the ontology terms **/
 		$apofile = $this->GetParameterValue('ncbo_download_dir')."apo.obo";
 		if(!file_exists($apofile)) {
+			require_once(__DIR__.'/../common/php/oboparser.php');
 			GetLatestNCBOOntology('1222',$this->GetParameterValue('ncbo_api_key'),$apofile);
 		}
 		
@@ -1019,7 +1030,8 @@ class SGDParser extends Bio2RDFizer {
 					parent::triplifyString($this->getRes().$eid, $this->getVoc()."details", str_replace('"','\"',$a[12])).
 					parent::describeProperty($this->getVoc()."details", "Relationship between an SGD experiment and its details")
 				);
-			} 			
+			}
+			parent::writeRDFBufferToWriteFile(); 			
 		}//while
 		return TRUE;
 	}//phenotype
@@ -1106,6 +1118,7 @@ class SGDParser extends Bio2RDFizer {
 					); 
 				}
 			}//if
+			parent::writeRDFBufferToWriteFile();
 		}//while
 		return TRUE;
 	}//pathways
@@ -1135,6 +1148,7 @@ class SGDParser extends Bio2RDFizer {
 				parent::describeProperty($this->getVoc()."percent-aligned", "Relationship between an SGD sequence alignment and its percent-aligned value").
 				parent::describeProperty($this->getVoc()."is-encoded-by", "Relationship between an SGD sequence alignment and the taxon the aligned sequences are encoded by")
 			);
+			parent::writeRDFBufferToWriteFile();
 		}//while
 		return TRUE;
 	}//psiblast
