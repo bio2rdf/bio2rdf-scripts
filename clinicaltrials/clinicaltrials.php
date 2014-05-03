@@ -162,33 +162,32 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			return false;
 		}
 		$ids = explode(",",parent::getParameterValue('id_list'));
-		
-		$indir = parent::getParameterValue('indir');
-		if($handle = opendir($indir)) {
-			echo "Processing directory $indir\n";
 
+		$indir = parent::getParameterValue('indir');
+		echo "Processing directory $indir\n";
+
+		$files = glob($indir."NCT*");
+		foreach($files AS $file) {
 			$outfile = "clinicaltrials.".parent::getParameterValue('output_format');
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 			parent::setWriteFile(parent::getParameterValue("outdir").$outfile,$gz);
-					
-			while(($file = readdir($handle)) !== false){
-				if (in_array($file,$ignore) || is_dir($file) ) continue;
-				$trial_id = basename($file,'.xml');
-				if(parent::getParameterValue('id_list') == '' || in_array($trial_id, $ids)) {
-					echo "Processing $file".PHP_EOL;					
-					$this->process_file($file);
-		
-					// make the dataset description
-					$ouri = parent::getGraphURI();
-					parent::setGraphURI(parent::getDatasetURI());
-					
-					$rfile = "http://clinicaltrials.gov/ct2/show/".$trial_id."?resultsxml=true";
-					$source_version = parent::getDatasetVersion();
-					// dataset description
-					$source_file = (new DataResource($this))
+
+			$trial_id = basename($file,'.xml');
+			if(parent::getParameterValue('id_list') == '' || in_array($trial_id, $ids)) {
+				echo "Processing $trial_id".PHP_EOL;
+				$this->process_file($file);
+
+				// make the dataset description
+				$ouri = parent::getGraphURI();
+				parent::setGraphURI(parent::getDatasetURI());
+
+				$rfile = "http://clinicaltrials.gov/ct2/show/".$trial_id."?resultsxml=true";
+				$source_version = parent::getDatasetVersion();
+				// dataset description
+				$source_file = (new DataResource($this))
 					->setURI($rfile)
 					->setTitle("Clinicaltrials")
-					->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($indir.$file)))
+					->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($file)))
 					->setFormat("application/xml")
 					->setPublisher("http://clinicaltrials.gov/")
 					->setHomepage("http://clinicaltrials.gov/")
@@ -196,41 +195,39 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					->setRights("by-attribution")
 					->setLicense("http://clinicaltrials.gov/ct2/about-site/terms-conditions")
 					->setDataset("http://identifiers.org/clinicaltrials/");
-					
-					parent::writeToReleaseFile($source_file->toRDF());
-					parent::setGraphURI($ouri);
-				}
+
+				parent::writeToReleaseFile($source_file->toRDF());
+				parent::setGraphURI($ouri);
 			}
-			echo "Finished.".PHP_EOL;
-			closedir($handle);
-			
-			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
-				->setSource($source_file->getURI())
-				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/clinicaltrials/clinicaltrials.php")
-				->setCreateDate($date)
-				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-				->setPublisher("http://bio2rdf.org")			
-				->setRights("use-share-modify")
-				->setRights("by-attribution")
-				->setRights("restricted-by-source-license")
-				->setLicense("http://creativecommons.org/licenses/by/3.0/")
-				->setDataset(parent::getDatasetURI());
-
-			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-			if($gz) $output_file->setFormat("application/gzip");
-			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
-			else $output_file->setFormat("application/n-quads");
-			
-			parent::writeToReleaseFile($output_file->toRDF());
-			parent::closeReleaseFile();
-
-			// write the dataset description file
-			fclose($fp);
 		}
+		echo "Finished.".PHP_EOL;
+
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/clinicaltrials/clinicaltrials.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+
+		parent::writeToReleaseFile($output_file->toRDF());
+		parent::closeReleaseFile();
+
+		// write the dataset description file
+		fclose($fp);
 	}
-	
+
 	/**
 	* process a results xml file from the download directory
 	**/
@@ -338,6 +335,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				);
 			} catch(Exception $e){
 				echo "There was an error in the oversight info element: $e\n";
+
 			}
 			
 			####################################################################################
@@ -360,6 +358,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					parent::triplifyString($study_id,parent::getVoc()."detailed-description",$d)
 				);
 			}
+
 
 			#################################################################################
 			# overall status
@@ -702,6 +701,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				echo "There was an error in eligibility: $e\n";
 			}
 
+
 			######################################################################################
 			#overall official - the person in charge
 			#####################################################################################
@@ -937,21 +937,26 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						$group_uri = parent::getRes().$nct_id."/group/".$group_id;
 						$title = $this->getString('//title');
 						$description = $this->getString('//description');
+						$time_frame = $this->getString('//time_frame');
 						parent::addRDF(
 							parent::triplifyString($group_uri,"rdfs:label","$id $title").
 							parent::triplify($group_uri,"rdf:type",parent::getVoc()."Group").
-							parent::triplifyString($group_uri,"dc:description",$description)
+							parent::triplifyString($group_uri,"dc:description",$description).
+							parent::triplifyString($group_uri,parent::getVoc()."time-frame",$time_frame)
 						);
 					}
+
 					// events	
 					$event_list = array("serious_events","other_events");
 					foreach($event_list AS $e) {
 						$i = 1;
 						$eventtype = @array_shift($reported_events->xpath('./'.$e));
+						if(!$eventtype) continue;
 						$vocab = $this->getString('./default_vocab',$eventtype);
+						$frequency_threshold = $this->getString('./frequency_threshold');
 						$assessment = $this->getString('./default_assessment', $eventtype);
 						$assessment_uri = parent::getVoc().md5($assessment);
-						$categories = @array_shift($eventtype->xpath('./category_list'));
+						$categories = array_shift($eventtype->xpath('./category_list'));
 						foreach($categories AS $category) {
 							$major_title = $this->getString('./title', $category);
 							$events = @array_shift($category->xpath('./event_list'));
@@ -962,16 +967,16 @@ class ClinicalTrialsParser extends Bio2RDFizer
 									parent::triplifyString($subtitle_uri,"rdfs:label",$subtitle).
 									parent::triplifyString($subtitle_uri,"rdf:type",parent::getVoc()."Event-Type")
 								);
-								
 								foreach($event AS $count) {
 									if(!isset($count->attributes()->group_id)) continue;
 									$count_uri = parent::getRes().$nct_id."/$e/".$i++;
 									$group_uri = parent::getRes().$nct_id."/group/".$count->attributes()->group_id;
-									
+
 									parent::addRDF(
 										parent::triplifyString($count_uri,"rdfs:label", "$subtitle").
 										parent::triplify($count_uri,"rdf:type",$subtitle_uri).
 										parent::triplify($count_uri,parent::getVoc()."group",$group_uri).
+										parent::triplifyString($count_uri,parent::getVoc()."frequency-threshold",$frequency_threshold).
 										parent::triplify($count_uri,parent::getVoc()."default-assessment",$assessment_uri).
 										parent::triplifyString($count_uri,parent::getVoc()."number-events",$count->attributes()->events).
 										parent::triplifyString($count_uri,parent::getVoc()."subjects-affected",$count->attributes()->subjects_affected).
