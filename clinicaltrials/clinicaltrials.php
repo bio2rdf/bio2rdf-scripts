@@ -364,7 +364,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			#################################################################################
 			# overall status
 			#################################################################################
-			$overall_status = @array_shift($root->xpath('//overall_status'));
+			$overall_status = $this->getString('//overall_status');
 			if($overall_status) {
 				$status_id = "clinicaltrials_resource:".md5($overall_status);
 				parent::addRDF(
