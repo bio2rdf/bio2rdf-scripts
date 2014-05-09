@@ -29,7 +29,7 @@ SOFTWARE.
 */
 
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
-
+require_once(__DIR__.'/../common/php/oboparser.php');
 
 class SGDParser extends Bio2RDFizer {
 	private $version = null;
@@ -38,7 +38,7 @@ class SGDParser extends Bio2RDFizer {
 		parent::__construct($argv,"sgd");
 		parent::addParameter('files',true,'all|dbxref|features|domains|protein|goa|goslim|complex|interaction|phenotype|pathways|mapping','all','all or comma-separated list of files to process');
 		parent::addParameter('download_url',false,null,'http://downloads.yeastgenome.org/');
-		parent::addParameter('ncbo_download_dir', false, null, '/data/download/ncbo', 'directory of ncbo ontologies');
+		parent::addParameter('ncbo_download_dir', false, null, '/data/download/ncbo/', 'directory of ncbo ontologies');
 		parent::addParameter('ncbo_api_key',true,null,null,'your NCBO API key');
 		parent::initialize();
 	}
@@ -813,8 +813,7 @@ class SGDParser extends Bio2RDFizer {
 
 		$apofile = $this->GetParameterValue('ncbo_download_dir')."apo.obo";
 		if(!file_exists($apofile)) {
-			require_once(__DIR__.'/../common/php/oboparser.php');
-			$this->GetLatestNCBOOntology('1222',$this->GetParameterValue('ncbo_api_key'),$apofile);
+			$this->GetLatestNCBOOntology('APO',$this->GetParameterValue('ncbo_api_key'),$apofile);
 		}
 		
 		$apoin = fopen($apofile, "r");
@@ -899,8 +898,7 @@ class SGDParser extends Bio2RDFizer {
 		/** get the ontology terms **/
 		$apofile = $this->GetParameterValue('ncbo_download_dir')."apo.obo";
 		if(!file_exists($apofile)) {
-			require_once(__DIR__.'/../common/php/oboparser.php');
-			GetLatestNCBOOntology('1222',$this->GetParameterValue('ncbo_api_key'),$apofile);
+			GetLatestNCBOOntology('APO',$this->GetParameterValue('ncbo_api_key'),$apofile);
 		}
 		
 		$apoin = fopen($apofile, "r");
@@ -1291,7 +1289,7 @@ class SGDParser extends Bio2RDFizer {
 	}//GetMethodID
 
 	function GetLatestNCBOOntology($ontology_id,$apikey,$target_filepath){
-		Utils::DownloadSingle('http://rest.bioontology.org/bioportal/virtual/download/'.$ontology_id.'?apikey='.$apikey, $target_filepath);
+		Utils::DownloadSingle('http://data.bioontology.org/ontologies/'.$ontology_id.'/download?apikey='.$apikey, $target_filepath);
 	}
 }//SGDParser
 
