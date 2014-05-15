@@ -169,7 +169,7 @@ foreach($graphs AS $i => $graph) {
 	
 	if($options['ofile'] == 'endpoint.statistics') 	{
 		$options['ofile'] .= '.'.($i+1);
-		if($options['nquad_uri']) $options['ofile'] .= '.nq';
+		if($options['quad_uri']) $options['ofile'] .= '.nq';
 		else $options['ofile'] .= '.nt';
 	}
 	//create file for writing /*"compress.zlib://".*/ 
