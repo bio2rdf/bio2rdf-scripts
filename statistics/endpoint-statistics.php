@@ -96,6 +96,7 @@ if($options['instance']) {
 
 if($options['graphs'] == '') {
 	echo "set graphs argument to 'all' or a comma-separated list of graph names".PHP_EOL;
+	exit;
 }
 
 if($options['graphs'] == 'all') {
