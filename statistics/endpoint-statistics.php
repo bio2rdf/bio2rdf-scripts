@@ -149,12 +149,15 @@ if(count($diff)) {
 	echo "The following functions were not found: ".implode(",",$diff).PHP_EOL;
 	exit;
 }
+$dataset_name = $options['dataset'];
 
 foreach($options['graphs'] AS $i => $graph) {
 	echo "processing graph <$graph>".PHP_EOL;
 	$options['uri'] = $graph;
 	$options['filter'] = "FILTER (?g = <$graph>)";
-
+	$options['graph'] = $graph;
+	if(!$dataset_name) $options['dataset'] = "<$graph>";
+	
 	if($options['ofile'] == 'endpoint.statistics') 	$options['ofile'] .= '.'.$i.'.nq';
 	//create file for writing /*"compress.zlib://".*/ 
 	$options['fp'] = fopen($options['odir'].$options['ofile'], 'wb');
