@@ -115,7 +115,7 @@ if($options['instance']) {
 	fclose($fp);
 }
 
-if($options['graphs'] == '') {
+if(strstr($options['graphs'],"list|all")) {
 	echo "set graphs argument to 'all' or 'list' or 'graphname' or , or + separated list of graph names.".PHP_EOL;
 	exit;
 }
