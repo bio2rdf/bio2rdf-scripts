@@ -47,12 +47,14 @@ $fnx = array(
 
 //command line options
 $options = array(
+ "use" => "sparql",
+ "sparql" => "http://localhost:8890/sparql",
+ "isql" => "/usr/local/virtuoso-opensource/bin/isql",
  "port" => "1111",
  "user" => "dba",
  "pass" => "dba",
  "odir" => "/data/rdf/statistics/",
  "ofile" => "endpoint.statistics",
- "isql" => "/usr/local/virtuoso-opensource/bin/isql",
  "graphs" => "list|all|graph1,graph2 for individual processing or graph1+graph2 for combined processing",
  "dataset_name" => "",
  "dataset_uri" => "",
@@ -193,24 +195,21 @@ exit;
 function query($sparql)
 {
 	global $options;
-	$verbose = "off";
-	//isql commands pre and post
-	$cmd_pre = $options['isql']." -S ".$options['port']." -U ".$options['user']." -P ".$options['pass']." verbose=$verbose banner=off prompt=off echo=ON errors=stdout exec=\"Set Blobs On;SPARQL define output:format 'JSON' "; 
-	$cmd_post = '"';
-	$cmd = $cmd_pre.addslashes(str_replace(array("\r","\n"),"",$sparql)).$cmd_post;
-	$out = shell_exec($cmd);
-	if(strstr($out,"*** Error")) {	
-		throw new Exception($out);
-	}
-	// otherwise read in the json
-	if($verbose == "on") {
-		$start = '{ "head"';
-		preg_match('/\{ "head/',$out,$s,PREG_OFFSET_CAPTURE);
-		preg_match("/[0-9]+ Rows/",$out,$e,PREG_OFFSET_CAPTURE);
-		$json = json_decode( substr($out,$s[0][1], ($e[0][1]-$s[0][1]-1)));
+	$sparql = str_replace(array("\r","\n"),"",$sparql);
+	if($options['use'] == 'isql') {
+		//isql commands pre and post
+		$cmd_pre = $options['isql']." -S ".$options['port']." -U ".$options['user']." -P ".$options['pass']." verbose=off banner=off prompt=off echo=ON errors=stdout exec=\"Set Blobs On;SPARQL define output:format 'JSON' "; 
+		$cmd_post = '"';
+		$cmd = $cmd_pre.addslashes($sparql).$cmd_post;
+		$out = shell_exec($cmd);
+		if(strstr($out,"*** Error")) {	
+			throw new Exception($out);
+		}
 	} else {
-		$json = json_decode($out);
+		$cmd = $options['sparql']."?query=".urlencode($sparql)."&format=application%2Fsparql-results%2Bjson&timeout=0";
+		$out = file_get_contents($cmd);
 	}
+	$json = json_decode($out);
 	return $json->results->bindings;
 }
 function getID($obj)
@@ -546,21 +545,20 @@ function addPropertyDistinctObjectCount()
 function addPropertyDistinctObjectAndTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?plabel) ?otype str(?otype_label) ?n
+	$sparql = "SELECT ?p (str(?plabel) AS ?plabel) ?otype (str(?otype_label) AS ?otype_label) (COUNT(?o) AS ?n)
 ".$options['from-graph']." {
 	{
-		SELECT ?p (COUNT(DISTINCT ?o) AS ?n) ?otype
+		SELECT ?p ?otype (COUNT(?o) AS ?n)
 		{ 
 			?s ?p ?o . 
 			?o a ?otype .
 		}
 		GROUP BY ?p ?otype
 	}
-	OPTIONAL {?p rdfs:label ?label} 
+	OPTIONAL {?p rdfs:label ?plabel} 
 	OPTIONAL {?otype rdfs:label ?otype_label} 
 }";
-	$r = query($sparql);
-
+	$r = query($sparql);	
 	foreach($r AS $c) {
 		$id = getID($c);
 		$sid = getID($c);
@@ -589,8 +587,11 @@ function addPropertyDistinctObjectAndTypeCount()
 function addTypePropertyTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?stype str(?stype_label) ?sn ?p str(?plabel) ?otype str(?otype_label) ?on
-".$options['from-graph']." 
+	$sparql = "SELECT 
+		?stype (str(?stype_label) AS ?stype_label) ?sn 
+		?p (str(?plabel) AS ?plabel) 
+		?otype (str(?otype_label) AS ?otype_label) ?on
+	".$options['from-graph']." 
 {
 	{
 		SELECT ?stype ?p ?otype (COUNT(DISTINCT ?s) AS ?sn) (COUNT(DISTINCT ?o) AS ?on)
@@ -607,7 +608,6 @@ function addTypePropertyTypeCount()
 }
 ";
 	$r = query($sparql);
-
 	foreach($r AS $c) {
 		$id = getID($c);
 		$sid = getID($c);
