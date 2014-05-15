@@ -28,6 +28,24 @@ SOFTWARE.
  * for dataset statistics and serialize statistics in RDF
 */
 
+$fnx = array(
+	"triples", 
+	"distinctEntities", 
+	"distinctSubjects",
+	"distinctObjects",
+	"distinctProperties",
+	"distinctClasses", 
+	"distinctLiterals", 
+	"distinctInstances",
+	"propertyCount", 
+	"propertyObjectCount", 
+	"propertyDistinctObjectCount", 
+	"propertyDistinctObjectAndTypeCount", 
+	"typePropertyTypeCount", 
+	"datasetPropertyDatasetCount"
+);
+
+
 //command line options
 $options = array(
  "port" => "1111",
@@ -40,7 +58,8 @@ $options = array(
  "dataset" => "",
  "instance" => "",
  "quad_uri" => "",
- "version" => "3"
+ "version" => "3",
+ "function" => "all,".implode(",",$fnx)
 );
 
 // show command line options
@@ -67,6 +86,7 @@ if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 if(!file_exists($options['isql'])) {
 	trigger_error("ISQL could not be found at ".$options['isql'],E_USER_ERROR);
 }
+
 
 @mkdir($options['odir']);
 
@@ -103,32 +123,27 @@ if($options['graphs'] == 'all') {
 	try {
 		$options['graphs'] = getGraphs();
 	} catch(Exception $e) {
-		trigger_error("Error in getting graphs from endpoint. Stopping here");
+		trigger_error("Error in getting graphs from endpoint. $e");
 		exit;
 	}
 } else {
 	$options['graphs'] = explode(",",$options['graphs']);
 }
 
-$fnx = array(
-	"triples", 
-	"distinctEntities", 
-	"distinctSubjects",
-	"distinctObjects",
-	"distinctProperties",
-	"distinctClasses", 
-	"distinctLiterals", 
-	"distinctInstances",
-	"propertyCount", 
-	"propertyObjectCount", 
-	"propertyDistinctObjectCount", 
-	"propertyDistinctObjectAndTypeCount", 
-	"typePropertyTypeCount", 
-	"datasetPropertyDatasetCount"
-);
-	
+// validate the fxn list
+$fnxs = explode(",",$options['function']);
+if($fnxs[0] == 'all') array_shift($fnxs);
+// get the set of valid results
+$work = array_intersect($fnxs,$fnx); 
+$diff = array_diff($fnxs,$work);
+if(count($diff)) {
+	// some elements did not match
+	echo "The following functions were not found: ".implode(",",$diff).PHP_EOL;
+	exit;
+}
+
 foreach($options['graphs'] AS $i => $graph) {
-	echo "processing $graph ...";
+	echo "processing graph <$graph>".PHP_EOL;
 	$options['uri'] = $graph;
 	$options['filter'] = "FILTER (?g = <$graph>)";
 
@@ -136,9 +151,9 @@ foreach($options['graphs'] AS $i => $graph) {
 	//create file for writing /*"compress.zlib://".*/ 
 	$options['fp'] = fopen($options['odir'].$options['ofile'], 'wb');
 
-	foreach($fnx AS $f) {
+	foreach($work AS $f) {
 		try {
-			echo $f."...";
+			echo " ".$f."...";
 			$z = "add".ucFirst($f);
 			$z();
 			echo "done".PHP_EOL;
@@ -203,7 +218,7 @@ function write($content)
 function getGraphs()
 {
 	global $options;
-	$sparql = "SELECT DISTINCT ?g WHERE {GRAPH ?g {?s ?p ?o} ".$options['filter']."}";
+	$sparql = "SELECT DISTINCT ?g WHERE {GRAPH ?g {?s ?p ?o}}";
 	$r = query($sparql);
 	foreach($r AS $g) {
 		$graphs[] = $g->g->value;
