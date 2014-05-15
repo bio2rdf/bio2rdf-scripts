@@ -34,9 +34,8 @@ $fnx = array(
 	"distinctSubjects",
 	"distinctObjects",
 	"distinctProperties",
-	"distinctClasses", 
 	"distinctLiterals", 
-	"distinctInstances",
+	"typeCount",
 	"propertyCount", 
 	"propertyObjectCount", 
 	"propertyDistinctObjectCount", 
@@ -54,11 +53,12 @@ $options = array(
  "odir" => "/data/rdf/statistics/",
  "ofile" => "endpoint.statistics",
  "isql" => "/usr/local/virtuoso-opensource/bin/isql",
- "graphs" => "list|all|graphname",
- "dataset" => "",
- "instance" => "",
+ "graphs" => "list|all|graph1,graph2 for individual processing or graph1+graph2 for combined processing",
+ "dataset_name" => "",
+ "dataset_uri" => "",
  "quad_uri" => "",
- "version" => "3",
+ "instance" => "",
+ "version" => "",
  "function" => "all,".implode(",",$fnx)
 );
 
@@ -107,6 +107,7 @@ if($options['instance']) {
 					$options['graphs'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$name-r".$options['version'];
 				}
 				if(!$options['quad_uri']) $options['quad_uri'] = $options['graphs']."-statistics";
+				if(!$options['dataset_uri']) $options['graphs'];
 				break;
 			}
 		}
@@ -115,7 +116,7 @@ if($options['instance']) {
 }
 
 if($options['graphs'] == '') {
-	echo "set graphs argument to 'all' or a comma-separated list of graph names".PHP_EOL;
+	echo "set graphs argument to 'all' or 'list' or 'graphname' or , or + separated list of graph names.".PHP_EOL;
 	exit;
 }
 
@@ -135,7 +136,16 @@ if($options['graphs'] == 'list' or $options['graphs'] == 'all') {
 	}
 	$options['graphs'] = $graphs;
 } else {
-	$options['graphs'] = explode(",",$options['graphs']);
+	$plusgraphs = explode("+",$options['graphs']);
+	if(count($plusgraphs) >= 2) {
+		$options['from-graph'] = '';
+		foreach($plusgraphs AS $g) {
+			$options['from-graph'] .= "FROM <$g> ";			
+		}
+		$graphs = array($options['graphs']);
+	} else {
+		$graphs = explode(",",$options['graphs']);
+	}
 }
 
 // validate the fxn list
@@ -149,14 +159,13 @@ if(count($diff)) {
 	echo "The following functions were not found: ".implode(",",$diff).PHP_EOL;
 	exit;
 }
-$dataset_name = $options['dataset'];
+$dataset_name = $options['dataset_name'];
 
-foreach($options['graphs'] AS $i => $graph) {
+foreach($graphs AS $i => $graph) {
 	echo "processing graph <$graph>".PHP_EOL;
 	$options['uri'] = $graph;
-	$options['filter'] = "FILTER (?g = <$graph>)";
-	$options['graph'] = $graph;
-	if(!$dataset_name) $options['dataset'] = "<$graph>";
+	if(!isset($plusgraphs) or (count($plusgraphs) == 1)) $options['from-graph'] = "FROM <$graph>";
+	if(!$dataset_name) $options['dataset_name'] = "<$graph>";
 	
 	if($options['ofile'] == 'endpoint.statistics') 	$options['ofile'] .= '.'.$i.'.nq';
 	//create file for writing /*"compress.zlib://".*/ 
@@ -263,7 +272,7 @@ function addDistinctGraphs()
 function addTriples()
 {
 	global $options;
-	$sparql = "SELECT (COUNT(*) AS ?n) {GRAPH ?g {?s ?p ?o} ".$options['filter']."}";
+	$sparql = "SELECT (COUNT(*) AS ?n) ".$options['from-graph']." {?s ?p ?o}";
 	$r = query($sparql);
 	$id = getId($r);
 	
@@ -274,7 +283,7 @@ function addTriples()
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Triples").
-		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." triples in ".$options['dataset'], null, "en").
+		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." triples in ".$options['dataset_name'], null, "en").
 		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Triples", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
@@ -283,7 +292,7 @@ function addTriples()
 function addDistinctEntities()
 {	
 	global $options;
-	$sparql = "SELECT (COUNT(distinct ?s) AS ?n) {GRAPH ?g {?s a []} ".$options['filter']."}";
+	$sparql = "SELECT (COUNT(DISTINCT ?s) AS ?n) ".$options['from-graph']." {?s a []}";
 	$r = query($sparql);
 	$id = getId($r);
 	
@@ -294,7 +303,7 @@ function addDistinctEntities()
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Entities").
-		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct entities in ".$options['dataset'], null, "en").
+		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct entities in ".$options['dataset_name'], null, "en").
 		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Entities", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
@@ -303,7 +312,7 @@ function addDistinctEntities()
 function addDistinctSubjects()
 {
 	global $options;
-	$sparql = "SELECT (COUNT(distinct ?s) AS ?n) {GRAPH ?g {?s ?p ?o} ".$options['filter']."}";
+	$sparql = "SELECT (COUNT(DISTINCT ?s) AS ?n) ".$options['from-graph']." {?s ?p ?o}";
 	$r = query($sparql);
 	$id = getId($r);
 	
@@ -314,7 +323,7 @@ function addDistinctSubjects()
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Subjects").
-		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct subjects in ".$options['dataset'], null, "en").
+		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct subjects in ".$options['dataset_name'], null, "en").
 		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Subjects", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
@@ -323,7 +332,7 @@ function addDistinctSubjects()
 function addDistinctProperties()
 {
 	global $options;
-	$sparql = "SELECT (COUNT(distinct ?p) AS ?n) {GRAPH ?g {?s ?p ?o} ".$options['filter']."}";
+	$sparql = "SELECT (COUNT(DISTINCT ?p) AS ?n) ".$options['from-graph']." {?s ?p ?o}";
 	$r = query($sparql);
 	$id = getId($r);
 	
@@ -334,7 +343,7 @@ function addDistinctProperties()
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Properties").
-		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct subjects in ".$options['dataset'], null, "en").
+		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct subjects in ".$options['dataset_name'], null, "en").
 		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Properties", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
@@ -343,7 +352,7 @@ function addDistinctProperties()
 function addDistinctObjects()
 {
 	global $options;
-	$sparql = "SELECT (COUNT(distinct ?o) AS ?n) {GRAPH ?g {?s ?p ?o FILTER(!isLiteral(?o))} ".$options['filter']."}";
+	$sparql = "SELECT (COUNT(DISTINCT ?o) AS ?n) ".$options['from-graph']." {?s ?p ?o FILTER(!isLiteral(?o))}";
 	$r = query($sparql);
 	$id = getId($r);
 
@@ -354,7 +363,7 @@ function addDistinctObjects()
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Objects").
-		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct objects in ".$options['dataset'], null, "en").
+		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct objects in ".$options['dataset_name'], null, "en").
 		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Objects", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
@@ -364,12 +373,12 @@ function addDistinctLiterals()
 {
 	global $options;
 	
-	$sparql = "SELECT (COUNT(distinct ?o) AS ?n) {GRAPH ?g {?s ?p ?o FILTER(isLiteral(?o))} ".$options['filter']."}";
+	$sparql = "SELECT (COUNT(DISTINCT ?o) AS ?n) ".$options['from-graph']." {?s ?p ?o FILTER(isLiteral(?o))}";
 	$r = query($sparql);	
 	
 	foreach($r AS $c) {
 		$id = getID($c);
-		$label = $c->n->value." distinct literals in ".$options['dataset'];
+		$label = $c->n->value." distinct literals in ".$options['dataset_name'];
 		write(
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#classPartition", $id).
@@ -385,15 +394,15 @@ function addDistinctLiterals()
 	}
 }
 
-function addDistinctClasses()
+function addTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?type (COUNT(?type) AS ?n) str(?label) {GRAPH ?g {?s a ?type OPTIONAL {?type rdfs:label ?label}} ".$options['filter']."}";
+	$sparql = "SELECT ?type (COUNT(DISTINCT ?s) AS ?n) str(?label) ".$options['from-graph']." {?s a ?type OPTIONAL {?type rdfs:label ?label}}";
 	$r = query($sparql);
 	
 	foreach($r AS $c) {
 		$id = getID($c);
-		$label = $c->n->value." ".(isset($c->label)?$c->label->value:$c->type->value)." in ".$options['dataset'];
+		$label = $c->n->value." ".(isset($c->label)?$c->label->value:$c->type->value)." in ".$options['dataset_name'];
 		write( 
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#classPartition", $id).
@@ -410,41 +419,15 @@ function addDistinctClasses()
 }
 
 
-
-function addDistinctInstances()
-{
-	global $options;
-	$sparql = "SELECT ?type str(?label) (COUNT(distinct ?s) AS ?n) {GRAPH ?g {?s a ?type OPTIONAL {?type rdfs:label ?label} } ".$options['filter']." } GROUP BY ?type ?label";
-	$r = query($sparql);
-	
-	foreach($r AS $c) {
-		$id = getID($c);
-		$label = $c->n->value." unique instances of ".(isset($c->label)?$c->label->value:$c->type->value)." in ".$options['dataset'];
-		write( 
-			// standard
-			Quad($options['uri'], "http://rdfs.org/ns/void#classPartition", $id).
-			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
-			Quad($id, "http://rdfs.org/ns/void#class", $c->type->value).
-			QuadLiteral($id, "http://rdfs.org/ns/void#entities", $c->n->value, "integer").
-			
-			// enhanced
-			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Instance-Count").
-			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Instance-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
-		);
-	}
-}
-
-
 function addPropertyCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?label) (COUNT(?p) AS ?n) {GRAPH ?g {?s ?p ?o OPTIONAL {?p rdfs:label ?label} } ".$options['filter']." } GROUP BY ?p ?label";
+	$sparql = "SELECT ?p str(?label) (COUNT(?p) AS ?n) ".$options['from-graph']." {?s ?p ?o OPTIONAL {?p rdfs:label ?label} } GROUP BY ?p ?label";
 	$r = query($sparql);
 
 	foreach($r AS $c) {
 		$id = getID($c);
-		$label = $c->n->value." triples with ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset'];
+		$label = $c->n->value." triples with ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset_name'];
 		write(
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#propertyPartition", $id).
@@ -463,13 +446,13 @@ function addPropertyCount()
 function addPropertyObjectCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?label) (COUNT(?o) AS ?n) {GRAPH ?g {?s ?p ?o OPTIONAL {?p rdfs:label ?label} } ".$options['filter']." } GROUP BY ?p ?label";
+	$sparql = "SELECT ?p str(?label) (COUNT(?o) AS ?n) ".$options['from-graph']." {?s ?p ?o OPTIONAL {?p rdfs:label ?label} } GROUP BY ?p ?label";
 	$r = query($sparql);
 	
 	foreach($r AS $c) {
 		$id = getID($c);
 		$oid = getID($c);
-		$label = $c->n->value." unique objects with property ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset'];
+		$label = $c->n->value." unique objects with property ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset_name'];
 		write( 
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
@@ -493,13 +476,13 @@ function addPropertyObjectCount()
 function addPropertyDistinctObjectCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?label) (COUNT(distinct ?o) AS ?n) {GRAPH ?g {?s ?p ?o OPTIONAL {?p rdfs:label ?label} } ".$options['filter']." } GROUP BY ?p ?label";
+	$sparql = "SELECT ?p str(?label) (COUNT(DISTINCT ?o) AS ?n) ".$options['from-graph']." {?s ?p ?o OPTIONAL {?p rdfs:label ?label} } GROUP BY ?p ?label";
 	$r = query($sparql);
 	
 	foreach($r AS $c) {
 		$id = getID($c);
 		$oid = getID($c);
-		$label = $c->n->value." unique objects with property ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset'];
+		$label = $c->n->value." unique objects with property ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset_name'];
 		write( 
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
@@ -523,12 +506,12 @@ function addPropertyDistinctObjectAndTypeCount()
 {
 	global $options;
 	$sparql = "SELECT ?p str(?plabel) ?otype str(?otype_label) (COUNT(distinct ?o) AS ?n)
-	{ GRAPH ?g {
+	".$options['from-graph']." {
 		?s ?p ?o . 
 		?o a ?otype .
 		OPTIONAL {?p rdfs:label ?label} 
 		OPTIONAL {?otype rdfs:label ?otype_label} 
-	} ".$options['filter']." }
+	}
 	GROUP BY ?p ?otype ?plabel ?otype_label";
 	$r = query(str_replace("\n","",$sparql));
 
@@ -536,7 +519,7 @@ function addPropertyDistinctObjectAndTypeCount()
 		$id = getID($c);
 		$sid = getID($c);
 		$oid = getID($c);
-		$label = $c->n->value." unique ".$c->otype->value." linked by ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset'];
+		$label = $c->n->value." unique ".$c->otype->value." linked by ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset_name'];
 		write( 
 			// enhanced
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
@@ -560,17 +543,14 @@ function addPropertyDistinctObjectAndTypeCount()
 function addTypePropertyTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?stype str(?stype_label) (COUNT(distinct ?s) AS ?sn) ?p str(?plabel) ?otype str(?otype_label) (COUNT(distinct ?o) AS ?on)
-{ 
-GRAPH ?g {
+	$sparql = "SELECT ?stype str(?stype_label) (COUNT(DISTINCT ?s) AS ?sn) ?p str(?plabel) ?otype str(?otype_label) (COUNT(distinct ?o) AS ?on)
+".$options['from-graph']." {
 ?s ?p ?o . 
 ?s a ?stype .
 ?o a ?otype .
 OPTIONAL {?stype rdfs:label ?stype_label} 
 OPTIONAL {?p rdfs:label ?plabel} 
 OPTIONAL {?otype rdfs:label ?otype_label} 
-}
- ".$options['filter']."
 }
 GROUP BY ?stype ?otype ?p str(?stype_label) str(?plabel) str(?otype_label)";
 	$r = query(str_replace("\n","",$sparql));
@@ -582,7 +562,7 @@ GROUP BY ?stype ?otype ?p str(?stype_label) str(?plabel) str(?otype_label)";
 		$label = $c->sn->value." unique ".$c->stype->value." linked by property "
 			.(isset($c->plabel)?$c->plabel->value:$c->p->value)
 			." to ".$c->on->value." unique ".$c->otype->value
-			." in ".$options['dataset'];
+			." in ".$options['dataset_name'];
 		write(
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
@@ -610,21 +590,18 @@ function addDatasetPropertyDatasetCount()
 {
 	global $options;
 	$sparql = "SELECT DISTINCT ?p ?stype ?otype (COUNT(?s) AS ?n)
-{
-GRAPH ?g {
+	".$options['from-graph']." {
 	?s ?p ?o .
 	?s a ?stype .
 	?o a ?otype .
 	FILTER regex (?stype, \"vocabulary:Resource\")
 	FILTER regex (?otype, \"vocabulary:Resource\")
 	FILTER (?stype != ?otype)
-}
-	".$options['filter']."
 }";
 	$r = query(str_replace("\n","",$sparql));
 	foreach($r AS $c) {
 		$id = getID($c);
-		$label = $c->stype->value." connected to ".$c->otype->value." through ".$c->p->value." in ".$options['dataset'];
+		$label = $c->stype->value." connected to ".$c->otype->value." through ".$c->p->value." in ".$options['dataset_name'];
 		write(
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
