@@ -102,7 +102,7 @@ if($options['instance']) {
 			if($options['instance'] == $name) {
 				$options['port'] = $a[0];
 				$options['dataset'] = $name;
-				if($options['ofile'] == 'endpoint.statistics') $options['ofile'] = "bio2rdf.$name.statistics.nt"; 
+				if($options['ofile'] == 'endpoint.statistics') $options['ofile'] = "bio2rdf.$name.statistics.nq"; 
 				if(!$options['graphs']) {
 					$options['graphs'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$name-r".$options['version'];
 				}
@@ -167,7 +167,11 @@ foreach($graphs AS $i => $graph) {
 	if(!isset($plusgraphs) or (count($plusgraphs) == 1)) $options['from-graph'] = "FROM <$graph>";
 	if(!$dataset_name) $options['dataset_name'] = "<$graph>";
 	
-	if($options['ofile'] == 'endpoint.statistics') 	$options['ofile'] .= '.'.$i.'.nq';
+	if($options['ofile'] == 'endpoint.statistics') 	{
+		$options['ofile'] .= '.'.($i+1);
+		if($options['nquad_uri']) $options['ofile'] .= '.nq';
+		else $options['ofile'] .= '.nt';
+	}
 	//create file for writing /*"compress.zlib://".*/ 
 	$options['fp'] = fopen($options['odir'].$options['ofile'], 'wb');
 
