@@ -110,6 +110,23 @@ if($options['graphs'] == 'all') {
 	$options['graphs'] = explode(",",$options['graphs']);
 }
 
+$fnx = array(
+	"triples", 
+	"distinctEntities", 
+	"distinctSubjects",
+	"distinctObjects",
+	"distinctProperties",
+	"distinctClasses", 
+	"distinctLiterals", 
+	"distinctInstances",
+	"propertyCount", 
+	"propertyObjectCount", 
+	"propertyDistinctObjectCount", 
+	"propertyDistinctObjectAndTypeCount", 
+	"typePropertyTypeCount", 
+	"datasetPropertyDatasetCount"
+);
+	
 foreach($options['graphs'] AS $i => $graph) {
 	echo "processing $graph ...";
 	$options['uri'] = $graph;
@@ -119,41 +136,16 @@ foreach($options['graphs'] AS $i => $graph) {
 	//create file for writing /*"compress.zlib://".*/ 
 	$options['fp'] = fopen($options['odir'].$options['ofile'], 'wb');
 
-	try {
-//		echo PHP_EOL."graphs...";
-//		addDistinctGraphs();
-		echo "done".PHP_EOL."triples"."...";
-		addTriples();
-		echo "done".PHP_EOL."entities"."...";
-		addDistinctEntities();
-		echo "done".PHP_EOL."subjects"."...";
-		addDistinctSubjects();
-		echo "done".PHP_EOL."properties"."...";
-		addDistinctProperties();
-		echo "done".PHP_EOL."objects"."...";
-		addDistinctObjects();
-		echo "done".PHP_EOL."classes"."...";
-		addClasses();
-		echo "done".PHP_EOL."literals"."...";
-		addDistinctLiterals();
-		echo "done".PHP_EOL."instances"."...";
-		addDistinctInstances();
-		echo "done".PHP_EOL."property count"."...";
-		addPropertyCount();
-		echo "done".PHP_EOL."property object count"."...";
-		addPropertyObjectCount();	
-		echo "done".PHP_EOL."property unique object count"."...";
-		addPropertyDistinctObjectCount();
-		echo "done".PHP_EOL."property unique object type count"."...";
-		addPropertyDistinctObjectAndTypeCount();
-		echo "done".PHP_EOL."type property type"."...";
-		addTypePropertyTypeCount();
-		echo "done".PHP_EOL."dataset property dataset"."...";
-		addDatasetPropertyDatasetCount();
-		echo "done".PHP_EOL;
-	} catch(Exception $e) {
-		trigger_error("Problem! ".$e);
-		exit;
+	foreach($fnx AS $f) {
+		try {
+			echo $f."...";
+			$z = "add".ucFirst($f);
+			$z();
+			echo "done".PHP_EOL;
+		} catch(Exception $e) {
+			trigger_error("Problem! ".$e);
+			continue;
+		}
 	}
 	fclose($options['fp']);
 }
@@ -367,7 +359,7 @@ function addDistinctLiterals()
 	}
 }
 
-function addClasses()
+function addDistinctClasses()
 {
 	global $options;
 	$sparql = "SELECT ?type (COUNT(?type) AS ?n) str(?label) {GRAPH ?g {?s a ?type OPTIONAL {?type rdfs:label ?label}} ".$options['filter']."}";
