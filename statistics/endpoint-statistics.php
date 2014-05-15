@@ -197,7 +197,7 @@ function query($sparql)
 	//isql commands pre and post
 	$cmd_pre = $options['isql']." -S ".$options['port']." -U ".$options['user']." -P ".$options['pass']." verbose=$verbose banner=off prompt=off echo=ON errors=stdout exec=\"Set Blobs On;SPARQL define output:format 'JSON' "; 
 	$cmd_post = '"';
-	$cmd = $cmd_pre.addslashes($sparql).$cmd_post;
+	$cmd = $cmd_pre.addslashes(str_replace(array("\r","\n"),"",$sparql)).$cmd_post;
 	$out = shell_exec($cmd);
 	if(strstr($out,"*** Error")) {	
 		throw new Exception($out);
@@ -401,7 +401,17 @@ function addDistinctLiterals()
 function addTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?type (COUNT(DISTINCT ?s) AS ?n) str(?label) ".$options['from-graph']." {?s a ?type OPTIONAL {?type rdfs:label ?label}}";
+	$sparql = "SELECT ?type ?n str(?label) 
+".$options['from-graph']."
+{ 
+  { 
+    SELECT ?type (COUNT(DISTINCT ?s) AS ?n)
+    {?s a ?type} 
+    GROUP BY ?type
+  }
+  OPTIONAL {?type rdfs:label ?label}
+}";
+
 	$r = query($sparql);
 	
 	foreach($r AS $c) {
@@ -426,7 +436,16 @@ function addTypeCount()
 function addPropertyCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?label) (COUNT(?p) AS ?n) ".$options['from-graph']." {?s ?p ?o OPTIONAL {?p rdfs:label ?label} } GROUP BY ?p ?label";
+	$sparql = "SELECT ?p str(?label) ?n 
+".$options['from-graph']." 
+{
+	{ SELECT ?p (COUNT(?p) AS ?n) 
+	  {?s ?p ?o}
+	  GROUP BY ?p
+	}
+	OPTIONAL {?p rdfs:label ?label} 
+}
+";
 	$r = query($sparql);
 
 	foreach($r AS $c) {
@@ -450,7 +469,16 @@ function addPropertyCount()
 function addPropertyObjectCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?label) (COUNT(?o) AS ?n) ".$options['from-graph']." {?s ?p ?o OPTIONAL {?p rdfs:label ?label} } GROUP BY ?p ?label";
+	$sparql = "SELECT ?p str(?label) ?n 
+".$options['from-graph']." 
+{
+	{ SELECT ?p (COUNT(?o) AS ?n) 
+	  { ?s ?p ?o }
+	  GROUP BY ?p
+	}
+	OPTIONAL {?p rdfs:label ?label} 
+}
+";
 	$r = query($sparql);
 	
 	foreach($r AS $c) {
@@ -480,7 +508,15 @@ function addPropertyObjectCount()
 function addPropertyDistinctObjectCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?label) (COUNT(DISTINCT ?o) AS ?n) ".$options['from-graph']." {?s ?p ?o OPTIONAL {?p rdfs:label ?label} } GROUP BY ?p ?label";
+	$sparql = "SELECT ?p str(?label) ?n 
+".$options['from-graph']." 
+{
+	{ SELECT ?p (COUNT(DISTINCT ?o) AS ?n)
+	  {?s ?p ?o} 
+	  GROUP BY ?p
+	}
+	OPTIONAL {?p rdfs:label ?label} 
+}";
 	$r = query($sparql);
 	
 	foreach($r AS $c) {
@@ -509,15 +545,20 @@ function addPropertyDistinctObjectCount()
 function addPropertyDistinctObjectAndTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?plabel) ?otype str(?otype_label) (COUNT(distinct ?o) AS ?n)
-	".$options['from-graph']." {
-		?s ?p ?o . 
-		?o a ?otype .
-		OPTIONAL {?p rdfs:label ?label} 
-		OPTIONAL {?otype rdfs:label ?otype_label} 
+	$sparql = "SELECT ?p str(?plabel) ?otype str(?otype_label) ?n
+".$options['from-graph']." {
+	{
+		SELECT ?p (COUNT(DISTINCT ?o) AS ?n) ?otype
+		{ 
+			?s ?p ?o . 
+			?o a ?otype .
+		}
+		GROUP BY ?p ?otype
 	}
-	GROUP BY ?p ?otype ?plabel ?otype_label";
-	$r = query(str_replace("\n","",$sparql));
+	OPTIONAL {?p rdfs:label ?label} 
+	OPTIONAL {?otype rdfs:label ?otype_label} 
+}";
+	$r = query($sparql);
 
 	foreach($r AS $c) {
 		$id = getID($c);
@@ -547,17 +588,24 @@ function addPropertyDistinctObjectAndTypeCount()
 function addTypePropertyTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?stype str(?stype_label) (COUNT(DISTINCT ?s) AS ?sn) ?p str(?plabel) ?otype str(?otype_label) (COUNT(distinct ?o) AS ?on)
-".$options['from-graph']." {
-?s ?p ?o . 
-?s a ?stype .
-?o a ?otype .
-OPTIONAL {?stype rdfs:label ?stype_label} 
-OPTIONAL {?p rdfs:label ?plabel} 
-OPTIONAL {?otype rdfs:label ?otype_label} 
+	$sparql = "SELECT ?stype str(?stype_label) ?sn ?p str(?plabel) ?otype str(?otype_label) ?on
+".$options['from-graph']." 
+{
+	{
+		SELECT ?stype ?p ?otype (COUNT(DISTINCT ?s) AS ?sn) (COUNT(DISTINCT ?o) AS ?on)
+		{
+			?s ?p ?o . 
+			?s a ?stype .
+			?o a ?otype .
+		}
+		GROUP BY ?p ?stype ?otype 
+	}
+	OPTIONAL {?stype rdfs:label ?stype_label} 
+	OPTIONAL {?p rdfs:label ?plabel} 
+	OPTIONAL {?otype rdfs:label ?otype_label} 
 }
-GROUP BY ?stype ?otype ?p str(?stype_label) str(?plabel) str(?otype_label)";
-	$r = query(str_replace("\n","",$sparql));
+";
+	$r = query($sparql);
 
 	foreach($r AS $c) {
 		$id = getID($c);
@@ -594,7 +642,8 @@ function addDatasetPropertyDatasetCount()
 {
 	global $options;
 	$sparql = "SELECT DISTINCT ?p ?stype ?otype (COUNT(?s) AS ?n)
-	".$options['from-graph']." {
+".$options['from-graph']." 
+{
 	?s ?p ?o .
 	?s a ?stype .
 	?o a ?otype .
@@ -602,7 +651,7 @@ function addDatasetPropertyDatasetCount()
 	FILTER regex (?otype, \"vocabulary:Resource\")
 	FILTER (?stype != ?otype)
 }";
-	$r = query(str_replace("\n","",$sparql));
+	$r = query($sparql);
 	foreach($r AS $c) {
 		$id = getID($c);
 		$label = $c->stype->value." connected to ".$c->otype->value." through ".$c->p->value." in ".$options['dataset_name'];
