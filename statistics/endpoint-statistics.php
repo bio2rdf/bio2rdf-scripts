@@ -54,7 +54,7 @@ $options = array(
  "odir" => "/data/rdf/statistics/",
  "ofile" => "endpoint.statistics",
  "isql" => "/usr/local/virtuoso-opensource/bin/isql",
- "graphs" => "",
+ "graphs" => "list|all|graphname",
  "dataset" => "",
  "instance" => "",
  "quad_uri" => "",
@@ -119,13 +119,21 @@ if($options['graphs'] == '') {
 	exit;
 }
 
-if($options['graphs'] == 'all') {
+if($options['graphs'] == 'list' or $options['graphs'] == 'all') {
 	try {
-		$options['graphs'] = getGraphs();
+		$graphs = getGraphs();
 	} catch(Exception $e) {
 		trigger_error("Error in getting graphs from endpoint. $e");
 		exit;
 	}
+	if($options['graphs'] == 'list') {
+		echo "graphs:".PHP_EOL;
+		foreach($graphs AS $g) {
+			echo " ".$g.PHP_EOL;
+		}
+		exit;
+	}
+	$options['graphs'] = $graphs;
 } else {
 	$options['graphs'] = explode(",",$options['graphs']);
 }
@@ -218,7 +226,7 @@ function write($content)
 function getGraphs()
 {
 	global $options;
-	$sparql = "SELECT DISTINCT ?g WHERE {GRAPH ?g {?s ?p ?o}}";
+	$sparql = "SELECT DISTINCT ?g WHERE {GRAPH ?g {?s a ?o}}";
 	$r = query($sparql);
 	foreach($r AS $g) {
 		$graphs[] = $g->g->value;
