@@ -162,6 +162,7 @@ if(count($diff)) {
 	exit;
 }
 $dataset_name = $options['dataset_name'];
+$outfile = $options['ofile'];
 
 foreach($graphs AS $i => $graph) {
 	echo "processing graph <$graph>".PHP_EOL;
@@ -169,13 +170,16 @@ foreach($graphs AS $i => $graph) {
 	if(!isset($plusgraphs) or (count($plusgraphs) == 1)) $options['from-graph'] = "FROM <$graph>";
 	if(!$dataset_name) $options['dataset_name'] = "<$graph>";
 	
-	if($options['ofile'] == 'endpoint.statistics') 	{
-		$options['ofile'] .= '.'.($i+1);
+	if($outfile == 'endpoint.statistics' && count($graphs) >= 2) 	{
+		$options['ofile'] = $outfile.'.'.($i+1);
+	}
+	
+	//create file for writing /*"compress.zlib://".*/ 
+	if(!isset($options['fp'])) {
 		if($options['quad_uri']) $options['ofile'] .= '.nq';
 		else $options['ofile'] .= '.nt';
+		$options['fp'] = fopen($options['odir'].$options['ofile'], 'wb');
 	}
-	//create file for writing /*"compress.zlib://".*/ 
-	$options['fp'] = fopen($options['odir'].$options['ofile'], 'wb');
 
 	foreach($work AS $f) {
 		try {
@@ -188,7 +192,10 @@ foreach($graphs AS $i => $graph) {
 			continue;
 		}
 	}
-	fclose($options['fp']);
+	if(count($graphs) >= 2) {
+		fclose($options['fp']);
+		$options['fp'] = null;
+	}
 }
 exit;
 
