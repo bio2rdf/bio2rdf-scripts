@@ -217,6 +217,10 @@ function getID($obj)
 	$v4uuid = UUID::v4();
 	return "http://bio2rdf.org/bio2rdf.dataset_resource:".$v4uuid;
 }
+function makeLabel($o, $uri, $label)
+{
+	return isset($o->$label)?"'".$o->$label->value."' <".$o->$uri->value.'>':'<'.$o->$uri->value.'>';
+}
 function Quad($subject_uri, $predicate_uri, $object_uri, $graph_uri = null)
 {
 	global $options;
@@ -401,7 +405,7 @@ function addDistinctLiterals()
 function addTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?type ?n str(?label) 
+	$sparql = "SELECT ?type ?n (str(?label) AS ?slabel)
 ".$options['from-graph']."
 { 
   { 
@@ -413,10 +417,9 @@ function addTypeCount()
 }";
 
 	$r = query($sparql);
-	
 	foreach($r AS $c) {
 		$id = getID($c);
-		$label = $c->n->value." ".(isset($c->label)?$c->label->value:$c->type->value)." in ".$options['dataset_name'];
+		$label = $c->n->value." ".makeLabel($c,'type','slabel')." in ".$options['dataset_name'];
 		write( 
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#classPartition", $id).
@@ -436,21 +439,21 @@ function addTypeCount()
 function addPropertyCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?label) ?n 
+	$sparql = "SELECT ?p str(?plabel) ?n 
 ".$options['from-graph']." 
 {
 	{ SELECT ?p (COUNT(?p) AS ?n) 
 	  {?s ?p ?o}
 	  GROUP BY ?p
 	}
-	OPTIONAL {?p rdfs:label ?label} 
+	OPTIONAL {?p rdfs:label ?plabel} 
 }
 ";
 	$r = query($sparql);
 
 	foreach($r AS $c) {
 		$id = getID($c);
-		$label = $c->n->value." triples with ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset_name'];
+		$label = $c->n->value." triples with ".makeLabel($c,'p','plabel')." in ".$options['dataset_name'];
 		write(
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#propertyPartition", $id).
@@ -469,7 +472,7 @@ function addPropertyCount()
 function addPropertyObjectCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?label) ?n 
+	$sparql = "SELECT ?p (str(?label) AS ?plabel) ?n 
 ".$options['from-graph']." 
 {
 	{ SELECT ?p (COUNT(?o) AS ?n) 
@@ -484,7 +487,7 @@ function addPropertyObjectCount()
 	foreach($r AS $c) {
 		$id = getID($c);
 		$oid = getID($c);
-		$label = $c->n->value." unique objects with property ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset_name'];
+		$label = $c->n->value." unique objects linked by property ".makeLabel($c, 'p', 'plabel')." in ".$options['dataset_name'];
 		write( 
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
@@ -508,7 +511,7 @@ function addPropertyObjectCount()
 function addPropertyDistinctObjectCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?label) ?n 
+	$sparql = "SELECT ?p (str(?label) AS ?plabel) ?n 
 ".$options['from-graph']." 
 {
 	{ SELECT ?p (COUNT(DISTINCT ?o) AS ?n)
@@ -522,7 +525,7 @@ function addPropertyDistinctObjectCount()
 	foreach($r AS $c) {
 		$id = getID($c);
 		$oid = getID($c);
-		$label = $c->n->value." unique objects with property ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset_name'];
+		$label = $c->n->value." unique objects with property ".makeLabel($c, 'p', 'plabel')." in ".$options['dataset_name'];
 		write( 
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
@@ -545,10 +548,10 @@ function addPropertyDistinctObjectCount()
 function addPropertyDistinctObjectAndTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?p (str(?plabel) AS ?plabel) ?otype (str(?otype_label) AS ?otype_label) (COUNT(?o) AS ?n)
+	$sparql = "SELECT ?p (str(?plabel) AS ?plabel) ?otype (str(?otype_label) AS ?otype_label) (COUNT(DISTINCT ?o) AS ?n)
 ".$options['from-graph']." {
 	{
-		SELECT ?p ?otype (COUNT(?o) AS ?n)
+		SELECT ?p ?otype (COUNT(DISTINCT ?o) AS ?n)
 		{ 
 			?s ?p ?o . 
 			?o a ?otype .
@@ -563,7 +566,8 @@ function addPropertyDistinctObjectAndTypeCount()
 		$id = getID($c);
 		$sid = getID($c);
 		$oid = getID($c);
-		$label = $c->n->value." unique ".$c->otype->value." linked by ".(isset($c->label)?$c->label->value:$c->p->value)." in ".$options['dataset_name'];
+		$label = $c->n->value." unique ".makeLabel($c, 'otype', 'otype_label').
+			" linked by ".makeLabel($c,'p','plabel')." in ".$options['dataset_name'];
 		write( 
 			// enhanced
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
@@ -612,10 +616,8 @@ function addTypePropertyTypeCount()
 		$id = getID($c);
 		$sid = getID($c);
 		$oid = getID($c);
-		$label = $c->sn->value." unique ".$c->stype->value." linked by property "
-			.(isset($c->plabel)?$c->plabel->value:$c->p->value)
-			." to ".$c->on->value." unique ".$c->otype->value
-			." in ".$options['dataset_name'];
+		$label = $c->sn->value." unique ".makeLabel($c,'stype','stype_label')." linked by property ".makeLabel($c, 'p', 'plabel')
+			." to ".$c->on->value." unique ".makeLabel($c,'otype','otype_label')." in ".$options['dataset_name'];
 		write(
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
@@ -655,7 +657,14 @@ function addDatasetPropertyDatasetCount()
 	$r = query($sparql);
 	foreach($r AS $c) {
 		$id = getID($c);
-		$label = $c->stype->value." connected to ".$c->otype->value." through ".$c->p->value." in ".$options['dataset_name'];
+		
+		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->stype->value,$m);
+		$d1 = $m[1];
+		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->otype->value,$m);
+		$d2 = $m[1];
+		$r = $c->p->value;
+		
+		$label = "$d1 connected to $d2 through ".$c->n->value." <$r> in ".$options['dataset_name'];
 		write(
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
