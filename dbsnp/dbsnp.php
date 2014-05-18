@@ -31,7 +31,6 @@ SOFTWARE.
 require_once(__DIR__.'/../../php-lib/xmlapi.php');
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
-
 class dbSNPParser extends Bio2RDFizer 
 {
 	private $ns = null;
@@ -49,7 +48,7 @@ class dbSNPParser extends Bio2RDFizer
 	{
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
-		
+
 		// get the snps from pharmgkb
 		$snps = explode(",",parent::getParameterValue('files'));
 		if($snps[0] == 'all') $snps[0] = 'clinical'; // for now.
@@ -97,7 +96,7 @@ class dbSNPParser extends Bio2RDFizer
 			}
 			
 			// process
-			echo "Processing $snp ($i/$n)".PHP_EOL;
+			echo "Processing $snp (".($i+1)."/$n)".PHP_EOL;
 			$this->parse($infile);
 			parent::writeRDFBufferToWriteFile();
 
