@@ -91,14 +91,16 @@ if(!file_exists($options['isql'])) {
 	trigger_error("ISQL could not be found at ".$options['isql'],E_USER_ERROR);
 }
 
-
 @mkdir($options['odir']);
 
 if($options['instance']) {
+	if($options['version'] == '') {
+		echo "you must specify a version!";
+		exit;
+	}
 	$file = "instances.tab";
 	$fp = fopen($file,"r");
 	if(!$fp) {trigger_error("Unable to open $file",USER_ERROR);exit;}
-	fgets($fp); // header
 	while($l = fgets($fp)) {
 		$a = explode("\t",trim($l));
 		if(isset($a[2])) {
@@ -106,12 +108,12 @@ if($options['instance']) {
 			if($options['instance'] == $name) {
 				$options['port'] = $a[0];
 				$options['dataset'] = $name;
-				if($options['ofile'] == 'endpoint.statistics') $options['ofile'] = "bio2rdf.$name.statistics.nq"; 
-				if(!$options['graphs']) {
-					$options['graphs'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$name-r".$options['version'];
-				}
-				if(!$options['quad_uri']) $options['quad_uri'] = $options['graphs']."-statistics";
-				if(!$options['dataset_uri']) $options['graphs'];
+				
+				$version = $options['version'];
+				$options['ofile'] = "bio2rdf.$name.$version.statistics"; 
+				$options['graphs'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$name-r$version";				
+				$options['quad_uri'] = $options['graphs']."-statistics";
+				$options['dataset_uri'] = $options['graphs'];
 				break;
 			}
 		}
