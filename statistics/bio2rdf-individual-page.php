@@ -27,16 +27,19 @@
 **/
 
 $options = array(
-	"i" => "instances.tab",
-	"l" => "registry.csv",
-	"o" => "/www/virtuoso/",
-	"r" => "3",
-#	"b" => "http://ns.bio2rdf.org/sparql", // use bio2rdf endpoints or specified server uri + port from instances file 
-	"b" => "http://localhost", 
-	"d" => "false", // download registry
-	"s" => "", // specify dataset 
+	"sparql" => "http://localhost:8890/sparql",
+	"isql" => "/usr/local/virtuoso-opensource/bin/isql",
+	"use" => "isql",
+	"port" => "1111",
+	"user" => "dba",
+	"pass" => "dba",
+	"target.endpoint" => "", // target endpoint
+	"graph" => "", // statistics graph
+	"dataset.name" => "", // dataset
+	"bio2rdf.version" => "", // specify a bio2rdf version #
+	"o" => "", // output filepath
+	"download" => "false", // download registry
 );
-
 
 // set options from user input
 foreach($argv AS $i => $arg) {
@@ -47,186 +50,201 @@ foreach($argv AS $i => $arg) {
  	if(isset($options[$b[0]])){
  		$options[$b[0]] = $b[1];
  	} else {
- 		echo "Uknown option: $b[0]";
+ 		echo "Unknown option: $b[0]";
  		exit;
  	}//else
 }//foreach
 
-$options = print_usage($argv, $argc);
-if($options['d'] == "true") {
- echo "downloading registry".PHP_EOL;
- file_put_contents("registry.csv",file_get_contents('https://docs.google.com/spreadsheet/pub?key=0AmzqhEUDpIPvdFR0UFhDUTZJdnNYdnJwdHdvNVlJR1E&single=true&gid=0&output=csv'));
+// set the right isql
+if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+ $isql_windows = "/software/virtuoso-opensource/bin/isql.exe";
+ $options['isql'] = $isql_windows;
+}
+if(!file_exists($options['isql'])) {
+	trigger_error("ISQL could not be found at ".$options['isql'],E_USER_ERROR);
 }
 
-$endpoints = getEndpoints($options['i']);
-$lsr = getLSR($options['l']);
-$desc = getDescriptions($endpoints, $lsr);
-$endpoint_stats = retrieveStatistics($endpoints);
-makeHTML($endpoint_stats, $desc, $options['o'].$options['r']."/");
 
-/***************/
-/** FUNCTIONS **/
-/***************/
-function print_usage($argv, $argc){
-	global $options;
-
-	// show command line options
-	if($argc == 1) {
-		echo "Usage: php $argv[0] ";
-		foreach($options AS $key => $value) {
-	  		echo "$key=$value ".PHP_EOL;
-	 	}
+if($options['dataset.name']) {
+	$dataset = $options['dataset.name'];
+		
+	// using the virtuoso instances; 
+	$registry_file = "registry.csv";
+	if(!file_exists($registry_file) or $options['download'] == "true") {
+		echo "Downloading registry".PHP_EOL;
+		file_put_contents(
+			$registry_file,
+			file_get_contents('https://docs.google.com/spreadsheet/pub?key=0AmzqhEUDpIPvdFR0UFhDUTZJdnNYdnJwdHdvNVlJR1E&single=true&gid=0&output=csv')
+		);
 	}
-	// set options from user input
-	foreach($argv AS $i => $arg) {
-		if($i==0){
-			continue;
-		} 
-	 	$b = explode("=",$arg);
-	 	if(isset($options[$b[0]])){
-	 		$options[$b[0]] = $b[1];
-	 	} else {
-	 		echo "Uknown option: $b[0]";
-	 		exit;
-	 	}//else
-	}//foreach
-	if($options['i'] == '/instances/file/path/'){
-		echo "** Please specify a valid instances file **".PHP_EOL;
+	
+	$registry  = getRegistry($registry_file);
+	$entry     = getRecord($registry,$dataset);
+	$endpoint  = getEndpointInfo($dataset);
+
+	$entry['sparql'] = "http://localhost:".$endpoint['sparql']."/sparql";
+	$entry['target.endpoint'] = $entry['sparql'];
+	if($options['target.endpoint']) $entry['target.endpoint'] = $options['target.endpoint']; 
+	
+	if($options['bio2rdf.version'] != '') {
+		$entry['graph'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$dataset-R".$options['bio2rdf.version']."-statistics";
+	}
+	if($options['graph']) $entry['graph'] = $options['graph'];
+	$entry['from'] = "FROM <".$entry['graph'].">";
+	$entry['describe'] = '';
+	$outfile = $dataset.'.html';
+	if($options['o']) $outfile = $options['o'];
+} else {
+	if($options['graph'] == '') {
+		echo "please specify a graph!".PHP_EOL;
 		exit;
 	}
-	if($options['l'] == '/path/to/lsr.csv'){
-		echo "** Specify a valid LSR CSV file path. **".PHP_EOL;
-		exit;
-	}
-	return $options;
+	$entry['name'] = "default";
+	$entry['sparql']  = $options['sparql'];
+	$entry['target.endpoint'] = $options['sparql'];
+	$entry['graph'] = $options['graph'];
+	$entry['from'] = "FROM <".$entry['graph'].">";
+	$entry['describe'] = substr($options['sparql'], 0, strpos($options['sparql'],"/sparql"))."/describe?url=";
+	$outfile = 'statistics.html';
+	if($options['o']) $outfile = $options['o'];
+
 }
 
-function getDescriptions($endpoints, $lsr){
-	$r = array();
-	foreach ($endpoints as $e => $v) {
-		if(isset($lsr[$e])) {
-			$r[$e]['prefix'] = $lsr[$e][0];
-			$r[$e]['name'] = $lsr[$e][9];
-			$r[$e]['description'] = $lsr[$e][10];
-			$r[$e]['organization'] = $lsr[$e][12];
-			$r[$e]['keywords'] = $lsr[$e][14];
-			$r[$e]['homepage'] = $lsr[$e][15];
-			$r[$e]['license_url'] = $lsr[$e][19];
-			$r[$e]['ident_regex_patt'] = $lsr[$e][22];
-			$r[$e]['provider_html_url'] = $lsr[$e][24];
-		}else{
-			trigger_error("$e not found in registry",E_USER_WARNING);
-		}
-	}
-	return $r;
-}
+makeHTML($entry,$outfile);
 
-/**
-* This function parses the LSR and returns a multidimensional assoc array
-*/
-function getLSR($file){
+
+
+
+function getRegistry($file)
+{
 	$fh = fopen($file, "r") or die("Could not open File ". $file);
-	if($fh){
-		$h = fgetcsv($fh,10000,",");
-		while(($a = fgetcsv($fh, 10000, ","))!== FALSE){
-			$r[$a[0]] = $a;
-		}
+	$h = fgetcsv($fh,10000,",");
+	while(($a = fgetcsv($fh, 10000, ","))!== FALSE){
+		$r[$a[0]] = $a;
 	}
 	fclose($fh);
 	return $r;
 }
 
+function getRecord($registry,$dataset)
+{
+	if(!isset($registry[$dataset])) {
+		echo "unable to find $dataset in registry".PHP_EOL;
+		return null;
+	}
+	$a = $registry[$dataset];
+	
+	$r['prefix'] = $a[0];
+	$r['name']   = $a[9];
+	$r['description']  = $a[10];
+	$r['organization'] = $a[12];
+	$r['keywords'] = $a[14];
+	$r['homepage'] = $a[15];
+	$r['license_url'] = $a[19];
+	$r['ident_regex_patt'] = $a[22];
+	$r['provider_html_url'] = $a[24];
+	return $r;
+}
 
 
-function getEndpoints($filename){
+function getEndpointInfo($entry)
+{
 	global $options;
 	//return an array with the endpoint information
-	$a = array();
-	$fh = fopen($filename, "r") or die("Could not open file: filename!".PHP_EOL);
-	if($fh){
-		while(($l =  fgets($fh, 4096)) !== false){
-			if(!(preg_match('/^\s*#.*$/',$l))){
-				$al = trim($l);
-				if(strlen($al)){
-					$tal = explode("\t", $al);
-					$info = array();
-					if(isset($tal[0])){
-						$info['isql_port'] = $tal[0];
-					}
-					if(isset($tal[1])){
-						$info['http_port'] = $tal[1];
-					}
-					if(isset($tal[2])){
-						$info['ns'] = $tal[2];
-					}
-
-					if($options['s'] && $options['s'] != $info['ns']) continue;
-
-					if(strlen($info['http_port']) && strlen($info['ns']) && strlen($info['isql_port'])){
-						$url = ($options['b']=='http://ns.bio2rdf.org/sparql')?
-							('http://'.$info['ns'].'.bio2rdf.org/sparql'):($options['b'].':'.$info['http_port']."/sparql");
-						$a[$info['ns']] = array(
-							'endpoint_url' => $url,
-							'graph_uri' => "http://bio2rdf.org/bio2rdf-statistics-".$info['ns'],
-							'isql_port' => $info['isql_port'],
-						);
-					}
-				}else{
-					continue;
-				}
-			}
-		}
-		fclose($fh);
-	}
-	return $a;
-}
-
-function makeHTML($endpoint_stats, $endpoint_desc, $output_dir){
-	global $options;
-	//create one html file per endpoint
-	foreach($endpoint_stats as $endpoint => $d){
-		if(count($d) > 2){
-			$desc = @$endpoint_desc[$endpoint];
-			//create an output file
-			$fo = fopen($output_dir.$endpoint.".html", "w") or die("Could not create file!");
-			if($fo){
-				$html = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"><html>';
-				$html .= addHeader($endpoint);
-				$html .= "<body>";
-				$html .= addBio2RDFLogo();
-				$html .= "<div id='description'>";
-				$html .= addDatasetDescription($desc);
-				$html .= addBio2RDFDetails($d['endpoint_url'], $desc['prefix']);
-				$html .= "</div>";
-				$html .= "<div id='container'> <div id='items'></div>";
-if(isset($d['triples'])) {
-				$html .= addBasicStatsTable($d['endpoint_url'],$d['triples'],$d['unique_subjects'],$d['unique_predicates'],$d['unique_objects'] , $d['unique_literals']);
-				$html .= addUniqueTypesTable($d['endpoint_url'],$d['type_counts']);
-				$html .= addPredicateObjLinks($d['endpoint_url'],$d['predicate_object_links']);
-				$html .= addPredicateLiteralLinks($d['endpoint_url'],$d['predicate_literals']);
-				$html .= addSubjectCountPredicateObjectCount($d['endpoint_url'],$d['subject_count_predicate_object_count']);
-				$html .= addSubjectPredicateUniqueLits($d['endpoint_url'],$d['subject_count_predicate_literal_count']);
-				$html .= addSubjectTypePredType($d['endpoint_url'],$d['subject_type_predicate_object_type']);
-				$html .= addNSNSCounts($d['endpoint_url'], $d['nsnscounts']);
-}
-				$html .= "</div></body></html>";
-				fwrite($fo, $html);
-			}
-			fclose($fo);
+	$filename = 'instances.tab';
+	$fh = fopen($filename, "r") or die("Could not open file: $filename!".PHP_EOL);
+	while(($l = fgets($fh, 4096)) !== false){
+		$a = explode("\t",trim($l));
+		if($a[0] == '#' or $a[0] == '') continue;	
+		if($a[2] == $entry) {
+			$info['isql'] = $a[0];
+			$info['sparql'] = $a[1];
+			$info['name'] = $a[0];
+			break;
 		}
 	}
+	fclose($fh);
+	if(!isset($info)) {
+		echo "unable to find $entry in endpoinds".PHP_EOL;
+		return null;
+	}
+	return $info;
 }
 
-function addBio2RDFDetails($u, $ns){
-	global $options;
-	$fct = substr($u,0, strpos($u,"/sparql"))."/fct";
-	$rm = "";
-	if($u != null && $ns != null){
-		$rm .= "<p><strong>SPARQL Endpoint URL:</strong> <a href=\"$u\">$u</a></p>";
-		$rm .= "<p><strong>Faceted Browser URL:</strong> <a href=\"$fct\">$fct</a></p>";
-		$rm .= "<p><strong>Conversion Script URL:</strong> <a href=\"http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."\">http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."</a></p>";
-		$rm .= "<p><strong>Download URL:</strong> <a href=\"http://download.bio2rdf.org/release/".$options['r']."/".$ns."\">http://download.bio2rdf.org/release/".$options['r']."/".$ns."</a></p>";
+
+
+
+
+function addHeader($aTitle){
+	$b = "<head>";
+	if(strlen($aTitle)){
+		$b .= "<title>Statistics for ".$aTitle."</title>";
 	}
+	//add css
+	$b .= '<link rel="stylesheet" type="text/css" href="http://download.bio2rdf.org/lib/datatables/css/jquery.dataTables.css">';
+	$b .= '<link rel="stylesheet" type="text/css" href="http://download.bio2rdf.org/lib/datatables/css/stoc.css">';
+	$b .= '<link rel="stylesheet" type="text/css" href="http://download.bio2rdf.org/lib/datatables/css/code.css">';
+	$b .= '<style>
+			#logo img
+			{
+			display: block;
+  			margin-left: auto;
+ 			margin-right: auto;
+ 			height: 80px;
+			}
+			#link {
+			 margin: 0 auto;
+   			 text-align: center;
+   			 margin-right:auto;
+   			 margin-left:auto;
+   			 font-size:12px; !important
+			}
+			#description {
+				margin: 0 auto;
+   				padding-bottom: 20px;
+    			top: 50px;
+				width: 960px;
+			}
+			body{
+			   font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+               font-size: 14px;
+               color:#174e74;
+			}
+			</style>';
+	//add some js
+	$b .= '<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>';
+	$b .= '<script type="text/javascript" src="http://download.bio2rdf.org/lib/datatables/js/jquery.stoc.js"></script>';
+	$b .= '<script type="text/javascript" src="http://download.bio2rdf.org/lib/datatables/js/jquery.dataTables.js"></script>
+	<script type="text/javascript" charset="utf-8">	
+	$(document).ready(function() {
+		$("table").dataTable({
+			"bInfo":false, 
+			"bPaginate": false,
+			"aaSorting": [[1,"desc"]]
+		});
+		$("#items").stoc({
+			search: "#container"
+		});
+		});
+		</script>
+	</head>';
+	return $b;
+}
+
+function addBio2RDFLogo(){
+	global $options;
+
+	$rm = '<div id="logo">
+				<a  href="http://bio2rdf.org"><img src="https://googledrive.com/host/0B3GgKfZdJasrRnB0NDNNMFZqMUk/bio2rdf_logo.png" alt="Bio2RDF logo" /></a>
+			</div>';
+	$rm .= '<div id ="link">';
+	$rm .= "<h1>Linked Data for the Life Sciences</h1>".PHP_EOL;
+	$rm .= '<h2>-Release '.$options['bio2rdf.version'].'-</h2>';
+	$rm .= '<h2>
+	[<a href="http://bio2rdf.org" target="_blank">website</a>]
+	[<a href="http://download.bio2rdf.org/release/'.$options['bio2rdf.version'].'/release.html" target="_blank">datasets</a>]
+	[<a href="http://github.com/bio2rdf/bio2rdf-scripts/wiki" target="_blank">documentation</a>]</h2>';
+	$rm .= "</div>";
 	return $rm;
 }
 
@@ -266,625 +284,590 @@ function addDatasetDescription($aDesc){
 	return $rm;
 }
 
-
-function addBio2RDFLogo(){
+function addBio2RDFDetails($u, $ns)
+{
 	global $options;
+	$fct = substr($u,0, strpos($u,"/sparql"))."/fct";
 	$rm = "";
-	$rm .= '<div id="logo">
-				<a  href="http://bio2rdf.org"><img src="https://googledrive.com/host/0B3GgKfZdJasrRnB0NDNNMFZqMUk/bio2rdf_logo.png" alt="Bio2RDF logo" /></a>
-			</div>';
-	$rm .= '<div id ="link">';
-	$rm .= "<h1>Linked Data for the Life Sciences</h1>".PHP_EOL;
-	$rm .= '<h2>-Release '.$options['r'].'-</h2>';
-	$rm .= '<h2>[<a href="http://bio2rdf.org" target="_blank">website</a>][<a href="http://download.bio2rdf.org/release/'.$options['r'].'/release.html" target="_blank">datasets</a>][<a href="http://github.com/bio2rdf/bio2rdf-scripts/wiki" target="_blank">documentation</a>]</h2>';
-	$rm .= "</div>";
+	if($u != null && $ns != null){
+		$rm .= "<p><strong>SPARQL Endpoint URL:</strong> <a href=\"$u\">$u</a></p>";
+		$rm .= "<p><strong>Faceted Browser URL:</strong> <a href=\"$fct\">$fct</a></p>";
+		$rm .= "<p><strong>Conversion Script URL:</strong> <a href=\"http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."\">http://github.com/bio2rdf/bio2rdf-scripts/tree/master/".$ns."</a></p>";
+		$rm .= "<p><strong>Download URL:</strong> <a href=\"http://download.bio2rdf.org/release/".$options['bio2rdf.version']."/".$ns."\">http://download.bio2rdf.org/release/".$options['bio2rdf.version']."/".$ns."</a></p>";
+	}
 	return $rm;
 }
 
 
-function addNSNSCounts($eURL, $arr){
-	$rm = "<hr><h2>Inter and Intra dataset links</h2>";
-	$rm .= "<table id='t'>";
-	$rm .= "<thead><tr><th>dataset</th><th>dataset</th><th>Counts</th></tr></thead><tbody>";
-	foreach($arr as $p => $c){
-		$rm .= "<tr><td>".$c['ns1']."</td><td>".$c['ns2']."</td><td>".$c['count']."</td></tr>";
-	}
-	$rm .= "</tbody></table>";
-	return $rm;
-}
-function addPredicateObjLinks($eURL, $predArr){
-	$rm = "<hr><h2>Unique predicate-object pairs</h2>";
-	$rm .= "<table id='t'>";
-	$rm .= "<thead><tr><th>Predicate URI</th><th>Object Count</th></tr></thead><tbody>";
-	foreach($predArr as $p => $c){
-		$rm .= "<tr><td><a href='".makeFCTURL($eURL,$p)."'>".$p."</a></td><td>".$c."</td></tr>";
-	}
-	$rm .= "</tbody></table>";
-	return $rm;
-}
-function addSubjectPredicateUniqueLits($eURL, $arr){
-	$rm = "<hr><h2>Unique subject-predicate-unique literal links</h2>";
-	$rm .= "<table id='t'>";
-	$rm .= "<thead><tr><th>Subject Count</th><th>Predicate URI</th><th>Literal Count</th></tr></thead><tbody>";
-	foreach($arr as $x => $y){
-		$rm .= "<tr><td>".$y['subject_count']."</td><td><a href='".makeFCTURL($eURL,$x)."'>".$x."</a></td><td>".$y['literal_count']."</td></tr>";
-	}
-	$rm .= "</tbody></table>";
-	return $rm;
-}
-function addSubjectCountPredicateObjectCount($eURL,$arr){
-	$rm = "<hr><h2>Unique subject-predicate-unique object links</h2>";
-	$rm .= "<table id='t'>";
-	$rm .= "<thead><tr><th>Subject Count</th><th>Predicate URI</th><th>Object Count</th></tr></thead><tbody>";
-	foreach($arr as $x => $y){
-		$rm .= "<tr><td>".$y['subject_count']."</td><td><a href='".makeFCTURL($eURL,$x)."'>".$x."</a></td><td>".$y['object_count']."</td></tr>";
-	}
-	$rm .= "</tbody></table>";
-	return $rm;
-}
-function addSubjectTypePredType($eURL,$arr){
-	$rm = "<hr><h2>Subject type-predicate-object type links</h2>";
-	$rm .= "<table id='t'>";
-	$rm .= "<thead><tr><th>Subject Type</th><th>Subject Count</th><th>Predicate</th><th>Object Type</th><th>Object Count</th></tr></thead><tbody>";
-	foreach($arr as $x => $y){
-		$rm .= "<tr><td><a href='".makeFCTURL($eURL,$y['subject_type'])."'>".$y['subject_type']."</a></td><td>".$y['subject_count']."</td><td><a href='".makeFCTURL($eURL,$x)."'>".$x."</a></td><td><a href='".makeFCTURL($eURL,$y['object_type'])."'>".$y['object_type']."</a></td><td>".$y['object_count']."</td></tr>";
-	}
-	$rm .= "</tbody></table>";
-	return $rm;
-}
-function addPredicateLiteralLinks($eURL,$predLitArr){
-	$rm = "<hr><h2>Unique predicate-literal pairs</h2>";
-	$rm .= "<table id='t'>";
-	$rm .= "<thead><tr><th>Predicate URI</th><th>Literal Count</th></tr></thead><tbody>";
-	foreach($predLitArr as $p => $c){
-		$rm .= "<tr><td><a href='".makeFCTURL($eURL,$p)."'>".$p."</a></td><td>".$c."</td></tr>";
-	}
-	$rm .= "</tbody></table>";
-	return $rm;
-}
-function addUniqueTypesTable($endpointURL, $typeArray){
-	$rm = "<hr><h2>Types</h2>";
-	$rm .= "<table id='t'>";
-	$rm .= "<thead><tr><th>Type URI</th><th>Count</th></tr></thead><tbody>";
-	foreach($typeArray as $t => $c){
-		$rm .= "<tr><td><a href='".makeFCTURL($endpointURL,$t)."'>".$t."</a></td><td>".$c."</td></tr>";
-	}
-	$rm .= "</tbody></table>";
-	return $rm;
-}
-function addBasicStatsTable($endpoint_url, $numOfTriples, $unique_subjects, $unique_predicates, $unique_objects, $unique_literals){
-	$rm ="<h2>Basic data metrics</h2><table><thead><th></th><th></th></thead><tbody>";
-	$rm .= "<tr><td>Triples</td><td>".$numOfTriples."</td></tr>";
-	$rm .= "<tr><td>Unique Subjects</td><td>".$unique_subjects."</td></tr>";
-	$rm .= "<tr><td>Unique Predicates</td><td>".$unique_predicates."</td></tr>";
-	$rm .= "<tr><td>Unique Objects</td><td>".$unique_objects."</td></tr>";
-	$rm .= "<tr><td>Unique Literals</td><td>".$unique_literals."</td></tr>";
-	$rm .= "</tbody></table>";
-	return $rm;
-}
-function addBody($contents){
-	$rm = "<body>".$contents."</body>";
-	return $rm;
-}
-
-function addHeader($aTitle){
-	$rm = "<head>";
-	if(strlen($aTitle)){
-		$rm .= "<title> Summary data metrics for the Bio2RDF ".$aTitle." endpoint</title>";
-	}
-	//add css
-	$rm .= '<link rel="stylesheet" type="text/css" href="http://download.bio2rdf.org/lib/datatables/css/jquery.dataTables.css">';
-	$rm .= '<link rel="stylesheet" type="text/css" href="http://download.bio2rdf.org/lib/datatables/css/stoc.css">';
-	$rm .= '<link rel="stylesheet" type="text/css" href="http://download.bio2rdf.org/lib/datatables/css/code.css">';
-	$rm .= '<style>
-			#logo img
-			{
-			display: block;
-  			margin-left: auto;
- 			margin-right: auto;
- 			height: 80px;
-			}
-			#link {
-			 margin: 0 auto;
-   			 text-align: center;
-   			 margin-right:auto;
-   			 margin-left:auto;
-   			 font-size:12px; !important
-			}
-			#description {
-				margin: 0 auto;
-   				padding-bottom: 20px;
-    			top: 50px;
-				width: 960px;
-			}
-			body{
-			   font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
-               font-size: 14px;
-               color:#174e74;
-			}
-			</style>';
-	//add some js
-	$rm .= '<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>';
-	$rm .= '<script type="text/javascript" src="http://download.bio2rdf.org/lib/datatables/js/jquery.stoc.js"></script>';
-	$rm .= '<script type="text/javascript" src="http://download.bio2rdf.org/lib/datatables/js/jquery.dataTables.js"></script>
-	<script type="text/javascript" charset="utf-8">	
-	$(document).ready(function() {
-		$("table").dataTable({
-			"bInfo":false, 
-			"bPaginate": false,
-			"aaSorting": [[1,"desc"]]
-		});
-		$("#items").stoc({
-			search: "#container"
-		});
-		});
-		</script>';
-return $rm."</head>";
-}
-
-/**
-This function modifies the $endpoint_arr and adds each 
-of the statistics found here https://github.com/bio2rdf/bio2rdf-scripts/wiki/Bio2RDF-Dataset-Metrics
-to the array
-**/
-function retrieveStatistics(&$endpoints)
+function query($sparql)
 {
-	foreach($endpoints as $name => $details) {
-		echo "\nprocessing $name";
-		$e = $details["endpoint_url"];
-		$g = $details["graph_uri"];
-		if(!strlen($e)) {
-			trigger_error("Invalid endpoint_url $e",E_USER_ERROR);
-			continue;
+	global $options;
+	$sparql = str_replace(array("\r","\n"),"",$sparql);
+	if($options['use'] == 'isql') {
+		//isql commands pre and post
+		$cmd_pre = $options['isql']." -S ".$options['port']." -U ".$options['user']." -P ".$options['pass']." verbose=off banner=off prompt=off echo=ON errors=stdout exec=\"Set Blobs On;SPARQL define output:format 'JSON' "; 
+		$cmd_post = '"';
+		$cmd = $cmd_pre.addslashes($sparql).$cmd_post;
+		$out = shell_exec($cmd);
+		if(strstr($out,"*** Error")) {	
+			throw new Exception($out);
 		}
-		if(!strlen($g)) {
-			trigger_error("Invalid graph uri $g",E_USER_ERROR);
-			continue;
-		} 
-		$d = getDatasetGraphUri($e);
-		if($d == null) {
-			trigger_error("unable to get dataset graph uri");
-			continue;
-		}
-		//numOfTriples
-		$endpoints[$name]["triples"] = getTriples($e,$g,$d);
-		$endpoints[$name]["distinct_entities"]   = getDistinctSubjects($e,$g,$d);
-		$endpoints[$name]["distinct_subjects"]   = getDistinctSubjects($e,$g,$d);
-		$endpoints[$name]["distinct_predicates"] = getDistinctPredicates($e,$g,$d);
-		$endpoints[$name]["distinct_objects"]    = getDistinctObjects($e,$d);
-		$endpoints[$name]["distinct_literals"]   = getDistinctLiterals($e,$d);
-		$endpoints[$name]["type_counts"]         = getDistinctTypes($e,$d);
-		$endpoints[$name]["pred_counts"]         = getPredicateCounts($e,$d);
-		$endpoints[$name]["predicate_object_links"] = getPredObjFreq($e,$d);
-		$endpoints[$name]["predicate_literals"]      = getPredLitLinks($e,$d);
-		$endpoints[$name]["subject_count_predicate_literal_count"] = getSubPredLitLinks($e,$d);
-		$endpoints[$name]["subject_count_predicate_object_count"] = getSubPredObjLinks($e,$d);
-		$endpoints[$name]["subject_type_predicate_object_type"] = getSubTypePredObjType($e,$d);
-		$endpoints[$name]["nsnscounts"] = getNSNSCounts($e,$d);
-	}
-	return $endpoints;
-}
-
-function getTriples($e,$g)
-{
-	$q = 'SELECT * WHERE{ ?d <http://rdfs.org/ns/void#triples> ?v }';
-
-	$ret = file_get_contents($q);
-	$decoded = json_decode($ret);
-	$count = -1;
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		if(isset($results_raw->bindings[0])){
-			$count = $results_raw->bindings[0]->v->value;
-		}
-	}
-	return $count;
-}
-
-function getDistinctEntities($e,$g)
-{
-	$q = 'SELECT * WHERE{ ?d <http://rdfs.org/ns/void#entities> ?v }';
-
-	$ret = file_get_contents($q);
-	$decoded = json_decode($ret);
-	$count = -1;
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		if(isset($results_raw->bindings[0])){
-			$count = $results_raw->bindings[0]->v->value;
-		}
-	}
-	return $count;
-}
-
-
-function getDistinctSubjects($g)
-{
-	$q = 'SELECT * WHERE{ ?d <http://rdfs.org/ns/void#entities> ?v }';
-
-	$ret = file_get_contents($q);
-	$decoded = json_decode($ret);
-	$count = -1;
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		if(isset($results_raw->bindings[0])){
-			$count = $results_raw->bindings[0]->v->value;
-		}
-	}
-	return $count;
-}
-
-
-
-
-
-
-///////
-function getNSNSCounts($e,$d){
-	$aJSON = file_get_contents(getQueryURL($e,nsQ($d)));
-	$decoded = json_decode($aJSON);
-
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		foreach($results_raw->bindings as $ab){
-			$aP = $ab->pred->value;
-			$sT = $ab->sT->value;
-			$oT = $ab->oT->value;
-			$count = $ab->triples->value;
-			$rm[$aP] = array(
-				'count' => $count,
-				'ns1' => $sT,
-				'ns2' => $oT,
-			);
-		}
-	}
-	return $rm;
-}
-
-function getSubTypePredObjType($e,$d){
-	$aJSON = file_get_contents(getQueryURL($e,q10($d)));
-	$decoded = json_decode($aJSON);
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		foreach($results_raw->bindings as $ab){
-			$aP = $ab->pred->value;
-			$oCount = $ab->oc->value;
-			$objType = $ab->objectType->value;
-			$subCount = $ab->sc->value;
-			$subType = $ab->subjectType->value;
-			$returnMe[$aP]["object_type"] = $objType;
-			$returnMe[$aP]["object_count"] = $oCount;
-			$returnMe[$aP]["subject_type"] = $subType;
-			$returnMe[$aP]["subject_count"] = $subCount;
-		}
-	}
-	return $returnMe;
-}
-function getSubPredLitLinks($e,$d){
-	$aJSON = file_get_contents(getQueryURL($e,q9($d)));
-	$decoded = json_decode($aJSON);
-
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		foreach($results_raw->bindings as $ab){
-			$aP = $ab->pred->value;
-			$sC = $ab->sc->value;
-			$lC = $ab->lc->value;
-			$returnMe[$aP]["subject_count"] = $sC;
-			$returnMe[$aP]["literal_count"] = $lC;
-		}
-	}
-	return $returnMe;
-}
-function getSubPredObjLinks($e,$d){
-	$aJSON = file_get_contents(getQueryURL($e,q8($d)));
-	$decoded = json_decode($aJSON);
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		foreach($results_raw->bindings as $ab){
-			$aP = $ab->pred->value;
-			$oC = $ab->oc->value;
-			$sC = $ab->sc->value;
-			$returnMe[$aP]["object_count"] = $oC;
-			$returnMe[$aP]["subject_count"] = $sC;
-		}
-	}
-	return $returnMe;
-}
-function getPredLitLinks($e,$d){
-	$aJSON = file_get_contents(getQueryURL($e,q7($d)));
-	$decoded = json_decode($aJSON);
-
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		foreach($results_raw->bindings as $ab){
-			$aP = $ab->pred->value;
-			$count = $ab->lc->value;
-			$returnMe[$aP] = $count;
-		}
-	}
-	return $returnMe;
-}
-function getPredObjFreq($e,$d){
-	$aJSON = file_get_contents(getQueryURL($e,q6($d)));
-	$decoded = json_decode($aJSON);
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		foreach($results_raw->bindings as $ab){
-			$aP = $ab->pred->value;
-			$count = $ab->oc->value;
-			$returnMe[$aP] = $count;
-		}
-	}
-	return $returnMe;
-}
-
-function getNumOfTypes($e,$d){
-	$ret = file_get_contents(getQueryURL($e,q5($d)));
-	$decoded = json_decode($ret);
-	$returnMe = '';
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		foreach($results_raw->bindings as $ab){
-			$aT = $ab->type->value;
-			$count = $ab->tc->value;
-			$returnMe[$aT] = $count;
-		}
-	}
-	return $returnMe;
-}
-function getNumOfObjects($e,$d){
-	$ret = file_get_contents(getQueryURL($e,q4($d)));
-	$decoded = json_decode($ret);
-	$count = -1;
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		if(isset($results_raw->bindings[0])){
-			$count = $results_raw->bindings[0]->oc->value;
-		}else{
-			$count = -1;
-		}
-	}
-	return $count;
-}
-function getNumOfPredicates($e,$d){
-	$ret = file_get_contents(getQueryURL($e,q3($d)));
-	$decoded = json_decode($ret);
-	$count = -1;
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		if(isset($results_raw->bindings[0])){
-			$count = $results_raw->bindings[0]->pc->value;
-		}else{
-			$count = -1;
-		}
-	}
-	return $count;
-}
-function getNumOfSubjects($e,$d){
-	$ret = file_get_contents(getQueryURL($e,q2($d)));
-	$decoded = json_decode($ret);
-	$count = -1;
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		if(isset($results_raw->bindings[0])){
-			$count = $results_raw->bindings[0]->sc->value;
-		}else{
-			$count = -1;
-		}
-	}
-	return $count;
-}
-function getDate2($aJSON){
-	$decoded = json_decode($aJSON);
-	$count = -1;
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		if(isset($results_raw->bindings[0])){
-			$count = $results_raw->bindings[0]->date->value;
-		}else{
-			$count = -1;
-		}
-	}
-	return $count;
-}
-
-
-function getNumOfUniqueLiterals($e,$d){
-	$aJSON = file_get_contents(getQueryURL($e,q14($d)));
-	$decoded = json_decode($aJSON);
-	$count = -1;
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		if(isset($results_raw->bindings[0])){
-			$count = $results_raw->bindings[0]->lc->value;
-		}else{
-			$count = -1;
-		}
-	}
-	return $count;
-}
-
-function getPredicateCounts($e,$d){
-	$aJSON = file_get_contents(getQueryURL($e,q15($d)));
-	$decoded = json_decode($aJSON);
-	
-	if(isset($decoded->results)){
-		$results_raw = $decoded->results;
-		foreach($results_raw->bindings as $ab){
-			$aP = $ab->pred->value;
-			$count = $ab->pc->value;
-			$returnMe[$aP] = $count;
-		}
-	}
-	return $returnMe;
-
-}
-
-
-
-function getDatasetGraphUri($endpoint_url)
-{
-	if(strlen($endpoint_url) == 0) {
-		trigger_error("Invalid endpoint URL");
-		return null;
-	}
-	$g = "test-stats";
-	$q = "select ?g from <$g> where { graph ?g {?x a ?y.} } LIMIT 1";
-	$url = $endpoint_url."?default-graph-uri=&query=".urlencode($q)."&format=json";
-	
-	$ret = @file_get_contents($url);
-	if($ret === FALSE) {
-		// some connection error
-		trigger_error("unable to get dataset graph URI",E_USER_WARNING);
-		return null;
-	}
-	$decoded = json_decode(trim($ret));
-	$g = '';
-	if(isset($decoded->results->bindings[0])){
-
 	} else {
-		$q = "select ?g where { graph ?g {?x a ?y.} FILTER regex(?g,'bio2rdf.dataset') } LIMIT 1";
-		$url = $endpoint_url."?default-graph-uri=&query=".urlencode($q)."&format=json";
-		$ret = @file_get_contents($url);
-		$decoded = json_decode(trim($ret));
-		if(!isset($decoded->results->bindings[0])){
-			trigger_error("no graphs found in $endpoint_url",E_USER_ERROR);
-			return null;
-		}
+		$cmd = $options['sparql']."?query=".urlencode($sparql)."&format=application%2Fsparql-results%2Bjson&timeout=0";
+		$out = file_get_contents($cmd);
 	}
-	$rr = $decoded->results->bindings;
-	$g = $rr[0]->g->value;
-
-	return $g;
+	$json = json_decode($out);
+	return $json->results->bindings;
 }
 
-function getQueryURL($endpoint_url, $query)
+function makeHTML($entry, $ofile){
+	global $options;
+	
+	$fp = fopen($ofile, "w") or die("Could not create $ofile!");
+	
+	$html = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>';
+	
+	$html .= addHeader($entry['name']);
+	$html .= "<body>";
+	if($options['bio2rdf.version']) {
+		$html .= addBio2RDFLogo();
+	}
+	$html .= "<div id='description'>";
+	$html .= addDatasetDescription($entry);
+	if($options['bio2rdf.version']) {
+		$html .= addBio2RDFDetails($entry['sparql'], $entry['prefix']);
+	}
+	$html .= "</div>";
+	$html .= "<div id='container'> <div id='items'></div>";
+
+	$html .= addBasicStatistics($entry);
+	echo "type counts".PHP_EOL;
+	$html .= addTypeCountTable($entry);
+	echo "property counts".PHP_EOL;
+	$html .= addPropertyCountTable($entry);
+	echo "object property counts".PHP_EOL;
+	$html .= addObjectPropertyCountTable($entry);
+	echo "datatype property counts".PHP_EOL;
+	$html .= addDatatypePropertyCountTable($entry);
+	echo "property object type counts".PHP_EOL;
+	$html .= addPropertyObjectTypeCountTable($entry);
+	echo "subject property object counts".PHP_EOL;
+	$html .= addSubjectPropertyObjectCountTable($entry);
+	echo "type property type counts".PHP_EOL;
+	$html .= addTypePropertyTypeCountTable($entry);
+	
+	$html .= "</div>";
+	$html .= "</body>";
+	$html .= "</html>";
+	fwrite($fp, $html);
+	fclose($fp);
+}
+
+
+/***
+ ***  Table Generation Functions
+ ***/
+function addBasicStatistics($entry){
+	$rm  = "<h2>Basic metrics</h2>";
+	$rm .= "<table><thead><th></th><th></th></thead>";
+	$rm .= "<tbody>";
+	
+	$fnxs = array("getTriples","getDistinctEntities","getDistinctProperties","getDistinctSubjects","getDistinctObjects","getDistinctLiterals","getDistinctTypes");
+	foreach($fnxs AS $f) {
+	    $s = preg_split("/([A-Z])/",$f,0,PREG_SPLIT_DELIM_CAPTURE);
+		array_shift($s);
+		$label = '';
+		for($i=1;$i<count($s); $i = $i+2 ) {
+				$label .= $s[ $i-1 ].$s[$i]." ";
+		}
+		echo $label.PHP_EOL;
+		$r = $f($entry);
+		$rm .= "<tr><td>".trim($label)."</td><td>".(isset($r[0])?$r[0]->n->value:"0")."</td></tr>";
+	}
+	$rm .= "</tbody>";
+	$rm .= "</table>";
+	return $rm;
+}
+
+function addTypeCountTable($entry)
 {
-	return $endpoint_url."?default-graph-uri=&query=".urlencode($query)."&format=json";
-}	
-
-
-function q2($graph_url){
-	return 'SELECT * FROM <'.$graph_url.'> WHERE{ ?dataset <http://rdfs.org/ns/void#distinctSubjects> ?sc. FILTER regex(?dataset,"bio2rdf.dataset")}';
-}
-function q3($graph_url){
-	return  'SELECT * FROM <'.$graph_url.'> WHERE{ ?dataset <http://rdfs.org/ns/void#properties> ?pc. FILTER regex(?dataset,"bio2rdf.dataset")}';
-}
-function q4($graph_url){
-	return 'SELECT * FROM <'.$graph_url.'> WHERE{ ?dataset <http://rdfs.org/ns/void#distinctObjects> ?oc. FILTER regex(?dataset,"bio2rdf.dataset")}'; 
-}
-
-function q14($graph_url){
-	$t = "SELECT * FROM <$graph_url> WHERE { ?dataset <http://rdfs.org/ns/void#classPartition> ?partition . ";
-//	$t .= "?partition a <http://bio2rdf.org/bio2rdf.dataset:Dataset-Literal-Count> .";
-	$t .= "?partition <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Literal> .";
-	$t .= "?partition <http://rdfs.org/ns/void#entities> ?lc .";
-	$t .= ' FILTER regex (?dataset, "bio2rdf.dataset")}';
-	return $t;
+	$rm = "<hr>";
+	$rm .= "<h2>Types</h2>";
+	$rm .= "<table id='tc'>";
+	$rm .= "<thead><tr>
+		<th>Type</th>
+		<th>Label</th>
+		<th>Count</th>
+		</tr></thead><tbody>";
+	$r = getTypeCount($entry);
+	foreach($r as $t => $c){
+		$rm .= '<tr>
+			<td><a href="'.$entry['describe'].$c->e->value.'">'.$c->e->value.'</a></th>
+			<td>'.(isset($c->label)?$c->label->value:"")."</td>
+			<td>".$c->n->value."</td>
+			</tr>";
+	}
+	$rm .= "</tbody></table>";
+	return $rm;
 }
 
-function q5($graph_url){
-	$t = "SELECT * FROM <".$graph_url."> WHERE { ?dataset <http://rdfs.org/ns/void#classPartition> ?partition ."; 
-//	$t .= "?partition a <http://bio2rdf.org/bio2rdf.dataset:Dataset-Type-Count> .";
-	$t .= "?partition <http://rdfs.org/ns/void#class> ?type .";
-	$t .= "?partition <http://rdfs.org/ns/void#entities> ?tc .";
-	$t .= ' FILTER regex (?dataset, "bio2rdf.dataset")';
-//	$t .= ' FILTER (?c != <http://www.w3.org/2000/01/rdf-schema#Literal)';
-	$t .= '}';
-	return $t;
+function addPropertyCountTable($entry)
+{
+	$rm = "<hr>";
+	$rm .= "<h2>Properties</h2>";
+	$rm .= "<table id='pc'>";
+	$rm .= "<thead>
+		<tr>
+			<th>Property</th>
+			<th>Label</th>
+			<th>Count</th>
+		</tr></thead><tbody>";
+	$r = getPropertyCount($entry);
+	foreach($r as $t => $c){
+		$rm .= '
+		<tr>
+			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.(isset($c->plabel)?$c->plabel->value:"")."</td>
+			<td>".$c->n->value."</td>
+		</tr>";
+	}
+	$rm .= "</tbody></table>";
+	return $rm;
 }
 
-function q15($graph_url){
-	$t = "SELECT * FROM <".$graph_url."> WHERE { ?dataset <http://rdfs.org/ns/void#propertyPartition> ?partition ."; 
-//	$t .= "?partition a <http://rdfs.org/ns/void#Dataset> .";
-	$t .= "?partition <http://rdfs.org/ns/void#property> ?pred .";
-	$t .= "?partition <http://rdfs.org/ns/void#entities> ?pc .";
-	$t .= ' FILTER regex (?dataset, "bio2rdf.dataset")}';
-	return $t;
+function addObjectPropertyCountTable($entry)
+{
+	$rm = "<hr>";
+	$rm .= "<h2>Object Properties</h2>";
+	$rm .= "<table id='opc'>";
+	$rm .= "<thead>
+		<tr>
+			<th>Object Property</th>
+			<th>Label</th>
+			<th>Distinct Objects</th>
+			<th>Total Objects</th>
+		</tr></thead><tbody>";
+	$r = getObjectPropertyCount($entry);
+	foreach($r as $t => $c){
+		$rm .= '
+		<tr>
+			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.(isset($c->plabel)?$c->plabel->value:"")."</td>
+			<td>".$c->dn->value."</td>
+			<td>".$c->n->value."</td>
+		</tr>";
+	}
+	$rm .= "</tbody></table>";
+	return $rm;
 }
 
-function q6($graph_url){
-	$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
-	$t .= "?linkset a <http://rdfs.org/ns/void#LinkSet>.";
-	$t .= "?linkset <http://rdfs.org/ns/void#target> ?dataset .";
-	$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
-	$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?ot .";
-	$t .= "?ot <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Resource> .";
-	$t .= "?ot <http://rdfs.org/ns/void#entities> ?oc .";
-	$t .= ' FILTER regex (?dataset, "bio2rdf.dataset")}';
-	return $t;
-}
-function q7($graph_url){
-	$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
-	$t .= "?linkset a <http://rdfs.org/ns/void#LinkSet>.";
-	$t .= "?linkset <http://rdfs.org/ns/void#target> ?dataset .";
-	$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
-	$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?ot .";
-	$t .= "?ot <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Literal> .";
-	$t .= "?ot <http://rdfs.org/ns/void#entities> ?lc .";
-	$t .= ' FILTER regex (?dataset, "bio2rdf.dataset")}';
-	return $t;
-}
-function q8($graph_url){
-	$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
-	$t .= "?linkset <http://rdfs.org/ns/void#target> ?dataset .";
-	$t .= "?linkset <http://rdfs.org/ns/void#subjectsTarget> ?sT .";
-	$t .= "?sT <http://rdfs.org/ns/void#entities> ?sc .";
-	$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?oT .";
-	$t .= "?oT <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Resource> .";
-	$t .= "?oT <http://rdfs.org/ns/void#entities> ?oc .";
-	$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
-	$t .= ' FILTER regex (?dataset, "bio2rdf.dataset")}';
-	return $t;
-}
-function q9($graph_url){
-	$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
-	$t .= "?linkset <http://rdfs.org/ns/void#target> ?dataset .";
-	$t .= "?linkset <http://rdfs.org/ns/void#subjectsTarget> ?sT .";
-	$t .= "?sT <http://rdfs.org/ns/void#entities> ?sc .";
-	$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?oT .";
-	$t .= "?oT <http://rdfs.org/ns/void#class> <http://www.w3.org/2000/01/rdf-schema#Literal> .";
-	$t .= "?oT <http://rdfs.org/ns/void#entities> ?lc .";
-	$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
-	$t .= ' FILTER regex (?dataset, "bio2rdf.dataset")}';
-	return $t;
-}
-function q10($graph_url){
-	$t = "SELECT * FROM <".$graph_url."> WHERE { "; 
-	$t .= "?linkset <http://rdfs.org/ns/void#target> ?dataset .";
-	$t .= "?linkset <http://rdfs.org/ns/void#subjectsTarget> ?sT .";
-	$t .= "?sT <http://rdfs.org/ns/void#entities> ?sc .";
-	$t .= "?sT <http://rdfs.org/ns/void#class> ?subjectType .";
-	$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?oT .";
-	$t .= "?oT <http://rdfs.org/ns/void#class> ?objectType .";
-	$t .= "?oT <http://rdfs.org/ns/void#entities> ?oc .";
-	$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
-	$t .= ' FILTER regex (?dataset, "bio2rdf.dataset")}';
-	return $t;
+function addDatatypePropertyCountTable($entry)
+{
+	$rm = "<hr>";
+	$rm .= "<h2>Datatype Properties</h2>";
+	$rm .= "<table id='dpc'>";
+	$rm .= "<thead>
+		<tr>
+			<th>Datatype Property</th>
+			<th>Label</th>
+			<th>Distinct Literals</th>
+			<th>Literals</th>
+		</tr></thead><tbody>";
+	$r = getDatatypePropertyCount($entry);
+	foreach($r as $t => $c){
+		$rm .= '
+		<tr>
+			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.(isset($c->plabel)?$c->plabel->value:"")."</td>
+			<td>".$c->dn->value."</td>
+			<td>".$c->n->value."</td>
+		</tr>";
+	}
+	$rm .= "</tbody></table>";
+	return $rm;
 }
 
-function nsQ($graph_url){
-	$t = "SELECT * FROM <$graph_url> WHERE { "; 
-	$t .= "?linkset <http://rdfs.org/ns/void#target> ?dataset .";
-	$t .= "?linkset <http://rdfs.org/ns/void#subjectsTarget> ?sT .";
-	$t .= "?linkset <http://rdfs.org/ns/void#objectsTarget> ?oT .";
-	$t .= "?linkset <http://rdfs.org/ns/void#linkPredicate> ?pred .";
-	$t .= "?linkset <http://rdfs.org/ns/void#triples> ?triples.";
-	$t .= ' FILTER regex (?dataset, "bio2rdf.dataset")}';
-	return $t;
+function addPropertyObjectTypeCountTable($entry)
+{
+	$rm = "<hr>";
+	$rm .= "<h2>Property and Object Type</h2>";
+	$rm .= "<table id='potc'>";
+	$rm .= "<thead>
+		<tr>
+			<th>Property</th>
+			<th>Property Label</th>
+			<th>Object Type</th>
+			<th>Object Type Label</th>
+			<th>Unique Objects</th>
+			<th>Total Objects</th>
+		</tr></thead><tbody>";
+	$r = getPropertyObjectTypeCount($entry);
+	foreach($r as $t => $c){
+		$rm .= '
+		<tr>
+			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.(isset($c->plabel)?$c->plabel->value:"").'</td>
+			<td><a href="'.$entry['describe'].$c->c->value.'">'.$c->c->value.'</a></td>
+			<td>'.(isset($c->clabel)?$c->clabel->value:"")."</td>
+			<td>".$c->dn->value."</td>
+			<td>".$c->n->value."</td>
+		</tr>";
+	}
+	$rm .= "</tbody></table>";
+	return $rm;
 }
 
-function getDatasetDateQuery($endpoint_url){
-	$t = "PREFIX data_vocab: <http://bio2rdf.org/dataset_vocabulary:> SELECT DISTINCT ?date";
-	$t .= " WHERE { ?d a data_vocab:Endpoint. ?d data_vocab:has_url ?u. ?p <http://rdfs.org/ns/void#sparqlEndpoint> ?u. ?p <http://purl.org/dc/terms/created> ?date.}";
-	return $t;
+function addSubjectPropertyObjectCountTable($entry)
+{
+	$rm = "<hr>";
+	$rm .= "<h2>Subject-Property-Object List</h2>";
+	$rm .= "<table id='spoc'>";
+	$rm .= "<thead>
+		<tr>
+			<th>Total Subjects</th>
+			<th>Distinct Subjects</th>
+			<th>Property</th>
+			<th>Property Label</th>
+			<th>Distinct Objects</th>
+			<th>Total Objects</th>
+		</tr></thead><tbody>";
+	$r = getSubjectPropertyObjectCount($entry);
+	foreach($r as $t => $c){
+		$rm .= '
+		<tr>
+			<td>'.$c->sn->value.'</td>
+			<td>'.$c->dsn->value.'</td>
+			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.(isset($c->plabel)?$c->plabel->value:'').'</td>
+			<td>'.$c->don->value.'</td>
+			<td>'.$c->on->value.'</td>
+		</tr>';
+	}
+	$rm .= "</tbody></table>";
+	return $rm;
 }
 
-function makeFCTURL($endpointURL, $aURL){
-	//remove sparql and replace with describe
-	$url = str_replace("sparql", "describe", $endpointURL);
-	$url .= "/?url=".urlencode($aURL);
-	return $url;
+function addTypePropertyTypeCountTable($entry)
+{
+	$rm = "<hr>";
+	$rm .= "<h2>Type-Property-Type List</h2>";
+	$rm .= "<table id='spoc'>";
+	$rm .= "<thead>
+		<tr>
+			<th>Total Subjects</th>
+			<th>Distinct Subjects</th>
+			<th>Subject Type</th>
+			<th>Subject Type Label</th>
+			<th>Property</th>
+			<th>Property Label</th>
+			<th>Object Type</th>
+			<th>Object type Label</th>
+			<th>Distinct Objects</th>
+			<th>Total Objects</th>
+		</tr></thead><tbody>";
+	$r = getTypePropertyTypeCount($entry);
+	foreach($r as $t => $c){
+		$rm .= '
+		<tr>
+			<td>'.$c->sn->value.'</td>
+			<td>'.$c->dsn->value.'</td>
+			<td><a href="'.$entry['describe'].$c->sc->value.'">'.$c->sc->value.'</a></td>
+			<td>'.(isset($c->slabel)?$c->slabel->value:"").'</td>
+			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.(isset($c->plabel)?$c->plabel->value:"").'</td>
+			<td><a href="'.$entry['describe'].$c->oc->value.'">'.$c->oc->value.'</a></td>
+			<td>'.(isset($c->olabel)?$c->olabel->value:"").'</td>
+			<td>'.$c->don->value.'</td>
+			<td>'.$c->on->value.'</td>
+		</tr>';
+	}
+	$rm .= "</tbody></table>";
+	return $rm;
 }
+
+
+
+
+/***
+ ***  SPARQL queries to get statistics
+ ***/
+function getTriples($e)
+{
+	$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?n 
+'.$e['from'].' 
+WHERE { 
+	?d void:subset [ a v:Dataset-Triples; void:entities ?n ]
+}';
+	return query($q);
+}
+
+function getDistinctEntities($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?n 
+ '.$e['from'].' 
+WHERE { 
+	?d void:subset [ a v:Dataset-Distinct-Entities; void:entities ?n ]
+}';
+	return query($q);
+}
+
+function getDistinctProperties($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?n 
+'.$e['from'].' 
+WHERE { 
+	?d void:subset [ a v:Dataset-Distinct-Properties; void:entities ?n ]
+}';
+	return query($q);
+}
+
+function getDistinctSubjects($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?n 
+'.$e['from'].' 
+WHERE { 
+	?d void:subset [ a v:Dataset-Distinct-Subjects; void:entities ?n ]
+}';
+	return query($q);
+}
+
+function getDistinctObjects($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?n 
+ '.$e['from'].' 
+WHERE { 
+	?d void:subset [ a v:Dataset-Distinct-Objects; void:entities ?n ]
+}';
+	return query($q);
+}
+
+function getDistinctLiterals($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?n 
+'.$e['from'].' 
+WHERE { 
+	?d void:subset [ a v:Dataset-Distinct-Literals; void:entities ?n ]
+}';
+	return query($q);
+}
+
+
+function getDistinctTypes($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?n 
+'.$e['from'].' 
+WHERE { 
+	?d void:subset [ a v:Dataset-Distinct-Types; void:entities ?n ]
+}';
+	return query($q);
+}
+
+
+function getTypeCount($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?e ?label ?n 
+ '.$e['from'].' 
+WHERE { 
+	?d void:subset [ 
+		a v:Dataset-Type-Count; 
+		void:class ?e ;
+		void:entities ?n;
+		void:distinctEntities ?dn 
+	]
+	
+	OPTIONAL { ?e rdfs:label ?label}
+}';
+	return query($q);
+}
+
+function getPropertyCount($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?p ?plabel ?n 
+'.$e['from'].' 
+WHERE { 
+	?d void:subset [ 
+		a v:Dataset-Property-Count; 
+		void:property ?p ;
+		void:triples ?n
+	]
+	
+	OPTIONAL { ?p rdfs:label ?plabel}
+}';
+	return query($q);
+}
+
+
+function getObjectPropertyCount($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?p ?plabel ?n ?dn 
+'.$e['from'].' 
+WHERE { 
+	?d void:subset [ 
+		a v:Dataset-Object-Property-Count; 
+		void:linkPredicate ?p ;
+		void:objectsTarget [
+			void:entities ?n ;
+			void:distinctEntities ?dn 
+		]
+	]
+	
+	OPTIONAL {?p rdfs:label ?plabel}
+}';
+	return query($q);
+}
+
+
+function getDatatypePropertyCount($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?p ?plabel ?n ?dn 
+'.$e['from'].' 
+WHERE { 
+	?d void:subset [ 
+		a v:Dataset-Datatype-Property-Count; 
+		void:linkPredicate ?p ;
+		void:objectsTarget [
+			void:entities ?n ;
+			void:distinctEntities ?dn 
+		]
+	]
+	
+	OPTIONAL {?p rdfs:label ?plabel}
+}';
+	return query($q);
+}
+
+
+function getPropertyObjectTypeCount($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?p ?plabel ?c ?clabel ?n ?dn 
+ '.$e['from'].' 
+WHERE { 
+	?d void:subset [ 
+		a v:Dataset-Property-Object-Type-Count; 
+		void:linkPredicate ?p ;
+		void:objectsTarget [
+			void:class ?c;
+			void:entities ?n ;
+			void:distinctEntities ?dn 
+		]
+	]
+	
+	OPTIONAL {?p rdfs:label ?plabel}
+	OPTIONAL {?c rdfs:label ?clabel}
+}';
+	return query($q);
+}
+
+function getSubjectPropertyObjectCount($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?p ?plabel ?sn ?dsn ?on ?don 
+'.$e['from'].' 
+WHERE { 
+	?d void:subset [ 
+		a v:Dataset-Subject-Property-Object-Count; 
+		void:linkPredicate ?p ;
+
+		void:subjectsTarget [
+			void:entities ?sn ;
+			void:distinctEntities ?dsn 
+		];
+		
+		void:objectsTarget [
+			void:entities ?on ;
+			void:distinctEntities ?don 
+		];
+	]
+	
+	OPTIONAL {?p rdfs:label ?plabel}
+}';
+	return query($q);
+}
+
+function getTypePropertyTypeCount($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT ?sc ?slabel ?sn ?dsn ?p ?plabel ?oc ?olabel ?on ?don 
+ '.$e['from'].' 
+WHERE { 
+	?d void:subset [ 
+		a v:Dataset-Type-Property-Type-Count; 
+		void:linkPredicate ?p ;
+
+		void:subjectsTarget [
+			void:class ?sc;
+			void:entities ?sn ;
+			void:distinctEntities ?dsn 
+		];
+		
+		void:objectsTarget [
+			void:class ?oc;
+			void:entities ?on ;
+			void:distinctEntities ?don 
+		];
+	]
+	
+	OPTIONAL {?p rdfs:label ?plabel}
+	OPTIONAL {?sc rdfs:label ?slabel}
+	OPTIONAL {?oc rdfs:label ?olabel}
+}';
+	return query($q);
+}
+
+
 ?>
