@@ -35,11 +35,13 @@ $fnx = array(
 	"distinctObjects",
 	"distinctProperties",
 	"distinctLiterals", 
+	"distinctTypes",
 	"typeCount",
 	"propertyCount", 
-	"propertyObjectCount", 
-	"propertyDistinctObjectCount", 
-	"propertyDistinctObjectAndTypeCount", 
+	"objectPropertyCount", 
+	"datatypePropertyCount", 
+	"propertyObjectTypeCount", 
+	"subjectPropertyObjectCount",
 	"typePropertyTypeCount", 
 	"datasetPropertyDatasetCount"
 );
@@ -197,6 +199,7 @@ foreach($graphs AS $i => $graph) {
 		$options['fp'] = null;
 	}
 }
+fclose($options['fp']);
 exit;
 
 function query($sparql)
@@ -275,7 +278,7 @@ function addDistinctGraphs()
 			Quad($options['uri'], "http://rdfs.org/ns/void#classPartition", $id).
 			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
 			Quad($id, "http://rdfs.org/ns/void#class", "http://www.w3.org/ns/sparql-service-description#Graph").
-			QuadLiteral($id, "http://rdfs.org/ns/void#entities", $c->n->value, "integer").
+			QuadLiteral($id, "http://rdfs.org/ns/void#entities", $c->n->value, "long").
 
 			// enhanced
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Graph-Count").
@@ -293,13 +296,13 @@ function addTriples()
 	
 	write(
 		// standard
-		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#triples", $r[0]->n->value, "integer").
+		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#triples", $r[0]->n->value, "long").
 		
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Triples").
 		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." triples in ".$options['dataset_name'], null, "en").
-		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
+		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "long").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Triples", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
 }
@@ -313,13 +316,13 @@ function addDistinctEntities()
 	
 	write(
 		// standard
-		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
+		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#entities", $r[0]->n->value, "long").
 		
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Entities").
 		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct entities in ".$options['dataset_name'], null, "en").
-		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
+		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "long").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Entities", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
 }
@@ -333,13 +336,13 @@ function addDistinctSubjects()
 	
 	write(
 		// standard
-		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#distinctSubjects", $r[0]->n->value, "integer").
+		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#distinctSubjects", $r[0]->n->value, "long").
 		
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Subjects").
 		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct subjects in ".$options['dataset_name'], null, "en").
-		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
+		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "long").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Subjects", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
 }
@@ -353,13 +356,13 @@ function addDistinctProperties()
 	
 	write(
 		// standard
-		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#properties", $r[0]->n->value, "integer").
+		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#properties", $r[0]->n->value, "long").
 
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Properties").
 		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct subjects in ".$options['dataset_name'], null, "en").
-		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
+		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "long").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Properties", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
 }
@@ -373,16 +376,18 @@ function addDistinctObjects()
 
 	write(
 		// standard
-		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#distinctObjects", $r[0]->n->value, "integer").
+		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#distinctObjects", $r[0]->n->value, "long").
 	
 		// enhanced
 		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
 		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Objects").
 		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct objects in ".$options['dataset_name'], null, "en").
-		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "integer").
+		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "long").
 		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Objects", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 	);
 }
+
+
 
 function addDistinctLiterals()
 {
@@ -396,27 +401,49 @@ function addDistinctLiterals()
 		$label = $c->n->value." distinct literals in ".$options['dataset_name'];
 		write(
 			// standard
+			QuadLiteral($options['uri'], "http://rdfs.org/ns/void#distinctLiterals", $r[0]->n->value, "long"). // we made this predicate up
+			
 			Quad($options['uri'], "http://rdfs.org/ns/void#classPartition", $id).
 			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
 			Quad($id, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Literal").
-			QuadLiteral($id, "http://rdfs.org/ns/void#entities", $c->n->value, "integer").
+			QuadLiteral($id, "http://rdfs.org/ns/void#entities", $c->n->value, "long").
 			
 			// enhanced
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Literal-Count").
+			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Literals").
 			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Literal-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 		);
 	}
 }
 
+function addDistinctTypes()
+{
+	global $options;
+	$sparql = "SELECT (COUNT(DISTINCT ?t) AS ?n) ".$options['from-graph']." {?s ?p ?o . ?o a ?t}";
+	$r = query($sparql);
+	$id = getId($r);
+
+	write(	
+		QuadLiteral($options['uri'], "http://rdfs.org/ns/void#distinctTypes", $r[0]->n->value, "long"). // we made this up
+	
+		// enhanced
+		Quad($options['uri'],'http://rdfs.org/ns/void#subset', $id).
+		Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Types").
+		QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $r[0]->n->value." distinct types in ".$options['dataset_name'], null, "en").
+		QuadLiteral($id, "http://rdfs.org/ns/void#entities", $r[0]->n->value, "long").
+		Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Types", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
+	);
+}
+
+
 function addTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?type ?n (str(?label) AS ?slabel)
+	$sparql = "SELECT ?type ?n ?dn (str(?label) AS ?slabel)
 ".$options['from-graph']."
-{ 
+{
   { 
-    SELECT ?type (COUNT(DISTINCT ?s) AS ?n)
+    SELECT ?type (COUNT(DISTINCT ?s) AS ?dn) (COUNT(?s) AS ?n)
     {?s a ?type} 
     GROUP BY ?type
   }
@@ -428,15 +455,17 @@ function addTypeCount()
 		$id = getID($c);
 		$label = $c->n->value." ".makeLabel($c,'type','slabel')." in ".$options['dataset_name'];
 		write( 
-			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#classPartition", $id).
+			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
+			
 			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
 			Quad($id, "http://rdfs.org/ns/void#class", $c->type->value).
-			QuadLiteral($id, "http://rdfs.org/ns/void#entities", $c->n->value, "integer").
+			(isset($c->label)?QuadLiteral($c->type->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->label->value):"").
+			QuadLiteral($id, "http://rdfs.org/ns/void#entities", $c->n->value, "long").
+			QuadLiteral($id, "http://rdfs.org/ns/void#distinctEntities", $c->dn->value, "long"). // made this up
 			
-			// enhanced
+			// enhanced		
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Type-Count").
-			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
 			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Type-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 		);
 	}
@@ -464,50 +493,56 @@ function addPropertyCount()
 		write(
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#propertyPartition", $id).
+			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
+			
 			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
+			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Property-Count").
 			Quad($id, "http://rdfs.org/ns/void#property", $c->p->value).
-			QuadLiteral($id, "http://rdfs.org/ns/void#triples", $c->n->value, "integer").
+			(isset($c->plabel)? QuadLiteral($c->p->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->plabel->value):'').
+			QuadLiteral($id, "http://rdfs.org/ns/void#triples", $c->n->value, "long").
 			
 			// enhanced
-			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Property-Count").
 			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Property-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 		);
 	}
 }
 
-function addPropertyObjectCount()
+function addObjectPropertyCount()
 {
 	global $options;
-	$sparql = "SELECT ?p (str(?label) AS ?plabel) ?n 
+	$sparql = "SELECT ?p (str(?label) AS ?plabel) (?n AS ?n) (?dn AS ?dn)
 ".$options['from-graph']." 
 {
-	{ SELECT ?p (COUNT(?o) AS ?n) 
-	  { ?s ?p ?o }
+	{ SELECT ?p (COUNT(?o) AS ?n) (COUNT(DISTINCT ?o) AS ?dn) 
+	  { ?s ?p ?o FILTER (!isLiteral(?o)) }
 	  GROUP BY ?p
 	}
 	OPTIONAL {?p rdfs:label ?label} 
 }
 ";
 	$r = query($sparql);
-	
 	foreach($r AS $c) {
 		$id = getID($c);
 		$oid = getID($c);
-		$label = $c->n->value." unique objects linked by property ".makeLabel($c, 'p', 'plabel')." in ".$options['dataset_name'];
+		$label = $c->n->value." (".$c->dn->value." unique) objects linked by property ".makeLabel($c, 'p', 'plabel')." in ".$options['dataset_name'];
 		write( 
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
 			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
+			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Property-Count").
+			
 			Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
+			(isset($c->plabel)? QuadLiteral($c->p->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->plabel->value):'').
+			
 			Quad($id, "http://rdfs.org/ns/void#objectsTarget", $oid).
-			Quad($oid, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource").
-			QuadLiteral($oid, "http://rdfs.org/ns/void#entities", $c->n->value, "integer").
-
-			// enhanced
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Property-Object-Count").
 			Quad($oid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Count").
+
+			Quad($oid, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource").
+			QuadLiteral($oid, "http://rdfs.org/ns/void#entities", $c->n->value, "long").
+			QuadLiteral($oid, "http://rdfs.org/ns/void#distinctEntities", $c->dn->value, "long").
+
+			// enhanced			
 			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Property-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
 			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 		);
@@ -515,50 +550,54 @@ function addPropertyObjectCount()
 }
 
 
-function addPropertyDistinctObjectCount()
+function addDatatypePropertyCount()
 {
 	global $options;
-	$sparql = "SELECT ?p (str(?label) AS ?plabel) ?n 
+	$sparql = "SELECT ?p (str(?label) AS ?plabel) (?n AS ?n) (?dn AS ?dn)
 ".$options['from-graph']." 
 {
-	{ SELECT ?p (COUNT(DISTINCT ?o) AS ?n)
-	  {?s ?p ?o} 
+	{ SELECT ?p (COUNT(?o) AS ?n) (COUNT(DISTINCT ?o) AS ?dn)
+	  {?s ?p ?o FILTER (isLiteral(?o))} 
 	  GROUP BY ?p
 	}
 	OPTIONAL {?p rdfs:label ?label} 
 }";
 	$r = query($sparql);
-	
 	foreach($r AS $c) {
 		$id = getID($c);
 		$oid = getID($c);
-		$label = $c->n->value." unique objects with property ".makeLabel($c, 'p', 'plabel')." in ".$options['dataset_name'];
+		
+		$label = $c->n->value." (".$c->dn->value." unique) literals linked to datatype property ".makeLabel($c, 'p', 'plabel')." in ".$options['dataset_name'];
 		write( 
 			// standard
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
 			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
+			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Datatype-Property-Count").
+			
 			Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
+			(isset($c->plabel)? QuadLiteral($c->p->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->plabel->value):'').
+		
 			Quad($id, "http://rdfs.org/ns/void#objectsTarget", $oid).
-			Quad($oid, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource").
-			QuadLiteral($oid, "http://rdfs.org/ns/void#entities", $c->n->value, "integer").
+			Quad($oid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Literal-Count").
+			Quad($oid, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Literal").
+			QuadLiteral($oid, "http://rdfs.org/ns/void#entities", $c->n->value, "long").
+			QuadLiteral($oid, "http://rdfs.org/ns/void#distinctEntities", $c->dn->value, "long").
 			
 			// enhanced
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Property-Distinct-Object-Count").
-			Quad($oid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Object-Count").
-			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Property-Distinct-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
-			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
+			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Datatype-Property-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
+			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Datatype-Literal-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 		);
 	}
 }
 
-function addPropertyDistinctObjectAndTypeCount()
+function addPropertyObjectTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?p (str(?plabel) AS ?plabel) ?otype (str(?otype_label) AS ?otype_label) (COUNT(DISTINCT ?o) AS ?n)
+	$sparql = "SELECT ?p (str(?plabel) AS ?plabel) ?otype (str(?otype_label) AS ?otype_label) (?n AS ?n) (?dn AS ?dn)
 ".$options['from-graph']." {
 	{
-		SELECT ?p ?otype (COUNT(DISTINCT ?o) AS ?n)
+		SELECT ?p ?otype (COUNT(?o) AS ?n) (COUNT(DISTINCT ?o) AS ?dn)
 		{ 
 			?s ?p ?o . 
 			?o a ?otype .
@@ -571,9 +610,9 @@ function addPropertyDistinctObjectAndTypeCount()
 	$r = query($sparql);	
 	foreach($r AS $c) {
 		$id = getID($c);
-		$sid = getID($c);
 		$oid = getID($c);
-		$label = $c->n->value." unique ".makeLabel($c, 'otype', 'otype_label').
+
+		$label = $c->n->value." (".$c->dn->value." unique) objects of type ".makeLabel($c, 'otype', 'otype_label').
 			" linked by ".makeLabel($c,'p','plabel')." in ".$options['dataset_name'];
 		write( 
 			// enhanced
@@ -581,15 +620,68 @@ function addPropertyDistinctObjectAndTypeCount()
 			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
 			Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
+			(isset($c->plabel)? QuadLiteral($c->p->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->plabel->value):'').
 			Quad($id, "http://rdfs.org/ns/void#objectsTarget", $oid).
 			Quad($oid, "http://rdfs.org/ns/void#class", $c->otype->value).
-			QuadLiteral($oid, "http://rdfs.org/ns/void#entities", $c->n->value, "integer").
+			(isset($c->otype_label)? QuadLiteral($c->otype->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->otype_label->value):'').
+			QuadLiteral($oid, "http://rdfs.org/ns/void#entities", $c->n->value, "long").
+			QuadLiteral($oid, "http://rdfs.org/ns/void#distinctEntities", $c->dn->value, "long").
 			
 			// enhanced
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Property-Distinct-Object-And-Type-Count").
-			Quad($oid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Object-Count").
-			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Object-And-Type-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
-			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
+			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Property-Object-Type-Count").
+			Quad($oid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Count").
+			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Type-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
+			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
+		);
+	}
+}
+
+function addSubjectPropertyObjectCount()
+{
+	global $options;
+	$sparql = "SELECT ?p (str(?plabel) AS ?plabel) (?sn AS ?sn) (?dsn AS ?dsn) (?on AS ?on) (?don AS ?don)
+".$options['from-graph']." {
+	{
+		SELECT ?p (COUNT(?s) AS ?sn) (COUNT(DISTINCT ?s) AS ?dsn) (COUNT(?o) AS ?on) (COUNT(DISTINCT ?o) AS ?don)
+		{ 
+			?s ?p ?o . 
+		}
+		GROUP BY ?p
+	}
+	OPTIONAL {?p rdfs:label ?plabel} 
+}";
+	$r = query($sparql);	
+	foreach($r AS $c) {
+		$id = getID($c);
+		$sid = getID($c);
+		$oid = getID($c);
+		
+		$label = $c->sn->value." (".$c->dsn->value." unique) subjects linked by ".makeLabel($c,'p','plabel')." to ".
+			$c->on->value." (".$c->don->value." unique) objects in ".$options['dataset_name'];
+		write( 
+			// enhanced
+			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
+			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
+			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
+			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Subject-Property-Object-Count").
+			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Subject-Property-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
+			
+			Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
+			(isset($c->plabel)? QuadLiteral($c->p->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->plabel->value):'').
+			
+			Quad($id, "http://rdfs.org/ns/void#subjectsTarget", $sid).
+			Quad($sid, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource").
+			QuadLiteral($sid, "http://rdfs.org/ns/void#entities", $c->sn->value, "long").
+			QuadLiteral($sid, "http://rdfs.org/ns/void#distinctEntities", $c->dsn->value, "long").
+			Quad($sid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Subject-Count").
+			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Subject-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
+
+			Quad($id, "http://rdfs.org/ns/void#objectsTarget", $oid).			
+			Quad($oid, "http://rdfs.org/ns/void#class", "http://www.w3.org/2000/01/rdf-schema#Resource").
+			QuadLiteral($oid, "http://rdfs.org/ns/void#entities", $c->on->value, "long").
+			QuadLiteral($oid, "http://rdfs.org/ns/void#distinctEntities", $c->don->value, "long").
+			Quad($oid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Count").
+			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")	
 		);
 	}
 }
@@ -599,13 +691,13 @@ function addTypePropertyTypeCount()
 {
 	global $options;
 	$sparql = "SELECT 
-		?stype (str(?stype_label) AS ?stype_label) ?sn 
+		?stype (str(?stype_label) AS ?stype_label) (?sn AS ?sn) (?dsn AS ?dsn) 
 		?p (str(?plabel) AS ?plabel) 
-		?otype (str(?otype_label) AS ?otype_label) ?on
+		?otype (str(?otype_label) AS ?otype_label) (?on AS ?on) (?don AS ?don)
 	".$options['from-graph']." 
 {
 	{
-		SELECT ?stype ?p ?otype (COUNT(DISTINCT ?s) AS ?sn) (COUNT(DISTINCT ?o) AS ?on)
+		SELECT ?stype ?p ?otype (COUNT(?s) AS ?sn) (COUNT(DISTINCT ?s) AS ?dsn) (COUNT(?o) AS ?on) (COUNT(DISTINCT ?o) AS ?don)
 		{
 			?s ?p ?o . 
 			?s a ?stype .
@@ -623,27 +715,33 @@ function addTypePropertyTypeCount()
 		$id = getID($c);
 		$sid = getID($c);
 		$oid = getID($c);
-		$label = $c->sn->value." unique ".makeLabel($c,'stype','stype_label')." linked by property ".makeLabel($c, 'p', 'plabel')
-			." to ".$c->on->value." unique ".makeLabel($c,'otype','otype_label')." in ".$options['dataset_name'];
+		$label = $c->sn->value." (".$c->dsn->value." unique) ".makeLabel($c,'stype','stype_label')." linked by property ".makeLabel($c, 'p', 'plabel')
+			." to ".$c->on->value." (".$c->don->value." unique) ".makeLabel($c,'otype','otype_label')." in ".$options['dataset_name'];
 		write(
 			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
 			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Type-Property-Type-Count").
 			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
 			Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
+			(isset($c->plabel)? QuadLiteral($c->p->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->plabel->value):'').
 			
 			Quad($id, "http://rdfs.org/ns/void#subjectsTarget", $sid).
-			Quad($sid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Subject-Count").
+			Quad($sid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Subject-Count").
 			Quad($sid, "http://rdfs.org/ns/void#class", $c->stype->value).
-			QuadLiteral($sid, "http://rdfs.org/ns/void#entities", $c->sn->value, "integer").
+			(isset($c->stype_label)? QuadLiteral($c->stype->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->stype_label->value):'').
+			QuadLiteral($sid, "http://rdfs.org/ns/void#entities", $c->sn->value, "long").
+			QuadLiteral($sid, "http://rdfs.org/ns/void#distinctEntities", $c->dsn->value, "long").
 			
 			Quad($id, "http://rdfs.org/ns/void#objectsTarget", $oid).
-			Quad($oid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Object-Count").
+			Quad($oid, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Count").
 			Quad($oid, "http://rdfs.org/ns/void#class", $c->otype->value).
-			QuadLiteral($oid, "http://rdfs.org/ns/void#entities", $c->on->value, "integer").
+			(isset($c->otype_label)? QuadLiteral($c->otype->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->otype_label->value):'').
+			QuadLiteral($oid, "http://rdfs.org/ns/void#entities", $c->on->value, "long").
+			QuadLiteral($oid, "http://rdfs.org/ns/void#distinctEntities", $c->don->value, "long").
+			
 			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Type-Property-Type-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
-			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Subject-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
-			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Distinct-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
+			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Subject-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor").
+			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 		);
 	}
 }
@@ -680,7 +778,7 @@ function addDatasetPropertyDatasetCount()
 			Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
 			Quad($id, "http://rdfs.org/ns/void#subjectsTarget", $c->stype->value).
 			Quad($id, "http://rdfs.org/ns/void#objectsTarget", $c->otype->value).
-			QuadLiteral($id, "http://rdfs.org/ns/void#triples", $c->n->value, "integer").
+			QuadLiteral($id, "http://rdfs.org/ns/void#triples", $c->n->value, "long").
 			
 			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Dataset-Property-Dataset-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 
