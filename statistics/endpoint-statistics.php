@@ -110,8 +110,8 @@ if($options['instance']) {
 				$options['dataset'] = $name;
 				
 				$version = $options['version'];
-				$options['ofile'] = "bio2rdf.$name.$version.statistics"; 
-				$options['graphs'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$name-r$version";				
+				$options['ofile'] = "bio2rdf-$name-R$version-statistics"; 
+				$options['graphs'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$name-R$version";				
 				$options['quad_uri'] = $options['graphs']."-statistics";
 				$options['dataset_uri'] = $options['graphs'];
 				break;
