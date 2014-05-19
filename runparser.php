@@ -33,13 +33,18 @@ class Bio2RDFApp extends Application
 		// get the parsers;
 		$parsers = $this->getParsers();
 		parent::addParameter('parser',true,implode("|",$parsers),null,'bio2rdf parser to run');
+		parent::addParameter('statistics',false,"true|false","false",'generate statistics');
+		parent::addParameter('bio2rdf_release',false,null,"3",'Bio2RDF release number');
+
+
 		if(parent::setParameters($argv,true) === FALSE) {
 			if(parent::getParameterValue('parser') == '') {
 				parent::printParameters();
 				exit;
 			}
 		}
-
+		$statistics = parent::getParameterValue("statistics");
+		
 		// now get the file and run it
 		$parser_name = parent::getParameterValue('parser');
 		$file = $parser_name.'/'.$parser_name.'.php';
@@ -50,9 +55,11 @@ class Bio2RDFApp extends Application
 		require($file);
 		$parser_class = str_replace(".","",$parser_name)."Parser";	
 		$parser = new $parser_class($argv);
-set_time_limit(0);				
+		set_time_limit(0);				
 		$start = microtime(true);
 		$parser->Run();
+		
+		if($statistics) $this->runStats($parser_name, parent::getParameterValue("bio2rdf_release"));
 		
 		$end = microtime(true);
 		$time_taken =  $end - $start;
@@ -78,6 +85,29 @@ set_time_limit(0);
 			}
 		}
 		return $parsers;
+	}
+	
+	function runStats($instance, $version)
+	{
+		$graph = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$instance-R$version";
+		
+		// load the data file
+		$cmd = 'php ../php-lib/apps/rdfload.php i='.$instance.' g='.$graph.' dg=true r=true d=/data/rdf/'.$instance;
+		system($cmd);
+
+		// generate the statistics
+		$cmd = "php ./statistics/endpoint-statistics.php instance=$instance version=$version";
+		system($cmd);
+		
+		// load the statistics
+		$f = "bio2rdf-$instance-R$version-statistics.nq";
+		echo $cmd = "php ../php-lib/apps/rdfload.php i=".$instance." g=$graph-statistics dg=true d=/data/rdf/statistics/ f=$f".PHP_EOL;
+		system($cmd);
+		
+		// generate the stats page
+		echo $cmd = "php ./statistics/bio2rdf-individual-page.php instance=$instance bio2rdf.version=$version odir=/data/html/".PHP_EOL;
+		system($cmd);
+		
 	}
 }
 
