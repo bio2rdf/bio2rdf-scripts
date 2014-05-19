@@ -35,9 +35,10 @@ $options = array(
 	"pass" => "dba",
 	"target.endpoint" => "", // target endpoint
 	"graph" => "", // statistics graph
-	"dataset.name" => "", // dataset
+	"instance" => "", // dataset
 	"bio2rdf.version" => "", // specify a bio2rdf version #
-	"o" => "", // output filepath
+	"odir" => "", // output directory
+	"ofile" => "", // output file
 	"download" => "false", // download registry
 );
 
@@ -63,10 +64,10 @@ if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 if(!file_exists($options['isql'])) {
 	trigger_error("ISQL could not be found at ".$options['isql'],E_USER_ERROR);
 }
+if($options['odir']) @mkdir($options['odir'],"777");
 
-
-if($options['dataset.name']) {
-	$dataset = $options['dataset.name'];
+if($options['instance']) {
+	$dataset = $options['instance'];
 		
 	// using the virtuoso instances; 
 	$registry_file = "registry.csv";
@@ -86,14 +87,13 @@ if($options['dataset.name']) {
 	$entry['target.endpoint'] = $entry['sparql'];
 	if($options['target.endpoint']) $entry['target.endpoint'] = $options['target.endpoint']; 
 	
-	if($options['bio2rdf.version'] != '') {
-		$entry['graph'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$dataset-R".$options['bio2rdf.version']."-statistics";
+	if($options['bio2rdf.version'] == '') {
+		echo "specify bio2rdf.version!";exit;
 	}
-	if($options['graph']) $entry['graph'] = $options['graph'];
+	$entry['graph'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$dataset-R".$options['bio2rdf.version']."-statistics";
 	$entry['from'] = "FROM <".$entry['graph'].">";
 	$entry['describe'] = '';
-	$outfile = $dataset.'.html';
-	if($options['o']) $outfile = $options['o'];
+	$outfile = $options['odir'].$dataset.'.html';
 } else {
 	if($options['graph'] == '') {
 		echo "please specify a graph!".PHP_EOL;
@@ -344,8 +344,8 @@ function makeHTML($entry, $ofile){
 	$html .= addBasicStatistics($entry);
 	echo "type counts".PHP_EOL;
 	$html .= addTypeCountTable($entry);
-	echo "property counts".PHP_EOL;
-	$html .= addPropertyCountTable($entry);
+//	echo "property counts".PHP_EOL;
+//	$html .= addPropertyCountTable($entry);
 	echo "object property counts".PHP_EOL;
 	$html .= addObjectPropertyCountTable($entry);
 	echo "datatype property counts".PHP_EOL;
