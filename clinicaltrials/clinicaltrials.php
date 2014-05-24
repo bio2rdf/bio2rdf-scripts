@@ -1050,10 +1050,12 @@ class ClinicalTrialsParser extends Bio2RDFizer
 							parent::triplifyString($outcome_uri,parent::getVoc()."population",$this->getString("./population",$outcome))
 						);
 						$groups = @array_shift($outcome->xpath('./group_list'));
-						foreach($groups AS $group) {
-							parent::addRDF(
-								parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
-							);
+						if($groups) {
+							foreach($groups AS $group) {
+								parent::addRDF(
+									parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
+								);
+							}
 						}
 
 						// measure list
