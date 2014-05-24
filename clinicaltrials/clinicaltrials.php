@@ -722,8 +722,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$name = $this->getString('//facility/name',$location);
 					$address = @array_shift($location->xpath('//facility/address'));					
 					$contact = @array_shift($location->xpath('//contact'));
-					$contact_backup = @array_shift($location->xpath('//contact_backup'));
-					$investigator = @array_shift($location->xpath('//investigator'));
+					$backups = @array_shift($location->xpath('//contact_backup'));
+					$investigators = @array_shift($location->xpath('//investigator'));
 					
 					parent::addRDF(
 						parent::describeIndividual($location_uri,$name,parent::getVoc()."Location").
@@ -731,10 +731,22 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						parent::triplifyString($location_uri,parent::getVoc()."status", $this->getString('//status',$location)).
 						parent::triplify($study_id,parent::getVoc()."location",$location_uri).
 						parent::triplify($location_uri, parent::getVoc()."address", $this->makeAddress($address)).
-						parent::triplify($location_uri, parent::getVoc()."contact", $this->makeContact($contact)).
-						parent::triplify($location_uri, parent::getVoc()."contact-backup", $this->makeContact($location->xpath('//contact_backup'))).
-						parent::triplify($location_uri, parent::getVoc()."investigator", $this->makeContact($location->xpath('//investigator')))
+						parent::triplify($location_uri, parent::getVoc()."contact", $this->makeContact($contact))
 					);
+					if($backups) {
+						foreach($backups AS $backup) {
+							parent::addRDF(
+								parent::triplify($location_uri, parent::getVoc()."contact-backup", $this->makeContact($backup))
+							);
+						}
+					}
+					if($investigators) {
+						foreach($investigators AS $investigator) {
+							parent::addRDF(
+								parent::triplify($location_uri, parent::getVoc()."investigator", $this->makeContact($investigator))
+							);
+						}
+					}
 				}
 			}catch (Exception $e){
 				echo "There was an error parsing location: $e"."\n";
@@ -1038,10 +1050,12 @@ class ClinicalTrialsParser extends Bio2RDFizer
 							parent::triplifyString($outcome_uri,parent::getVoc()."population",$this->getString("./population",$outcome))
 						);
 						$groups = @array_shift($outcome->xpath('./group_list'));
-						foreach($groups AS $group) {
-							parent::addRDF(
-								parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
-							);
+						if($groups) {
+							foreach($groups AS $group) {
+								parent::addRDF(
+									parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
+								);
+							}
 						}
 
 						// measure list
@@ -1271,14 +1285,16 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		
 		parent::addRDF(
 			parent::describeIndividual($analysis_uri,"analysis for ".$this->nct_id, parent::getVoc()."Analysis").
-			parent::describeClass(parent::getVoc()."Analysis")
+			parent::describeClass(parent::getVoc()."Analysis","Analysis")
 		);
 		
 		$groups = @array_shift($analysis->xpath('./group_list'));
-		foreach($groups AS $group) {
-			parent::addRDF(
-				parent::triplify($analysis_uri,parent::getVoc()."group", $this->makeGroup($group))
-			);
+		if($groups) {
+			foreach($groups AS $group) {
+				parent::addRDF(
+					parent::triplify($analysis_uri,parent::getVoc()."group", $this->makeGroup($group))
+				);
+			}
 		}		
 		$a = array("groups_desc","non_inferiority","non_inferiority_desc","p_value","p_value_desc","method","method_desc","param_type","param_value","dispersion_type","dispersion_value","ci_percent","ci_n_sides","ci_lower_limit","ci_upper_limit","ci_upper_limit_na_comment","estimate_desc");
 		foreach($a AS $b) {
@@ -1286,7 +1302,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				parent::triplifyString($analysis_uri,parent::getVoc().str_replace("_","-",$b), $this->getString('./'.$b, $analysis))
 			);
 		}
-		return analysis_uri;
+		return $analysis_uri;
 	}
 	
 	public function makeAddress($address)
