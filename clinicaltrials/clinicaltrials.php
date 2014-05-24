@@ -238,199 +238,166 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		while($xml->Parse("clinical_study") == TRUE) {
 			$this->setCheckPoint('record');
 			$this->root = $root = $xml->GetXMLRoot();
-			
-			$nct_id = $this->getString("//id_info/nct_id");
-			$study_id = parent::getNamespace()."$nct_id";
+	
+			$this->nct_id = $nct_id = $this->getString("//id_info/nct_id");
+			$this->study_id = $study_id = parent::getNamespace()."$nct_id";
+
+			### declare
+			$label = $this->getString("//brief_title");
+			if(!$label) $label = $this->getString("//official_title");
+			if(!$label) $label = "Clinical trial #".$nct_id;
+			parent::addRDF(
+				parent::describeIndividual($study_id, $label, parent::getVoc()."Clinical-Study").
+				parent::describeClass(parent::getVoc()."Clinical-Study","Clinical Study")
+			);
 			
 			##########################################################################################
-			#brief title
+			#required header
 			##########################################################################################
-			$brief_title = $this->getString("//brief_title");
-			if($brief_title != ""){
-				parent::addRDF(
-					parent::triplifyString($study_id, parent::getVoc()."brief-title",$brief_title)
-				);
-			}
+			parent::addRDF(
+				parent::triplifyString($study_id, parent::getVoc()."download-date", $this->getString('//required_header/download_date')).
+				parent::triplify($study_id, parent::getVoc()."url", $this->getString('//required_header/url'))
+			);
 
 			##########################################################################################
-			#official title
+			#info
 			##########################################################################################
-			$official_title = $this->getString("//official_title");
-			if($official_title != "") {
-				parent::addRDF(
-					parent::triplifyString($study_id,parent::getVoc()."official-title",$official_title)
-				);
-			}
-			if($brief_title != '') $label = $brief_title;
-			if(!$label && $official_title != '') $label = $official_title;
-			if(!$label) $label = "clinical trial #".$nct_id;
+			parent::addRDF(
+				parent::triplifyString($study_id, parent::getVoc()."nct-id", $this->getString('//id_info/nct_id')).
+				parent::triplifyString($study_id, parent::getVoc()."org-study-id", $this->getString('//id_info/org_study_id')).
+				parent::triplifyString($study_id, parent::getVoc()."secondary-id", $this->getString('//id_info/secondary_id')). // this can be a list
+				parent::triplifyString($study_id, parent::getVoc()."nct-alias", $this->getString('//id_info/nct_alias'))	    // this can be a list
+			);
+
 			
+			##########################################################################################
+			#titles
+			##########################################################################################
+			parent::addRDF(
+				parent::triplifyString($study_id, parent::getVoc()."brief-title",$this->getString("//brief_title")).
+				parent::triplifyString($study_id,parent::getVoc()."official-title",$this->getString("//official_title"))
+			);
+
 			###################################################################################
 			#brief summary
 			###################################################################################
-			$brief_summary = $this->getString('//brief_summary/textblock');
-			$brief_summary = str_replace(array("\r","\n","\t","      "),"",trim($brief_summary));
-			if($brief_summary) {
-				parent::addRDF(
-					parent::triplifyString($study_id,$this->getVoc()."brief-summary",$brief_summary)
-				);
-			}
+			$brief_summary  =str_replace( array("\r","\n","\t"), array("&#xD;","&#xA;","&#x9;"), $this->getString('//brief_summary/textblock'));
+			parent::addRDF(
+				parent::triplifyString($study_id,$this->getVoc()."brief-summary",$brief_summary)
+			);
+
 			
-			// we have enough to describe the study
+			####################################################################################
+			# detailed description
+			####################################################################################
+			$d = str_replace( array("\r","\n","\t"), array("&#xD;","&#xA;","&#x9;"), $this->getString('//detailed_description/textblock'));
 			parent::addRDF(
-				parent::describeIndividual($study_id,$label,parent::getVoc()."Clinical-Study", $official_title,$brief_summary).
-				parent::describeClass(parent::getVoc()."Clinical-Study","Clinical Study")
+				parent::triplifyString($study_id,parent::getVoc()."detailed-description",$d)
 			);
-
-			#########################################################################################
-			# study ids
-			#########################################################################################
-			$org_study_id = $this->getString("//id_info/org_study_id");
-			$secondary_id = $this->getString("//id_info/secondary_id");
-
-			parent::addRDF(
-				parent::triplifyString($study_id,parent::getVoc()."organization-study-identifier",$org_study_id).
-				parent::triplifyString($study_id,parent::getVoc()."secondary-identifier",$secondary_id)
-			);
-
+			
 			#########################################################################################
 			#acronym
 			#########################################################################################
-			$acronym = $this->getString("//acronym");
-			if($acronym != ""){
-				parent::addRDF(
-					parent::triplifyString($study_id,parent::getVoc()."acronym",$acronym)
-				);
-			}
+			parent::addRDF(
+				parent::triplifyString($study_id,parent::getVoc()."acronym",$this->getString("//acronym"))
+			);
 
 			########################################################################################
-			#lead_sponsor
+			#sponsors
 			########################################################################################
 			try {
-				$lead_sponsor = @array_shift($root->xpath('//sponsors/lead_sponsor'));
-				$lead_sponsor_id = parent::getRes().md5($lead_sponsor->asXML());
-				
-				$agency       = $this->getString("//sponsors/lead_sponsor/agency");
-				$agency_class = $this->getString("//sponsors/lead_sponsor/agency_class");
-				
-                parent::addRDF(
-					parent::triplify($study_id, parent::getVoc()."lead-sponsor", $lead_sponsor_id).
-					parent::describeClass($lead_sponsor_id,$agency, parent::getVoc()."Organization",$agency).
-					parent::triplifyString($lead_sponsor_id,parent::getVoc()."agency-class",$agency_class)
-				);
+				$sponsors = array("lead_sponsor","collaborator");
+				foreach($sponsors AS $sponsor) {
+					$a = @array_shift($root->xpath('//sponsors/'.$sponsor));
+					if($a == null) break;
+					$agency  = $this->getString("//agency", $a);
+					$agency_id = parent::getRes().md5($agency);
+					$agency_class = $this->getString("//agency_class", $a);
+					$agency_class_id = parent::getRes().md5($agency_class);
+					
+					parent::addRDF(
+						parent::describeIndividual($agency_id,$agency,parent::getVoc()."Organization").
+						parent::describeClass(parent::getVoc()."Organization","Organization").
+						parent::triplify($study_id, parent::getVoc().str_replace("_","-",$sponsor), $agency_id).
+						
+						parent::describeIndividual($agency_class_id, $agency_class, parent::getVoc()."Organization").
+						parent::describeClass(parent::getVoc()."Organization","Organization").
+						parent::triplify($agency_id, parent::getVoc()."organization", $agency_class_id)
+					);
+				}
 			}catch( Exception $e){
 				echo "There was an error in the lead sponsor element: $e\n";
 			}
-	
+
+			#################################################################################
+			# source
+			#################################################################################
+			$source = $this->getString('//source');
+			if($source) {
+				$source_id = parent::getRes().md5($source);
+				parent::addRDF(
+					parent::describeIndividual($source_id,$source,parent::getVoc()."Organization").
+					parent::triplify($study_id,parent::getVoc()."source",$source_id)
+				);
+			}
+
 			######################################################################################
 			# oversight
 			######################################################################################
 			try {
 				$oversight = @array_shift($root->xpath('//oversight_info'));
 				$oversight_id = parent::getRes().md5($oversight->asXML());
-				$authority = $this->getString('//oversight_info/authority');
+			
+				$authority = $this->getString('//authority', $oversight);	
+				$authority_id = parent::getRes().md5($authority);
                 parent::addRDF(	
-					parent::triplify($study_id,$this->getVoc()."oversight-authority",$oversight_id).
-					parent::describeIndividual($oversight_id,$authority,parent::getVoc()."Organization",$authority)
-				);
+					parent::describeIndividual($oversight_id,$authority,parent::getVoc()."Organization").
+					parent::triplify($study_id,$this->getVoc()."oversight",$oversight_id).
+					parent::triplify($study_id,$this->getVoc()."authority",$authority_id).
+					parent::triplifyString($oversight_id, parent::getVoc()."has-dmc", $this->getString('//has_dmc', $oversight))
+				);				
 			} catch(Exception $e){
 				echo "There was an error in the oversight info element: $e\n";
 
 			}
-			
-			####################################################################################
-			# dmc
-			####################################################################################
-			$dmc   = $this->getString('//has_dmc');
-			if($dmc != ""){
-				parent::addRDF(
-					parent::triplifyString($study_id,parent::getVoc()."dmc",$dmc)
-				);
-			}	
-
-			####################################################################################
-			# detailed description
-			####################################################################################
-			$detailed_description = $this->getString('//detailed_description/textblock');
-			if($detailed_description) {
-				$d = str_replace(array("\r","\n","\t","      "),"",trim($detailed_description));
-				parent::addRDF(
-					parent::triplifyString($study_id,parent::getVoc()."detailed-description",$d)
-				);
-			}
-
 
 			#################################################################################
 			# overall status
 			#################################################################################
 			$overall_status = $this->getString('//overall_status');
 			if($overall_status) {
-				$status_id = "clinicaltrials_resource:".md5($overall_status);
+				$status_id = parent::getRes().md5($overall_status);
 				parent::addRDF(
-					parent::triplify($study_id,parent::getVoc()."overall-status",$status_id).
-					parent::describeIndividual($status_id,$overall_status,parent::getVoc()."Status", $overall_status)
+					parent::describeIndividual($status_id,$overall_status,parent::getVoc()."Status").
+					parent::triplify($study_id,parent::getVoc()."overall-status",$status_id)
 				);
 			}
 
-			##################################################################################
-			# start date
-			##################################################################################
-			$start_date = $this->getString('//start_date');
-			if($start_date) {
-				// July 2002
-				$datetime = $this->getDatetimeFromDate($start_date);
-				if(isset($datetime)) {
-					parent::addRDF(
-						parent::triplifyString($study_id,parent::getVoc()."start-date",$datetime)
-					);
-				} else {
-					trigger_error("unable to parse start date: $start_date",E_USER_ERROR);
-				}
-			}
+			#########################################################################################
+			#why stopped
+			#########################################################################################
+			parent::addRDF(
+				parent::triplifyString($study_id,parent::getVoc()."why-stopped",$this->getString("//why_stopped"))
+			);
 			
-
-			###################################################################################
-			# completion date
 			##################################################################################
-			$completion_date = $this->getString('//completion_date');
-			if($completion_date){
-				$datetime = $this->getDatetimeFromDate($completion_date);
-				if(isset($datetime)) {
-					parent::addRDF(
-						parent::triplifyString($study_id,parent::getVoc()."completion-date",$datetime)
-					);
-				} else {
-					trigger_error("unable to parse completion date: $completion_date",E_USER_ERROR);
+			# dates
+			##################################################################################
+			$dates = array("start_date","end_date","completion_date", "primary_completion_date", "verification_date","lastchanged_date","firstreceived_date","firstreceived_results_date");
+			foreach ($dates AS $date) {
+				$d = $this->getString('//'.$date);
+				if($d) {
+					$datetime = $this->getDatetimeFromDate($d);
+					if(isset($datetime)) {
+						parent::addRDF(
+							parent::triplifyString($study_id,parent::getVoc().str_replace("_","-",$date), $datetime)
+						);
+					} else {
+						trigger_error("unable to parse date: $d",E_USER_ERROR);
+					}
 				}
 			}
-
-			####################################################################################
-			# primary completion date
-			###################################################################################
-			$primary_completion_date = $this->getString('//primary_completion_date');
-			if($primary_completion_date){
-				$datetime = $this->getDatetimeFromDate($primary_completion_date);
-				if(isset($datetime)) {
-					parent::addRDF(
-						parent::triplifyString($study_id,parent::getVoc()."primary-completion-date",$datetime)
-					);
-				} else {
-					trigger_error("unable to parse completion date: $primary_completion_date",E_USER_ERROR);
-				}
-			}
-
-			####################################################################################
-			# study type
-			####################################################################################
-			$study_type = $this->getString('//study_type');
-			if($study_type){
-				$study_type_id = $this->getRes().md5($study_type);
-				parent::addRDF(
-					parent::describeClass($study_type_id,$study_type,parent::getVoc()."Study").
-					parent::triplify($study_id,parent::getVoc()."study-type",$study_type_id)
-				);
-			}
-
+		
 			####################################################################################
 			# phase
 			####################################################################################
@@ -438,8 +405,20 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if($phase && $phase != "N/A") {
 				$phase_id = $this->getRes().md5($phase);
 				parent::addRDF(
-					parent::describeIndividual($phase_id,$phase,parent::getVoc()."Clinical-Phase",$phase).
+					parent::describeIndividual($phase_id,$phase,parent::getVoc()."Phase",$phase).
 					parent::triplify($study_id,parent::getVoc()."phase",$phase_id)
+				);
+			}
+
+			###################################################################################
+			# study type
+			####################################################################################
+			$study_type = $this->getString('//study_type');
+			if($study_type){
+				$study_type_id = $this->getRes().md5($study_type);
+				parent::addRDF(
+					parent::describeClass($study_type_id,$study_type,parent::getVoc()."Study-Type").
+					parent::triplify($study_id,parent::getVoc()."study-type",$study_type_id)
 				);
 			}
 
@@ -450,7 +429,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if($study_design) {
 				$study_design_id = parent::getRes().md5($study_design);
 				parent::addRDF(
-					parent::describeIndividual($study_design_id,"study design for $study_id",parent::getVoc()."Study-Design").
+					parent::describeIndividual($study_design_id,"$study_id study design",parent::getVoc()."Study-Design").
 					parent::triplify($study_id,parent::getVoc()."study-design",$study_design_id)
 				);
 				// Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment
@@ -458,104 +437,91 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$c = explode(":  ",$b);
 					$key = parent::getRes().md5($c[0]);
 					if(isset($c[1])) {
-					$value = parent::getRes().md5($c[1]);
-					parent::addRDF(
-						parent::describeClass($value,$c[1],parent::getVoc()."Study-Design-Parameter",$c[1]).
-						parent::describeObjectProperty($key,$c[0],null,$c[0]).
-						parent::triplify($study_design_id,$key, $value)
-					);
+						$value = parent::getRes().md5($c[1]);
+						parent::addRDF(
+							parent::describeClass($value,$c[1],parent::getVoc()."Study-Design-Parameter",$c[1]).
+							parent::describeClass(parent::getVoc()."Study-Design-Parameter","Study Design Parameter").
+							parent::triplify($study_design_id,$key,$value)
+						);
 					}
 				}
 			}
+			
+			####################################################################################
+			# target duration
+			####################################################################################
+			parent::addRDF(
+				parent::triplifyString($study_id,parent::getVoc()."target-duration",$this->getString('//target_duration'))
+			);
 
 			################################################################################
-			#primary outcome
+			# outcomes
 			###############################################################################
-			$primary_outcome = @array_shift($root->xpath('//primary_outcome'));
-			if($primary_outcome){
-				try{
-					$po_id = parent::getRes().md5($nct_id.$primary_outcome->asXML());
-					
-					$measure         = $this->getString('//primary_outcome/measure');
-					$time_frame      = $this->getString('//primary_outcome/time_frame');
-					$safety_issue    = $this->getString('//primary_outcome/saftey_issue');	
-					$description     = $this->getString('//primary_outcome/description');
-					
-					parent::addRDF(
-						parent::describeClass($po_id,$measure." ".$time_frame, parent::getVoc()."Primary-Outcome",$description).
-						parent::triplify($study_id, parent::getVoc()."primary-outcome",$po_id).
-						parent::triplifyString($po_id, parent::getVoc()."measure", $measure)
-					);					
-					if($time_frame) {
-						parent::addRDF(
-							parent::triplifyString($po_id,parent::getVoc()."time-frame",$time_frame)
-						);
-					}
-					if($safety_issue) {
-						parent::addRDF(
-							parent::triplifyString($po_id,parent::getVoc()."safety-issue",$safety_issue)
-						);
-					}
-				}catch(Exception $e){
-					echo "There was an error parsing the primary outcome element: $e \n";
-				}
-			}
-
-			#################################################################################
-			#secondary outcome
-			#################################################################################
-			try{
-				$secondary_outcomes = $root->xpath('//secondary_outcome');
-				foreach($secondary_outcomes as $so){
-					$so_id = parent::getRes().md5($nct_id.$so->asXML());
-					
-					$measure = $this->getString('//measure',$so);
-					$time_frame = $this->getString('//time_frame',$so);
-					$safety_issue = $this->getString('//safety_issue',$so);
-					
-					parent::addRDF(
-						parent::describeClass($so_id,$measure." ".$time_frame,parent::getVoc()."Secondary-Outcome").
-						parent::triplify($study_id, parent::getVoc()."secondary-outcome",$so_id).
-						parent::triplifyString($study_id, parent::getVoc()."measure",$measure)
-					);
-
-					if($time_frame) {
-						parent::addRDF(
-							parent::triplifyString($so_id,parent::getVoc()."time-frame",$time_frame)
-						);
-					}
-					if($safety_issue) {
-						parent::addRDF(
-							parent::triplifyString($so_id,parent::getVoc()."safety-issue",$safety_issue)
-						);
+			$outcomes = array("primary_outcome","seconary_outcome","other_outcome");
+			foreach($outcomes AS $outcome) {
+				$o = @array_shift($root->xpath('//'.$outcome));
+				if($o){
+					$os = $o;
+					if(!is_array($o)) $os = array($o);
+					foreach($os AS $o) {
+						try{
+							$po_id = parent::getRes().md5($nct_id.$o->asXML());
+							$po_type = parent::getVoc().str_replace("_","-", $outcome);
+							
+							$measure         = $this->getString('//measure', $o);
+							$time_frame      = $this->getString('//time_frame', $o);
+							$safety_issue    = $this->getString('//saftey_issue', $o);	
+							$description     = $this->getString('//description', $o);
+							
+							parent::addRDF(
+								parent::describeIndividual($po_id,$measure." ".$time_frame, ucfirst($po_type)).
+								parent::describeClass(ucfirst($po_type),str_replace("_"," ",ucfirst($po_type))).
+								parent::triplifyString($po_id, "dc:description", $description).
+								parent::triplifyString($po_id, parent::getVoc()."measure", $measure).
+								parent::triplifyString($po_id,parent::getVoc()."time-frame",$time_frame).
+								parent::triplifyString($po_id,parent::getVoc()."safety-issue",$safety_issue).
+								parent::triplify($study_id, parent::getVoc().$po_type,$po_id)
+							);					
+						}catch(Exception $e){
+							echo "There was an error parsing the primary outcome element: $e \n";
+						}
 					}
 				}
-			}catch (Exception $e){
-				"There was an exception parsing the secondary outcomes element: $e\n";
 			}
 
 			##############################################################################
 			#number of arms
 			##############################################################################
 			try {
-				$no_of_arms = $this->getString('//number_of_arms');
-				if($no_of_arms){
-					parent::addRDF(
-						parent::triplifyString($study_id,parent::getVoc()."number-of-arms",$no_of_arms)
-					);
-				}
+				parent::addRDF(
+					parent::triplifyString($study_id,parent::getVoc()."number-of-arms",$this->getString('//number_of_arms'))
+				);
 			}catch(Exception $e){
 				echo "There was an exception parsing the number of arms element: $e\n";
 			}
-		
+
+			##############################################################################
+			#number of groups
+			##############################################################################
+			try {
+				parent::addRDF(
+					parent::triplifyString($study_id,parent::getVoc()."number-of-arms",$this->getString('//number_of_groups'))
+				);
+			}catch(Exception $e){
+				echo "There was an exception parsing the number of groups: $e\n";
+			}
+
+			
 			##############################################################################
 			#enrollment
 			##############################################################################
 			try{
-				$enrollment = $this->getString('//enrollment');
-				if($enrollment) { 
+				$e = $root->xpath('//enrollment');
+				if($e) { 
+					$type = strtolower((string) $e[0]->attributes()->type); 
+					$value = $this->getString('//enrollment');
 					parent::addRDF(
-						parent::triplifyString($study_id,parent::getVoc()."enrollment",$enrollment)
+						parent::triplifyString($study_id,parent::getVoc().($type?$type."-":"")."enrollment",$value)
 					);
 				}
 			} catch(Exception $e){
@@ -571,7 +537,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$mesh_label_id = parent::getRes().md5($condition);
 					parent::addRDF(
 						parent::triplify($study_id,parent::getVoc()."condition",$mesh_label_id).
-						parent::describeClass($mesh_label_id,$condition,parent::getVoc()."Condition")
+						parent::describeClass($mesh_label_id,$condition,parent::getVoc()."Condition").
+						parent::describeClass(parent::getVoc()."Condition","Condition")
 					);
 				}
 			} catch(Exception $e) {
@@ -591,8 +558,10 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$description = $this->getString('./description',$arm_group);
 
                     parent::addRDF(
-						parent::triplify($study_id,parent::getVoc()."arm-group",$arm_group_id).
-						parent::describeIndividual($arm_group_id,$arm_group_label,parent::getVoc().$arm_group_type,$arm_group_label,$description)
+						parent::describeIndividual($arm_group_id,$arm_group_label,parent::getVoc().$arm_group_type).
+						parent::describeClass(parent::getVoc().$arm_group_type,$arm_group).
+						parent::triplifyString($arm_group_id, "dc:description", $description).
+						parent::triplify($study_id,parent::getVoc()."arm-group",$arm_group_id)
 					);
 				}
 			} catch (Exception $e){
@@ -607,12 +576,18 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				foreach ($interventions as $intervention) {
 					$intervention_id = parent::getRes().md5($intervention->asXML());
 					$intervention_name = $this->getString('./intervention_name',$intervention);
-					$intervention_type = ucfirst(str_replace(" ","_",$this->getString('./intervention_type',$intervention)));
-					$description = $this->getString('./description',$intervention);
+					$intervention_type = $this->getString('./intervention_type',$intervention);
+					$intervention_type_uri = parent::getVoc().ucfirst(str_replace(" ","_",$intervention_type));
+					$intervention_desc = $this->getString('./description',$intervention);
+					$intervention_agl  = $this->getString('./arm_group_label',$intervention);
+					$intervention_on   = $this->getString('./other_name',$intervention);
 					
 					parent::addRDF(
-						parent::triplify($study_id,parent::getvoc()."intervention",$intervention_id).
-						parent::describeClass($intervention_id,$intervention_name,parent::getVoc().$intervention_type,$intervention_name,$description)
+						parent::describeIndividual($intervention_id,$intervention_name,$intervention_type_uri,$intervention_name,$intervention_desc).
+						parent::describeClass($intervention_type_uri,$intervention_type).
+						parent::triplifyString($intervention_id, parent::getVoc()."arm-group-label",$intervention_agl).
+						parent::triplifyString($intervention_id, parent::getVoc()."other-name",$intervention_on).
+						parent::triplify($study_id,parent::getvoc()."intervention",$intervention_id)
 					);
 				}
 			}catch(Exception $e){
@@ -624,16 +599,18 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			################################################################################
 			try{
 				$eligibility = @array_shift($root->xpath('//eligibility'));
-				if($eligibility != null) {
+				if($eligibility !== null) {
 					$eligibility_label = "eligibility for ".$study_id;
 					$eligibility_id = parent::getRes().md5($eligibility->asXML());
+
 					parent::addRDF(
 						parent::describeIndividual($eligibility_id,$eligibility_label,parent::getVoc()."Eligibility").
+						parent::describeClass(parent::getVoc()."Eligibility","Eligibility").
 						parent::triplify($study_id,parent::getVoc()."eligibility",$eligibility_id)			
 					);
 
 					if($criteria = @array_shift($eligibility->xpath('./criteria'))){
-						$text = str_replace("\n\n","",@array_shift($criteria->xpath('./textblock')));
+						$text = str_replace("\n","&#xA;",@array_shift($criteria->xpath('./textblock')));
 						$c = preg_split("/(Inclusion Criteria\:|Exclusion Criteria\:)/",$text);
 						//inclusion
 						if(isset($c[1])) {
@@ -643,8 +620,9 @@ class ClinicalTrialsParser extends Bio2RDFizer
 								if($inc != '') {
 									$inc_id = parent::getRes().md5($inc);
 									parent::addRDF(
-										parent::triplify($eligibility_id,parent::getVoc()."inclusion-criteria",$inc_id).
-										parent::describeIndividual($inc_id,$inc,parent::getVoc()."Inclusion-Criteria")
+										parent::describeIndividual($inc_id,$inc,parent::getVoc()."Inclusion-Criteria").
+										parent::describeClass(parent::getVoc()."Inclusion-Criteria","Inclusion Criteria").
+										parent::triplify($eligibility_id,parent::getVoc()."inclusion-criteria",$inc_id)
 									);
 								}
 							}
@@ -657,25 +635,22 @@ class ClinicalTrialsParser extends Bio2RDFizer
 								if($exc != '') {
 									$exc_id = parent::getRes().md5($exc);
 									parent::addRDF(
-										parent::triplify($eligibility_id,parent::getVoc()."exclusion-criteria",$exc_id).
-										parent::describeIndividual($exc_id,$exc,parent::getVoc()."Exclusion-Criteria")
+										parent::describeIndividual($exc_id,$exc,parent::getVoc()."Exclusion-Criteria").
+										parent::describeClass(parent::getVoc()."Exclusion-Criteria","Exclusion Criteria").
+										parent::triplify($eligibility_id,parent::getVoc()."exclusion-criteria",$exc_id)
 									);
 								}
 							}
 						}					
 					}
 					
-					if($gender = $this->getString('./gender',$eligibility)) {
-						parent::addRDF(
-							parent::triplifyString($eligibility_id,parent::getVoc()."gender",$gender)
-						);
-					}
-					if($healthy_volunteers = $this->getString('./healthy_volunteers',$eligibility)){
-						parent::addRDF(
-							parent::triplifyString($eligibility_id,parent::getVoc()."healthy-volunteers",$healthy_volunteers)
-						);
-					}
-
+					parent::addRDF(
+						parent::triplifyString($eligibility_id,parent::getVoc()."gender",$this->getString('./gender',$eligibility))
+					);
+					parent::addRDF(
+						parent::triplifyString($eligibility_id,parent::getVoc()."healthy-volunteers",$this->getString('./healthy_volunteers',$eligibility))
+					);
+					
 					$attributes = array('minimum_age','maximum_age');
 					foreach($attributes AS $a) {
 						$s = $this->getString('./'.$a,$eligibility);
@@ -701,181 +676,173 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				echo "There was an error in eligibility: $e\n";
 			}
 
-
 			######################################################################################
-			#overall official - the person in charge
+			#biospec
 			#####################################################################################
-			try {
-				$overall_official = @array_shift($root->xpath('//overall_official'));
-				if($overall_official) {
-					$overall_official = parent::getRes().md5($overall_official->asXML());
-					$last_name   = $this->getString('//overall_official/last_name');
-					$role        = $this->getString('//overall_official/role');
-					$affiliation = $this->getString('//overall_official/affiliation');
+			parent::addRDF(
+				parent::triplifyString($study_id,parent::getVoc()."biospec-retention",$this->getString('//biospec_retention'))
+			);
 
-					parent::addRDF(parent::triplify($study_id,parent::getVoc()."overall-official",$overall_official));
-					parent::addRDF(parent::triplify($overall_official,"rdf:type",parent::getVoc()."Overall-Official"));
-					parent::addRDF(parent::triplifyString($overall_official,parent::getVoc()."lastname",$last_name));
-					parent::addRDF(parent::triplifyString($overall_official,parent::getVoc()."role",$role));
-					parent::addRDF(parent::triplifyString($overall_official,parent::getVoc()."affiliation",$affiliation));
+				
+			try {
+				$b = @array_shift($root->xpath('//biospec_descr'));
+				if($b) {
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."biospec_descr",$this->getString('./textblock',$b))
+					);						
+				}
+			}catch(Exception $e){
+				echo "There was an error in biospec_descr: $e\n";
+			}
+				
+			###################################################################
+			# contacts
+			###################################################################
+			$contacts = array("overall_official","overall_contact","overall_contact_backup");	
+			try {
+				foreach($contacts AS $c) {
+					$d = @array_shift($root->xpath('//'.$c));
+					if($d) {
+						parent::addRDF(
+							parent::triplify($study_id, parent::getVoc().str_replace("_","-",$c), $this->makeContact($d))
+						);
+					}
 				}
 			}catch (Exception $e){
-				echo "There was an error parsing the overal_official: $e\n";
+				echo "There was an error parsing overall contact: $e"."\n";
 			}
-
+		
 			##############################################################
 			# location of facility doing the testing
 			##############################################################
 			try {	
 				$location = @array_shift($root->xpath('//location'));
 				if($location){
-					$location_id = parent::getRes().md5($location->asXML());
-					$title = $this->getString('//name',$location);
-					$facility = $location->xpath('./facility');
-					$address  = @array_shift($location->xpath('//address'));
+					$location_uri = parent::getRes().md5($location->asXML());
+					$name = $this->getString('//facility/name',$location);
+					$address = @array_shift($location->xpath('//facility/address'));					
+					$contact = @array_shift($location->xpath('//contact'));
+					$contact_backup = @array_shift($location->xpath('//contact_backup'));
+					$investigator = @array_shift($location->xpath('//investigator'));
 					
-					parent::addRDF(parent::triplify($study_id,parent::getVoc()."location",$location_id));
-					parent::addRDF(parent::describeIndividual($location_id,$title,parent::getVoc()."Location",$title));
-
-					if($address && ($city =  $this->getString('./city',$address)) != null){
-						parent::addRDF(parent::triplifyString($location_id,parent::getVoc()."city",$city));
-					}
-
-					if($address && ($state = $this->getString('./state',$address)) != null){
-						parent::addRDF(parent::triplifyString($location_id,parent::getVoc()."state",$state));
-					}
-					if($address && ($zip =  $this->getString('./zip',$address)) != null){
-						parent::addRDF(parent::triplifyString($location_id,parent::getVoc()."zipcode",$zip));
-					}
-
-					if( $address && ($country =  $this->getString('./country',$address)) != null ){
-						parent::addRDF(parent::triplifyString($location_id,parent::getVoc()."country",$country));
-					}
+					parent::addRDF(
+						parent::describeIndividual($location_uri,$name,parent::getVoc()."Location").
+						parent::describeClass(parent::getVoc()."Location","Location").
+						parent::triplifyString($location_uri,parent::getVoc()."status", $this->getString('//status',$location)).
+						parent::triplify($study_id,parent::getVoc()."location",$location_uri).
+						parent::triplify($location_uri, parent::getVoc()."address", $this->makeAddress($address)).
+						parent::triplify($location_uri, parent::getVoc()."contact", $this->makeContact($contact)).
+						parent::triplify($location_uri, parent::getVoc()."contact-backup", $this->makeContact($location->xpath('//contact_backup'))).
+						parent::triplify($location_uri, parent::getVoc()."investigator", $this->makeContact($location->xpath('//investigator')))
+					);
 				}
 			}catch (Exception $e){
 				echo "There was an error parsing location: $e"."\n";
 			}
 
-			###################################################################
-			# group
-			###################################################################
-
-			try {
-				$groups = $root->xpath('//group');
-				foreach ($groups as $group) {
-					$group_id = parent::getRes().md5($group->asXML());
-					
-					$title = $this->getString('./title',$group);
-					$description = $this->getString('./description',$group);
-					$id = $group->attributes()->group_id;
-					parent::addRDF(parent::triplify($study_id,parent::getVoc()."group",$group_id));
-					parent::addRDF(parent::describeIndividual($group_id,$title,parent::getVoc()."Group",$title,$description));
-				}
-			}catch(Exception $e){
-				echo "There was an exception parsing groups xml element: $e\n";
+			######################################################################
+			#countries
+			######################################################################
+			try {				
+				$a = array("location_countries","removed_countries");
+				foreach($a AS $country) {
+					$lc = @array_shift($root->xpath('//'.$country));
+					if($lc) {
+						$label = $this->getString('//country',$lc);
+						$cid = parent::getRes().md5($label);
+						parent::addRDF(
+							parent::describeIndividual($cid,$label,parent::getVoc()."Country").
+							parent::describeClass(parent::getVoc()."Country","Country").
+							parent::triplify($study_id,parent::getVoc()."country",$cid)
+						);
+					}
+				}				
+			}catch (Exception $e){
+				echo "There was an error parsing country: $e"."\n";
 			}
 
 			######################################################################
 			#reference
 			######################################################################
 			try {
-				$references = $root->xpath('//reference');
-				foreach($references as $reference){
-					$p = $this->getString('./PMID',$reference);
-					if($p) {
-						$pmid = "pubmed:$p";
-						parent::addRDF(parent::triplify($study_id,parent::getVoc()."reference",$pmid));
-						parent::addRDF(parent::triplifyString($pmid,"rdfs:comment",$this->getString('./citation',$reference)));
+				$a = array("reference","result_reference");
+				foreach($a AS $ref_type) {
+					$references = $root->xpath('//'.$ref_type);
+					foreach($references as $reference){
+						$p = $this->getString('./PMID',$reference);
+						if($p) {
+							$pmid = "pubmed:$p";
+							parent::addRDF(
+								parent::describeIndividual($pmid,$p,parent::getVoc()."Reference").
+								parent::describeClass(parent::getVoc()."Reference", "Reference").
+								parent::triplifyString($pmid, parent::getVoc()."citation", $this->getString('./citation',$reference)).
+								parent::triplify($study_id,parent::getVoc().str_replace("_","-",$ref_type),$pmid)
+							);
+						}
 					}
 				}
 			} catch(Exception $e){
 				echo "There was an error parsing references element: $e\n";
 			}
-
+			
 			#######################################################################
-			#results reference
+			#link
 			#######################################################################
 			try{
-				$results_references = $root->xpath('//results_reference');
-				foreach($results_references as $result_reference){
-					$p = $this->getString('./PMID',$result_reference);
-					if($p) {
-						$pmid = "pubmed:".$p;
-						parent::addRDF(parent::triplify($study_id,parent::getVoc()."results-reference",$pmid));
-						parent::addRDF(parent::triplifyString($pmid,"rdfs:comment",$this->getString('./citation',$result_reference)));
-					}
-				}
-			}catch(Exception $e){
-				echo "There was an error parsing results_references element: $e\n";
-			}
-
-			##########################################################################
-			#verification date
-			#########################################################################
-			try{
-				$verification_date  = $this->getString('//verification_date');
-				
-				if($verification_date){
-					$date = $this->getDatetimeFromDate($verification_date);
+				$links = $root->xpath('//link');
+				foreach($links AS $i => $link) {
+					$lid = parent::getRes().md5($this->getString('./url',$link));
 					parent::addRDF(
-						parent::triplifyString($study_id,parent::getVoc()."verification-date",$date)
+						parent::describeIndividual($lid, $this->getString('./description',$link), parent::getVoc()."Link").
+						parent::describeClass(parent::getVoc()."Link","Link").
+						parent::triplify($lid,parent::getVoc()."url",$this->getString('./url',$link)).
+						parent::triplify($study_id,parent::getVoc()."link",$lid)
 					);
 				}
-				
-				$lastchanged_date   = $this->getString('//lastchanged_date');
-				if($lastchanged_date) {
-					$date = $this->getDatetimeFromDate($lastchanged_date);
-					parent::addRDF(
-						parent::triplifyString($study_id,parent::getVoc()."last-changed-date",$date)
-					);
-				}
-				
-				$firstreceived_date = $this->getString('//firstreceived_date');
-				if($firstreceived_date) {
-					$date = $this->getDatetimeFromDate($firstreceived_date);
-					parent::addRDF(
-						parent::triplifyString($study_id,parent::getVoc()."first-received-date",$date)
-					);
-				}
-				
 			} catch(Exception $e){
-				echo "There was an error parsing the verification_date element: $e\n";
+				echo "There was an error parsing link element: $e\n";
 			}
-
+			
 			############################################################################
 			#responsible party
 			############################################################################
 			try{
-				$responsible_party = @array_shift($root->xpath('//responsible_party'));
-				if($responsible_party){
-					$rp_id = parent::getRes().md5($responsible_party->asXML());
-					$name_title        = $this->getString('//responsible_party/name_title');
-					$organization      = $this->getString('//responsible_party/organization');
-					$party_type        = $this->getString('//responsible_party/party_type');
-					$label = '';
-					if($name_title)   $label  = $name_title;
-					if($organization) $label .= (($name_title !== '')?", ":"").$organization;
-					if(!$label && $party_type) $label = $party_type;
+				$rp = @array_shift($root->xpath('//responsible_party'));
+				if($rp){
+					$rp_id = parent::getRes().md5($rp->asXML());
+					$label = $this->getString('./name_title',$rp);
+					if(!$label) $label = $this->getString('./organization',$rp);
+					else $label .= ", ".$this->getString('./organization',$rp);
+					if(!$label) $label = $this->getString('./party_type',$rp);
+					$org_id = parent::getRes().md5($this->getString('./organization',$rp));
 					
 					parent::addRDF(
+						parent::describeIndividual($rp_id,$label,parent::getVoc()."Responsible-Party").
+						parent::describeClass(parent::getVoc()."Responsible-Party","Responsible Party").
 						parent::triplify($study_id,parent::getVoc()."responsible-party",$rp_id).
-						parent::describeIndividual($rp_id,$label,parent::getVoc()."Responsible-Party")
+						parent::triplify($rp_id, parent::getVoc()."organization", $org_id).
+						parent::describeIndividual($org_id, $this->getString('./organization',$rp), parent::getVoc()."Organization").
+						parent::describeClass(parent::getVoc()."Organization","Organization").
+						parent::triplifyString($rp_id, parent::getVoc()."name-title", $this->getString('./name_title',$rp)).
+						parent::triplifyString($rp_id, parent::getVoc()."party-type", $this->getString('./party_type',$rp)).
+						parent::triplifyString($rp_id, parent::getVoc()."investigator-affiliation", $this->getString('./investigator_affiliation',$rp)).
+						parent::triplifyString($rp_id, parent::getVoc()."investigator-full-name", $this->getString('./investigator_full_name',$rp)).
+						parent::triplifyString($rp_id, parent::getVoc()."investigator-title", $this->getString('./investigator_title',$rp))
 					);
-					if($party_type) parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."party-type",$party_type));
-					if($name_title) parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."name-title",$name_title));
-					if($organization) parent::addRDF(parent::triplifyString($rp_id,parent::getVoc()."organization",$organization));
 				}
 			}catch(Exception $e){
 				echo "There was an error parsing the responsible_party element: $e\n";
 			}
 
 			##############################################################################
-			# key words
+			# keywords
 			##############################################################################
 			try{
 				$keywords = $root->xpath('//keyword');
 				foreach($keywords as $keyword){
-					parent::addRDF(parent::triplifyString($study_id,parent::getVoc()."keyword",(string)$keyword));
+					parent::addRDF(
+						parent::triplifyString($study_id,parent::getVoc()."keyword",(string)$keyword)
+					);
 				}
 			}catch(Exception $e){
 				echo "There was an error parsing the keywords element: $e";
@@ -895,92 +862,261 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				echo "There was an error in mesh_terms: $e\n";
 			}
 
+			################################################################################
+			# regulated by fda?  is section 801? has expanded access?
+			################################################################################
+			try {
+				$regulated = 
+				parent::addRDF(
+					parent::triplifyString($study_id,parent::getVoc()."is-fda-regulated",$this->getString('is_fda_regulated')).
+					parent::triplifyString($study_id,parent::getVoc()."is-section-801",$this->getString('is_section_801')).
+					parent::triplifyString($study_id,parent::getVoc()."has-expanded-access",$this->getString('has_expanded_access'))
+				);
+			} catch (Exception $e){
+				echo "There was an error parsing the is_fda_regulated element: $e\n";
+			}
+
 			###############################################################################
 			# mesh terms for the intervention browse
 			###############################################################################
 			try {
-				$mesh_terms = $root->xpath('//intervention_browse/mesh_term');
-				foreach($mesh_terms as $mesh_label){
-					$term = (string)$mesh_label;
-					$mesh_label_id = parent::getRes().md5($term);
-					parent::addRDF(parent::triplify($study_id,parent::getVoc()."intervention_mesh",$mesh_label_id));
-					parent::addRDF(parent::triplifyString($mesh_label_id,"rdfs:label",$term));
+				$a = array("condition_browse","intervention_browse");
+				foreach($a AS $browse_type) {
+					$terms = $root->xpath("//$browse_type/mesh_term");
+					foreach($terms as $term){
+						$term_label = (string)$term;
+						$term_id = parent::getRes().md5($term);
+						parent::addRDF(
+							parent::describeIndividual($term_id,$term_label,parent::getVoc()."Term").
+							parent::triplify($study_id,parent::getVoc().str_replace("_","-",$browse_type),$term_id)
+						);
+					}
 				}
 			}
 			catch(Exception $e){
-				echo "There was an error parsing intervention_browse/mesh_term element: $e\n";
+				echo "There was an error parsing $browse_type/mesh_term element: $e\n";
 			}
 
 			################################################################################
-			# regulated by fda? 
-			# boolean value yes or no
+			# clinical results 
+			################################################################################
+
+			################################################################################
+			# Participant Flow
 			################################################################################
 			try {
-				$regulated = $this->getString('is_fda_regulated');
-				if($regulated != ""){
-					parent::addRDF(parent::triplifyString($study_id,parent::getVoc()."is-fda-regulated",$regulated));
+				$z = 1;
+				
+				$pf = @array_shift($root->xpath('//clinical_results/participant_flow'));
+				if($pf) {
+					$pf_id = parent::getRes().md5($pf->asXML());
+					parent::addRDF(
+						parent::describeIndividual($pf_id,"participant flow for $study_id",parent::getVoc()."Participant-Flow").
+						parent::describeClass(parent::getVoc()."Participant-Flow","Participant-Flow").
+						parent::triplify($study_id,parent::getVoc()."participant-flow",$pf_id).
+						parent::triplifyString($pf_id,parent::getVoc()."recruitment-details", $this->getString('./recruitment_details',$pf)).
+						parent::triplifyString($pf_id,parent::getVoc()."pre-assignment-details", $this->getString('./pre_assignment_details',$pf))
+					);
+					$groups = @array_shift($pf->xpath('./group_list'));
+					foreach($groups AS $group) {
+						parent::addRDF(
+							parent::triplify($pf_id,parent::getVoc()."group", $this->makeGroup($group))
+						);
+					}
+				
+					//period_list
+					$periods = @array_shift($pf->xpath('./period_list'));
+					foreach($periods AS $period) {
+						$period_id = parent::getRes().$nct_id."/period/".($z++);
+						$period_title = $this->getString('./title',$period);
+						
+						parent::addRDF(
+							parent::describeIndividual($period_id, $period_title." for $nct_id", parent::getVoc()."Period").
+							parent::describeClass(parent::getVoc()."Period", "Period")
+						);
+						// milestones
+						$milestones = @array_shift($period->xpath('./milestone_list'));
+						if($milestones) {
+							foreach($milestones AS $milestone) {
+								$milestone_id = parent::getRes().$nct_id."/milestone/".($z++);
+								$label = $this->getString('./title',$milestone);
+								
+								parent::addRDF( 
+									parent::describeIndividual($milestone_id, $label, parent::getVoc()."Milestone").
+									parent::describeClass(parent::getVoc()."Milestone","Milestone")
+								);
+								
+								// participants
+								$ps_list = @array_shift($milestone->xpath('./participants_list'));
+								foreach($ps_list AS $p) {
+									$group_id = parent::getRes().$nct_id."/group/".$p->attributes()->group_id;
+									$count = (string) $p->attributes()->count;
+									parent::addRDF(
+										parent::triplify($milestone_id, parent::getVoc()."group",$group_id).
+										parent::triplifyString($milestone_id, parent::getVoc()."count",$count)
+									);
+								}
+							}
+						} // milestones
+						
+						$withdraws = @array_shift($period->xpath('./drop_withdraw_reason_list'));
+						if($withdraws) {
+							foreach($withdraws AS $w) {
+								$wid = parent::getRes().$nct_id."/withdraw/".($z++);
+								$label = $this->getString('./title',$w);
+								parent::addRDF( 
+									parent::describeIndividual($wid, $label, parent::getVoc()."Withdraw-Reason").
+									parent::describeClass(parent::getVoc()."Withdraw-Reason","Withdraw Reason")
+								);
+								// participants
+								$ps_list = @array_shift($w->xpath('./participants_list'));
+								foreach($ps_list AS $p) {
+									$group_id = parent::getRes().$nct_id."/group/".$p->attributes()->group_id;
+									$count = (string) $p->attributes()->count;
+									parent::addRDF(
+										parent::triplify($wid, parent::getVoc()."group",$group_id).
+										parent::triplifyString($wid, parent::getVoc()."count",$count)
+									);
+								}
+							}
+						}
+					}
 				}
-			} catch (Exception $e){
-				echo "There was an error parsing the is_fda_regulated element: $e\n";
+			} catch(Exception $e){
+				echo "There was an error parsing participant flow element: $e\n";
 			}
+
+			################################################################################
+			# baseline
+			################################################################################
+			try {
+				$baseline = @array_shift($root->xpath('//baseline'));
+				if($baseline) {
+					$b_id = $this->nct_id."/baseline";
+					$b_uri = parent::getRes().$b_id;
+
+					// group list
+					$groups = @array_shift($baseline->xpath('./group_list'));
+					foreach($groups AS $group) {
+						parent::addRDF(
+							parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
+						);
+					}
+					
+					// measure list
+					$measures = @array_shift($baseline->xpath('./measure_list'));
+					foreach($measures AS $measure) {
+						parent::addRDF(
+							parent::triplify($study_id,parent::getVoc()."measure", $this->makeMeasure($measure))
+						);
+					}
+										
+				}				
+			} catch(Exception $e) {
+				echo "Error in parsing baseline".PHP_EOL;
+			}
+			
+			################################################################################
+			# outcomes
+			################################################################################
+			try {
+				$outcomes = @array_shift($root->xpath('//outcome_list'));
+				if($outcomes) {
+					foreach($outcomes AS $i => $outcome) {
+						$outcome_id = $this->nct_id."/outcome/".($i+1);
+						$outcome_uri = parent::getRes().$outcome_id;
+						$outcome_label = $this->getString("./title",$outcome);
+						if(!$outcome_label) $outcome_label = "outcome for ".$this->nct_id;				
+						parent::addRDF(
+							parent::describeIndividual($outcome_uri, $outcome_label, parent::getVoc()."Outcome", $this->getString("./description",$outcome)).
+							parent::describeClass(parent::getVoc()."Outcome","Outcome").
+							parent::triplify($study_id,parent::getVoc()."outcome",$outcome_uri).
+							parent::triplifyString($outcome_uri,parent::getVoc()."type", $this->getString("./type",$outcome)).
+							parent::triplifyString($outcome_uri,parent::getVoc()."time-frame", $this->getString("./time_frame",$outcome)).
+							parent::triplifyString($outcome_uri,parent::getVoc()."safety-issue",$this->getString("./safety_issue",$outcome)).
+							parent::triplifyString($outcome_uri,parent::getVoc()."posting-date",$this->getString("./posting-date",$outcome)).
+							parent::triplifyString($outcome_uri,parent::getVoc()."population",$this->getString("./population",$outcome))
+						);
+						$groups = @array_shift($outcome->xpath('./group_list'));
+						foreach($groups AS $group) {
+							parent::addRDF(
+								parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
+							);
+						}
+
+						// measure list
+						$measures = @array_shift($outcome->xpath('./measure_list'));
+						if($measures) {
+							foreach($measures AS $measure) {
+								parent::addRDF(
+									parent::triplify($study_id,parent::getVoc()."measure", $this->makeMeasure($measure))
+								);
+							}
+						}
+						
+						// analysis list
+						$analyses = @array_shift($outcome->xpath('./analysis_list'));
+						if($analyses) {
+							foreach($analyses AS $analysis) {
+								parent::addRDF(
+									parent::triplify($study_id,parent::getVoc()."analysis", $this->makeAnalysis($analysis))
+								);
+							}}						
+					}
+				}
+			} catch(Exception $e) {
+				echo "Error in parsing outcomes".PHP_EOL;
+			}					
 			
 			################################################################################
 			# events 
 			################################################################################
 			try{
+				$z = 1;
 				$reported_events = @array_shift($root->xpath('//reported_events'));
 				if($reported_events){
-					// groups
 					$groups = @array_shift($reported_events->xpath('./group_list'));
 					foreach($groups AS $group) {
-						$group_id = $group->attributes()->group_id;
-						$group_uri = parent::getRes().$nct_id."/group/".$group_id;
-						$title = $this->getString('//title');
-						$description = $this->getString('//description');
-						$time_frame = $this->getString('//time_frame');
 						parent::addRDF(
-							parent::triplifyString($group_uri,"rdfs:label","$id $title").
-							parent::triplify($group_uri,"rdf:type",parent::getVoc()."Group").
-							parent::triplifyString($group_uri,"dc:description",$description).
-							parent::triplifyString($group_uri,parent::getVoc()."time-frame",$time_frame)
+							parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
 						);
 					}
 
 					// events	
-					$event_list = array("serious_events","other_events");
-					foreach($event_list AS $e) {
-						$i = 1;
-						$eventtype = @array_shift($reported_events->xpath('./'.$e));
-						if(!$eventtype) continue;
-						$vocab = $this->getString('./default_vocab',$eventtype);
-						$frequency_threshold = $this->getString('./frequency_threshold');
-						$assessment = $this->getString('./default_assessment', $eventtype);
-						$assessment_uri = parent::getVoc().md5($assessment);
-						$categories = array_shift($eventtype->xpath('./category_list'));
+					$event_list = array("serious_events" => "Serious Event","other_events" => "Other Event");
+					foreach($event_list AS $ev => $ev_label) {
+						$et = @array_shift($reported_events->xpath('./'.$ev));
+						if(!$et) continue;
+						
+						$categories = array_shift($et->xpath('./category_list'));
 						foreach($categories AS $category) {
 							$major_title = $this->getString('./title', $category);
+							
 							$events = @array_shift($category->xpath('./event_list'));
 							foreach($events AS $event) {
+								$e_uri = parent::getRes().$this->nct_id."/$ev/".($z++);
 								$subtitle = (string) $this->getString('./sub_title',$event);
-								$subtitle_uri = parent::getVoc().md5($subtitle);
+								$subtitle_uri = parent::getRes().md5($subtitle);
+								
 								parent::addRDF(
-									parent::triplifyString($subtitle_uri,"rdfs:label",$subtitle).
-									parent::triplifyString($subtitle_uri,"rdf:type",parent::getVoc()."Event-Type")
+									parent::describeIndividual($e_uri,$subtitle,$subtitle_uri).
+									parent::describeClass($subtitle_uri,$subtitle, parent::getVoc()."Event").									
+									parent::describeClass(parent::getVoc().str_replace(" ","-",$ev_label),$ev_label).
+									parent::triplifyString($e_uri, parent::getVoc()."major-title", $major_title).
+									parent::triplify($study_id, parent::getVoc()."event",$e_uri)
 								);
-								foreach($event AS $count) {
-									if(!isset($count->attributes()->group_id)) continue;
-									$count_uri = parent::getRes().$nct_id."/$e/".$i++;
-									$group_uri = parent::getRes().$nct_id."/group/".$count->attributes()->group_id;
+								$counts = $event->xpath('./counts');
+								foreach($counts AS $c) {
+									$group_uri = parent::getRes().$nct_id."/group/".$c->attributes()->group_id;
 
 									parent::addRDF(
-										parent::triplifyString($count_uri,"rdfs:label", "$subtitle").
-										parent::triplify($count_uri,"rdf:type",$subtitle_uri).
-										parent::triplify($count_uri,parent::getVoc()."group",$group_uri).
-										parent::triplifyString($count_uri,parent::getVoc()."frequency-threshold",$frequency_threshold).
-										parent::triplify($count_uri,parent::getVoc()."default-assessment",$assessment_uri).
-										parent::triplifyString($count_uri,parent::getVoc()."number-events",$count->attributes()->events).
-										parent::triplifyString($count_uri,parent::getVoc()."subjects-affected",$count->attributes()->subjects_affected).
-										parent::triplifyString($count_uri,parent::getVoc()."subjects-at-risk",$count->attributes()->subjects_at_risk)
+										parent::triplify($e_uri,parent::getVoc()."group",$group_uri).
+										parent::triplifyString($e_uri,parent::getVoc()."default-vocabulary", $this->getString('./default_vocab',$et)).
+										parent::triplifyString($e_uri,parent::getVoc()."frequency-threshold",$this->getString('./frequency_threshold', $et)).
+										parent::triplifyString($e_uri,parent::getVoc()."default-assessment",$this->getString('./default_assessment', $et)).
+										parent::triplifyString($e_uri,parent::getVoc()."number-events",$c->attributes()->events).
+										parent::triplifyString($e_uri,parent::getVoc()."subjects-affected",$c->attributes()->subjects_affected).
+										parent::triplifyString($e_uri,parent::getVoc()."subjects-at-risk",$c->attributes()->subjects_at_risk)
 									);
 								}
 							}
@@ -1047,5 +1183,142 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		trigger_error("unable to get date from $date",E_USER_ERROR);
 		return null;
 	}
+	
+	public function makeContact($contact)
+	{
+		if($contact == null) return null;
+		$contact_uri = parent::getRes().md5($contact->asXML());		
+		$contact_type_uri = parent::getVoc()."Contact";
+		$contact_label = trim($this->getString('//first_name',$contact)." ".$this->getString('//last_name', $contact));
+		parent::addRDF(
+			parent::describeIndividual($contact_uri,$contact_label,$contact_type_uri).
+			parent::describeClass($contact_uri,"Contact").
+			parent::triplifyString($contact_uri,parent::getVoc()."first-name",$this->getString('//first_name',$contact)).
+			parent::triplifyString($contact_uri,parent::getVoc()."middle-name",$this->getString('//middle_name',$contact)).
+			parent::triplifyString($contact_uri,parent::getVoc()."last-name",$this->getString('//last_name',$contact)).
+			parent::triplifyString($contact_uri,parent::getVoc()."degrees",$this->getString('//degrees',$contact)).						
+			parent::triplifyString($contact_uri,parent::getVoc()."phone",$this->getString('//phone',$contact)).		
+			parent::triplifyString($contact_uri,parent::getVoc()."phone-ext",$this->getString('//phone_ext',$contact)).	
+			parent::triplifyString($contact_uri,parent::getVoc()."email",$this->getString('//email',$contact)).
+			parent::triplifyString($contact_uri,parent::getVoc()."role",$this->getString('//role',$contact)).
+			parent::triplify($contact_uri,parent::getVoc()."affiliation",
+				$this->makeDescription( $this->getString('//affiliation',$contact), "Organization"))
+		);
+		return $contact_uri;
+	}
+	
+	public function makeGroup($group)
+	{
+		if($group == null) return null;
+		$group_id = $group->attributes()->group_id;
+		$group_uri = parent::getRes().$this->nct_id."/group/".$group_id;
+		$title = $this->getString('./title',$group);
+		$description = $this->getString('./description', $group);
+		$time_frame = $this->getString('./time_frame', $group);
+		parent::addRDF(
+			parent::describeIndividual($group_uri,$title,parent::getVoc()."Group",$title,$description).
+			parent::describeClass(parent::getVoc()."Group","Group").
+			parent::triplifyString($group_uri,parent::getVoc()."group-id",$group_id).
+			parent::triplifyString($group_uri,parent::getVoc()."time-frame",$time_frame)
+		);
+		return $group_uri;
+	}
+	
+	public function makeMeasure($measure) 
+	{
+		if($measure == null) return null;
+		$measure_id = parent::getRes().$this->nct_id."/measure/".md5($measure->asXML());
+		
+		parent::addRDF(
+			parent::describeIndividual($measure_id, $this->getString('./title', $measure), parent::getVoc()."Measure",$this->getString('./description', $measure)).
+			parent::describeClass(parent::getVoc()."Measure","Measure").
+			parent::triplifyString($measure_id, parent::getVoc()."unit", $this->getString('./units', $measure)).
+			parent::triplifyString($measure_id, parent::getVoc()."parameter", $this->getString('./param', $measure)).
+			parent::triplifyString($measure_id, parent::getVoc()."dispersion", $this->getString('./dispersion', $measure))
+		);
+		
+		$categories = @array_shift($measure->xpath('./category_list'));
+		foreach($categories AS $category) {
+			$cid = parent::getRes().$this->nct_id."/category/".md5($category->asXML());
+			$cat_label = $this->getString('./sub_title', $category);
+			if(!$cat_label) $cat_label = "category for measure";
+			parent::addRDF(
+				parent::describeIndividual($cid, $cat_label, parent::getVoc()."Category").
+				parent::triplify($measure_id,parent::getVoc()."category",$cid)
+			);
+			$ml = @array_shift($category->xpath('./measurement_list'));
+			foreach($ml AS $m) {
+				$mid = parent::getRes().$this->nct_id."/measurement/".md5($m->asXML());
+				parent::addRDF(
+					parent::describeIndividual($mid, $this->nct_id." measurement", parent::getVoc()."Measurement").
+					parent::describeClass(parent::getVoc()."Measurement","Measurement").
+					parent::triplify($mid, parent::getVoc()."group-id", parent::getRes().$this->nct_id."/group/".$m->attributes()->group_id).
+					parent::triplifyString($mid, parent::getVoc()."value", $m->attributes()->value).
+					parent::triplifyString($mid, parent::getVoc()."spread", $m->attributes()->spread).
+					parent::triplifyString($mid, parent::getVoc()."lower-limit", $m->attributes()->lower_limit).
+					parent::triplifyString($mid, parent::getVoc()."upper-limit", $m->attributes()->upper_limit).
+					parent::triplify($cid, parent::getVoc()."measurement",$mid)
+				);
+			}
+		}
+		return $measure_id;
+	}
+	
+	public function makeAnalysis($analysis)
+	{
+		if($analysis == null) return null;
+		$analysis_uri = parent::getRes().$this->nct_id."/analysis/".md5($analysis->asXML());
+		
+		parent::addRDF(
+			parent::describeIndividual($analysis_uri,"analysis for ".$this->nct_id, parent::getVoc()."Analysis").
+			parent::describeClass(parent::getVoc()."Analysis")
+		);
+		
+		$groups = @array_shift($analysis->xpath('./group_list'));
+		foreach($groups AS $group) {
+			parent::addRDF(
+				parent::triplify($analysis_uri,parent::getVoc()."group", $this->makeGroup($group))
+			);
+		}		
+		$a = array("groups_desc","non_inferiority","non_inferiority_desc","p_value","p_value_desc","method","method_desc","param_type","param_value","dispersion_type","dispersion_value","ci_percent","ci_n_sides","ci_lower_limit","ci_upper_limit","ci_upper_limit_na_comment","estimate_desc");
+		foreach($a AS $b) {
+			parent::addRDF(
+				parent::triplifyString($analysis_uri,parent::getVoc().str_replace("_","-",$b), $this->getString('./'.$b, $analysis))
+			);
+		}
+		return analysis_uri;
+	}
+	
+	public function makeAddress($address)
+	{
+		if($address == null) return null;
+		
+		$address_uri = parent::getRes().md5($address->asXML());
+		parent::addRDF(
+			parent::describeIndividual($address_uri,"address",parent::getVoc()."Address").
+			parent::triplifyString($address_uri, parent::getVoc()."city",
+				$this->makeDescription( $this->getString('./city',$address),"City")).
+			parent::triplifyString($address_uri,parent::getVoc()."state", 
+				$this->makeDescription( $this->getString('./state',$address), "State")).
+			parent::triplifyString($address_uri,parent::getVoc()."zip", 
+				$this->makeDescription( $this->getString('./zip',$address), "ZipCode")).
+			parent::triplifyString($address_uri,parent::getVoc()."country", 
+				$this->makeDescription( $this->getString('./country',$address), "Country"))
+		);
+		return $address_uri;
+	}
+	
+	public function makeDescription($title,$type)
+	{
+		if(!$title) return null;
+		$uri = parent::getRes().md5($title);
+		$type_uri= parent::getVoc().str_replace(" ","-",$type);
+		parent::addRDF(
+			parent::describeIndividual($uri,$title,$type_uri).
+			parent::describeClass($type_uri,$type)
+		);
+		return $uri;
+	}
+					
 }
 ?>
