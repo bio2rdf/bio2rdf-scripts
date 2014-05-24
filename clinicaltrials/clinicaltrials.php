@@ -1283,14 +1283,16 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		
 		parent::addRDF(
 			parent::describeIndividual($analysis_uri,"analysis for ".$this->nct_id, parent::getVoc()."Analysis").
-			parent::describeClass(parent::getVoc()."Analysis")
+			parent::describeClass(parent::getVoc()."Analysis","Analysis")
 		);
 		
 		$groups = @array_shift($analysis->xpath('./group_list'));
-		foreach($groups AS $group) {
-			parent::addRDF(
-				parent::triplify($analysis_uri,parent::getVoc()."group", $this->makeGroup($group))
-			);
+		if($groups) {
+			foreach($groups AS $group) {
+				parent::addRDF(
+					parent::triplify($analysis_uri,parent::getVoc()."group", $this->makeGroup($group))
+				);
+			}
 		}		
 		$a = array("groups_desc","non_inferiority","non_inferiority_desc","p_value","p_value_desc","method","method_desc","param_type","param_value","dispersion_type","dispersion_value","ci_percent","ci_n_sides","ci_lower_limit","ci_upper_limit","ci_upper_limit_na_comment","estimate_desc");
 		foreach($a AS $b) {
@@ -1298,7 +1300,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				parent::triplifyString($analysis_uri,parent::getVoc().str_replace("_","-",$b), $this->getString('./'.$b, $analysis))
 			);
 		}
-		return analysis_uri;
+		return $analysis_uri;
 	}
 	
 	public function makeAddress($address)
