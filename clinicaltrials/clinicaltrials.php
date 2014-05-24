@@ -722,8 +722,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$name = $this->getString('//facility/name',$location);
 					$address = @array_shift($location->xpath('//facility/address'));					
 					$contact = @array_shift($location->xpath('//contact'));
-					$contact_backup = @array_shift($location->xpath('//contact_backup'));
-					$investigator = @array_shift($location->xpath('//investigator'));
+					$backups = @array_shift($location->xpath('//contact_backup'));
+					$investigators = @array_shift($location->xpath('//investigator'));
 					
 					parent::addRDF(
 						parent::describeIndividual($location_uri,$name,parent::getVoc()."Location").
@@ -731,10 +731,22 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						parent::triplifyString($location_uri,parent::getVoc()."status", $this->getString('//status',$location)).
 						parent::triplify($study_id,parent::getVoc()."location",$location_uri).
 						parent::triplify($location_uri, parent::getVoc()."address", $this->makeAddress($address)).
-						parent::triplify($location_uri, parent::getVoc()."contact", $this->makeContact($contact)).
-						parent::triplify($location_uri, parent::getVoc()."contact-backup", $this->makeContact($location->xpath('//contact_backup'))).
-						parent::triplify($location_uri, parent::getVoc()."investigator", $this->makeContact($location->xpath('//investigator')))
+						parent::triplify($location_uri, parent::getVoc()."contact", $this->makeContact($contact))
 					);
+					if($backups) {
+						foreach($backups AS $backup) {
+							parent::addRDF(
+								parent::triplify($location_uri, parent::getVoc()."contact-backup", $this->makeContact($backup))
+							);
+						}
+					}
+					if($investigators) {
+						foreach($investigators AS $investigator) {
+							parent::addRDF(
+								parent::triplify($location_uri, parent::getVoc()."investigator", $this->makeContact($investigator))
+							);
+						}
+					}
 				}
 			}catch (Exception $e){
 				echo "There was an error parsing location: $e"."\n";
