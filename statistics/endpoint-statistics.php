@@ -91,7 +91,7 @@ if(!file_exists($options['isql'])) {
 	trigger_error("ISQL could not be found at ".$options['isql'],E_USER_ERROR);
 }
 
-@mkdir($options['odir']);
+system("mkdir -p ".$options['odir']);
 
 if($options['instance']) {
 	if($options['version'] == '') {
@@ -108,11 +108,11 @@ if($options['instance']) {
 			if($options['instance'] == $name) {
 				$options['port'] = $a[0];
 				$options['dataset'] = $name;
-				
+				$options['sparql'] = 'http://localhost:'.$a[1].'/sparql';
 				$version = $options['version'];
 				$options['ofile'] = "bio2rdf-$name-R$version-statistics"; 
-				$options['graphs'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$name-R$version";				
-				$options['quad_uri'] = $options['graphs']."-statistics";
+				$options['graphs'] = "http://bio2rdf.org/$name"."_resource:bio2rdf.dataset.$name.R$version";
+				$options['quad_uri'] = $options['graphs'].".statistics";
 				$options['dataset_uri'] = $options['graphs'];
 				break;
 			}
@@ -146,7 +146,7 @@ if($options['graphs'] == 'list' or $options['graphs'] == 'all') {
 	if(count($plusgraphs) >= 2) {
 		$options['from-graph'] = '';
 		foreach($plusgraphs AS $g) {
-			$options['from-graph'] .= "FROM <$g> ";			
+			$options['from-graph'] .= "FROM <$g> ";
 		}
 		$graphs = array($options['graphs']);
 	} else {
@@ -258,7 +258,7 @@ function write($content)
 function getGraphs()
 {
 	global $options;
-	$sparql = "SELECT DISTINCT ?g WHERE {GRAPH ?g {?s a ?o}}";
+	$sparql = "SELECT DISTINCT ?g WHERE {GRAPH ?g {[] a ?o}}";
 	$r = query($sparql);
 	foreach($r AS $g) {
 		$graphs[] = $g->g->value;
@@ -269,7 +269,7 @@ function getGraphs()
 function addDistinctGraphs()
 {
 	global $options;
-	$sparql = "SELECT (COUNT(distinct ?g) AS ?n) {GRAPH ?g {?s ?p ?o} ".$options['filter']."}";
+	$sparql = "SELECT (COUNT(distinct ?g) AS ?n) {GRAPH ?g {[] ?p ?o} ".$options['filter']."}";
 	$r = query($sparql);
 
 	foreach($r AS $c) {
