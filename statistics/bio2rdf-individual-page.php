@@ -64,7 +64,7 @@ if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 if(!file_exists($options['isql'])) {
 	trigger_error("ISQL could not be found at ".$options['isql'],E_USER_ERROR);
 }
-if($options['odir']) @mkdir($options['odir'],"777");
+if($options['odir']) @mkdir($options['odir'],0777);
 
 if($options['instance']) {
 	$dataset = $options['instance'];
@@ -83,6 +83,7 @@ if($options['instance']) {
 	$entry     = getRecord($registry,$dataset);
 	$endpoint  = getEndpointInfo($dataset);
 
+	$options['port'] = $endpoint['isql'];
 	$entry['sparql'] = "http://localhost:".$endpoint['sparql']."/sparql";
 	$entry['target.endpoint'] = $entry['sparql'];
 	if($options['target.endpoint']) $entry['target.endpoint'] = $options['target.endpoint']; 
@@ -90,7 +91,7 @@ if($options['instance']) {
 	if($options['bio2rdf.version'] == '') {
 		echo "specify bio2rdf.version!";exit;
 	}
-	$entry['graph'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$dataset-R".$options['bio2rdf.version']."-statistics";
+	$entry['graph'] = "http://bio2rdf.org/".$dataset."_resource:bio2rdf.dataset.$dataset.R".$options['bio2rdf.version'].".statistics";
 	$entry['from'] = "FROM <".$entry['graph'].">";
 	$entry['describe'] = '';
 	$outfile = $options['odir'].$dataset.'.html';
