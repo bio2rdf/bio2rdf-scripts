@@ -66,8 +66,8 @@ class TaxonomyParser extends Bio2RDFizer{
 
 	function __construct($argv) {
 		parent::__construct($argv, "taxonomy");
-		parent::addParameter('files',true,null,'all|taxdmp|gi2taxid_nucleotide|gi2taxid_protein','','files to process');
-		parent::addParameter('download', false, null, 'true|false');
+		parent::addParameter('files',true,'all|taxdmp|gi2taxid_nucleotide|gi2taxid_protein','taxdmp','files to process');
+		parent::addParameter('download', false, 'true|false','false');
 		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip');
 		parent::initialize();
 	}//constructor
@@ -96,7 +96,6 @@ class TaxonomyParser extends Bio2RDFizer{
 		$dataset_description = '';
 
 		foreach ($files as $key => $value) {
-
 			$lfile = $ldir.$value['filename'];
 			if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
@@ -107,7 +106,7 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($this->GetParameterValue('download') == true) {
 				$rfile = $value["file_url"];
 				echo "downloading ".var_dump($value["file_url"])." ... ";
-				file_put_contents($lfile,file_get_contents($rfile));
+				utils::downloadSingle($rfile,$lfile);
 			}
 
 			if($key == "taxdmp" || $key == "gi2taxid_protein" || $key == "gi2taxid_nucleotide"){
@@ -191,7 +190,7 @@ class TaxonomyParser extends Bio2RDFizer{
 			$gi = trim($a[0]);
 			$txid = trim($a[1]);
 			parent::AddRDF(
-				parent::triplify("gi:".$gi, $this->getVoc()."x-taxid", $this->GetNamespace().$txid)
+				parent::triplify("gi:".$gi, $this->getVoc()."x-taxonomy", $this->GetNamespace().$txid)
 			);
 			$this->WriteRDFBufferToWriteFile();
 		}//while
@@ -202,290 +201,151 @@ class TaxonomyParser extends Bio2RDFizer{
 			$gi = trim($a[0]);
 			$txid = trim($a[1]);
 			parent::AddRDF(
-				parent::triplify("gi".$gi, $this->getVoc()."x-taxid", $this->GetNamespace().$txid)
+				parent::triplify("gi".$gi, $this->getVoc()."x-taxonomy", $this->GetNamespace().$txid)
 			);
 			$this->WriteRDFBufferToWriteFile();
 		}//while
 	}
 	private function names(){
-		while($aLine = $this->GetReadFile()->Read(200000)){
-			$a = explode("|", $aLine);
-			$taxid = str_replace("\t","",trim($a[0]));
-			$name = str_replace("\t","",trim($a[1]));
-			$unique_name = str_replace("\t","",trim($a[2]));
-			$name_class = str_replace("\t","",trim($a[3]));
-
-			if($name_class == "scientific name"){
-				parent::AddRDF(
-					parent::triplifyString(parent::GetNamespace().$taxid, "rdfs:label", str_replace("\"","",utf8_encode($name)))
-				);
-			}else{
-				$r = rand();
-				$name_res = $this->getRes().md5($r.$taxid);
-				$name_label = str_replace("\"","",utf8_encode($name));
-				$name_label_class = "ncbi taxonomy name class";
-				
-				parent::AddRDF(
-					parent::triplify($name_res, "rdf:type", "owl:Class").
-					parent::triplifyString($name_res, $this->getVoc()."has-value", $name_label).
-					parent::describeClass($this->getVoc()."name-class", $name_label_class).
-					parent::triplify($name_res, "rdf:type", $this->getVoc().preg_replace('/\s+/','',str_replace("\"","",utf8_encode($name_class))))
-				);
-			}
-
-			//add unique name
-			if($unique_name != "" && $unique_name != null){
-				parent::AddRDF(
-					parent::triplifyString(parent::GetNamespace().$taxid, $this->getVoc()."unique-name", str_replace("\"","",utf8_encode($unique_name)))
+		while($l = $this->getReadFile()->read(200000)){
+			$a = explode("\t|\t", trim($l,"|\t\r\n"));
+			if(count($a) == 0) continue;
+			$taxid = parent::getNamespace().trim($a[0]);
+			$name = utf8_encode($a[1]);
+			$rel = parent::getVoc().str_replace(" ","-",$a[3]);
+			
+			parent::addRDF(
+				parent::triplifyString($taxid, $rel, $name).
+				parent::triplifyString($taxid, parent::getVoc()."unique-name", utf8_encode($a[2]))
+			);
+			
+			if($rel == "scientific-name") {
+				parent::addRDF(
+					parent::triplifyString($taxid, "dc:title", $name).
+					parent::triplifyString($taxid, "rdfs:label", $name)
 				);
 			}
 			
-			$this->WriteRDFBufferToWriteFile();
+			$this->writeRDFBufferToWriteFile();
 		}//while
 	}//names
 
-	private function nodes(){
-		while($aLine = $this->GetReadFile()->Read(200000)){
-			$a = explode("|",$aLine);
-			$taxid =str_replace("\t","",trim($a[0]));
-			$parent_taxid = str_replace("\t","",trim($a[1]));
-			$rank = str_replace("\t","",trim($a[2]));
-			$embl_code = str_replace("\t","",trim($a[3]));
-			$division_id = str_replace("\t","",trim($a[4]));
-			$inherited_div_flag = str_replace("\t","",trim($a[5]));
-			$gencode_id = str_replace("\t","",trim($a[6]));
-			$inherited_gc_flag = str_replace("\t","",trim($a[7]));
-			$mitochondrial_genetic_code_id = str_replace("\t","",trim($a[8]));
-			$inherited_mgc_flag = str_replace("\t","",trim($a[9]));
-			$genbank_hidden_flag = str_replace("\t","",trim($a[10]));
-			$hidden_st_root_flag = str_replace("\t","",trim($a[11]));
-			$comments = str_replace("\t","",trim($a[12]));
+	private function nodes()
+	{
+		$elements = array(
+			// taxid, parent
+			"rank","embl-code","division-id","inherited-division","genetic-code-id","inherited-genetic-code","mitochondrial-genetic-code-id","inherited-mitochondrial-genetic-code"); //ignore these,"genbank-hidden-flag","hidden-st-root-flag","comments");
+		
+		while($l = $this->getReadFile()->read(200000)){
+			$a = explode("\t|\t", rtrim($l,"\t|\n"));
+			$taxid = "taxonomy:".$a[0];
+
+			if($a[1] != "" and $taxid != "1"){
+				parent::addRDF(
+					parent::triplify($taxid, "rdfs:subClassOf", "taxonomy:".$a[1]).
+					parent::triplify($taxid, "rdf:type", "owl:Class")
+				);
+			}
 			
-			if($parent_taxid != "" && $taxid != "1"){
-				parent::AddRDF(
-					parent::triplify(parent::GetNamespace().$taxid, "rdfs:subClassOf", parent::GetNamespace().$parent_taxid).
-					parent::triplify(parent::GetNamespace().$taxid, "rdf:type", "owl:Class")
-				);
+			foreach($elements AS $i => $e) {
+				$rel = $this->getVoc().$e;
+				$val = $a[ $i + 2 ];
+				switch( $e ) {
+					case "division-id":
+					case "genetic-code-id" :
+					case 'mitochondrial-genetic-code-id':
+						if($e == 'mitochondrial-genetic-code-id') $e = 'genetic-code-id';
+						$eid = parent::getRes().$e."-".$val;
+						parent::addRDF(
+							parent::triplify($taxid, $rel, $eid)
+						);
+						break;
+					case "rank":
+					case "embl-code":
+						$eid = parent::getRes().str_replace(" ","-",$val);
+						parent::addRDF(
+							parent::triplify($taxid,$rel, $eid).
+							parent::describeIndividual($eid, $val, parent::getVoc().ucfirst($e)).
+							parent::describeClass(parent::getVoc().ucfirst($e), ucfirst($e))
+						);
+						break;;
+					default :
+						if($val != '') {
+							parent::addRDF(
+								parent::triplifyString($taxid, $rel, ($val == 1)?"true":"false", "xsd:boolean")
+							);
+						}
+				}
 			}
-			if($rank != ""){
-				parent::AddRDF(
-					parent::triplifyString(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."rank",
-						str_replace("\"","",utf8_encode($rank))
-					)
-				);
-			}
-			if($embl_code != ""){
-				parent::AddRDF(
-					parent::triplifyString(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."embl_code",
-						str_replace("\"","",utf8_encode($rank))
-					)
-				);
-			}
-			if($division_id != ""){
-				parent::AddRDF(
-					parent::triplify(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."division",
-						$this->getRes().md5("division_id_".$division_id)
-					)
-				);
-			}
-			if($inherited_div_flag != ""){
-				parent::AddRDF(
-					parent::triplifyString(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."inherited_division_flag",
-						str_replace("\"","",utf8_encode($inherited_div_flag))
-					)
-				);
-			}
-			if($gencode_id != ""){
-				parent::AddRDF(
-					parent::triplify(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."genetic_code",
-						$this->getRes().md5("gencode_id_".$gencode_id)
-					)
-				);
-			}
-			if($inherited_gc_flag != ""){
-				parent::AddRDF(
-					parent::triplifyString(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."inherited_gc_flag",
-						str_replace("\"","",utf8_encode($inherited_gc_flag))
-					)
-				);
-			}
-			if($mitochondrial_genetic_code_id != ""){
-				parent::AddRDF(
-					parent::triplifyString(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."mitochondrial_genetic_code_id",
-						str_replace("\"","",utf8_encode($mitochondrial_genetic_code_id))
-					)
-				);
-			}
-			if($inherited_mgc_flag != ""){
-				parent::AddRDF(
-					parent::triplifyString(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."inherited_mgc_flag",
-						str_replace("\"","",utf8_encode($inherited_mgc_flag))
-					)
-				);
-			}
-			if($genbank_hidden_flag != ""){
-				parent::AddRDF(
-					parent::triplifyString(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."genbank_hidden_flag",
-						str_replace("\"","",utf8_encode($genbank_hidden_flag))
-					)
-				);
-			}
-			if($hidden_st_root_flag != ""){
-				parent::AddRDF(
-					parent::triplifyString(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."hidden_st_root_flag",
-						str_replace("\"","",utf8_encode($hidden_st_root_flag))
-					)
-				);
-			}
-			if($comments != ""){
-				parent::AddRDF(
-					parent::triplifyString(
-						parent::GetNamespace().$taxid,
-						$this->getVoc()."comments",
-						str_replace("\"","",utf8_encode($comments))
-					)
-				);
-			}
-			$this->WriteRDFBufferToWriteFile();
+			
+			$this->writeRDFBufferToWriteFile();
 		}//while
 	}//nodes
 
-	private function division(){
-		while($aLine = $this->GetReadFile()->Read(200000)){
-			$a = explode("|",$aLine);
-			$division_id = str_replace("\t","",trim($a[0]));
-			$division_code = str_replace("\t","",trim($a[1]));
-			$name = str_replace("\t","",trim($a[2]));
-			$comments = str_replace("\t","",trim($a[3]));
+	private function division()
+	{
+		while($l = $this->getReadFile()->read(200000)){
+			$a = explode("\t|\t", rtrim($l,"\t|\n"));
 
-			$div_res = $this->getRes().md5("division_id_".$division_id);
-			$div_label = str_replace("\"","",utf8_encode($name));
-			$div_label_class = "ncbi genbank division code for ".$div_res;
+			$division = parent::getRes()."division-id-".$a[0];
+			parent::addRDF(
+				parent::describeIndividual($division, $a[2], $this->getVoc()."Division").
+				parent::describeClass($this->getVoc()."Division", "Taxonomic Division").
+				parent::triplifyString($division, $this->getVoc()."division-code", $a[1]).
+				(isset($a[3])?parent::triplifyString($division, $this->getVoc()."comment", $a[3]):"")
+			);
 
-			parent::AddRDF(
-				parent::describeIndividual($div_res, $div_label, $this->getVoc()."division").
-				parent::describeClass($this->getVoc()."division", $div_label_class)
-			);
-			//add division code
-			parent::AddRDF(
-				parent::triplifyString($div_res, $this->getVoc()."division_code", str_replace("\"","",utf8_encode($division_code)))
-			);
-			//add comments
-			if($comments != ""){
-				parent::AddRDF(
-					parent::triplifyString($div_res, $this->getVoc()."comments", str_replace("\"","",utf8_encode($comments)))
-				);
-			}
-			$this->WriteRDFBufferToWriteFile();
+			$this->writeRDFBufferToWriteFile();
 		}//while
 	}//division
 
-	private function gencode(){
-		while($aLine = $this->GetReadFile()->Read(200000)){
-			$a = explode("|",$aLine);
-			$gencode = str_replace("\t","",trim($a[0]));
-			$abbr = str_replace("\t","",trim($a[1]));
-			$name = str_replace("\t","",trim($a[2]));
-			$translation_table = str_replace("\t","",trim($a[3]));
-			$start_codons = str_replace("\t","",trim($a[4]));
+	private function gencode()
+	{
+		while($l = $this->getReadFile()->read(200000)){
+			$a = explode("\t|\t", rtrim($l,"\t|\n"));
 
-			$gen_res = $this->getres().md5("gencode_id_".$gencode);
-			$gen_label = str_replace("\"","",utf8_encode($name));
-			$gen_label_class = "genetic code";
-
-			//create resource
-			parent::AddRDF(
-				parent::describeIndividual($gen_res, $gen_label, $this->getVoc()."genetic_code").
-				parent::describeClass($this->getVoc()."genetic_code", $gen_label_class)
+			$gc = parent::getRes()."genetic-code-id-".$a[0];
+			parent::addRDF(
+				parent::describeIndividual($gc, $a[2], $this->getVoc()."Genetic-Code").
+				parent::describeClass($this->getVoc()."Genetic-Code", "Genetic Code").
+				parent::triplifyString($gc, parent::getVoc()."abbreviation", $a[1]).
+				parent::triplifyString($gc, parent::getVoc()."translation-table", $a[3]).
+				parent::triplifyString($gc, parent::getVoc()."start-codons", $a[4])
 			);
-			if($abbr != ""){
-				parent::AddRDF(
-					parent::triplifyString($gen_res, $this->getVoc()."abbreviation", str_replace("\"","",utf8_encode($abbr)))
-				);
-			}
-			if ($translation_table != "") {
-				parent::AddRDF(
-					parent::triplifyString($gen_res, $this->getVoc()."translation_table", str_replace("\"","",utf8_encode($translation_table)))
-				);
-			}
-			if ($start_codons != "") {
-				parent::AddRDF(
-					parent::triplifyString($gen_res, $this->getVoc()."start_codons", str_replace("\"","",utf8_encode($start_codons)))
-				);
-			}
-			$this->WriteRDFBufferToWriteFile();
+			$this->writeRDFBufferToWriteFile();
 		}//while
 	}//gencode
-	private function citations(){
-		while($aLine = $this->GetReadFile()->Read(200000)){
-			$a = explode("|",$aLine);
-			$cit_id = str_replace("\t","",trim($a[0]));
-			$cit_key = str_replace("\t","",trim($a[1]));
-			$pubmed_id = str_replace("\t","",trim($a[2]));
-			$medline_id = str_replace("\t","",trim($a[3]));
-			$url = str_replace("\t","",trim($a[4]));
-			$text = str_replace("\t","",trim($a[5]));
-			$taxid_list = explode(" ", str_replace("\t","",trim($a[6])));
 
-			$cit_res = $this->getRes().md5("citation_id_".$cit_id);
-			$cit_label = "citation identifier for ".$cit_key;
-			$cit_label_class = "citation identifier";
-
-			parent::AddRDF(
-				parent::describeIndividual($cit_res, $cit_label, $this->getVoc()."citation").
-				parent::describeClass($this->getVoc()."citation", $cit_label_class)
+	private function citations()
+	{
+		while($l = $this->getReadFile()->read(2000000)){
+			$a = explode("\t|\t", rtrim($l,"\t|\n"));
+			if(!isset($a[1]) or !isset($a[2])) {
+				continue;
+			}
+			$c = parent::getRes()."citation-id-".$a[0];
+			parent::addRDF(
+				parent::describeIndividual($c, $a[1], $this->getVoc()."Citation").
+				parent::describeClass($this->getVoc()."Citation", "Citation").
+				parent::triplifyString($c, parent::getVoc()."citation-key", $a[1]).
+				($a[2]=="0"?"":parent::triplify($c, parent::getVoc()."x-pubmed", "pubmed:".$a[2])).
+				(!isset($a[4])?"":parent::triplify($c, "rdfs:seeAlso", str_replace("lx: DOI ","http://dx.doi.org/", $a[4]))).
+				(!isset($a[5])?"":parent::triplifyString($c, parent::getVoc()."text", str_replace("\"","", $a[5])))
 			);
-			if($cit_key != ""){
-				parent::AddRDF(
-					parent::triplifyString($cit_res, $this->getVoc()."citation_key", str_replace(array('"','\\'),"",utf8_encode($cit_key)))
-				);
-			}
-			if ($pubmed_id != 0 && $pubmed_id != "") {
-				parent::AddRDF(
-					parent::triplify($cit_res, $this->getVoc()."x-pubmed", "pubmed:".$pubmed_id)
-				);
-			}
-			if($url != 0 && $url != ""){
-				parent::AddRDF(
-					parent::triplify($cit_res, "rdfs:seeAlso", $url)
-				);
-			}
-			if($text != 0 && $text != ""){
-				parent::AddRDF(
-					parent::triplifyString($cit_res, $this->getVoc()."text", str_replace("\"","",utf8_encode($text)))
-				);
-			}
-			if(count($taxid_list)){
-				foreach ($taxid_list as $aTxid) {
-					$aTxid = trim($aTxid);
-					parent::AddRDF(
-						parent::triplify($this->GetNamespace().$aTxid, $this->getVoc()."citation", $cit_res)
-					);
+			if(isset($a[6])) {
+				$taxids = explode(" ", trim($a[6]));
+				if(count($taxids)){
+					foreach($taxids as $taxid) {
+						parent::addRDF(
+							parent::triplify("taxonomy:$taxid", $this->getVoc()."citation", $c)
+						);
+					}
 				}
 			}
-			$this->WriteRDFBufferToWriteFile();
+			$this->writeRDFBufferToWriteFile();
 		}//while
 	}//citations
+
 	public function getPackageMap(){
 		return self::$packageMap;
 	}//getpackagemap
