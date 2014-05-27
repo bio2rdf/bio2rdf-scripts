@@ -86,28 +86,38 @@ class Bio2RDFApp extends Application
 		}
 		return $parsers;
 	}
-	
+
 	function runStats($instance, $version)
 	{
-		$graph = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$instance-R$version";
-		
+		$graph = "http://bio2rdf.org/".$instance."_resource:bio2rdf.dataset.$instance.R$version";
+
+		// create the instance
+		echo "creating instance".PHP_EOL;
+		$cmd = "cd /sparql;php manager.php $instance stop; php manager.php $instance clean;php manager.php $instance create 20;";
+		system($cmd);
+		echo "waiting 10 seconds".PHP_EOL;
+		sleep(10);
+
 		// load the data file
+		echo "loading data".PHP_EOL;
 		$cmd = 'php ../php-lib/apps/rdfload.php i='.$instance.' g='.$graph.' dg=true r=true d=/data/rdf/'.$instance;
 		system($cmd);
 
 		// generate the statistics
+		echo "generating statistics".PHP_EOL;
 		$cmd = "php ./statistics/endpoint-statistics.php instance=$instance version=$version";
 		system($cmd);
-		
+
 		// load the statistics
+		echo "loading statistics".PHP_EOL;
 		$f = "bio2rdf-$instance-R$version-statistics.nq";
-		echo $cmd = "php ../php-lib/apps/rdfload.php i=".$instance." g=$graph-statistics dg=true d=/data/rdf/statistics/ f=$f".PHP_EOL;
+		echo $cmd = "php ../php-lib/apps/rdfload.php i=$instance g=$graph.statistics dg=true d=/data/rdf/statistics/ f=$f".PHP_EOL;
 		system($cmd);
-		
+
 		// generate the stats page
-		echo $cmd = "php ./statistics/bio2rdf-individual-page.php instance=$instance bio2rdf.version=$version odir=/data/html/".PHP_EOL;
+		echo "generating statistics page".PHP_EOL;
+		echo $cmd = "php ./statistics/bio2rdf-individual-page.php instance=$instance bio2rdf.version=$version odir=/var/www/bio2rdf/html/".PHP_EOL;
 		system($cmd);
-		
 	}
 }
 
