@@ -1173,10 +1173,12 @@ class PharmGKBParser extends Bio2RDFizer
 				$genes = explode(",",$a[2]);
 				foreach($genes AS $gene) {
 					preg_match("/\(([A-Za-z0-9]+)\)/",$gene,$m);
-					parent::addRDF(
-						parent::triplify($id, parent::getVoc()."gene", parent::getNamespace().$m[1]).
-						parent::describeProperty(parent::getVoc()."gene", "Relationship between a PharmGKB variant annotation and a gene")
-					);
+					if(isset($m[1])) {
+						parent::addRDF(
+							parent::triplify($id, parent::getVoc()."gene", parent::getNamespace().$m[1]).
+							parent::describeProperty(parent::getVoc()."gene", "Relationship between a PharmGKB variant annotation and a gene")
+						);
+					}
 				}
 			}
 			
