@@ -1114,7 +1114,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 
 
 								parent::addRDF(
-									parent::describeIndividual($e_uri,$subtitle,$ev_uri.
+									parent::describeIndividual($e_uri,$subtitle,$ev_uri).
 									parent::describeClass($ev_uri,$ev_label).
 									parent::triplify($e_uri, "rdf:type", $subtitle_uri).
 									parent::triplify($subtitle_uri, $subtitle, parent::getVoc()."Event").
