@@ -349,7 +349,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			
 				$authority = $this->getString('//authority', $oversight);	
 				$authority_id = parent::getRes().md5($authority);
-                parent::addRDF(	
+				parent::addRDF(	
 					parent::describeIndividual($oversight_id,$authority,parent::getVoc()."Organization").
 					parent::triplify($study_id,$this->getVoc()."oversight",$oversight_id).
 					parent::triplify($study_id,$this->getVoc()."authority",$authority_id).
@@ -368,6 +368,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$status_id = parent::getRes().md5($overall_status);
 				parent::addRDF(
 					parent::describeIndividual($status_id,$overall_status,parent::getVoc()."Status").
+					parent::describeClass(parent::getVoc()."Status","Status").
 					parent::triplify($study_id,parent::getVoc()."overall-status",$status_id)
 				);
 			}
@@ -405,6 +406,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$phase_id = $this->getRes().md5($phase);
 				parent::addRDF(
 					parent::describeIndividual($phase_id,$phase,parent::getVoc()."Phase",$phase).
+					parent::describeClass(parent::getVoc()."Phase",$phase).
 					parent::triplify($study_id,parent::getVoc()."phase",$phase_id)
 				);
 			}
@@ -417,6 +419,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$study_type_id = $this->getRes().md5($study_type);
 				parent::addRDF(
 					parent::describeClass($study_type_id,$study_type,parent::getVoc()."Study-Type").
+					parent::describeClass(parent::getVoc()."Study-Type","Study Type").
 					parent::triplify($study_id,parent::getVoc()."study-type",$study_type_id)
 				);
 			}
@@ -429,18 +432,24 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$study_design_id = parent::getRes().md5($study_design);
 				parent::addRDF(
 					parent::describeIndividual($study_design_id,"$study_id study design",parent::getVoc()."Study-Design").
+					parent::describeClass(parent::getVoc()."Study-Design","Study Design").
 					parent::triplify($study_id,parent::getVoc()."study-design",$study_design_id)
 				);
 				// Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment
-				foreach(explode(", ",$study_design) AS $b) {
+				foreach(explode(", ",$study_design) AS $i=>$b) {
 					$c = explode(":  ",$b);
-					$key = parent::getRes().md5($c[0]);
 					if(isset($c[1])) {
+						$sdp = $study_design_id."-".($i+1);
+						$key = parent::getRes().md5($c[0]);
 						$value = parent::getRes().md5($c[1]);
 						parent::addRDF(
-							parent::describeClass($value,$c[1],parent::getVoc()."Study-Design-Parameter",$c[1]).
+							parent::describeIndividual($sdp,$b,parent::getVoc()."Study-Design-Parameter").
 							parent::describeClass(parent::getVoc()."Study-Design-Parameter","Study Design Parameter").
-							parent::triplify($study_design_id,$key,$value)
+							parent::triplify($sdp,parent::getVoc()."key",$key).
+							parent::describeClass($key,$c[0]).
+							parent::triplify($sdp,parent::getVoc()."value",$value).
+							parent::describeClass($value,$c[1]).
+							parent::triplify($study_design_id,parent::getVoc()."study-design-parameter",$sdp)
 						);
 					}
 				}
@@ -887,7 +896,6 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			# regulated by fda?  is section 801? has expanded access?
 			################################################################################
 			try {
-				$regulated = 
 				parent::addRDF(
 					parent::triplifyString($study_id,parent::getVoc()."is-fda-regulated",$this->getString('is_fda_regulated')).
 					parent::triplifyString($study_id,parent::getVoc()."is-section-801",$this->getString('is_section_801')).
@@ -909,6 +917,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						$term_id = parent::getRes().md5($term);
 						parent::addRDF(
 							parent::describeIndividual($term_id,$term_label,parent::getVoc()."Term").
+							parent::describeClass(parent::getVoc()."Term","Term").
 							parent::triplify($study_id,parent::getVoc().str_replace("_","-",$browse_type),$term_id)
 						);
 					}
@@ -1242,7 +1251,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		$contact_label = trim($this->getString('//first_name',$contact)." ".$this->getString('//last_name', $contact));
 		parent::addRDF(
 			parent::describeIndividual($contact_uri,$contact_label,$contact_type_uri).
-			parent::describeClass($contact_uri,"Contact").
+			parent::describeClass($contact_type_uri,"Contact").
 			parent::triplifyString($contact_uri,parent::getVoc()."first-name",$this->getString('//first_name',$contact)).
 			parent::triplifyString($contact_uri,parent::getVoc()."middle-name",$this->getString('//middle_name',$contact)).
 			parent::triplifyString($contact_uri,parent::getVoc()."last-name",$this->getString('//last_name',$contact)).
@@ -1294,6 +1303,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if(!$cat_label) $cat_label = "category for measure";
 			parent::addRDF(
 				parent::describeIndividual($cid, $cat_label, parent::getVoc()."Category").
+				parent::describeClass(parent::getVoc()."Category","Category").
 				parent::triplify($measure_id,parent::getVoc()."category",$cid)
 			);
 			$ml = @array_shift($category->xpath('./measurement_list'));
@@ -1313,7 +1323,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		}
 		return $measure_id;
 	}
-	
+
 	public function makeAnalysis($analysis)
 	{
 		if($analysis == null) return null;
@@ -1348,6 +1358,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		$address_uri = parent::getRes().md5($address->asXML());
 		parent::addRDF(
 			parent::describeIndividual($address_uri,"address",parent::getVoc()."Address").
+			parent::describeClass(parent::getVoc()."Address","Address").
 			parent::triplifyString($address_uri, parent::getVoc()."city",
 				$this->makeDescription( $this->getString('./city',$address),"City")).
 			parent::triplifyString($address_uri,parent::getVoc()."state", 
