@@ -1146,7 +1146,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 									parent::describeIndividual($e_uri,$subtitle,$ev_uri).
 									parent::describeClass($ev_uri,$ev_label).
 									parent::triplify($e_uri, parent::getVoc()."sub-title", $subtitle_uri).
-									parent::triplify($subtitle_uri, $subtitle, parent::getVoc()."Event").
+									parent::describeIndividual($subtitle_uri, $subtitle, parent::getVoc()."Event").
 									parent::describeClass(parent::getVoc()."Event","Event").
 									parent::triplify($e_uri, parent::getVoc()."major-title", $major_title_uri).
 									parent::describeClass($major_title_uri,$major_title).
