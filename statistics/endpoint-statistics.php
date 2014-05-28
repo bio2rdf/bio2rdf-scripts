@@ -219,7 +219,13 @@ function query($sparql)
 		}
 	} else {
 		$cmd = $options['sparql']."?query=".urlencode($sparql)."&format=application%2Fsparql-results%2Bjson&timeout=0";
-		$out = file_get_contents($cmd);
+		$ctx = stream_context_create(array( 
+    			'http' => array( 
+    			    'timeout' => 1200 
+		        ) 
+		    ) 
+		); 
+		$out = file_get_contents($cmd,null,$ctx);
 	}
 	$json = json_decode($out);
 	return $json->results->bindings;
@@ -246,7 +252,7 @@ function QuadLiteral($subject_uri, $predicate_uri, $literal, $dt = null, $lang =
 	if($options['quad_uri']) $graph_uri = $options['quad_uri'];
 	$xsd = "http://www.w3.org/2001/XMLSchema#";
 	$dt = "^^<".$xsd.(isset($dt)?$dt:"string").">";
-	return "<$subject_uri> <$predicate_uri> \"$literal\"".(isset($lang)?"@$lang":$dt).(isset($graph_uri)?" <$graph_uri>":"")." .".PHP_EOL;
+	return "<$subject_uri> <$predicate_uri> \"".addslashes($literal)."\"".(isset($lang)?"@$lang":$dt).(isset($graph_uri)?" <$graph_uri>":"")." .".PHP_EOL;
 }
 function write($content)
 {
