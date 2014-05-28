@@ -1100,21 +1100,25 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					foreach($event_list AS $ev => $ev_label) {
 						$et = @array_shift($reported_events->xpath('./'.$ev));
 						if(!$et) continue;
-						
+						$ev_uri = parent::getVoc().str_replace(" ","-",$ev_label);
+
 						$categories = array_shift($et->xpath('./category_list'));
 						foreach($categories AS $category) {
 							$major_title = $this->getString('./title', $category);
-							
+
 							$events = @array_shift($category->xpath('./event_list'));
 							foreach($events AS $event) {
 								$e_uri = parent::getRes().$this->nct_id."/$ev/".($z++);
 								$subtitle = (string) $this->getString('./sub_title',$event);
 								$subtitle_uri = parent::getRes().md5($subtitle);
-								
+
+
 								parent::addRDF(
-									parent::describeIndividual($e_uri,$subtitle,$subtitle_uri).
-									parent::describeClass($subtitle_uri,$subtitle, parent::getVoc()."Event").									
-									parent::describeClass(parent::getVoc().str_replace(" ","-",$ev_label),$ev_label).
+									parent::describeIndividual($e_uri,$subtitle,$ev_uri.
+									parent::describeClass($ev_uri,$ev_label).
+									parent::triplify($e_uri, "rdf:type", $subtitle_uri).
+									parent::triplify($subtitle_uri, $subtitle, parent::getVoc()."Event").
+									parent::describeClass(parent::getVoc()."Event","Event").
 									parent::triplifyString($e_uri, parent::getVoc()."major-title", $major_title).
 									parent::triplify($study_id, parent::getVoc()."event",$e_uri)
 								);
@@ -1136,7 +1140,6 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						}
 					}
 				}
-					
 			} catch(Exception $e) {
 				echo "Error in parsing reported events".PHP_EOL;
 			}
