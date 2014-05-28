@@ -946,7 +946,6 @@ class ClinicalTrialsParser extends Bio2RDFizer
 							parent::triplify($pf_id,parent::getVoc()."group", $this->makeGroup($group))
 						);
 					}
-				
 					//period_list
 					$periods = @array_shift($pf->xpath('./period_list'));
 					foreach($periods AS $period) {
@@ -988,7 +987,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 								}
 							}
 						} // milestones
-						
+
 						$withdraws = @array_shift($period->xpath('./drop_withdraw_reason_list'));
 						if($withdraws) {
 							foreach($withdraws AS $withdraw) {
@@ -999,10 +998,10 @@ class ClinicalTrialsParser extends Bio2RDFizer
 									parent::describeClass(parent::getVoc()."Withdraw-Reason","Withdraw Reason")
 								);
 								// participants
-								$ps_list = @array_shift($w->xpath('./participants_list'));
+								$ps_list = @array_shift($withdraw->xpath('./participants_list'));
 								foreach($ps_list AS $ps) {
 									$group_id = parent::getRes().$nct_id."/group/".$ps->attributes()->group_id;
-									$count = (string) $p->attributes()->count;
+									$count = (string) $ps->attributes()->count;
 									parent::addRDF(
 										parent::triplify($wid, parent::getVoc()."group",$group_id).
 										parent::triplifyString($wid, parent::getVoc()."count",$count)
