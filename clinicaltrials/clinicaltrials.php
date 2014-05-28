@@ -31,36 +31,32 @@ require_once(__DIR__.'/../../php-lib/xmlapi.php');
 
 class ClinicalTrialsParser extends Bio2RDFizer
 {
-	function __construct($argv){
+	function __construct($argv)
+	{
 		parent::__construct($argv,"clinicaltrials");
-	
-		parent::addParameter('files',true,'all|study|results','all','files to process');
+		parent::addParameter('files',true,'all','all','files to process');
 		parent::addParameter('download_url',false,null,'http://clinicaltrials.gov/ct2/crawl');
-		
+		parent::addParameter('overwrite',false,'true|false','false','overwrite existing files with download option');
 		parent::initialize();
 	}
 
-	function run(){
-		if(parent::getParameterValue('download') === true) 
-		{
-			$this->crawl();
-		}
-		if(parent::getParameterValue('process') === true) 
-		{
-			$this->parse_dir();
-		}
+	function run()
+	{
+		if(parent::getParameterValue('download') === true) $this->crawl();
+		$this->parse_dir();
 	}
 
 
 	/**
 	* generate the proper subdir based on the file name
 	**/
-	function get_sub_dir($entry){
+	function get_sub_dir($entry)
+	{
 		$bin_range = 10;
 
 		preg_match('/NCT[0]+(\d+)\.xml$/', $entry,$matches);
 		$record_number = $matches[1];
-		
+
 		// find last multiple of bin_range
 		$count = -strlen($bin_range);
 		$marker = substr($record_number, $count);
@@ -96,7 +92,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if(preg_match("/crawl\/([0-9]+)/",$href->getAttribute('href'))){
 				$record_block_url = "http://clinicaltrials.gov".$href->getAttribute('href');
 				$this->fetch_record_block($record_block_url);
-			}	
+			}
 		}
 	}
 
@@ -111,7 +107,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			return false;
 		}
 		echo "done.".PHP_EOL;
-		
+
 		$dom = new DOMDocument();
 		@$dom->loadHTML($html);
 
@@ -123,7 +119,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if(preg_match("/ct2\/show\//",$href->getAttribute('href'))){
 				$page_uri = "http://clinicaltrials.gov/".$href->getAttribute('href')."?resultsxml=true";
 				$this->fetch_page($page_uri);
-			}	
+			}
 		}
 	}
 
@@ -134,14 +130,17 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		preg_match("/show\/(NCT[0-9]+)/",$url,$m);
 		$file = $m[1];
 		$outfile = parent::getParameterValue("indir")."/".$file.".xml";
-		echo "fetching $url".PHP_EOL;
-		$xml = file_get_contents($url);
-		
-		# save the file
-		$ret = file_put_contents($outfile,$xml);
-		if($ret === FALSE) {
-			trigger_error("unable to save $outfile");
-			return false;
+		if(!file_exists($outfile) or 
+			((parent::getParameterValue("download") === true) and (parent::getParameterValue('overwrite') === true))) {
+			echo "fetching $url".PHP_EOL;
+			$xml = file_get_contents($url);
+
+			# save the file
+			$ret = file_put_contents($outfile,$xml);
+			if($ret === FALSE) {
+				trigger_error("unable to save $outfile");
+				return false;
+			}
 		}
 	}
 	
@@ -164,43 +163,43 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		$ids = explode(",",parent::getParameterValue('id_list'));
 
 		$indir = parent::getParameterValue('indir');
-		echo "Processing directory $indir\n";
+		echo "Processing $indir\n";
+
+		$outfile = "clinicaltrials.".parent::getParameterValue('output_format');
+		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+		parent::setWriteFile(parent::getParameterValue("outdir").$outfile,$gz);
 
 		$files = glob($indir."NCT*");
 		foreach($files AS $file) {
-			$outfile = "clinicaltrials.".parent::getParameterValue('output_format');
-			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-			parent::setWriteFile(parent::getParameterValue("outdir").$outfile,$gz);
-
 			$trial_id = basename($file,'.xml');
 			if(parent::getParameterValue('id_list') == '' || in_array($trial_id, $ids)) {
 				echo "Processing $trial_id".PHP_EOL;
 				$this->process_file($file);
-
-				// make the dataset description
-				$ouri = parent::getGraphURI();
-				parent::setGraphURI(parent::getDatasetURI());
-
-				$rfile = "http://clinicaltrials.gov/ct2/show/".$trial_id."?resultsxml=true";
-				$source_version = parent::getDatasetVersion();
-				// dataset description
-				$source_file = (new DataResource($this))
-					->setURI($rfile)
-					->setTitle("Clinicaltrials")
-					->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($file)))
-					->setFormat("application/xml")
-					->setPublisher("http://clinicaltrials.gov/")
-					->setHomepage("http://clinicaltrials.gov/")
-					->setRights("use")
-					->setRights("by-attribution")
-					->setLicense("http://clinicaltrials.gov/ct2/about-site/terms-conditions")
-					->setDataset("http://identifiers.org/clinicaltrials/");
-
-				parent::writeToReleaseFile($source_file->toRDF());
-				parent::setGraphURI($ouri);
 			}
 		}
 		echo "Finished.".PHP_EOL;
+		parent::getWriteFile()->close();
+
+		// make the dataset description
+		parent::setGraphURI(parent::getDatasetURI());
+
+		$rfile = "http://clinicaltrials.gov/ct2/show/NCT_ID?resultsxml=true";
+		$source_version = parent::getDatasetVersion();
+
+		// dataset description
+		$source_file = (new DataResource($this))
+			->setURI($rfile)
+			->setTitle("Clinicaltrials")
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($file)))
+			->setFormat("application/xml")
+			->setPublisher("http://clinicaltrials.gov/")
+			->setHomepage("http://clinicaltrials.gov/")
+			->setRights("use")
+			->setRights("by-attribution")
+			->setLicense("http://clinicaltrials.gov/ct2/about-site/terms-conditions")
+			->setDataset("http://identifiers.org/clinicaltrials/");
+
+		parent::writeToReleaseFile($source_file->toRDF());
 
 		$output_file = (new DataResource($this))
 			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
