@@ -170,7 +170,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		parent::setWriteFile(parent::getParameterValue("outdir").$outfile,$gz);
 
 		$files = glob($indir."NCT*");
-		foreach($files AS $file) {
+		foreach($files AS $i => $file) {
+			if($i % 10000 == 0) {parent::clear();}
 			$trial_id = basename($file,'.xml');
 			if(parent::getParameterValue('id_list') == '' || in_array($trial_id, $ids)) {
 				echo "Processing $trial_id".PHP_EOL;
