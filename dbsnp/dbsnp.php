@@ -181,15 +181,17 @@ class dbSNPParser extends Bio2RDFizer
 		foreach($entry->children() AS $o) {
 			$rsid = "rs".$o->attributes()->rsId;
 			$id = parent::getNamespace().$rsid;
+			$type = parent::getVoc().ucfirst(str_replace(" ","-", (string) $o->attributes()->snpClass));
+
 			$snpclass = parent::getVoc().((string)$o->attributes()->snpClass);
 			$moltype  = parent::getVoc().((string)$o->attributes()->molType);
 			// attributes
 			parent::addRDF(
-				parent::describeIndividual($id,$rsid,parent::getVoc().((string) str_replace(" ","-",(string) $o->attributes()->snpClass))).
-				parent::triplify($id,parent::getVoc()."snp-class",$snpclass).
-				parent::describeClass($snpclass,(string)$o->attributes()->snpClass, parent::getVoc()."SNPclass").
+				parent::describeIndividual($id,$rsid,$type).
+				parent::describeClass($type, ucfirst("".$o->attributes()->snpClass)).
 				parent::triplify($id,parent::getVoc()."mol-type",$moltype).
 				parent::describeClass($moltype,(string)$o->attributes()->molType, parent::getVoc()."Moltype").
+				parent::describeClass(parent::getVoc()."Moltype","Moltype").
 				parent::triplify($id,parent::getVoc()."taxid","taxonomy:".(string) $o->attributes()->taxId)
 			);
 			$genotype = (string)$o->attributes()->genoType;
@@ -224,7 +226,7 @@ class dbSNPParser extends Bio2RDFizer
 			
 			
 			// assembly
-			$assembly= $o->Assembly;
+			$assembly = $o->Assembly;
 			if($assembly->attributes()->reference == "true") {
 				parent::addRDF(
 					parent::triplifyString($id,parent::getVoc()."dbsnp-build",(string) $assembly->attributes()->dbSnpBuild).
@@ -244,7 +246,8 @@ class dbSNPParser extends Bio2RDFizer
 					
 					parent::addRDF(
 						parent::triplify($id,parent::getVoc()."maps-to",$fxnset_id).
-						parent::triplify($fxnset_id,"rdf:type",parent::getVoc()."fxnset")
+						parent::triplify($fxnset_id,"rdf:type",parent::getVoc()."Fxnset").	
+						parent::describeClass(parent::getVoc()."Fxnset","Fxnset")
 					);
 					if(isset($fxnset->attributes()->geneId)) 
 						parent::addRDF(parent::triplify($fxnset_id,parent::getVoc()."gene","ncbigene:".((string) $fxnset->attributes()->geneId)));
