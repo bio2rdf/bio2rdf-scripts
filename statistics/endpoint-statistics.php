@@ -770,27 +770,26 @@ function addDatasetPropertyDatasetCount()
 	$r = query($sparql);
 	foreach($r AS $c) {
 		$id = getID($c);
-		
-		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->stype->value,$m);
-		$d1 = $m[1];
-		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->otype->value,$m);
-		$d2 = $m[1];
-		$r = $c->p->value;
-		
-		$label = "$d1 connected to $d2 through ".$c->n->value." <$r> in ".$options['dataset_name'];
-		write(
-			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Dataset-Property-Dataset-Count").
-			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
-			Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
-			Quad($id, "http://rdfs.org/ns/void#subjectsTarget", $c->stype->value).
-			Quad($id, "http://rdfs.org/ns/void#objectsTarget", $c->otype->value).
-			QuadLiteral($id, "http://rdfs.org/ns/void#triples", $c->n->value, "long").
-			
-			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Dataset-Property-Dataset-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 
-		);
+		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->stype->value,$m1);
+		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->otype->value,$m2);
+		if(isset($m1[1]) and isset($m2[1])) {
+			$d1 = $m1[1];
+			$d2 = $m2[1];
+			$r = $c->p->value;
+			$label = "$d1 connected to $d2 through ".$c->n->value." <$r> in ".$options['dataset_name'];
+			write(
+				Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
+				Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
+				Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Dataset-Property-Dataset-Count").
+				QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
+				Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
+				Quad($id, "http://rdfs.org/ns/void#subjectsTarget", $c->stype->value).
+				Quad($id, "http://rdfs.org/ns/void#objectsTarget", $c->otype->value).
+				QuadLiteral($id, "http://rdfs.org/ns/void#triples", $c->n->value, "long").
+				Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Dataset-Property-Dataset-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
+			);
+		}
 	}
 }
 
