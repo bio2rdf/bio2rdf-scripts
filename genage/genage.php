@@ -209,7 +209,7 @@ class GenageParser extends Bio2RDFizer {
 		}
 
 		$h = explode(",", parent::getReadFile()->read());
-		$expected_columns = 17;
+		$expected_columns = 16;
 		if(($n = count($h)) != $expected_columns) {
 			trigger_error("Found $n columns in gene file - expecting $expected_columns!", E_USER_WARNING);
 			return false;			
@@ -233,12 +233,13 @@ class GenageParser extends Bio2RDFizer {
 			$acc_orf = $data[13];
 			$acc_cds = $data[14];
 			$references = $data[15];
-			$ppis = $data[16];
-			$notes = $data[17];
+		//	$ppis = $data[16];
+		//	$notes = $data[17];
 
 			$hagr_id = "hagr:".$hagr;
 			parent::addRDF(
-				parent::describeIndividual($hagr_id, $data[3], parent::getVoc()."HumanAgingRelatedGene")
+				parent::describeIndividual($hagr_id, $data[3], parent::getVoc()."Human-Aging-Related-Gene").
+				parent::describeClass(parent::getVoc()."Human-Aging-Related-Gene","Human Aging Related Gene")
 			);
 			
 			if($aliases !== ""){
@@ -335,7 +336,7 @@ class GenageParser extends Bio2RDFizer {
 					);
 				}
 			}
-			if($ppis !== ""){
+/*			if($ppis !== ""){
 				$split_ppis = explode(",", $ppis);
 				foreach($split_ppis as $ppi){
 					$proteins = explode(";", $ppi);
@@ -348,6 +349,7 @@ class GenageParser extends Bio2RDFizer {
 					);
 				}
 			}
+*/
 			parent::WriteRDFBufferToWriteFile();
 		}
 
@@ -361,11 +363,12 @@ class GenageParser extends Bio2RDFizer {
 			"Drosophila melanogaster" => "7227",
 			"Podospora anserina" => "5145",
 			"Mesocricetus auratus" => "10036",
-			"Schizosaccharomyces pombe" => "4896"
+			"Schizosaccharomyces pombe" => "4896",
+			"Danio rerio" => "7955",
 		);
 
 		$h = explode(",", parent::getReadFile()->read());
-		$expected_columns = 13;
+		$expected_columns = 10;
 		if(($n = count($h)) != $expected_columns) {
 			trigger_error("Found $n columns in gene file - expecting $expected_columns!", E_USER_WARNING);
 			return false;			
@@ -380,19 +383,20 @@ class GenageParser extends Bio2RDFizer {
 			$organism = $data[3];
 			$function = $data[4];
 			$ncbi_gene_id = $data[5];
-			$ensembl_id = $data[6];
-			$uniprot_id = $data[7];
-			$unigene_id = $data[8];
-			$max_percent_obsv_avg_lifespan_change = $data[9];
-			$lifespan_effect = $data[10];
-			$longevity_influence = $data[11];
-			$observations = $data[12];
+//			$ensembl_id = $data[6];
+//			$uniprot_id = $data[7];
+//			$unigene_id = $data[8];
+			$max_percent_obsv_avg_lifespan_change = $data[6];
+			$lifespan_effect = $data[7];
+			$longevity_influence = $data[8];
+			$observations = $data[9];
 
 			$genage_id = parent::getNamespace().$genage;
 
 
 			parent::addRDF(
-				parent::describeIndividual($genage_id, $name, parent::getVoc()."ModelOrganismAgingRelatedGene")
+				parent::describeIndividual($genage_id, $name, parent::getVoc()."Aging-Related-Gene").
+				parent::describeClass(parent::getVoc()."Aging-Related-Gene","Aging Related Gene")
 			);
 
 			parent::addRDF(
@@ -414,13 +418,13 @@ class GenageParser extends Bio2RDFizer {
 					parent::triplify($genage_id, parent::getVoc()."x-ncbigene", "ncbigene:".$ncbi_gene_id)
 				);
 			}
+/*
 
 			if($ensembl_id !== ""){
 				parent::addRDF(
 					parent::triplify($genage_id, parent::getVoc()."x-ensembl", "ensembl:".$ensembl_id)
 				);
 			}
-
 			if($uniprot_id !== ""){
 				if(strstr($uniprot_id, "_")){
 					parent::addRDF(
@@ -438,7 +442,7 @@ class GenageParser extends Bio2RDFizer {
 					parent::triplify($genage_id, parent::getVoc()."x-unigene", "unigene:".$unigene_id)
 				);
 			}
-
+*/
 			if($max_percent_obsv_avg_lifespan_change !== ""){
 				parent::addRDF(
 					parent::triplifyString($genage_id, parent::getVoc()."maximum-percent-observed-average-lifespan-change", parent::safeLiteral($max_percent_obsv_avg_lifespan_change))
