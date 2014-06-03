@@ -188,68 +188,59 @@ class NDCParser extends Bio2RDFizer
 	function package($fpin)
 	{
 		$types='';
-		// PRODUCTNDC	NDCPACKAGECODE	PACKAGEDESCRIPTION
+		// PRODUCTID PRODUCTNDC	NDCPACKAGECODE	PACKAGEDESCRIPTION
 		fgets($fpin); // header
 		while($l = fgets($fpin,4096)) {
-			$a = explode("\t",trim($l));
+			$a = explode("\t",rtrim($l));
+			if(count($a) != 4) {trigger_error("Expecting 4 columns, instead found ".count($a));}
+
 			$ndc_product = parent::getNamespace().$a[0];
-			$ndc_package = parent::getNamespace().$a[1];
-			$package_label = $a[2];
+			$ndc_package = parent::getNamespace().$a[2];
+			$package_label = $a[3];
 			parent::addRDF(
 				parent::describeIndividual($ndc_package, $package_label, parent::getVoc()."Package").
 				parent::triplify($ndc_product, parent::getVoc()."has-package", $ndc_package).
-				parent::describeClass(parent::getVoc()."Package", "National Drug Code Package").
-				parent::describeProperty(parent::getVoc()."has-package", "Relationship between an NDC product and its packaging")
+				parent::triplifyString($ndc_product, parent::getVoc()."ndc-product-id", $a[1]).
+				parent::describeClass(parent::getVoc()."Package", "NDC Package")
 			);
-		
-			// now parse out the types
+
+			// now parse out the components
 			// multi-level packaging
-			$b = explode(" > ",$a[2]);
-			foreach($b AS $i => $c) {
+			$b = explode(" > ",$package_label);
+			foreach($b AS $i => $label) {
 				// get the type label by removing the inserted product code
-				$type_label = preg_replace("/ \([0-9\-]+\) /","",$c);			
-				
-				// get the identifier preg_match("/ \([0-9\-]+\) /",$c,$type_id);	
-				$type_uri   = parent::getVoc().md5($type_label);
-				if(!isset($types[$type_uri])) {
-					$types[$type_uri] = '';
-					parent::addRDF(
-						parent::describeClass($type_uri, $type_label, parent::getVoc()."Package")
-					);
-				}
-				if($i == 0){
-					parent::addRDF(
-						parent::triplify($ndc_package, "rdf:type", $type_uri)
-					);
-				} else {
-					parent::addRDF(
-						parent::triplify($ndc_package, parent::getVoc()."has-part", $type_uri).
-						parent::describeProperty(parent::getVoc()."has-part", "Relationship between an NDC entity and its part")
-					);
-				} 
-				parent::WriteRDFBufferToWriteFile();
+				$id = parent::getRes().md5($label);
+
+				parent::addRDF(
+					parent::describeIndividual($id, $label, parent::getVoc()."Package-Component").
+					parent::describeClass(parent::getVoc()."Package-Component","NDC Package Component").
+					parent::triplify($ndc_package, parent::getVoc()."has-part", $id)
+				);
 			}
+			parent::WriteRDFBufferToWriteFile();
+
 		}
 	}
 	
 	/* 
-	0 PRODUCTNDC	
-	1 PRODUCTTYPENAME	
-	2 PROPRIETARYNAME	
-	3 PROPRIETARYNAMESUFFIX	
-	4 NONPROPRIETARYNAME	
-	5 DOSAGEFORMNAME	
-	6 ROUTENAME	
-	7 STARTMARKETINGDATE	
-	8 ENDMARKETINGDATE	
-	9 MARKETINGCATEGORYNAME	
-	10 APPLICATIONNUMBER	
-	11 LABELERNAME	
-	12 SUBSTANCENAME	
-	13 ACTIVE_NUMERATOR_STRENGTH	
-	14 ACTIVE_INGRED_UNIT	
-	15 PHARM_CLASSES	
-	16 DEASCHEDULE
+	0 PRODCUTID
+	1 PRODUCTNDC	
+	2 PRODUCTTYPENAME	
+	3 PROPRIETARYNAME	
+	4 PROPRIETARYNAMESUFFIX	
+	5 NONPROPRIETARYNAME	
+	6 DOSAGEFORMNAME	
+	7 ROUTENAME	
+	8 STARTMARKETINGDATE	
+	9 ENDMARKETINGDATE	
+	10 MARKETINGCATEGORYNAME	
+	11 APPLICATIONNUMBER	
+	12 LABELERNAME
+	13 SUBSTANCENAME
+	14 STRENGTHNUMBER
+	15 UNIT
+	16 PHARM_CLASSES
+	17 DEASCHEDULE
 	*/
 	// 0002-1200	HUMAN PRESCRIPTION DRUG	Amyvid		Florbetapir F 18	INJECTION, SOLUTION	INTRAVENOUS	20120601		NDA	NDA202008	Eli Lilly and Company	FLORBETAPIR F-18	51	mCi/mL		
 	function product($fpin)
@@ -257,122 +248,102 @@ class NDCParser extends Bio2RDFizer
 		$z = 0;
 		$list = '';
 		fgets($fpin); // header
-		while($l = fgets($fpin, 10000)) {
-			//if($z++ == 10) break;
+		while($l = fgets($fpin, 100000)) {
 			$a = explode("\t",$l);
-			$ndc_product = parent::getNamespace().$a[0];
-			// tradename + suffix + dosageform + strength + unit
-			$label = $a[2];
-			 
+
+			if(count($a) != 18) {trigger_error("Expected 18 coloumns, instead found".count($a)); continue;}
+			$product_id = parent::getNamespace().$a[0];
+			$product_label = $a[3];
+			$product_type_label = ucfirst(strtolower($a[2]));
+			$product_type = parent::getVoc().str_replace(" ","-",$product_label);
+
 			parent::addRDF(
-				parent::triplifyString($ndc_product, parent::getVoc()."trade-name", $a[2]).
-				parent::describeProperty(parent::getVoc()."trade-name", "Relationship between an NDC product and its trade name")
+				parent::describeIndividual($product_id, $a[3], parent::getVoc()."Product").
+				parent::describeClass(parent::getVoc()."Product","NDC Product").
+				parent::triplify($product_id, parent::getVoc()."product-type", $product_type).
+				parent::describeIndividual($product_type, $product_type_label, parent::getVoc()."Product-Type").
+				parent::describeClass(parent::getVoc()."Product-Type","Product Type").
+
+				parent::triplifyString($product_id, parent::getVoc()."product-id", $a[1]).
+				parent::triplifyString($product_id, parent::getVoc()."proprietary-name", $a[3]).
+				parent::triplifyString($product_id, parent::getVoc()."trade-name-suffix", $a[4])
 			);
 
-			if($a[3]) {
-				parent::addRDF(
-					parent::triplifyString($ndc_product, parent::getVoc()."trade-name-suffix", $a[3]).
-					parent::describeProperty(parent::getVoc()."trade-name-suffix", "Relationship between an NDC product and its trade name suffix")
-				);
-				$label .= " ".$a[3];
-			}
-
-			if($a[4]) { // MV
-				$b = explode(";",$a[4]);
+			if($a[5]) {
+				$b = explode(";",$a[5]);
 				foreach($b AS $c) {
 					parent::addRDF(
-						parent::triplifyString($ndc_product, parent::getVoc()."non-proprietary-name", trim($c)).
-						parent::describeProperty(parent::getVoc()."non-proprietary-name", "Relationship betweeen an NDC product and its non-proprietary name")
+						parent::triplifyString($product_id, parent::getVoc()."non-proprietary-name", trim($c))
 					);
 				}
 			}
-			if($a[5]) {
-				$dosageform = strtolower($a[5]);
-				$dosageform_id = parent::getVoc().md5($dosageform);
-				if(!isset($list[$dosageform_id])) {
-					$list[$dosageform_id] = '';
+			if($a[6]) {
+				$b = explode(",", $a[6]);
+				foreach($b AS $c) {
+					$dosageform = strtolower($c);
+					$dosageform_id = parent::getVoc().str_replace(" ","-",ucfirst(strtolower($c)));
 					parent::addRDF(
-						parent::describeClass($dosageform_id, $dosageform, parent::getVoc()."Dosage-Form").
-						parent::describeClass(parent::getVoc()."Dosage-Form", "National Drug Code Directory Dosage Form")
+						parent::describeIndividual($dosageform_id, $dosageform, parent::getVoc()."Dosage-Form").
+						parent::describeClass(parent::getVoc()."Dosage-Form", "NDC Dosage Form").
+						parent::triplify($product_id, parent::getVoc()."dosage-form", $dosageform_id)
 					);
 				}
-
-				parent::addRDF(
-					parent::triplify($ndc_product, parent::getVoc()."dosage-form", $dosageform_id).
-					parent::describeProperty(parent::getVoc()."dosage-form", "Relationship between an NDC product and its dosage form")
-				);
 			}
-			if($a[6]) { //  MV
-				$b = explode("; ",$a[6]);
+			if($a[7]) { //  MV
+				$b = explode("; ",$a[7]);
 				foreach($b AS $c) {
 					$route = strtolower(trim($c));
-					$route_id = "ndc_vocabulary:".md5($route);
-					if(!isset($list[$route_id])) {
-						$list[$route_id] = '';
-
-						parent::addRDF(
-							parent::describeClass($route_id, $route, parent::getVoc()."Route").
-							parent::describeClass(parent::getVoc()."Route", "National Drug Code Drug Route")
-						);
-					}
-
+					$route_id = parent::getVoc().str_replace(" ","-",ucfirst(strtolower($c)));
 					parent::addRDF(
-						parent::triplify($ndc_product, parent::getVoc()."route", $route_id).
-						parent::describeProperty(parent::getVoc()."route", "Relationship between an NDC product and a route")
+						parent::describeIndividual($route_id, $route, parent::getVoc()."Route").
+						parent::describeClass(parent::getVoc()."Route", "NDC Drug Route").
+						parent::triplify($product_id, parent::getVoc()."route", $route_id)
 					);
 				}
-			}
-
-			if($a[7]){
-				parent::addRDF(
-					parent::triplifyString($ndc_product, parent::getVoc()."start-marketing-date", $a[7]).
-					parent::describeProperty(parent::getVoc()."start-marketing-date", "Relationship between an NDC product and its start marketing date")
-				);
 			}
 
 			if($a[8]){
+				$date = substr(0,4,$a[8])."-".substr(4,2,$a[8])."-".substr(6,2,$a[8]);
 				parent::addRDF(
-					parent::triplifyString($ndc_product, parent::getVoc()."end-marketing-date", $a[8]).
-					parent::describeProperty(parent::getVoc()."end-marketing-date", "Relationship between an NDC product and its end marketing date")
+					parent::triplifyString($product_id, parent::getVoc()."start-marketing-date", $date)
 				);
 			}
 
 			if($a[9]){
+				$date = substr(0,4,$a[9])."-".substr(4,2,$a[9])."-".substr(6,2,$a[9]);
 				parent::addRDF(
-					parent::triplifyString($ndc_product, parent::getVoc()."marketing-category", $a[9]).
-					parent::describeProperty(parent::getVoc()."marketing-category", "Relationship between an NDC product and its marketing category")
+					parent::triplifyString($product_id, parent::getVoc()."end-marketing-date", $date)
 				);
 			}
+
 			if($a[10]){
 				parent::addRDF(
-					parent::triplifyString($ndc_product, parent::getVoc()."application-number", $a[10]).
-					parent::describeProperty(parent::getVoc()."application-number", "Relationship between an NDC product and its application number")
+					parent::triplifyString($product_id, parent::getVoc()."marketing-category", $a[10])
 				);
 			}
-			
-			// create a labeller node
-			if($a[11]) {
-				$labeller_id = parent::getRes().md5($a[11]);
-				$label = addslashes($a[11]);
-				if(!isset($list[$labeller_id])) {
-					$list[$labeller_id] = '';
-					parent::addRDF(
-						parent::describeIndividual($labeller_id, $label, parent::getVoc()."Labeller").
-						parent::describeClass(parent::getVoc()."Labeller", "National Drug Code Directory Labeller")
-					);
-				}
+			if($a[11]){
 				parent::addRDF(
-					parent::triplify($ndc_product, parent::getVoc()."labeller", $labeller_id).
-					parent::describeProperty(parent::getVoc()."labeller", "Relationship between an NDC product and a labeller")
+					parent::triplifyString($product_id, parent::getVoc()."application-number", $a[11])
 				);
 			}
-			
+
+			// create a labeller node
+			if($a[12]) {
+				$labeller_id = parent::getRes().md5($a[12]);
+				$label = addslashes($a[12]);
+				parent::addRDF(
+					parent::describeIndividual($labeller_id, $label, parent::getVoc()."Labeller").
+					parent::describeClass(parent::getVoc()."Labeller", "NDC Labeller").
+					parent::triplify($product_id, parent::getVoc()."labeller", $labeller_id)
+				);
+			}
+
 			// the next three are together
-			if($a[12]) { // MV
-				$substances = explode(";",$a[12]);
-				$strengths  = explode(";",$a[13]);
-				$units      = explode(";",$a[14]);
-				
+			if($a[13]) { // MV
+				$substances = explode(";",$a[13]);
+				$strengths  = explode(";",$a[14]);
+				$units      = explode(";",$a[15]);
+
 				$l = '';
 				foreach($substances AS $i => $substance) {
 					// list the active ingredient
@@ -380,79 +351,44 @@ class NDCParser extends Bio2RDFizer
 					$strength = '';
 					if(isset($strengths[$i])) $strength= $strengths[$i];
 					$unit = $units[$i];
-					
+
 					$ingredient_id = parent::getRes().md5($ingredient_label);
-					if(!isset($list[$ingredient_id])) {
-						$list[$ingredient_id] = '';
-						parent::addRDF(
-							parent::describeIndividual($ingredient_id, $ingredient_label, parent::getVoc()."Ingredient").
-							parent::describeClass(parent::getVoc()."Ingredient", "National Drug Code Directory Ingredient")
-						);
-					}
 					parent::addRDF(
-						parent::triplify($ndc_product, parent::getVoc()."ingredient", $ingredient_id).
-						parent::describeProperty(parent::getVoc()."ingredient", "Relationship between an NDC product and an ingredient")
+						parent::describeIndividual($ingredient_id, $ingredient_label, parent::getVoc()."Ingredient").
+						parent::describeClass(parent::getVoc()."Ingredient", "NDC Ingredient").
+						parent::triplify($product_id, parent::getVoc()."ingredient", $ingredient_id)
 					);
-					
+
 					// describe the substance composition
 					$substance_label = "$strength $unit $ingredient_label";
-					
 					$substance_id = parent::getRes().md5($substance_label);
-					if(!isset($list[$substance_id])) {
-						$list[$substance_id] = '';
-						parent::addRDF(
-							parent::describeIndividual($substance_id, $substance_label, parent::getVoc()."Substance").
-							parent::triplifyString($substance_id, parent::getVoc()."amount", $strength).
-							parent::describeClass(parent::getVoc()."Substance", "National Drug Code Directory Substance").
-							parent::describeProperty(parent::getVoc()."amount", "Relationship between and NDC substance and an amount")
-						);
-
-						$unit_id = parent::getVoc().md5($unit);
-						if(!isset($list[$unit_id])) {
-							$list[$unit_id] = '';
-							parent::addRDF(
-								parent::describeClass($unit_id, $unit, parent::getVoc()."Unit").
-								parent::describeClass(parent::getVoc()."Unit", "National Drug Code Directory Unit")
-							);
-						}
-						parent::addRDF(
-							parent::triplify($substance_id, parent::getVoc()."amount_unit", $unit_id).
-							parent::describeProperty(parent::getVoc()."amount_unit", "Relationship between an NDC substance and its unit")
-						);
-					}
 					parent::addRDF(
-						parent::triplify($ndc_product, parent::getVoc()."has-part", $substance_id)
+						parent::describeIndividual($substance_id, $substance_label, parent::getVoc()."Substance").
+						parent::triplifyString($substance_id, parent::getVoc()."amount", $strength).
+						parent::describeClass(parent::getVoc()."Substance", "NDC Substance")
 					);
-					
-					$l .= $substance_label.", ";
-				}
-				$label .= " (".substr($l,0,-2).")";
-			}	
-			
-			if($a[15]) { // MV
-				$b = explode(", ",$a[15]);
-				foreach($b AS $c) {
-					$cat_id = parent::getVoc().md5($c);
-					if(!isset($list[$cat_id])) {
-						$list[$cat_id] = '';
-						parent::addRDF(
-							parent::describeClass($cat_id, $c, parent::getVoc()."Pharmacological-Class").
-							parent::describeClass(parent::getVoc()."Pharmacological-Class", "National Drug Code Directory Pharmacological Class")
-						);
-					}
+
+					$unit_id = parent::getVoc().md5($unit);
 					parent::addRDF(
-						parent::triplify($ndc_product, parent::getVoc()."pharmacological-class", $cat_id).
-						parent::describeProperty(parent::getVoc()."pharmacological-class", "Relationship between and NDC product and its pharmacological class")
+						parent::describeIndividual($unit_id, $unit, parent::getVoc()."Unit").
+						parent::describeClass(parent::getVoc()."Unit", "NDC Unit").
+						parent::triplify($substance_id, parent::getVoc()."amount_unit", $unit_id).
+						parent::triplify($product_id, parent::getVoc()."has-part", $substance_id)
 					);
 				}
 			}
 
-			parent::addRDF(
-				parent::describeIndividual($ndc_product, $label, parent::getVoc()."Product").
-				parent::triplify($ndc_product, "rdf:type", parent::getVoc().str_replace(" ","-",strtolower($a[1]))).
-				parent::describeClass(parent::getVoc()."Product", "National Drug Code Directory Drug Product").
-				parent::describeClass(parent::getVoc().str_replace(" ","-",strtolower($a[1])), $a[1])
-			);
+			if($a[16]) { // MV
+				$b = explode(",",$a[16]);
+				foreach($b AS $c) {
+					$cat_id = parent::getVoc().md5($c);
+					parent::addRDF(
+						parent::describeIndividual($cat_id, $c, parent::getVoc()."Pharmacological-Class").
+						parent::describeClass(parent::getVoc()."Pharmacological-Class", "NDC Pharmacological Class").
+						parent::triplify($product_id, parent::getVoc()."pharmacological-class", $cat_id)
+					);
+				}
+			}
 			parent::WriteRDFBufferToWriteFile();
 		}
 	}
