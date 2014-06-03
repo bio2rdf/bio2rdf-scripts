@@ -221,7 +221,7 @@ function query($sparql)
 		$cmd = $options['sparql']."?query=".urlencode($sparql)."&format=application%2Fsparql-results%2Bjson&timeout=0";
 		$ctx = stream_context_create(array( 
     			'http' => array( 
-    			    'timeout' => 1200 
+    			    'timeout' => 12000 
 		        ) 
 		    ) 
 		); 
