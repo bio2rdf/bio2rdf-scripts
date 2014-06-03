@@ -206,11 +206,13 @@ class GendrParser extends Bio2RDFizer {
 			$association_label = "Association between ".$gene_symbol." and variation in life span extension induced by dietary restriction";
 
 			parent::addRDF(
-				parent::describeIndividual($gendr_id, $gendr_label, parent::getVoc()."DietaryRestrictionLifeExtensionRelatedGene").
+				parent::describeIndividual($gendr_id, $gendr_label, parent::getVoc()."Dietary-Restriction-Life-Extension-Related-Gene").
+				parent::describeClass(parent::getVoc()."Dietary-Restriction-Life-Extension-Related-Gene","Dietery Restriction Life Extension Related Gene").
 				parent::triplify($gendr_id, parent::getVoc()."x-ncbigene", "ncbigene:".$geneid).
 				parent::triplifyString($gendr_id, parent::getVoc()."gene-name", $gene_name).
 				parent::triplifyString($gendr_id, parent::getVoc()."gene-symbol", $gene_symbol).
 				parent::describeIndividual($association_id, $association_label, parent::getVoc()."Gene-Phenotype-Association").
+				parent::describeClass(parent::getVoc()."Gene-Phenotype-Association","Gene Phenotype Association").
 				parent::triplify($association_id, parent::getVoc()."gene", $gendr_id).
 				parent::triplify($association_id, parent::getVoc()."phenotype", parent::getVoc()."Diet-Induced-Life-Span-Variant")
 			);
@@ -270,12 +272,15 @@ class GendrParser extends Bio2RDFizer {
 			$p_value = $data[6];
 			$expression = $data[7];
 
-			$id = parent::getRes().md5($gene_id.$total_datasets.$total_ovexp.$total_underexp.$p_value.$expression);
-			$evidence_id = parent::getRes().md5($gene_id.$total_datasets.$total_ovexp.$total_underexp.$p_value.$expression."_evidence");
+			$id = parent::getRes().md5($geneid.$total_datasets.$total_ovexp.$total_underexp.$p_value.$expression);
+			$evidence_id = parent::getRes().md5($geneid.$total_datasets.$total_ovexp.$total_underexp.$p_value.$expression."_evidence");
 			$label = "Dietary restriction induced ".$expression."-expression of ".$mgi_symbol." based on microarray results from ".$total_datasets." datasets, with p-value ".$p_value;
+			$type_label = "Gene ".ucfirst($expression)." Expression";
+			$type = parent::getVoc().str_replace(" ","-",$type_label);
 
 			parent::addRDF(
-				parent::describeIndividual($id, $label, parent::getVoc()."Gene-".ucfirst($expression)."-Expression").
+				parent::describeIndividual($id, $label, $type).
+				parent::describeClass($type, $type_label).
 				parent::triplify($id, parent::getVoc()."gene", "ncbigene:".$geneid).
 				parent::triplifyString("ncbigene:".$geneid, parent::getVoc()."mgi-gene-symbol", $mgi_symbol).
 				parent::triplifyString("ncbigene:".$geneid, parent::getVoc()."mgi-gene-description", $mgi_description).
