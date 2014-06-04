@@ -139,6 +139,7 @@ class CTDParser extends Bio2RDFizer
 			
 			//close write file
 			parent::getWriteFile()->close();
+			parent::clear();
 			echo "done!".PHP_EOL;
 
 			// generate the dataset release file
@@ -211,6 +212,7 @@ x 2 CasRN
   5 ChemicalTreeNumbers (unique identifiers of the chemical's nodes; '|'-delimited list)
   6 ParentTreeNumbers (unique identifiers of the parent nodes; '|'-delimited list)
   7 Synonyms ('|'-delimited list)
+  8 DrugBankIDS
 */
 function CTD_chemicals()
 {
@@ -218,17 +220,15 @@ function CTD_chemicals()
 	while($l = $this->GetReadFile()->Read()) {
 		if($l[0] == '#') continue;
 		$a = explode("\t",$l);
-		
 		if($first) {
-			if(($c = count($a) != 8)) {
+			if(($c = count($a) != 9)) {
 				trigger_error("CTD_chemicals function expects 8 fields, found $c!".PHP_EOL, E_USER_WARNING);
 			}
 			$first = false;
 		}
-	
+
 		$this->getRegistry()->parseQName($a[1],$ns,$id);
-		
-		$mesh_id = "mesh:".$id;
+		$mesh_id = "mesh:$id";
 
 		$this->AddRDF(
 			parent::describeIndividual($mesh_id, $a[0], $this->getVoc()."Chemical").
@@ -237,7 +237,7 @@ function CTD_chemicals()
 
 		if($a[2]){
 			$this->AddRDF(
-				parent::triplify($mesh_id, "owl:equivalentClass", "cas:".$a[2])
+				parent::triplify($mesh_id, parent::getVoc()."x-cas", "cas:".$a[2])
 			);
 		}
 		parent::WriteRDFBufferToWriteFile();
@@ -660,6 +660,9 @@ function CTD_Pathways()
 2 GeneID (primary NCBI Gene accession identifier)
 3 AltGeneIDs (alternative NCBI Gene accession identifiers; '|'-delimited list)
 4 Synonyms ('|'-delimited list)
+5 BioGRIDIDs
+6 PharmGKBIDs
+7 UniProtIDs
 */
 function CTD_Genes()
 {
@@ -670,8 +673,8 @@ function CTD_Genes()
 
 		// check number of columns
 		if($first) {
-			if(($c = count(explode("\t",$l))) != 5) {
-				trigger_error("CTD_genes function expects 5 fields, found $c!".PHP_EOL, E_USER_WARNING);
+			if(($c = count(explode("\t",$l))) != 8) {
+				trigger_error("CTD_genes function expects 8 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -679,14 +682,37 @@ function CTD_Genes()
 
 		$symbol = str_replace(array("\\/"),array('|'),$a[0]);
 		$label = str_replace("\\+/",'+',$a[1]);
-		$geneid = $a[2];
+		$geneid = "ncbigene:".$a[2];
+		$synonyms = $a[4];
 
-		$this->AddRDF(
-			parent::describeIndividual("geneid:".$geneid, $label, $this->getVoc()."Gene").
-			parent::triplifyString("geneid:".$geneid, $this->getVoc()."gene-symbol", $symbol).
-			parent::describeClass($this->getVoc()."Gene", "CTD Gene").
-			parent::describeProperty($this->getVoc()."gene-symbol", "Relation between a gene and its symbol in CTD")
+		$this->addRDF(
+			parent::describeIndividual($geneid, $label, $this->getVoc()."Gene").
+			parent::triplifyString($geneid, $this->getVoc()."gene-symbol", $symbol).
+			parent::describeClass($this->getVoc()."Gene", "CTD Gene")
 		);
+
+		$ids = array(
+			3 => array('rel'=>"alternative-ncbigene-id", 'ns'=> "ncbigene"),
+			4 => array('rel'=>'synonym'),
+			5 => array('rel'=>'x-biogrid', 'ns'=>'biogrid'),
+			6 => array('rel'=>'x-pharmgkb', 'ns'=>'pharmgkb'),
+			7 => array('rel'=>'x-uniprot', 'ns'=>'uniprot')
+		);
+		foreach($ids AS $i => $v) {
+			$b = explode("|",$a[$i]);
+			foreach($b AS $c) {
+				if(isset($v['ns'])) {
+					parent::addRDF(
+						parent::triplify($geneid, parent::getVoc().$v['rel'], $v['ns'].$c)
+					);
+				} else {
+					parent::addRDF(
+						parent::triplifyString($geneid, parent::getVoc().$v['rel'], $c)
+					);
+				}
+			}
+		}
+
 		parent::WriteRDFBufferToWriteFile();
 	}	
 	return TRUE;
