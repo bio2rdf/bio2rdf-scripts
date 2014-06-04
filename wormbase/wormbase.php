@@ -35,7 +35,7 @@ class WormbaseParser extends Bio2RDFizer {
 	function __construct($argv) {
 		parent::__construct($argv, "wormbase");
 		parent::addParameter('files', true, 'all|geneIDs|functional_descriptions|gene_associations|gene_interactions|phenotype_associations','all','files to process');
-		parent::addParameter('release', false, null, 'WS242', 'Release version of WormBase');
+		parent::addParameter('release', false, null, 'WS243', 'Release version of WormBase');
 		parent::addParameter('download_url', false, null,'ftp://ftp.wormbase.org/pub/wormbase/');
 		parent::initialize();
 	}//constructor
@@ -58,7 +58,7 @@ class WormbaseParser extends Bio2RDFizer {
 		);
 
 		$local_files = array(
-			"geneIDs" => "wormbase.".parent::getParameterValue('release').".geneIDs.txt.gz",
+			"geneIDs" => "wormbase.".parent::getParameterValue('release').".genes.txt.gz",
 			"functional_descriptions" => "wormbase.".parent::getParameterValue('release').".functional_descriptions.txt.gz",
 			"gene_interactions" => "wormbase.".parent::getParameterValue('release').".gene_interactions.txt.gz",
 			"gene_associations" => "wormbase.".parent::getParameterValue('release').".gene_association.wb",
@@ -274,8 +274,9 @@ class WormbaseParser extends Bio2RDFizer {
 	}
 	
 	//phenotype association 
- 	function phenotype_associations(){
-
+ 	function phenotype_associations()
+	{
+		$z = 1;
  		while($l = parent::getReadFile()->Read()){
  			if($l[0] == '#') continue;
 
@@ -286,76 +287,62 @@ class WormbaseParser extends Bio2RDFizer {
  			$not = $data[3];
  			$phenotype = $data[4];
  			$paper = $data[5];
- 			$var_rnai = $data[7];
+ 			$var_rnai = explode("WB:",$data[7]);
+	
+			$neg = ($not == "NOT"?"Negative ":"");
 
- 			if($not == "NOT"){
- 				$pa_id = parent::getRes().md5($gene.$not.$phenotype.$paper.$var_rnai);
- 				$pa_label = "Gene-phenotype non-association between ".$gene." and ".$phenotype." under condition ".$var_rnai;
+ 			$pa_id = parent::getRes().($z++);
+ 			$pa_label = $neg."gene-phenotype association between ".$gene." and ".$phenotype." under condition ".$data[7];
+			if($neg) {
+				$pa_type = parent::getVoc()."Negative-Gene-Phenotype-Association";
+				$pa_type_label = "Negative Gene-Phenotype Assoication";
+			} else {
+				$pa_type = parent::getVoc()."Gene-Phenotype-Association";
+				$pa_type_label = "Gene-Phenotype Association";
+			}
+ 			parent::addRDF(
+	 			parent::describeIndividual($pa_id, $pa_label, $pa_type).
+				parent::describeClass($pa_type, $pa_type_label).
+	 			parent::triplify($pa_id, parent::getVoc()."gene", parent::getNamespace().$gene).
+	 			parent::triplify($pa_id, parent::getVoc()."phenotype", $phenotype)
+ 			);
 
- 				$npa_id = parent::getRes().md5($gene.$not.$phenotype.$paper.$var_rnai."negative property assertion");
- 				$npa_label = "Negative property assertion stating that gene ".$gene. "is not associated with phenotype ".$phenotype;
-
- 				parent::addRDF(
-	 				parent::describeIndividual($pa_id, $pa_label, parent::getVoc()."Gene-Phenotype-Non-Association").
-					parent::describeClass(parent::getVoc()."Gene-Phenotype-Non-Association","Non-Assocation between Gene and Phenotype").
-	 				parent::triplify($pa_id, parent::getVoc()."gene", parent::getNamespace().$gene).
-	 				parent::triplify($pa_id, parent::getVoc()."phenotype", $phenotype)
- 				);
-
- 				if(strstr($var_rnai, "WBVar")){
-	 				parent::addRDF(
-	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "Variant of ".$gene, parent::getVoc()."Gene-Variant").
-	 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", parent::getNamespace().$var_rnai)
+			if(strstr($data[7], "WBVar")){
+				foreach($var_rnai AS $v) {
+					$v = str_replace("|","",$v);
+		 			parent::addRDF(
+		 				parent::describeIndividual(parent::getNamespace().$v, "Variant of ".$gene, parent::getVoc()."Gene-Variant").
+						parent::describeClass(parent::getVoc()."Gene-Variant","Gene Variant").
+	 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", parent::getNamespace().$v)
 	 				);
-	 			} elseif(strstr($var_rnai, "WBRNAi")){
-	 				$var_rnai_id = parent::getNamespace().$var_rnai;
-		 			$var_rnai_label = "RNAi ".$var_rnai;
-		 			$rnai_exp_id = parent::getRes().$var_rnai."_".$gene."_".$phenotype;
+				}
+	 		} elseif(strstr($data[7], "WBRNAi")){
+				foreach($var_rnai AS $v) {
+					$v = str_replace("|","",$v);
+		 			$var_rnai_id = parent::getNamespace().$v;
+			 		$var_rnai_label = "RNAi ".$v;
+			 		$rnai_exp_id = parent::getRes().($z++);
 	 				parent::addRDF(
 	 					parent::describeIndividual($var_rnai_id, $var_rnai_label, parent::getVoc()."RNAi").
-	 					parent::describeIndividual($rnai_exp_id, "RNAi knockdown experiment targeting gene ".$gene." that does NOT result in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
+	 					parent::describeIndividual($rnai_exp_id, $neg."RNAi knockdown experiment between gene ".$gene." and phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
+						parent::describeClass(parent::getVoc()."RNAi-Knockdown-Experiment","RNAi Knockdown Experiment").
+						parent::describeClass(parent::getVoc()."RNAi","RNAi").
 	 					parent::triplify($rnai_exp_id, parent::getVoc()."target-gene", parent::getNamespace().$gene).
 	 					parent::triplify($rnai_exp_id, parent::getVoc()."rnai", $var_rnai_id).
 	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", $rnai_exp_id)
 	 				);
-	 			}
- 				
- 				parent::addRDF(
- 					parent::describeIndividual($npa_id, $npa_label, "owl:NegativeObjectPropertyAssertion").
- 					parent::triplify($npa_id, "owl:sourceIndividual", parent::getNamespace().$gene).
- 					parent::triplify($npa_id, "owl:assertionProperty", parent::getVoc()."has-associated-phenotype").
- 					parent::triplify($npa_id, "owl:targetIndividual", $phenotype)
- 				);
+				}
+	 		}
 
- 			} else {
- 				$pa_id = parent::getRes().md5($gene.$phenotype.$paper.$var_rnai);
- 				$pa_label = "Gene-phenotype association between ".$gene." and ".$phenotype." under condition ".$var_rnai;
- 				parent::addRDF(
- 					parent::describeIndividual($pa_id, $pa_label, parent::getVoc()."Gene-Phenotype-Association").
- 					parent::triplify($pa_id, parent::getVoc()."gene", parent::getNamespace().$gene).
- 					parent::triplify($pa_id, parent::getVoc()."phenotype", $phenotype).
- 					parent::triplify(parent::getNamespace().$gene, parent::getVoc()."has-associated-phenotype", $phenotype)
+			if($neg) {
+	 			parent::addRDF(
+ 					parent::describeIndividual($pa_id, $pa_label, "owl:NegativeObjectPropertyAssertion").
+ 					parent::triplify($pa_id, "owl:sourceIndividual", parent::getNamespace().$gene).
+ 					parent::triplify($pa_id, "owl:assertionProperty", parent::getVoc()."has-associated-phenotype").
+ 					parent::triplify($pa_id, "owl:targetIndividual", $phenotype)
  				);
+			}
 
- 				if(strstr($var_rnai, "WBVar")){
-	 				parent::addRDF(
-	 					parent::describeIndividual(parent::getNamespace().$var_rnai, "Variant of ".$gene, parent::getVoc()."Gene-Variant").
-	 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", parent::getNamespace().$var_rnai)
-	 				);
-	 			} elseif(strstr($var_rnai, "WBRNAi")){
-	 				$var_rnai_id = parent::getNamespace().$var_rnai;
-		 			$var_rnai_label = "RNAi ".$var_rnai;
-	 				$rnai_exp_id = parent::getRes().$var_rnai."_".$gene."_".$phenotype;
-	 				parent::addRDF(
-	 					parent::describeIndividual($var_rnai_id, $var_rnai_label, parent::getVoc()."RNAi").
-	 					parent::describeIndividual($rnai_exp_id, "RNAi knockdown experiment targeting gene ".$gene." resulting in phenotype ".$phenotype, parent::getVoc()."RNAi-Knockdown-Experiment").
-	 					parent::triplify($rnai_exp_id, parent::getVoc()."target-gene", parent::getNamespace().$gene).
-	 					parent::triplify($rnai_exp_id, parent::getVoc()."resulting-phenotype", parent::getNamespace().$phenotype).
-	 					parent::triplify($rnai_exp_id, parent::getVoc()."rnai", $var_rnai_id).
-	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", $rnai_exp_id)
-	 				);
-	 			}
- 			}
  			parent::WriteRDFBufferToWriteFile();
  		}//while
 	}
@@ -368,7 +355,8 @@ class WormbaseParser extends Bio2RDFizer {
 			if(count($data) != 11) {trigger_error("Found ".count($data)." columns, expecting 11");continue;}
 
 			$interaction = $data[0];
-			$interaction_type = $data[1];
+			$interaction_type = str_replace("_","-",$data[1]);
+			$interaction_type_label = str_replace("_"," ",$data[1]);
 			$int_additional_info = $data[2];
 			$gene1 = $data[5];
 			$gene2 = $data[8];
@@ -390,13 +378,14 @@ class WormbaseParser extends Bio2RDFizer {
 
 				parent::addRDF(
 					parent::describeIndividual($interaction_id, $interaction_label, parent::getVoc().$interaction_type."-Non-Interaction").
+					parent::describeClass(parent::getVoc().$interaction_type."-Non-Interaction", $interaction_type_label." non-interaction").
 					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene1).
 					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene2)
 				);
 
 				$npa_id = parent::getRes().md5($interaction_id."negative property assertion");
-				$npa_label = "Negative property assertion stating that ".$gene1." and ".$gene2." do not have a ".$interaction_type." interaction";
-				
+				$npa_label = "Negative property assertion stating that ".$gene1." and ".$gene2." do not have a ".$interaction_type_label." interaction";
+
 				parent::addRDF(
 					parent::describeIndividual($npa_id, $npa_label, "owl:NegativeObjectPropertyAssertion").
 					parent::triplify($npa_id, "owl:sourceIndividual", parent::getNamespace().$gene1).
@@ -408,15 +397,20 @@ class WormbaseParser extends Bio2RDFizer {
 				$interaction_label = $interaction_type." interaction between ".$gene1." and ".$gene2;
 				parent::addRDF(
 					parent::describeIndividual($interaction_id, $interaction_label, parent::getVoc().$interaction_type."-Interaction").
+					parent::describeClass(parent::getVoc().$interaction_type."-Interaction", $interaction_type_label." Interaction").
 					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene1).
 					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene2).
 					parent::triplify(parent::getNamespace().$gene1, $int_pred, parent::getNamespace().$gene2)
 				);
 			} else {
-				$interaction_label = $int_additional_info." ".strtolower($interaction_type). " interaction between ".$gene1." and ".$gene2;
+				$interaction_label = ($int_additional_info!=""?$int_additional_info." ":"").strtolower($interaction_type). " interaction between ".$gene1." and ".$gene2;
+				$type = parent::getVoc().($int_additional_info!=""?$int_additional_info."-":"").$interaction_type."-Interaction";
+				$type_label = ($int_additional_info!=""?$int_additional_info." ":"").$interaction_type_label." Interaction";
+
 				parent::addRDF(
-					parent::describeIndividual($interaction_id, $interaction_label, parent::getVoc().$int_additional_info."-".$interaction_type."-Interaction").
-					parent::describeClass(parent::getVoc().$int_additional_info."-".$interaction_type."-Interaction", $int_additional_info." ".$interaction_type." Interaction", parent::getVoc().$interaction_type."-Interaction").
+					parent::describeIndividual($interaction_id, $interaction_label, $type).
+					parent::describeClass($type,$type_label, parent::getVoc().$interaction_type."-Interaction").
+					parent::describeClass(parent::getVoc().$interaction_type."-Interaction", $interaction_type." Interation").
 					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene1).
 					parent::triplify($interaction_id, parent::getVoc()."involves", parent::getNamespace().$gene2).
 					parent::triplify(parent::getNamespace().$gene1, $int_pred, parent::getNamespace().$gene2)
