@@ -322,7 +322,7 @@ class SIDERParser extends Bio2RDFizer
 			$cui = "umls:".$a[1];
 			$cui_label= strtolower(trim($a[2]));
 			parent::addRDF(
-				parent::describeIndividual($cui, $cui_label, null)
+				parent::describeIndividual($cui, $cui_label,null)
 			);
 			parent::addRDF(
 				parent::triplify($id, parent::getVoc()."side-effect", $cui)
@@ -346,7 +346,7 @@ class SIDERParser extends Bio2RDFizer
 			$cui_label = strtolower(trim($a[2]));
 
 			parent::addRDF(
-				parent::describeIndividual($cui, $cui_label, null)
+				parent::describeIndividual($cui, $cui_label,null)
 			);
 
 			parent::addRDF(
@@ -429,17 +429,20 @@ e.g. from different clinical trials or for different levels of severeness.
 				$number = false;
 				if(is_numeric($a[6])) {
 					$flabel = $a[6]."%";
-					$ftype  = parent::getVoc()."Specified-Frequency";
+					$ftype_label = "Specified-Frequency";
+					$ftype  = parent::getVoc().$ftype_label;
 					$number = true;
 				}
 				if($a[7] != $a[8]) {
 					$flabel .= "($a[7]-$a[8])";
-					$ftype = parent::getVoc()."Range-Frequency";
+					$ftype_label = "Range-Frequency";
+					$ftype = parent::getVoc().$ftype_label;
 				}
 
 				parent::addRDF(
 					parent::triplify($id,parent::getVoc()."reported-frequency",$fid).
-					parent::describeIndividual($fid,$flabel,parent::getVoc().$ftype)
+					parent::describeIndividual($fid,$flabel,parent::getVoc().$ftype).
+					parent::describeClass(parent::getVoc().$ftype, $ftype_label)
 				);
 		
 				if($number == true) {
