@@ -134,7 +134,7 @@ class SABIORKParser extends Bio2RDFizer
 		$source_file = (new DataResource($this))
 			->setURI("http://sabiork.h-its.org/sabioRestWebServices/searchKineticLaws/biopax")
 			->setTitle("SABIO-RK Biochemical Reaction Kinetics Database")
-			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($odir.$ofile)))
 			->setFormat("text/xml")
 			->setPublisher("http://sabio.villa-bosch.de/")
 			->setHomepage("http://sabio.villa-bosch.de/")
