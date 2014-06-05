@@ -121,156 +121,158 @@ class MGIParser extends Bio2RDFizer
         }
         
         /*
-        0 MGI Allele Accession ID       
-        1 Allele Symbol 
-        2 Allele Name   
-        3 Allele Type   
-        4 PubMed ID for original reference      
-        5 MGI Marker Accession ID       
-        6 Marker Symbol 
-        7 Marker RefSeq ID      
-        8 Marker Ensembl ID     
-        9 High-level Mammalian Phenotype ID (comma-delimited)   
-        10 Synonyms (|-delimited)
+        0 MGI Allele Accession ID
+        1 Allele Symbol
+        2 Allele Name
+        3 Allele Type
+	4 Allele Attribute
+        5 PubMed ID for original reference      
+        6 MGI Marker Accession ID       
+        7 Marker Symbol 
+        8 Marker RefSeq ID      
+        9 Marker Ensembl ID     
+        10 High-level Mammalian Phenotype ID (comma-delimited)   
+        11 Synonyms (|-delimited) 
         */
         function MGI_PhenotypicAllele($qtl = false)
         {
-			$line = 0;
-			while($l = $this->GetReadFile()->Read(200000)) {
-					$a = explode("\t",$l);
-					$line++;
-					
-					$id = strtolower($a[0]);
-					if($a[0][0] == "#") continue;
-					
-					if(count($a) != 11) {
-							echo "Expecting 11 columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
-							continue;
-					}
-
-					$id_label = $a[1].", ".$a[2];
-					parent::addRDF(
-							parent::describeIndividual($id, $id_label, $this->getVoc()."Allele").
-							parent::describeClass($this->getVoc()."Allele", "MGI Allele")
-					);
-
-					if(trim($a[1])) {
-							parent::addRDF(
-									parent::triplifyString($id, $this->getVoc()."allele-symbol", trim($a[1]))
-							);
-					}
-					if(trim($a[2])) {
-							parent::addRDF(
-									parent::triplifyString($id, $this->getVoc()."allele-name", trim($a[2]))
-							);
-					}
-					if(trim($a[3])) {
-							parent::addRDF(
-									parent::triplifyString($id, $this->getVoc()."allele-type", trim($a[3]))
-							);
-					}
-					if(trim($a[4])) {
-							parent::addRDF(
-									parent::triplify($id, $this->getVoc()."x-pubmed", "pubmed:".trim($a[4]))
-							);
-					}
-					/*
-					if(trim($a[5])) {
-							$marker_id = $a[5];
-							parent::addRDF(
-									parent::triplify($id, $this->getVoc()."marker", $marker_id).
-									parent::triplify($marker_id, "rdf:type", $this->getVoc()."MGI-Marker").
-									parent::describeClass($this->getVoc()."MGI-Marker","MGI Marker")
-							);              
-							if(trim($a[6])) {
-									parent::addRDF(
-											parent::triplifyString($marker_id, $this->getVoc()."marker-symbol", trim(strtolower($a[6])))
-									);
-							}
-							if(trim($a[7])) {
-									parent::addRDF(
-											parent::triplify($marker_id, $this->getVoc()."x-refseq", "refseq:".trim($a[7]))
-									);
-							}               
-							if(trim($a[8])) {
-									parent::addRDF(
-											parent::triplify($marker_id, $this->getVoc()."x-ensembl", "ensembl:".trim($a[8]))
-									);
-							}
-					}
-
-					if(trim($a[9])) {
-							$b = explode(",",$a[9]);
-							foreach($b AS $mp) {
-									//$mp_uri = str_replace("MP:","http://purl.obolibrary.org/obo/MP_",$mp);
-									parent::addRDF(
-											parent::triplify($id, $this->getVoc()."high-level-phenotype", $mp)
-									);
-							}
-					}
-					*/
-					$this->writeRDFBufferToWriteFile(); 
+		$line = 0;
+		while($l = $this->GetReadFile()->Read(200000)) {
+			$a = explode("\t",$l);
+			if($a[0][0] == "#") continue;
+			if(count($a) != 12) {
+				echo "Expecting 12 columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
+				continue;
 			}
-                    
+			$id = strtolower($a[0]);
+
+			$id_label = $a[1].", ".$a[2];
+			parent::addRDF(
+				parent::describeIndividual($id, $id_label, $this->getVoc()."Allele").
+				parent::describeClass($this->getVoc()."Allele", "MGI Allele")
+			);
+
+			if(trim($a[1])) {
+				parent::addRDF(
+					parent::triplifyString($id, $this->getVoc()."allele-symbol", trim($a[1]))
+				);
+			}
+			if(trim($a[2])) {
+				parent::addRDF(
+					parent::triplifyString($id, $this->getVoc()."allele-name", trim($a[2]))
+				);
+			}
+			if(trim($a[3])) {
+				parent::addRDF(
+					parent::triplifyString($id, $this->getVoc()."allele-type", trim($a[3]))
+				);
+			}
+			if(trim($a[4])) {
+				parent::addRDF(
+					parent::triplifyString($id, $this->getVoc()."allele-attribute", trim($a[4]))
+				);
+			}
+			if(trim($a[5])) {
+				parent::addRDF(
+					parent::triplify($id, $this->getVoc()."x-pubmed", "pubmed:".trim($a[5]))
+				);
+			}
+/*			if(trim($a[6])) {
+				$marker_id = $a[6];
+				parent::addRDF(
+					parent::triplify($id, $this->getVoc()."marker", $marker_id).
+					parent::triplify($marker_id, "rdf:type", $this->getVoc()."MGI-Marker").
+					parent::describeClass($this->getVoc()."MGI-Marker","MGI Marker")
+				);
+
+				if(trim($a[7])) {
+					parent::addRDF(
+						parent::triplifyString($marker_id, $this->getVoc()."marker-symbol", trim(strtolower($a[7])))
+					);
+				}
+				if(trim($a[8])) {
+					parent::addRDF(
+						parent::triplify($marker_id, $this->getVoc()."x-refseq", "refseq:".trim($a[8]))
+					);
+				}
+				if(trim($a[9])) {
+ 					parent::addRDF(
+						parent::triplify($marker_id, $this->getVoc()."x-ensembl", "ensembl:".trim($a[8]))
+					);
+				}
+			}
+
+			if(trim($a[9])) {
+				$b = explode(",",$a[9]);
+				foreach($b AS $mp) {
+					//$mp_uri = str_replace("MP:","http://purl.obolibrary.org/obo/MP_",$mp);
+					parent::addRDF(
+						parent::triplify($id, $this->getVoc()."high-level-phenotype", $mp)
+					);
+				}
+			}
+*/
+			$this->writeRDFBufferToWriteFile(); 
+		}
         } //closes function
 
 
-		/*
-		Gene-Allele-Background-Phenotype-Literature
-		
-		0 Allelic Composition	 - Rbpj<tm1Kyo>/Rbpj<tm1Kyo>
-		1 Allele Symbol(s)	 - Rbpj<tm1Kyo>
-		2 Allele ID(s)	     - MGI:1857411
-		3 Genetic Background	 - involves: 129S2/SvPas * C57BL/6
-		4 Mammalian Phenotype ID	- MP:0000364
-		5 PubMed ID	         - 15466160
-		6 MGI Marker Accession ID (comma-delimited) - MGI:96522
-		
-		*/
-		function MGI_GenePheno()
-		{
-			$line = 1;
-			while($l = $this->getReadFile()->read(248000)) {
-				$a = explode("\t",$l);
-				if(count($a) != 7) {
-					trigger_error("Incorrect number of columns",E_USER_WARNING);
-					continue;
-				}
-				$id = "mgi_resource:".md5($a[0].$a[3]); // composition + background
-				$label = $a[0]." ".$a[3];
+	/*
+	Gene-Allele-Background-Phenotype-Literature
 
-				parent::addRDF(
-					parent::describeIndividual($id, $label, $this->getVoc()."Genotype").
-					parent::triplifyString($id,$this->getVoc()."genotype",$a[0]).
-					parent::triplifyString($id,$this->getVoc()."background",$a[3]).
-					parent::triplify($id,$this->getVoc()."phenotype",$a[4])
-				);
-				if($a[2]) {
-					//parent::triplifyString($id,$this->getVoc()."allele-symbol",$a[1]).
-					$alleles = explode("|",$a[2]);
-					foreach($alleles AS $allele) {
-						parent::addRDF(
-							parent::triplify($id,$this->getVoc()."allele",$a[2])
-						);
-					}
-				}
-					
-				if($a[5]) {
-					$pmids = explode(",",$a[5]);
-					foreach($pmids AS $pmid) {
-						parent::addRDF(		
-							parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pmid)	
-						);
-					}
-				}
-				$b = explode(",",$a[6]);
-				foreach($b AS $marker) {
-					parent::addRDF(parent::triplify($id,$this->getVoc()."marker",$marker));
-				}
-				$this->writeRDFBufferToWriteFile();
+	0 Allelic Composition	 - Rbpj<tm1Kyo>/Rbpj<tm1Kyo>
+	1 Allele Symbol(s)	 - Rbpj<tm1Kyo>
+	2 Allele ID(s)	     - MGI:1857411
+	3 Genetic Background	 - involves: 129S2/SvPas * C57BL/6
+	4 Mammalian Phenotype ID	- MP:0000364
+	5 PubMed ID	         - 15466160
+	6 MGI Marker Accession ID (comma-delimited) - MGI:96522
+	7 blank
+	8 MGI Genotype ID (comma-delimted) 
+	*/
+	function MGI_GenePheno()
+	{
+		$line = 1;
+		while($l = $this->getReadFile()->read(248000)) {
+			$a = explode("\t",$l);
+			if(count($a) != 9) {
+				trigger_error("Incorrect number of columns",E_USER_WARNING);
+				continue;
 			}
-		}
+			$id = trim($a[8]); 
+			$label = $a[0]." ".$a[3];
+			parent::addRDF(
+				parent::describeIndividual($id, $label, $this->getVoc()."Genotype").
+				parent::describeClass($this->getVoc()."Genotype","MGI Genotype").
+				parent::triplifyString($id,$this->getVoc()."genotype",$a[0]).
+				parent::triplifyString($id,$this->getVoc()."background",$a[3]).
+				parent::triplify($id,$this->getVoc()."phenotype",$a[4])
+			);
+			if($a[2]) {
+				//parent::triplifyString($id,$this->getVoc()."allele-symbol",$a[1]).
+				$alleles = explode("|",$a[2]);
+				foreach($alleles AS $allele) {
+					parent::addRDF(
+						parent::triplify($id,$this->getVoc()."allele",$a[2])
+					);
+				}
+			}
 
+			if($a[5]) {
+				$pmids = explode(",",$a[5]);
+				foreach($pmids AS $pmid) {
+					parent::addRDF(		
+						parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pmid)	
+					);
+				}
+			}
+			$b = explode(",",$a[6]);
+			foreach($b AS $marker) {
+				parent::addRDF(parent::triplify($id,$this->getVoc()."marker",$marker));
+			}
+			$this->writeRDFBufferToWriteFile();
+		}
+	}
 
 
 /*
@@ -297,53 +299,53 @@ class MGIParser extends Bio2RDFizer
 */
 
         function MRK_Sequence()
-        {                
-			$cols = 20;
-			$line = 0;
-			$h = $this->getReadFile()->read(50000);
-			while($l = $this->GetReadFile()->Read(500000)) {
-				$a = explode("\t",$l);
-				$line ++;
-				if(count($a) != $cols) {
-					echo "Expecting $cols columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
-					continue;
-				}
-
-				$id  = strtolower($a[0]);
-				$type =  $this->getRes().str_replace(" ","-",$a[3]);
-				parent::addRDF(
-					parent::describeIndividual($id, $a[1], $type).
-					parent::triplifyString($id, parent::getVoc()."symbol", $a[1]).
-					parent::triplifyString($id, parent::getVoc()."status", $a[2]).
-					parent::triplifyString($id, parent::getVoc()."name", $a[4]).
-					parent::triplifyString($id, parent::getVoc()."cm-position", $a[5], "xsd:string").
-					parent::triplifyString($id, parent::getVoc()."chromosome", $a[6], "xsd:string")
-				);
-				$start_pos = 10;
-				$list = array("genbank","refseq-transcript","vega-transcript","ensembl-transcript","uniprot","trembl","vega-protein","ensembl-protein","refseq-protein","unigene");
-				$list_len = count($list);
-				for($i=0;$i<$list_len;$i++) {
-					$value = trim($a[$i+$start_pos]);
-					if($value) {
-						$rel = $list[$i];
-						$b = explode("-",$list[$i]);
-						$ns = $b[0];
-
-						$ids = explode("|",$value);
-						foreach($ids AS $mid) {
-							parent::addRDF(
-								parent::triplify($id, $this->getVoc()."x-$rel", "$ns:$mid")
-							);
-						}
+        {
+		$cols = 20;
+		$line = 0;
+		$h = $this->getReadFile()->read(50000);
+		while($l = $this->GetReadFile()->Read(500000)) {
+			$a = explode("\t",$l);
+			$line ++;
+			if(count($a) != $cols) {
+				echo "Expecting $cols columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
+				continue;
+			}
+			$id  = strtolower($a[0]);
+			$type =  $this->getRes().str_replace(" ","-",$a[3]);
+			parent::addRDF(
+				parent::describeIndividual($id, $a[1], $type).
+				parent::describeClass($type,"MGI ".$a[3]).
+				parent::triplifyString($id, parent::getVoc()."symbol", $a[1]).
+				parent::triplifyString($id, parent::getVoc()."status", $a[2]).
+				parent::triplifyString($id, parent::getVoc()."name", $a[4]).
+				parent::triplifyString($id, parent::getVoc()."cm-position", $a[5], "xsd:string").
+				parent::triplifyString($id, parent::getVoc()."chromosome", $a[6], "xsd:string")
+			);
+			$start_pos = 10;
+			$list = array("genbank","refseq-transcript","vega-transcript","ensembl-transcript","uniprot","trembl","vega-protein","ensembl-protein","refseq-protein","unigene");
+			$list_len = count($list);
+			for($i=0;$i<$list_len;$i++) {
+				$value = trim($a[$i+$start_pos]);
+				if($value) {
+					$rel = $list[$i];
+					$b = explode("-",$list[$i]);
+					$ns = $b[0];
+					$ids = explode("|",$value);
+					foreach($ids AS $mid) {
+						parent::addRDF(
+							parent::triplify($id, $this->getVoc()."x-$rel", "$ns:$mid")
+						);
 					}
 				}
-				$this->writeRDFBufferToWriteFile();  
 			}
+			$this->writeRDFBufferToWriteFile();  
+		}
         } //closes function
-        
-		/*
-		MGI Strain ID	Strain Name	Strain Type
-		*/
+
+
+	/*
+	MGI Strain ID	Strain Name	Strain Type
+	*/
         function MGI_Strain()
         {
                 $line = 0;
@@ -360,14 +362,13 @@ class MGIParser extends Bio2RDFizer
                         $id_label = $a[1];
                         parent::addRDF(
                                 parent::describeIndividual($id, $id_label, $this->getVoc()."Strain").
-								parent::describeClass($this->getVoc()."Strain", "MGI Strain").
+				parent::describeClass($this->getVoc()."Strain", "MGI Strain").
                                 parent::triplify($id, $this->getVoc()."strain-type", "mgi_vocabulary:".str_replace(" ","-",strtolower($a[2])))
                         );
 		                $this->writeRDFBufferToWriteFile();     
                 }
         } //closes function
 
-} 
+}
 
-?>      
-                
+?>
