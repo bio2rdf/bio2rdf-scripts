@@ -194,16 +194,20 @@ class irefindexParser extends Bio2RDFizer
 				$method = trim($data["label"]);
 				$qname = trim($data["ns"]).":".trim($data["id"]);
 				if($qname) {
-					parent::addRDF(parent::triplify($iid,parent::getVoc()."method",$qname));
+					parent::addRDF(
+						parent::triplify($iid,parent::getVoc()."method",$qname).
+						parent::describeClass($qname,$data['label'])
+					);
 				} 
 			}
 
 			$method_label = '';
 			if(isset($method)) $method_label = " identified by $method ";
 			parent::addRDF(
-				parent::describeIndividual($iid,$label.$method_label,parent::getVoc().$type)
+				parent::describeIndividual($iid,$label.$method_label,parent::getVoc().$type).
+				parent::describeClass(parent::getVoc().$type, str_replace("-"," ",$type))
 			);
-			
+
 			parent::addRDF(
 				parent::QQuadO_URL($iid,"rdfs:seeAlso","http://wodaklab.org/iRefWeb/interaction/show/".$a[50])
 			);
@@ -226,7 +230,8 @@ class irefindexParser extends Bio2RDFizer
 					$qname = trim($data["ns"]).":".trim($data["id"]);
 					if($qname != "mi:0000") {
 						parent::addRDF(
-							parent::triplify($iid,parent::getVoc()."interactor_$p"."_biological_role",$qname)
+							parent::triplify($iid,parent::getVoc()."interactor_$p"."_biological_role",$qname).
+							parent::describeClass($qname,$data['label'])
 						);
 					}
 				}
@@ -237,7 +242,8 @@ class irefindexParser extends Bio2RDFizer
 					$qname = trim($data["ns"]).":".trim($data["id"]);
 					if($qname != "mi:0000") {
 						parent::addRDF(
-							parent::triplify($iid,parent::getVoc()."interactor_$p"."_experimental_role",$qname)
+							parent::triplify($iid,parent::getVoc()."interactor_$p"."_experimental_role",$qname).
+							parent::describeClass($qname,$data['label'])
 						);
 					}
 				}
@@ -247,7 +253,8 @@ class irefindexParser extends Bio2RDFizer
 					$data = $this->ParseStringArray($type);
 					$qname = trim($data["ns"]).":".trim($data["id"]);
 					parent::addRDF(
-						parent::triplify($interactor,"rdf:type",$qname)
+						parent::triplify($interactor,"rdf:type",$qname).
+						parent::describeClass($qname,$data['label'])
 					);
 				}
 			}
@@ -259,7 +266,8 @@ class irefindexParser extends Bio2RDFizer
 				if(!isset($defined[$irogid])) {
 					$defined[$irogid] = '';
 					parent::addRDF(
-						parent::describeIndividual($irogid,"",parent::getVoc()."Taxon-Sequence-Identical-Group")
+						parent::describeIndividual($irogid,"",parent::getVoc()."Taxon-Sequence-Identical-Group").
+						parent::describeClass(parent::getVoc()."Taxon-Sequence-Identical-Group","Taxon + Sequence Identical Group")
 					);
 					$tax = $a[9+($i-2)];
 					if($tax && $tax != '-' && $tax != '-1') {
@@ -292,7 +300,8 @@ class irefindexParser extends Bio2RDFizer
 				if(!isset($defined[$icrogid])) {
 					$defined[$icrogid] = '';
 					parent::addRDF(
-						parent::describeIndividual($icrogid, "",parent::getVoc()."Taxon-Sequence-Similar-Group")
+						parent::describeIndividual($icrogid, "",parent::getVoc()."Taxon-Sequence-Similar-Group").
+						parent::describeClass(parent::getVoc()."Taxon-Sequence-Similar-Group","Taxon + Sequence Similar Group")
 					);
 				}
 
