@@ -412,9 +412,11 @@ class SGDParser extends Bio2RDFizer {
 			unset($type);
 
 			if($a[1] == "ORF") {
-				$type = $this->getVoc()."Protein";
+				$type_label = "Protein";
+				$type = $this->getVoc().$type_label;
 			} elseif(stristr($a[1],"rna")){
-				$type = $this->getVoc()."RNA";
+				$type_label = "RNA";
+				$type = $this->getVoc().$type_label;
 			}
 
 			if(isset($type)) {
@@ -425,6 +427,7 @@ class SGDParser extends Bio2RDFizer {
 				$this->AddRDF(
 					parent::triplify($sid, $this->getVoc()."encodes", $gp).
 					parent::describeIndividual($gp, $gplabel, $type).
+					parent::describeClass($type,$type_label).
 					parent::describeProperty($this->getVoc()."encodes", "Relationship between an SGD gene and the gene product it encodes")
 				);
 
@@ -554,10 +557,11 @@ class SGDParser extends Bio2RDFizer {
 			if($a[9]) {
 				$loc = $id."loc";
 				$this->AddRDF(
+					parent::describeIndividual($this->getRes().$loc, "Genomic location of $sid", $this->getVoc()."Location").
+					parent::describeClass($this->getVoc()."Location", "Location").
 					parent::triplify($sid, $this->getVoc()."location", $this->getRes().$loc).
 					parent::triplifyString($this->getRes().$loc, $this->getVoc()."has-start-position", $a[9]).
 					parent::triplifyString($this->getRes().$loc, $this->getVoc()."has-stop-position", $a[10]).
-					parent::describeIndividual($this->getRes().$loc, "Genomic location of $sid", $this->getVoc()."Location", null, null).
 					parent::describeProperty($this->getVoc()."has-start-position", "Relationship between an SGD chromosomal location and its start position").
 					parent::describeProperty($this->getVoc()."has-stop-position", "Relationship between an SGD chromosomal location and its stop position")
 				);
@@ -616,6 +620,7 @@ class SGDParser extends Bio2RDFizer {
 			$da = "sgd_resource:da_".$a[0]."p_$a[4]_$a[6]_$a[7]";
 			$this->AddRDF(
 				parent::describeIndividual($da, "domain alignment between $id and $domain", $this->getVoc()."Domain-Alignment").
+				parent::describeClass($this->getVoc()."Domain-Alignment","Domain Alignment").
 				parent::triplify($da, $this->getVoc()."query", $id).
 				parent::triplify($da, $this->getVoc()."target", $domain).
 				parent::triplifyString($da, $this->getVoc()."query-start", $a[6]).
@@ -1048,11 +1053,13 @@ class SGDParser extends Bio2RDFizer {
 				$e[$pid] = '1';
 				if(!$sp){
 					$this->AddRDF(
-						parent::describeIndividual($this->getRes().$pid, $a[0], $this->getVoc()."Pathway", $a[0])
+						parent::describeIndividual($this->getRes().$pid, $a[0], $this->getVoc()."Pathway").
+						parent::describeClass($this->getVoc()."Pathway","Pathway")
 					);
 				} else {
 					$this->AddRDF(
-						parent::describeIndividual($this->getRes().$pid, $a[0], $this->getVoc()."SuperPathway", $a[0])
+						parent::describeIndividual($this->getRes().$pid, $a[0], $this->getVoc()."SuperPathway").
+						parent::describeClass($this->getVoc()."SuperPathway","SuperPathway")
 					);
 				}
 			}

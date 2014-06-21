@@ -91,7 +91,7 @@ if(!file_exists($options['isql'])) {
 	trigger_error("ISQL could not be found at ".$options['isql'],E_USER_ERROR);
 }
 
-@mkdir($options['odir']);
+system("mkdir -p ".$options['odir']);
 
 if($options['instance']) {
 	if($options['version'] == '') {
@@ -108,11 +108,11 @@ if($options['instance']) {
 			if($options['instance'] == $name) {
 				$options['port'] = $a[0];
 				$options['dataset'] = $name;
-				
+				$options['sparql'] = 'http://localhost:'.$a[1].'/sparql';
 				$version = $options['version'];
 				$options['ofile'] = "bio2rdf-$name-R$version-statistics"; 
-				$options['graphs'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$name-R$version";				
-				$options['quad_uri'] = $options['graphs']."-statistics";
+				$options['graphs'] = "http://bio2rdf.org/$name"."_resource:bio2rdf.dataset.$name.R$version";
+				$options['quad_uri'] = $options['graphs'].".statistics";
 				$options['dataset_uri'] = $options['graphs'];
 				break;
 			}
@@ -146,7 +146,7 @@ if($options['graphs'] == 'list' or $options['graphs'] == 'all') {
 	if(count($plusgraphs) >= 2) {
 		$options['from-graph'] = '';
 		foreach($plusgraphs AS $g) {
-			$options['from-graph'] .= "FROM <$g> ";			
+			$options['from-graph'] .= "FROM <$g> ";
 		}
 		$graphs = array($options['graphs']);
 	} else {
@@ -219,7 +219,13 @@ function query($sparql)
 		}
 	} else {
 		$cmd = $options['sparql']."?query=".urlencode($sparql)."&format=application%2Fsparql-results%2Bjson&timeout=0";
-		$out = file_get_contents($cmd);
+		$ctx = stream_context_create(array( 
+    			'http' => array( 
+    			    'timeout' => 120000 
+		        ) 
+		    ) 
+		); 
+		$out = file_get_contents($cmd,null,$ctx);
 	}
 	$json = json_decode($out);
 	return $json->results->bindings;
@@ -246,7 +252,7 @@ function QuadLiteral($subject_uri, $predicate_uri, $literal, $dt = null, $lang =
 	if($options['quad_uri']) $graph_uri = $options['quad_uri'];
 	$xsd = "http://www.w3.org/2001/XMLSchema#";
 	$dt = "^^<".$xsd.(isset($dt)?$dt:"string").">";
-	return "<$subject_uri> <$predicate_uri> \"$literal\"".(isset($lang)?"@$lang":$dt).(isset($graph_uri)?" <$graph_uri>":"")." .".PHP_EOL;
+	return "<$subject_uri> <$predicate_uri> \"".addslashes($literal)."\"".(isset($lang)?"@$lang":$dt).(isset($graph_uri)?" <$graph_uri>":"")." .".PHP_EOL;
 }
 function write($content)
 {
@@ -258,7 +264,7 @@ function write($content)
 function getGraphs()
 {
 	global $options;
-	$sparql = "SELECT DISTINCT ?g WHERE {GRAPH ?g {?s a ?o}}";
+	$sparql = "SELECT DISTINCT ?g WHERE {GRAPH ?g {[] a ?o}}";
 	$r = query($sparql);
 	foreach($r AS $g) {
 		$graphs[] = $g->g->value;
@@ -269,7 +275,7 @@ function getGraphs()
 function addDistinctGraphs()
 {
 	global $options;
-	$sparql = "SELECT (COUNT(distinct ?g) AS ?n) {GRAPH ?g {?s ?p ?o} ".$options['filter']."}";
+	$sparql = "SELECT (COUNT(distinct ?g) AS ?n) {GRAPH ?g {[] ?p ?o} ".$options['filter']."}";
 	$r = query($sparql);
 
 	foreach($r AS $c) {
@@ -764,27 +770,26 @@ function addDatasetPropertyDatasetCount()
 	$r = query($sparql);
 	foreach($r AS $c) {
 		$id = getID($c);
-		
-		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->stype->value,$m);
-		$d1 = $m[1];
-		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->otype->value,$m);
-		$d2 = $m[1];
-		$r = $c->p->value;
-		
-		$label = "$d1 connected to $d2 through ".$c->n->value." <$r> in ".$options['dataset_name'];
-		write(
-			Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
-			Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Dataset-Property-Dataset-Count").
-			QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
-			Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
-			Quad($id, "http://rdfs.org/ns/void#subjectsTarget", $c->stype->value).
-			Quad($id, "http://rdfs.org/ns/void#objectsTarget", $c->otype->value).
-			QuadLiteral($id, "http://rdfs.org/ns/void#triples", $c->n->value, "long").
-			
-			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Dataset-Property-Dataset-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 
-		);
+		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->stype->value,$m1);
+		preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->otype->value,$m2);
+		if(isset($m1[1]) and isset($m2[1])) {
+			$d1 = $m1[1];
+			$d2 = $m2[1];
+			$r = $c->p->value;
+			$label = "$d1 connected to $d2 through ".$c->n->value." <$r> in ".$options['dataset_name'];
+			write(
+				Quad($options['uri'], "http://rdfs.org/ns/void#subset", $id).
+				Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://rdfs.org/ns/void#LinkSet").
+				Quad($id, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Dataset-Property-Dataset-Count").
+				QuadLiteral($id, "http://www.w3.org/2000/01/rdf-schema#label", $label, null, "en").
+				Quad($id, "http://rdfs.org/ns/void#linkPredicate", $c->p->value).
+				Quad($id, "http://rdfs.org/ns/void#subjectsTarget", $c->stype->value).
+				Quad($id, "http://rdfs.org/ns/void#objectsTarget", $c->otype->value).
+				QuadLiteral($id, "http://rdfs.org/ns/void#triples", $c->n->value, "long").
+				Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Dataset-Property-Dataset-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
+			);
+		}
 	}
 }
 

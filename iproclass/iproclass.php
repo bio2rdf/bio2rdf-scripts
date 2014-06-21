@@ -23,9 +23,10 @@ SOFTWARE.
 
 /**
  * An RDF generator for iProClass (http://pir.georgetown.edu/iproclass/)
- * @version 2.0
+ * @version 3.0
  * @author Alison Callahan
  * @author Jose Cruz-Toledo
+ * @author MIchel Dumontier
 */
 
 class IProClassParser extends Bio2RDFizer
@@ -49,24 +50,23 @@ class IProClassParser extends Bio2RDFizer
 			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 			parent::setParameterValue('download',true);
 		}
-		
+
 		//download all files 
 		$rfile = $rdir.$file;
 		if($this->GetParameterValue('download') == true) {
 			echo "downloading $file... ";
 			utils::DownloadSingle($rfile,$lfile);
+//			$cmd = "gzip -c $lfile | split -d -l 1000000 --filter='gzip > $FILE.gz' - iproclass-"
 		}
-		$ofile = 'iproclass.'.parent::getParameterValue('output_format'); 
-		$gz = (strstr(parent::getParameterValue('output_format'), "gz"))?true:false;
+		$ofile = "iproclass.nq";
+		$gz = true;
 
 		parent::setReadFile($lfile, true);
-		parent::setWriteFile($odir.$ofile, $gz);
 		echo "processing $file... ";
 		$this->process();
 		echo "done!".PHP_EOL;
-		//close write file
 		parent::getWriteFile()->close();
-		
+
 		echo "generating dataset release file... ";
 		$source_file = (new DataResource($this))
                                 ->setURI($rfile)
@@ -110,8 +110,23 @@ class IProClassParser extends Bio2RDFizer
 
 	}//Run
 
-	private function process(){
-		while($l = $this->GetReadFile()->Read(200000)) {
+	private function process()
+	{
+		$z = 0;$y = 1;
+		while($l = $this->getReadFile()->Read(200000)) {
+			if($z++ % 1000000 == 0) {
+				$odir = parent::getParameterValue('outdir');
+				$ofile = 'iproclass.'.($y++).".".parent::getParameterValue('output_format'); 
+				$gz = (strstr(parent::getParameterValue('output_format'), "gz"))?true:false;
+
+				if(parent::getWriteFile() != null) {
+					parent::getWriteFile()->close();
+					parent::clear();
+				}
+				// generate a new file
+				parent::setWriteFile($odir.$ofile, $gz);
+			}
+
 			$fields = explode("\t", $l);
 			@$uniprot_acc = $fields[0];
 			@$uniprot = $fields[1];

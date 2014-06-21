@@ -31,36 +31,32 @@ require_once(__DIR__.'/../../php-lib/xmlapi.php');
 
 class ClinicalTrialsParser extends Bio2RDFizer
 {
-	function __construct($argv){
+	function __construct($argv)
+	{
 		parent::__construct($argv,"clinicaltrials");
-	
-		parent::addParameter('files',true,'all|study|results','all','files to process');
+		parent::addParameter('files',true,'all','all','files to process');
 		parent::addParameter('download_url',false,null,'http://clinicaltrials.gov/ct2/crawl');
-		
+		parent::addParameter('overwrite',false,'true|false','false','overwrite existing files with download option');
 		parent::initialize();
 	}
 
-	function run(){
-		if(parent::getParameterValue('download') === true) 
-		{
-			$this->crawl();
-		}
-		if(parent::getParameterValue('process') === true) 
-		{
-			$this->parse_dir();
-		}
+	function run()
+	{
+		if(parent::getParameterValue('download') === true) $this->crawl();
+		$this->parse_dir();
 	}
 
 
 	/**
 	* generate the proper subdir based on the file name
 	**/
-	function get_sub_dir($entry){
+	function get_sub_dir($entry)
+	{
 		$bin_range = 10;
 
 		preg_match('/NCT[0]+(\d+)\.xml$/', $entry,$matches);
 		$record_number = $matches[1];
-		
+
 		// find last multiple of bin_range
 		$count = -strlen($bin_range);
 		$marker = substr($record_number, $count);
@@ -96,7 +92,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if(preg_match("/crawl\/([0-9]+)/",$href->getAttribute('href'))){
 				$record_block_url = "http://clinicaltrials.gov".$href->getAttribute('href');
 				$this->fetch_record_block($record_block_url);
-			}	
+			}
 		}
 	}
 
@@ -111,7 +107,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			return false;
 		}
 		echo "done.".PHP_EOL;
-		
+
 		$dom = new DOMDocument();
 		@$dom->loadHTML($html);
 
@@ -123,7 +119,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if(preg_match("/ct2\/show\//",$href->getAttribute('href'))){
 				$page_uri = "http://clinicaltrials.gov/".$href->getAttribute('href')."?resultsxml=true";
 				$this->fetch_page($page_uri);
-			}	
+			}
 		}
 	}
 
@@ -134,14 +130,17 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		preg_match("/show\/(NCT[0-9]+)/",$url,$m);
 		$file = $m[1];
 		$outfile = parent::getParameterValue("indir")."/".$file.".xml";
-		echo "fetching $url".PHP_EOL;
-		$xml = file_get_contents($url);
-		
-		# save the file
-		$ret = file_put_contents($outfile,$xml);
-		if($ret === FALSE) {
-			trigger_error("unable to save $outfile");
-			return false;
+		if(!file_exists($outfile) or 
+			((parent::getParameterValue("download") === true) and (parent::getParameterValue('overwrite') === true))) {
+			echo "fetching $url".PHP_EOL;
+			$xml = file_get_contents($url);
+
+			# save the file
+			$ret = file_put_contents($outfile,$xml);
+			if($ret === FALSE) {
+				trigger_error("unable to save $outfile");
+				return false;
+			}
 		}
 	}
 	
@@ -164,43 +163,44 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		$ids = explode(",",parent::getParameterValue('id_list'));
 
 		$indir = parent::getParameterValue('indir');
-		echo "Processing directory $indir\n";
+		echo "Processing $indir\n";
+
+		$outfile = "clinicaltrials.".parent::getParameterValue('output_format');
+		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+		parent::setWriteFile(parent::getParameterValue("outdir").$outfile,$gz);
 
 		$files = glob($indir."NCT*");
-		foreach($files AS $file) {
-			$outfile = "clinicaltrials.".parent::getParameterValue('output_format');
-			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-			parent::setWriteFile(parent::getParameterValue("outdir").$outfile,$gz);
-
+		foreach($files AS $i => $file) {
+			if($i % 10000 == 0) {parent::clear();}
 			$trial_id = basename($file,'.xml');
 			if(parent::getParameterValue('id_list') == '' || in_array($trial_id, $ids)) {
 				echo "Processing $trial_id".PHP_EOL;
 				$this->process_file($file);
-
-				// make the dataset description
-				$ouri = parent::getGraphURI();
-				parent::setGraphURI(parent::getDatasetURI());
-
-				$rfile = "http://clinicaltrials.gov/ct2/show/".$trial_id."?resultsxml=true";
-				$source_version = parent::getDatasetVersion();
-				// dataset description
-				$source_file = (new DataResource($this))
-					->setURI($rfile)
-					->setTitle("Clinicaltrials")
-					->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($file)))
-					->setFormat("application/xml")
-					->setPublisher("http://clinicaltrials.gov/")
-					->setHomepage("http://clinicaltrials.gov/")
-					->setRights("use")
-					->setRights("by-attribution")
-					->setLicense("http://clinicaltrials.gov/ct2/about-site/terms-conditions")
-					->setDataset("http://identifiers.org/clinicaltrials/");
-
-				parent::writeToReleaseFile($source_file->toRDF());
-				parent::setGraphURI($ouri);
 			}
 		}
 		echo "Finished.".PHP_EOL;
+		parent::getWriteFile()->close();
+
+		// make the dataset description
+		parent::setGraphURI(parent::getDatasetURI());
+
+		$rfile = "http://clinicaltrials.gov/ct2/show/NCT_ID?resultsxml=true";
+		$source_version = parent::getDatasetVersion();
+
+		// dataset description
+		$source_file = (new DataResource($this))
+			->setURI($rfile)
+			->setTitle("Clinicaltrials")
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($file)))
+			->setFormat("application/xml")
+			->setPublisher("http://clinicaltrials.gov/")
+			->setHomepage("http://clinicaltrials.gov/")
+			->setRights("use")
+			->setRights("by-attribution")
+			->setLicense("http://clinicaltrials.gov/ct2/about-site/terms-conditions")
+			->setDataset("http://identifiers.org/clinicaltrials/");
+
+		parent::writeToReleaseFile($source_file->toRDF());
 
 		$output_file = (new DataResource($this))
 			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
@@ -350,7 +350,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			
 				$authority = $this->getString('//authority', $oversight);	
 				$authority_id = parent::getRes().md5($authority);
-                parent::addRDF(	
+				parent::addRDF(	
 					parent::describeIndividual($oversight_id,$authority,parent::getVoc()."Organization").
 					parent::triplify($study_id,$this->getVoc()."oversight",$oversight_id).
 					parent::triplify($study_id,$this->getVoc()."authority",$authority_id).
@@ -369,6 +369,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$status_id = parent::getRes().md5($overall_status);
 				parent::addRDF(
 					parent::describeIndividual($status_id,$overall_status,parent::getVoc()."Status").
+					parent::describeClass(parent::getVoc()."Status","Status").
 					parent::triplify($study_id,parent::getVoc()."overall-status",$status_id)
 				);
 			}
@@ -406,6 +407,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$phase_id = $this->getRes().md5($phase);
 				parent::addRDF(
 					parent::describeIndividual($phase_id,$phase,parent::getVoc()."Phase",$phase).
+					parent::describeClass(parent::getVoc()."Phase",$phase).
 					parent::triplify($study_id,parent::getVoc()."phase",$phase_id)
 				);
 			}
@@ -418,6 +420,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$study_type_id = $this->getRes().md5($study_type);
 				parent::addRDF(
 					parent::describeClass($study_type_id,$study_type,parent::getVoc()."Study-Type").
+					parent::describeClass(parent::getVoc()."Study-Type","Study Type").
 					parent::triplify($study_id,parent::getVoc()."study-type",$study_type_id)
 				);
 			}
@@ -430,18 +433,24 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$study_design_id = parent::getRes().md5($study_design);
 				parent::addRDF(
 					parent::describeIndividual($study_design_id,"$study_id study design",parent::getVoc()."Study-Design").
+					parent::describeClass(parent::getVoc()."Study-Design","Study Design").
 					parent::triplify($study_id,parent::getVoc()."study-design",$study_design_id)
 				);
 				// Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment
-				foreach(explode(", ",$study_design) AS $b) {
+				foreach(explode(", ",$study_design) AS $i=>$b) {
 					$c = explode(":  ",$b);
-					$key = parent::getRes().md5($c[0]);
 					if(isset($c[1])) {
+						$sdp = $study_design_id."-".($i+1);
+						$key = parent::getRes().md5($c[0]);
 						$value = parent::getRes().md5($c[1]);
 						parent::addRDF(
-							parent::describeClass($value,$c[1],parent::getVoc()."Study-Design-Parameter",$c[1]).
+							parent::describeIndividual($sdp,$b,parent::getVoc()."Study-Design-Parameter").
 							parent::describeClass(parent::getVoc()."Study-Design-Parameter","Study Design Parameter").
-							parent::triplify($study_design_id,$key,$value)
+							parent::triplify($sdp,parent::getVoc()."key",$key).
+							parent::describeClass($key,$c[0]).
+							parent::triplify($sdp,parent::getVoc()."value",$value).
+							parent::describeClass($value,$c[1]).
+							parent::triplify($study_design_id,parent::getVoc()."study-design-parameter",$sdp)
 						);
 					}
 				}
@@ -457,9 +466,9 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			################################################################################
 			# outcomes
 			###############################################################################
-			$outcomes = array("primary_outcome","seconary_outcome","other_outcome");
+			$outcomes = array("primary_outcome","secondary_outcome","other_outcome");
 			foreach($outcomes AS $outcome) {
-				$o = @array_shift($root->xpath('//'.$outcome));
+				$o = $root->xpath('//'.$outcome);
 				if($o){
 					$os = $o;
 					if(!is_array($o)) $os = array($o);
@@ -475,7 +484,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 							
 							parent::addRDF(
 								parent::describeIndividual($po_id,$measure." ".$time_frame, ucfirst($po_type)).
-								parent::describeClass(ucfirst($po_type),str_replace("_"," ",ucfirst($po_type))).
+								parent::describeClass(ucfirst($po_type),str_replace("_"," ",ucfirst($outcome))).
 								parent::triplifyString($po_id, "dc:description", $description).
 								parent::triplifyString($po_id, parent::getVoc()."measure", $measure).
 								parent::triplifyString($po_id,parent::getVoc()."time-frame",$time_frame).
@@ -551,17 +560,18 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try {
 				$arm_groups = $root->xpath('//arm_group');
 				foreach ($arm_groups as $arm_group) {
-					$arm_group_id = parent::getRes().md5($arm_group->asXML());
-					$arm_group_label = $this->getString('./arm_group_label',$arm_group);
+					$arm_group_id = $this->getString('./arm_group_label',$arm_group);
+					$arm_group_uri = parent::getRes().$this->nct_id."/arm-group/".$arm_group_id;
+					$arm_group_label = $this->nct_id." arm group ".$arm_group_id;
 					$arm_group_type = ucfirst(str_replace(" ","_",$this->getString('./arm_group_type',$arm_group)));
 					if(!$arm_group_type) $arm_group_type = "Clinical-Arm";
 					$description = $this->getString('./description',$arm_group);
 
-                    parent::addRDF(
-						parent::describeIndividual($arm_group_id,$arm_group_label,parent::getVoc().$arm_group_type).
-						parent::describeClass(parent::getVoc().$arm_group_type,$arm_group).
-						parent::triplifyString($arm_group_id, "dc:description", $description).
-						parent::triplify($study_id,parent::getVoc()."arm-group",$arm_group_id)
+        				parent::addRDF(
+						parent::describeIndividual($arm_group_uri,$arm_group_label,parent::getVoc().$arm_group_type).
+						parent::describeClass(parent::getVoc().$arm_group_type,ucfirst(str_replace("_"," ",$arm_group_type))).
+						parent::triplifyString($arm_group_uri, parent::getVoc()."description", $description).
+						parent::triplify($study_id,parent::getVoc()."arm-group",$arm_group_uri)
 					);
 				}
 			} catch (Exception $e){
@@ -579,16 +589,24 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$intervention_type = $this->getString('./intervention_type',$intervention);
 					$intervention_type_uri = parent::getVoc().ucfirst(str_replace(" ","_",$intervention_type));
 					$intervention_desc = $this->getString('./description',$intervention);
-					$intervention_agl  = $this->getString('./arm_group_label',$intervention);
 					$intervention_on   = $this->getString('./other_name',$intervention);
 					
 					parent::addRDF(
-						parent::describeIndividual($intervention_id,$intervention_name,$intervention_type_uri,$intervention_name,$intervention_desc).
+						parent::describeIndividual($intervention_id,$intervention_name,$intervention_type_uri).
 						parent::describeClass($intervention_type_uri,$intervention_type).
-						parent::triplifyString($intervention_id, parent::getVoc()."arm-group-label",$intervention_agl).
+						parent::triplifyString($intervention_id, parent::getVoc()."intervention-name",$intervention_name).
+						parent::triplifyString($intervention_id, parent::getVoc()."intervention-desc",$intervention_desc).
 						parent::triplifyString($intervention_id, parent::getVoc()."other-name",$intervention_on).
 						parent::triplify($study_id,parent::getvoc()."intervention",$intervention_id)
 					);
+					$agl = $intervention->xpath("./arm_group_label");
+					foreach($agl AS $a) {
+						$ag = parent::getRes().$this->nct_id."/arm-group/".$a;
+						parent::addRDF(
+							parent::triplify($intervention_id, parent::getVoc()."arm-group",$ag)
+						);
+					}
+
 				}
 			}catch(Exception $e){
 				echo "There was an error in interventions $e\n";
@@ -610,7 +628,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					);
 
 					if($criteria = @array_shift($eligibility->xpath('./criteria'))){
-						$text = str_replace("\n","&#xA;",@array_shift($criteria->xpath('./textblock')));
+						$text = @array_shift($criteria->xpath('./textblock'));
+//						$text = str_replace("\n","&#xA;",$text);
 						$c = preg_split("/(Inclusion Criteria\:|Exclusion Criteria\:)/",$text);
 						//inclusion
 						if(isset($c[1])) {
@@ -878,7 +897,6 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			# regulated by fda?  is section 801? has expanded access?
 			################################################################################
 			try {
-				$regulated = 
 				parent::addRDF(
 					parent::triplifyString($study_id,parent::getVoc()."is-fda-regulated",$this->getString('is_fda_regulated')).
 					parent::triplifyString($study_id,parent::getVoc()."is-section-801",$this->getString('is_section_801')).
@@ -900,6 +918,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						$term_id = parent::getRes().md5($term);
 						parent::addRDF(
 							parent::describeIndividual($term_id,$term_label,parent::getVoc()."Term").
+							parent::describeClass(parent::getVoc()."Term","Term").
 							parent::triplify($study_id,parent::getVoc().str_replace("_","-",$browse_type),$term_id)
 						);
 					}
@@ -917,7 +936,9 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			# Participant Flow
 			################################################################################
 			try {
-				$z = 1;
+				$pc = 1;
+				$mc = 1;
+				$wc = 1;
 				
 				$pf = @array_shift($root->xpath('//clinical_results/participant_flow'));
 				if($pf) {
@@ -935,56 +956,62 @@ class ClinicalTrialsParser extends Bio2RDFizer
 							parent::triplify($pf_id,parent::getVoc()."group", $this->makeGroup($group))
 						);
 					}
-				
 					//period_list
 					$periods = @array_shift($pf->xpath('./period_list'));
 					foreach($periods AS $period) {
-						$period_id = parent::getRes().$nct_id."/period/".($z++);
+						$period_id = parent::getRes().$nct_id."/period/".($pc++);
 						$period_title = $this->getString('./title',$period);
 						
 						parent::addRDF(
 							parent::describeIndividual($period_id, $period_title." for $nct_id", parent::getVoc()."Period").
-							parent::describeClass(parent::getVoc()."Period", "Period")
+							parent::describeClass(parent::getVoc()."Period", "Period").
+							parent::triplify($pf_id,parent::getVoc()."period",$period_id)
 						);
 						// milestones
 						$milestones = @array_shift($period->xpath('./milestone_list'));
 						if($milestones) {
 							foreach($milestones AS $milestone) {
-								$milestone_id = parent::getRes().$nct_id."/milestone/".($z++);
+								$milestone_id = parent::getRes().$nct_id."/milestone/".($mc++);
 								$label = $this->getString('./title',$milestone);
 								
 								parent::addRDF( 
 									parent::describeIndividual($milestone_id, $label, parent::getVoc()."Milestone").
-									parent::describeClass(parent::getVoc()."Milestone","Milestone")
+									parent::describeClass(parent::getVoc()."Milestone","Milestone").
+									parent::triplify($period_id,parent::getVoc()."milestone",$milestone_id)
 								);
 								
 								// participants
+								$p = 1;
 								$ps_list = @array_shift($milestone->xpath('./participants_list'));
-								foreach($ps_list AS $p) {
-									$group_id = parent::getRes().$nct_id."/group/".$p->attributes()->group_id;
-									$count = (string) $p->attributes()->count;
+								foreach($ps_list AS $ps) {
+									$ps_id  = $milestone_id."/p/".($p++);
+									$group_id = parent::getRes().$this->nct_id."/group/".$ps->attributes()->group_id;
+									$count = (string) $ps->attributes()->count;
 									parent::addRDF(
-										parent::triplify($milestone_id, parent::getVoc()."group",$group_id).
-										parent::triplifyString($milestone_id, parent::getVoc()."count",$count)
+										parent::describeIndividual($ps_id, "participant counts in ".$ps->attributes()->group_id." for milestone $mc of $nct_id",parent::getVoc()."Participant-Count").
+										parent::describeClass(parent::getVoc()."Participant-Count", "Participant Count").
+										parent::triplify($ps_id, parent::getVoc()."group",$group_id).
+										parent::triplifyString($ps_id, parent::getVoc()."count",$count).
+										parent::triplify($milestone_id, parent::getVoc()."participant-counts",$ps_id)
 									);
 								}
 							}
 						} // milestones
-						
+
 						$withdraws = @array_shift($period->xpath('./drop_withdraw_reason_list'));
 						if($withdraws) {
-							foreach($withdraws AS $w) {
-								$wid = parent::getRes().$nct_id."/withdraw/".($z++);
-								$label = $this->getString('./title',$w);
+							foreach($withdraws AS $withdraw) {
+								$wid = parent::getRes().$this->nct_id."/withdraw/".($wc++);
+								$label = $this->getString('./title',$withdraw);
 								parent::addRDF( 
 									parent::describeIndividual($wid, $label, parent::getVoc()."Withdraw-Reason").
 									parent::describeClass(parent::getVoc()."Withdraw-Reason","Withdraw Reason")
 								);
 								// participants
-								$ps_list = @array_shift($w->xpath('./participants_list'));
-								foreach($ps_list AS $p) {
-									$group_id = parent::getRes().$nct_id."/group/".$p->attributes()->group_id;
-									$count = (string) $p->attributes()->count;
+								$ps_list = @array_shift($withdraw->xpath('./participants_list'));
+								foreach($ps_list AS $ps) {
+									$group_id = parent::getRes().$nct_id."/group/".$ps->attributes()->group_id;
+									$count = (string) $ps->attributes()->count;
 									parent::addRDF(
 										parent::triplify($wid, parent::getVoc()."group",$group_id).
 										parent::triplifyString($wid, parent::getVoc()."count",$count)
@@ -1011,7 +1038,10 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$groups = @array_shift($baseline->xpath('./group_list'));
 					foreach($groups AS $group) {
 						parent::addRDF(
-							parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
+							parent::describeIndividual($b_uri,"baseline for $nct_id",parent::getVoc()."Baseline").
+							parent::describeClass(parent::getVoc()."Baseline","Baseline").
+							parent::triplify($b_uri,parent::getVoc()."group", $this->makeGroup($group)).
+							parent::triplify($study_id,parent::getVoc()."baseline",$b_uri)
 						);
 					}
 					
@@ -1019,7 +1049,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					$measures = @array_shift($baseline->xpath('./measure_list'));
 					foreach($measures AS $measure) {
 						parent::addRDF(
-							parent::triplify($study_id,parent::getVoc()."measure", $this->makeMeasure($measure))
+							parent::triplify($b_uri,parent::getVoc()."measure", $this->makeMeasure($measure))
 						);
 					}
 										
@@ -1053,7 +1083,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						if($groups) {
 							foreach($groups AS $group) {
 								parent::addRDF(
-									parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
+									parent::triplify($outcome_uri,parent::getVoc()."group", $this->makeGroup($group))
 								);
 							}
 						}
@@ -1063,7 +1093,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						if($measures) {
 							foreach($measures AS $measure) {
 								parent::addRDF(
-									parent::triplify($study_id,parent::getVoc()."measure", $this->makeMeasure($measure))
+									parent::triplify($outcome_uri,parent::getVoc()."measure", $this->makeMeasure($measure))
 								);
 							}
 						}
@@ -1073,7 +1103,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						if($analyses) {
 							foreach($analyses AS $analysis) {
 								parent::addRDF(
-									parent::triplify($study_id,parent::getVoc()."analysis", $this->makeAnalysis($analysis))
+									parent::triplify($outcome_uri,parent::getVoc()."analysis", $this->makeAnalysis($analysis))
 								);
 							}}						
 					}
@@ -1086,13 +1116,20 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			# events 
 			################################################################################
 			try{
-				$z = 1;
+				$c_ev =  $c_c = 1;
 				$reported_events = @array_shift($root->xpath('//reported_events'));
 				if($reported_events){
+					$rp_id = parent::getRes().md5($reported_events->asXML());
 					$groups = @array_shift($reported_events->xpath('./group_list'));
+					parent::addRDF(
+						parent::describeIndividual($rp_id,"Reported events for $nct_id",parent::getVoc()."Reported-Events").
+						parent::describeClass(parent::getVoc()."Reported-Events","Reported Events").
+						parent::triplify($study_id,parent::getVoc()."reported-events",$rp_id)
+					);
+
 					foreach($groups AS $group) {
 						parent::addRDF(
-							parent::triplify($study_id,parent::getVoc()."group", $this->makeGroup($group))
+							parent::triplify($rp_id,parent::getVoc()."group", $this->makeGroup($group))
 						);
 					}
 
@@ -1101,43 +1138,52 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					foreach($event_list AS $ev => $ev_label) {
 						$et = @array_shift($reported_events->xpath('./'.$ev));
 						if(!$et) continue;
-						
+						$ev_uri = parent::getVoc().str_replace(" ","-",$ev_label);
+
 						$categories = array_shift($et->xpath('./category_list'));
 						foreach($categories AS $category) {
 							$major_title = $this->getString('./title', $category);
-							
+							$major_title_uri = parent::getRes().md5($major_title);
+
 							$events = @array_shift($category->xpath('./event_list'));
 							foreach($events AS $event) {
-								$e_uri = parent::getRes().$this->nct_id."/$ev/".($z++);
-								$subtitle = (string) $this->getString('./sub_title',$event);
+								$e_uri = parent::getRes().$this->nct_id."/$ev/".($c_ev++);
+								$subtitle = (string) $this->getString('./sub_title',$event)." for ".$this->nct_id;
 								$subtitle_uri = parent::getRes().md5($subtitle);
-								
+
+
 								parent::addRDF(
-									parent::describeIndividual($e_uri,$subtitle,$subtitle_uri).
-									parent::describeClass($subtitle_uri,$subtitle, parent::getVoc()."Event").									
-									parent::describeClass(parent::getVoc().str_replace(" ","-",$ev_label),$ev_label).
-									parent::triplifyString($e_uri, parent::getVoc()."major-title", $major_title).
-									parent::triplify($study_id, parent::getVoc()."event",$e_uri)
+									parent::describeIndividual($e_uri,$subtitle,$ev_uri).
+									parent::describeClass($ev_uri,$ev_label).
+									parent::triplify($e_uri, parent::getVoc()."sub-title", $subtitle_uri).
+									parent::describeIndividual($subtitle_uri, $subtitle, parent::getVoc()."Event").
+									parent::describeClass(parent::getVoc()."Event","Event").
+									parent::triplify($e_uri, parent::getVoc()."major-title", $major_title_uri).
+									parent::describeClass($major_title_uri,$major_title).
+									parent::triplify($rp_id, parent::getVoc().str_replace("_","-",$ev),$e_uri)
 								);
 								$counts = $event->xpath('./counts');
 								foreach($counts AS $c) {
-									$group_uri = parent::getRes().$nct_id."/group/".$c->attributes()->group_id;
-
+									$group_id = $c->attributes()->group_id;
+									$group_uri = parent::getRes().$nct_id."/group/".$group_id;
+									$c_uri = $e_uri."/count/".($c_c++);
 									parent::addRDF(
-										parent::triplify($e_uri,parent::getVoc()."group",$group_uri).
-										parent::triplifyString($e_uri,parent::getVoc()."default-vocabulary", $this->getString('./default_vocab',$et)).
-										parent::triplifyString($e_uri,parent::getVoc()."frequency-threshold",$this->getString('./frequency_threshold', $et)).
-										parent::triplifyString($e_uri,parent::getVoc()."default-assessment",$this->getString('./default_assessment', $et)).
-										parent::triplifyString($e_uri,parent::getVoc()."number-events",$c->attributes()->events).
-										parent::triplifyString($e_uri,parent::getVoc()."subjects-affected",$c->attributes()->subjects_affected).
-										parent::triplifyString($e_uri,parent::getVoc()."subjects-at-risk",$c->attributes()->subjects_at_risk)
+										parent::describeIndividual($c_uri, $subtitle." for ".$group_id." in ".$this->nct_id, parent::getVoc()."Event-Count").
+										parent::describeClass(parent::getVoc()."Event-Count","Event Count").
+										parent::triplify($c_uri,parent::getVoc()."group",$group_uri).
+										parent::triplify($e_uri,parent::getVoc()."count",$c_uri).
+										parent::triplifyString($c_uri,parent::getVoc()."default-vocabulary", $this->getString('./default_vocab',$et)).
+										parent::triplifyString($c_uri,parent::getVoc()."frequency-threshold",$this->getString('./frequency_threshold', $et)).
+										parent::triplifyString($c_uri,parent::getVoc()."default-assessment",$this->getString('./default_assessment', $et)).
+										parent::triplifyString($c_uri,parent::getVoc()."number-events",$c->attributes()->events).
+										parent::triplifyString($c_uri,parent::getVoc()."subjects-affected",$c->attributes()->subjects_affected).
+										parent::triplifyString($c_uri,parent::getVoc()."subjects-at-risk",$c->attributes()->subjects_at_risk)
 									);
 								}
 							}
 						}
 					}
 				}
-					
 			} catch(Exception $e) {
 				echo "Error in parsing reported events".PHP_EOL;
 			}
@@ -1206,7 +1252,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		$contact_label = trim($this->getString('//first_name',$contact)." ".$this->getString('//last_name', $contact));
 		parent::addRDF(
 			parent::describeIndividual($contact_uri,$contact_label,$contact_type_uri).
-			parent::describeClass($contact_uri,"Contact").
+			parent::describeClass($contact_type_uri,"Contact").
 			parent::triplifyString($contact_uri,parent::getVoc()."first-name",$this->getString('//first_name',$contact)).
 			parent::triplifyString($contact_uri,parent::getVoc()."middle-name",$this->getString('//middle_name',$contact)).
 			parent::triplifyString($contact_uri,parent::getVoc()."last-name",$this->getString('//last_name',$contact)).
@@ -1258,6 +1304,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if(!$cat_label) $cat_label = "category for measure";
 			parent::addRDF(
 				parent::describeIndividual($cid, $cat_label, parent::getVoc()."Category").
+				parent::describeClass(parent::getVoc()."Category","Category").
 				parent::triplify($measure_id,parent::getVoc()."category",$cid)
 			);
 			$ml = @array_shift($category->xpath('./measurement_list'));
@@ -1277,7 +1324,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		}
 		return $measure_id;
 	}
-	
+
 	public function makeAnalysis($analysis)
 	{
 		if($analysis == null) return null;
@@ -1312,6 +1359,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 		$address_uri = parent::getRes().md5($address->asXML());
 		parent::addRDF(
 			parent::describeIndividual($address_uri,"address",parent::getVoc()."Address").
+			parent::describeClass(parent::getVoc()."Address","Address").
 			parent::triplifyString($address_uri, parent::getVoc()."city",
 				$this->makeDescription( $this->getString('./city',$address),"City")).
 			parent::triplifyString($address_uri,parent::getVoc()."state", 

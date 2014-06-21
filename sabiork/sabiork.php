@@ -90,6 +90,10 @@ class SABIORKParser extends Bio2RDFizer
 
 		$graph_uri = parent::getGraphURI();
 		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+		$suffix = parent::getParameterValue('output_format');
+		$ofile = "sabiork.".$suffix;
+		$gz = strstr(parent::getParameterValue('output_format'), "gz")?true:false;
+		parent::setWriteFile($odir.$ofile,$gz);
 
 		foreach($xml->SABIOReactionID AS $rid) {
 			parent::setCheckpoint('file');
@@ -97,7 +101,7 @@ class SABIORKParser extends Bio2RDFizer
 				if(!in_array($rid,$myfiles)) continue;
 			}
 			$i++;
-			echo "$i / $total : reaction $rid";
+			echo "$i / $total : reaction $rid".PHP_EOL;
 			$reaction_file = $idir."reaction_".$rid.".owl.gz";
 			if(!file_exists($reaction_file) || $this->GetParameterValue('download') == 'true') {
 				$url = $rest_uri.'searchKineticLaws/biopax?q=SabioReactionID:'.$rid;
@@ -109,9 +113,9 @@ class SABIORKParser extends Bio2RDFizer
 				$f->Write($data);
 				$f->Close();
 			}
-			
+
 			$buf = file_get_contents("compress.zlib://".$reaction_file);
-	
+
 			// send for parsing
 			$p = new BioPAX2Bio2RDF($this);
 			$p->SetBuffer($buf)
@@ -120,26 +124,17 @@ class SABIORKParser extends Bio2RDFizer
 				->SetBio2RDFNamespace("http://bio2rdf.org/sabiork:")
 				->SetDatasetURI($this->GetDatasetURI());
 			$rdf = $p->Parse();
-			
-			$suffix = parent::getParameterValue('output_format');
-			$ofile = "sabiork_$rid".".".$suffix;
-			$gz = false;
-			
-			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$gz = true;
-			}
 
-			parent::setWriteFile($odir.$ofile,$gz);
 			parent::getWriteFile()->Write($rdf);
-			parent::getWriteFile()->Close();
 		}
+		parent::getWriteFile()->Close();
 
 		//generate dataset description
 		echo "Generating dataset description... ";
 		$source_file = (new DataResource($this))
 			->setURI("http://sabiork.h-its.org/sabioRestWebServices/searchKineticLaws/biopax")
 			->setTitle("SABIO-RK Biochemical Reaction Kinetics Database")
-			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($odir.$ofile)))
 			->setFormat("text/xml")
 			->setPublisher("http://sabio.villa-bosch.de/")
 			->setHomepage("http://sabio.villa-bosch.de/")

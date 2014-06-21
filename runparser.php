@@ -44,7 +44,7 @@ class Bio2RDFApp extends Application
 			}
 		}
 		$statistics = parent::getParameterValue("statistics");
-		
+
 		// now get the file and run it
 		$parser_name = parent::getParameterValue('parser');
 		$file = $parser_name.'/'.$parser_name.'.php';
@@ -53,21 +53,19 @@ class Bio2RDFApp extends Application
 			exit(-1);
 		}
 		require($file);
-		$parser_class = str_replace(".","",$parser_name)."Parser";	
+		$parser_class = str_replace(".","",$parser_name)."Parser";
 		$parser = new $parser_class($argv);
-		set_time_limit(0);				
+		set_time_limit(0);
 		$start = microtime(true);
 		$parser->Run();
-		
-		if($statistics) $this->runStats($parser_name, parent::getParameterValue("bio2rdf_release"));
-		
+
 		$end = microtime(true);
 		$time_taken =  $end - $start;
 		print "Start: ".date("l jS F \@ g:i:s a", $start)."\n";
 		print "End:   ".date("l jS F \@ g:i:s a", $end)."\n";
 		print "Time:  ".sprintf("%.2f",$time_taken)." seconds\n";
 	}
-	
+
 	/** looks for dir/dir.php, as an initial list of parsers */
 	function getParsers()
 	{
@@ -85,29 +83,6 @@ class Bio2RDFApp extends Application
 			}
 		}
 		return $parsers;
-	}
-	
-	function runStats($instance, $version)
-	{
-		$graph = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$instance-R$version";
-		
-		// load the data file
-		$cmd = 'php ../php-lib/apps/rdfload.php i='.$instance.' g='.$graph.' dg=true r=true d=/data/rdf/'.$instance;
-		system($cmd);
-
-		// generate the statistics
-		$cmd = "php ./statistics/endpoint-statistics.php instance=$instance version=$version";
-		system($cmd);
-		
-		// load the statistics
-		$f = "bio2rdf-$instance-R$version-statistics.nq";
-		echo $cmd = "php ../php-lib/apps/rdfload.php i=".$instance." g=$graph-statistics dg=true d=/data/rdf/statistics/ f=$f".PHP_EOL;
-		system($cmd);
-		
-		// generate the stats page
-		echo $cmd = "php ./statistics/bio2rdf-individual-page.php instance=$instance bio2rdf.version=$version odir=/data/html/".PHP_EOL;
-		system($cmd);
-		
 	}
 }
 

@@ -61,7 +61,7 @@ class ORPHANETParser extends Bio2RDFizer
 		}
 		
 		foreach($files AS $file) {
-			echo "processing $file";
+			echo "processing $file ...";
 			$lfile = $ldir.$this->filemap[$file];
 			$rfile = parent::getParameterValue('download_url').$this->filemap[$file];
 			if(!file_exists($lfile) || parent::getParameterValue('download') == 'true') {
@@ -103,10 +103,10 @@ class ORPHANETParser extends Bio2RDFizer
 				$expert_link = (string) $d->ExpertLink;
 				
 				parent::addRDF(
-					parent::describeClass($orphanet_id,$name,parent::getVoc()."Disorder").
+					parent::describeIndividual($orphanet_id,$name,parent::getVoc()."Disorder").
+					parent::describeClass(parent::getVoc()."Disorder","Disorder").
 					parent::triplifyString($orphanet_id, parent::getVoc()."internal-id", $internal_id).
-					parent::triplify($orphanet_id, parent::getVoc()."expert-link-url", $expert_link).
-					parent::triplifyString($orphanet_id, parent::getVoc()."internal-id", $internal_id)
+					parent::triplify($orphanet_id, parent::getVoc()."expert-link-url", $expert_link)
 				);
 				
 				foreach($d->SynonymList AS $s) {
@@ -126,12 +126,11 @@ class ORPHANETParser extends Bio2RDFizer
 				}
 				foreach($d->ExternalReferenceList AS $erl) {
 					$er = $erl->ExternalReference;
-					$db = (string) $er->Source;	
-					$db = parent::getRegistry()->getPreferredPrefix($db);
+					$source = (string) $er->Source;
+					$db = parent::getRegistry()->getPreferredPrefix($source);
 					$id = (string) $er->Reference;
-					$xref = "$db:$id";
 					parent::addRDF(
-						parent::triplify($orphanet_id, parent::getVoc()."x-$db", $xref)
+						parent::triplify($orphanet_id, parent::getVoc()."x-$db", "$db:$id")
 					);
 				}
 				parent::writeRDFBufferToWriteFile();
@@ -252,8 +251,9 @@ class ORPHANETParser extends Bio2RDFizer
 						$fid = parent::getRes().((string) $ds->SignFreq->attributes()->id);
 						$f = (string) $ds->SignFreq->Name;
 						parent::addRDF(
-							parent::triplify($orphanet_id, parent::getVoc()."sign-freq", $sfid).
 							parent::describeIndividual($sfid, "$f $s",parent::getVoc()."Clinical-Sign-And-Frequency").
+							parent::describeClass(parent::getVoc()."Clinical-Sign-And-Frequency","Clinical Sign and Frequency").
+							parent::triplify($orphanet_id, parent::getVoc()."sign-freq", $sfid).
 							parent::triplify($sfid,parent::getVoc()."sign", $sid).
 							parent::describeClass($sid,$s,parent::getVoc()."Clinical-Sign").
 							parent::triplify($sfid,parent::getVoc()."frequency",$fid).
@@ -292,7 +292,7 @@ class ORPHANETParser extends Bio2RDFizer
 				parent::writeRDFBufferToWriteFile();
 			}
 		}
-		unset($xml);				
+		unset($xml);
 	}
 
 	function traverseCS($cs)
@@ -303,7 +303,7 @@ class ORPHANETParser extends Bio2RDFizer
 			parent::addRDF(
 				parent::describeClass($cs_id,$cs_label,parent::getVoc()."Clinical-Sign")
 			);
-				
+
 			foreach($cs->ClinicalSignChildList->ClinicalSign AS $cl) {
 				$child_id = parent::getVoc().((string)$cl->attributes()->id);
 				$child_label = (string) $cl->Name;
@@ -314,7 +314,7 @@ class ORPHANETParser extends Bio2RDFizer
 			}
 		}
 	}
-	
+
 	function genes($file)
 	{
 		$xml = new CXML($file);
@@ -323,7 +323,7 @@ class ORPHANETParser extends Bio2RDFizer
 			foreach($x->Disorder AS $d) {
 				$orphanet_id = parent::getNamespace().((string)$d->OrphaNumber);
 				$disorder_name = (string) $d->Name;
-				
+
 				foreach($d->DisorderGeneAssociationList->DisorderGeneAssociation AS $dga) {
 					// gene
 					$gene = $dga->Gene;
@@ -332,7 +332,7 @@ class ORPHANETParser extends Bio2RDFizer
 					$gene_label = (string) $gene->Name;
 					$gene_symbol = (string) $gene->Symbol;
 					parent::addRDF(
-						parent::describeIndividual($gene_id,$gene_label,parent::getVoc()."Gene",$gene_label).
+						parent::describeIndividual($gene_id,$gene_label,parent::getVoc()."Gene").
 						parent::describeClass(parent::getVoc()."Gene","orphanet gene").
 						parent::triplifyString($gene_id,parent::getVoc()."symbol",$gene_symbol)
 					);
@@ -344,25 +344,24 @@ class ORPHANETParser extends Bio2RDFizer
 					}
 					foreach($gene->ExternalReferenceList AS $erl) {
 						$er = $erl->ExternalReference;
-						$db = (string) $er->Source;	
+						$db = (string) $er->Source;
 						$db = parent::getRegistry()->getPreferredPrefix($db);
 						$id = (string) $er->Reference;
 						$xref = "$db:$id";
 						parent::addRDF(
 							parent::triplify($gene_id, parent::getVoc()."x-$db", $xref)
-						);	
+						);
 					}
-					
+
 					$dga_id = parent::getRes().((string)$d->OrphaNumber)."_".md5($dga->asXML());
-					
 					$ga = $dga->DisorderGeneAssociationType;
 					$ga_id    = parent::getNamespace().((string) $ga->attributes()->id);
 					$ga_label = (string) $ga->Name;
-					
+
 					$s = $dga->DisorderGeneAssociationStatus;
 					$s_id    = parent::getNamespace().((string) $s->attributes()->id);
 					$s_label = (string) $s->Name;
-					
+
 					parent::addRDF(
 						parent::describeIndividual($dga_id,"$ga_label $gene_label in $disorder_name ($s_label)",$ga_id).
 						parent::describeClass($ga_id,$ga_label,parent::getVoc()."Disorder-Gene-Association").
@@ -370,14 +369,14 @@ class ORPHANETParser extends Bio2RDFizer
 						parent::describeClass($s_id,$s_label,parent::getVoc()."Disorder-Gene-Association-Status").
 						parent::triplify($dga_id,parent::getVoc()."disorder",$orphanet_id).
 						parent::describeIndividual($orphanet_id,$disorder_name,parent::getVoc()."Disorder").
-						parent::triplify($dga_id,parent::getVoc()."gene",$gene_id)						
+						parent::triplify($dga_id,parent::getVoc()."gene",$gene_id)
 					);
 				}
 
 				parent::writeRDFBufferToWriteFile();
 			}
 		}
-		unset($xml);				
+		unset($xml);
 	}
 }
 ?>

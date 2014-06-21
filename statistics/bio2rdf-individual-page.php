@@ -29,7 +29,7 @@
 $options = array(
 	"sparql" => "http://localhost:8890/sparql",
 	"isql" => "/usr/local/virtuoso-opensource/bin/isql",
-	"use" => "isql",
+	"use" => "sparql",
 	"port" => "1111",
 	"user" => "dba",
 	"pass" => "dba",
@@ -64,11 +64,11 @@ if(strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 if(!file_exists($options['isql'])) {
 	trigger_error("ISQL could not be found at ".$options['isql'],E_USER_ERROR);
 }
-if($options['odir']) @mkdir($options['odir'],"777");
+if($options['odir']) @mkdir($options['odir'],0777);
 
 if($options['instance']) {
 	$dataset = $options['instance'];
-		
+
 	// using the virtuoso instances; 
 	$registry_file = "registry.csv";
 	if(!file_exists($registry_file) or $options['download'] == "true") {
@@ -78,19 +78,21 @@ if($options['instance']) {
 			file_get_contents('https://docs.google.com/spreadsheet/pub?key=0AmzqhEUDpIPvdFR0UFhDUTZJdnNYdnJwdHdvNVlJR1E&single=true&gid=0&output=csv')
 		);
 	}
-	
+
 	$registry  = getRegistry($registry_file);
 	$entry     = getRecord($registry,$dataset);
 	$endpoint  = getEndpointInfo($dataset);
+	$options['port'] = $endpoint['isql'];
 
-	$entry['sparql'] = "http://localhost:".$endpoint['sparql']."/sparql";
+	$options['sparql'] = $entry['sparql'] = "http://localhost:".$endpoint['sparql']."/sparql";
+
 	$entry['target.endpoint'] = $entry['sparql'];
 	if($options['target.endpoint']) $entry['target.endpoint'] = $options['target.endpoint']; 
-	
+
 	if($options['bio2rdf.version'] == '') {
 		echo "specify bio2rdf.version!";exit;
 	}
-	$entry['graph'] = "http://bio2rdf.org/bio2rdf.dataset:bio2rdf-$dataset-R".$options['bio2rdf.version']."-statistics";
+	$options['graph'] = $entry['graph'] = "http://bio2rdf.org/".$dataset."_resource:bio2rdf.dataset.$dataset.R".$options['bio2rdf.version'].".statistics";
 	$entry['from'] = "FROM <".$entry['graph'].">";
 	$entry['describe'] = '';
 	$outfile = $options['odir'].$dataset.'.html';
@@ -301,7 +303,7 @@ function addBio2RDFDetails($u, $ns)
 
 function query($sparql)
 {
-	global $options;
+	global $options, $entry;
 	$sparql = str_replace(array("\r","\n"),"",$sparql);
 	if($options['use'] == 'isql') {
 		//isql commands pre and post
@@ -322,12 +324,12 @@ function query($sparql)
 
 function makeHTML($entry, $ofile){
 	global $options;
-	
+
 	$fp = fopen($ofile, "w") or die("Could not create $ofile!");
-	
+
 	$html = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>';
-	
+
 	$html .= addHeader($entry['name']);
 	$html .= "<body>";
 	if($options['bio2rdf.version']) {

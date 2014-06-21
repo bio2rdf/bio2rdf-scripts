@@ -66,7 +66,14 @@ class LSRParser extends Bio2RDFizer
 			$id = $this->getNamespace().$r['preferredPrefix'];
 			
 			parent::addRDF( 
-				parent::describeIndividual($id,$r['title'],"dcat:Dataset",$r['title'],$r['description'])
+				parent::QQuad($id,"rdf:type","dcat:Dataset").
+				parent::QQuadL($id,"dc:title",$r['title']).
+				parent::QQuadL($id,"dc:description",$r['description']).
+				parent::QQuadL($id,"rdfs:label", $r['title']." [".$id."]").
+				parent::QQuadL($id,"dc:identifier",$id).
+				parent::QQuadL($id,"bio2rdf:identifier", $r['preferredPrefix']).
+				parent::QQuadL($id,"bio2rdf:namespace", "lsr")
+//				parent::describeIndividual($id,$r['title'],"dcat:Dataset",$r['title'],$r['description'])
 			);
 			parent::addRDF(
 				parent::triplifyString($id,$this->getVoc()."preferred-prefix",$r['preferredPrefix'])
@@ -77,17 +84,17 @@ class LSRParser extends Bio2RDFizer
 					if(trim($syn) == '') continue;
 					$syn = $this->getRegistry()->normalizePrefix(preg_replace("/\([^\)]+/","",$syn));
 					parent::addRDF(
-						parent::triplifyString($id,$this->getVoc()."alternative-prefix",$syn)
+						parent::QQuadL($id,$this->getVoc()."alternative-prefix",$syn)
 					);
 				}
 			}
 			if($r['providerURI']) {
-				parent::triplify($id,$this->getVoc()."preferred-base-uri",$r['providerURI']);
+				parent::QQuad($id,$this->getVoc()."preferred-base-uri",$r['providerURI']);
 			}
 			if($r['alternateURI']) {
 				foreach( explode(",",$r['alternateURI']) AS $alt_uri) {
 					parent::addRDF(
-						parent::triplify($id,$this->getVoc()."alternative-base-uri",$alt_uri)
+						parent::QQuad($id,$this->getVoc()."alternative-base-uri",$alt_uri)
 					);
 				}
 			}
@@ -95,8 +102,8 @@ class LSRParser extends Bio2RDFizer
 				foreach(explode(",",$r['miriam']) AS $miriam) {
 					$miriam_id = str_replace("MIR:","",$miriam);
 					parent::addRDF(
-						parent::triplify($id,$this->getVoc()."x-miriam","miriam:$miriam_id")
-						.parent::triplify("miriam:$miriam_id","bio2rdf_vocabulary:url",'http://identifiers.org/'.$dataset)
+						parent::QQuad($id,$this->getVoc()."x-miriam","miriam:$miriam_id").
+						parent::triplify("miriam:$miriam_id","bio2rdf_vocabulary:url",'http://identifiers.org/'.$dataset)
 					);
 				}
 			}
@@ -104,7 +111,7 @@ class LSRParser extends Bio2RDFizer
 				foreach(explode(",",$r['biodbcore']) AS $biodbcore_id) {
 					$biodbcore = "biodbcore:$biodbcore_id";
 					parent::addRDF(
-						parent::triplify($id,$this->getVoc()."x-biodbcore",$biodbcore).
+						parent::QQuad($id,$this->getVoc()."x-biodbcore",$biodbcore).
 						parent::triplify($biodbcore,"bio2rdf_vocabulary:url","http://www.biosharing.org/$biodbcore_id")
 					);
 				}
@@ -112,41 +119,41 @@ class LSRParser extends Bio2RDFizer
 			if($r['bioportal']) {
 				foreach(explode(",",$r['bioportal']) AS $bioportal) {
 					parent::addRDF(
-						parent::triplify($id,$this->getVoc()."x-bioportal","bioportal:".$bioportal)
+						parent::QQuad($id,$this->getVoc()."x-bioportal","bioportal:".$bioportal)
 					);
 				}
 			}
 			if($r['datahub']) {
 				parent::addRDF(
-					parent::triplify($id,$this->getVoc()."x-datahub","datahub:".$r['datahub'])
+					parent::QQuad($id,$this->getVoc()."x-datahub","datahub:".$r['datahub'])
 				);
 			}
 			if($r['pubmed']) {
 				foreach(explode(",",$r['pubmed']) AS $pubmed) {
 					parent::addRDF(
-						parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pubmed)
+						parent::QQuad($id,$this->getVoc()."x-pubmed","pubmed:".$pubmed)
 					);
 				}
 			}
 			if($r['abbreviation']) {
 				parent::addRDF(
-					parent::triplifyString($id,$this->getVoc()."abbreviation",$r['abbreviation'])
+					parent::QQuadL($id,$this->getVoc()."abbreviation",$r['abbreviation'])
 				);
 			}
 			if($r['organization']) {
 				parent::addRDF(
-					parent::triplifyString($id,$this->getVoc()."organization",$r['organization'])
+					parent::QQuadL($id,$this->getVoc()."organization",$r['organization'])
 				);
 			}
 			if($r['type']) {
 				parent::addRDF(
-					parent::triplifyString($id,$this->getVoc()."type",$r['type'])
+					parent::QQuadL($id,$this->getVoc()."type",$r['type'])
 				);
 			}
 			foreach( explode(",",$r['keywords']) AS $keyword) {
 				if($keyword) {
 					parent::addRDF(
-						parent::triplifyString($id,$this->getVoc()."keyword",$keyword)
+						parent::QQuadL($id,$this->getVoc()."keyword",$keyword)
 					);
 				}
 			}
@@ -154,47 +161,46 @@ class LSRParser extends Bio2RDFizer
 				&& $r['homepage'] !== 'dead'
 				&& $r['homepage'] !== 'unavailable') {
 				parent::addRDF(
-					parent::triplify($id,"foaf:homepage",$r['homepage'])
+					parent::QQuad($id,"foaf:homepage",$r['homepage'])
 				);
 			}
 			if($r['license']) {
 				parent::addRDF(
-					parent::triplifyString($id,$this->getVoc()."license",$r['license'])
-				);	
+					parent::QQuad($id,$this->getVoc()."license",$r['license'])
+				);
 			}
 			if($r['licenseText']) {
 				parent::addRDF(
-					parent::triplifyString($id,$this->getVoc()."license-text",$r['licenseText'])
+					parent::QQuadL($id,$this->getVoc()."license-text",$r['licenseText'])
 				);
 			}
 			foreach(explode(",",$r['rights']) AS $right) {
 				if($right) {
 					parent::addRDF(
-						parent::triplifyString($id,$this->getVoc()."right",$right)
-					);	
+						parent::QQuadL($id,$this->getVoc()."right",$right)
+					);
 				}
 			}
 			parent::addRDF(
-				parent::triplifyString($id,$this->getVoc()."id-regex",$r['id_regex'])
+				parent::QQuadL($id,$this->getVoc()."id-regex",$r['id_regex'])
 			);
 			parent::addRDF(
-				parent::triplifyString($id,$this->getVoc()."example-id",$r['example_id'])
+				parent::QQuadL($id,$this->getVoc()."example-id",$r['example_id'])
 			);
 			if($r['html_template']
 				&& $r['html_template'] !== 'unavailable'
 				&& $r['html_template'] !== 'N/A') {
-					
+
 				parent::addRDF(
-					parent::triplifyString($id,$this->getVoc()."html-template",$r['html_template'])
+					parent::QQuadL($id,$this->getVoc()."html-template",$r['html_template'])
 				);
 			}
-			
+
 			// add the resource statement
 			$resource = $dataset.'_vocabulary:Resource';
 			parent::addRDF(
-				parent::describeClass($resource,"$dataset resource")
-				.parent::triplify($resource,"sio:is-member-of",$id)
-				.parent::triplify($id,"sio:has-member",$resource)
+				parent::QQuad($resource,"sio:is-member-of",$id).
+				parent::QQuad($id,"sio:has-member",$resource)
 			);
 
 			$this->setCheckpoint();

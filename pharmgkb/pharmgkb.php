@@ -42,17 +42,6 @@ class PharmGKBParser extends Bio2RDFizer
 		parent::initialize();
 	}
 	
-	function run(){
-		if(parent::getParameterValue('download') === true) 
-		{
-			$this->download();
-		}
-		if(parent::getParameterValue('process') === true) 
-		{
-			$this->process();
-		}
-	}
-	
 	function download()
 	{
 		// get the file list
@@ -67,40 +56,36 @@ class PharmGKBParser extends Bio2RDFizer
 		$rdir = $this->GetParameterValue('download_url');
 		
 		foreach($files AS $file) {
-			if($file == 'annotations') {
-				$lfile = $ldir."annotations.zip";
+			$lfile = $ldir.$file.".zip";
+			if($file == 'annotations' or $file == 'relationships') {
 				if(!file_exists($lfile)) {
-					echo "Contact PharmGKB to get access to variants/clinical variants; save file as annotations.zip".PHP_EOL;
+					echo "Unable to file $lfile . Contact PharmGKB to get access to license-restricted data".PHP_EOL;
 					continue;
 				}
-			} else if($file == "relationships") {
-				$lfile = $ldir."relationships.zip";
-				if(!file_exists($lfile)) {
-					echo "Contact PharmGKB to get access to relationships; save file as relationships.zip".PHP_EOL;
-					continue;
-				}				
-			} else {
-				$lfile = $ldir.$file.".zip";
-			}
-			
+			} 
+
 			// download
 			$rfile = $rdir.$file.".zip";
 			echo "Downloading $file ...";
 			if($file == 'offsides') {
-				Utils::DownloadSingle('https://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip', $lfile);
+				if(!file_exists($lfile)) {
+					Utils::DownloadSingle('https://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip', $lfile);
+				}
 			} elseif($file == 'twosides') {
-				Utils::DownloadSingle('https://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip', $lfile);
+				if(!file_exists($lfile)) {
+					Utils::DownloadSingle('https://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip', $lfile);
+				}
 			} elseif($file == 'pathways') {
 				Utils::DownloadSingle('https://www.pharmgkb.org/download.do?dlCls=common&objId='.$file.'-tsv.zip', $lfile);
 			} else {
 				Utils::DownloadSingle('https://www.pharmgkb.org/download.do?dlCls=common&objId='.$file.'.zip', $lfile);
 			}
-					
 			echo "done.".PHP_EOL;
 		}
 	}
 
-	function process(){
+	function run()
+	{
 		// get the file list
 		if($this->GetParameterValue('files') == 'all') {
 			$files = explode("|",$this->GetParameterList('files'));
@@ -113,44 +98,38 @@ class PharmGKBParser extends Bio2RDFizer
 		$odir = $this->GetParameterValue('outdir');
 		$rdir = $this->GetParameterValue('download_url');
 
-		$graph_uri = parent::getGraphURI();
-		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
-
 		$dataset_description = '';
-
 		foreach($files AS $file) {
-
 			$suffix = ".zip";
-			
-			$rfile = $rdir.$file.$suffix;
-			if($file == "offsides"){
-				$rfile = "http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip";
-			} elseif($file == "twosides"){
-				$rfile = "http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip";
-			}
 
-			if($file == 'variant_annotations') {
-				$lfile = $ldir."annotations.zip";
+			$lfile = $ldir.$file.$suffix;
+			$rfile = $rdir.$file.$suffix;
+			if($file == "offsides" and !file_exists($lfile)){
+				echo "downloading twosides...";
+				$rfile = "http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip";
+				utils::DownloadSingle($rfile,$lfile);
+				echo "done".PHP_EOL;
+			} elseif($file == "twosides" and !file_exists($lfile)){
+				echo "downloading $file ...";
+				$rfile = "http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip";
+				utils::DownloadSingle($rfile,$lfile);
+				echo "done".PHP_EOL;
+			} elseif($file == 'annotations' or $file == 'relationships') {
 				if(!file_exists($lfile)) {
 					echo "Contact PharmGKB to get access to variants/clinical variants; save file as annotations.zip".PHP_EOL;
 					continue;
 				}
 			} else {
-				// check if exists
-				$lfile = $ldir.$file.".zip";
-				if(!file_exists($lfile)) {
-					trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
-					if($file == 'offsides') {
-						Utils::DownloadSingle('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-offsides.zip', $lfile);
-					} elseif($file == 'twosides') {
-						Utils::DownloadSingle('http://www.pharmgkb.org/redirect.jsp?p=ftp%3A%2F%2Fftpuserd%3AGKB4ftp%40ftp.pharmgkb.org%2Fdownload%2Ftatonetti%2F3003377s-twosides.zip', $lfile);
-					} else {
-						Utils::DownloadSingle('http://www.pharmgkb.org/commonFileDownload.action?filename='.$file.$suffix, $lfile);
-					}
+				if(!file_exists($lfile) or parent::getParameterValue('download') == true) {
+					echo "Downloading $lfile ... ";
+					Utils::DownloadSingle('https://www.pharmgkb.org/download.do?objId='.$file.'.zip&dlCls=common', $lfile);
+					echo "done".PHP_EOL;
 				}
 			}
 
 			// get a pointer to the file in the zip archive
+			if(!file_exists($lfile)) {echo "no local copy of $lfile . skipping".PHP_EOL;continue;}
+
 			$zin = new ZipArchive();
 			if ($zin->open($lfile) === FALSE) {
 				trigger_error("Unable to open $lfile");
@@ -173,7 +152,7 @@ class PharmGKBParser extends Bio2RDFizer
 			else if($file == 'offsides') $zipentries = array('3003377s-offsides.tsv');
 			else if($file == 'twosides') $zipentries = array('3003377s-twosides.tsv');
 			else $zipentries = array($file.".tsv");
-			
+
 			// set the write file, parse, write and close
 			$suffix = parent::getParameterValue('output_format');
 			$outfile = $file.'.'.$suffix; 
@@ -184,7 +163,7 @@ class PharmGKBParser extends Bio2RDFizer
 			}
 
 			$this->SetWriteFile($odir.$outfile, $gz);
-			
+
 			foreach($zipentries AS $zipentry) {
 				if(($fp = $zin->getStream($zipentry)) === FALSE) {
 					trigger_error("Unable to get $file.tsv in ziparchive $lfile");
@@ -192,10 +171,10 @@ class PharmGKBParser extends Bio2RDFizer
 				}
 				$this->SetReadFile($lfile);
 				$this->GetReadFile()->SetFilePointer($fp);
-				
+
 				if($file == "annotations") {
 					if($zipentry == "clinical_ann_metadata.tsv") $fnx = "clinical_ann_metadata";
-					else $fnx = 'variant_annotation';
+					else $fnx = 'annotations';
 					echo "processing $zipentry..";
 				} else if($file == 'pathways') {
 					$fnx = 'pathways';
@@ -207,6 +186,7 @@ class PharmGKBParser extends Bio2RDFizer
 	
 				$this->$fnx();
 				parent::writeRDFBufferToWriteFile();
+				parent::clear();
 				echo "done!".PHP_EOL;
 
 				// generate the dataset release file
@@ -243,19 +223,17 @@ class PharmGKBParser extends Bio2RDFizer
 				if($gz) $output_file->setFormat("application/gzip");
 				if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
 				else $output_file->setFormat("application/n-quads");
-				
+
 				$dataset_description .= $source_file->toRDF().$output_file->toRDF();
 			}
 			$this->GetWriteFile()->Close();
 		} // foreach
 
 		echo "Generating dataset description... ";
-		parent::setGraphURI($graph_uri);
 		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
-	
 	}
 
 	/*
@@ -633,12 +611,12 @@ class PharmGKBParser extends Bio2RDFizer
 	10 Curation Level	
 	11 PharmGKB Accession ID
 	*/
-	function variant_annotations()
+	function annotations()
 	{ 
 		$hash = ''; // md5 hash list
 		$h = explode("\t",$this->GetReadFile()->Read(100000)); // first line is header
 		if(count($h) != 12) {
-			triger_error("Change in number of columns for variant annotations file",E_USER_ERROR);
+			trigger_error("Change in number of columns for variant annotations file",E_USER_ERROR);
 			return FALSE;
 		}
 	
@@ -1173,10 +1151,12 @@ class PharmGKBParser extends Bio2RDFizer
 				$genes = explode(",",$a[2]);
 				foreach($genes AS $gene) {
 					preg_match("/\(([A-Za-z0-9]+)\)/",$gene,$m);
-					parent::addRDF(
-						parent::triplify($id, parent::getVoc()."gene", parent::getNamespace().$m[1]).
-						parent::describeProperty(parent::getVoc()."gene", "Relationship between a PharmGKB variant annotation and a gene")
-					);
+					if(isset($m[1])) {
+						parent::addRDF(
+							parent::triplify($id, parent::getVoc()."gene", parent::getNamespace().$m[1]).
+							parent::describeProperty(parent::getVoc()."gene", "Relationship between a PharmGKB variant annotation and a gene")
+						);
+					}
 				}
 			}
 			
