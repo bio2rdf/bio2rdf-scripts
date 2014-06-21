@@ -33,7 +33,7 @@ class irefindexParser extends Bio2RDFizer
 {
 	function __construct($argv) { //
 		parent::__construct($argv,"irefindex");
-		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|other','all','all or comma-separated list of files to process');
+		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|A','all','all or comma-separated list of files to process');
 		parent::addParameter('version',false,'08122013|03022013|10182011','08122013','dated version of files to download');
 		parent::addParameter('download_url',false,null,'http://irefindex.org/download/irefindex/data/current/psi_mitab/MITAB2.6/');
 		parent::initialize();
@@ -52,21 +52,22 @@ class irefindexParser extends Bio2RDFizer
 		$odir = parent::getParameterValue('outdir');
 		$rdir = parent::getParameterValue('download_url');
 		$dataset_description = '';		
-		
+
 		foreach($files AS $file) {
 			$download = parent::getParameterValue('download');
+
 			$base_file = ucfirst($file).".mitab.".parent::getParameterValue("version").".txt";
 			$zip_file  = $base_file.".zip";
 			$lfile = $ldir.$zip_file;
-			
+
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 			$ofile = "irefindex-".$file.".".parent::getParameterValue('output_format');
-			
+
 			if(!file_exists($lfile)) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$download = true;
 			}
-			
+
 			$rfile = $rdir.$zip_file;
 			if($download == true) {
 				echo "downloading $rfile".PHP_EOL;
@@ -327,7 +328,7 @@ class irefindexParser extends Bio2RDFizer
 				if(!isset($defined[$qname])) {
 					$defined[$qname] = '';
 					parent::addRDF(
-						parent::triplifyString($qname,"rdfs:label",$label)
+						parent::triplifyString($qname,"rdfs:label",$data['label'])
 					);
 				}
 			}
