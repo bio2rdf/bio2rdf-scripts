@@ -361,15 +361,17 @@ class OMIMParser extends Bio2RDFizer
 		// clinical synopsis
 		if(isset($o['clinicalSynopsis'])) {
 			$cs = $o['clinicalSynopsis'];
-			$uri = parent::getRes()."".$omim_id."_cs";
+			$cs_uri = parent::getRes()."".$omim_id."_cs";
 			parent::addRDF(
-				parent::describeIndividual($omim_uri, "Clinical synopsis for omim $omim_id", parent::getVoc()."Clinical-Synopsis")
+				parent::describeIndividual($cs_uri, "Clinical synopsis for omim $omim_id", parent::getVoc()."Clinical-Synopsis").
+				parent::describeClass(parent::getVoc()."Clinical-Synopsis","Clinical Synopsis").
+				parent::triplify($omim_uri, parent::getVoc()."clinical-synopsis", $cs_uri)
 			);
 
 			foreach($cs AS $k => $v) {
 				if(!strstr($k,"Exists")) { // ignore the boolean assertion.
 					
-					// ignore provenance for now
+					// @todo ignore provenance for now
 					if(in_array($k, array('contributors','creationDate','editHistory','epochCreated','dateCreated','epochUpdated','dateUpdated'))) continue;
 					
 					if(!is_array($v)) $v = array($k=>$v);
@@ -381,15 +383,17 @@ class OMIMParser extends Bio2RDFizer
 							if(!$coded_phenotype) continue;
 							$phenotype = preg_replace("/\{.*\}/","",$coded_phenotype);
 							$phenotype_id = parent::getRes()."".md5(strtolower($phenotype));
-							
-							parent::addRDF(parent::triplify($uri, parent::getVoc()."feature", $phenotype_id));
-							parent::addRDF(parent::describe($phenotype_id, $phenotype, parent::getVoc().'Characteristic'));
-							
 							$entity_id = parent::getRes()."".$k1;
-							parent::addRDF(parent::describe($entity_id, $k1, parent::getVoc()."Entity"));
 
-							parent::addRDF(parent::triplify($phenotype_id, parent::getVoc()."characteristic-of", $entity_id));
-							
+							parent::addRDF(
+								parent::describeIndividual($phenotype_id, $phenotype, parent::getVoc().'Characteristic').
+								parent::describeClass(parent::getVoc().'Characteristic','Characteristic').
+								parent::triplify($cs_uri, parent::getVoc()."feature", $phenotype_id).
+								parent::describeIndividual($entity_id, $k1, parent::getVoc()."Entity").
+								parent::describeClass(parent::getVoc()."Entity","Entity").
+								parent::triplify($phenotype_id, parent::getVoc()."characteristic-of", $entity_id)
+							);
+
 							// parse out the vocab references
 							preg_match_all("/\{([0-9A-Za-z \:\-\.]+)\}|;/",$coded_phenotype,$codes);
 							//preg_match_all("/((UMLS|HPO HP|SNOMEDCT|ICD10CM|ICD9CM|EOM ID)\:[A-Z0-9]+)/",$coded_phenotype,$m);
@@ -406,8 +410,9 @@ class OMIMParser extends Bio2RDFizer
 										} else {
 											$ns = str_replace(array("id","icd10cm","icd9cm","snomedct"), array("eom","icd10","icd9","snomed"), $ns);
 										}
-										parent::addRDF(parent::triplify($phenotype_id, "rdfs:seeAlso", "$ns:$id"));
-										parent::addRDF(parent::triplify($uri, parent::getVoc()."refers-to", "$ns:$id"));										
+										parent::addRDF(
+											parent::triplify($phenotype_id, parent::getVoc()."x-$ns", "$ns:$id")
+										);
 									} // foreach
 								} // foreach
 							} // codes
