@@ -457,10 +457,16 @@ class OMIMParser extends Bio2RDFizer
 			}
 			
 			if(isset($map['mouseGeneSymbol'])) {
-				parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."mouse-gene-symbol", "symbol:".$map['mouseGeneSymbol']));
+				$b = explode(",",$map['mouseGeneSymbol']);
+				foreach($b AS $c) {
+					parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."mouse-gene-symbol", "symbol:$c"));
+				}
 			}
 			if(isset($map['mouseMgiID'])) {
-				parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."mouse-mgi", strtolower($map['mouseMgiID'])));
+				$b = explode(",",$map['mouseMgiID']);
+				foreach($b AS $c) {
+					parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-mgi", $c));
+				}
 			}
 			if(isset($map['geneInheritance']) && $map['geneInheritance'] != '') {
 				parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."gene-inheritance", $map['geneInheritance']));
@@ -498,7 +504,7 @@ class OMIMParser extends Bio2RDFizer
 				$ns = '';
 				switch($k) {
 					case 'approvedGeneSymbols':        $ns = 'symbol';break;
-					case 'geneIDs':                    $ns = 'geneid';break;
+					case 'geneIDs':                    $ns = 'ncbigene';break;
 					case 'ncbiReferenceSequences':     $ns = 'gi';break;
 					case 'genbankNucleotideSequences': $ns = 'gi';break;
 					case 'proteinSequences':           $ns = 'gi';break;
