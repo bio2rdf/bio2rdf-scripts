@@ -698,7 +698,9 @@ function CTD_Genes()
 			6 => array('rel'=>'x-pharmgkb', 'ns'=>'pharmgkb'),
 			7 => array('rel'=>'x-uniprot', 'ns'=>'uniprot')
 		);
+
 		foreach($ids AS $i => $v) {
+			if(!trim($a[$i])) continue;
 			$b = explode("|",$a[$i]);
 			foreach($b AS $c) {
 				if(isset($v['ns'])) {
