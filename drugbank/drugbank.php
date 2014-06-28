@@ -183,9 +183,9 @@ class DrugBankParser extends Bio2RDFizer
     {
         $id = (string)$x->id;
         $pid = "drugbank:".$id;
-		$lid = parent::getRes().$did."_".$id; // local pivot to keep the action between the drug and target
+	$lid = parent::getRes().substr($did,strpos($did,":")+1)."_".$id; // local pivot to keep the action between the drug and target
         $name = (string) $x->name;
-		$parent = parent::getVoc().ucfirst($type);
+	$parent = parent::getVoc().ucfirst($type);
         parent::addRDF(
             parent::describeIndividual($pid,$name,$parent).
 			parent::describeClass($parent,ucfirst($type)).
