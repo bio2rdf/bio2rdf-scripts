@@ -217,23 +217,20 @@ class SIDERParser extends Bio2RDFizer
 			array_unique($names);
 			asort($names);
 			if($a[2] == "combination") {
-				$label = implode(";",$names);
+				$label = "combination drug: ".implode(";",$names);
 			}
 
 			parent::addRDF(
-				parent::describeIndividual($id, $label, parent::getVoc()."Drug", $a[6]).
+				parent::describeIndividual($id, $label, parent::getVoc()."Drug").
 				parent::describeClass(parent::getVoc()."Drug","SIDER Drug")
 			);
-		
+
 			if(trim($a[0])) {
 				$brand_label = strtolower(trim($a[0]));
 				$brand_qname = parent::getRes().md5($brand_label);
 				parent::addRDF(
 					parent::describeIndividual($brand_qname, $brand_label, parent::getVoc()."Brand-Drug").
-					parent::describeClass(parent::getVoc()."Brand-Drug","Brand Drug")
-				);
-
-				parent::addRDF(
+					parent::describeClass(parent::getVoc()."Brand-Drug","Brand Drug").
 					parent::triplify($id, parent::getVoc()."brand-name", $brand_qname)
 				);
 			}
@@ -243,15 +240,12 @@ class SIDERParser extends Bio2RDFizer
 					$generic_qname = parent::getRes().md5($generic_label);
 					parent::addRDF(
 						parent::describeIndividual($generic_qname, $generic_label, parent::getVoc()."Generic-Drug").
-						parent::describeClass(parent::getVoc()."Generic-Drug","Generic Drug")
-					);
-
-					parent::addRDF(
+						parent::describeClass(parent::getVoc()."Generic-Drug","Generic Drug").
 						parent::triplify($id, parent::getVoc()."generic-name", $generic_qname)
 					);
 				}
 			}
-			
+
 			if($a[2]){
 				$mapping_result = str_replace(" ","-",$a[2]);
 				parent::addRDF(
@@ -315,18 +309,16 @@ class SIDERParser extends Bio2RDFizer
 		$declared = null;
 
 		parent::setCheckpoint('file');
-
 		while($l = $this->GetReadFile()->Read()) {
 			$a = explode("\t",$l);
 			$id = "sider:".urlencode($a[0]);
 			$cui = "umls:".$a[1];
 			$cui_label= strtolower(trim($a[2]));
 			parent::addRDF(
-				parent::describeIndividual($cui, $cui_label,null)
-			);
-			parent::addRDF(
+				parent::describeClass($cui, $cui_label).
 				parent::triplify($id, parent::getVoc()."side-effect", $cui)
 			);
+			parent::setCheckpoint('record');
 		}
 		parent::setCheckpoint('file');
 	}
@@ -336,7 +328,6 @@ class SIDERParser extends Bio2RDFizer
 		$declared = null;
 
 		parent::setCheckpoint('file');
-
 		while($l = $this->GetReadFile()->Read()) {
 			parent::setCheckpoint('record');
 
@@ -346,10 +337,7 @@ class SIDERParser extends Bio2RDFizer
 			$cui_label = strtolower(trim($a[2]));
 
 			parent::addRDF(
-				parent::describeIndividual($cui, $cui_label,null)
-			);
-
-			parent::addRDF(
+				parent::describeClass($cui, $cui_label).
 				parent::triplify($id, parent::getVoc()."indication", $cui)
 			);
 			parent::setCheckpoint('record');
@@ -401,18 +389,8 @@ e.g. from different clinical trials or for different levels of severeness.
 			$label = "$a[4] in $label $a[2]";
 			parent::addRDF(
 				parent::describeIndividual($id, $label, parent::getVoc()."Drug-Effect").
-				parent::describeClass(parent::getVoc()."Drug-Effect","SIDER Drug-Effect")
-			);
-
-			parent::addRDF(
-				parent::describeIndividual($effect_id, $a[4], parent::getVoc()."Effect")
-			);
-
-			parent::addRDF(
-				parent::triplify($id, parent::getVoc()."drug", $label_id)
-			);
-
-			parent::addRDF(
+				parent::describeClass(parent::getVoc()."Drug-Effect","SIDER Drug-Effect").
+				parent::triplify($id, parent::getVoc()."drug", $label_id).
 				parent::triplify($id, parent::getVoc()."effect", $effect_id)
 			);
 
