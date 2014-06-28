@@ -286,9 +286,9 @@ function CTD_chem_gene_ixns()
 		$uri  = $this->getRes().$mesh_id.$gene_id;  // should taxon be part of the ID?
 		
 		$this->AddRDF(
-			parent::describeIndividual($uri, "association between ".$a[3]." (geneid:$gene_id) and ".$a[0]." (mesh:$mesh_id)", $this->getVoc()."Chemical-Gene-Association").
+			parent::describeIndividual($uri, "association between ".$a[3]." (ncbigene:$gene_id) and ".$a[0]." (mesh:$mesh_id)", $this->getVoc()."Chemical-Gene-Association").
 			parent::triplifyString($uri, "rdfs:comment", $a[7]).
-			parent::triplify($uri, $this->getVoc()."gene", "geneid:".$gene_id).
+			parent::triplify($uri, $this->getVoc()."gene", "ncbigene:".$gene_id).
 			parent::triplify($uri, $this->getVoc()."chemical", "mesh:".$mesh_id).
 			parent::describeProperty($this->getVoc()."gene", "Relation bteween a CTD entity and a gene").
 			parent::describeProperty($this->getVoc()."chemical", "Relation between a CTD entity and a chemical").
@@ -432,6 +432,7 @@ function CTD_chem_pathways_enriched()
 		
 		$this->AddRDF(
 			parent::describeIndividual($pathway_resource_id, $pathway_resource_label, parent::getVoc()."Chemical-Pathway-Association").
+			parent::describeClass(parent::getVoc()."Chemical-Pathway-Association","Chemical-Pathway Association").
 			parent::triplify($pathway_resource_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
 			parent::triplify($pathway_resource_id, parent::getVoc()."chemical", "mesh:".$chemical_id).
 			parent::triplifyString($pathway_resource_id, $this->getVoc()."p-value", $a[6], "xsd:double")
@@ -555,8 +556,9 @@ function CTD_genes_diseases()
 		$uri = $this->getRes().$gene_id.$disease_id;
 
 		$this->AddRDF(
-			parent::describeIndividual($uri, "$gene_name (geneid:$gene_id) - $disease_name ($disease_ns:$disease_id) association", $this->getVoc()."Gene-Disease-Association").
-			parent::triplify($uri, $this->getVoc()."gene", "geneid:".$gene_id).
+			parent::describeIndividual($uri, "$gene_name (ncbigene:$gene_id) - $disease_name ($disease_ns:$disease_id) association", $this->getVoc()."Gene-Disease-Association").
+			parent::describeClass($this->getVoc()."Gene-Disease-Association","Gene-Disease Association").
+			parent::triplify($uri, $this->getVoc()."gene", "ncbigene:".$gene_id).
 			parent::triplify($uri, $this->getVoc()."disease", $disease_ns.":".$disease_id)
 		);
 		
@@ -566,7 +568,7 @@ function CTD_genes_diseases()
 				$this->AddRDF(
 					parent::triplify($uri, $this->getVoc()."disease", "omim:".$omim_id)
 				);
-			}			
+			}
 		}
 
 		if(isset($a[8])) {
@@ -605,7 +607,7 @@ function CTD_genes_pathways()
 			$first = false;
 		}
 		
-		$gene_ns = 'geneid';
+		$gene_ns = 'ncbigene';
 		$gene_id = $a[1];
 		$this->getRegistry()->parseQName($a[3],$pathway_ns,$pathway_id);
 		$pathway_id = trim($pathway_id);
