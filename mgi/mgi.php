@@ -168,9 +168,12 @@ class MGIParser extends Bio2RDFizer
 				);
 			}
 			if(trim($a[4])) {
-				parent::addRDF(
-					parent::triplifyString($id, $this->getVoc()."allele-attribute", trim($a[4]))
-				);
+				$list = explode("|",$a[4]);
+				foreach($list AS $item) {
+					parent::addRDF(
+						parent::triplifyString($id, $this->getVoc()."allele-attribute", trim($item))
+					);
+				}
 			}
 			if(trim($a[5])) {
 				parent::addRDF(
