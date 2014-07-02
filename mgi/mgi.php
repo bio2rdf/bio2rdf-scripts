@@ -314,7 +314,7 @@ class MGIParser extends Bio2RDFizer
 				continue;
 			}
 			$id  = strtolower($a[0]);
-			$type =  $this->getRes().str_replace(" ","-",$a[3]);
+			$type =  $this->getVoc().str_replace(" ","-",$a[3]);
 			parent::addRDF(
 				parent::describeIndividual($id, $a[1], $type).
 				parent::describeClass($type,"MGI ".$a[3]).
