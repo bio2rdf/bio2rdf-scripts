@@ -199,6 +199,7 @@ class LSRParser extends Bio2RDFizer
 			// add the resource statement
 			$resource = $dataset.'_vocabulary:Resource';
 			parent::addRDF(
+				parent::QQuad($resource,"rdf:type","owl:Class").
 				parent::QQuad($resource,"sio:is-member-of",$id).
 				parent::QQuad($id,"sio:has-member",$resource)
 			);
