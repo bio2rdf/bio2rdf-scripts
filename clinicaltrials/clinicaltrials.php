@@ -430,12 +430,13 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			###############################################################################
 			$study_design = $this->getString('//study_design');
 			if($study_design) {
-				$study_design_id = parent::getRes().md5($study_design);
+				$study_design_id = parent::getRes().md5($study_id.$study_design);
 				parent::addRDF(
 					parent::describeIndividual($study_design_id,"$study_id study design",parent::getVoc()."Study-Design").
 					parent::describeClass(parent::getVoc()."Study-Design","Study Design").
 					parent::triplify($study_id,parent::getVoc()."study-design",$study_design_id)
 				);
+
 				// Intervention Model: Parallel Assignment, Masking: Double-Blind, Primary Purpose: Treatment
 				foreach(explode(", ",$study_design) AS $i=>$b) {
 					$c = explode(":  ",$b);
@@ -624,12 +625,14 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					parent::addRDF(
 						parent::describeIndividual($eligibility_id,$eligibility_label,parent::getVoc()."Eligibility").
 						parent::describeClass(parent::getVoc()."Eligibility","Eligibility").
-						parent::triplify($study_id,parent::getVoc()."eligibility",$eligibility_id)			
+						parent::triplify($study_id,parent::getVoc()."eligibility",$eligibility_id)
 					);
 
 					if($criteria = @array_shift($eligibility->xpath('./criteria'))){
 						$text = @array_shift($criteria->xpath('./textblock'));
-//						$text = str_replace("\n","&#xA;",$text);
+						parent::addRDF(
+							parent::triplifyString($eligibility_id, parent::getVoc()."text",$text)
+						);
 						$c = preg_split("/(Inclusion Criteria\:|Exclusion Criteria\:)/",$text);
 						//inclusion
 						if(isset($c[1])) {
