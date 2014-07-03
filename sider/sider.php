@@ -206,41 +206,46 @@ class SIDERParser extends Bio2RDFizer
 		parent::setCheckpoint('file');
 
 		$declared = null;
-		while($l = parent::getReadFile()->Read()) {
+		while($l = parent::getReadFile()->Read(1000000)) {
 			parent::setCheckpoint('record');
 
 			$a = explode("\t",$l);
 			$id = parent::getNamespace().urlencode(trim($a[6]));
 
-			$label = $a[1];
-			$names = explode(";",strtolower(trim($a[1])));
-			array_unique($names);
-			asort($names);
+			$gnames_list = explode(";",strtolower(trim($a[1])));
+			array_unique($gnames_list);
+			asort($gnames_list);
+			$gnames = implode(" + ",$gnames_list);
 			if($a[2] == "combination") {
-				$label = "combination drug: ".implode(";",$names);
+				$label = "combination: $gnames";
+				$type = "Combination-Drug";
+			} else {
+				if($a[0]) $label .= $a[0]." (".$gnames.")";
+				else $label = $gnames;
+				$type = "Drug";
 			}
 
 			parent::addRDF(
-				parent::describeIndividual($id, $label, parent::getVoc()."Drug").
-				parent::describeClass(parent::getVoc()."Drug","SIDER Drug")
+				parent::describeIndividual($id, $label, parent::getVoc().$type).
+				parent::describeClass(parent::getVoc().$type,"SIDER ".$type)
 			);
 
 			if(trim($a[0])) {
 				$brand_label = strtolower(trim($a[0]));
 				$brand_qname = parent::getRes().md5($brand_label);
 				parent::addRDF(
-					parent::describeIndividual($brand_qname, $brand_label, parent::getVoc()."Brand-Drug").
-					parent::describeClass(parent::getVoc()."Brand-Drug","Brand Drug").
+					parent::describeIndividual($brand_qname, $brand_label, parent::getVoc()."Brand-Drug-Name").
+					parent::describeClass(parent::getVoc()."Brand-Drug-Name","Brand Drug Name").
 					parent::triplify($id, parent::getVoc()."brand-name", $brand_qname)
 				);
 			}
 			if(trim($a[1])) {
-				foreach($names AS $generic_name) {
+				foreach($gnames_list AS $generic_name) {
 					$generic_label = trim($generic_name);
 					$generic_qname = parent::getRes().md5($generic_label);
 					parent::addRDF(
-						parent::describeIndividual($generic_qname, $generic_label, parent::getVoc()."Generic-Drug").
-						parent::describeClass(parent::getVoc()."Generic-Drug","Generic Drug").
+						parent::describeIndividual($generic_qname, $generic_label, parent::getVoc()."Generic-Drug-Name").
+						parent::describeClass(parent::getVoc()."Generic-Drug-Name","Generic Drug Name").
 						parent::triplify($id, parent::getVoc()."generic-name", $generic_qname)
 					);
 				}
@@ -280,6 +285,7 @@ class SIDERParser extends Bio2RDFizer
 					parent::QQuadO_URL($id, parent::getVoc()."pdf-url", $url)
 				);
 			}
+
 			parent::setCheckpoint('record');
 
 		}
