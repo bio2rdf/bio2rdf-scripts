@@ -148,7 +148,7 @@ class SIDERParser extends Bio2RDFizer
 
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
-			$date = parent::getDate();
+			$date = parent::getDate(filemtime($odir.$ofile));
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2df.org/release/$bVersion/$prefix/$ofile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $file")
