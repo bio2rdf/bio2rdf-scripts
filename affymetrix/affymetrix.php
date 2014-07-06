@@ -127,10 +127,10 @@ class AffymetrixParser extends Bio2RDFizer
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 			$outfile = 'affymetrix-'.$base_file.".".parent::getParameterValue('output_format');	
 			
-			$this->setWriteFile($odir.$outfile, $gz);
+/*			$this->setWriteFile($odir.$outfile, $gz);
 			$this->parse($base_file);		
 			parent::getWriteFile()->close();
-			parent::getReadFile()->close();
+*/			parent::getReadFile()->close();
 			parent::clear();
 			
 			// dataset description
@@ -147,10 +147,11 @@ class AffymetrixParser extends Bio2RDFizer
 			->setRights("registration-required")
 			->setLicense("http://www.affymetrix.com/about_affymetrix/legal/index.affx")
 			->setDataset("http://identifiers.org/affy.probeset/");
-			
+
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
-			$date = parent::getDate();
+			$date = parent::getDate(filemtime($lfile));
+
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $base_file ")
@@ -158,7 +159,7 @@ class AffymetrixParser extends Bio2RDFizer
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/affymetrix/affymetrix.php")
 				->setCreateDate($date)
 				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-				->setPublisher("http://bio2rdf.org")			
+				->setPublisher("http://bio2rdf.org")
 				->setRights("use-share-modify")
 				->setRights("by-attribution")
 				->setRights("restricted-by-source-license")
