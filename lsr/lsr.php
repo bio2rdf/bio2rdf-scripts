@@ -30,21 +30,29 @@ SOFTWARE.
 
 require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
-class LSRParser extends Bio2RDFizer 
+class LSRParser extends Bio2RDFizer
 {
 	function __construct($argv) {
 		parent::__construct($argv, "lsr");
-		
-		// set and print application parameters
 		parent::addParameter('files',true,'all','all','all or comma-separated list of ontology short names to process');
 		parent::addParameter('download_url',false,null,'http://tinyurl.com/lsregistry');
-		
 		parent::initialize();
 	}
 
-	function run() 
+	function run()
 	{
 		// setup the write file
+		$rfile = parent::getParameterValue("download_url");
+		$idir  = parent::getParameterValue("indir");
+		$ifile = "registry.csv";
+		$lfile = $idir.$ifile;
+		if(!file_exists($lfile) or parent::getParameterValue("download") == "true") {
+			echo "Downloading regsitry";
+			utils::downloadSingle($rfile,$lfile);
+			echo "done".PHP_EOL;
+		}
+
+		echo "Processing registry ...";
 		$odir = parent::getParameterValue("outdir");
 		$ofile = "lsr.". parent::getParameterValue('output_format');
 		$gz = false;
@@ -52,11 +60,48 @@ class LSRParser extends Bio2RDFizer
 		parent::setWriteFile($odir.$ofile, $gz);
 		$this->parse();
 		parent::getWriteFile()->close();
-	
-		// write the metdata
-		
+
+		// dataset description
+		$source_file = (new DataResource($this))
+                        ->setURI("http://tinyurl.com/lsregistry")
+                        ->setTitle("Life Science Registry")
+                        ->setRetrievedDate( parent::getDate(filemtime($lfile)))
+                        ->setFormat("text/tab-separated-value")
+                        ->setPublisher("http://bio2rdf.org")
+                        ->setHomepage("http://tinyurl.com/lsregistry")
+                        ->setRights("use-share-modify")
+                        ->setLicense("http://creativecommons.org/licenses/by/3.0/")
+                        ->setDataset("http://identifiers.org/lsr/");
+
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = parent::getDate(filemtime($odir.$ofile));
+
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/lsr/lsr.php")
+			->setCreateDate($date)
+                                ->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+                                ->setPublisher("http://bio2rdf.org")
+                                ->setRights("use-share-modify")
+                                ->setRights("by-attribution")
+                                ->setRights("restricted-by-source-license")
+                                ->setLicense("http://creativecommons.org/licenses/by/3.0/")
+                                ->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+
+                $dataset_description = $source_file->toRDF().$output_file->toRDF();
+                $this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
+                $this->getWriteFile()->write($dataset_description);
+                $this->getWriteFile()->close();
+		echo "Done".PHP_EOL;
 	}
-	
+
 	function parse() 
 	{
 		$registry = $this->getRegistry()->getRegistry() ;
