@@ -176,9 +176,14 @@ class HGNCParser extends Bio2RDFizer {
 				parent::describeClass($this->getVoc()."Gene-Symbol", "HGNC Official Gene Symbol")
 			);
 			if(!empty($approved_symbol)){
+				$s = "hgnc.symbol:".$approved_symbol;
 				parent::AddRDF(
 					parent::triplifyString($id_res, $this->getVoc()."approved-symbol",utf8_encode(htmlspecialchars($approved_symbol))).
-					parent::describeProperty($this->getVoc()."approved-symbol", "HGNC approved gene symbol","The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene")
+					parent::describeProperty($this->getVoc()."approved-symbol", "HGNC approved gene symbol","The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene").
+					parent::describeIndividual($s, $approved_symbol, parent::getVoc()."Approved-Gene-Symbol").
+					parent::describeClass(parent::getVoc()."Approved-Gene-Symbol","Approved Gene Symbol").
+					parent::triplify($id_res, parent::getVoc()."has-approved-symbol", $s).
+					parent::triplify($s, parent::getVoc()."is-approved-symbol-of", $id_res)
 				);
 				
 			}
