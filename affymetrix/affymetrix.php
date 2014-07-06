@@ -150,7 +150,7 @@ class AffymetrixParser extends Bio2RDFizer
 
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
-			$date = parent::getDate(filemtime($lfile));
+			$date = parent::getDate(filemtime($odir.$outfile));
 
 			$output_file = (new DataResource($this))
 				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
