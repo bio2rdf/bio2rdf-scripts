@@ -127,10 +127,10 @@ class AffymetrixParser extends Bio2RDFizer
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 			$outfile = 'affymetrix-'.$base_file.".".parent::getParameterValue('output_format');	
 			
-/*			$this->setWriteFile($odir.$outfile, $gz);
+			$this->setWriteFile($odir.$outfile, $gz);
 			$this->parse($base_file);		
 			parent::getWriteFile()->close();
-*/			parent::getReadFile()->close();
+			parent::getReadFile()->close();
 			parent::clear();
 			
 			// dataset description
