@@ -459,7 +459,7 @@ class OMIMParser extends Bio2RDFizer
 			if(isset($map['mouseGeneSymbol'])) {
 				$b = explode(",",$map['mouseGeneSymbol']);
 				foreach($b AS $c) {
-					parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."mouse-gene-symbol", "symbol:$c"));
+					parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."mouse-gene-symbol", "symbol:".strtoupper($c)));
 				}
 			}
 			if(isset($map['mouseMgiID'])) {
