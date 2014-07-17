@@ -51,6 +51,7 @@ class ORPHANETParser extends Bio2RDFizer
 	{
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
+		$dd = '';
 		
 		$files = parent::getParameterValue('files');
 		if($files == 'all') {
@@ -78,14 +79,53 @@ class ORPHANETParser extends Bio2RDFizer
 			$ofile = "orphanet-".$file.'.'.$suffix; 
 			$gz = strstr(parent::getParameterValue('output_format'), "gz")?($gz=true):($gz=false);
 			
-			parent::setWriteFile($odir.$ofile, $gz);
+/*			parent::setWriteFile($odir.$ofile, $gz);
 			$this->$file($lfile);
 			parent::getWriteFile()->close();
-			parent::getReadFile()->close();
+*/			parent::getReadFile()->close();
 			parent::clear();
 			echo "done!".PHP_EOL;
-		}//foreach
 
+			// dataset description
+                       $source_file = (new DataResource($this))
+                         ->setURI($rfile)
+                         ->setTitle("Orphanet: $file")
+                         ->setRetrievedDate(parent::getDate(filemtime($lfile)))
+                         ->setFormat("application/xml")
+                         ->setPublisher("http://www.orpha.net")
+                         ->setHomepage("http://www.orpha.net/")
+                         ->setRights("use")
+                         ->setRights("sharing-modified-version-needs-permission")
+                         ->setLicense("http://creativecommons.org/licenses/by-nd/3.0/")
+                         ->setDataset("http://identifiers.org/orphanet/");
+
+                        $prefix = parent::getPrefix();
+                        $bVersion = parent::getParameterValue('bio2rdf_release');
+                        $date = parent::getDate(filemtime($odir.$ofile));
+
+                        $output_file = (new DataResource($this))
+                         ->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+                         ->setTitle("Bio2RDF v$bVersion RDF version of $prefix")
+                         ->setSource($source_file->getURI())
+                         ->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/orphanet/orphanet.php")
+                         ->setCreateDate($date)
+                         ->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+                         ->setPublisher("http://bio2rdf.org")
+                         ->setRights("use-share-modify")
+                         ->setRights("by-attribution")
+                         ->setRights("restricted-by-source-license")
+                         ->setLicense("http://creativecommons.org/licenses/by/3.0/")
+                         ->setDataset(parent::getDatasetURI());
+
+			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+
+			$dd .= $source_file->toRDF().$output_file->toRDF();
+
+		}//foreach
+		parent::writeToReleaseFile($dd);
 	}
 
 	function disease($file)
