@@ -112,6 +112,7 @@ class LSRParser extends Bio2RDFizer
 			
 			parent::addRDF( 
 				parent::QQuad($id,"rdf:type","dcat:Dataset").
+				parent::QQuad($id,"rdf:type","lsr:Dataset").
 				parent::QQuadL($id,"dc:title",$r['title']).
 				parent::QQuadL($id,"dc:description",$r['description']).
 				parent::QQuadL($id,"rdfs:label", $r['title']." [".$id."]").
@@ -121,7 +122,7 @@ class LSRParser extends Bio2RDFizer
 //				parent::describeIndividual($id,$r['title'],"dcat:Dataset",$r['title'],$r['description'])
 			);
 			parent::addRDF(
-				parent::triplifyString($id,$this->getVoc()."preferred-prefix",$r['preferredPrefix'])
+				parent::triplifyString($id,"idot:preferredPrefix",$r['preferredPrefix'])
 			);
 			
 			if($r['alternatePrefix']) {
@@ -129,17 +130,17 @@ class LSRParser extends Bio2RDFizer
 					if(trim($syn) == '') continue;
 					$syn = $this->getRegistry()->normalizePrefix(preg_replace("/\([^\)]+/","",$syn));
 					parent::addRDF(
-						parent::QQuadL($id,$this->getVoc()."alternative-prefix",$syn)
+						parent::QQuadL($id,"idot:alternativePrefix",$syn)
 					);
 				}
 			}
 			if($r['providerURI']) {
-				parent::QQuad($id,$this->getVoc()."preferred-base-uri",$r['providerURI']);
+				parent::QQuad($id,"void:uriRegexPattern",$r['providerURI']);
 			}
 			if($r['alternateURI']) {
 				foreach( explode(",",$r['alternateURI']) AS $alt_uri) {
 					parent::addRDF(
-						parent::QQuad($id,$this->getVoc()."alternative-base-uri",$alt_uri)
+						parent::QQuad($id,"void:uriRegexPattern",$alt_uri)
 					);
 				}
 			}
@@ -176,18 +177,21 @@ class LSRParser extends Bio2RDFizer
 			if($r['pubmed']) {
 				foreach(explode(",",$r['pubmed']) AS $pubmed) {
 					parent::addRDF(
-						parent::QQuad($id,$this->getVoc()."x-pubmed","pubmed:".$pubmed)
+						parent::QQuad($id,"cito:citesAsAuthority","pubmed:".$pubmed).
+						parent::QQuad("pubmed:".$pubmed, "rdf:type", "pubmed_vocabulary:Resource")
 					);
 				}
 			}
 			if($r['abbreviation']) {
 				parent::addRDF(
-					parent::QQuadL($id,$this->getVoc()."abbreviation",$r['abbreviation'])
+					parent::QQuadL($id,"dc:alternative",$r['abbreviation'])
 				);
 			}
 			if($r['organization']) {
+				$pid = parent::getRes().md5($r['organization']);
 				parent::addRDF(
-					parent::QQuadL($id,$this->getVoc()."organization",$r['organization'])
+					parent::QQuad($id,"dc:publisher", $pid).
+					parent::QQuadL($pid, "dc:title", $r['organization'])
 				);
 			}
 			if($r['type']) {
@@ -198,7 +202,7 @@ class LSRParser extends Bio2RDFizer
 			foreach( explode(",",$r['keywords']) AS $keyword) {
 				if($keyword) {
 					parent::addRDF(
-						parent::QQuadL($id,$this->getVoc()."keyword",$keyword)
+						parent::QQuadL($id,"dcat:keyword",$keyword)
 					);
 				}
 			}
@@ -206,12 +210,12 @@ class LSRParser extends Bio2RDFizer
 				&& $r['homepage'] !== 'dead'
 				&& $r['homepage'] !== 'unavailable') {
 				parent::addRDF(
-					parent::QQuad($id,"foaf:homepage",$r['homepage'])
+					parent::QQuad($id,"foaf:page",$r['homepage'])
 				);
 			}
 			if($r['license']) {
 				parent::addRDF(
-					parent::QQuad($id,$this->getVoc()."license",$r['license'])
+					parent::QQuad($id,"dc:license",$r['license'])
 				);
 			}
 			if($r['licenseText']) {
@@ -222,22 +226,22 @@ class LSRParser extends Bio2RDFizer
 			foreach(explode(",",$r['rights']) AS $right) {
 				if($right) {
 					parent::addRDF(
-						parent::QQuadL($id,$this->getVoc()."right",$right)
+						parent::QQuadL($id,"dc:rights",$right)
 					);
 				}
 			}
 			parent::addRDF(
-				parent::QQuadL($id,$this->getVoc()."id-regex",$r['id_regex'])
+				parent::QQuadL($id,"idot:identifierPattern",$r['id_regex'])
 			);
 			parent::addRDF(
-				parent::QQuadL($id,$this->getVoc()."example-id",$r['example_id'])
+				parent::QQuadL($id,"idot:exampleIdentifier",$r['example_id'])
 			);
 			if($r['html_template']
 				&& $r['html_template'] !== 'unavailable'
 				&& $r['html_template'] !== 'N/A') {
 
 				parent::addRDF(
-					parent::QQuadL($id,$this->getVoc()."html-template",$r['html_template'])
+					parent::QQuadL($id,"idot:accessPattern",$r['html_template'])
 				);
 			}
 
