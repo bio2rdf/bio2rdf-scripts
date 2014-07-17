@@ -138,7 +138,7 @@ class HomologeneParser extends Bio2RDFizer{
 				parent::describeProperty($this->getVoc()."x-ncbigene", "Link to NCBI GeneId")
 			);
 			parent::AddRDF(
-				parent::triplifyString($hid, $this->getVoc()."gene-symbol",  utf8_encode(htmlspecialchars($genesymbol))).
+				parent::triplifyString($hid, $this->getVoc()."gene-symbol",  utf8_encode(htmlspecialchars($genesymbol)), "xsd:string").
 				parent::describeProperty($this->getVoc()."gene-symbol", "Link to gene symbol")
 			);
 			parent::AddRDF(
