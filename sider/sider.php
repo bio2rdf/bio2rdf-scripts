@@ -409,7 +409,7 @@ e.g. from different clinical trials or for different levels of severeness.
 				$fid = $id.md5($a[5].$a[6].$a[7].$a[8]);
 //				$fid = $id.($i++);
 				$flabel = $a[6];
-				$ftype  = parent::getVoc().$a[6]."-Frequency";
+				$ftype  = parent::getVoc().ucfirst($a[6])."-Frequency";
 				$number = false;
 				if(is_numeric($a[6])) {
 					$flabel = $a[6]."%";
@@ -425,8 +425,8 @@ e.g. from different clinical trials or for different levels of severeness.
 
 				parent::addRDF(
 					parent::triplify($id,parent::getVoc()."reported-frequency",$fid).
-					parent::describeIndividual($fid,$flabel,parent::getVoc().$ftype).
-					parent::describeClass(parent::getVoc().$ftype, $ftype_label)
+					parent::describeIndividual($fid,$flabel,$ftype).
+					parent::describeClass($ftype, $ftype_label)
 				);
 		
 				if($number == true) {
