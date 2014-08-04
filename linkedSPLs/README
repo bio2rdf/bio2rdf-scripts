@@ -1,0 +1,81 @@
+################################################################################
+OVERVIEW
+################################################################################
+
+linkedSPLs contains all sections of FDA-approved drug package inserts from DailyMed for use by NLP and Semantic Web researchers. Major components are listed as follows:
+
+------------------------------------------------------------
+Dailymed sections and Dailymed metadata
+------------------------------------------------------------
+
+
+
+
+------------------------------------------------------------
+linkedSPLs mappings
+------------------------------------------------------------
+
+
+(1) UNII to RxNORM
+
+(2) UNII to ChEBI
+
+(3) RxNORM to Drugbank
+
+(4) UNII to DrOn
+
+(5) RxNORM to NDFRT (EPC)
+
+(6) RxNORM to OMOP
+
+
+------------------------------------------------------------
+Pharmgx Data
+------------------------------------------------------------
+
+(1) FDA Pharmgx Table
+
+Inputs: csv file that comes from FDA table
+
+(2) Pharmagx annotations
+
+Inputs: pharmacists's annotations 
+
+------------------------------------------------------------
+ADR
+------------------------------------------------------------
+
+SPLICER NLP
+
+
+
+------------------------------------------------------------
+DDIs 
+------------------------------------------------------------
+
+(1) NLP
+
+(2) DDI annotations
+
+
+################################################################################
+HOW TO UPDATE LINKEDSPLS
+################################################################################
+
+Ant script to auto the process of update:
+
+(1) RxNORM to NDFRT (EPC)
+
+(2) UNII to DrOn
+
+(3) RxNORM to OMOP
+
+Tips: may use OMOP standard vocab for OMOP
+
+      use UNII as primary key in order to merge all the mappings together.
+
+May have keep the old apporach to updates mappings listed as belows:
+
+(1) RxNORM to Drugbank
+
+(2) UNII to ChEBI
