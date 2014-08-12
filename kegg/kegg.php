@@ -44,6 +44,7 @@ class KEGGParser extends Bio2RDFizer
 	{
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
+		$dataset_description = '';
 		
 		$files = parent::getParameterValue('files');
 		if($files == 'all') {
@@ -54,7 +55,8 @@ class KEGGParser extends Bio2RDFizer
 		}
 		
 		// handle genes separately
-		if(in_array("genes",$files)) {
+		if(in_array("genes",$files)) {	
+			$orgs = array("hsa","mmu","eco","dre","dme","ath","sce","ddi");
 			echo "processing genes".PHP_EOL;
 			
 			$ofile = "kegg-genes.".parent::getParameterValue('output_format'); 
@@ -72,6 +74,8 @@ class KEGGParser extends Bio2RDFizer
 				$a = explode("\t",$l);
 				$b = explode(", ",$a[1]);
 				$org = $b[0];
+				
+				if(!in_array($org,$orgs)) continue;
 				
 				// get the list of genes for this organims
 				echo "processing $org".PHP_EOL;
@@ -96,7 +100,7 @@ class KEGGParser extends Bio2RDFizer
 			// add dataset description
 			$source_file = (new DataResource($this))
 			->setURI($rfile)
-			->setTitle("KEGG: $db")
+			->setTitle("KEGG: Gene")
 			->setRetrievedDate( parent::getDate(filemtime($lfile)))
 			->setFormat("text/plain")
 			->setPublisher("http://www.kegg.jp/")
@@ -111,8 +115,8 @@ class KEGGParser extends Bio2RDFizer
 			$date = parent::getDate(filemtime($odir.$ofile));
 
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $db ")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - Gene ")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/kegg/kegg.php")
 				->setCreateDate($date)
