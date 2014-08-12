@@ -92,7 +92,43 @@ class KEGGParser extends Bio2RDFizer
 			
 			parent::getWriteFile()->close();
 			echo "done".PHP_EOL;	
+
 			// add dataset description
+			$source_file = (new DataResource($this))
+			->setURI($rfile)
+			->setTitle("KEGG: $db")
+			->setRetrievedDate( parent::getDate(filemtime($lfile)))
+			->setFormat("text/plain")
+			->setPublisher("http://www.kegg.jp/")
+			->setHomepage("http://www.kegg.jp/")
+			->setRights("use")
+			->setRights("no-commercial")
+			->setLicense("http://www.kegg.jp/kegg/legal.html")
+			->setDataset("http://identifiers.org/kegg/");
+
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = parent::getDate(filemtime($odir.$ofile));
+
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $db ")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/kegg/kegg.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
 		}
 		
 		// all other files
@@ -124,7 +160,46 @@ class KEGGParser extends Bio2RDFizer
 			echo "done!".PHP_EOL;
 			
 			// add dataset description
+			$source_file = (new DataResource($this))
+			->setURI($rfile)
+			->setTitle("KEGG: $db")
+			->setRetrievedDate( parent::getDate(filemtime($lfile)))
+			->setFormat("text/plain")
+			->setPublisher("http://www.kegg.jp/")
+			->setHomepage("http://www.kegg.jp/")
+			->setRights("use")
+			->setRights("no-commercial")
+			->setLicense("http://www.kegg.jp/kegg/legal.html")
+			->setDataset("http://identifiers.org/kegg/");
+
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = parent::getDate(filemtime($odir.$ofile));
+
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $db ")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/kegg/kegg.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
 		}
+		// write the dataset description
+		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
+		$this->getWriteFile()->write($dataset_description);
+		$this->getWriteFile()->close();
 	}
 	
 	function process($db)
