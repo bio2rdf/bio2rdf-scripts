@@ -79,6 +79,11 @@ class AffymetrixParser extends Bio2RDFizer
 		if(!isset($myfiles)) exit; // nothing to do
 		$dataset_description = '';
 		
+		// set the write file
+		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+		$outfile = 'affymetrix.'.parent::getParameterValue('output_format');	
+		$this->setWriteFile($odir.$outfile, $gz);
+
 		// iterate over the files
 		foreach($myfiles AS $rfile) {
 			$base_file = substr($rfile,strrpos($rfile,"/")+1);
@@ -123,16 +128,10 @@ class AffymetrixParser extends Bio2RDFizer
 			parent::setReadFile($lfile);
 			parent::getReadFile()->setFilePointer($fp);
 
-			// set the write file
-			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-			$outfile = 'affymetrix-'.$base_file.".".parent::getParameterValue('output_format');	
-			
-			$this->setWriteFile($odir.$outfile, $gz);
 			$this->parse($base_file);		
-			parent::getWriteFile()->close();
 			parent::getReadFile()->close();
 			parent::clear();
-			
+
 			// dataset description
 			$source_file = (new DataResource($this))
 			->setURI($rfile)
@@ -148,41 +147,45 @@ class AffymetrixParser extends Bio2RDFizer
 			->setLicense("http://www.affymetrix.com/about_affymetrix/legal/index.affx")
 			->setDataset("http://identifiers.org/affy.probeset/");
 
-			$prefix = parent::getPrefix();
-			$bVersion = parent::getParameterValue('bio2rdf_release');
-			$date = parent::getDate(filemtime($odir.$outfile));
-
-			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $base_file ")
-				->setSource($source_file->getURI())
-				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/affymetrix/affymetrix.php")
-				->setCreateDate($date)
-				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-				->setPublisher("http://bio2rdf.org")
-				->setRights("use-share-modify")
-				->setRights("by-attribution")
-				->setRights("restricted-by-source-license")
-				->setLicense("http://creativecommons.org/licenses/by/3.0/")
-				->setDataset(parent::getDatasetURI());
-
-			if($gz) $output_file->setFormat("application/gzip");
-			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
-			else $output_file->setFormat("application/n-quads");
-			
-			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
-//echo  $dataset_description;exit;
+			$dataset_description .= $source_file->toRDF();
 		}
+		$this->getWriteFile()->close();
+
+		// write the dataset description
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = parent::getDate(filemtime($odir.$outfile));
+
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/affymetrix/affymetrix.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+
+		$dataset_description .= $output_file->toRDF();
+
 		// write the dataset description
 		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
 		$this->getWriteFile()->write($dataset_description);
 		$this->getWriteFile()->close();
-		
+
 		return true;
 	}
-	
+
 	function Parse($file)
-	{	
+	{
 		parent::getReadFile()->read(); // skip the first comment line
 		$line = 1;
 		$first = true;
