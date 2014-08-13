@@ -49,7 +49,7 @@ class HGNCParser extends Bio2RDFizer {
 		if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
 			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 			parent::setParameterValue('download',true);
-		}		
+		}
 		//download the hgnc file
 		$rfile = null;
 		if(parent::getParameterValue('download') == true) {
@@ -58,10 +58,10 @@ class HGNCParser extends Bio2RDFizer {
 			Utils::DownloadSingle($rfile, $lfile);
 		}
 
-		$ofile = $odir.basename($file,".txt.gz").".".parent::getParameterValue('output_format');
+		$ofile = $odir."hgnc.".parent::getParameterValue('output_format');
 		$gz=false;
 		if(strstr(parent::getParameterValue('output_format'), "gz")){$gz = true;}
-		
+
 		parent::setWriteFile($ofile, $gz);
 		parent::setReadFile($lfile, true);
 		echo "processing $file... ";
