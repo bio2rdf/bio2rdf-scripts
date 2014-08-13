@@ -61,7 +61,7 @@ class DrugBankParser extends Bio2RDFizer
 		foreach($files AS $f) {
 			if($f == 'drugbank') {
 				$file = 'drugbank.xml.zip';
-				$lname = 'drugbank_drugs';
+				$lname = 'drugbank';
 			}
 			$fnx = 'parse_'.$f;
 			
@@ -247,7 +247,7 @@ class DrugBankParser extends Bio2RDFizer
 							foreach($v3 AS $k4 => $v4) {
 								$ns = $this->NSMap($v4->resource);
 								$id = (string) $v4->identifier;
-								$id = str_replace("HGNC:","",$id);
+								$id = str_replace(array("GNC:","HGNC:"),"",$id);
 								parent::addRDF(
 									parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
 								);
