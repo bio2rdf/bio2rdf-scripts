@@ -53,10 +53,13 @@ class KEGGParser extends Bio2RDFizer
 		} else {
 			$files = explode(',', parent::getParameterValue('files'));
 		}
-		
+		if(parent::getParameterValue('id_list') != '') {
+			$this->idlist = explode(",",parent::getParameterValue("id_list"));
+		}
+
 		// handle genes separately
 		if(in_array("genes",$files)) {	
-			$orgs = array("hsa","mmu","eco","dre","dme","ath","sce","ddi");
+			$orgs = array("hsa"); //,"mmu","eco","dre","dme","ath","sce","ddi");
 			echo "processing genes".PHP_EOL;
 			
 			$ofile = "kegg-genes.".parent::getParameterValue('output_format'); 
@@ -91,24 +94,26 @@ class KEGGParser extends Bio2RDFizer
 				parent::getReadFile()->close();
 				parent::clear();
 				$this->org = null;
+				
+				// add dataset description
+				$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle("KEGG: Gene")
+				->setRetrievedDate( parent::getDate(filemtime($lfile)))
+				->setFormat("text/plain")
+				->setPublisher("http://www.kegg.jp/")
+				->setHomepage("http://www.kegg.jp/")
+				->setRights("use")
+				->setRights("no-commercial")
+				->setLicense("http://www.kegg.jp/kegg/legal.html")
+				->setDataset("http://identifiers.org/kegg/");
+
+				$dataset_description .= $source_file->toRDF();
 			}
 			fclose($fp);
 			
 			parent::getWriteFile()->close();
 			echo "done".PHP_EOL;	
-
-			// add dataset description
-			$source_file = (new DataResource($this))
-			->setURI($rfile)
-			->setTitle("KEGG: Gene")
-			->setRetrievedDate( parent::getDate(filemtime($lfile)))
-			->setFormat("text/plain")
-			->setPublisher("http://www.kegg.jp/")
-			->setHomepage("http://www.kegg.jp/")
-			->setRights("use")
-			->setRights("no-commercial")
-			->setLicense("http://www.kegg.jp/kegg/legal.html")
-			->setDataset("http://identifiers.org/kegg/");
 
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
@@ -132,7 +137,7 @@ class KEGGParser extends Bio2RDFizer
 			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
 			else $output_file->setFormat("application/n-quads");
 			
-			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			$dataset_description .= $output_file->toRDF();
 		}
 		
 		// all other files
@@ -181,7 +186,7 @@ class KEGGParser extends Bio2RDFizer
 			$date = parent::getDate(filemtime($odir.$ofile));
 
 			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
 				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $db ")
 				->setSource($source_file->getURI())
 				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/kegg/kegg.php")
@@ -214,6 +219,9 @@ class KEGGParser extends Bio2RDFizer
 		while($l = parent::getReadFile()->read()) {
 			list($nsid,$name) = explode("\t",$l);
 			list($ns,$id) = explode(":",$nsid);
+			
+			if(isset($this->idlist) and !in_array($id,$this->idlist)) continue;
+			
 			if(isset($this->org)) {
 				$id = $ns."_".$id;
 			}
@@ -228,20 +236,19 @@ class KEGGParser extends Bio2RDFizer
 			$lfile = $ldir.$id.".txt";
 			$rfile = parent::getParameterValue("download_url")."get/$nsid";
 			if(!file_exists($lfile) || parent::getParameterValue('download') == 'true') {
-				echo "Downloading $nsid ";
+				echo "downloading $nsid ";
 				$ret = utils::downloadSingle($rfile,$lfile);
 				if($ret === false) {
 					echo "unable to download ".$nsid." ... skipping".PHP_EOL;
 					continue;
 				}
-				echo "done.".PHP_EOL;
+				echo "done. ";
 			}
 			
-			echo "processing $nsid ... ";
+			echo "parsing $nsid ... ";
 			$this->parseEntry($lfile);
 			parent::writeRDFBufferToWriteFile();
 			echo "done!".PHP_EOL;
-			break;
 		}
 	}
 		
@@ -251,7 +258,8 @@ class KEGGParser extends Bio2RDFizer
 		while($l = fgets($fp,100000)) {
 			$k_t = trim(substr($l,0,12));			
 			$v = trim(substr($l,12));
-
+			if($v == '') continue;
+			
 			// set the key to the current key if not empty, else keep using what was there before
 			if(!isset($k)) $k = $k_t;
 			else if(!empty($k_t)) $k = $k_t;
@@ -315,7 +323,7 @@ class KEGGParser extends Bio2RDFizer
 			}
 			
 			// key with semi-colon separated values
-			if(in_array($k, array("CLASS","CATEGORY","KEYWORDS","CHROMOSOME","ANNOTATION"))) {  
+			if(in_array($k, array("CLASS","CATEGORY","KEYWORDS","CHROMOSOME","ANNOTATION","ACTIVITY"))) {  
 				$a = explode(";",$v);
 				foreach($a AS $c) {
 					parent::addRDF(
@@ -340,7 +348,7 @@ class KEGGParser extends Bio2RDFizer
 			}
 			
 			// multi-line header with key-value pair
-			if(in_array($k, array("PATHWAY_MAP","MODULE","DISEASE","KO_PATHWAY","COMPOUND"))) {
+			if(in_array($k, array("PATHWAY_MAP","STR_MAP","MODULE","DISEASE","KO_PATHWAY","COMPOUND"))) {
 				// PATHWAY_MAP map00010  Glycolysis / Gluconeogenesis
 				$a = explode("  ",$v,2);
 				$mid = $a[0];
@@ -405,6 +413,7 @@ class KEGGParser extends Bio2RDFizer
 
 				$a = explode("  ",$v,2);
 				$ids = explode(",",$a[0]);
+				if(!isset($a[1])) {echo $k." ".$v;continue;}
 				$str = $a[1];
 				foreach($ids AS $id) {
 					$o = '';
@@ -442,6 +451,36 @@ class KEGGParser extends Bio2RDFizer
 					parent::addRDF(
 						parent::triplify($uri,parent::getVoc()."same-as","kegg:".$m[1])
 					);
+					continue;
+				}
+				preg_match("/ATC code: (.*)/",$v,$m);
+				if(isset($m[1])) {
+					$list = explode(" ",$m[1]);
+					foreach($list AS $item) {
+						parent::addRDF(
+							parent::triplify($uri,parent::getVoc()."x-atc","atc:".$item)
+						);
+					}
+					continue;
+				}
+				preg_match("/Therapeutic category: (.*)/",$v,$m);
+				if(isset($m[1])) {
+					$list = explode(" ",$m[1]);
+					foreach($list AS $item) {
+						parent::addRDF(
+							parent::triplifyString($uri,parent::getVoc()."therapeutic-category",$item)
+						);
+					}
+					continue;
+				}	
+				preg_match("/Drug group: (.*)/",$v,$m);
+				if(isset($m[1])) {
+					$list = explode(" ",$m[1]);
+					foreach($list AS $item) {
+						parent::addRDF(
+							parent::triplify($uri,parent::getVoc()."drug-group","kegg:".$item)
+						);
+					}
 					continue;
 				}
 			}
@@ -516,6 +555,40 @@ class KEGGParser extends Bio2RDFizer
 				}
 				continue;			
 			}
+			
+			if(in_array($k, array("INTERACTION","METABOLISM","TARGET"))) {
+				// dopamine D2-receptor antagonist [HSA:1813] [KO:K04145]
+				$id = parent::getRes().md5($uri.$v);
+				$type = ucfirst(strtolower($k));
+				if(in_array($k, array("INTERACTION","METABOLISM"))) {
+					$a = explode(":",$v,2);
+					$modifier = $a[0];
+				} else {
+					$modifier = '';
+					$s = substr($v,0,strpos($v,"[")+1);
+					// dopamine D2-receptor antagonist [
+					preg_match("/ ([a-z]+) \[/",$s,$m);
+					if(isset($m[1])) $modifier = $m[1];
+				}
+				parent::addRDF(
+					parent::describeIndividual($id,$v,parent::getVoc().$type).
+					parent::describeClass(parent::getVoc().$type, $type).
+					parent::triplifyString($id,parent::getVoc()."modifier",$modifier).
+					parent::triplify($uri,parent::getVoc().strtolower($k),$id)
+				);
+				preg_match_all("/ \[([^\]]+)\]/",$v,$m);
+				if(isset($m[1])) {
+					foreach($m[1] AS $item) {
+						if(!strstr($item,"KO")) $item = "kegg:".str_replace(":","_",$item);
+						else $item = str_replace("KO:","kegg:",$item);
+						parent::addRDF(
+							parent::triplify($id,parent::getVoc()."link",$item)
+						);
+					}
+				}
+				continue;
+			}
+			
 			// skip these
 			if(in_array($k, array( "ATOM","BOND","BRITE","AASEQ","NTSEQ"))) {
 				continue;
