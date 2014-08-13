@@ -57,10 +57,10 @@ class HomologeneParser extends Bio2RDFizer{
 		$rfile = $rdir.$file;
 		if($this->GetParameterValue('download') == true){
 			echo "downloading $file ... ";
-			file_put_contents($lfile,file_get_contents($rfile));
+			utils::downloadSingle($rfile,$lfile);
 		}
 
-		$ofile = $file.'.'.parent::getParameterValue('output_format'); 
+		$ofile = 'homologene.'.parent::getParameterValue('output_format'); 
 		$gz= strstr(parent::getParameterValue('output_format'), "gz")?$gz=true:$gz=false;
 
 		parent::setReadFile($lfile);
@@ -87,7 +87,7 @@ class HomologeneParser extends Bio2RDFizer{
                         $date = date ("Y-m-d\TG:i:s\Z");
                         $output_file = (new DataResource($this))
                                 ->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
-                                ->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+                                ->setTitle("Bio2RDF v$bVersion RDF version of $prefix")
                                 ->setSource($source_file->getURI())
                                 ->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/homologene/homologene.php")
                                 ->setCreateDate($date)
