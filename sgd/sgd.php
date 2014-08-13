@@ -40,6 +40,7 @@ class SGDParser extends Bio2RDFizer {
 		parent::addParameter('download_url',false,null,'http://downloads.yeastgenome.org/');
 		parent::addParameter('ncbo_download_dir', false, null, '/data/download/ncbo/', 'directory of ncbo ontologies');
 		parent::addParameter('ncbo_api_key',true,null,null,'your NCBO API key');
+		parent::addParameter('one_file',false,'true|false','true',"whether to produce a single file output");
 		parent::initialize();
 	}
 
@@ -132,8 +133,12 @@ class SGDParser extends Bio2RDFizer {
 		$graph_uri = parent::getGraphURI();
 		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 
+		$gz = false;if(strstr(parent::getParameterValue('output_format'), "gz")) $gz = true;
+		if(parent::getParameterValue('one_file') == true) {
+			$ofile = "sgd.".parent::getParameterValue('output_format');
+			parent::setWriteFile($odir.$ofile, $gz);
+		}
 		$dataset_description = '';
-
 		foreach($files as $file){
 
 			$ext = substr(strrchr($rfiles[$file], '.'), 1);
@@ -149,17 +154,11 @@ class SGDParser extends Bio2RDFizer {
 				trigger_error($ldir.$lfile." not found. Will attempt to download.", E_USER_NOTICE);				
 				Utils::DownloadSingle ($rfile, $ldir.$lfile);
 			}
-			
-			$suffix = parent::getParameterValue('output_format');
-			$ofile = "sgd_".$file.'.'.$suffix; 
-			
-			$gz = false;
-						
-			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$gz = true;
+
+			if(parent::getParameterValue('one_file') == false) {
+				$ofile = "sgd_".$file.'.'.parent::getParameterValue('output_format');
+				parent::setWriteFile($odir.$ofile, $gz);
 			}
-			
-			parent::setWriteFile($odir.$ofile, $gz);
 
 			//parse file
 			parent::setReadFile($ldir.$lfile, $gz);
@@ -173,7 +172,9 @@ class SGDParser extends Bio2RDFizer {
 			parent::writeRDFBufferToWriteFile();
 
 			//close write file
-			parent::getWriteFile()->close();
+			if(parent::getParameterValue('one_file') == false) {
+				parent::getWriteFile()->close();
+			}
 			echo PHP_EOL;
 
 			// generate the dataset release file
@@ -190,6 +191,9 @@ class SGDParser extends Bio2RDFizer {
 				->setLicense("http://www.stanford.edu/site/terms.html")
 				->setDataset("http://identifiers.org/sgd/");
 
+			$dataset_description .= $source_file->toRDF();
+
+		    if(parent::getParameterValue('one_file') == false) {
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
 			$date = date ("Y-m-d\TG:i:s\Z");
@@ -210,13 +214,36 @@ class SGDParser extends Bio2RDFizer {
 			if($gz) $output_file->setFormat("application/gzip");
 			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
 			else $output_file->setFormat("application/n-quads");
-			
-			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+			$dataset_description .= $output_file->toRDF();
+		      }
 			
 		}//foreach
 
 		//set graph URI back to default
 		parent::setGraphURI($graph_uri);
+		if(parent::getParameterValue('one_file') == true) {
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix - $file")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/sgd/sgd.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
+		}
 
 		//write dataset description to file
 		echo "Generating dataset description... ".PHP_EOL;

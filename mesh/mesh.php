@@ -172,7 +172,8 @@ class MeshParser extends Bio2RDFizer{
 
 	  	$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
-		
+		$dd = '';
+
 	  	//now iterate over the files array
 		$year = parent::getParameterValue('year');
 		foreach ($files as $k => $fpattern){
@@ -192,35 +193,56 @@ class MeshParser extends Bio2RDFizer{
 			}
 
 			//set the outfile
-			$ofile = $odir."mesh_".$k.".".parent::getParameterValue('output_format'); 
+			$ofile = "mesh_".$k.".".parent::getParameterValue('output_format'); 
 			$gz= strstr(parent::getParameterValue('output_format'), "gz")?true:false;
 
-			parent::setReadFile($lfile, FALSE);
-			parent::setWriteFile($ofile, $gz);
-			$fnx = $k;
 			echo "processing $k ...";
+			parent::setReadFile($lfile, FALSE);
+			parent::setWriteFile($odir.$ofile, $gz);
+			$fnx = $k;
 			$this->$fnx();
-
-			//write RDF to file
 			parent::writeRDFBufferToWriteFile();
 			parent::getWriteFile()->close();
 			echo "done!".PHP_EOL;
 
+			$source_file = (new DataResource($this))
+                         ->setURI($rfile)
+                         ->setTitle("MeSH")
+                         ->setRetrievedDate(parent::getDate(filemtime($lfile)))
+                         ->setFormat("text/x-mesh-record")
+                         ->setPublisher("http://www.nlm.nih.gov")
+                         ->setHomepage("http://www.nlm.nih.gov/mesh/")
+                         ->setRights("use")
+                         ->setLicense("http://www.nlm.nih.gov/databases/download.html")
+                         ->setDataset("http://identifiers.org/mesh/");
+
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = parent::getDate(filemtime($odir.$ofile));
+
+			$output_file = (new DataResource($this))
+                         ->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+                         ->setTitle("Bio2RDF v$bVersion RDF version of $prefix")
+                         ->setSource($source_file->getURI())
+                         ->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mesh/mesh.php")
+                         ->setCreateDate($date)
+                         ->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+                         ->setPublisher("http://bio2rdf.org")
+                         ->setRights("use-share-modify")
+                         ->setRights("by-attribution")
+                         ->setRights("restricted-by-source-license")
+                         ->setLicense("http://creativecommons.org/licenses/by/3.0/")
+                         ->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+
+			$dd .= $source_file->toRDF().$output_file->toRDF();
 		}//foreach
-		// generate the dataset release file
-		echo "generating dataset release file... ";
-		$desc = parent::getBio2RDFDatasetDescription(
-			$this->getPrefix(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/mesh/mesh_parser.php", 
-			$this->getBio2RDFDownloadURL($this->getNamespace()),
-			"http://www.nlm.nih.gov/mesh/",
-			array("use"),
-			"http://www.ncbi.nlm.nih.gov/About/disclaimer.html",
-			"http://www.nlm.nih.gov/databases/download.html",
-			parent::getDatasetVersion()
-		);
+
 		parent::setWriteFile($odir.$this->getBio2RDFReleaseFile($this->getNamespace()));
-		parent::getWriteFile()->write($desc);
+		parent::getWriteFile()->write($dd);
 		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
 	}//run
