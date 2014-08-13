@@ -448,7 +448,7 @@ function addDistinctTypes()
 function addTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?type ?n ?dn (str(?label) AS ?slabel)
+	$sparql = "SELECT distinct ?type ?n ?dn (str(?label) AS ?slabel)
 ".$options['from-graph']."
 {
   { 
@@ -484,7 +484,7 @@ function addTypeCount()
 function addPropertyCount()
 {
 	global $options;
-	$sparql = "SELECT ?p str(?plabel) ?n 
+	$sparql = "SELECT distinct ?p (str(?plabel) AS ?plabel) ?n 
 ".$options['from-graph']." 
 {
 	{ SELECT ?p (COUNT(?p) AS ?n) 
@@ -519,7 +519,7 @@ function addPropertyCount()
 function addObjectPropertyCount()
 {
 	global $options;
-	$sparql = "SELECT ?p (str(?label) AS ?plabel) (?n AS ?n) (?dn AS ?dn)
+	$sparql = "SELECT distinct ?p (str(?label) AS ?plabel) (?n AS ?n) (?dn AS ?dn)
 ".$options['from-graph']." 
 {
 	{ SELECT ?p (COUNT(?o) AS ?n) (COUNT(DISTINCT ?o) AS ?dn) 
@@ -562,7 +562,7 @@ function addObjectPropertyCount()
 function addDatatypePropertyCount()
 {
 	global $options;
-	$sparql = "SELECT ?p (str(?label) AS ?plabel) (?n AS ?n) (?dn AS ?dn)
+	$sparql = "SELECT distinct ?p (str(?label) AS ?plabel) (?n AS ?n) (?dn AS ?dn)
 ".$options['from-graph']." 
 {
 	{ SELECT ?p (COUNT(?o) AS ?n) (COUNT(DISTINCT ?o) AS ?dn)
@@ -603,7 +603,7 @@ function addDatatypePropertyCount()
 function addPropertyObjectTypeCount()
 {
 	global $options;
-	$sparql = "SELECT ?p (str(?plabel) AS ?plabel) ?otype (str(?otype_label) AS ?otype_label) (?n AS ?n) (?dn AS ?dn)
+	$sparql = "SELECT distinct ?p (str(?plabel) AS ?plabel) ?otype (str(?otype_label) AS ?otype_label) (?n AS ?n) (?dn AS ?dn)
 ".$options['from-graph']." {
 	{
 		SELECT ?p ?otype (COUNT(?o) AS ?n) (COUNT(DISTINCT ?o) AS ?dn)
@@ -648,7 +648,7 @@ function addPropertyObjectTypeCount()
 function addSubjectTypePropertyCount()
 {
 	global $options;
-	$sparql = "SELECT ?p (str(?plabel) AS ?plabel) ?stype (str(?stype_label) AS ?stype_label) (?n AS ?n) (?dn AS ?dn)
+	$sparql = "SELECT distinct ?p (str(?plabel) AS ?plabel) ?stype (str(?stype_label) AS ?stype_label) (?n AS ?n) (?dn AS ?dn)
 ".$options['from-graph']." {
 	{
 		SELECT ?p ?stype (COUNT(?s) AS ?n) (COUNT(DISTINCT ?s) AS ?dn)
@@ -693,7 +693,7 @@ function addSubjectTypePropertyCount()
 function addSubjectPropertyObjectCount()
 {
 	global $options;
-	$sparql = "SELECT ?p (str(?plabel) AS ?plabel) (?sn AS ?sn) (?dsn AS ?dsn) (?on AS ?on) (?don AS ?don)
+	$sparql = "SELECT distinct ?p (str(?plabel) AS ?plabel) (?sn AS ?sn) (?dsn AS ?dsn) (?on AS ?on) (?don AS ?don)
 ".$options['from-graph']." {
 	{
 		SELECT ?p (COUNT(?s) AS ?sn) (COUNT(DISTINCT ?s) AS ?dsn) (COUNT(?o) AS ?on) (COUNT(DISTINCT ?o) AS ?don)
@@ -745,7 +745,7 @@ function addTypePropertyTypeCount()
 {
 	global $options;
 	$sparql = "SELECT 
-		?stype (str(?stype_label) AS ?stype_label) (?sn AS ?sn) (?dsn AS ?dsn) 
+		distinct ?stype (str(?stype_label) AS ?stype_label) (?sn AS ?sn) (?dsn AS ?dsn) 
 		?p (str(?plabel) AS ?plabel) 
 		?otype (str(?otype_label) AS ?otype_label) (?on AS ?on) (?don AS ?don)
 	".$options['from-graph']." 
