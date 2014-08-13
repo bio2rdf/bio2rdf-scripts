@@ -155,22 +155,22 @@ class BioportalParser extends Bio2RDFizer
 				parent::setReadFile($idir.$lfile, true);
 				$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 				$ofile = strtolower($abbv).".".parent::getParameterValue('output_format');
-//				parent::setWriteFile($odir.$ofile,$gz);
+				parent::setWriteFile($odir.$ofile,$gz);
 
 				// process
 				echo "converting ... ";
 				set_time_limit(0);
 				if($format == 'obo') {
-//					$this->OBO2RDF($abbv);
+					$this->OBO2RDF($abbv);
 				} else if($format == 'owl') {
-//					$this->OWL2RDF($abbv);
+					$this->OWL2RDF($abbv);
 					if(isset($this->unmapped_uri)) print_r($this->unmapped_uri);
 					unset($this->unmapped_uri);
 				} else {
 					echo "no processor for $label (format $format)".PHP_EOL;
 				}
 				if(!file_exists($odir.$ofile)) { echo "no output".PHP_EOL;continue;}
-//				parent::getWriteFile()->close();
+				parent::getWriteFile()->close();
 				parent::clear();
 
 				$bVersion = parent::getParameterValue('bio2rdf_release');
