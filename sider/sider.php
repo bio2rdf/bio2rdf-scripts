@@ -230,6 +230,16 @@ class SIDERParser extends Bio2RDFizer
 				parent::describeClass(parent::getVoc().$type,"SIDER ".$type)
 			);
 
+			// attempt to extract the spl id
+			$b = explode("_",trim($a[6]));
+			if(isset($b[1])) {
+				$c = explode("-",$b[1]);
+				if(count($c) == 5) {
+					// possibly an SPL id
+					parent::addRDF(parent::triplify($id,parent::getVoc()."x-spl","dailymed:".$b[1]));
+				}
+			}
+
 			if(trim($a[0])) {
 				$brand_label = strtolower(trim($a[0]));
 				$brand_qname = parent::getRes().md5($brand_label);
