@@ -299,7 +299,8 @@ class OMIMParser extends Bio2RDFizer
 		// parse titles
 		$titles = $o['titles'];
 		parent::addRDF(
-			parent::describeIndividual($omim_uri, $titles['preferredTitle'], parent::getVoc().str_replace(array(" ","/"),"-", ucfirst($type)))
+			parent::describeIndividual($omim_uri, $titles['preferredTitle'], parent::getVoc().str_replace(array(" ","/"),"-", ucfirst($type))).
+			parent::describeClass(parent::getVoc().str_replace(array(" ","/"),"-", ucfirst($type)),$type)
 		);
 		if(isset($titles['preferredTitle'])) {
 			parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."preferred-title", $titles['preferredTitle']));
@@ -340,7 +341,10 @@ class OMIMParser extends Bio2RDFizer
 				$uri = parent::getRes()."$omim_id"."_allele_".$i;
 				$label = str_replace("\n"," ",$v['name']);
 				
-				parent::addRDF(parent::describeIndividual($uri, $label, parent::getVoc()."Allelic-Variant"));
+				parent::addRDF(
+					parent::describeIndividual($uri, $label, parent::getVoc()."Allelic-Variant").
+					parent::describeClass(parent::getVoc()."Allelic-Variant","Allelic Variant")
+				);
 
 				if(isset($v['alternativeNames'])) {
 					$names = explode(";;",$v['alternativeNames']);
@@ -408,7 +412,7 @@ class OMIMParser extends Bio2RDFizer
 											$ns = "omim"; 
 											$id = $b[0];
 										} else {
-											$ns = str_replace(array("id","icd10cm","icd9cm","snomedct"), array("eom","icd10","icd9","snomed"), $ns);
+											$ns = str_replace(array("hpo","id","icd10cm","icd9cm","snomedct"), array("hp","eom","icd10","icd9","snomed"), $ns);
 										}
 										parent::addRDF(
 											parent::triplify($phenotype_id, parent::getVoc()."x-$ns", "$ns:$id")
@@ -416,7 +420,7 @@ class OMIMParser extends Bio2RDFizer
 									} // foreach
 								} // foreach
 							} // codes
-						} //foreach			
+						} //foreach
 					} // foreach
 				} // exists
 			}
@@ -437,8 +441,7 @@ class OMIMParser extends Bio2RDFizer
 					parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."gene-symbol", "symbol:".trim($symbol)));
 				}
 			}
-			
-			
+
 			if(isset($map['geneName'])) {
 				$b = explode(",",$map['geneName']);
 				foreach($b AS $name) {
@@ -452,10 +455,9 @@ class OMIMParser extends Bio2RDFizer
 					$method_uri = $this->get_method_type($mapping_method);
 					if($method_uri !== false)
 						parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."mapping-method", $method_uri));
-					
 				}
 			}
-			
+
 			if(isset($map['mouseGeneSymbol'])) {
 				$b = explode(",",$map['mouseGeneSymbol']);
 				foreach($b AS $c) {
