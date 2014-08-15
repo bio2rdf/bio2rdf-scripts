@@ -49,7 +49,7 @@ class HGNCParser extends Bio2RDFizer {
 		if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
 			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 			parent::setParameterValue('download',true);
-		}		
+		}
 		//download the hgnc file
 		$rfile = null;
 		if(parent::getParameterValue('download') == true) {
@@ -58,10 +58,10 @@ class HGNCParser extends Bio2RDFizer {
 			Utils::DownloadSingle($rfile, $lfile);
 		}
 
-		$ofile = $odir.basename($file,".txt.gz").".".parent::getParameterValue('output_format');
+		$ofile = $odir."hgnc.".parent::getParameterValue('output_format');
 		$gz=false;
 		if(strstr(parent::getParameterValue('output_format'), "gz")){$gz = true;}
-		
+
 		parent::setWriteFile($ofile, $gz);
 		parent::setReadFile($lfile, true);
 		echo "processing $file... ";
@@ -176,9 +176,14 @@ class HGNCParser extends Bio2RDFizer {
 				parent::describeClass($this->getVoc()."Gene-Symbol", "HGNC Official Gene Symbol")
 			);
 			if(!empty($approved_symbol)){
+				$s = "hgnc.symbol:".$approved_symbol;
 				parent::AddRDF(
 					parent::triplifyString($id_res, $this->getVoc()."approved-symbol",utf8_encode(htmlspecialchars($approved_symbol))).
-					parent::describeProperty($this->getVoc()."approved-symbol", "HGNC approved gene symbol","The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene")
+					parent::describeProperty($this->getVoc()."approved-symbol", "HGNC approved gene symbol","The official gene symbol that has been approved by the HGNC and is publicly available. Symbols are approved based on specific HGNC nomenclature guidelines. In the HTML results page this ID links to the HGNC Symbol Report for that gene").
+					parent::describeIndividual($s, $approved_symbol, parent::getVoc()."Approved-Gene-Symbol").
+					parent::describeClass(parent::getVoc()."Approved-Gene-Symbol","Approved Gene Symbol").
+					parent::triplify($id_res, parent::getVoc()."has-approved-symbol", $s).
+					parent::triplify($s, parent::getVoc()."is-approved-symbol-of", $id_res)
 				);
 				
 			}

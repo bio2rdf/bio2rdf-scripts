@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2011-2012 Michel Dumontier
+Copyright (C) 2011-2014 Michel Dumontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -21,160 +21,163 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+require_once(__DIR__.'/../../arc2/ARC2.php'); // available on git @ https://github.com/semsol/arc2.git
 
 /**
- * An RDF generator for NCBO Bioportal listed ontologies
+ * A Bio2RDF converter for bioportal ontologies
  * documentation: 
- * @version 1.0
+ * @version 2.0
  * @author Michel Dumontier
 */
-require_once(__DIR__.'/../../arc2/ARC2.php'); // available on git @ https://github.com/semsol/arc2.git
 
 class BioportalParser extends Bio2RDFizer
 {
 	function __construct($argv) {
 		parent::__construct($argv,'bioportal');
 		parent::addParameter('files',true,null,'all','all or comma-separated list of ontology short names to process');
-		parent::addParameter('download_url',false,null,'http://rest.bioontology.org/bioportal/ontologies');
-		
-		parent::addParameter('exclude',false,null,'gaz,cco','ontologies to ignore');
-		parent::addParameter('ncbo_api_key',false,null,'24e19c82-54e0-11e0-9d7b-005056aa3316','BioPortal API key (please use your own)');
+		parent::addParameter('download_url',false,null,'http://data.bioontology.org/');
+		parent::addParameter('exclude',false,null,null,null,'ontologies to exclude - use acronyms');
+		parent::addParameter('ncbo_api_key',false,null,null,'BioPortal API key (please use your own)');
+		parent::addParameter('ncbo_api_key_file',false,null,'ncbo.api.key','BioPortal API key file');
 		parent::addParameter('detail',false,'min|min+|max','max','min:generate rdfs:label and rdfs:subClassOf axioms; min+: min + owl axioms');
-		
+
 		parent::initialize();
 		return TRUE;
 	}
-	
-	
+
 	function Run()
 	{
 		$dataset_description = '';
 		$idir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
-		
+
+		if(parent::getParameterValue('ncbo_api_key')) {
+			$apikey = "?apikey=".parent::getParameterValue('ncbo_api_key');
+		} else {
+			if(file_exists(parent::getParameterValue('ncbo_api_key_file'))) $apikey = "?apikey=".trim(file_get_contents(parent::getParameterValue('ncbo_api_key_file')));
+			else {
+				echo "You must provide an NCBO API key either as a file or as a parameter".PHP_EOL;
+				exit;
+			}
+		}
+
 		// get the list of ontologies from bioportal
-		$olist = $idir."ontolist.xml";		
+		$olist = $idir."ontolist.json";
 		if(!file_exists($olist) || parent::getParameterValue('download') == 'true') {
 			echo "downloading ontology list...";
-			$r_olist = parent::getParameterValue('download_url').'?apikey='.parent::getParameterValue('ncbo_api_key');
+			$r_olist = parent::getParameterValue('download_url').'ontologies'.$apikey;
 			file_put_contents($olist, file_get_contents($r_olist));
 			echo "done".PHP_EOL;
 		}
-		
+
 		// include
 		if(parent::getParameterValue('files') == 'all') {
 			$include_list = array('all');
 		} else {
 			$include_list = explode(",",parent::getParameterValue('files'));
 		}
-		
+
 		// exclude
+		$exclude_list = array();
 		if(parent::getParameterValue('exclude') != '') {
 			$exclude_list = explode(",",parent::getParameterValue('exclude'));
 		}
 
 		// now go through the list of ontologies
-		$c = file_get_contents($olist);
-		if(($root = simplexml_load_string($c)) === FALSE) {
-			trigger_error("Error in reading $olist",E_USER_ERROR);
-			return FALSE;
-		}
+		$ontologies = json_decode(file_get_contents($olist), false);
+		$total = count($ontologies);
+		foreach($ontologies AS $i => $o) {
+			$label = (string) $o->name;
+			$abbv = (string) $o->acronym;
 
-		$data = $root->data->list;
-		foreach($data->ontologyBean AS $d) {
-			$oid = (string) $d->ontologyId;			
-			$label = (string) $d->displayLabel;
-			$abbv = (string) strtolower($d->abbreviation);
-			$format = strtolower((string) $d->format);
-			$filename = (string) $d->filenames->string;
-			if(strstr($filename,".zip")) $zip = true;
-			else $zip = false;
-			
-			$ns = $this->getRegistry()->getNamespaceFromId($oid,'bioportal');
-			if(!$ns) $ns = $abbv;
-			// echo "$oid [$ns] -- $abbv --  $label".PHP_EOL;
-
-			if(array_search($ns,$exclude_list) !== FALSE) continue;
-
+			if(array_search($abbv,$exclude_list) !== FALSE) continue;
 			if($include_list[0] != 'all') {
 				// ignore if we don't find it in the include list OR we do find it in the exclude list
-				if( (array_search($ns,$include_list) === FALSE)
-					|| (array_search($ns,$exclude_list) !== FALSE) ) {
-					 //echo "skipping $label ($abbv id=$oid format=$format)".PHP_EOL;
+				if( (array_search($abbv,$include_list) === FALSE)
+					|| (array_search($abbv,$exclude_list) !== FALSE) ) {
+					 //echo "skipping $label ($abbv format=$format)".PHP_EOL;
 					continue;
 				}
 			}
-			set_time_limit(5000);			
-			$suf = '';
-			if($format == 'obo') $suf = 'obo';
-			if($format == "owl") $suf = "owl";
-			if($format == "owl-dl") $format = $suf = "owl";
-			if($format == "owl-full") $format = $suf = "owl";
-			if($format == "LEXGRID-XML") $format = $suf = "xml";
-			if($format == 'protege' || $format == 'umls-rela' || $format == "rrf") {
-				continue;  // we can't manage these yet
-			}
-			
-			// check and see if there is more than one file, if so, zip.
-			unset($ofile);
-			$files = count($d->filenames->string);
-			if($files == 1) {
-				if(!$zip) $file = $ns.".".$suf.".gz";
-				else $file = $ns.".".$suf;
-				$ofile = $odir.$ns.".".parent::getParameterValue('output_format');
-			} else {
-				// probably a zipfile
-				$zip = true;
-				$file = $ns.".zip";
-			}
-			$lfile = $idir.$file;
 
-			// download
-			$rfile = 'http://rest.bioontology.org/bioportal/virtual/download/'.$oid;
-			if(!file_exists($lfile)|| parent::getParameterValue('download') == 'true') {
-				if(in_array($oid, array(1114,1029,1144,1052,1013,1011,1369,1249,1490,1544,1576,1578,1627,1630,1649,1655,1656,1661,1670,1694,1697,3007,3017,3032,3038,3043,3045,3047,3062,3092,3094,3104,3136,3146,3147,3157,3167,3184,3185,3186,3191,3192,3194,3195,3197,3199,3200,3205,3206,3211,3212,3224,3230,3231,3232,3237,3241,3258,3261,3264))) {
-					// skip
-					echo "$label ($abbv id=$oid) : not permitted, skipping".PHP_EOL;
-					continue;
-				}
-				echo "Downloading $label ($abbv id=$oid) ... ";
-				
-				if($zip) $lz = $lfile;
-				else $lz = "compress.zlib://".$lfile;
-				$rfile2 = $rfile.'?apikey='.parent::getParameterValue('ncbo_api_key');
+			// get info on the latest submission
+			$uri = $o->links->latest_submission;
+			$ls = json_decode(file_get_contents($uri.$apikey), true);
+			if(!isset($ls['hasOntologyLanguage'])) {echo 'insufficient metadata'.PHP_EOL;continue;}
 
-				$ret = Utils::DownloadSingle($rfile2,$lz,true);
-				if($ret === false) {
-					echo "Unable to download $label".PHP_EOL;
-					continue;
-				}
-				echo " download complete.".PHP_EOL;
+			$format = strtolower($ls['hasOntologyLanguage']);
+/***********/
+			if($format != 'owl' and $format != 'obo') continue;
+
+			echo "Processing ($i/$total) $abbv ... ";
+
+			$version = $ls['version'];
+			if(isset($ls['homepage'])) $homepage = $ls['homepage'];
+			if(isset($ls['description'])) $description = $ls['description'];
+
+			$rfile = $ls['ontology']['links']['download'];
+
+
+			$lfile = $abbv.".".$format.".gz";
+			if(parent::getParameterValue('download') == 'true') {
+				echo "downloading ... ";
+
+				$ch = curl_init(); // create cURL handle (ch)
+				if (!$ch) die("Couldn't initialize a cURL handle");
+				$ret = curl_setopt($ch, CURLOPT_URL,            $rfile.$apikey);
+				$ret = curl_setopt($ch, CURLOPT_HEADER,         1);
+				$ret = curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+				$ret = curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+				$ret = curl_setopt($ch, CURLOPT_TIMEOUT,        300);
+				$ret = curl_exec($ch);
+				if(!$ret) {echo "no content";continue;}
+
+				$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+				$header = substr($ret, 0, $header_size);
+				preg_match("/filename=\"([^\"]+)\"/",$header,$m);
+				if(isset($m[1])) {
+					$filename = $m[1];
+					if(strstr($filename,".zip"))  continue;
+				} else {echo "error: no filename".PHP_EOL;continue;}
+
+				$body = substr($ret, $header_size);
+				// now get the file suffix
+				$path = pathinfo($filename);
+				if(isset($path['extension'])) $ext  = $path['extension'];
+				else {echo "error: no extension".PHP_EOL; continue;}
+
+				$lz = "compress.zlib://".$idir.$lfile;
+				file_put_contents($lz,$body);
+				echo "done".PHP_EOL;
 			}
-		
-			if(isset($ofile)) {
-				parent::setReadFile($lfile, true);
+
+			if(file_exists($idir.$lfile)) {
+				parent::setReadFile($idir.$lfile, true);
 				$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-				parent::setWriteFile($ofile,$gz);
-			
+				$ofile = strtolower($abbv).".".parent::getParameterValue('output_format');
+				parent::setWriteFile($odir.$ofile,$gz);
+
 				// process
-				echo "Processing $label ($abbv id=$oid format=$format) into $ofile ... ";
+				echo "converting ... ";
 				set_time_limit(0);
 				if($format == 'obo') {
 					$this->OBO2RDF($abbv);
 				} else if($format == 'owl') {
 					$this->OWL2RDF($abbv);
 					if(isset($this->unmapped_uri)) print_r($this->unmapped_uri);
-					@print_r($this->unmapped_uri);
 					unset($this->unmapped_uri);
 				} else {
 					echo "no processor for $label (format $format)".PHP_EOL;
 				}
-				$date = date ("Y-m-d\TG:i:s\Z");
+				if(!file_exists($odir.$ofile)) { echo "no output".PHP_EOL;continue;}
+				parent::getWriteFile()->close();
+				parent::clear();
+
 				$bVersion = parent::getParameterValue('bio2rdf_release');
 				$source_file = (new DataResource($this))
                                 	->setURI($rfile)
                                 	->setTitle("$label")
-                                	->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+                                	->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($idir.$lfile)))
                                 	->setFormat("obo")
                                 	->setPublisher("http://www.bioontology.org")
                                 	->setHomepage("http://bioportal.bioontology.org/")
@@ -187,72 +190,28 @@ class BioportalParser extends Bio2RDFizer
                                 	->setTitle("Bio2RDF v$bVersion RDF version of $abbv")
                                 	->setSource($source_file->getURI())
                                 	->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/bioportal/bioportal.php")
-                                	->setCreateDate($date)
+                                	->setCreateDate( date("Y-m-d\TG:i:s\Z", filemtime($odir.$ofile)))
                                 	->setHomepage("http://download.bio2rdf.org/release/$bVersion/bioportal/bioportal.html")
                                 	->setPublisher("http://bio2rdf.org")
                                 	->setRights("use-share-modify")
                                 	->setRights("by-attribution")
                                 	->setRights("restricted-by-source-license")
-                                	->setLicense("http://creativecommons.org/licenses/by/3.0/");
+                                	->setLicense("http://creativecommons.org/licenses/by/3.0/")
+					->setDataset(parent::getDatasetURI());
 
-					if($gz) $output_file->setFormat("application/gzip");
-        	                	if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
-                	        	else $output_file->setFormat("application/n-quads");
+				if($gz) $output_file->setFormat("application/gzip");
+        	               	if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+                        	else $output_file->setFormat("application/n-quads");
 
 				if(!isset($dd)) {
-					$dd = fopen($odir.'bio2rdf-bioportal.nt',"w");
+					$dd = fopen($odir.'bio2rdf-bioportal.nq',"w");
 				}
                         	fwrite($dd, $source_file->toRDF().$output_file->toRDF());
 				fflush($dd);
-
-				// @todo process owl files
-				echo "Done!".PHP_EOL;
-				parent::getReadFile()->close();
-				parent::writeRDFBufferToWriteFile();
-				parent::getWriteFile()->close();
-				parent::clear();
-
-			$source_file = (new DataResource($this))
-				->setURI($rfile)
-				->setTitle($abbv)
-				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
-				->setFormat("text/$format")
-				->setRights("use");
-
-			$e = parent::getRegistry()->getEntry($ns);
-			if($e['organization']) $source_file->setPublisher($e['organization']);
-			if($e['homepage']) $source_file->setHomepage($e['homepage']);
-			if($e['license']) $source_file->setLicense($e['license']);
-			if($e['miriam']) $source_file->setDataset("http://identifiers.org/$ns/");
-			
-			$bVersion = parent::getParameterValue('bio2rdf_release');
-			$date = date ("Y-m-d\TG:i:s\Z");
-			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2rdf.org/release/$bVersion/bioportal/$file")
-				->setTitle("Bio2RDF v$bVersion RDF version of $ns from BioPortal")
-				->setSource($source_file->getURI())
-				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/bioportal/bioportal.php")
-				->setCreateDate($date)
-				->setHomepage("http://download.bio2rdf.org/release/$bVersion/bioportal/bioportal.html")
-				->setPublisher("http://bio2rdf.org")			
-				->setRights("use-share-modify")
-				->setRights("by-attribution")
-				->setRights("restricted-by-source-license")
-				->setLicense("http://creativecommons.org/licenses/by/3.0/")
-				->setDataset(parent::getDatasetURI());
-
-			if($gz) $output_file->setFormat("application/gzip");
-			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
-			else $output_file->setFormat("application/n-quads");
-			
-			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
-
+				echo "done!".PHP_EOL;
 			}
 		}
-		echo "Generating dataset description... ";
-		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
-		parent::getWriteFile()->write($dataset_description);
-		parent::getWriteFile()->close();
+		if(isset($dd)) fclose($dd);
 		echo "done!".PHP_EOL;
 	}
 
@@ -265,7 +224,7 @@ class BioportalParser extends Bio2RDFizer
 		$parser->parse("http://bio2rdf.org/bioportal#", $buf);
 		$triples = $parser->getTriples();
 		foreach($triples AS $i => $a) {
-			$this->TriplifyMap($a, $abbv);
+			$this->TriplifyMap($a, strtolower($abbv));
 			parent::writeRDFBufferToWriteFile();
 		}
 		parent::clear();
@@ -283,13 +242,17 @@ class BioportalParser extends Bio2RDFizer
 
 				$a['prefix'] = parent::getRegistry()->getPrefixFromURI($a['base_uri']);
 				if(isset($a['prefix'])) {
-					$a['bio2rdf_uri'] = 'http://bio2rdf.org/'.$a['prefix'].':'.$a['fragment'];
-					$p_uri = parent::getRegistry()->getEntryValueByKey($a['prefix'], 'provider-uri');
-					if(isset($p_uri)) {
-						if($p_uri == $a['base_uri']) {
-							$a['is_provider_uri'] = true;
+					if($a['base_uri'] == 'http://bio2rdf.org/') {
+						$a['bio2rdf_uri'] = 'http://bio2rdf.org/'.$a['fragment'];
+					} else {
+						$a['bio2rdf_uri'] = 'http://bio2rdf.org/'.$a['prefix'].':'.$a['fragment'];
+						$p_uri = parent::getRegistry()->getEntryValueByKey($a['prefix'], 'provider-uri');
+						if(isset($p_uri)) {
+							if($p_uri == $a['base_uri']) {
+								$a['is_provider_uri'] = true;
+							}
+							$a['provider_uri'] = $p_uri;
 						}
-						$a['provider_uri'] = $p_uri;
 					}
 					break;
 				}
@@ -304,8 +267,8 @@ class BioportalParser extends Bio2RDFizer
 	public function TriplifyMap($a, $prefix)
 	{
 		$defaults = parent::getRegistry()->getDefaultURISchemes();
-		$bio2rdf_priority = true;
-		$mapping = false;
+		$bio2rdf_priority = false;
+		$mapping = true;
 
 		// subject
 		if($a['s_type'] == 'bnode') $a['s'] = 'http://bio2rdf.org/'.$prefix.'_resource:'.substr($a['s'],2);
@@ -357,7 +320,9 @@ class BioportalParser extends Bio2RDFizer
 		}
 
 		if($a['o_type'] == 'uri' || $a['o_type'] == 'bnode') {
-			if($a['o_type'] == 'bnode') $a['o'] = 'http://bio2rdf.org/'.$prefix.'_resource:'.substr($a['o'],2);
+			if($a['o_type'] == 'bnode') {
+				$a['o'] = 'http://bio2rdf.org/'.$prefix.'_resource:'.substr($a['o'],2);
+			}
 			$u = $this->parseURI($a['o']);
 			$o_uri = $u['uri'];
 			if(isset($u['prefix'])) {
@@ -397,6 +362,7 @@ class BioportalParser extends Bio2RDFizer
 	
 	function OBO2RDF($abbv)
 	{
+		$abbv = strtolower($abbv);
 		$minimal = (parent::getParameterValue('detail') == 'min')?true:false;
 		$minimalp = (parent::getParameterValue('detail') == 'min+')?true:false;
 		
@@ -405,7 +371,7 @@ class BioportalParser extends Bio2RDFizer
 		$is_a = false;
 		$is_deprecated = false;
 		$min = $buf = '';
-		$ouri = "http://bio2rdf.org/$abbv";
+		$ouri = "http://bio2rdf.org/lsr:".strtolower($abbv);
 		$buf = parent::triplify($ouri,"rdf:type","owl:Ontology");
 		$graph_uri = '<'.parent::getRegistry()->getFQURI(parent::getGraphURI()).'>';
 		$bid = 1;
@@ -455,7 +421,7 @@ class BioportalParser extends Bio2RDFizer
 			if(isset($intersection_of)) {
 				if($a[0] != "intersection_of") {
 			//		$intersection_of .= ")].".PHP_EOL;
-					$buf .= $intersection_of;
+					//$buf .= $intersection_of;
 					if($minimalp) $min .= $intersection_of;
 					unset($intersection_of);
 				}
@@ -463,7 +429,7 @@ class BioportalParser extends Bio2RDFizer
 			if(isset($relationship)) {
 				if($a[0] != "relationship") {
 				//	$relationship .= ")].".PHP_EOL;
-					$buf .= $relationship;
+					//$buf .= $relationship;
 					if($minimalp) $min .= $relationship;
 					unset($relationship);
 				}

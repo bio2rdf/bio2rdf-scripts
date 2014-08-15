@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2013 Alison Callahan and Jose Cruz-Toledo
+Copyright (C) 2013 Alison Callahan, Jose Cruz-Toledo, Michel Dumontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -151,11 +151,13 @@ class IProClassParser extends Bio2RDFizer
 			@$embl_genbank_ddbj = $fields[20];
 			@$embl_protein = trim($fields[21]);
 
-			$id = "uniprot:".$uniprot_acc;
+			$id = $uniprot_acc;
 			$id_res = $this->getNamespace().$id;
-			$id_label = "uniprot accession";
+			$id_label = "iproclass entry for uniprot:$uniprot_acc";
+			parent::addRDF(parent::triplify($id_res, $this->getVoc()."x-uniprot", "uniprot:".$uniprot_acc));
 
 			if(!empty($uniprot)){
+
 				$uniprot_ids = explode("; ", $uniprot);
 				foreach($uniprot_ids as $uniprot_id){
 					parent::AddRDF(
@@ -336,7 +338,6 @@ class IProClassParser extends Bio2RDFizer
 					);
 				}
 			}
-
 			//write rdf to file
 			$this->WriteRDFBufferToWriteFile();
 

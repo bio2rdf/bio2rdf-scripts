@@ -31,63 +31,37 @@ SOFTWARE.
 class NDCParser extends Bio2RDFizer 
 {
 	private $version = null;
-	
+
 	function __construct($argv) {
-		
 		parent::__construct($argv, "ndc");
-		
+
 		$this->AddParameter('files',true,'all|product|package','all','files to process');
 		$this->AddParameter('download_url',false,null,'http://www.fda.gov/downloads/Drugs/DevelopmentApprovalProcess/UCM070838.zip');
 		parent::initialize();
 	}
-	
+
 	function Run()
 	{
-
-		if(parent::getParameterValue('download') === true) 
-		{
-			$this->download();
-		}
-		if(parent::getParameterValue('process') === true) 
-		{
-			$this->process();
-		}
-
-		
-	}
-
-	function download(){
-
-		$ldir = $this->GetParameterValue('indir');
-		$rfile = $this->GetParameterValue('download_url');
-		$lfile = substr($rfile, strrpos($rfile,"/")+1);
-		
-		echo "Downloading $rfile ...";
-		Utils::DownloadSingle($rfile, $ldir.$lfile);
-		echo " done!".PHP_EOL;
-
-	}
-
-	function process(){
-
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
 		$rfile = $this->GetParameterValue('download_url');
 		$lfile = substr($rfile, strrpos($rfile,"/")+1);
-		
+
 		// check if exists
-		if(!file_exists($ldir.$lfile)) {
-			trigger_error($ldir.$lfile." not found. Will attempt to download. ", E_USER_NOTICE);
+		if(!file_exists($ldir.$lfile) or parent::getParameterValue('download') == 'true') {
+			echo "dowloading $rfile ...";
+			trigger_error("Will attempt to download ", E_USER_NOTICE);
 			Utils::DownloadSingle($rfile, $ldir.$lfile);
+			echo "done".PHP_EOL;
 		}
-		
+
 		// make sure we have the zip archive
 		$zin = new ZipArchive();
 		if ($zin->open($ldir.$lfile) === FALSE) {
 			trigger_error("Unable to open $ldir$lfile");
 			exit;
 		}
-		
+
 		// get the work
 		if($this->GetParameterValue('files') == 'all') {
 			$files = explode("|",$this->GetParameterList('files'));
@@ -96,94 +70,77 @@ class NDCParser extends Bio2RDFizer
 			$files = explode("|",$this->GetParameterValue('files'));
 		}
 
-		//set graph URI to be dataset URI
-		$graph_uri = parent::getGraphURI();
-		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
 
-		//start generating dataset description file
-		$dataset_description = '';
-		$source_file = (new DataResource($this))
-				->setURI($rfile)
-				->setTitle("FDA National Drug Code Directory")
-				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
-				->setFormat("text/tab-separated-value")
-				->setFormat("application/zip")	
-				->setPublisher("http://www.fda.gov")
-				->setHomepage("http://www.fda.gov/Drugs/InformationOnDrugs/ucm142438.htm")
-				->setRights("use-share")
-				->setLicense(null)
-				->setDataset("http://identifiers.org/ndc/");
+		$gz=false;
+		if(strstr(parent::getParameterValue('output_format'), "gz")) $gz = true;
+		$outfile = "ndc.".parent::getParameterValue('output_format');
+		parent::setWriteFile($odir.$outfile, $gz);
 
-		$dataset_description .= $source_file->toRDF();
 
 		// now go through each item in the zip file and process
 		foreach($files AS $file) {
 			echo "Processing $file... ";
 
-			// the file name in the zip archive is Product not product
-			/*if($file == "product"){
-				$file = ucfirst($file);
-			}*/
-
 			$fpin = $zin->getStream($file.".txt");
 			if(!$fpin) {
 				trigger_error("Unable to get pointer to $file in $ldir$lfile", E_USER_ERROR);
-			}
-			
-			// set the write file
-			$suffix = parent::getParameterValue('output_format');
-			$outfile = $file.'.'.$suffix; 
-			$gz=false;
-			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$gz = true;
+				return FALSE;
 			}
 
-			parent::setWriteFile($odir.$outfile, $gz);
-			
-			// process
 			$this->$file($fpin);
-			
-			// write to file
 			parent::writeRDFBufferToWriteFile();
-			parent::getWriteFile()->close();
-			
-			echo "done!".PHP_EOL;
-
-			echo "Generating dataset description for $outfile... ";
-			$prefix = parent::getPrefix();
-			$bVersion = parent::getParameterValue('bio2rdf_release');
-			$date = date ("Y-m-d\TG:i:s\Z");
-			$output_file = (new DataResource($this))
-				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
-				->setTitle("Bio2RDF v$bVersion RDF version of $prefix $file data (generated at $date)")
-				->setSource($source_file->getURI())
-				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ndc/ndc.php")
-				->setCreateDate($date)
-				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-				->setPublisher("http://bio2rdf.org")			
-				->setRights("use-share-modify")
-				->setRights("by-attribution")
-				->setRights("restricted-by-source-license")
-				->setLicense("http://creativecommons.org/licenses/by/3.0/")
-				->setDataset(parent::getDatasetURI());
-
-			if($gz) $output_file->setFormat("application/gzip");
-			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
-			else $output_file->setFormat("application/n-quads");
-			
-			$dataset_description .= $output_file->toRDF();
 			echo "done!".PHP_EOL;
 		}
-		
-		//set graph URI back to default value
-		parent::setGraphURI($graph_uri);
+
+		parent::getWriteFile()->close();
+
+		echo "Generating dataset description for $outfile... ";
+
+		//start generating dataset description file
+		$dataset_description = '';
+		$source_file = (new DataResource($this))
+			->setURI($rfile)
+			->setTitle("FDA National Drug Code Directory")
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
+			->setFormat("text/tab-separated-value")
+			->setFormat("application/zip")	
+			->setPublisher("http://www.fda.gov")
+			->setHomepage("http://www.fda.gov/Drugs/InformationOnDrugs/ucm142438.htm")
+			->setRights("use-share")
+			->setLicense(null)
+			->setDataset("http://identifiers.org/ndc/");
+
+
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ndc/ndc.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+
+		$dataset_description = $source_file->toRDF(). $output_file->toRDF();
 
 		//write dataset description to file
 		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
+		echo "done!".PHP_EOL;
 	}
-	
+
 	/* a relation between a product and it's packaging */
 	function package($fpin)
 	{
