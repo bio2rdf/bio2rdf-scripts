@@ -326,10 +326,29 @@ class NCBIGeneParser extends Bio2RDFizer
 			$id = parent::getNamespace().$a[1];
 			$refseq = false;
 			if($a[2] != '-') $refseq = true;
+			if($a[9] != '-' and $a[10] != '-') {
+				$region = parent::getRes().$a[7]."/".$a[9]."-".$a[10];
+				$start_pos = parent::getRes().$a[7]."/".$a[9];
+				$stop_pos = parent::getRes().$a[7]."/".$a[10];
+				parent::addRDF(
+					parent::describeIndividual($region,"location of ncbigene:".$a[1]." on ".$a[7],"faldo:Region").
+					parent::describeIndividual($start_pos,$a[1]." start position of ncbigene:".$a[1]." on ".$a[7],"faldo:ExactPosition").
+					parent::describeIndividual($stop_pos,$a[1]." stop position of ncbigene:".$a[1]." on ".$a[7],"faldo:ExactPosition").
+					parent::triplify($id,"faldo:location",$region).
+					parent::triplify($region,"faldo:begin",$start_pos).
+					parent::triplify($start_pos,"rdf:type","faldo:ForwardStrandPosition").
+					parent::triplifyString($start_pos,"faldo:position",$a[9],"xsd:integer").
+					parent::triplify($start_pos,"faldo:reference","refseq:".$a[7]).
+					parent::triplify($region,"faldo:end",$start_pos).
+					parent::triplify($stop_pos,"rdf:type","faldo:ForwardStrandPosition").
+					parent::triplifyString($stop_pos,"faldo:position",$a[10],"xsd:integer").
+					parent::triplify($stop_pos,"faldo:reference","refseq:".$a[7])
+				);
+			}
 
 			foreach($header AS $i => $v) {
 				if($a[$i] == "-") continue;
-				if($i == 1) continue; /// ncbigene
+				if($i == 1 or $i == 9 or $i == 10) continue; /// ncbigene
 
 				if(isset($v['ns'])) {
 					$ns = $v['ns'];
