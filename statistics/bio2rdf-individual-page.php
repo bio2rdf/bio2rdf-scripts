@@ -37,7 +37,7 @@ $options = array(
 	"graph" => "", // statistics graph
 	"instance" => "", // dataset
 	"bio2rdf.version" => "", // specify a bio2rdf version #
-	"odir" => "", // output directory
+	"odir" => "html/", // output directory
 	"ofile" => "", // output file
 	"download" => "false", // download registry
 );
@@ -67,8 +67,6 @@ if(!file_exists($options['isql'])) {
 if($options['odir']) @mkdir($options['odir'],0777);
 
 if($options['instance']) {
-	$dataset = $options['instance'];
-
 	// using the virtuoso instances; 
 	$registry_file = "registry.csv";
 	if(!file_exists($registry_file) or $options['download'] == "true") {
@@ -80,22 +78,38 @@ if($options['instance']) {
 	}
 
 	$registry  = getRegistry($registry_file);
-	$entry     = getRecord($registry,$dataset);
-	$endpoint  = getEndpointInfo($dataset);
-	$options['port'] = $endpoint['isql'];
+	$dataset = $options['instance'];
 
-	$options['sparql'] = $entry['sparql'] = "http://s2.semanticscience.org:".$endpoint['sparql']."/sparql";
+	$fp = fopen("instances.tab","r");
+        while($l = fgets($fp)) {
+                if(!$l or $l[0] == "#" ) continue;
+                $a = explode("\t",$l);
+                if($dataset == 'all' or $dataset == trim($a[2])) $list[] = trim($a[2]);
+        }
+        fclose($fp);
 
-	$entry['target.endpoint'] = $entry['sparql'];
-	if($options['target.endpoint']) $entry['target.endpoint'] = $options['target.endpoint']; 
+	foreach($list AS $dataset) {
+		if($dataset == "mappings") continue;
+		echo "processing $dataset ...";
+		$entry     = getRecord($registry,$dataset);
+		$endpoint  = getEndpointInfo($dataset);
+		$options['port'] = $endpoint['isql'];
 
-	if($options['bio2rdf.version'] == '') {
-		echo "specify bio2rdf.version!";exit;
+		$options['sparql'] = $entry['sparql'] = "http://localhost:".$endpoint['sparql']."/sparql";
+
+		$entry['target.endpoint'] = $entry['sparql'];
+		if($options['target.endpoint']) $entry['target.endpoint'] = $options['target.endpoint']; 
+
+		if($options['bio2rdf.version'] == '') {
+			echo "specify bio2rdf.version!";exit;
+		}
+		$options['graph'] = $entry['graph'] = "http://bio2rdf.org/".$dataset."_resource:bio2rdf.dataset.$dataset.R".$options['bio2rdf.version'].".statistics";
+		$entry['from'] = "FROM <".$entry['graph'].">";
+		$entry['describe'] = '';
+		$outfile = $options['odir'].$dataset."/$dataset.html";
+		makeHTML($entry,$outfile);
+		echo "done.".PHP_EOL;
 	}
-	$options['graph'] = $entry['graph'] = "http://bio2rdf.org/".$dataset."_resource:bio2rdf.dataset.$dataset.R".$options['bio2rdf.version'].".statistics";
-	$entry['from'] = "FROM <".$entry['graph'].">";
-	$entry['describe'] = '';
-	$outfile = $options['odir'].$dataset.'.html';
 } else {
 	if($options['graph'] == '') {
 		echo "please specify a graph!".PHP_EOL;
@@ -157,7 +171,7 @@ function getEndpointInfo($entry)
 	$fh = fopen($filename, "r") or die("Could not open file: $filename!".PHP_EOL);
 	while(($l = fgets($fh, 4096)) !== false){
 		$a = explode("\t",trim($l));
-		if($a[0] == '#' or $a[0] == '') continue;	
+		if($a[0] == '' or $a[0][0] == '#') continue;
 		if($a[2] == $entry) {
 			$info['isql'] = $a[0];
 			$info['sparql'] = $a[1];
