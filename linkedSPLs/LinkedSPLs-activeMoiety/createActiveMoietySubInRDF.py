@@ -18,12 +18,14 @@ import csv
 import difflib
 from rdflib import Graph, BNode, Literal, Namespace, URIRef, RDF, RDFS
 
-OUTFILE = "activeMoietySub-in-rdf.xml"
+OUT_FILE = "activeMoietySub-in-rdf.xml"
 
 CHEBI_BASE = "http://purl.obolibrary.org/obo/"
 RXNORM_BASE = "http://purl.bioontology.org/ontology/"
 DRUGBANK_CA = "http://www.drugbank.ca/drugs/"
 DRUGBANK_BIO2RDF = "http://bio2rdf.org/drugbank:"
+DRON_BASE = "http://purl.obolibrary.org/obo/"
+NDFRT_BASE = "http://purl.bioontology.org/ontology/NDFRT/"
 
 class DictItem:
    def __init__(self, pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole):
@@ -41,17 +43,18 @@ class DictItem:
 data_set = csv.DictReader(open("mergedActiveMoiety.csv","rb"), delimiter='\t')
 dict_moieties = {}
 
-## convert data from csv to dict (unii, items)
+## convert data from csv to dict (unii, items-object)
 
 for item in data_set:
+
    if item["unii"] not in dict_moieties:
       moiety = DictItem(item["pt"], item["unii"], item["db_uri1"], item["db_uri2"], item["rxcui"], item["omopid"], item["chebi"], item["dron"], item["nui"], item["nameAndRole"])
       dict_moieties[item["unii"]]=moiety
    else:
-      if item["nui"] is not None:
+      if item["nui"].strip() is not None:
          dict_moieties[item["unii"]].nui += "|" + item["nui"]
           
-      if item["nameAndRole"] is not None:
+      if item["nameAndRole"].strip() is not None:
          dict_moieties[item["unii"]].nameAndRole += "|" + item["nameAndRole"]
 
 
@@ -102,24 +105,54 @@ graph.namespace_manager.bind('dikbEvidence','http://dbmi-icode-01.dbmi.pitt.edu/
 graph.namespace_manager.bind('mp','http://purl.org/mp/')
 
 
+currentAnnotSet = "active-moiety-sub-graph" 
 
-for moiety in dict_moieties:
+index =1
 
-   currentAnnotItem = "ddi-spl-active-moiety-item-%s" % item["pt"]
-   currItem = moiety["unii"]
-   graph.add((poc[currentAnnotItem], dailymed["activeMoietyUNII"], currItem.unii))
-   graph.add((poc[currentAnnotItem], RDFS.label, currItem.pt))
-   graph.add((poc[currentAnnotItem], dailymed["activeMoietyRxCUI"], RXNORM_BASE + currItem["rxcui"]))
-   graph.add((poc[currentAnnotItem], dailymed["activeMoietyChEBI"], CHEBI_BASE + currItem["chebi"]))
-   graph.add((poc[currentAnnotItem], dailymed["subjectXref"], currItem["db_uri1"]))
-   graph.add((poc[currentAnnotItem], dailymed["subjectXref"], currItem["db_uri2"]))
+for k,v in dict_moieties.items():
+
+   currentAnnotItem = "ddi-spl-active-moiety-item-%s" % v.unii
+   
+   #print k
+   # pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole
+
+   graph.add((poc[currentAnnotSet], dailymed["activeMoietySub"], poc[currentAnnotItem]))
+
+   graph.add((poc[currentAnnotItem], dailymed["activeMoietyUNII"], Literal(v.unii)))
+   graph.add((poc[currentAnnotItem], RDFS.label, Literal(v.pt.strip())))
+   graph.add((poc[currentAnnotItem], RDF.type, dailymed["ActiveMoietyUNII"]))
+   if v.rxcui:
+      graph.add((poc[currentAnnotItem], dailymed["activeMoietyRxCUI"], URIRef(RXNORM_BASE + str(int(float(v.rxcui))))))
+
+   if v.chebi:
+      graph.add((poc[currentAnnotItem], dailymed["activeMoietyChEBI"], URIRef(CHEBI_BASE + v.chebi)))
+
+   if v.db_uri1:
+      graph.add((poc[currentAnnotItem], dailymed["subjectXref"], URIRef(v.db_uri1)))
+      graph.add((poc[currentAnnotItem], dailymed["subjectXref"], URIRef(v.db_uri2)))
+
+   if v.omopid:
+      graph.add((poc[currentAnnotItem], dailymed["OMOPConceptId"], Literal(int(float(v.omopid)))))
+
+   if v.dron:
+      graph.add((poc[currentAnnotItem], dailymed["DrOnId"], URIRef(DRON_BASE + v.db_uri2)))
+
+   #print "****|" + v.nui + "|"
+
+   if v.nui.strip() and v.nui.find("|") and v.nameAndRole.find("|") and  v.nameAndRole.strip():
+      nuis = v.nui.split("|")
+      nameAndRoles = v.nameAndRole.split("|")
+
+      if nuis and nameAndRoles and len(nuis) == len(nameAndRoles):
+
+         for index in range(len(nuis)):
+         #print "***" + nuis[index] + "***" + nameAndRoles[index]
+            graph.add((poc[currentAnnotItem], URIRef(NDFRT_BASE + str(nuis[index])), Literal(nameAndRoles[index])))
+
 
 ##display the graph
 f = codecs.open(OUT_FILE,"w","utf8")
-graph.serialize(destination=f,format="xml",encoding="utf8")
 s = graph.serialize(format="xml",encoding="utf8")
-
-f.write(graph.serialize(format="xml",encoding="utf8"))
 f.write(unicode(s,errors='replace'))
 print graph.serialize(format="xml")
 f.close

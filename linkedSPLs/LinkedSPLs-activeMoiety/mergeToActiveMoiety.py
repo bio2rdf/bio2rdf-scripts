@@ -10,6 +10,8 @@ Created 08/15/2014
 import os, sys
 import pandas as pd
 from StringIO import StringIO
+import numpy as np
+#from numpy import nan
 
 ## Define data inputs
 
@@ -43,6 +45,8 @@ pt_drugbank_DF = pd.read_csv(PT_DRUGBANK, sep='\t', names=pt_drugbank_cols)
 
 pt_rxcui_cols = ['pt','rxcui']
 pt_rxcui_DF = pd.read_csv(PT_RXCUI, sep='\t', names=pt_rxcui_cols)
+#pt_rxcui_DF["rxcui"].astype(str)
+#print pt_rxcui_DF.head()
 
 
 ## read mappings of omop id and rxcui
@@ -105,4 +109,9 @@ print merged_dron_DF
 
 merged_epc_DF = merged_dron_DF.merge(unii_nui_namerole_DF, on=['unii'], how='left')
 print merged_epc_DF
+
+#merged_epc_DF[['rxcui']] = merged_epc_DF[['rxcui']].astype(str)
+
+#print merged_epc_DF
+
 merged_epc_DF.to_csv('mergedActiveMoiety.csv', sep='\t')
