@@ -1,1 +1,60 @@
+################################################################################
+OVERVIEW
+################################################################################
+
 This folder will hold a graph that maps the active moiety components of an SPL to other drug resources
+
+Inputs are original mappings listed as belows:
+
+(1) UNII to RxNORM
+
+(2) UNII to ChEBI
+
+(3) RxNORM to Drugbank
+
+(4) UNII to DrOn
+
+(5) RxNORM to NDFRT (EPC)
+
+(6) RxNORM to OMOP
+
+Outputs is a RDF/XML graph that represents all active moiety with linked resouces.
+
+
+################################################################################
+PRE-REQUISITES:
+################################################################################
+
+python libraries
+
+rdflib-4.1.2
+
+pandas
+
+################################################################################
+Procedures to get active moieties RDF graph
+################################################################################
+
+STEP 1: prepare mappings in folder mappings/
+
+mappings/dronid_chebi_rxcui-07232014.txt"
+mappings/omopid_rxcui.csv"
+mappings/pt_chebi-03132014.txt"
+mappings/pt_drugbank-04082014.txt"
+mappings/pt_rxcui-03132014.txt"
+mappings/pt_unii-03202014.csv"
+mappings/unii_nui_preferrednamerole-05202014.txt"
+
+STEP 2: run python script to merge those mappings together
+
+$ python mergeToActiveMoiety.py
+
+outputs: mergedActiveMoiety.csv contains all joined mappings
+
+columns: pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole
+
+STEP 3: run python script to create RDF graph for all active moieties
+
+$ python createActiveMoietySubInRDF.py
+
+outputs: activeMoietySub-in-rdf.xml
