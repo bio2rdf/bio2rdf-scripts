@@ -13,13 +13,13 @@ from StringIO import StringIO
 
 ## Define data inputs
 
-DRON_CHEBI_RXCUI = "dronid_chebi_rxcui-07232014.txt"
-OMOP_RXCUI = "omopid_rxcui.csv"
-PT_CHEBI = "pt_chebi-03132014.txt"
-PT_DRUGBANK = "pt_drugbank-04082014.txt"
-PT_RXCUI = "pt_rxcui-03132014.txt"
-PT_UNII = "pt_unii-03202014.csv"
-UNII_NUI_PREFERRED_NAME_ROLE = "unii_nui_preferrednamerole-05202014.txt"
+DRON_CHEBI_RXCUI = "mappings/dronid_chebi_rxcui-07232014.txt"
+OMOP_RXCUI = "mappings/omopid_rxcui.csv"
+PT_CHEBI = "mappings/pt_chebi-03132014.txt"
+PT_DRUGBANK = "mappings/pt_drugbank-04082014.txt"
+PT_RXCUI = "mappings/pt_rxcui-03132014.txt"
+PT_UNII = "mappings/pt_unii-03202014.csv"
+UNII_NUI_PREFERRED_NAME_ROLE = "mappings/unii_nui_preferrednamerole-05202014.txt"
 
 CHEBI_BASE_URI = "http://purl.obolibrary.org/obo/"
 
@@ -105,4 +105,4 @@ print merged_dron_DF
 
 merged_epc_DF = merged_dron_DF.merge(unii_nui_namerole_DF, on=['unii'], how='left')
 print merged_epc_DF
-merged_epc_DF.to_csv('mergedActiveMoiety.csv', sep='|')
+merged_epc_DF.to_csv('mergedActiveMoiety.csv', sep='\t')
