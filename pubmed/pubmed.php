@@ -156,9 +156,9 @@ class PubmedParser extends Bio2RDFizer
 			$this->setCheckPoint('record');
 
 			$pmid = $citation->PMID;
-			$dateCreated = trim($citation->DateCreated);
-			$dateCompleted = trim($citation->DateCompleted);
-			$dateRevised = trim($citation->DateRevised);
+			$dateCreated = $citation->DateCreated;
+			$dateCompleted = $citation->DateCompleted;
+			$dateRevised = $citation->DateRevised;
 			$chemicals = $citation->ChemicalList;//optional
 			$supplMeshList = $citation->SupplMeshList;//optional
 			$commentsCorrectionsList = $citation->CommentCorrectionsList;//optional
@@ -222,10 +222,7 @@ class PubmedParser extends Bio2RDFizer
 			}
 
 			if(!empty($citationVersionDate)){
-				$version_date = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $citationVersionDate));
-				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."version_date", $version_date)
-				);
+				$this->formatDate($citationVersionDate,"version_date",$id);
 			}
 
 			$publication_model = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $pubmodel));
@@ -241,30 +238,27 @@ class PubmedParser extends Bio2RDFizer
 						parent::triplifyString($id, parent::getVoc()."other_id", $other_id).
 						parent::triplifyString($id, parent::getVoc()."other_id_source", $other_id_source)
 					);
+					if(strstr($other_id,"PMC")) {
+						parent::addRDF(parent::triplify($id,parent::getVoc()."x-pmc","pmc:".$other_id));
+					}
 				}
 			}
 
 			if(!empty($dateCreated)){
-				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."date_created", $dateCreated)
-				);
+				$this->formatDate($id,"created_date",$dateCreated);
 			}
 
 			if(!empty($dateCompleted)){
-				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."date_completed", $dateCompleted)
-				);
+				$this->formatDate($id,"completed_date",$dateCompleted);
 			}
 
 			if(!empty($dateRevised)){
-				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."date_revised", $dateRevised)
-				);
+				$this->formatDate($id,"revised_date", $dateRevised);
 			}
 
 			foreach($publicationTypeList->PublicationType as $publicationType){
 				$publication_type = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $publicationType));
-				$publication_type_id = parent::getVoc().str_replace(" ","",$publication_type);
+				$publication_type_id = parent::getVoc().str_replace(" ","-",$publication_type);
 				parent::addRDF(
 					parent::triplify($id, parent::getVoc()."publication_type", $publication_type_id).
 					parent::describeClass(parent::getVoc().$publication_type_id,$publication_type)
@@ -275,8 +269,8 @@ class PubmedParser extends Bio2RDFizer
 				$abstractIdentifier = parent::getRes().$pmid."_ABSTRACT";
 				$abstractLabel = "Abstract for ".parent::getVoc().$pmid;
 				parent::addRDF(
-					parent::describeIndividual($abstractIdentifier, $abstractLabel, parent::getVoc()."ArticleAbstract").
-					parent::describeClass(parent::getVoc()."ArticleAbstract","Article Abstract").
+					parent::describeIndividual($abstractIdentifier, $abstractLabel, parent::getVoc()."Article-Abstract").
+					parent::describeClass(parent::getVoc()."Article-Abstract","Article Abstract").
 					parent::triplify($id, "dc:abstract", $abstractIdentifier)
 				);
 
@@ -304,8 +298,8 @@ class PubmedParser extends Bio2RDFizer
 					$otherAbstractIdentifier = parent::getRes().$pmid."_OTHER_ABSTRACT_".$otherAbstractNumber;
 					$other_abstract_label = "Abstract for ".parent::getNamespace().$pmid;
 					parent::addRDF(
-						parent::describeIndividual($otherAbstractIdentifier, $other_abstract_label, parent::getVoc()."ArticleAbstract").
-						parent::describeClass(parent::getVoc()."ArticleAbstract","Article Abstract").
+						parent::describeIndividual($otherAbstractIdentifier, $other_abstract_label, parent::getVoc()."Article-Abstract").
+						parent::describeClass(parent::getVoc()."Article-Abstract","Article Abstract").
 						parent::triplify($id, "dc:abstract", $otherAbstractIdentifier)
 					);
 
@@ -572,12 +566,7 @@ class PubmedParser extends Bio2RDFizer
 			}
 
 			if(!empty($articleDate)){
-				$year = $articleDate->Year;
-				$month = $articleDate->Month;
-				$day = $articleDate->Day;
-				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."article_date", "$year-$month-$day", "xsd:date")
-				);
+				$this->formatDate($id,"article_date",$articleDate);
 			}
 
 			if(!empty($authorList)){
@@ -761,7 +750,7 @@ class PubmedParser extends Bio2RDFizer
 			$journalAbbrev = $journal->ISOAbbreviation;//optional
 			$journalVolume = $journalIssue->Volume;//optional
 			$journalIssueIssue = $journalIssue->Issue;//optional
-			$journalPubDate = trim($journalIssue->PubDate);
+			$journalPubDate = $journalIssue->PubDate;
 			$journalNlmID = $citation->MedLineJournalInfo->NlmUniqueID;//optional
 
 			$journalId = parent::getRes().$pmid."_JOURNAL";
@@ -781,40 +770,38 @@ class PubmedParser extends Bio2RDFizer
 
 			if(!empty($journalPubDate)){
 				$journalYear = $journalPubDate->Year;
-				$journalMonth = $journalPubDate->Month;//optional
-				$journalDay = $journalPubDate->Day;//optional
-				if(!empty($journalYear)){
-					if(!empty($journalMonth)){
-						if(!empty($journalDay)){
-							parent::addRDF(
-								parent::triplifyString($journalId, parent::getVoc()."publication_date", "$journalYear-$journalMonth-$journalDay", "xsd:date")
-							);
-						} else {
-							parent::addRDF(
-								parent::triplifyString($journalId, parent::getVoc()."publication_year", $journalYear).
-								parent::triplifyString($journalId, parent::getVoc()."publication_month", $journalMonth)
-							);
-						}
-					} else {
-						$journalSeason = $journalPubDate->Season;
-						if(!empty($journalSeason)){
-							$journal_season = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalSeason));
-							parent::addRDF(
-								parent::triplifyString($journalId, parent::getVoc()."publication_season", $journal_season)
-							);
-						}
-						
-					}
-				} else {
-					$journalMedlineDate = $journalPubDate->MedlineDate;
-					if(!empty($journalMedlineDate)){
-						$journal_medline_date = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalMedlineDate));
-						parent::addRDF(
-							parent::triplifyString($journalId, parent::getVoc()."publication_date", $journal_medline_date)
-						);
-					}
+				$journalMonth = trim($journalPubDate->Month);//optional
+				if($journalMonth and !is_numeric($journalMonth[0])) {
+					$mo = array("jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec");
+					$journalMonth = str_pad(array_search(strtolower($journalMonth),$mo)+1, 2, "0",STR_PAD_LEFT);
 				}
-				
+				$journalDay = trim($journalPubDate->Day);//optional
+				if($journalDay) $journalDay = str_pad($journalDay,2,"0",STR_PAD_LEFT);
+				parent::addRDF(
+					parent::triplifyString($journalId, parent::getVoc()."publication_year", $journalYear).
+					parent::triplifyString($journalId, parent::getVoc()."publication_month", $journalMonth).
+					parent::triplifyString($journalId, parent::getVoc()."publication_day", $journalDay)
+				);
+
+				if(!empty($journalYear) and !empty($journalMonth) and !empty($journalDay)){
+					parent::addRDF(
+						parent::triplifyString($journalId, parent::getVoc()."publication_date", "$journalYear-$journalMonth-$journalDay", "xsd:date")
+					);
+				}
+				$journalSeason = $journalPubDate->Season;
+				if(!empty($journalSeason)){
+					$journal_season = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalSeason));
+					parent::addRDF(
+						parent::triplifyString($journalId, parent::getVoc()."publication_season", $journal_season)
+					);
+				}
+				$journalMedlineDate = $journalPubDate->MedlineDate;
+				if(!empty($journalMedlineDate)){
+					$journal_medline_date = utf8_encode(str_replace(array("\\", "\"", "'"), array("/", "", ""), $journalMedlineDate));
+					parent::addRDF(
+						parent::triplifyString($journalId, parent::getVoc()."publication_date", $journal_medline_date)
+					);
+				}
 			}
 
 			if(!empty($journalTitle)){
@@ -866,5 +853,14 @@ class PubmedParser extends Bio2RDFizer
 			}
 		}
 	}
+	function formatDate($id,$field,$dateobj) {
+		$year = $dateobj->Year;
+		$month = $dateobj->Month;
+		$day = $dateobj->Day;
+		parent::addRDF(
+			parent::triplifyString($id, parent::getVoc().$field, "$year-$month-$day", "xsd:date")
+		);
+	}
+
 }
 ?>
