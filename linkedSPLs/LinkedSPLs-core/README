@@ -1,3 +1,16 @@
 This folder will hold the DailyMed section content, provenance, 
 metadata, and some basic direct mappings (e.g., from the SPL to the 
 RxNorm CUI for the relevant drug product.
+
+
+Data storage:
+
+All mappings of linked data sotres in Mysql and presents in D2R endpoint
+
+Buy using d2rserver, run the command as follows in shell to dump out data in RDF
+
+$ ./dump-rdf -f N-TRIPLE -o linkedSPLs-core-08262014.xml /home/PITT/rdb20/linkedSPLs/dailymed_d2r_map_config_d2rq_8_1.n3 
+
+
+
+

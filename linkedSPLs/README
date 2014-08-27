@@ -4,6 +4,13 @@ OVERVIEW
 
 linkedSPLs contains all sections of FDA-approved drug package inserts from DailyMed for use by NLP and Semantic Web researchers. Major components are listed as follows:
 
+
+
+
+################################################################################
+COMPONENTS
+################################################################################
+
 ------------------------------------------------------------
 Dailymed sections and Dailymed metadata
 ------------------------------------------------------------
@@ -12,7 +19,7 @@ Dailymed sections and Dailymed metadata
 
 
 ------------------------------------------------------------
-linkedSPLs mappings
+Active moiety
 ------------------------------------------------------------
 
 
