@@ -19,7 +19,7 @@ import difflib
 from rdflib import Graph, BNode, Literal, Namespace, URIRef, RDF, RDFS
 
 OUT_FILE = "activeMoietySub-in-rdf.xml"
-ACTIVEMOIETY_BASE = "http://linkedSPLs.bio2rdf/activeMoiety#"
+ACTIVEMOIETY_BASE = "http://linkedSPLs.bio2rdf.org/activeMoiety#"
 
 CHEBI_BASE = "http://purl.obolibrary.org/obo/"
 RXNORM_BASE = "http://purl.bioontology.org/ontology/"
@@ -66,7 +66,7 @@ for item in data_set:
 dcterms = Namespace("http://purl.org/dc/terms/")
 pav = Namespace("http://purl.org/pav")
 dctypes = Namespace("http://purl.org/dc/dcmitype/")
-dailymed = Namespace('http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/')
+dailymed = Namespace('http://linkedSPLs.bio2rdf.org/dailymed#')
 sio = Namespace('http://semanticscience.org/resource/')
 oa = Namespace('http://www.w3.org/ns/oa#')
 cnt = Namespace('http://www.w3.org/2011/content#')
@@ -89,7 +89,7 @@ graph.namespace_manager.reset()
 graph.namespace_manager.bind("dcterms", "http://purl.org/dc/terms/")
 graph.namespace_manager.bind("pav", "http://purl.org/pav");
 graph.namespace_manager.bind("dctypes", "http://purl.org/dc/dcmitype/")
-graph.namespace_manager.bind('dailymed','http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/')
+graph.namespace_manager.bind('dailymed','http://linkedSPLs.bio2rdf.org/dailymed#')
 graph.namespace_manager.bind('sio', 'http://semanticscience.org/resource/')
 graph.namespace_manager.bind('oa', 'http://www.w3.org/ns/oa#')
 graph.namespace_manager.bind('cnt', 'http://www.w3.org/2011/content#')
@@ -106,18 +106,12 @@ graph.namespace_manager.bind('dikbEvidence','http://dbmi-icode-01.dbmi.pitt.edu/
 graph.namespace_manager.bind('mp','http://purl.org/mp/')
 graph.namespace_manager.bind('ndfrt','http://purl.bioontology.org/ontology/NDFRT/')
 
-#currentAnnotSet = "active-moiety-sub-graph" 
 
 index =1
 
 for k,v in dict_moieties.items():
 
-   #currentAnnotItem = "ddi-spl-active-moiety-item-%s" % v.unii
-   
-   #print k
    # pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole
-
-   #graph.add((poc[currentAnnotSet], dailymed["activeMoietySub"], URIRef(ACTIVEMOIETY_BASE + str(v.unii)))
 
    graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["UNII"], Literal(v.unii)))
    graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), RDFS.label, Literal(v.pt.strip())))
@@ -136,7 +130,7 @@ for k,v in dict_moieties.items():
       graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["OMOPConceptId"], Literal(int(float(v.omopid)))))
 
    if v.dron:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["DrOnId"], URIRef(DRON_BASE + v.db_uri2)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["DrOnId"], URIRef(DRON_BASE + v.dron)))
 
    #print "****|" + v.nui + "|"
 
