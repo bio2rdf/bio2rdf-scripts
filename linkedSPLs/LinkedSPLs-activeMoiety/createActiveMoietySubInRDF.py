@@ -22,11 +22,12 @@ OUT_FILE = "activeMoietySub-in-rdf.xml"
 ACTIVEMOIETY_BASE = "http://linkedSPLs.bio2rdf.org/activeMoiety#"
 
 CHEBI_BASE = "http://purl.obolibrary.org/obo/"
-RXNORM_BASE = "http://purl.bioontology.org/ontology/"
+RXNORM_BASE = "http://purl.bioontology.org/ontology/RXNORM/"
 DRUGBANK_CA = "http://www.drugbank.ca/drugs/"
 DRUGBANK_BIO2RDF = "http://bio2rdf.org/drugbank:"
 DRON_BASE = "http://purl.obolibrary.org/obo/"
 NDFRT_BASE = "http://purl.bioontology.org/ontology/NDFRT/"
+OHDSI_BASE = "http://purl.org/net/ohdsi#"
 
 class DictItem:
    def __init__(self, pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole):
@@ -127,7 +128,7 @@ for k,v in dict_moieties.items():
       graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["subjectXref"], URIRef(v.db_uri2)))
 
    if v.omopid:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["OMOPConceptId"], Literal(int(float(v.omopid)))))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["OMOPConceptId"], Literal(OHDSI_BASE + str(int(float(v.omopid))))))
 
    if v.dron:
       graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["DrOnId"], URIRef(DRON_BASE + v.dron)))
