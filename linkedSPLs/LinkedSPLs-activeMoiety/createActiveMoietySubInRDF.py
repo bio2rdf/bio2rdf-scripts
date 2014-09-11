@@ -19,7 +19,7 @@ import difflib
 from rdflib import Graph, BNode, Literal, Namespace, URIRef, RDF, RDFS
 
 OUT_FILE = "activeMoietySub-in-rdf.xml"
-ACTIVEMOIETY_BASE = "http://linkedSPLs.bio2rdf.org/activeMoiety#"
+ACTIVEMOIETY_BASE = "http://bio2rdf.org/linkedspls:"
 
 CHEBI_BASE = "http://purl.obolibrary.org/obo/"
 RXNORM_BASE = "http://purl.bioontology.org/ontology/RXNORM/"
@@ -67,7 +67,7 @@ for item in data_set:
 dcterms = Namespace("http://purl.org/dc/terms/")
 pav = Namespace("http://purl.org/pav")
 dctypes = Namespace("http://purl.org/dc/dcmitype/")
-dailymed = Namespace('http://linkedSPLs.bio2rdf.org/dailymed#')
+linkedspls_vocabulary = Namespace('http://bio2rdf.org/linkedspls_vocabulary:')
 sio = Namespace('http://semanticscience.org/resource/')
 oa = Namespace('http://www.w3.org/ns/oa#')
 cnt = Namespace('http://www.w3.org/2011/content#')
@@ -76,7 +76,7 @@ gcds = Namespace('http://www.genomic-cds.org/ont/genomic-cds.owl#')
 siocns = Namespace('http://rdfs.org/sioc/ns#')
 swande = Namespace('http://purl.org/swan/1.2/discourse-elements#')
 dikbD2R = Namespace('http://dbmi-icode-01.dbmi.pitt.edu/dikb/vocab/resource/')
-linkedspls = Namespace('file:///home/rdb20/Downloads/d2rq-0.8.1/linkedSPLs-dump.nt#structuredProductLabelMetadata/')
+linkedspls = Namespace('file:///home/rdb20/Downloads/d2rq-0.8.1/linkedspls-dump.nt#structuredProductLabelMetadata/')
 poc = Namespace('http://purl.org/net/nlprepository/spl-ddi-annotation-poc#')
 ncbit = Namespace('http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#')
 dikbEvidence = Namespace('http://dbmi-icode-01.dbmi.pitt.edu/dikb-evidence/DIKB_evidence_ontology_v1.3.owl#')
@@ -90,7 +90,10 @@ graph.namespace_manager.reset()
 graph.namespace_manager.bind("dcterms", "http://purl.org/dc/terms/")
 graph.namespace_manager.bind("pav", "http://purl.org/pav");
 graph.namespace_manager.bind("dctypes", "http://purl.org/dc/dcmitype/")
-graph.namespace_manager.bind('dailymed','http://linkedSPLs.bio2rdf.org/dailymed#')
+
+#graph.namespace_manager.bind('dailymed','http://linkedspls.bio2rdf.org/dailymed#')
+graph.namespace_manager.bind('linkedspls_vocabulary', 'http://bio2rdf.org/linkedspls_vocabulary:')
+
 graph.namespace_manager.bind('sio', 'http://semanticscience.org/resource/')
 graph.namespace_manager.bind('oa', 'http://www.w3.org/ns/oa#')
 graph.namespace_manager.bind('cnt', 'http://www.w3.org/2011/content#')
@@ -100,7 +103,7 @@ graph.namespace_manager.bind('siocns','http://rdfs.org/sioc/ns#')
 graph.namespace_manager.bind('swande','http://purl.org/swan/1.2/discourse-elements#')
 graph.namespace_manager.bind('dikbD2R','http://dbmi-icode-01.dbmi.pitt.edu/dikb/vocab/resource/')
 
-graph.namespace_manager.bind('linkedspls','file:///home/rdb20/Downloads/d2rq-0.8.1/linkedSPLs-dump.nt#structuredProductLabelMetadata/')
+graph.namespace_manager.bind('linkedspls','file:///home/rdb20/Downloads/d2rq-0.8.1/linkedspls-dump.nt#structuredProductLabelMetadata/')
 graph.namespace_manager.bind('poc','http://purl.org/net/nlprepository/spl-ddi-annotation-poc#')
 graph.namespace_manager.bind('ncbit','http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#')
 graph.namespace_manager.bind('dikbEvidence','http://dbmi-icode-01.dbmi.pitt.edu/dikb-evidence/DIKB_evidence_ontology_v1.3.owl#')
@@ -114,24 +117,24 @@ for k,v in dict_moieties.items():
 
    # pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole
 
-   graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["UNII"], Literal(v.unii)))
+   graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["UNII"], Literal(v.unii)))
    graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), RDFS.label, Literal(v.pt.strip())))
-   graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), RDF.type, dailymed["ActiveMoietyUNII"]))
+   graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), RDF.type, linkedspls_vocabulary["ActiveMoietyUNII"]))
    if v.rxcui:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["RxCUI"], URIRef(RXNORM_BASE + str(int(float(v.rxcui))))))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(int(float(v.rxcui))))))
 
    if v.chebi:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["ChEBI"], URIRef(CHEBI_BASE + v.chebi)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["ChEBI"], URIRef(CHEBI_BASE + v.chebi)))
 
    if v.db_uri1:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["subjectXref"], URIRef(v.db_uri1)))
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["subjectXref"], URIRef(v.db_uri2)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["subjectXref"], URIRef(v.db_uri1)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["subjectXref"], URIRef(v.db_uri2)))
 
    if v.omopid:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["OMOPConceptId"], Literal(OHDSI_BASE + str(int(float(v.omopid))))))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["OMOPConceptId"], Literal(OHDSI_BASE + str(int(float(v.omopid))))))
 
    if v.dron:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), dailymed["DrOnId"], URIRef(DRON_BASE + v.dron)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + v.dron)))
 
    #print "****|" + v.nui + "|"
 
