@@ -1,2 +1,11 @@
 LinkedSPLs-pharmgx will hold an Open Data Annotation graph in that 
 annotates SPLs for pharmacogenomics semantic tags and manual annotations
+
+
+Use sed command in shell to replace local URL to dailymed URL:
+
+$  sed -i 's/.html//g' domeo-pgx-pharmgx-annotations-in-rdf-09152014.xml
+
+$  sed -i 's/http:\/\/dbmi-icode-01.dbmi.pitt.edu:2020\/SPL-annotation\/[a-zA-Z]*-/http:\/\/dailymed.nlm.nih.gov\/dailymed\/lookup.cfm?setid=/g' domeo-pgx-pharmgx-annotations-in-rdf-09152014.xml
+
+

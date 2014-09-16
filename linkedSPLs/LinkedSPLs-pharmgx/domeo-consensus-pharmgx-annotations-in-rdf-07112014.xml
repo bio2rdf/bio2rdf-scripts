@@ -75,7 +75,7 @@
     <pav:previousVersion>urn:domeoserver:annotationset:0E8391AF-66D2-4522-A2CE-1780560964DD</pav:previousVersion>
     <ao:item rdf:resource="urn:domeoclient:uuid:671F2493-9F0B-4BB9-94E6-4B432F418763"/>
     <pav:createdWith>urn:domeo:software:id:Domeo-2.1alpha-050</pav:createdWith>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:annotatesResource>
     <permissions:permissions rdf:nodeID="Nebe2495febdd4d72af029941daa7a07c"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#AnnotationSet"/>
     <pav:createdBy>urn:person:uuid:080e143044e90f26014518a19cf70063</pav:createdBy>
@@ -133,7 +133,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <pav:createdOn>2014-03-31 08:59:45 -0400</pav:createdOn>
     <ao:prefix> </ao:prefix>
     <domeo:uuid></domeo:uuid>
@@ -245,7 +245,7 @@
     <ao:prefix>Genetic variants of other CYP450 enzymes may also affect the formation of clopidogrel’s active metabolite.  </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>The CYP2C19*1 allele corresponds to fully functional metabolism while the CYP2C19*2 and *3 alleles are nonfunctional. CYP2C19*2 and *3 account for the majority of reduced function alleles in white (85%) and Asian (99%) poor metabolizers. Other alleles associated with absent or reduced metabolism are less frequent, and include, but are not limited to, CYP2C19*4, *5, *6, *7, and *8. A patient with poor metabolizer status will possess two loss-of-function alleles as defined above. Published frequencies for poor CYP2C19 metabolizer genotypes are approximately 2% for whites, 4% for blacks and 14% for Chinese.</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <ao:suffix>xsd:String</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-06-30 11:36:17 -0400</pav:createdOn>
@@ -362,7 +362,7 @@
     <domeo:uuid>9A5666BB-F43D-45F3-A856-0BDB0E745589</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>Azathioprine tablets should be administered with caution to patients having one non-functional allele (heterozygous) who are at risk for reduced TPMT activity that may lead to toxicity if conventional doses are given. Dosage reduction is recommended in patients with reduced TPMT activity.</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:prefix>Physicians may consider alternative therapies for patients who have low or absent TPMT activity (homozygous for non-functional alleles) .  </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -384,7 +384,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:D5C1D543-12A2-4AD2-973F-CFDA436726C9"/>
     <pav:createdOn>2014-06-30 11:33:37 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:BCCF3F22-38AE-4F01-87D0-22C1B07EC947">
     <rdfs:label>Abacavir</rdfs:label>
@@ -415,7 +415,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:0496C268-8D3F-4D44-95D9-8D7250579EBE">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:exact>Prior to initiating therapy with abacavir, screening for the HLA-B*5701 allele is recommended; this approach has been found to decrease the risk of a hypersensitivity reaction. Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir.</ao:exact>
     <pav:createdOn>2014-06-23 14:35:26 -0400</pav:createdOn>
     <domeo:uuid>0496C268-8D3F-4D44-95D9-8D7250579EBE</domeo:uuid>
@@ -635,7 +635,7 @@
     <pav:createdOn>2014-06-23 14:32:56 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:38CB7B79-EA55-443D-8F52-A694D541E5E3"/>
     <domeo:uuid>38CB7B79-EA55-443D-8F52-A694D541E5E3</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:exact>NEVER restart ZIAGEN or any other abacavir-containing product following a hypersensitivity reaction to abacavir, regardless of HLA-B*5701 status</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -980,7 +980,7 @@
     <pav:createdOn>2014-06-30 11:33:50 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <domeo:uuid>F1F72593-1500-4B06-AE14-AE29B3EAE9B1</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:prefix>Tests are available to identify a patient's CYP2C19 genotype and can be used as an aid in determining therapeutic strategy.  (12.5) </ao:prefix>
@@ -1056,7 +1056,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>Patients with intermediate thiopurine S-methyl transferase (TPMT) activity may be at an increased risk of myelotoxicity if receiving conventional doses of azathioprine.  </ao:prefix>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <domeo:uuid>A74CD0BB-2B56-45FC-B50D-C7952B9C9AE4</domeo:uuid>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:3CFAD10E-67D2-46B9-9730-9136B4ADF59A">
@@ -1081,7 +1081,7 @@
     <sio:SIO_000628>dailymed:pharmgxBiomarker</sio:SIO_000628>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:9D01B1F5-3775-4CA3-BDFA-97BF6089AE2E">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:prefix>If symptoms consistent with hypersensitivity are not identified, reintroduction can be undertaken with continued monitoring for symptoms of a hypersensitivity reaction. Make patients aware that a hypersensitivity reaction can occur with reintroduction of ZIAGEN or any other abacavir-containing product and that reintroduction of ZIAGEN or any other abacavir-containing product needs to be undertaken only if medical care can be readily accessed by the patient or others. </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:9D01B1F5-3775-4CA3-BDFA-97BF6089AE2E"/>
@@ -1100,7 +1100,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:29951346-424F-4492-B79A-EF5022CB7F05"/>
     <domeo:uuid>29951346-424F-4492-B79A-EF5022CB7F05</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:7BFF4A61-D45D-4C1F-9599-BD435EF039B8">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -1110,7 +1110,7 @@
     <ao:prefix>HLA-B*5701-negative patients may develop a suspected hypersensitivity reaction to abacavir; however, this occurs significantly less frequently than in HLA-B*5701-positive patients. </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:7BFF4A61-D45D-4C1F-9599-BD435EF039B8"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeo:software:id:Domeo-2.1alpha-050">
@@ -1167,7 +1167,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>Prior to initiating Carbamazepine Extended-Release Capsule therapy, testing for HLA-B*1502 should be performed in patients with ancestry in populations in which HLA-B*1502 may be present. In deciding which patients to screen, the rates provided above for the prevalence of HLA-B*1502 may offer a rough guide, keeping in mind the limitations of these figures due to wide variability in rates even within ethnic groups, the difficulty in ascertaining ethnic ancestry, and the likelihood of mixed ancestry.</ao:exact>
     <ao:prefix>HLA-B*1502 is largely absent in individuals not of Asian origin (e.g., Caucasians, African-Americans, Hispanics, and Native Americans) . </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:hasSource>
     <pav:createdOn>2014-06-30 11:09:18 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:suffix>xsd:String</ao:suffix>
@@ -1309,7 +1309,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>An anastrozole adjuvant trial was conducted in 9,366 postmenopausal women with operable breast cancer who were randomized to receive adjuvant treatment with either anastrozole 1 mg daily, tamoxifen 20 mg daily, or a combination of these two treatments for 5 years or until recurrence of the disease. At a median follow-up of 33 months, the combination of anastrozole and tamoxifen did not demonstrate any efficacy benefit when compared with tamoxifen therapy alone in all patients as well as in the hormone receptor positive subpopulation. This treatment arm was discontinued from the trial.</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <pav:createdOn>2014-06-30 12:22:01 -0400</pav:createdOn>
     <ao:suffix> Please refer to </ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:AF427FC6-54B8-4CA4-9C51-233E64726500"/>
@@ -1402,7 +1402,7 @@
     <ao:exact>Clopidogrel is a prodrug. Inhibition of platelet aggregation by clopidogrel is achieved through an active metabolite. The metabolism of clopidogrel to its active metabolite can be impaired by genetic variations in CYP2C19 [see Boxed Warning] and by concomitant medications that interfere with CYP2C19.</ao:exact>
     <ao:prefix>xsd:String</ao:prefix>
     <domeo:uuid>7D50A614-4F2B-42C6-A175-0BF3C158B5DA</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 11:34:01 -0400</pav:createdOn>
     <ao:suffix>Proton Pump Inhibitors Avoid c</ao:suffix>
@@ -1415,7 +1415,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:7E2CB9FD-6E66-4D71-8B92-4AE2C557E1A3"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:exact>HLA-B*5701-negative patients may develop a hypersensitivity reaction to abacavir; however, this occurs significantly less frequently than in HLA-B*5701-positive patients.</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:suffix> Regardless of HLA-B*5701 status, permanently discontinue ZIAGEN if hypersensitivity cannot be ruled out, even when other diagnoses are possible.</ao:suffix>
     <pav:createdOn>2014-03-22 22:14:51 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -1468,7 +1468,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <domeo:uuid>9F0CE910-4782-4E6D-B7E2-C7C784B10B90</domeo:uuid>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:9F0CE910-4782-4E6D-B7E2-C7C784B10B90"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-06-30 11:12:53 -0400</pav:createdOn>
@@ -1511,7 +1511,7 @@
     <ao:item rdf:resource="urn:domeoclient:uuid:C1BF7FF6-707B-4750-BA47-274111148F96"/>
     <ao:item rdf:resource="urn:domeoclient:uuid:D62A1217-AE83-41D2-B678-FDCD04344D8B"/>
     <pav:lineageUri>urn:domeoserver:annotationset:14CAC4B1-07A5-489D-887D-9893ED5002CD</pav:lineageUri>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:annotatesResource>
     <ao:item rdf:resource="urn:domeoclient:uuid:EE8AF84A-98F2-4EED-8B54-4312A50FBA31"/>
     <pav:versionNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">12</pav:versionNumber>
     <ao:item rdf:resource="urn:domeoclient:uuid:E6578AA5-3295-46D7-B3F2-55CD3CFB5B0F"/>
@@ -1727,7 +1727,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <ao:prefix>Tests are available to determine a patient’s CYP2C19 genotype.  </ao:prefix>
     <domeo:uuid>141D5512-1FE5-4684-BAA6-CA59DA362006</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 11:37:10 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:141D5512-1FE5-4684-BAA6-CA59DA362006"/>
@@ -1768,7 +1768,7 @@
     <ao:exact> Regardless of HLA-B*5701 status, permanently discontinue ZIAGEN if hypersensitivity cannot be ruled out, even when other diagnoses are possible.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:3C75F25B-730C-424C-8A4A-C55F0D242716"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-03-22 22:16:15 -0400</pav:createdOn>
     <domeo:uuid></domeo:uuid>
@@ -1902,7 +1902,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:2BB0E9F3-52F1-4631-B37B-DBFB53B3B0C9">
     <ao:exact>Before starting ZIAGEN, tell your doctor about all of your medical conditions, including if you:\nhave been tested and know whether or not you have a particular gene variation called HLA-B*5701.</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-23 14:42:21 -0400</pav:createdOn>
     <domeo:uuid>2BB0E9F3-52F1-4631-B37B-DBFB53B3B0C9</domeo:uuid>
@@ -1960,7 +1960,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:5B91F78A-EEB0-41A3-8995-90B920D09520">
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:5B91F78A-EEB0-41A3-8995-90B920D09520"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <domeo:uuid>5B91F78A-EEB0-41A3-8995-90B920D09520</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:prefix>. </ao:prefix>
@@ -1970,7 +1970,7 @@
     <ao:exact>Deaths have also occurred in nursing infants who were exposed to high levels of morphine in breast milk because their mothers were ultra-rapid metabolizers of codeine </ao:exact>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:BC59C368-6171-459A-BA88-9B57AAC67FD8">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:exact>Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir.</ao:exact>
     <ao:prefix> </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -2110,7 +2110,7 @@
     <ao:exact>Regardless of HLA-B*5701 status, permanently discontinue ZIAGEN if hypersensitivity cannot be ruled out, even when other diagnoses are possible.</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:2F3B0124-31A3-451B-BA81-5652303A452C"/>
     <pav:createdOn>2014-06-23 14:25:44 -0400</pav:createdOn>
     <domeo:uuid>2F3B0124-31A3-451B-BA81-5652303A452C</domeo:uuid>
@@ -2181,7 +2181,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:38B0D49A-8B7C-4D71-B2CE-0388425D3B66">
     <ao:exact>PATIENTS TESTING POSITIVE FOR THE ALLELE SHOULD NOT BE TREATED WITH CARBAMAZEPINE EXTENDED-RELEASE CAPSULES UNLESS THE BENEFIT CLEARLY OUTWEIGHS THE RISK</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:hasSource>
     <domeo:uuid>38B0D49A-8B7C-4D71-B2CE-0388425D3B66</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:38B0D49A-8B7C-4D71-B2CE-0388425D3B66"/>
@@ -2288,7 +2288,7 @@
     <ao:prefix>studies, CYP3A4 and CYP2D6 enzymes are responsible for dehydrogenation and hydroxylation of aripiprazole, and N-dealkylation is catalyzed by CYP3A4. Aripiprazole is the predominant drug moiety in the systemic circulation. At steady-state, dehydro-aripiprazole, the active metabolite, represents about 40% of aripiprazole AUC in plasma. </ao:prefix>
     <pav:createdOn>2014-06-23 14:47:28 -0400</pav:createdOn>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ARIPIPRAZOLE-217e52b5-3a7b-4bbe-af3c-b18de7d426c3.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=217e52b5-3a7b-4bbe-af3c-b18de7d426c3</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:B00F626B-2496-40FE-8B44-A026746EF9DB"/>
     <domeo:uuid>B00F626B-2496-40FE-8B44-A026746EF9DB</domeo:uuid>
     <ao:exact>Approximately 8% of Caucasians lack the capacity to metabolize CYP2D6 substrates and are classified as poor metabolizers (PM), whereas the rest are extensive metabolizers (EM). PMs have about an 80% increase in aripiprazole exposure and about a 30% decrease in exposure to the active metabolite compared to EMs, resulting in about a 60% higher exposure to the total active moieties from a given dose of aripiprazole compared to EMs. Coadministration of ABILIFY with known inhibitors of CYP2D6, such as quinidine or fluoxetine in EMs, approximately doubles aripiprazole plasma exposure, and dose adjustment is needed [see DRUG INTERACTIONS (7.1)]. The mean elimination half-lives are about 75 hours and 146 hours for aripiprazole in EMs and PMs, respectively.</ao:exact>
@@ -2314,7 +2314,7 @@
     <ao:prefix>If hypersensitivity cannot be ruled out, DO NOT reintroduce ZIAGEN or any other abacavir-containing product.  </ao:prefix>
     <ao:suffix>xsd:String</ao:suffix>
     <pav:createdOn>2014-06-23 14:38:27 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:CFEF239C-B763-4864-8DD8-A917EFD12673"/>
     <ao:exact>Even in the absence of the HLA-B*5701 allele, it is important to permanently discontinue abacavir and not rechallenge with abacavir if a hypersensitivity reaction cannot be ruled out on clinical grounds, due to the potential for a severe or even fatal reaction.</ao:exact>
   </rdf:Description>
@@ -2496,7 +2496,7 @@
     <domeo:uuid></domeo:uuid>
     <ao:exact>HLA-B*5701-negative patients may develop a suspected hypersensitivity reaction to abacavir; however, this occurs significantly less frequently than in HLA-B*5701-positive patients.</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <pav:createdOn>2014-03-22 22:02:44 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:64BC1D21-CAE1-4F85-A596-73342A9D5388"/>
     <ao:suffix>xsd:String</ao:suffix>
@@ -2522,7 +2522,7 @@
     <ao:exact> If the patient is of unknown HLA-B*5701 status, screening for the allele is recommended prior to reinitiation of ZIAGEN.</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>sitivity reaction, and if reinitiation of ZIAGEN or any other abacavir-containing product is under consideration, carefully evaluate the reason for discontinuation of ZIAGEN to ensure that the patient did not have symptoms of a hypersensitivity reaction.</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:037A2873-CACE-474F-B3EB-1EF6E0A58FCF"/>
     <ao:suffix>xsd:String</ao:suffix>
   </rdf:Description>
@@ -2568,7 +2568,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:46A370D2-9D5B-4964-96D7-FECDB2FC0ED4">
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:46A370D2-9D5B-4964-96D7-FECDB2FC0ED4"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <pav:createdOn>2014-06-30 12:03:38 -0400</pav:createdOn>
     <domeo:uuid>46A370D2-9D5B-4964-96D7-FECDB2FC0ED4</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -2579,7 +2579,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:39A685C2-1AA3-415F-8F2F-3F82C6914A2D">
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:39A685C2-1AA3-415F-8F2F-3F82C6914A2D"/>
     <domeo:uuid>39A685C2-1AA3-415F-8F2F-3F82C6914A2D</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>WARNING: DEATH RELATED TO ULTRA-RAPID METABOLISM OF CODEINE TO MORPHINE\nRespiratory depression and death have occurred in children who received codeine following tonsillectomy and/or adenoidectomy and had evidence of being ultra-rapid metabolizers of codeine due to a CYP2D6 polymorphism.</ao:exact>
@@ -2710,7 +2710,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:224ACECA-832C-4CE1-B586-4BB3E2AC8018">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:hasSource>
     <ao:suffix>.Prior to initiating Carbamaze</ao:suffix>
     <ao:prefix>xsd:String</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -2846,7 +2846,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>The estrogen- and progesterone-receptor values may help to predict whether adjuvant tamoxifen citrate tablet therapy is likely to be beneficial.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:15924106-592A-47E7-A01C-764A16E257DC"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <pav:createdOn>2014-06-30 12:31:59 -0400</pav:createdOn>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:86480047-DD43-4A54-B258-3772C18237F7">
@@ -3004,7 +3004,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:33D89E0F-4370-431E-8DB5-094F3AF78C75">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <ao:suffix>xsd:String</ao:suffix>
     <domeo:uuid>33D89E0F-4370-431E-8DB5-094F3AF78C75</domeo:uuid>
     <ao:exact>Patients receiving azathioprine tablets and allopurinol concomitantly should have a dose reduction of azathioprine tablets, to approximately ⅓ to ¼ the usual dose. It is recommended that a further dose reduction or alternative therapies be considered for patients with low or absent TPMT activity receiving azathioprine tablets and allopurinol because both TPMT and XO inactivation pathways are affected</ao:exact>
@@ -3020,7 +3020,7 @@
     <sio:SIO_000628>dailymed:pharmgxDrug</sio:SIO_000628>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:87D0F0C2-6038-41AA-B84E-85497D292836">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <domeo:uuid>87D0F0C2-6038-41AA-B84E-85497D292836</domeo:uuid>
     <pav:createdOn>2014-06-30 12:27:38 -0400</pav:createdOn>
     <ao:prefix>xsd:String</ao:prefix>
@@ -3040,7 +3040,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:suffix>Your doctor can determine with a blood test if you have this gene variation. If you get a symptom from 2 or more of the following groups while taking ZIAGEN, call your doctor right away to determine if you should stop taking this medicine</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:7BC21EEB-9DB7-4481-AB5F-CDF2B8C45D96"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:exact> Patients taking ZIAGEN may have a serious allergic reaction (hypersensitivity reaction) that can cause death. Your risk of this allergic reaction is much higher if you have a gene variation called HLA-B*5701 than if you do not. </ao:exact>
     <domeo:uuid></domeo:uuid>
@@ -3060,7 +3060,7 @@
     <ao:item rdf:resource="urn:domeoclient:uuid:4F5C1D0C-9AFC-4B3A-83EC-AC9CB72FB0C9"/>
     <ao:item rdf:resource="urn:domeoclient:uuid:F880CCED-A2A0-4330-B02F-070F7BF5AF00"/>
     <pav:createdWith>urn:domeo:software:id:Domeo-2.1alpha-050</pav:createdWith>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:annotatesResource>
     <domeo:deleted>false</domeo:deleted>
     <pav:previousVersion>urn:domeoserver:annotationset:B2B947EB-71A4-4702-909D-5AE6FE30D592</pav:previousVersion>
     <dct:description>The default set is created automatically by Domeo when no other set is existing.</dct:description>
@@ -3095,7 +3095,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:55F59962-81BB-4F69-B3DD-6B65B3526228"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:3C70DFC4-2BEA-46AE-A49C-D4BE3E7466B8">
     <ao:body rdf:resource="urn:linkedspls:uuid:E17574BF-3BA6-48DA-B0DA-6E8DF716A03D"/>
@@ -3120,7 +3120,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:FA0C425E-2A1E-4059-BAC2-34BD4239836F">
     <domeo:uuid>FA0C425E-2A1E-4059-BAC2-34BD4239836F</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <ao:prefix> </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -3244,7 +3244,7 @@
     <ao:exact>Regardless of HLA-B*5701 status, permanently discontinue ZIAGEN if hypersensitivity cannot be ruled out, even when other diagnoses are possible.</ao:exact>
     <pav:createdOn>2014-03-31 14:04:21 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:76AEC8EC-841B-4618-8A97-4D6655CE39F4"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:92FA8990-60EF-4140-9F60-C12E57E3B114">
     <sio:SIO_000628>dailymed:pharmgxDrug</sio:SIO_000628>
@@ -3283,14 +3283,14 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <domeo:uuid></domeo:uuid>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:9CA1FBF8-5D9F-4C89-9F89-2BC4E3DB1BF5"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CITALOPRAM-16bda7b5-a5a5-4478-9df3-beb396bd677f.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=16bda7b5-a5a5-4478-9df3-beb396bd677f</ao:hasSource>
     <ao:prefix>xsd:String</ao:prefix>
     <ao:exact>20 mg/day is the maximum recommended dose for patients who are greater than 60 years of age, patients with hepatic impairment, and for CYP2C19 poor metabolizers or those patients taking cimetidine or another CYP2C19 inhibitor</ao:exact>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:ECE9E8AD-BAEE-4FC0-A880-67D03D8D2EED">
     <pav:createdOn>2014-03-31 08:55:42 -0400</pav:createdOn>
     <ao:suffix>(5.1)</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:exact>Patients who carry the HLA-B*5701 allele are at high risk for experiencing a hypersensitivity reaction to abacavir. </ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:prefix>xsd:String</ao:prefix>
@@ -3313,13 +3313,13 @@
     <ao:exact>Patients who carry the HLA-B*5701 allele are at high risk for experiencing a hypersensitivity reaction to abacavir.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:F54825B6-3CF9-4465-A4BE-7C6747734A6E"/>
     <domeo:uuid>F54825B6-3CF9-4465-A4BE-7C6747734A6E</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:4A5BB36A-D20C-4306-8958-609D3F9A13D0">
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:4A5BB36A-D20C-4306-8958-609D3F9A13D0"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:exact> NEVER restart ZIAGEN or any other abacavir-containing product following a hypersensitivity reaction to abacavir, regardless of HLA-B*5701 status</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>ZIAGEN is contraindicated in patients with previously demonstrated hypersensitivity to abacavir or any other component of the products.</ao:prefix>
@@ -3376,7 +3376,7 @@
     <ao:item rdf:resource="urn:domeoclient:uuid:1042FEEA-5AF3-4E50-B2A1-053451F2236C"/>
     <domeo:deleted>false</domeo:deleted>
     <pav:versionNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">31</pav:versionNumber>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:annotatesResource>
     <pav:lineageUri>urn:domeoserver:annotationset:AFC75336-C9AF-46CD-8D54-9AF03B796A96</pav:lineageUri>
     <ao:item rdf:resource="urn:domeoclient:uuid:7D37999E-F183-41DD-8FEF-19696FD23D30"/>
     <permissions:permissions rdf:nodeID="Ne36071b3c0974e04823c18a819ea79ad"/>
@@ -3427,7 +3427,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:7FD03E69-B442-41B6-B8EB-38BD572E8F45">
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/LETROZOLE-63e54b62-a30d-4a56-9215-75e7a0b0bf02.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63e54b62-a30d-4a56-9215-75e7a0b0bf02</ao:hasSource>
     <ao:exact>Treatment of breast cancer thought to be hormonally responsive (i.e., estrogen and/or progesterone receptor positive or receptor unknown) has included a variety of efforts to decrease estrogen levels (ovariectomy, adrenalectomy, hypophysectomy) or inhibit estrogen effects (antiestrogens and progestational agents). These interventions lead to decreased tumor mass or delayed progression of tumor growth in some women.</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -3505,7 +3505,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:55709DA6-0396-4327-B704-FE38E5F01C43">
     <domeo:uuid>55709DA6-0396-4327-B704-FE38E5F01C43</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <pav:createdOn>2014-06-23 14:42:59 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>Before starting ZIAGEN, tell your doctor about all of your medical conditions, including if you:\nhave been tested and know whether or not you have a particular gene variation called HLA-B*5701.</ao:exact>
@@ -3724,7 +3724,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:F30A3592-1EDA-414B-8C7B-2B931B766619">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <ao:suffix>xsd:String</ao:suffix>
     <pav:createdOn>2014-06-30 12:54:57 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:F30A3592-1EDA-414B-8C7B-2B931B766619"/>
@@ -3815,7 +3815,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 13:19:32 -0400</pav:createdOn>
     <ao:suffix>(see CLINICAL PHARMACOLOGY:</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <domeo:uuid>D32E2B19-3891-4F8B-98F3-B65344B0F6A8</domeo:uuid>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:D32E2B19-3891-4F8B-98F3-B65344B0F6A8"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -3875,7 +3875,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <domeo:uuid>745C184B-12B3-435F-99C5-252556EB53B9</domeo:uuid>
     <ao:exact>Benefit is less clear for women with ER poor breast cancer in whom the proportional reduction in recurrence was 10% (2p = 0.007) for all durations taken together, or 9% (2p = 0.02) if contralateral breast cancers are excluded. The corresponding reduction in mortality was 6% (NS).</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <pav:createdOn>2014-06-30 12:20:40 -0400</pav:createdOn>
     <ao:suffix> The effects of about 5 years of tamoxifen on recurrence and mortality were similar regardless of age and concurrent chemotherapy. There was no indication that doses greater than 20 mg per day were more effective.</ao:suffix>
     <ao:prefix>xsd:String</ao:prefix>
@@ -3900,7 +3900,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <domeo:uuid>A8189564-74C8-463F-9927-917478975C75</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <ao:prefix>xsd:String</ao:prefix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:A8189564-74C8-463F-9927-917478975C75"/>
     <ao:exact>The effectiveness of clopidogrel bisulfate is dependent on its activation to an active metabolite by the cytochrome P450 (CYP) system, principally CYP2C19 [see Warnings and Precautions (5.1)]. Clopidogrel bisulfate at recommended doses forms less of that metabolite and has a smaller effect on platelet function in patients who are CYP2C19 poor metabolizers</ao:exact>
@@ -3909,7 +3909,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:8431F83B-801B-499C-A34F-25B983A4B198">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/LETROZOLE-63e54b62-a30d-4a56-9215-75e7a0b0bf02.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63e54b62-a30d-4a56-9215-75e7a0b0bf02</ao:hasSource>
     <pav:createdOn>2014-06-30 12:00:36 -0400</pav:createdOn>
     <ao:suffix> The planned duration of treat</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:8431F83B-801B-499C-A34F-25B983A4B198"/>
@@ -3950,7 +3950,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:prefix>In any patient treated with abacavir, the clinical diagnosis of hypersensitivity reaction must remain the basis of clinical decision-making.</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <domeo:uuid></domeo:uuid>
     <pav:createdOn>2014-03-31 09:05:56 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:8B74A738-1124-4DAC-BE25-F15C78CFBA15"/>
@@ -3963,7 +3963,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:6FC50BDC-78A6-4D50-8D6E-7FEB6DAFF0E2"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <domeo:uuid>6FC50BDC-78A6-4D50-8D6E-7FEB6DAFF0E2</domeo:uuid>
     <ao:prefix>Codeine is secreted into human milk.</ao:prefix>
   </rdf:Description>
@@ -4050,7 +4050,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:C8824A36-9C96-4389-B215-2638B48B5437"/>
     <pav:createdOn>2014-06-30 12:16:47 -0400</pav:createdOn>
     <ao:prefix>Among these patients, 54% had node-positive disease and 46% had node-negative disease. </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>Among women with ER positive or unknown breast cancer and positive nodes who received about 5 years of treatment, overall survival at 10 years was 61.4% for tamoxifen vs. 50.5% for control (logrank 2p &lt; 0.00001). The recurrence-free rate at 10 years was 59.7% for tamoxifen vs. 44.5% for control (logrank 2p &lt; 0.00001). Among women with ER positive or unknown breast cancer and negative nodes who received about 5 years of treatment, overall survival at 10 years was 78.9% for tamoxifen vs. 73.3% for control (logrank 2p &lt; 0.00001). The recurrence-free rate at 10 years was 79.2% for tamoxifen vs. 64.3% for control (logrank 2p &lt; 0.00001).</ao:exact>
     <domeo:uuid>C8824A36-9C96-4389-B215-2638B48B5437</domeo:uuid>
@@ -4065,7 +4065,7 @@
     <sio:SIO_000111>34092-7 CLINICAL STUDIES SECTION</sio:SIO_000111>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:74EB8F8A-FCEA-41C8-BAB2-B4DFA1190D34">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <pav:createdOn>2014-06-30 13:02:40 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:suffix>. For patients carrying at least one copy of the CYP2C9*3 allele, the mean daily warfarin dose was 37% less than the mean daily dose for patients homozygous for the CYP2C9*1 allele.</ao:suffix>
@@ -4198,7 +4198,7 @@
     <ao:item rdf:resource="urn:domeoclient:uuid:8525CDF6-1EFA-4AA5-BD43-C9DDE92E0196"/>
     <domeo:deleted>false</domeo:deleted>
     <ao:item rdf:resource="urn:domeoclient:uuid:720C5233-AF5F-4538-891A-259FD3EE6895"/>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/LETROZOLE-63e54b62-a30d-4a56-9215-75e7a0b0bf02.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63e54b62-a30d-4a56-9215-75e7a0b0bf02</ao:annotatesResource>
     <pav:previousVersion>urn:domeoserver:annotationset:5E48A15C-00B4-4A17-A4DF-2642EBF7D771</pav:previousVersion>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:54942D51-2FE7-4151-873B-B7D21EF96C08">
@@ -4284,7 +4284,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:74B97B42-8CF1-41BB-84AD-CF0995E7508C">
     <domeo:uuid>74B97B42-8CF1-41BB-84AD-CF0995E7508C</domeo:uuid>
     <ao:prefix>on, axillary dissection, and breast radiation). After 5 years of treatment, there was a significant improvement in disease-free survival in women receiving tamoxifen. This benefit was apparent both in women under age 50 and in women at or beyond age 50. </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <ao:exact>One additional randomized study (NATO) demonstrated improved disease-free survival for tamoxifen compared to no adjuvant therapy following total mastectomy and axillary dissection in postmenopausal women with axillary node-negative breast cancer. In this study, the benefits of tamoxifen appeared to be independent of estrogen receptor status.</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 12:29:04 -0400</pav:createdOn>
@@ -4319,7 +4319,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:exact>Available evidence indicates that patients whose tumors are estrogen receptor positive are more likely to benefit from tamoxifen citrate tablet therapy.</ao:exact>
     <ao:prefix>Tamoxifen citrate tablets are effective in the treatment of metastatic breast cancer in women and men. In premenopausal women with metastatic breast cancer, tamoxifen citrate tablets are an alternative to oophorectomy or ovarian irradiation. </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <domeo:uuid>FBA8BE44-2409-4673-8D2F-0E2947538FCE</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 12:30:35 -0400</pav:createdOn>
@@ -4339,7 +4339,7 @@
     <ao:exact>For HLA-B*5701-positive patients, treatment with an abacavir-containing regimen is not recommended and should be considered only with close medical supervision and under exceptional circumstances when the potential benefit outweighs the risk.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:903F27DB-914A-44A2-B01F-A36164AAC4DB"/>
     <domeo:uuid>903F27DB-914A-44A2-B01F-A36164AAC4DB</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:4DA6E07F-7E36-48E4-A071-62F94AA47FB9">
@@ -4403,7 +4403,7 @@
     <pav:createdOn>2014-06-30 11:48:13 -0400</pav:createdOn>
     <domeo:uuid>F2C1F1F7-17ED-4AE1-91F9-3A2EE9802A65</domeo:uuid>
     <ao:prefix>xsd:String</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <ao:exact>WARNING: DEATH RELATED TO ULTRA-RAPID METABOLISM OF CODEINE TO MORPHINE\nRespiratory depression and death have occurred in children who received codeine following tonsillectomy and/or adenoidectomy and had evidence of being ultra-rapid metabolizers of codeine due to a CYP2D6 polymorphism.</ao:exact>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:F2C1F1F7-17ED-4AE1-91F9-3A2EE9802A65"/>
@@ -4578,7 +4578,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:6347DAEC-6E58-45D7-9A9D-16BE602F4930"/>
     <pav:createdOn>2014-06-23 14:35:00 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:863F2BBA-B74C-425F-B4F3-D4BEF5E1873C">
@@ -4606,7 +4606,7 @@
     <domeo:agents rdf:resource="urn:person:uuid:080e143044e90f26014518a19cf70063"/>
     <pav:versionNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">9</pav:versionNumber>
     <pav:lastSavedOn>2014-06-30 11:22:45 -0400</pav:lastSavedOn>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CITALOPRAM-16bda7b5-a5a5-4478-9df3-beb396bd677f.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=16bda7b5-a5a5-4478-9df3-beb396bd677f</ao:annotatesResource>
     <ao:item rdf:resource="urn:domeoclient:uuid:9F23E4DD-C825-4CCC-BD6E-1514188AFFA7"/>
     <ao:item rdf:resource="urn:domeoclient:uuid:ED2F98CA-60F0-4D49-9803-FED968AA3114"/>
     <domeo:agents rdf:resource="urn:domeo:software:id:Domeo-2.1alpha-050"/>
@@ -4650,7 +4650,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>Phenotyping and genotyping methods are commercially available.  </ao:prefix>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>The most common non-functional alleles associated with reduced levels of TPMT activity are TPMT*2, TPMT*3A and TPMT*3C. Patients with two non-functional alleles (homozygous) have low or absent TPMT activity and those with one non-functional allele (heterozygous) have intermediate activity.</ao:exact>
     <pav:createdOn>2014-06-30 12:04:37 -0400</pav:createdOn>
@@ -4701,7 +4701,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-03-22 22:01:09 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:suffix> Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir. HLA-B*5701-negative patients may develop a suspected hypersensitivity reaction to abacavir; however, this oc</ao:suffix>
     <ao:exact>Prior to initiating therapy with abacavir, screening for the HLA-B*5701 allele is recommended; this approach has been found to decrease the risk of hypersensitivity reaction.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:14099187-A7EA-4F77-905D-B1B942FF80D7"/>
@@ -4730,7 +4730,7 @@
     <ao:item rdf:resource="urn:domeoclient:uuid:BC0A4D53-4B45-488A-8775-B46BF1E9B010"/>
     <ao:item rdf:resource="urn:domeoclient:uuid:7FDE7EC5-68D1-4D11-A164-0B2DA9D73292"/>
     <ao:item rdf:resource="urn:domeoclient:uuid:7D8A9803-9C09-4301-8254-AF8BCE7E83F8"/>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:annotatesResource>
     <ao:item rdf:resource="urn:domeoclient:uuid:3D5B3334-40F5-4B23-8773-AFED2978DC1D"/>
     <pav:versionNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">14</pav:versionNumber>
     <ao:item rdf:resource="urn:domeoclient:uuid:6E1788A3-66E3-4952-B193-2C5E9B1AB551"/>
@@ -4834,7 +4834,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 11:42:55 -0400</pav:createdOn>
     <ao:exact>Your doctor may do genetic tests to make sure clopidogrel tablets are right for you.</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <ao:suffix>xsd:String</ao:suffix>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:47718F61-F7FA-4A83-BB17-C13189D5E884">
@@ -4913,7 +4913,7 @@
     <ao:item rdf:resource="urn:domeoclient:uuid:98743D23-3B02-4029-840D-D16A4F390F95"/>
     <ao:item rdf:resource="urn:domeoclient:uuid:0E9FF6AD-98CE-4932-AD5D-E657F3B363B3"/>
     <pav:createdWith>urn:domeo:software:id:Domeo-2.1alpha-050</pav:createdWith>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:annotatesResource>
     <permissions:permissions rdf:nodeID="Ndba092b8a38d47f7a1bcbd8561ec367a"/>
     <pav:previousVersion>urn:domeoserver:annotationset:D2A37D83-399B-45D1-8F43-9EEAED2472F6</pav:previousVersion>
     <ao:item rdf:resource="urn:domeoclient:uuid:A753145C-8800-49A8-BE99-D558A1390DAE"/>
@@ -4936,7 +4936,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-03-31 09:02:38 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:prefix>xsd:String</ao:prefix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:F10DDB11-A5F0-4B5E-B3CE-47B1F2145E34"/>
     <ao:exact>Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir.</ao:exact>
@@ -4986,7 +4986,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <domeo:uuid>B6B4A58C-16B0-408F-A838-47FC8649B72D</domeo:uuid>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:B6B4A58C-16B0-408F-A838-47FC8649B72D"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-06-30 13:25:13 -0400</pav:createdOn>
     <ao:exact>VKORC1CYP2C9*Ranges are derived from multiple published clinical studies. Other clinical factors (e.g., age, race, body weight, sex, concomitant medications, and comorbidities) are generally accounted for along with genotype in the ranges expressed in the Table. VKORC11639 G(rs9923231) variant is used in this table. Other co-inherited VKORC1 variants may also be important determinants of warfarin dose. Patients with CYP2C9 *1/*3, *2/*2, *2/*3 and *3/*3 may require more prolonged time (&gt;2 to 4 weeks) to achieve maximum INR effect for a given dosage regimen.*1/*1*1/*2*1/*3*2/*2*2/*3*3/*3GG5 to 7 mg5 to 7 mg3 to 4 mg3 to 4 mg3 to 4 mg0.5 to 2 mgAG5 to 7 mg3 to 4 mg3 to 4 mg3 to 4 mg0.5 to 2 mg0.5 to 2 mgAA3 to 4 mg3 to 4 mg0.5 to 2 mg0.5 to 2 mg0.5 to 2 mg0.5 to 2 mg</ao:exact>
@@ -5009,7 +5009,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:D66A54D7-BD47-4E22-B2F3-09A5D190955A">
     <pav:createdOn>2014-03-22 22:11:34 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:prefix> </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <domeo:uuid></domeo:uuid>
@@ -5213,7 +5213,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:D888391C-2CE3-4955-850C-C8FA6291737A">
     <domeo:uuid>D888391C-2CE3-4955-850C-C8FA6291737A</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CITALOPRAM-16bda7b5-a5a5-4478-9df3-beb396bd677f.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=16bda7b5-a5a5-4478-9df3-beb396bd677f</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 11:22:44 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:D888391C-2CE3-4955-850C-C8FA6291737A"/>
@@ -5257,7 +5257,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:C6988919-6455-4291-92FF-E4F63DF9F9BF"/>
     <ao:suffix>xsd:String</ao:suffix>
     <pav:createdOn>2014-06-30 11:41:06 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
   </rdf:Description>
@@ -5309,7 +5309,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>In the Hubay study, patients with a positive (more than 3 fmol) estrogen receptor were more likely to benefit.  </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <pav:createdOn>2014-06-30 12:25:51 -0400</pav:createdOn>
     <domeo:uuid>563CB9E8-A4E7-43EF-9686-1F5B71F4169D</domeo:uuid>
     <ao:exact>In the NSABP B-09 study in women age 50 to 59 years, only women with both estrogen- and progesterone-receptor levels 10 fmol or greater clearly benefited, while there was a nonstatistically significant trend toward adverse effect in women with both estrogen- and progesterone-receptor levels less than 10 fmol. In women aged 60 to 70 years, there was a trend toward a beneficial effect of tamoxifen without any clear relationship to estrogen- or progesterone-receptor status.</ao:exact>
@@ -5343,7 +5343,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:0AB99582-A22B-403F-9604-C35A9897CE91"/>
     <ao:prefix>CLINICAL PHARMACOLOGY and PRECAUTIONS ). </ao:prefix>
     <domeo:uuid>0AB99582-A22B-403F-9604-C35A9897CE91</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-06-30 13:23:21 -0400</pav:createdOn>
     <ao:suffix>xsd:String</ao:suffix>
@@ -5391,7 +5391,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <ao:exact> Numerous factors, alone or in combination, including changes in diet, medications, botanicals and genetic variations in the CYP2C9 and VKORC1 enzymes (seeCLINICAL PHARMACOLOGY,Pharmacogenomics) may influence the response of the patient to warfarin.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:201331AB-54CD-4BE2-81C9-806CCB6E5915"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:BE935BB7-5787-43F4-A8B9-B9FEE59E4B1A">
     <rdfs:label>Comment</rdfs:label>
@@ -5508,7 +5508,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-06-30 11:55:11 -0400</pav:createdOn>
     <ao:prefix>xsd:String</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <ao:suffix> Codeine is contraindicated in children who undergo tonsillectomy and/or adenoidectomy. Advise caregivers of children receiving codeine for other reasons to monitor for signs of respiratory depression.</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:DF1A2A13-1CD9-47EC-A75C-192353959653"/>
@@ -5595,7 +5595,7 @@
     <pav:createdOn>2014-03-22 22:20:08 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:7673EC96-E39E-4D34-A8B6-A31AD2825C94"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:prefix>If hypersensitivity cannot be ruled out, DO NOT reintroduce ZIAGEN or any other abacavir-containing product.</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:exact> Even in the absence of the HLA-B*5701 allele, it is important to permanently discontinue abacavir and not rechallenge with abacavir if a hypersensitivity reaction cannot be ruled out on clinical grounds, due to the potential for a severe or even fatal reaction.</ao:exact>
@@ -5640,7 +5640,7 @@
     <ao:exact>For HLA-B*5701-positive patients, initiating or reinitiating treatment with an abacavir-containing regimen is not recommended and should be considered only with close medical supervision and under exceptional circumstances where potential benefit outweighs the risk.</ao:exact>
     <ao:prefix> </ao:prefix>
     <pav:createdOn>2014-03-31 09:04:12 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:DBCD24FF-6ABB-4810-A5CA-DF8F85FF2241"/>
@@ -5701,7 +5701,7 @@
     <domeo:uuid>EF161740-C79C-4D2A-9002-4B0A139BF81E</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:EF161740-C79C-4D2A-9002-4B0A139BF81E"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <pav:createdOn>2014-06-30 12:35:15 -0400</pav:createdOn>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:E31DDBE1-AD48-4EBD-918C-656A862E759A">
@@ -5827,7 +5827,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:616A0715-5B79-4DD8-8392-1FDEF99E9911"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:0A10CE73-592A-4D92-84AF-63395C43C0F9">
     <ao:exact>Letrozole tablets are indicated for the adjuvant treatment of postmenopausal women with hormone receptor positive early breast cancer.</ao:exact>
@@ -5836,7 +5836,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:0A10CE73-592A-4D92-84AF-63395C43C0F9"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/LETROZOLE-63e54b62-a30d-4a56-9215-75e7a0b0bf02.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63e54b62-a30d-4a56-9215-75e7a0b0bf02</ao:hasSource>
     <ao:suffix>xsd:String</ao:suffix>
     <domeo:uuid>0A10CE73-592A-4D92-84AF-63395C43C0F9</domeo:uuid>
   </rdf:Description>
@@ -5965,7 +5965,7 @@
     <ao:prefix>Poor metabolizers treated with clopidogrel bisulfate at recommended doses exhibit higher cardiovascular event rates following acute coronary syndrome (ACS) or percutaneous coronary intervention (PCI) than patients with normal CYP2C19 function.  (12.5) </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact>Tests are available to identify a patient's CYP2C19 genotype and can be used as an aid in determining therapeutic strategy.</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <pav:createdOn>2014-06-30 11:33:52 -0400</pav:createdOn>
     <ao:suffix>xsd:String</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -6005,7 +6005,7 @@
     <ao:item rdf:resource="urn:domeoclient:uuid:0A45211F-B49B-48F5-A9B9-D593DF301DA5"/>
     <ao:item rdf:resource="urn:domeoclient:uuid:121CDD92-5195-42C0-A613-F40D095DA06D"/>
     <pav:createdBy>urn:person:uuid:080e143044e90f26014518a19cf70063</pav:createdBy>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:annotatesResource>
     <pav:versionNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">24</pav:versionNumber>
     <pav:lineageUri>urn:domeoserver:annotationset:98EB47AA-350E-4E2C-9475-7A7EA7071F31</pav:lineageUri>
     <pav:createdWith>urn:domeo:software:id:Domeo-2.1alpha-050</pav:createdWith>
@@ -6062,7 +6062,7 @@
     <ao:prefix>xsd:String</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:exact>Letrozole tablet is an aromatase inhibitor indicated for: \nAdjuvant treatment of postmenopausal women with hormone receptor positive early breast cancer (1.1)\nExtended adjuvant treatment of postmenopausal women with early breast cancer who have received prior standard adjuvant tamoxifen therapy (1.2)\nFirst and second-line treatment of postmenopausal women with hormone receptor positive or unknown advanced breast cancer</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/LETROZOLE-63e54b62-a30d-4a56-9215-75e7a0b0bf02.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63e54b62-a30d-4a56-9215-75e7a0b0bf02</ao:hasSource>
     <pav:createdOn>2014-06-30 11:59:39 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <domeo:uuid>10B1EB06-38FD-41C2-A3B7-625B2825B889</domeo:uuid>
@@ -6097,7 +6097,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:9982EFEC-057D-47A7-8241-37ACB3F049AA">
     <ao:suffix>.</ao:suffix>
     <ao:exact>Regardless of HLA-B*5701 status, permanently discontinue ZIAGEN if hypersensitivity cannot be ruled out, even when other diagnoses are possible</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:9982EFEC-057D-47A7-8241-37ACB3F049AA"/>
     <domeo:uuid>9982EFEC-057D-47A7-8241-37ACB3F049AA</domeo:uuid>
     <ao:prefix>xsd:String</ao:prefix>
@@ -6222,7 +6222,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-23 14:38:12 -0400</pav:createdOn>
     <ao:prefix>tivity reaction, and if reinitiation of ZIAGEN or any other abacavir-containing product is under consideration, carefully evaluate the reason for discontinuation of ZIAGEN to ensure that the patient did not have symptoms of a hypersensitivity reaction.  </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:9BD38C7E-B2D9-4C83-903C-F86556F46EF2">
     <sio:SIO_000628>dailymed:pharmgxDrug</sio:SIO_000628>
@@ -6247,7 +6247,7 @@
     <pav:createdOn>2014-06-23 14:40:32 -0400</pav:createdOn>
     <ao:prefix>Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir.  </ao:prefix>
     <domeo:uuid>028082D6-59BF-44E8-9117-CC155DA8D008</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:AE8364C5-84D3-4210-94AB-392D28082812">
     <rdf:type rdf:resource="http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#PharmacogenomicsStatement"/>
@@ -6300,7 +6300,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <domeo:uuid>4019443F-CB02-40D7-BB18-37DDB00B1548</domeo:uuid>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:4019443F-CB02-40D7-BB18-37DDB00B1548"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:prefix>Risk Factor: HLA-B*5701 Allele: </ao:prefix>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:D6235B22-042E-4C36-A104-B353CF92CEB8">
@@ -6333,7 +6333,7 @@
     <pav:createdOn>2014-06-30 11:33:21 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:2D0B9A22-6129-4786-B0A4-7384B3324DF0"/>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:prefix>[see Clinical Pharmacology (12.5)].   </ao:prefix>
@@ -6539,7 +6539,7 @@
     <pav:createdOn>2014-06-30 12:04:08 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <domeo:uuid>BD33E8D1-8AEF-4E43-9C57-35AB0263305D</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:prefix>Severe leukopenia, thrombocytopenia, anemias including macrocytic anemia, and/or pancytopenia may occur in patients being treated with azathioprine. Severe bone marrow suppression may also occur. </ao:prefix>
@@ -6577,7 +6577,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:720F1FAF-C317-4375-8323-04DFEE0FAAFE">
     <ao:suffix>xsd:String</ao:suffix>
     <ao:prefix>Patients with low or absent TPMT activity are at an increased risk of developing severe, life-threatening myelotoxicity if receiving conventional doses of azathioprine tablets. 4-9  </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:720F1FAF-C317-4375-8323-04DFEE0FAAFE"/>
     <ao:exact>TPMT genotyping or phenotyping (red blood cell TPMT activity) can help identify patients who are at an increased risk for developing azathioprine tablets toxicity.2, 3, 7, 8, 9 Accurate phenotyping (red blood cell TPMT activity) results are not possible in patients who have received recent blood transfusions</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -6594,7 +6594,7 @@
     <ao:prefix>Patients who carry the HLA-B*5701 allele are at high risk for experiencing a hypersensitivity reaction to abacavir.  (5.1) </ao:prefix>
     <pav:createdOn>2014-06-23 14:23:26 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:6E7BEB44-17B2-4A01-8866-7DAFBEA17CC6"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:C427075F-5339-47EB-A313-AA6B94EB8753">
     <ao:suffix> The most common non-functiona</ao:suffix>
@@ -6604,7 +6604,7 @@
     <domeo:uuid>C427075F-5339-47EB-A313-AA6B94EB8753</domeo:uuid>
     <ao:prefix>xsd:String</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <pav:createdOn>2014-06-30 12:04:25 -0400</pav:createdOn>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:D96A1388-0825-4599-962A-23D155BF20E1">
@@ -6622,7 +6622,7 @@
     <dct:description>A specific variant of a gene, including the wild-type allele, or a patient phenotype</dct:description>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:6F41EB64-7E4B-4DAA-86FE-348F6836D46E">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:prefix>xsd:String</ao:prefix>
     <ao:exact>Even at labeled dosage regimens, individuals who are ultra-rapid metabolizers may have life-threatening or fatal respiratory depression or experience signs of overdose (such as extreme sleepiness, confusion, or shallow breathing)</ao:exact>
@@ -6731,7 +6731,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:60CFE292-6834-41FC-8255-B81A3D584EE2"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <pav:createdOn>2014-06-23 14:23:46 -0400</pav:createdOn>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:0FC7785B-7A6A-40CF-AC44-767C8675DFAA">
@@ -6784,7 +6784,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <domeo:uuid>239D0F43-DA9B-4ED8-A683-6BF29DB82241</domeo:uuid>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:239D0F43-DA9B-4ED8-A683-6BF29DB82241"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:0F7B1E31-9D8A-45AA-8F34-A942EE6FBB80">
@@ -6798,7 +6798,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:147B38AF-9E51-4D8A-B5CF-D7FAE7375257"/>
     <pav:createdOn>2014-06-30 12:38:14 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <domeo:uuid>147B38AF-9E51-4D8A-B5CF-D7FAE7375257</domeo:uuid>
     <ao:prefix>). Women should understand that tamoxifen reduces the incidence of breast cancer, but may not eliminate risk.</ao:prefix>
     <ao:exact> Tamoxifen decreased the incidence of small estrogen receptor positive tumors, but did not alter the incidence of estrogen receptor negative tumors or larger tumors.</ao:exact>
@@ -6814,7 +6814,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:1FCB6C74-C406-41C1-8A44-C9D033D5834C">
     <domeo:uuid>1FCB6C74-C406-41C1-8A44-C9D033D5834C</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:prefix>HLA-B*5701-negative patients may develop a hypersensitivity reaction to abacavir; however, this occurs significantly less frequently than in HLA-B*5701-positive patients.  </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -6961,7 +6961,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:78CB3193-D01C-49AA-B39B-C35887919EED">
     <ao:exact>Identification of risk factors for bleeding and certain genetic variations in CYP2C9 and VKORC1 in a patient may increase the need for more frequent INR monitoring and the use of lower warfarin doses </ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 13:20:01 -0400</pav:createdOn>
     <ao:suffix>xsd:String</ao:suffix>
@@ -6975,7 +6975,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:prefix>xsd:String</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/LETROZOLE-63e54b62-a30d-4a56-9215-75e7a0b0bf02.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63e54b62-a30d-4a56-9215-75e7a0b0bf02</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:BCC8E4C0-518C-4CB7-86BA-64CE75086359"/>
     <pav:createdOn>2014-06-30 11:59:06 -0400</pav:createdOn>
     <domeo:uuid>BCC8E4C0-518C-4CB7-86BA-64CE75086359</domeo:uuid>
@@ -7045,7 +7045,7 @@
     <pav:createdOn>2014-06-30 11:21:25 -0400</pav:createdOn>
     <ao:exact>In CYP2C19 poor metabolizers, citalopram steady state Cmax and AUC was increased by 68% and 107%, respectively.</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CITALOPRAM-16bda7b5-a5a5-4478-9df3-beb396bd677f.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=16bda7b5-a5a5-4478-9df3-beb396bd677f</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:9978D70F-9B7D-4598-8D12-0D71F5BF406F">
     <rdf:type rdf:resource="http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#PharmacogenomicsStatement"/>
@@ -7097,7 +7097,7 @@
     <ao:prefix>Hypersensitivity to abacavir is a multi-organ clinical syndrome. (5.1) </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <domeo:uuid>3846BD3B-067C-4D62-AAA4-6A53131A2A2B</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:3846BD3B-067C-4D62-AAA4-6A53131A2A2B"/>
     <pav:createdOn>2014-06-23 14:22:58 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -7109,7 +7109,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:910F9AE9-8398-400D-8505-D971512A67C6"/>
     <ao:suffix> Prior to initiating therapy with abacavir, screening for the HLA-B*5701 allele is recommended; this approach has been found to decrease the risk of hypersensitivity reaction. Screening is also recommended prior to reinitiation of abacavir in patients of</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>xsd:String</ao:prefix>
     <ao:exact>Patients who carry the HLA-B*5701 allele are at high risk for experiencing a hypersensitivity reaction to abacavir.</ao:exact>
@@ -7164,7 +7164,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:suffix>xsd:String</ao:suffix>
     <pav:createdOn>2014-03-22 22:14:34 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:prefix> </ao:prefix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:009DEEE9-9289-445E-8C79-81457BE96692"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -7176,7 +7176,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <domeo:uuid>216A1896-63FD-45FE-ACBB-80F82EB9ACE5</domeo:uuid>
     <ao:prefix>Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir.  </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:216A1896-63FD-45FE-ACBB-80F82EB9ACE5"/>
   </rdf:Description>
@@ -7191,7 +7191,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:136CA05A-B32D-4CAF-B985-0FB9EF4F0455"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <domeo:uuid>136CA05A-B32D-4CAF-B985-0FB9EF4F0455</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <ao:prefix>What is the most important information I should know about using tamoxifen citrate tablets to reduce the chance of getting breast cancer? </ao:prefix>
     <ao:exact>Tamoxifen citrate tablets are a prescription medicine that is like estrogen (female hormone) in some ways and different in other ways. In the breast, tamoxifen can block estrogen's effects. Because it does this, tamoxifen may block the growth of breast cancers that need estrogen to grow (cancers that are estrogen- or progesterone-receptor positive).</ao:exact>
     <pav:createdOn>2014-06-30 12:41:32 -0400</pav:createdOn>
@@ -7236,7 +7236,7 @@
     <ao:exact>VKORC1CYP2C9*Ranges are derived from multiple published clinical studies. Other clinical factors (e.g., age, race, body weight, sex, concomitant medications, and comorbidities) are generally accounted for along with genotype in the ranges expressed in the Table. VKORC11639 G(rs9923231) variant is used in this table. Other co-inherited VKORC1 variants may also be important determinants of warfarin dose. Patients with CYP2C9 *1/*3, *2/*2, *2/*3 and *3/*3 may require more prolonged time (&gt;2 to 4 weeks) to achieve maximum INR effect for a given dosage regimen.*1/*1*1/*2*1/*3*2/*2*2/*3*3/*3GG5 to 7 mg5 to 7 mg3 to 4 mg3 to 4 mg3 to 4 mg0.5 to 2 mgAG5 to 7 mg3 to 4 mg3 to 4 mg3 to 4 mg0.5 to 2 mg0.5 to 2 mgAA3 to 4 mg3 to 4 mg0.5 to 2 mg0.5 to 2 mg0.5 to 2 mg0.5 to 2 mg</ao:exact>
     <pav:createdOn>2014-06-30 13:24:52 -0400</pav:createdOn>
     <domeo:uuid>C1908624-6F0B-47BD-8D70-8EACD877F4A9</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:C1908624-6F0B-47BD-8D70-8EACD877F4A9"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:B90750B7-FB2D-473A-BDC7-2488F5F05E49">
@@ -7339,7 +7339,7 @@
     <ao:exact>Letrozole tablets was initially studied at doses of 0.1 mg to 5.0 mg daily in six non-comparative Phase I/II trials in 181 postmenopausal estrogen/progesterone receptor positive or unknown advanced breast cancer patients previously treated with at least antiestrogen therapy. Patients had received other hormonal therapies and also may have received cytotoxic therapy. Eight (20%) of forty patients treated with letrozole tablets 2.5 mg daily in Phase I/II trials achieved an objective tumor response (complete or partial response).</ao:exact>
     <pav:createdOn>2014-06-30 12:02:38 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/LETROZOLE-63e54b62-a30d-4a56-9215-75e7a0b0bf02.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63e54b62-a30d-4a56-9215-75e7a0b0bf02</ao:hasSource>
     <ao:suffix>Two large randomized, controll</ao:suffix>
     <domeo:uuid>F7D9EE5F-E5C0-4296-9825-534C2F768855</domeo:uuid>
     <ao:prefix>xsd:String</ao:prefix>
@@ -7539,7 +7539,7 @@
     <pav:createdOn>2014-06-30 13:15:04 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:prefix>xsd:String</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:A1F7627F-2636-46AA-A344-F9978C2AA71C"/>
     <ao:suffix> Inherited resistance to activated protein C has been described in many patients with venous thromboembolic disorders but has not yet been evaluated as a risk factor for tissue necrosis. The risk associated with these conditions, both for recurrent throm</ao:suffix>
@@ -7550,7 +7550,7 @@
     <rdf:type rdf:resource="http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#PharmacogenomicsStatement"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:5D85FB52-BA95-409A-8974-2E14C9527722">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <domeo:uuid></domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-03-22 22:03:47 -0400</pav:createdOn>
@@ -7583,7 +7583,7 @@
     <pav:createdOn>2014-06-30 12:03:44 -0400</pav:createdOn>
     <ao:suffix> </ao:suffix>
     <ao:prefix>xsd:String</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:9D58177E-4634-4343-9151-CCD4668C812B">
     <rdfs:label>ER_receptor</rdfs:label>
@@ -7603,7 +7603,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:BCAE5E0C-30F2-4E8B-8D8E-687ADD4CA18B">
     <pav:createdOn>2014-06-30 11:50:23 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:BCAE5E0C-30F2-4E8B-8D8E-687ADD4CA18B"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <ao:suffix>Even at labeled dosage regimens, individuals who are ultra-rapid metabolizers may have life-threatening or fatal respiratory depression or experience signs of overdose (such as extreme sleepiness, confusion, or shallow breathing) </ao:suffix>
     <ao:exact>Some individuals may be ultra-rapid metabolizers because of a specific CYP2D6 genotype (gene duplications denoted as *1/*1xN or *1/*2xN). The prevalence of this CYP2D6 phenotype varies widely and has been estimated at 0.5 to 1% in Chinese and Japanese, 0.5 to 1% in Hispanics, 1 to 10% in Caucasians, 3% in African Americans, and 16 to 28% in North Africans, Ethiopians, and Arabs. Data are not available for other ethnic groups. These individuals convert codeine into its active metabolite, morphine, more rapidly and completely than other people. This rapid conversion results in higher than expected serum morphine levels. </ao:exact>
     <domeo:uuid>BCAE5E0C-30F2-4E8B-8D8E-687ADD4CA18B</domeo:uuid>
@@ -7656,7 +7656,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:suffix>xsd:String</ao:suffix>
     <domeo:uuid>30201CA6-94D8-4A83-9451-AF1497A97E75</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:exact>HLA-B*5701-negative patients may develop a hypersensitivity reaction to abacavir; however, this occurs significantly less frequently than in HLA-B*5701-positive patients.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:30201CA6-94D8-4A83-9451-AF1497A97E75"/>
     <ao:prefix>For HLA-B*5701-positive patients, treatment with an abacavir-containing regimen is not recommended and should be considered only with close medical supervision and under exceptional circumstances when the potential benefit outweighs the risk. </ao:prefix>
@@ -7710,7 +7710,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:20FD83E0-8F9F-409B-BA60-7D4A2F8A54AF"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <domeo:uuid>20FD83E0-8F9F-409B-BA60-7D4A2F8A54AF</domeo:uuid>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:ED9FC62F-6F5A-4AEC-B2EB-900F4C21E312">
@@ -7750,7 +7750,7 @@
     <pav:createdOn>2014-06-09 15:55:39 -0400</pav:createdOn>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:BC0C42BD-3C98-4864-9F9C-50F72712CEC9">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <pav:createdOn>2014-06-30 12:04:35 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:BC0C42BD-3C98-4864-9F9C-50F72712CEC9"/>
     <ao:suffix>xsd:String</ao:suffix>
@@ -7783,7 +7783,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 11:42:30 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:exact>Clopidogrel tablets may not work as well in people who:\\r\n\\r\n    have certain genetic factors that affect how the body breaks down clopidogrel tablets.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:4EEB4B8C-B4AE-42C6-9E9C-805907F3A548"/>
@@ -7888,7 +7888,7 @@
     <ao:exact> Numerous factors, alone or in combination, including changes in diet, medications, botanicals and genetic variations in the CYP2C9 and VKORC1 enzymes (seeCLINICAL PHARMACOLOGY,Pharmacogenomics) may influence the response of the patient to warfarin.</ao:exact>
     <domeo:uuid>EEA90F54-8E00-4B5E-B685-11848BFBA55A</domeo:uuid>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <ao:prefix>).</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:EEA90F54-8E00-4B5E-B685-11848BFBA55A"/>
@@ -7987,7 +7987,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:D9543430-9668-4C09-8709-B8D20B095EEA">
     <ao:exact>The Early Breast Cancer Trialists' Collaborative Group (EBCTCG) conducted worldwide overviews of systemic adjuvant therapy for early breast cancer in 1985, 1990, and again in 1995. In 1998, 10 year outcome data were reported for 36,689 women in 55 randomized trials of adjuvant tamoxifen using doses of 20 to 40 mg/day for 1 to 5+ years. Twenty-five percent of patients received one year or less of trial treatment, 52% received 2 years, and 23% received about 5 years. Forty-eight percent of tumors were estrogen receptor (ER) positive (&gt; 10 fmol/mg), 21% were ER poor (&lt; 10 fmol/l), and 31% were ER unknown. Among 29,441 patients with ER positive or unknown breast cancer, 58% were entered into trials comparing tamoxifen to no adjuvant therapy and 42% were entered into trials comparing tamoxifen in combination with chemotherapy vs. the same chemotherapy alone.</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <domeo:uuid>D9543430-9668-4C09-8709-B8D20B095EEA</domeo:uuid>
     <ao:prefix>xsd:String</ao:prefix>
     <ao:suffix> Among these patients, 54% had node-positive disease and 46% had node-negative disease.Among women with ER positive o</ao:suffix>
@@ -8042,7 +8042,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:55BCCCDC-ED3F-427D-AFFE-0E80E459C63A">
     <ao:exact>Screening for carriage of the HLA -B*5701 allele is recommended prior to initiating treatment with abacavir. </ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <pav:createdOn>2014-03-31 09:01:41 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <domeo:uuid></domeo:uuid>
@@ -8136,7 +8136,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:BBD1EA14-A142-47FF-A3B5-D848FFAED44F"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:hasSource>
     <ao:prefix>SERIOUS AND SOMETIMES FATAL DERMATOLOGIC REACTIONS, INCLUDING TOXIC EPIDERMAL NECROLYSIS (TEN) AND STEVENS-JOHNSON SYNDROME (SJS), HAVE BEEN REPORTED DURING TREATMENT WITH CARBAMAZEPINE. THESE REACTIONS ARE ESTIMATED TO OCCUR IN 1 TO 6 PER 10,000 NEW USERS IN COUNTRIES WITH MAINLY CAUCASIAN POPULATIONS, BUT THE RISK IN SOME ASIAN COUNTRIES IS ESTIMATED TO BE ABOUT 10 TIMES HIGHER.  </ao:prefix>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:6EB23E7A-2869-485D-965A-820F1D704C25">
@@ -8155,7 +8155,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:375DD3AE-F16E-43E9-BB3E-D521613E10AF"/>
     <ao:prefix>xsd:String</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:08308CA2-E50D-41DB-873B-E57372B5FBDB">
     <rdfs:label>Citalopram</rdfs:label>
@@ -8267,7 +8267,7 @@
     <pav:createdOn>2014-06-30 11:33:32 -0400</pav:createdOn>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:exact>Tests are available to identify a patient's CYP2C19 genotype; these tests can be used as an aid in determining therapeutic strategy</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:ABEE5CB7-ED0D-41AF-9E83-A2013E029601">
     <rdfs:label>poor-metabolizer</rdfs:label>
@@ -8356,7 +8356,7 @@
     <ao:prefix>Certain single nucleotide polymorphisms in the VKORC1 gene (especially the -1639G&gt;A allele) have been associated with lower dose requirements for warfarin.</ao:prefix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:61BA8ACB-D63A-46FF-8B5D-79E9326A61A3"/>
     <pav:createdOn>2014-06-30 13:11:19 -0400</pav:createdOn>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:exact> In 201 Caucasian patients treated with stable warfarin doses, genetic variations in the VKORC1 gene were associated with lower warfarin doses. In this study, about 30% of the variance in warfarin dose could be attributed to variations in the VKORC1 gene alone; about 40% of the variance in warfarin dose could be attributed to variations in VKORC1 and CYP2C9 genes combined.5 About 55% of the variability in warfarin dose could be explained by the combination of VKORC1 and CYP2C9 genotypes, age, height, body weight, interacting drugs, and indication for warfarin therapy in Caucasian patients.5 Similar observations have been reported in Asian patients.</ao:exact>
   </rdf:Description>
@@ -8521,7 +8521,7 @@
     <ao:exact>Lipid Study: In a phase 3 safety trial in 262 post menopausal women with resected receptor positive early breast cancer at 24 months comparing the effects on lipid profiles of adjuvant letrozole to tamoxifen, 12% of patients on letrozole had at least one total cholesterol value of a higher CTCAE grade than at baseline compared with 4% of patients on tamoxifen.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:398416DB-3813-458C-AEAD-1E703244DEC7"/>
     <domeo:uuid>398416DB-3813-458C-AEAD-1E703244DEC7</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/LETROZOLE-63e54b62-a30d-4a56-9215-75e7a0b0bf02.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63e54b62-a30d-4a56-9215-75e7a0b0bf02</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:prefix>xsd:String</ao:prefix>
     <ao:suffix>xsd:String</ao:suffix>
@@ -8584,7 +8584,7 @@
     <domeo:uuid>DB8F110F-7415-4B13-AB5B-23F1D7A1C6BF</domeo:uuid>
     <ao:prefix>I</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <ao:suffix>4</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:DB8F110F-7415-4B13-AB5B-23F1D7A1C6BF"/>
     <pav:createdOn>2014-06-30 13:06:13 -0400</pav:createdOn>
@@ -8658,7 +8658,7 @@
     <ao:exact>Application of HLA-B*1502 genotyping as a screening tool has important limitations and must never substitute for appropriate clinical vigilance and patient management. Many HLA-B*1502-positive Asian patients treated with carbamazepine will not develop SJS/TEN, and these reactions can still occur infrequently in HLA-B*1502-negative patients of any ethnicity.</ao:exact>
     <ao:prefix>Limited evidence suggests that HLA-B*1502 may be a risk factor for the development of SJS/TEN in patients of Chinese ancestry taking other anti-epileptic drugs associated with SJS/TEN. Consideration should be given to avoiding use of other drugs associated with SJS/TEN in HLA-B* 1502 positive  patients, when alternative therapies are otherwise equally acceptable. </ao:prefix>
     <domeo:uuid>94F5EFA2-DEF5-444E-B4C2-7268B36AF650</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:DAEE8F63-75A3-4EBB-9785-D52BCC522BE0">
     <sio:SIO_000628>dailymed:pharmgxBiomarker</sio:SIO_000628>
@@ -8675,7 +8675,7 @@
     <domeo:uuid>5BA0362C-1EF8-4647-8A30-017F5378F48F</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:5BA0362C-1EF8-4647-8A30-017F5378F48F"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <ao:exact>Nursing mothers who are ultra-rapid metabolizers may also experience overdose symptoms such as extreme sleepiness, confusion, or shallow breathing. Prescribers should closely monitor mother-infant pairs and notify treating pediatricians about the use of codeine during breastfeeding</ao:exact>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:07F4F9C7-1286-482C-9AD5-B17158B8DE17">
@@ -8746,7 +8746,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:977E5F5B-8852-45BE-A6FC-8DEB91191DED"/>
     <domeo:uuid>977E5F5B-8852-45BE-A6FC-8DEB91191DED</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:prefix>Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir.  </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
   </rdf:Description>
@@ -8757,7 +8757,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:exact>Patients with low or absent TPMT activity are at an increased risk of developing severe, life-threatening myelotoxicity from azathioprine tablets if conventional doses are given. Physicians may consider alternative therapies for patients who have low or absent TPMT activity (homozygous for non-functional alleles).</ao:exact>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <ao:prefix>TPMT genotyping or phenotyping can be used to identify patients with absent or reduced TPMT activity.  </ao:prefix>
     <domeo:uuid>87228117-6F6A-41A0-9709-5D0977E83A06</domeo:uuid>
   </rdf:Description>
@@ -8789,7 +8789,7 @@
     <pav:createdOn>2014-06-09 15:37:59 -0400</pav:createdOn>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:5A997B78-0557-4495-BDBD-42F5B4B30412">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CITALOPRAM-16bda7b5-a5a5-4478-9df3-beb396bd677f.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=16bda7b5-a5a5-4478-9df3-beb396bd677f</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-06-30 11:21:56 -0400</pav:createdOn>
     <ao:suffix>xsd:String</ao:suffix>
@@ -8873,7 +8873,7 @@
     <domeo:uuid>F0BBC254-D123-49BE-A254-67148370DC96</domeo:uuid>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:F0BBC254-D123-49BE-A254-67148370DC96"/>
     <ao:suffix> </ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:8734D580-771F-422E-B2C2-CD625AC13731">
     <rdfs:label>Increased Efficacy</rdfs:label>
@@ -8953,7 +8953,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:481D46BB-D4FB-4587-B147-C2FC166A7A51">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>xsd:String</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <ao:suffix>Therapeutic doses of warfarin decrease the total amount of the active form of each vitamin K dependent clotting factor made by the liver by approximately 30% to 50%.</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 12:49:25 -0400</pav:createdOn>
@@ -9028,7 +9028,7 @@
     <poc:MedicalCondition>death, respiratory depression, tonsillectomy, adenoidectomy </poc:MedicalCondition>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:1F2D1F90-DA97-42FE-836C-EBF3BAC56349">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <ao:suffix> Patients with low or absent T</ao:suffix>
     <domeo:uuid>1F2D1F90-DA97-42FE-836C-EBF3BAC56349</domeo:uuid>
     <ao:prefix>xsd:String</ao:prefix>
@@ -9061,7 +9061,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:237CBF43-3113-4746-AC7C-0EEE2CD7D926">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <pav:createdOn>2014-03-31 08:58:47 -0400</pav:createdOn>
     <ao:exact>CNA106030 (PREDICT-1), a randomized, double-blind study, evaluated the clinical utility of prospective HLA-B*5701 screening on the incidence of abacavir hypersensitivity reaction in abacavir-naive HIV-1-infected adults (n = 1,650). In this study, use of pre-therapy screening for the HLA-B*5701 allele and exclusion of subjects with this allele reduced the incidence of clinically suspected abacavir hypersensitivity reactions from 7.8% (66/847) to 3.4% (27/803).</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:237CBF43-3113-4746-AC7C-0EEE2CD7D926"/>
@@ -9082,7 +9082,7 @@
     <ao:exact>Patients with low or absent TPMT activity are at an increased risk of developing severe, life-threatening myelotoxicity if receiving conventional doses of azathioprine tablets.</ao:exact>
     <pav:createdOn>2014-06-30 12:03:53 -0400</pav:createdOn>
     <ao:prefix>Patients with intermediate TPMT activity may be at increased risk of myelotoxicity if receiving conventional doses of azathioprine tablets.  </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:suffix>xsd:String</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -9250,7 +9250,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:8A35BACC-77B7-4822-A677-4D72A3B91942">
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:8A35BACC-77B7-4822-A677-4D72A3B91942"/>
     <domeo:uuid>8A35BACC-77B7-4822-A677-4D72A3B91942</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <pav:createdOn>2014-06-30 11:52:19 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -9418,7 +9418,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <ao:exact>The maximum dose should be limited to 20 mg/day in patients who are CYP2C19 poor metabolizers or those patients who may be taking concomitant cimetidine or another CYP2C19 inhibitor, since higher citalopram exposures would be expected.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:E1199968-6650-4D2A-A5E4-EDFBFE7733AE"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CITALOPRAM-16bda7b5-a5a5-4478-9df3-beb396bd677f.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=16bda7b5-a5a5-4478-9df3-beb396bd677f</ao:hasSource>
     <ao:prefix>The citalopram dose should be limited in certain populations.  </ao:prefix>
     <pav:createdOn>2014-04-28 15:59:18 -0400</pav:createdOn>
     <domeo:uuid></domeo:uuid>
@@ -9447,7 +9447,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:45B95464-0287-435F-86B4-0253D73E6DA8"/>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:prefix>Studies have shown that carriage of the HLA-B*5701 allele is associated with a significantly increased risk of a hypersensitivity reaction to abacavir. </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:exact>CNA106030 (PREDICT-1), a randomized, double-blind study, evaluated the clinical utility of prospective HLA-B*5701 screening on the incidence of abacavir hypersensitivity reaction in abacavir-naive HIV-1-infected adults (n = 1,650). In this study, use of pre-therapy screening for the HLA-B*5701 allele and exclusion of subjects with this allele reduced the incidence of clinically suspected abacavir hypersensitivity reactions from 7.8% (66/847) to 3.4% (27/803). Based on this study, it is estimated that 61% of patients with the HLA-B*5701 allele will develop a clinically suspected hypersensitivity reaction during the course of abacavir treatment compared with 4% of patients who do not have the HLA-B*5701 allele.</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -9461,7 +9461,7 @@
     <pav:createdOn>2014-06-23 14:42:02 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:E826D255-0A7E-4F3C-A59F-675E8A9B606E"/>
     <domeo:uuid>E826D255-0A7E-4F3C-A59F-675E8A9B606E</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:A6669B83-B750-4BCE-A012-641844F7058E">
@@ -9516,7 +9516,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:E014618E-3373-4F61-BAF6-4ABD45885081">
     <domeo:uuid>E014618E-3373-4F61-BAF6-4ABD45885081</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <pav:createdOn>2014-06-23 14:40:11 -0400</pav:createdOn>
     <ao:prefix>Based on this study, it is estimated that 61% of patients with the HLA-B*5701 allele will develop a clinically suspected hypersensitivity reaction during the course of abacavir treatment compared with 4% of patients who do not have the HLA-B*5701 allele. </ao:prefix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:E014618E-3373-4F61-BAF6-4ABD45885081"/>
@@ -9591,7 +9591,7 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:82F247F1-5E0B-472B-8C42-4074C2A25CD0"/>
     <pav:createdOn>2014-06-30 11:22:25 -0400</pav:createdOn>
     <domeo:uuid>82F247F1-5E0B-472B-8C42-4074C2A25CD0</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CITALOPRAM-16bda7b5-a5a5-4478-9df3-beb396bd677f.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=16bda7b5-a5a5-4478-9df3-beb396bd677f</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:exact>Citalopram steady state levels were not significantly different in poor metabolizers and extensive metabolizers of CYP2D6.</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -9646,7 +9646,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:8E738FB7-477C-4524-B024-29343F2936EA">
     <ao:exact>A meta-analysis of 9 qualified studies including 2775 patients (99% Caucasian) was performed to examine the clinical outcomes associated with CYP2C9 gene variants in warfarin-treated patients.3 In this meta-analysis, 3 studies assessed bleeding risks and 8 studies assessed daily dose requirements. The analysis suggested an increased bleeding risk for patients carrying either the CYP2C9*2 or CYP2C9*3 alleles.</ao:exact>
     <ao:suffix> Patients carrying at least one copy of the CYP2C9*2 allele required a mean daily warfarin dose that was 17% less than the mean daily dose for patients homozygous for the CYP2C9*1 allele. For patients carrying at least one copy of the CYP2C9*3 allele, t</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:8E738FB7-477C-4524-B024-29343F2936EA"/>
     <ao:prefix>xsd:String</ao:prefix>
     <domeo:uuid>8E738FB7-477C-4524-B024-29343F2936EA</domeo:uuid>
@@ -9655,7 +9655,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:CF0F356A-4BD3-4AB3-80E4-DF7EF3CD5F00">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <ao:exact> In a small substudy (N = 81) of the NSABP P-1 trial, there appeared to be no benefit to screening women for Factor V Leiden and Prothrombin mutations G20210A as a means to identify those who may not be appropriate candidates for tamoxifen therapy.</ao:exact>
     <domeo:uuid>CF0F356A-4BD3-4AB3-80E4-DF7EF3CD5F00</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -9853,7 +9853,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:10D9A112-25CB-425E-899B-C3AAA3CF633A">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:hasSource>
     <domeo:uuid>10D9A112-25CB-425E-899B-C3AAA3CF633A</domeo:uuid>
     <ao:prefix>xsd:String</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -9909,7 +9909,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-06-30 12:18:51 -0400</pav:createdOn>
     <ao:exact>The effect of the scheduled duration of tamoxifen may be described as follows. In women with ER positive or unknown breast cancer receiving 1 year or less, 2 years or about 5 years of tamoxifen, the proportional reductions in mortality were 12%, 17% and 26%, respectively (trend significant at 2p &lt; 0.003). The corresponding reductions in breast cancer recurrence were 21%, 29% and 47% (trend significant at 2p &lt; 0.00001).</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:hasSource>
     <ao:prefix> nodes who received about 5 years of treatment, overall survival at 10 years was 78.9% for tamoxifen vs. 73.3% for control (logrank 2p &lt; 0.00001). The recurrence-free rate at 10 years was 79.2% for tamoxifen vs. 64.3% for control (logrank 2p &lt; 0.00001). </ao:prefix>
     <domeo:uuid>14BA7077-8D33-42DD-A380-DD27F50087AD</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -9958,7 +9958,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:878D746A-3252-462C-AA1E-A857E2FC63AF">
     <ao:prefix>Leukopenia and/or thrombocytopenia are dose-dependent and may occur late in the course of therapy with azathioprine tablets. Dose reduction or temporary withdrawal may result in reversal of these toxicities. Infection may occur as a secondary manifestation of bone marrow suppression or leukopenia, but the incidence of infection in renal homotransplantation is 30 to 60 times that in rheumatoid arthritis. Anemias, including macrocytic anemia and/or bleeding have been reported. </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <ao:exact>TPMT genotyping or phenotyping can help identify patients with low or absent TPMT activity (homozygous for non-functional alleles) who are at increased risk for severe, life-threatening myelosuppression from azathioprine tablets (see CLINICAL PHARMACOLOGY, WARNINGSand PRECAUTIONS: Laboratory Tests). Death associated with pancytopenia has been reported in patients with absent TPMT activity receiving azathioprine.</ao:exact>
     <domeo:uuid>878D746A-3252-462C-AA1E-A857E2FC63AF</domeo:uuid>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:878D746A-3252-462C-AA1E-A857E2FC63AF"/>
@@ -10063,7 +10063,7 @@
     <ao:prefix>•</ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <domeo:uuid>1A89E704-ECDB-4495-8848-DB89566FFC2E</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <ao:suffix>(5.1</ao:suffix>
     <pav:createdOn>2014-06-30 11:45:41 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -10116,7 +10116,7 @@
     <pav:createdBy>urn:person:uuid:080e143044e90f26014518a19cf70063</pav:createdBy>
     <pav:lastSavedOn>2014-06-30 12:41:34 -0400</pav:lastSavedOn>
     <permissions:permissions rdf:nodeID="N4fd51cfbd0c840f4af77dd80f4b58289"/>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/TAMOXIFEN-7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=7ee3d3d2-85d1-4018-8e70-5ed8a64ae1f0</ao:annotatesResource>
     <ao:item rdf:resource="urn:domeoclient:uuid:97CDCA51-103C-4EB7-BA80-9670B117D103"/>
     <rdfs:label>Default Set</rdfs:label>
     <pav:previousVersion>urn:domeoserver:annotationset:FC944D7E-3092-4D9E-BC75-2C68BA283BDD</pav:previousVersion>
@@ -10128,7 +10128,7 @@
     <pav:createdOn>2014-06-30 13:22:05 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:prefix>xsd:String</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <ao:suffix>             </ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:0B13BA6D-FAED-4224-BF7E-64E31E595AD6"/>
     <domeo:uuid>0B13BA6D-FAED-4224-BF7E-64E31E595AD6</domeo:uuid>
@@ -10137,7 +10137,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:72569EC5-72D5-43F3-9028-CE31C726B1D0">
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:72569EC5-72D5-43F3-9028-CE31C726B1D0"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/LETROZOLE-63e54b62-a30d-4a56-9215-75e7a0b0bf02.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=63e54b62-a30d-4a56-9215-75e7a0b0bf02</ao:hasSource>
     <ao:suffix>xsd:String</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>At a median follow up of 73 months, a higher incidence of events was seen for letrozole tablets (13.8%) than for tamoxifen (10.5%) regarding fractures. A higher incidence was seen for tamoxifen compared to letrozole tablets regarding thromboembolic events (4.5% vs 2.9%), and endometrial hyperplasia or cancer (2.9% vs 0.4%) (tamoxifen vs letrozole tablets, respectively).   </ao:prefix>
@@ -10276,7 +10276,7 @@
     <ao:exact>Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir.</ao:exact>
     <domeo:uuid></domeo:uuid>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:1DB91157-FBA4-4FE0-BAB1-68BB8A5A145E"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-03-22 22:10:26 -0400</pav:createdOn>
     <ao:suffix> For HLA-B*5701-positive patients, treatment with an abacavir-containing regimen is not recommended and should be considered only with close medical supervision and under exceptional circumstances when the potential benefit outweighs the risk.</ao:suffix>
@@ -10489,7 +10489,7 @@
     <pav:createdOn>2014-06-23 14:41:38 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:4743B32B-A374-4701-B3BA-DD766AB522F6"/>
     <ao:suffix>xsd:String</ao:suffix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:prefix>In any patient treated with abacavir, the clinical diagnosis of hypersensitivity reaction must remain the basis of clinical decision-making.  </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
@@ -10577,7 +10577,7 @@
     <ao:suffix>6,7</ao:suffix>
     <pav:createdOn>2014-06-30 13:09:12 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <domeo:uuid>EBA440A2-4EF9-40CD-89BF-56AB858385E6</domeo:uuid>
     <ao:prefix>Warfarin reduces the regeneration of vitamin K from vitamin K epoxide in the vitamin K cycle, through inhibition of vitamin K epoxide reductase (VKOR), a multiprotein enzyme complex. </ao:prefix>
@@ -10637,7 +10637,7 @@
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <pav:createdOn>2014-06-30 12:04:19 -0400</pav:createdOn>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:1D33EB0C-A03D-481F-991D-B71848865C38"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <ao:prefix>Patients with low or absent TPMT activity are at an increased risk of developing severe, life-threatening myelotoxicity if receiving conventional doses of azathioprine.  </ao:prefix>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:5CA30A28-B75A-4D14-87B5-8F1D73A58AF0">
@@ -10690,7 +10690,7 @@
     <poc:DoseSelectionRecommendation>http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#use-specific</poc:DoseSelectionRecommendation>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:B79BAC9C-6B3B-4FF1-9F24-2BD40CE200BF">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <pav:createdOn>2014-03-22 22:07:26 -0400</pav:createdOn>
     <ao:exact>Patients who carry the HLA-B*5701 allele are at high risk for experiencing a hypersensitivity reaction to abacavir.</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -10711,7 +10711,7 @@
     <domeo:uuid>976BDFF3-2BFA-4838-B6A0-327B2921E1B7</domeo:uuid>
     <ao:exact>The CYP2C19*1 allele corresponds to fully functional metabolism while the CYP2C19*2 and *3 alleles are nonfunctional.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:976BDFF3-2BFA-4838-B6A0-327B2921E1B7"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 11:34:29 -0400</pav:createdOn>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -10735,7 +10735,7 @@
     <domeo:agents rdf:resource="urn:person:uuid:080e143044e90f26014518a19cf70063"/>
     <pav:createdWith>urn:domeo:software:id:Domeo-2.1alpha-050</pav:createdWith>
     <pav:versionNumber rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</pav:versionNumber>
-    <ao:annotatesResource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ARIPIPRAZOLE-217e52b5-3a7b-4bbe-af3c-b18de7d426c3.html</ao:annotatesResource>
+    <ao:annotatesResource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=217e52b5-3a7b-4bbe-af3c-b18de7d426c3</ao:annotatesResource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#AnnotationSet"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:5AC5462B-2AAA-42B0-BA6D-B0EFB4BC80C9">
@@ -10868,7 +10868,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:F3C6E27C-CBBA-4B36-810C-D42C3FA4AB93">
     <domeo:uuid>F3C6E27C-CBBA-4B36-810C-D42C3FA4AB93</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/AZATHIOPRINE-040d010a-b1b2-4db7-905d-8aa7f1bab0cd.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=040d010a-b1b2-4db7-905d-8aa7f1bab0cd</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:suffix>xsd:String</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -10903,7 +10903,7 @@
     <ao:exact>The HLA-B*1502 allele has not been found to predict risk of less severe adverse cutaneous reactions from carbamazepine, such as anticonvulsant hypersensitivity syndrome or non-serious rash (maculopapular eruption [MPE])</ao:exact>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <domeo:uuid>79C530FF-637A-43C8-AECE-CA81458FB5EE</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:22C583C8-0AC3-4E1C-A595-4E5CCD32A0F9">
     <rdf:type rdf:resource="http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#PharmacogenomicsStatement"/>
@@ -10926,14 +10926,14 @@
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:8BEEBA62-C519-4421-9038-113DCDFC9B2C"/>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix> </ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <ao:suffix> Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir. For HLA-B*5701-positive patients, treatment with an abacavir-containing regimen is not recommended and shoul</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:DEE1B9FD-09F4-4AD6-9BEB-55CF10F2FDDB">
     <ao:exact>Respiratory depression and death have occurred in children who received codeine in the post-operative period following tonsillectomy and/or adenoidectomy and had evidence of being ultra-rapid metabolizers of codeine (i.e., multiple copies of the gene for cytochrome P450 isoenzyme 2D6 [CYP2D6] or high morphine concentrations)</ao:exact>
     <domeo:uuid>DEE1B9FD-09F4-4AD6-9BEB-55CF10F2FDDB</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <ao:suffix>. Deaths have also occurred in nursing infants who were exposed to high levels of morphine in breast milk because their mothers were ultra-rapid metabolizers of codeine </ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:DEE1B9FD-09F4-4AD6-9BEB-55CF10F2FDDB"/>
@@ -10963,7 +10963,7 @@
     <pav:createdOn>2014-06-23 14:36:33 -0400</pav:createdOn>
     <ao:exact>Regardless of HLA-B*5701 status, permanently discontinue ZIAGEN if hypersensitivity cannot be ruled out, even when other diagnoses are possible.</ao:exact>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:C7EAEB14-8213-4EF8-AC67-469D0609826B"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:AA3B0B94-7858-4E6B-B828-AB6A8867E1D3">
@@ -11007,7 +11007,7 @@
     <domeo:uuid>E8587041-73D9-4727-A9F5-7445BAF204E3</domeo:uuid>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:E8587041-73D9-4727-A9F5-7445BAF204E3"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:813B467D-E573-4F02-B5FD-95E3A0050ADC">
@@ -11357,7 +11357,7 @@
     <pav:createdOn>2014-06-30 11:16:17 -0400</pav:createdOn>
     <domeo:uuid>ABB77F0A-DE6D-4F3D-87F3-CFA59807AA63</domeo:uuid>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:ABB77F0A-DE6D-4F3D-87F3-CFA59807AA63"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CARBAMAZEPINE-ee15d911-73c7-4bc6-96f2-089a8aa64e18.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=ee15d911-73c7-4bc6-96f2-089a8aa64e18</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:8026784E-DC9A-4F18-963D-495E0532BB97">
     <dailymed:pharmgxDrug>http://www.drugbank.ca/drugs/DB00758</dailymed:pharmgxDrug>
@@ -11422,7 +11422,7 @@
     <ao:suffix>xsd:String</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:B6570F9A-45F9-4786-BDA7-9D6B899F45DB"/>
     <ao:exact>Prior to initiating therapy with abacavir, screening for the HLA-B*5701 allele is recommended; this approach has been found to decrease the risk of hypersensitivity reaction. Screening is also recommended prior to reinitiation of abacavir in patients of unknown HLA-B*5701 status who have previously tolerated abacavir.</ao:exact>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/ABACAVIR-6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=6a3b10fc-4b2a-45e3-16a1-ef79187a6dfb</ao:hasSource>
     <pav:createdOn>2014-06-23 14:25:28 -0400</pav:createdOn>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:F1F0B2C7-CD6B-47A1-8A2E-0C58AFF1C1AA">
@@ -11758,7 +11758,7 @@
     <domeo:uuid>D92166A3-0B32-4545-B4CA-719FEDAF410D</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>xsd:String</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:9C2B48AD-A4E0-4C6C-9246-E6FD6CF712C8">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
@@ -11768,7 +11768,7 @@
     <domeo:uuid>9C2B48AD-A4E0-4C6C-9246-E6FD6CF712C8</domeo:uuid>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:9C2B48AD-A4E0-4C6C-9246-E6FD6CF712C8"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <ao:exact> For patients carrying at least one copy of the CYP2C9*3 allele, the mean daily warfarin dose was 37% less than the mean daily dose for patients homozygous for the CYP2C9*1 allele.</ao:exact>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:60208860-79EE-4EFA-BB03-9218CBD7E12F">
@@ -11812,7 +11812,7 @@
     <pav:createdOn>2014-06-30 11:40:00 -0400</pav:createdOn>
     <ao:prefix>Some published studies suggest that intermediate metabolizers have decreased active metabolite exposure and diminished antiplatelet effects.  </ao:prefix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CLOPIDOGREL-03bec9ad-cd22-44d3-9b82-2796157de1d1.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1</ao:hasSource>
     <ao:exact>The relationship between CYP2C19 genotype and clopidogrel bisulfate treatment outcome was evaluated in retrospective analyses of clopidogrel bisulfate-treated subjects in CHARISMA (n=2428) and TRITON-TIMI 38 (n=1477), and in several published cohort studies. In TRITON-TIMI 38 and the majority of the cohort studies, the combined group of patients with either intermediate or poor metabolizer status had a higher rate of cardiovascular events (death, myocardial infarction, and stroke) or stent thrombosis compared to extensive metabolizers. In CHARISMA and one cohort study, the increased event rate was observed only in poor metabolizers.</ao:exact>
   </rdf:Description>
   <rdf:Description rdf:about="urn:linkedspls:uuid:6D20A91A-BAD7-4E87-930B-A5394D2732C8">
@@ -12139,7 +12139,7 @@
   <rdf:Description rdf:about="urn:domeoclient:uuid:E03CFE71-0FEF-4840-A587-1D360CBF035C">
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#SpecificResource"/>
     <ao:prefix>xsd:String</ao:prefix>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/CODEINE-fa3ed180-298a-4f9d-9d05-15182d7218bf.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=fa3ed180-298a-4f9d-9d05-15182d7218bf</ao:hasSource>
     <ao:suffix> Instruct nursing mothers to talk to the baby’s doctor immediately if they notice these signs and, if they cannot reach the doctor right away, to take the baby to an emergency room or call 911 (or local emergency services).</ao:suffix>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:E03CFE71-0FEF-4840-A587-1D360CBF035C"/>
@@ -12425,7 +12425,7 @@
     <sio:SIO_000628>dailymed:ConcomitantMedicationOfConcern</sio:SIO_000628>
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:0DA7AAE6-C82C-4935-9D33-40D96FDB2416">
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <domeo:uuid>0DA7AAE6-C82C-4935-9D33-40D96FDB2416</domeo:uuid>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <pav:createdOn>2014-06-30 12:51:53 -0400</pav:createdOn>
@@ -13126,7 +13126,7 @@
   </rdf:Description>
   <rdf:Description rdf:about="urn:domeoclient:uuid:98FB995B-3B3B-4C86-ACA3-EE4F9F310F41">
     <domeo:uuid>98FB995B-3B3B-4C86-ACA3-EE4F9F310F41</domeo:uuid>
-    <ao:hasSource>http://dbmi-icode-01.dbmi.pitt.edu:2020/SPL-annotation/WARFARIN-3d35df36-1a19-4559-91fe-252b7082295b.html</ao:hasSource>
+    <ao:hasSource>http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3d35df36-1a19-4559-91fe-252b7082295b</ao:hasSource>
     <rdf:type rdf:resource="http://www.w3.org/ns/oa#PrefixSuffixTextSelector"/>
     <ao:suffix>xsd:String</ao:suffix>
     <ao:hasSelector rdf:resource="urn:domeoclient:uuid:98FB995B-3B3B-4C86-ACA3-EE4F9F310F41"/>
