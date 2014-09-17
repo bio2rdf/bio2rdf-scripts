@@ -339,7 +339,7 @@ class NCBIGeneParser extends Bio2RDFizer
 					parent::triplify($start_pos,"rdf:type","faldo:ForwardStrandPosition").
 					parent::triplifyString($start_pos,"faldo:position",$a[9],"xsd:integer").
 					parent::triplify($start_pos,"faldo:reference","refseq:".$a[7]).
-					parent::triplify($region,"faldo:end",$start_pos).
+					parent::triplify($region,"faldo:end",$stop_pos).
 					parent::triplify($stop_pos,"rdf:type","faldo:ForwardStrandPosition").
 					parent::triplifyString($stop_pos,"faldo:position",$a[10],"xsd:integer").
 					parent::triplify($stop_pos,"faldo:reference","refseq:".$a[7])
