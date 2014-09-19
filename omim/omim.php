@@ -34,7 +34,7 @@ class OMIMParser extends Bio2RDFizer
 		parent::__construct($argv, 'omim');
 		parent::addParameter('files',true,null,'all|omim#','entries to process: comma-separated list or hyphen-separated range');
 		parent::addParameter('omim_api_url',false,null,'http://api.omim.org/api/entry?include=all&format=json');
-		parent::addParameter('omim_api_key',false,null,'B398C0820DE54FA34751B8070ED4D721C3B81E5D');
+		parent::addParameter('omim_api_key',false,null,'D43076A680B921682DA253BEFE05DE998957B3FC');
 		parent::initialize();
 	}
 	
@@ -472,8 +472,10 @@ class OMIMParser extends Bio2RDFizer
 			}
 			if(isset($map['geneInheritance']) && $map['geneInheritance'] != '') {
 				parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."gene-inheritance", $map['geneInheritance']));
-			}			
+			}	
+		
 			if(isset($map['phenotypeMapList'])) {
+			
 				foreach($map['phenotypeMapList'] AS $phenotypeMap) {
 					$phenotypeMap = $phenotypeMap['phenotypeMap'];
 					if(isset($phenotypeMap['phenotypeMimNumber']))			
@@ -500,7 +502,7 @@ class OMIMParser extends Bio2RDFizer
 		}
 	
 		// external ids
-		if(isset($o['externalLinks'])) {
+		if(isset($o['externalLinks'])) {		
 			foreach($o['externalLinks'] AS $k => $id) {
 
 				$ns = '';
@@ -550,16 +552,17 @@ class OMIMParser extends Bio2RDFizer
 					default:
 						echo "unhandled external link $k $id".PHP_EOL;
 				}
-			
-			
+
 				$ids = explode(",",$id);
 				foreach($ids AS $id) {
 					if($ns) {
 						$b = explode(";;",$id); // multiple ids//names
 						foreach($b AS $c) {
-							if(is_numeric($c) == TRUE) {
+							preg_match("/([a-z])/",$c,$m);
+							if(!isset($m[1])) {
 								parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-$ns", $ns.':'.$c)); 
-						}}
+							}
+						}
 					}
 				}
 			}
