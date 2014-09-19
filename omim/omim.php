@@ -474,7 +474,6 @@ class OMIMParser extends Bio2RDFizer
 			}	
 		}
 		if(isset($o['phenotypeMapList'])) {	
-			parent::deleteRDF();
 			foreach($o['phenotypeMapList'] AS $i => $phenotypeMap) {
 				$phenotypeMap = $phenotypeMap['phenotypeMap'];
 				$pm_uri = parent::getRes().$omim_id."_pm_".($i+1);
@@ -496,7 +495,6 @@ class OMIMParser extends Bio2RDFizer
 					}
 				}
 			}
-			echo parent::getRDF();exit;
 		}
 		
 		
