@@ -1,5 +1,5 @@
 ################################################################################
-# GRAPH: http://purl.org/net/nlprepository/spl-core-poc-09162014
+# GRAPH: http://purl.org/net/nlprepository/spl-core-10022014
 # GRAPH: http://purl.org/net/nlprepository/spl-active-moiety-poc-09162014
 ################################################################################
 
@@ -11,7 +11,7 @@ PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
 ## Get metadata for the SPLs of all products containing a drug ##
 SELECT ?label ?splId ?version ?setId ?org ?date ?homepage
-FROM <http://purl.org/net/nlprepository/spl-core-poc-09162014>
+FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 WHERE {
 
 ?splId rdfs:label ?label.
@@ -37,7 +37,7 @@ PREFIX loinc: <http://www.hipaaspace.com/Medical_Billing/Coding/Logical.Observat
 ## Get metadata for the SPLs of all products containing a drug ##
 
 SELECT ?textClinicalStudies ?textDrugInteractions ?textClinicalPharmacology
-FROM <http://purl.org/net/nlprepository/spl-core-poc-09162014>
+FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 WHERE {
 
 OPTIONAL { <%s> loinc:34092-7 ?textClinicalStudies }
@@ -49,16 +49,11 @@ OPTIONAL { <%s> loinc:34090-1 ?textClinicalPharmacology }
 ################################################################################
 # return all sections from all drug products containing clopidogrel 75 MG oral tablet that the FDA notes as having pharmgx information:
 
-# Comment: Don't have mappings of loinc code to sections in pharmgxData
-# use specific section label "warningsAndPrecautions" instead
-
-# Problem: sparql query is not support "BIND" or "replace/substring" function in where clause
-
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
-SELECT DISTINCT ?setId ?biomarker ?sectionTag ?sectionText
-FROM <http://purl.org/net/nlprepository/spl-core-poc-09162014>
+SELECT DISTINCT ?setId ?biomarker ?sectionTag ?sectionLoinc ?sectionText
+FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 
 WHERE {
 ?s dc:subject <http://purl.bioontology.org/ontology/RXNORM/213169>.
@@ -66,10 +61,10 @@ WHERE {
 
 ?pharmgxData linkedspls_vocabulary:setId ?setId.
 ?pharmgxData linkedspls_vocabulary:pharmgxBiomarker ?biomarker.
-?pharmgxData linkedspls_vocabulary:pharmgxSPLSection ?sectionTag.
+?pharmgxData linkedspls_vocabulary:pharmgxSPLSection ?sectionLoinc.
 
-?section rdfs:label "warningsAndPrecautions".
-?s ?section ?sectionText.
+?sectionLoinc rdfs:label ?sectionTag.
+?s ?sectionLoinc ?sectionText.
 }
 
 ################################################################################
@@ -82,7 +77,7 @@ PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
 SELECT DISTINCT ?setId ?rxcuiDrugProduct ?sectionTag 
-FROM <http://purl.org/net/nlprepository/spl-core-poc-09162014>
+FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 WHERE {
 ?pharmgxData linkedspls_vocabulary:pharmgxBiomarker "CYP2D6".
 ?pharmgxData linkedspls_vocabulary:setId ?setId.
@@ -96,23 +91,22 @@ WHERE {
 ################################################################################
 # get all sections w/ FDA pharmgx data for drugs with an antidepressant application.
 
-# Comment: Don't have mappings of loinc code to sections in pharmgxData
-# should add section full text
-
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX ncbit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
 PREFIX fn:<http://www.w3.org/2005/xpath-functions#>
 
 SELECT DISTINCT * 
-FROM <http://purl.org/net/nlprepository/spl-core-poc-09162014>
+FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 WHERE {
 ?s linkedspls_vocabulary:setId ?setId.
 ?pharmgxData linkedspls_vocabulary:setId ?setId.
 ?pharmgxData linkedspls_vocabulary:therapeuticApplication ncbit:Psychiatry.
 ?pharmgxData linkedspls_vocabulary:activeMoietyRxCUI ?moiety.
 ?pharmgxData linkedspls_vocabulary:pharmgxBiomarker ?biomarker.
-?pharmgxData linkedspls_vocabulary:pharmgxSPLSection ?sectionTag.
+?pharmgxData linkedspls_vocabulary:pharmgxSPLSection ?sectionLoinc.
+?sectionLoinc rdfs:label ?sectionTag.
+?s ?sectionLoinc ?sectionText.
 
 }
 LIMIT 10
@@ -250,22 +244,23 @@ LIMIT 1
 ################################################################################
 # Query chain that gets all sections containing pharmgx data from the most recent PI with its setid
 
-# Comment: Don't have mappings of loinc code to sections in pharmgxData
-# should add section full text
-
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
-SELECT ?rxcui ?sectionTag WHERE {
+SELECT ?rxcui ?sectionTag ?sectionLoinc ?sectionText WHERE {
 
 ?pharmgxData a linkedspls_vocabulary:pharmgxData;
 linkedspls_vocabulary:setId "d655ff56-c17d-4331-8e9c-93e36f4ffeae";
-linkedspls_vocabulary:pharmgxSPLSection ?sectionTag.
+linkedspls_vocabulary:pharmgxSPLSection ?sectionLoinc.
+
+?sectionLoinc rdfs:label ?sectionTag.
+?s ?sectionLoinc ?sectionText.
 
 ?s a linkedspls_vocabulary:structuredProductLabelMetadata;
 linkedspls_vocabulary:setId "d655ff56-c17d-4331-8e9c-93e36f4ffeae".
 
 ?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
 ?activeMoiety linkedspls_vocabulary:RxCUI ?rxcui.
+
 }
 
 ################################################################################
@@ -426,10 +421,13 @@ WHERE {
 ################################################################################
 # QUERY: Annotations are grouped into Collections, one per SPL resource; show the number of annotations in each annotation collection for CLOPIDOGREL product labels
 
-#Comment: the source uri won't match in most cases 
+#Comment: the source uri won't matched in most cases 
+
 # same product name but there are different srouce uri in spl-core and pharmgx consensus data
 # ex1: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=edae8df1-caf9-ff72-1304-5ae8b355f8e7
 # ex2: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1
+
+# updated linkedSPLs probably can fix this mismatching problem
 
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
@@ -753,6 +751,8 @@ LIMIT 10
 # Show the annotations on product label statements for Pharmgkb PA124 (CYP2C19)
 
 # Comment: This query will time out on public facing virtuoso endpoint 
+# Should maps pharmgxTable to pgxConsensus data by RxCUI but consensus data is using Drug Bank id 
+
 
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX dctypes: <http://purl.org/dc/dcmitype/>

@@ -38,9 +38,15 @@
 
 map:database a d2rq:Database;
     d2rq:jdbcDriver "com.mysql.jdbc.Driver";
-    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=5bboys";
-    #d2rq:resultSizeLimit 500;
-    #d2rq:fetchSize 500;
+
+    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=root";
+
+    #d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=5bboys";
+
+    #d2rq:jdbcDSN "jdbc:mysql://136.142.148.191/linkedSPLs?autoReconnect=true&user=root&password=cjirtR01";
+
+    # d2rq:resultSizeLimit 500;
+    # d2rq:fetchSize 500;
     .
 
 map:DrugsRdfTypeBridge a d2rq:PropertyBridge;
@@ -188,24 +194,46 @@ map:pharmgxTherAppTranslate a d2rq:TranslationTable;
     d2rq:translation [ d2rq:databaseValue "Reproductive and Urologic"; d2rq:rdfValue  ncbit:Urology; ];
     d2rq:translation [ d2rq:databaseValue "Antiarrhythmics"; d2rq:rdfValue  ncbit:Arrhythmia; ].
 
+# map:pharmgxSectionTranslate a d2rq:TranslationTable;
+#      d2rq:translation [ d2rq:databaseValue "Adverse Reactions"; d2rq:rdfValue  linkedspls_vocabulary:adverseReactions; ];
+#      d2rq:translation [ d2rq:databaseValue "Boxed Warning"; d2rq:rdfValue  linkedspls_vocabulary:boxedWarning; ];
+#      d2rq:translation [ d2rq:databaseValue "Clinical Pharmacology"; d2rq:rdfValue  linkedspls_vocabulary:clinicalPharmacology; ];
+#      d2rq:translation [ d2rq:databaseValue "Clinical Studies"; d2rq:rdfValue  linkedspls_vocabulary:clinicalStudies; ];
+#      d2rq:translation [ d2rq:databaseValue "Contraindications"; d2rq:rdfValue  linkedspls_vocabulary:contraindications; ];
+#      d2rq:translation [ d2rq:databaseValue "Description"; d2rq:rdfValue  linkedspls_vocabulary:description; ];
+#      d2rq:translation [ d2rq:databaseValue "Dosage and Administration"; d2rq:rdfValue  linkedspls_vocabulary:dosageAndAdministration; ];
+#      d2rq:translation [ d2rq:databaseValue "Drug Interactions"; d2rq:rdfValue  linkedspls_vocabulary:drugInteractions; ];
+#      d2rq:translation [ d2rq:databaseValue "Indications and Usage"; d2rq:rdfValue  linkedspls_vocabulary:indicationsAndUsage; ];
+#      d2rq:translation [ d2rq:databaseValue "Patient Information"; d2rq:rdfValue  linkedspls_vocabulary:patientMedicationInformation; ];
+#      d2rq:translation [ d2rq:databaseValue "Patient Counseling Information"; d2rq:rdfValue  linkedspls_vocabulary:informationForPatients; ];
+#      d2rq:translation [ d2rq:databaseValue "Precautions"; d2rq:rdfValue  linkedspls_vocabulary:precautions; ];
+#      d2rq:translation [ d2rq:databaseValue "Special Populations"; d2rq:rdfValue  linkedspls_vocabulary:useInSpecificPopulations; ];
+#      d2rq:translation [ d2rq:databaseValue "Use in Specific Populations"; d2rq:rdfValue  linkedspls_vocabulary:useInSpecificPopulations; ];
+#      d2rq:translation [ d2rq:databaseValue "Warnings and Precautions"; d2rq:rdfValue  linkedspls_vocabulary:warningsAndPrecautions; ];
+#      d2rq:translation [ d2rq:databaseValue "Warnings"; d2rq:rdfValue  linkedspls_vocabulary:warnings; ];
+#      .
+
+# translate to resolvable loinc URI
 map:pharmgxSectionTranslate a d2rq:TranslationTable;
-     d2rq:translation [ d2rq:databaseValue "Adverse Reactions"; d2rq:rdfValue  linkedspls_vocabulary:adverseReactions; ];
-     d2rq:translation [ d2rq:databaseValue "Boxed Warning"; d2rq:rdfValue  linkedspls_vocabulary:boxedWarning; ];
-     d2rq:translation [ d2rq:databaseValue "Clinical Pharmacology"; d2rq:rdfValue  linkedspls_vocabulary:clinicalPharmacology; ];
-     d2rq:translation [ d2rq:databaseValue "Clinical Studies"; d2rq:rdfValue  linkedspls_vocabulary:clinicalStudies; ];
-     d2rq:translation [ d2rq:databaseValue "Contraindications"; d2rq:rdfValue  linkedspls_vocabulary:contraindications; ];
-     d2rq:translation [ d2rq:databaseValue "Description"; d2rq:rdfValue  linkedspls_vocabulary:description; ];
-     d2rq:translation [ d2rq:databaseValue "Dosage and Administration"; d2rq:rdfValue  linkedspls_vocabulary:dosageAndAdministration; ];
-     d2rq:translation [ d2rq:databaseValue "Drug Interactions"; d2rq:rdfValue  linkedspls_vocabulary:drugInteractions; ];
-     d2rq:translation [ d2rq:databaseValue "Indications and Usage"; d2rq:rdfValue  linkedspls_vocabulary:indicationsAndUsage; ];
-     d2rq:translation [ d2rq:databaseValue "Patient Information"; d2rq:rdfValue  linkedspls_vocabulary:patientMedicationInformation; ];
-     d2rq:translation [ d2rq:databaseValue "Patient Counseling Information"; d2rq:rdfValue  linkedspls_vocabulary:informationForPatients; ];
-     d2rq:translation [ d2rq:databaseValue "Precautions"; d2rq:rdfValue  linkedspls_vocabulary:precautions; ];
-     d2rq:translation [ d2rq:databaseValue "Special Populations"; d2rq:rdfValue  linkedspls_vocabulary:useInSpecificPopulations; ];
-     d2rq:translation [ d2rq:databaseValue "Use in Specific Populations"; d2rq:rdfValue  linkedspls_vocabulary:useInSpecificPopulations; ];
-     d2rq:translation [ d2rq:databaseValue "Warnings and Precautions"; d2rq:rdfValue  linkedspls_vocabulary:warningsAndPrecautions; ];
-     d2rq:translation [ d2rq:databaseValue "Warnings"; d2rq:rdfValue  linkedspls_vocabulary:warnings; ];
+     d2rq:translation [ d2rq:databaseValue "Adverse Reactions"; d2rq:rdfValue  loinc:34084-4; ];
+     d2rq:translation [ d2rq:databaseValue "Boxed Warning"; d2rq:rdfValue  loinc:34066-1; ];
+     d2rq:translation [ d2rq:databaseValue "Clinical Pharmacology"; d2rq:rdfValue  loinc:34090-1; ];
+     d2rq:translation [ d2rq:databaseValue "Clinical Studies"; d2rq:rdfValue  loinc:34092-7; ];
+     d2rq:translation [ d2rq:databaseValue "Contraindications"; d2rq:rdfValue  loinc:34070-3; ];
+     d2rq:translation [ d2rq:databaseValue "Description"; d2rq:rdfValue  loinc:34089-3; ];
+     d2rq:translation [ d2rq:databaseValue "Dosage and Administration"; d2rq:rdfValue  loinc:34068-7; ];
+     d2rq:translation [ d2rq:databaseValue "Drug Interactions"; d2rq:rdfValue  loinc:34073-7; ];
+     d2rq:translation [ d2rq:databaseValue "Indications and Usage"; d2rq:rdfValue  loinc:34067-9; ];
+     d2rq:translation [ d2rq:databaseValue "Patient Information"; d2rq:rdfValue  loinc:68498-5; ];
+     d2rq:translation [ d2rq:databaseValue "Patient Counseling Information"; d2rq:rdfValue  loinc:34076-0; ];
+     d2rq:translation [ d2rq:databaseValue "Precautions"; d2rq:rdfValue  loinc:34072-9; ];
+     d2rq:translation [ d2rq:databaseValue "Special Populations"; d2rq:rdfValue  loinc:43684-0; ];
+     d2rq:translation [ d2rq:databaseValue "Use in Specific Populations"; d2rq:rdfValue  loinc:43684-0; ];
+     d2rq:translation [ d2rq:databaseValue "Warnings and Precautions"; d2rq:rdfValue  loinc:43685-7; ];
+     d2rq:translation [ d2rq:databaseValue "Warnings"; d2rq:rdfValue  loinc:34071-1; ];
      .
+
+
 
 
 # Table structuredProductLabelMetadata 
