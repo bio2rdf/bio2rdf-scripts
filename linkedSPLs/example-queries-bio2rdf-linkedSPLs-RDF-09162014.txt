@@ -750,9 +750,7 @@ LIMIT 10
 ################################################################################
 # Show the annotations on product label statements for Pharmgkb PA124 (CYP2C19)
 
-# Comment: This query will time out on public facing virtuoso endpoint 
 # Should maps pharmgxTable to pgxConsensus data by RxCUI but consensus data is using Drug Bank id 
-
 
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX dctypes: <http://purl.org/dc/dcmitype/>
@@ -779,50 +777,18 @@ SELECT DISTINCT ?text ?drug ?section ?setId ?pdImpact ?pkImpact ?monitRec ?drugR
       linkedspls_vocabulary:setId ?setId.
 
   ?item a oa:SPLAnnotation;
-       oa:context ?context.
-  ?context oa:hasSelector ?selector.
-  ?selector a oa:PrefixSuffixTextSelector;
-      oa:hasSource ?source;
       oa:exact ?text.
 
-   ?item oa:body ?bn1.
-   ?bn1 dailymed:pharmgxDrug ?d;
-         rdfs:label ?drug2.FILTER(?drug = fn:upper-case(?drug2))
+  ?item dailymed:pharmgxDrug ?drug2.FILTER(?drug = fn:upper-case(?drug2))
 
-   ?item oa:body ?bn2.
-   ?bn3 dailymed:HGNCGeneSymbol ?bio;
-         rdfs:label ?biomarker.
-
-   OPTIONAL {
-   ?item oa:body ?bn4.
-   ?bn4 poc:PharmacokineticImpact ?pkImpact.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn5.
-   ?bn5 poc:PharmacodynamicImpact ?pdImpact.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn6.
-   ?bn6 poc:MonitoringRecommendation ?monitRec.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn7.
-   ?bn7 poc:TestRecommendation ?testRec.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn8.
-   ?bn8 poc:DrugSelectionRecommendation ?drugRec.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn9.
-   ?bn9 poc:DoseSelectionRecommendation ?doseRec.
-   }
-
+      OPTIONAL {?item dailymed:HGNCGeneSymbol ?gene. }
+      OPTIONAL {?item dailymed:pharmgxBiomarker ?biomarker. }
+      OPTIONAL {?item poc:PharmacokineticImpact ?pkImpact. }
+      OPTIONAL {?item poc:PharmacodynamicImpact ?pdImpact. }
+      OPTIONAL {?item poc:MonitoringRecommendation ?monitRec. }
+      OPTIONAL {?item poc:TestRecommendation ?testRec. }
+      OPTIONAL {?item poc:DrugSelectionRecommendation ?drugRec. }
+      OPTIONAL {?item poc:DoseSelectionRecommendation ?doseRec. }
 }
 GROUP BY ?drug
 ORDER BY ?drug
