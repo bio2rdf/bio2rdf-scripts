@@ -264,7 +264,7 @@ linkedspls_vocabulary:setId "d655ff56-c17d-4331-8e9c-93e36f4ffeae".
 }
 
 ################################################################################
-# GRAPH: http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc-09162014
+# GRAPH: http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014
 ################################################################################
 
 # PURPOSE: To demonstrate an interoperable annotation data set
@@ -287,111 +287,40 @@ PREFIX pav: <http://purl.org/pav/>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 PREFIX ncit:<http://purl.bioontology.org/ontology/NCIT#>
 
-SELECT ?text ?drugLabel ?gene ?section ?pk ?pd ?monitRec ?testRec ?drugRec ?doseRec ?variant ?prodrug ?medicationConcern ?variantFreq ?clinical ?medicalCondition ?testResult ?alleles ?comment 
-FROM <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc-09162014>
+SELECT ?item ?source ?text ?drug ?section ?gene ?biomarker ?pkImpact ?pdImpact ?drugRec ?doseRec ?testRec ?monitRec 
+?variant ?prodrug ?medicationConcern ?variantFreq ?clinical ?medicalCondition ?testResult ?alleles ?comment
+
 WHERE {
 
-  ?annot a oa:AnnotationSet.
+?item rdf:type oa:SPLAnnotation;
+       oa:hasTarget ?target;
+       oa:hasBody ?body.
 
-  ?annot oa:item ?item.
+  ?target oa:hasSelector ?selector.
 
-  ?item oa:context ?context.
+  ?selector oa:hasSource ?source;
+       oa:exact ?text.
 
-  ?context oa:hasSelector ?selector.
-
-  ?selector a oa:PrefixSuffixTextSelector;
-      oa:hasSource ?source;
-      oa:exact ?text.
-
-   ?item oa:body ?bn1.
-   ?bn1 dailymed:pharmgxDrug ?drug;
-         rdfs:label ?drugLabel.
-   
-   ?item oa:body ?bn2.
-   ?bn2 dailymed:HGNCGeneSymbol ?g;
-         rdfs:label ?gene.
-         
-   ?item oa:body ?bn3.
-   ?bn3 rdfs:label "SPL Section";
+  ?body dailymed:pharmgxDrug ?drug;
         sio:SIO_000111 ?section.
 
-   OPTIONAL {
-   ?item oa:body ?bn4.
-   ?bn4 poc:PharmacokineticImpact ?pk.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn5.
-   ?bn5 poc:PharmacodynamicImpact ?pd.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn6.
-   ?bn6 poc:MonitoringRecommendation ?monitRec.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn7.
-   ?bn7 poc:TestRecommendation ?testRec.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn8.
-   ?bn8 poc:DrugSelectionRecommendation ?drugRec.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn9.
-   ?bn9 poc:DoseSelectionRecommendation ?doseRec.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn10.
-   ?bn10 dailymed:ConcomitantMedicationOfConcern ?medicationConcern.
-  
-   }
-   
-   OPTIONAL {
-   ?item oa:body ?bn11.
-   ?bn11 poc:VariantFrequency ?variantFreq.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn12.
-   ?bn12 dailymed:ClinicalTrial ?clinical.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn13.
-   ?bn13 poc:MedicalCondition ?medicalCondition.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn14.
-   ?bn14 poc:Variant ?variant.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn15.
-   ?bn15 poc:TestResult ?testResult.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn16.
-   ?bn16 dailymed:Prodrug ?prodrug.
-   }
-
- 
-   OPTIONAL {
-   ?item oa:body ?bn17.
-   ?bn17 poc:Comment ?comment.
-   }
-
-   OPTIONAL {
-   ?item oa:body ?bn18.
-   ?bn18 ncit:Alleles ?alleles.
-   }
-
+      OPTIONAL {?body dailymed:HGNCGeneSymbol ?gene. }
+      OPTIONAL {?body dailymed:pharmgxBiomarker ?biomarker. }
+      OPTIONAL {?body poc:PharmacokineticImpact ?pkImpact. }
+      OPTIONAL {?body poc:PharmacodynamicImpact ?pdImpact. }
+      OPTIONAL {?body poc:MonitoringRecommendation ?monitRec. }
+      OPTIONAL {?body poc:TestRecommendation ?testRec. }
+      OPTIONAL {?body poc:DrugSelectionRecommendation ?drugRec. }
+      OPTIONAL {?body poc:DoseSelectionRecommendation ?doseRec. }
+      OPTIONAL {?body dailymed:ConcomitantMedicationOfConcern ?medicationConcern. }
+      OPTIONAL {?body poc:VariantFrequency ?variantFreq. }
+      OPTIONAL {?body dailymed:ClinicalTrial ?clinical. }
+      OPTIONAL {?body poc:MedicalCondition ?medicalCondition. }
+      OPTIONAL {?body poc:Variant ?variant. }
+      OPTIONAL {?body poc:TestResult ?testResult. }
+      OPTIONAL {?body dailymed:Prodrug ?prodrug. }
+      OPTIONAL {?body poc:Comment ?comment. }
+      OPTIONAL {?body ncit:Alleles ?alleles. }
 }	
 GROUP BY ?text
 ORDER BY DESC(?item)
@@ -404,14 +333,15 @@ PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX pav: <http://purl.org/pav/>
 
 SELECT ?item ?source ?text ?annCreatedOn
+
 WHERE {
   ?item a oa:SPLAnnotation;
     pav:createdOn ?annCreatedOn;
     pav:createdBy ?annCreatedBy;
     pav:createdWith ?createdWith.
 
-  ?item oa:context ?context.
-  ?context oa:hasSelector ?selector.
+  ?item oa:hasTarget ?target.
+  ?target oa:hasSelector ?selector.
   ?selector a oa:PrefixSuffixTextSelector;
       oa:hasSource ?source;
       oa:exact ?text.FILTER(regex(?text,"The prevalence of this CYP2D6 phenotype varies widely and has been estimated at 0.5 to 1% in Chinese "))
@@ -437,20 +367,21 @@ PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX pav: <http://purl.org/pav/>
 
-SELECT ?annot ?annCreatedOn ?annCreatedBy ?setId COUNT(?item) ?source WHERE {
+SELECT ?item ?annCreatedOn ?annCreatedBy ?setId COUNT(?item) ?source WHERE {
   ?splUri a linkedspls_vocabulary:structuredProductLabelMetadata;
   linkedspls_vocabulary:setId ?setId;
   foaf:homepage ?source;
   linkedspls_vocabulary:activeMoiety ?activeMoiety.
-  ?activeMoiety rdfs:label "CLOPIDOGREL".    
+  ?activeMoiety rdfs:label "CLOPIDOGREL".   
+ 
+  ?item a oa:SPLAnnotation;
+  pav:createdOn ?annCreatedOn;
+  pav:createdBy ?annCreatedBy.
 
-  ?annot a oa:AnnotationSet.
-  ?annot oa:item ?item;
-   pav:createdOn ?annCreatedOn;
-   pav:createdBy ?annCreatedBy;
-   oa:annotatesResource ?source.
-
-  ?item a oa:SPLAnnotation.
+  ?item oa:hasTarget ?target.
+  ?target oa:hasSelector ?selector.
+  ?selector a oa:PrefixSuffixTextSelector;
+      oa:hasSource ?source.
 
 }  
 
@@ -460,26 +391,22 @@ SELECT ?annot ?annCreatedOn ?annCreatedBy ?setId COUNT(?item) ?source WHERE {
 PREFIX oa: <http://www.w3.org/ns/oa#>
 PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX sio: <http://semanticscience.org/resource/>
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 
-SELECT ?item ?source ?text WHERE {
+SELECT ?item ?source ?text 
+
+WHERE {
   ?item a oa:SPLAnnotation;
-       oa:context ?context.
+       oa:hasTarget ?target.
 
-  ?context oa:hasSelector ?selector.
-  ?selector a oa:PrefixSuffixTextSelector;
-      oa:hasSource ?source;
+  ?target oa:hasSelector ?selector.
+  ?selector oa:hasSource ?source;
       oa:exact ?text.
 
-   ?item oa:body ?bn1.
-   ?bn1 rdfs:label "Clopidogrel".
-   
-   ?item oa:body ?bn2.
-   ?bn2 rdfs:label "CYP2C19".
-         
-   ?item oa:body ?bn3.
-   ?bn3 rdfs:label "SPL Section";
-        sio:SIO_000111 "34066-1 BOXED WARNING SECTION".
-
+  ?item oa:hasBody ?body.
+  ?body dailymed:pharmgxDrug "Clopidogrel";
+        sio:SIO_000111 "34066-1 BOXED WARNING SECTION";
+        dailymed:HGNCGeneSymbol "CYP2C19".
 }  
 
 ################################################################################
@@ -490,26 +417,21 @@ PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 
-SELECT ?drug ?gene ?text WHERE {
-  ?item a oa:SPLAnnotation;
-       oa:context ?context.
+SELECT ?drug ?gene ?biomarker ?text 
 
-  ?context oa:hasSelector ?selector.
-  ?selector a oa:PrefixSuffixTextSelector;
-      oa:hasSource ?source;
+WHERE {
+  ?item a oa:SPLAnnotation;
+       oa:hasTarget ?target.
+
+  ?target oa:hasSelector ?selector.
+  ?selector oa:hasSource ?source;
       oa:exact ?text.
 
-   ?item oa:body ?bn1.
-   ?bn1 dailymed:pharmgxDrug ?d;
-         rdfs:label ?drug.
-   
-   ?item oa:body ?bn2.
-   ?bn2 dailymed:HGNCGeneSymbol ?g;
-         rdfs:label ?gene.
-         
-   ?item oa:body ?bn3.
-   ?bn3 rdfs:label "SPL Section";
-        sio:SIO_000111 "34066-1 BOXED WARNING SECTION".
+  ?item oa:hasBody ?body.
+  ?body dailymed:pharmgxDrug ?drug;
+        sio:SIO_000111 "34066-1 BOXED WARNING SECTION";
+        dailymed:HGNCGeneSymbol ?gene;
+        dailymed:pharmgxBiomarker ?biomarker.
 }  
 GROUP BY ?drug
 ORDER BY ?drug 
@@ -522,31 +444,21 @@ PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 
-SELECT ?drug ?section ?description ?text WHERE {
-  ?item a oa:SPLAnnotation;
-       oa:context ?context.
+SELECT ?drug ?section ?text 
 
-  ?context oa:hasSelector ?selector.
-  ?selector a oa:PrefixSuffixTextSelector;
-      oa:hasSource ?source;
+WHERE {
+  ?item a oa:SPLAnnotation;
+       oa:hasTarget ?target.
+
+  ?target oa:hasSelector ?selector.
+  ?selector oa:hasSource ?source;
       oa:exact ?text.
 
-   ?item oa:body ?bn1.
-   ?bn1 dailymed:pharmgxDrug ?d;
-         rdfs:label ?drug.
-   
-   ?item oa:body ?bn2.
-   ?bn2 rdfs:label "HLA-B*5701".
-         
-   ?item oa:body ?bn3.
-   ?bn3 rdfs:label "SPL Section";
-        sio:SIO_000111 ?section.
-
-   OPTIONAL {
-   ?item oa:body ?bn4.
-   ?bn5 poc:PharmacodynamicImpact ?pd.
-   ?pd dcterms:description ?description
-   }
+  ?item oa:hasBody ?body.
+  ?body dailymed:pharmgxDrug ?drug;
+        sio:SIO_000111 ?section;
+        dailymed:pharmgxBiomarker "HLA-B*5701";
+        poc:PharmacodynamicImpact ?pd.
 
 }  
 GROUP BY ?section
@@ -562,37 +474,26 @@ PREFIX gcds: <http://www.genomic-cds.org/ont/genomic-cds.owl#>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 
-SELECT ?pkImpact ?gene ?drug ?section ?text WHERE {
+SELECT ?pkImpact ?pdImpact ?gene ?drug ?section ?text WHERE {
   ?item a oa:SPLAnnotation;
-      oa:context ?context.
+      oa:hasTarget ?target.
 
-  ?context oa:hasSelector ?selector.
+  ?target oa:hasSelector ?selector.
   ?selector a oa:PrefixSuffixTextSelector;
       oa:hasSource ?source;
       oa:exact ?text.
 
-   ?item oa:body ?bn1.
-   ?bn1 dailymed:pharmgxDrug ?d;
-         rdfs:label ?drug.
-   
-   ?item oa:body ?bn2.
-   ?bn2 dailymed:HGNCGeneSymbol ?g;
-         rdfs:label ?gene.
-         
-   ?item oa:body ?bn3.
-   ?bn3 rdfs:label "SPL Section";
-        sio:SIO_000111 ?section.
+   ?item oa:hasBody ?body.
 
-   ?item oa:body ?bn4.
-   ?bn4 poc:PharmacokineticImpact ?pkImpact.
-
-   ?item oa:body ?bn5.
-   ?bn5 poc:PharmacodynamicImpact ?pdImpact.
+   ?body dailymed:pharmgxDrug ?drug;
+         dailymed:HGNCGeneSymbol ?gene;
+         sio:SIO_000111 ?section;
+         poc:PharmacokineticImpact ?pkImpact;
+         poc:PharmacodynamicImpact ?pdImpact.
 
 }  
 GROUP BY ?pkImpact
 ORDER BY ?gene
- 
 
 
 
@@ -627,25 +528,22 @@ SELECT DISTINCT ?text ?drug ?section ?biomarker ?setId WHERE {
       linkedspls_vocabulary:setId ?setId.
 
   ?item a oa:SPLAnnotation;
-       oa:context ?context.
-  ?context oa:hasSelector ?selector.
+       oa:hasTarget ?target.
+  ?target oa:hasSelector ?selector.
   ?selector a oa:PrefixSuffixTextSelector;
       oa:hasSource ?source;
       oa:exact ?text.
 
-   ?item oa:body ?bn1.
-   ?bn1 dailymed:pharmgxDrug ?d;
-         rdfs:label ?drug2.FILTER(?drug = fn:upper-case(?drug2))
+   ?item oa:hasBody ?body.
+   ?body dailymed:pharmgxDrug ?drug2.FILTER(?drug = fn:upper-case(?drug2))
 
-   ?item oa:body ?bn2.
-   ?bn2 dailymed:HGNCGeneSymbol ?bio;
-         rdfs:label ?biomarker.
-
+   ?body dailymed:HGNCGeneSymbol ?biomarker.
 
 }
 GROUP BY ?drug
 ORDER BY ?drug
 LIMIT 10
+
 
 ################################################################################
 # For which drugs do product labels associate  Pharmgkb PA124 (CYP2C19) with a toxicity?
@@ -675,22 +573,18 @@ SELECT DISTINCT ?text ?drug ?section ?setId WHERE {
       linkedspls_vocabulary:setId ?setId.
 
   ?item a oa:SPLAnnotation;
-       oa:context ?context.
-  ?context oa:hasSelector ?selector.
+       oa:hasTarget ?target.
+  ?target oa:hasSelector ?selector.
   ?selector a oa:PrefixSuffixTextSelector;
       oa:hasSource ?source;
       oa:exact ?text.
 
-   ?item oa:body ?bn1.
-   ?bn1 dailymed:pharmgxDrug ?d;
-         rdfs:label ?drug2.FILTER(?drug = fn:upper-case(?drug2))
+   ?item oa:hasBody ?body.
+   ?body dailymed:pharmgxDrug ?drug2.FILTER(?drug = fn:upper-case(?drug2))
 
-   ?item oa:body ?bn2.
-   ?bn2 poc:PharmacodynamicImpact "http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#drug-toxicity-risk-increased".
+   ?body dailymed:HGNCGeneSymbol ?biomarker;
+         poc:PharmacodynamicImpact "Increased Toxicity Risk".
 
-   ?item oa:body ?bn3.
-   ?bn3 dailymed:HGNCGeneSymbol ?bio;
-         rdfs:label ?biomarker.
 }
 GROUP BY ?drug
 ORDER BY ?drug
@@ -726,26 +620,22 @@ SELECT ?biomarker ?HGNC ?pharmgkb ?drug ?section ?text ?setId WHERE {
       linkedspls_vocabulary:setId ?setId.
 
   ?item a oa:SPLAnnotation;
-       oa:context ?context.
-  ?context oa:hasSelector ?selector.
+       oa:hasTarget ?target.
+  ?target oa:hasSelector ?selector.
   ?selector a oa:PrefixSuffixTextSelector;
       oa:hasSource ?source;
       oa:exact ?text.
 
-   ?item oa:body ?bn1.
-   ?bn1 dailymed:pharmgxDrug ?d;
-         rdfs:label ?drug2.FILTER(?drug = fn:upper-case(?drug2))
+   ?item oa:hasBody ?body.
+   ?body dailymed:pharmgxDrug ?drugLabel.FILTER(?drug = fn:upper-case(?drugLabel))
 
-   ?item oa:body ?bn2.
-   ?bn2 poc:PharmacodynamicImpact "http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#drug-toxicity-risk-increased".
-
-   ?item oa:body ?bn3.
-   ?bn3 dailymed:HGNCGeneSymbol ?bio;
-         rdfs:label ?biomarker.
+   ?body poc:PharmacodynamicImpact "Increased Toxicity Risk";
+         dailymed:HGNCGeneSymbol ?biomarker.
 }
 GROUP BY ?biomarker
 ORDER BY ?biomarker
 LIMIT 10
+
 
 ################################################################################
 # Show the annotations on product label statements for Pharmgkb PA124 (CYP2C19)
@@ -765,7 +655,9 @@ PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX fn: <http://www.w3.org/2005/xpath-functions/#>
 
-SELECT DISTINCT ?text ?drug ?section ?setId ?pdImpact ?pkImpact ?monitRec ?drugRec ?doseRec ?testRec WHERE {
+SELECT DISTINCT ?text ?drug ?section ?setId ?pdImpact ?pkImpact ?monitRec ?drugRec ?doseRec ?testRec 
+
+WHERE {
   ?pgx a linkedspls_vocabulary:pharmgxData;
       linkedspls_vocabulary:pharmgxXref <http://bio2rdf.org/pharmgkb:PA124>;
       linkedspls_vocabulary:pharmgxDrug  ?drug;
@@ -777,21 +669,27 @@ SELECT DISTINCT ?text ?drug ?section ?setId ?pdImpact ?pkImpact ?monitRec ?drugR
       linkedspls_vocabulary:setId ?setId.
 
   ?item a oa:SPLAnnotation;
+        oa:hasTarget ?target.
+
+  ?target oa:hasSelector ?selector.
+
+  ?selector oa:hasSource ?source;
       oa:exact ?text.
 
-  ?item dailymed:pharmgxDrug ?drug2.FILTER(?drug = fn:upper-case(?drug2))
+  ?item oa:hasBody ?body.
 
-      OPTIONAL {?item dailymed:HGNCGeneSymbol ?gene. }
-      OPTIONAL {?item dailymed:pharmgxBiomarker ?biomarker. }
-      OPTIONAL {?item poc:PharmacokineticImpact ?pkImpact. }
-      OPTIONAL {?item poc:PharmacodynamicImpact ?pdImpact. }
-      OPTIONAL {?item poc:MonitoringRecommendation ?monitRec. }
-      OPTIONAL {?item poc:TestRecommendation ?testRec. }
-      OPTIONAL {?item poc:DrugSelectionRecommendation ?drugRec. }
-      OPTIONAL {?item poc:DoseSelectionRecommendation ?doseRec. }
+  ?body dailymed:pharmgxDrug ?drugLabel.FILTER(?drug = fn:upper-case(?drugLabel))
+
+      OPTIONAL {?body dailymed:HGNCGeneSymbol ?gene. }
+      OPTIONAL {?body dailymed:pharmgxBiomarker ?biomarker. }
+      OPTIONAL {?body poc:PharmacokineticImpact ?pkImpact. }
+      OPTIONAL {?body poc:PharmacodynamicImpact ?pdImpact. }
+      OPTIONAL {?body poc:MonitoringRecommendation ?monitRec. }
+      OPTIONAL {?body poc:TestRecommendation ?testRec. }
+      OPTIONAL {?body poc:DrugSelectionRecommendation ?drugRec. }
+      OPTIONAL {?body poc:DoseSelectionRecommendation ?doseRec. }
 }
-GROUP BY ?drug
-ORDER BY ?drug
+
 LIMIT 10
 
 
