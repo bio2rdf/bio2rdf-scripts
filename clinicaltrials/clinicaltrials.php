@@ -932,14 +932,31 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						);
 					}
 				}
-			}
-			catch(Exception $e){
+			} catch(Exception $e){
 				echo "There was an error parsing $browse_type/mesh_term element: $e\n";
 			}
 
 			################################################################################
 			# clinical results 
 			################################################################################
+			try {
+				$cr = @array_shift($root->xpath('//clinical_results'));
+				if($cr) {
+					$cr_id = parent::getRes().md5($study_id.$cr->asXML());
+					parent::addRDF(
+						parent::describeIndividual($cr_id,"clinical results for $study_id",parent::getVoc()."Clinical-Result").
+						parent::describeClass(parent::getVoc()."Clinical-Result","Clinical Result").
+						parent::triplifyString($cr_id,parent::getVoc()."description",$this->getString('./desc',$cr)).
+						parent::triplifyString($cr_id,parent::getVoc()."restrictive-agreement",$this->getString('./restrictive_agreement',$cr)).
+						parent::triplifyString($cr_id,parent::getVoc()."limitations-and-caveats",$this->getString('./limitations_and_caveats',$cr)).
+						parent::triplify($study_id,parent::getVoc()."clinical-result",$cr_id)
+					);
+				}
+			} catch(Exception $e){
+				echo "There was an error parsing clinical results: $e\n";
+			}
+
+		
 
 			################################################################################
 			# Participant Flow
