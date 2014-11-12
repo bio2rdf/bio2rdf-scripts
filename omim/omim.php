@@ -355,7 +355,10 @@ class OMIMParser extends Bio2RDFizer
 				if(isset($v['text'])) parent::addRDF(parent::triplifyString($uri,"dc:description",$v['text']));
 				if(isset($v['mutations'])) parent::addRDF(parent::triplifyString($uri,parent::getVoc()."mutation",$v['mutations']));				
 				if(isset($v['dbSnps'])) {
-					parent::addRDF(parent::triplify($uri, parent::getVoc()."x-dbsnp", "dbsnp:".$v['dbSnps']));
+					$snps = explode(",",$v['dbSnps']);
+					foreach($snps AS $snp) {
+						parent::addRDF(parent::triplify($uri, parent::getVoc()."x-dbsnp", "dbsnp:".$snp));
+					}
 				}
 				parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."variant", $uri));
 			}
