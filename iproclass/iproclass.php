@@ -115,6 +115,7 @@ class IProClassParser extends Bio2RDFizer
 		$z = 0;$y = 1;
 		while($l = $this->getReadFile()->Read(200000)) {
 			if($z++ % 1000000 == 0) {
+				echo $z.PHP_EOL;
 				$odir = parent::getParameterValue('outdir');
 				$ofile = 'iproclass.'.($y++).".".parent::getParameterValue('output_format'); 
 				$gz = (strstr(parent::getParameterValue('output_format'), "gz"))?true:false;
