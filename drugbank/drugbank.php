@@ -252,8 +252,24 @@ class DrugBankParser extends Bio2RDFizer
 									parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
 								);
 							}
-						 } else {
-							// @todo 
+						 } else if($k3 == 'pfams') {
+							foreach($v3 AS $k4 => $v4) {
+								parent::addRDF(
+									parent::triplify($pid, parent::getVoc()."x-pfam","pfam:"."".$v4->identifier)
+								);
+							}
+						} else if($k3 == 'gene-sequence' or $k3=='amino-acid-sequence') {
+							foreach($v3 AS $k4 =>$v4) {
+								parent::addRDF(
+									parent::triplifyString($pid, parent::getVoc().$k3, "".$v4)
+								);
+							}
+						} else {
+							foreach($v3->children() AS $k4 => $v4) {
+								parent::addRDF(
+									parent::triplifyString($pid, parent::getVoc().$k4, $v4)
+								);
+							}
 						 }
 					}
 				}
