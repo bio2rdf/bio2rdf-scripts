@@ -677,7 +677,7 @@ function addSubjectTypePropertyCount()
 			(isset($c->plabel)? QuadLiteral($c->p->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->plabel->value):'').
 			Quad($id, "http://rdfs.org/ns/void#subjectsTarget", $sid).
 			Quad($sid, "http://rdfs.org/ns/void#class", $c->stype->value).
-			(isset($c->stype_label)? QuadLiteral($c->stype->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->stype_label->value):'', null, "en").
+			(isset($c->stype_label)? QuadLiteral($c->stype->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->stype_label->value, null, "en"):'').
 			QuadLiteral($sid, "http://rdfs.org/ns/void#entities", $c->n->value, "long").
 			QuadLiteral($sid, "http://rdfs.org/ns/void#distinctEntities", $c->dn->value, "long").
 			
