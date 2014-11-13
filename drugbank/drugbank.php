@@ -685,6 +685,7 @@ class DrugBankParser extends Bio2RDFizer
                 if(isset($item->$item_name) && ($item->$item_name != '')) { 
                     $l = $item->$item_name;
 					foreach($l AS $k) {
+						if(!trim($k)) continue;
 						$kid = parent::getVoc().ucfirst(str_replace(" ","-",$k)); // generate a new identifier for the list item
 						$this->addRDF(
 							$this->describeIndividual($kid,$k,parent::getVoc().ucfirst($item_name)).
@@ -694,7 +695,7 @@ class DrugBankParser extends Bio2RDFizer
 					}
 				}
 			}
-		}	
+		}
 	}
 
 } // end class
