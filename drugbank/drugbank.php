@@ -612,8 +612,13 @@ class DrugBankParser extends Bio2RDFizer
     {
         if(isset($x->$list_name)) {
             foreach($x->$list_name AS $item) {
+		
                 if(isset($item->$item_name) && ($item->$item_name != '')) {
-                    $l = $ns.":".$item->$item_name;
+					if($item_name == "atc-code") {
+						$l = $ns.":".$item->$item_name->attributes()->code;
+					} else {
+						$l = $ns.":".$item->$item_name;
+					}
                     $this->addRDF($this->triplify($id,parent::getVoc()."x-$ns",trim($l)));
                 }
             }
