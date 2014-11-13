@@ -671,7 +671,11 @@ class DrugBankParser extends Bio2RDFizer
 							);
 						}
 					} else {
-						$kid = parent::getVoc().ucfirst(str_replace(" ","-",$l));
+						if($item_name == "synonym") {
+							$kid = parent::getvoc().md5($l);
+						} else {
+							$kid = parent::getVoc().ucfirst(str_replace(" ","-",$l));
+						}
 						$this->addRDF(
 							$this->describeIndividual($kid,ucfirst($l),parent::getVoc().ucfirst($item_name)).
 							$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst($item_name)).
