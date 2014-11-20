@@ -1,0 +1,1 @@
+../UNII-to-ChEBI-mapping/active_moieties.txt

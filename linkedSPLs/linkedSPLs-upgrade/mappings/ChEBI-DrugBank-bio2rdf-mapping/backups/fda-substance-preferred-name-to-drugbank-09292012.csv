@@ -1,0 +1,1246 @@
+FDASubstancePrefName	DRUGBANK_CA	DRUGBANK_BIO2RDF
+.ALPHA.-TOCOPHEROL	http://www.drugbank.ca/drugs/DB00163	http://bio2rdf.org/drugbank:DB00163
+.ALPHA.-TOCOPHEROL, D-	http://www.drugbank.ca/drugs/DB00163	http://bio2rdf.org/drugbank:DB00163
+.ALPHA.-TOCOPHEROL, DL-	http://www.drugbank.ca/drugs/DB00163	http://bio2rdf.org/drugbank:DB00163
+.GAMMA.-AMINOBUTYRIC ACID	http://www.drugbank.ca/drugs/DB02530	http://bio2rdf.org/drugbank:DB02530
+4-HYDROXYBUTANOIC ACID	http://www.drugbank.ca/drugs/DB01440	http://bio2rdf.org/drugbank:DB01440
+ABACAVIR	http://www.drugbank.ca/drugs/DB01048	http://bio2rdf.org/drugbank:DB01048
+ABATACEPT	http://www.drugbank.ca/drugs/DB01281	http://bio2rdf.org/drugbank:DB01281
+ABCIXIMAB	http://www.drugbank.ca/drugs/DB00054	http://bio2rdf.org/drugbank:DB00054
+ACAMPROSATE	http://www.drugbank.ca/drugs/DB00659	http://bio2rdf.org/drugbank:DB00659
+ACARBOSE	http://www.drugbank.ca/drugs/DB00284	http://bio2rdf.org/drugbank:DB00284
+ACEBUTOLOL	http://www.drugbank.ca/drugs/DB01193	http://bio2rdf.org/drugbank:DB01193
+ACETAMINOPHEN	http://www.drugbank.ca/drugs/DB00316	http://bio2rdf.org/drugbank:DB00316
+ACETATE ION	http://www.drugbank.ca/drugs/DB03166	http://bio2rdf.org/drugbank:DB03166
+ACETAZOLAMIDE	http://www.drugbank.ca/drugs/DB00819	http://bio2rdf.org/drugbank:DB00819
+ACETIC ACID	http://www.drugbank.ca/drugs/DB03166	http://bio2rdf.org/drugbank:DB03166
+ACETYLCHOLINE	http://www.drugbank.ca/drugs/DB03128	http://bio2rdf.org/drugbank:DB03128
+ACETYLCYSTEINE	http://www.drugbank.ca/drugs/DB06151	http://bio2rdf.org/drugbank:DB06151
+ACITRETIN	http://www.drugbank.ca/drugs/DB00459	http://bio2rdf.org/drugbank:DB00459
+ACYCLOVIR	http://www.drugbank.ca/drugs/DB00787	http://bio2rdf.org/drugbank:DB00787
+ADALIMUMAB	http://www.drugbank.ca/drugs/DB00051	http://bio2rdf.org/drugbank:DB00051
+ADAPALENE	http://www.drugbank.ca/drugs/DB00210	http://bio2rdf.org/drugbank:DB00210
+ADEFOVIR	http://www.drugbank.ca/drugs/DB00718	http://bio2rdf.org/drugbank:DB00718
+ADENINE	http://www.drugbank.ca/drugs/DB00173	http://bio2rdf.org/drugbank:DB00173
+ADENOSINE	http://www.drugbank.ca/drugs/DB00640	http://bio2rdf.org/drugbank:DB00640
+AGALSIDASE BETA	http://www.drugbank.ca/drugs/DB00103	http://bio2rdf.org/drugbank:DB00103
+ALANINE	http://www.drugbank.ca/drugs/DB00160	http://bio2rdf.org/drugbank:DB00160
+ALANINE	http://www.drugbank.ca/drugs/DB01786	http://bio2rdf.org/drugbank:DB01786
+ALANINE, DL-	http://www.drugbank.ca/drugs/DB01786	http://bio2rdf.org/drugbank:DB01786
+ALBENDAZOLE	http://www.drugbank.ca/drugs/DB00518	http://bio2rdf.org/drugbank:DB00518
+ALBUMIN (HUMAN)	http://www.drugbank.ca/drugs/DB00062	http://bio2rdf.org/drugbank:DB00062
+ALBUTEROL	http://www.drugbank.ca/drugs/DB01001	http://bio2rdf.org/drugbank:DB01001
+ALCAFTADINE	http://www.drugbank.ca/drugs/DB06766	http://bio2rdf.org/drugbank:DB06766
+ALCLOMETASONE	http://www.drugbank.ca/drugs/DB00240	http://bio2rdf.org/drugbank:DB00240
+ALCLOMETASONE DIPROPIONATE	http://www.drugbank.ca/drugs/DB00240	http://bio2rdf.org/drugbank:DB00240
+ALCOHOL	http://www.drugbank.ca/drugs/DB00898	http://bio2rdf.org/drugbank:DB00898
+ALDESLEUKIN	http://www.drugbank.ca/drugs/DB00041	http://bio2rdf.org/drugbank:DB00041
+ALEFACEPT	http://www.drugbank.ca/drugs/DB00092	http://bio2rdf.org/drugbank:DB00092
+ALEMTUZUMAB	http://www.drugbank.ca/drugs/DB00087	http://bio2rdf.org/drugbank:DB00087
+ALENDRONIC ACID	http://www.drugbank.ca/drugs/DB00630	http://bio2rdf.org/drugbank:DB00630
+ALFENTANIL	http://www.drugbank.ca/drugs/DB00802	http://bio2rdf.org/drugbank:DB00802
+ALFUZOSIN	http://www.drugbank.ca/drugs/DB00346	http://bio2rdf.org/drugbank:DB00346
+ALGLUCOSIDASE ALFA	http://www.drugbank.ca/drugs/DB01272	http://bio2rdf.org/drugbank:DB01272
+ALISKIREN	http://www.drugbank.ca/drugs/DB01258	http://bio2rdf.org/drugbank:DB01258
+ALITRETINOIN	http://www.drugbank.ca/drugs/DB00523	http://bio2rdf.org/drugbank:DB00523
+ALLOPURINOL	http://www.drugbank.ca/drugs/DB00437	http://bio2rdf.org/drugbank:DB00437
+ALMOTRIPTAN	http://www.drugbank.ca/drugs/DB00918	http://bio2rdf.org/drugbank:DB00918
+ALOSETRON	http://www.drugbank.ca/drugs/DB00969	http://bio2rdf.org/drugbank:DB00969
+ALPRAZOLAM	http://www.drugbank.ca/drugs/DB00404	http://bio2rdf.org/drugbank:DB00404
+ALPROSTADIL	http://www.drugbank.ca/drugs/DB00770	http://bio2rdf.org/drugbank:DB00770
+ALTEPLASE	http://www.drugbank.ca/drugs/DB00009	http://bio2rdf.org/drugbank:DB00009
+ALTRETAMINE	http://www.drugbank.ca/drugs/DB00488	http://bio2rdf.org/drugbank:DB00488
+ALUMINUM	http://www.drugbank.ca/drugs/DB01370	http://bio2rdf.org/drugbank:DB01370
+ALUMINUM HYDROXIDE	http://www.drugbank.ca/drugs/DB06723	http://bio2rdf.org/drugbank:DB06723
+ALVIMOPAN	http://www.drugbank.ca/drugs/DB06274	http://bio2rdf.org/drugbank:DB06274
+AMANTADINE	http://www.drugbank.ca/drugs/DB00915	http://bio2rdf.org/drugbank:DB00915
+AMBENONIUM	http://www.drugbank.ca/drugs/DB01122	http://bio2rdf.org/drugbank:DB01122
+AMCINONIDE	http://www.drugbank.ca/drugs/DB00288	http://bio2rdf.org/drugbank:DB00288
+AMIFOSTINE	http://www.drugbank.ca/drugs/DB01143	http://bio2rdf.org/drugbank:DB01143
+AMIKACIN	http://www.drugbank.ca/drugs/DB00479	http://bio2rdf.org/drugbank:DB00479
+AMILORIDE	http://www.drugbank.ca/drugs/DB00594	http://bio2rdf.org/drugbank:DB00594
+AMINOBENZOIC ACID	http://www.drugbank.ca/drugs/DB02362	http://bio2rdf.org/drugbank:DB02362
+AMINOCAPROIC ACID	http://www.drugbank.ca/drugs/DB00513	http://bio2rdf.org/drugbank:DB00513
+AMINOCAPROIC ACID	http://www.drugbank.ca/drugs/DB04134	http://bio2rdf.org/drugbank:DB04134
+AMINOLEVULINIC ACID	http://www.drugbank.ca/drugs/DB00855	http://bio2rdf.org/drugbank:DB00855
+AMINOPHYLLINE	http://www.drugbank.ca/drugs/DB01223	http://bio2rdf.org/drugbank:DB01223
+AMINOPHYLLINE	http://www.drugbank.ca/drugs/DB00587	http://bio2rdf.org/drugbank:DB00587
+AMINOSALICYLIC ACID	http://www.drugbank.ca/drugs/DB00233	http://bio2rdf.org/drugbank:DB00233
+AMIODARONE	http://www.drugbank.ca/drugs/DB01118	http://bio2rdf.org/drugbank:DB01118
+AMITRIPTYLINE	http://www.drugbank.ca/drugs/DB00321	http://bio2rdf.org/drugbank:DB00321
+AMLODIPINE	http://www.drugbank.ca/drugs/DB00381	http://bio2rdf.org/drugbank:DB00381
+AMOXAPINE	http://www.drugbank.ca/drugs/DB00543	http://bio2rdf.org/drugbank:DB00543
+AMOXICILLIN	http://www.drugbank.ca/drugs/DB01060	http://bio2rdf.org/drugbank:DB01060
+AMOXICILLIN ANHYDROUS	http://www.drugbank.ca/drugs/DB01060	http://bio2rdf.org/drugbank:DB01060
+AMPHETAMINE	http://www.drugbank.ca/drugs/DB00182	http://bio2rdf.org/drugbank:DB00182
+AMPHOTERICIN B	http://www.drugbank.ca/drugs/DB00681	http://bio2rdf.org/drugbank:DB00681
+AMPICILLIN	http://www.drugbank.ca/drugs/DB00415	http://bio2rdf.org/drugbank:DB00415
+AMPRENAVIR	http://www.drugbank.ca/drugs/DB00701	http://bio2rdf.org/drugbank:DB00701
+AMYL NITRITE	http://www.drugbank.ca/drugs/DB01612	http://bio2rdf.org/drugbank:DB01612
+ANAGRELIDE	http://www.drugbank.ca/drugs/DB00261	http://bio2rdf.org/drugbank:DB00261
+ANAKINRA	http://www.drugbank.ca/drugs/DB00026	http://bio2rdf.org/drugbank:DB00026
+ANASTROZOLE	http://www.drugbank.ca/drugs/DB01217	http://bio2rdf.org/drugbank:DB01217
+ANIDULAFUNGIN	http://www.drugbank.ca/drugs/DB00362	http://bio2rdf.org/drugbank:DB00362
+ANTHRALIN	http://www.drugbank.ca/drugs/DB00233	http://bio2rdf.org/drugbank:DB00233
+ANTIPYRINE	http://www.drugbank.ca/drugs/DB01435	http://bio2rdf.org/drugbank:DB01435
+APOMORPHINE	http://www.drugbank.ca/drugs/DB00714	http://bio2rdf.org/drugbank:DB00714
+APRACLONIDINE	http://www.drugbank.ca/drugs/DB00515	http://bio2rdf.org/drugbank:DB00515
+APRACLONIDINE	http://www.drugbank.ca/drugs/DB00964	http://bio2rdf.org/drugbank:DB00964
+APREPITANT	http://www.drugbank.ca/drugs/DB00673	http://bio2rdf.org/drugbank:DB00673
+ARBUTIN	http://www.drugbank.ca/drugs/DB02163	http://bio2rdf.org/drugbank:DB02163
+ARFORMOTEROL	http://www.drugbank.ca/drugs/DB01274	http://bio2rdf.org/drugbank:DB01274
+ARGATROBAN	http://www.drugbank.ca/drugs/DB00278	http://bio2rdf.org/drugbank:DB00278
+ARGININE	http://www.drugbank.ca/drugs/DB00125	http://bio2rdf.org/drugbank:DB00125
+ARIPIPRAZOLE	http://www.drugbank.ca/drugs/DB01238	http://bio2rdf.org/drugbank:DB01238
+ARSENIC TRIOXIDE	http://www.drugbank.ca/drugs/DB01169	http://bio2rdf.org/drugbank:DB01169
+ARTEMETHER	http://www.drugbank.ca/drugs/DB06697	http://bio2rdf.org/drugbank:DB06697
+ASCORBIC ACID	http://www.drugbank.ca/drugs/DB00126	http://bio2rdf.org/drugbank:DB00126
+ASIAN GINSENG	http://www.drugbank.ca/drugs/DB01404	http://bio2rdf.org/drugbank:DB01404
+ASPARAGINASE	http://www.drugbank.ca/drugs/DB00023	http://bio2rdf.org/drugbank:DB00023
+ASPARTIC ACID	http://www.drugbank.ca/drugs/DB00128	http://bio2rdf.org/drugbank:DB00128
+ASPIRIN	http://www.drugbank.ca/drugs/DB00945	http://bio2rdf.org/drugbank:DB00945
+ATAZANAVIR	http://www.drugbank.ca/drugs/DB01072	http://bio2rdf.org/drugbank:DB01072
+ATENOLOL	http://www.drugbank.ca/drugs/DB00335	http://bio2rdf.org/drugbank:DB00335
+ATOMOXETINE	http://www.drugbank.ca/drugs/DB00289	http://bio2rdf.org/drugbank:DB00289
+ATORVASTATIN	http://www.drugbank.ca/drugs/DB01076	http://bio2rdf.org/drugbank:DB01076
+ATOVAQUONE	http://www.drugbank.ca/drugs/DB01117	http://bio2rdf.org/drugbank:DB01117
+ATRACURIUM	http://www.drugbank.ca/drugs/DB00732	http://bio2rdf.org/drugbank:DB00732
+ATROPINE	http://www.drugbank.ca/drugs/DB00572	http://bio2rdf.org/drugbank:DB00572
+AURANOFIN	http://www.drugbank.ca/drugs/DB00995	http://bio2rdf.org/drugbank:DB00995
+AZACITIDINE	http://www.drugbank.ca/drugs/DB00928	http://bio2rdf.org/drugbank:DB00928
+AZATHIOPRINE	http://www.drugbank.ca/drugs/DB00993	http://bio2rdf.org/drugbank:DB00993
+AZELAIC ACID	http://www.drugbank.ca/drugs/DB00548	http://bio2rdf.org/drugbank:DB00548
+AZELASTINE	http://www.drugbank.ca/drugs/DB00972	http://bio2rdf.org/drugbank:DB00972
+AZITHROMYCIN ANHYDROUS	http://www.drugbank.ca/drugs/DB00207	http://bio2rdf.org/drugbank:DB00207
+AZTREONAM	http://www.drugbank.ca/drugs/DB00355	http://bio2rdf.org/drugbank:DB00355
+BACITRACIN	http://www.drugbank.ca/drugs/DB00626	http://bio2rdf.org/drugbank:DB00626
+BACLOFEN	http://www.drugbank.ca/drugs/DB00181	http://bio2rdf.org/drugbank:DB00181
+BALSALAZIDE	http://www.drugbank.ca/drugs/DB01014	http://bio2rdf.org/drugbank:DB01014
+BASILIXIMAB	http://www.drugbank.ca/drugs/DB00074	http://bio2rdf.org/drugbank:DB00074
+BECAPLERMIN	http://www.drugbank.ca/drugs/DB00102	http://bio2rdf.org/drugbank:DB00102
+BECLOMETHASONE DIPROPIONATE	http://www.drugbank.ca/drugs/DB00394	http://bio2rdf.org/drugbank:DB00394
+BENAZEPRIL	http://www.drugbank.ca/drugs/DB00542	http://bio2rdf.org/drugbank:DB00542
+BENDROFLUMETHIAZIDE	http://www.drugbank.ca/drugs/DB00436	http://bio2rdf.org/drugbank:DB00436
+BENOXINATE	http://www.drugbank.ca/drugs/DB00892	http://bio2rdf.org/drugbank:DB00892
+BENZOCAINE	http://www.drugbank.ca/drugs/DB01086	http://bio2rdf.org/drugbank:DB01086
+BENZOIC ACID	http://www.drugbank.ca/drugs/DB03793	http://bio2rdf.org/drugbank:DB03793
+BENZONATATE	http://www.drugbank.ca/drugs/DB00868	http://bio2rdf.org/drugbank:DB00868
+BENZOPHENONE	http://www.drugbank.ca/drugs/DB01878	http://bio2rdf.org/drugbank:DB01878
+BENZPHETAMINE	http://www.drugbank.ca/drugs/DB00865	http://bio2rdf.org/drugbank:DB00865
+BENZTROPINE	http://www.drugbank.ca/drugs/DB00245	http://bio2rdf.org/drugbank:DB00245
+BEPOTASTINE	http://www.drugbank.ca/drugs/DB04890	http://bio2rdf.org/drugbank:DB04890
+BETAINE	http://www.drugbank.ca/drugs/DB04455	http://bio2rdf.org/drugbank:DB04455
+BETAMETHASONE	http://www.drugbank.ca/drugs/DB00443	http://bio2rdf.org/drugbank:DB00443
+BETAXOLOL	http://www.drugbank.ca/drugs/DB00195	http://bio2rdf.org/drugbank:DB00195
+BETHANECHOL	http://www.drugbank.ca/drugs/DB01019	http://bio2rdf.org/drugbank:DB01019
+BEVACIZUMAB	http://www.drugbank.ca/drugs/DB00112	http://bio2rdf.org/drugbank:DB00112
+BEXAROTENE	http://www.drugbank.ca/drugs/DB00307	http://bio2rdf.org/drugbank:DB00307
+BICALUTAMIDE	http://www.drugbank.ca/drugs/DB01128	http://bio2rdf.org/drugbank:DB01128
+BIMATOPROST	http://www.drugbank.ca/drugs/DB00905	http://bio2rdf.org/drugbank:DB00905
+BIOTIN	http://www.drugbank.ca/drugs/DB00121	http://bio2rdf.org/drugbank:DB00121
+BIPERIDEN	http://www.drugbank.ca/drugs/DB00810	http://bio2rdf.org/drugbank:DB00810
+BISACODYL	http://www.drugbank.ca/drugs/DB04824	http://bio2rdf.org/drugbank:DB04824
+BISMUTH	http://www.drugbank.ca/drugs/DB01294	http://bio2rdf.org/drugbank:DB01294
+BISMUTH SUBSALICYLATE	http://www.drugbank.ca/drugs/DB01294	http://bio2rdf.org/drugbank:DB01294
+BISOPROLOL	http://www.drugbank.ca/drugs/DB00612	http://bio2rdf.org/drugbank:DB00612
+BIVALIRUDIN	http://www.drugbank.ca/drugs/DB00006	http://bio2rdf.org/drugbank:DB00006
+BLEOMYCIN	http://www.drugbank.ca/drugs/DB00290	http://bio2rdf.org/drugbank:DB00290
+BLEOMYCIN	http://www.drugbank.ca/drugs/DB02721	http://bio2rdf.org/drugbank:DB02721
+BORTEZOMIB	http://www.drugbank.ca/drugs/DB07475	http://bio2rdf.org/drugbank:DB07475
+BORTEZOMIB	http://www.drugbank.ca/drugs/DB00188	http://bio2rdf.org/drugbank:DB00188
+BOTULINUM TOXIN TYPE A	http://www.drugbank.ca/drugs/DB00083	http://bio2rdf.org/drugbank:DB00083
+BRIMONIDINE	http://www.drugbank.ca/drugs/DB00484	http://bio2rdf.org/drugbank:DB00484
+BRINZOLAMIDE	http://www.drugbank.ca/drugs/DB01194	http://bio2rdf.org/drugbank:DB01194
+BROMFENAC	http://www.drugbank.ca/drugs/DB00963	http://bio2rdf.org/drugbank:DB00963
+BROMOCRIPTINE	http://www.drugbank.ca/drugs/DB01200	http://bio2rdf.org/drugbank:DB01200
+BROMPHENIRAMINE	http://www.drugbank.ca/drugs/DB00835	http://bio2rdf.org/drugbank:DB00835
+BUDESONIDE	http://www.drugbank.ca/drugs/DB01222	http://bio2rdf.org/drugbank:DB01222
+BUMETANIDE	http://www.drugbank.ca/drugs/DB00887	http://bio2rdf.org/drugbank:DB00887
+BUPIVACAINE	http://www.drugbank.ca/drugs/DB00297	http://bio2rdf.org/drugbank:DB00297
+BUPRENORPHINE	http://www.drugbank.ca/drugs/DB00921	http://bio2rdf.org/drugbank:DB00921
+BUPROPION	http://www.drugbank.ca/drugs/DB01156	http://bio2rdf.org/drugbank:DB01156
+BUSPIRONE	http://www.drugbank.ca/drugs/DB00490	http://bio2rdf.org/drugbank:DB00490
+BUSULFAN	http://www.drugbank.ca/drugs/DB01008	http://bio2rdf.org/drugbank:DB01008
+BUTABARBITAL	http://www.drugbank.ca/drugs/DB00237	http://bio2rdf.org/drugbank:DB00237
+BUTALBITAL	http://www.drugbank.ca/drugs/DB00241	http://bio2rdf.org/drugbank:DB00241
+BUTENAFINE	http://www.drugbank.ca/drugs/DB01091	http://bio2rdf.org/drugbank:DB01091
+BUTOCONAZOLE	http://www.drugbank.ca/drugs/DB00639	http://bio2rdf.org/drugbank:DB00639
+BUTOCONAZOLE	http://www.drugbank.ca/drugs/DB02087	http://bio2rdf.org/drugbank:DB02087
+BUTORPHANOL	http://www.drugbank.ca/drugs/DB00611	http://bio2rdf.org/drugbank:DB00611
+CABAZITAXEL	http://www.drugbank.ca/drugs/DB06772	http://bio2rdf.org/drugbank:DB06772
+CABERGOLINE	http://www.drugbank.ca/drugs/DB00248	http://bio2rdf.org/drugbank:DB00248
+CAFFEINE	http://www.drugbank.ca/drugs/DB00201	http://bio2rdf.org/drugbank:DB00201
+CALCIPOTRIENE	http://www.drugbank.ca/drugs/DB02300	http://bio2rdf.org/drugbank:DB02300
+CALCITONIN SALMON	http://www.drugbank.ca/drugs/DB00017	http://bio2rdf.org/drugbank:DB00017
+CALCITRIOL	http://www.drugbank.ca/drugs/DB00136	http://bio2rdf.org/drugbank:DB00136
+CALCIUM	http://www.drugbank.ca/drugs/DB01373	http://bio2rdf.org/drugbank:DB01373
+CALCIUM ACETATE	http://www.drugbank.ca/drugs/DB00258	http://bio2rdf.org/drugbank:DB00258
+CALCIUM CHLORIDE	http://www.drugbank.ca/drugs/DB01164	http://bio2rdf.org/drugbank:DB01164
+CANAKINUMAB	http://www.drugbank.ca/drugs/DB06168	http://bio2rdf.org/drugbank:DB06168
+CANDESARTAN	http://www.drugbank.ca/drugs/DB00796	http://bio2rdf.org/drugbank:DB00796
+CAPECITABINE	http://www.drugbank.ca/drugs/DB01101	http://bio2rdf.org/drugbank:DB01101
+CAPREOMYCIN	http://www.drugbank.ca/drugs/DB00314	http://bio2rdf.org/drugbank:DB00314
+CAPROMAB PENDETIDE	http://www.drugbank.ca/drugs/DB00089	http://bio2rdf.org/drugbank:DB00089
+CAPTOPRIL	http://www.drugbank.ca/drugs/DB01197	http://bio2rdf.org/drugbank:DB01197
+CARBACHOL	http://www.drugbank.ca/drugs/DB00411	http://bio2rdf.org/drugbank:DB00411
+CARBAMAZEPINE	http://www.drugbank.ca/drugs/DB00564	http://bio2rdf.org/drugbank:DB00564
+CARBENICILLIN	http://www.drugbank.ca/drugs/DB00578	http://bio2rdf.org/drugbank:DB00578
+CARBIDOPA	http://www.drugbank.ca/drugs/DB00190	http://bio2rdf.org/drugbank:DB00190
+CARBIDOPA ANHYDROUS	http://www.drugbank.ca/drugs/DB00190	http://bio2rdf.org/drugbank:DB00190
+CARBINOXAMINE	http://www.drugbank.ca/drugs/DB00748	http://bio2rdf.org/drugbank:DB00748
+CARBOPLATIN	http://www.drugbank.ca/drugs/DB00958	http://bio2rdf.org/drugbank:DB00958
+CARBOPROST	http://www.drugbank.ca/drugs/DB00429	http://bio2rdf.org/drugbank:DB00429
+CARGLUMIC ACID	http://www.drugbank.ca/drugs/DB06775	http://bio2rdf.org/drugbank:DB06775
+CARISOPRODOL	http://www.drugbank.ca/drugs/DB00395	http://bio2rdf.org/drugbank:DB00395
+CARMUSTINE	http://www.drugbank.ca/drugs/DB00262	http://bio2rdf.org/drugbank:DB00262
+CARNITINE	http://www.drugbank.ca/drugs/DB02648	http://bio2rdf.org/drugbank:DB02648
+CARNITINE	http://www.drugbank.ca/drugs/DB00583	http://bio2rdf.org/drugbank:DB00583
+CARTEOLOL	http://www.drugbank.ca/drugs/DB00521	http://bio2rdf.org/drugbank:DB00521
+CARVEDILOL	http://www.drugbank.ca/drugs/DB01136	http://bio2rdf.org/drugbank:DB01136
+CASPOFUNGIN	http://www.drugbank.ca/drugs/DB00520	http://bio2rdf.org/drugbank:DB00520
+CEFACLOR	http://www.drugbank.ca/drugs/DB00833	http://bio2rdf.org/drugbank:DB00833
+CEFACLOR ANHYDROUS	http://www.drugbank.ca/drugs/DB00833	http://bio2rdf.org/drugbank:DB00833
+CEFADROXIL	http://www.drugbank.ca/drugs/DB01140	http://bio2rdf.org/drugbank:DB01140
+CEFADROXIL ANHYDROUS	http://www.drugbank.ca/drugs/DB01140	http://bio2rdf.org/drugbank:DB01140
+CEFAZOLIN	http://www.drugbank.ca/drugs/DB01327	http://bio2rdf.org/drugbank:DB01327
+CEFDINIR	http://www.drugbank.ca/drugs/DB00535	http://bio2rdf.org/drugbank:DB00535
+CEFDITOREN	http://www.drugbank.ca/drugs/DB01066	http://bio2rdf.org/drugbank:DB01066
+CEFEPIME	http://www.drugbank.ca/drugs/DB01413	http://bio2rdf.org/drugbank:DB01413
+CEFIXIME ANHYDROUS	http://www.drugbank.ca/drugs/DB00671	http://bio2rdf.org/drugbank:DB00671
+CEFOPERAZONE	http://www.drugbank.ca/drugs/DB01329	http://bio2rdf.org/drugbank:DB01329
+CEFOTAXIME	http://www.drugbank.ca/drugs/DB00493	http://bio2rdf.org/drugbank:DB00493
+CEFOTETAN	http://www.drugbank.ca/drugs/DB01330	http://bio2rdf.org/drugbank:DB01330
+CEFOTETAN DISODIUM	http://www.drugbank.ca/drugs/DB01330	http://bio2rdf.org/drugbank:DB01330
+CEFOXITIN	http://www.drugbank.ca/drugs/DB01331	http://bio2rdf.org/drugbank:DB01331
+CEFPODOXIME	http://www.drugbank.ca/drugs/DB01416	http://bio2rdf.org/drugbank:DB01416
+CEFPROZIL	http://www.drugbank.ca/drugs/DB01150	http://bio2rdf.org/drugbank:DB01150
+CEFPROZIL ANHYDROUS	http://www.drugbank.ca/drugs/DB01150	http://bio2rdf.org/drugbank:DB01150
+CEFTAZIDIME	http://www.drugbank.ca/drugs/DB00438	http://bio2rdf.org/drugbank:DB00438
+CEFTAZIDIME ANHYDROUS	http://www.drugbank.ca/drugs/DB00438	http://bio2rdf.org/drugbank:DB00438
+CEFTIBUTEN	http://www.drugbank.ca/drugs/DB01415	http://bio2rdf.org/drugbank:DB01415
+CEFTIZOXIME	http://www.drugbank.ca/drugs/DB01332	http://bio2rdf.org/drugbank:DB01332
+CEFTRIAXONE	http://www.drugbank.ca/drugs/DB01212	http://bio2rdf.org/drugbank:DB01212
+CEFUROXIME	http://www.drugbank.ca/drugs/DB01112	http://bio2rdf.org/drugbank:DB01112
+CELECOXIB	http://www.drugbank.ca/drugs/DB00482	http://bio2rdf.org/drugbank:DB00482
+CEPHALEXIN	http://www.drugbank.ca/drugs/DB00567	http://bio2rdf.org/drugbank:DB00567
+CEPHALEXIN ANHYDROUS	http://www.drugbank.ca/drugs/DB00567	http://bio2rdf.org/drugbank:DB00567
+CETIRIZINE	http://www.drugbank.ca/drugs/DB00341	http://bio2rdf.org/drugbank:DB00341
+CETRORELIX	http://www.drugbank.ca/drugs/DB00050	http://bio2rdf.org/drugbank:DB00050
+CETUXIMAB	http://www.drugbank.ca/drugs/DB00002	http://bio2rdf.org/drugbank:DB00002
+CEVIMELINE	http://www.drugbank.ca/drugs/DB00185	http://bio2rdf.org/drugbank:DB00185
+CHENODIOL	http://www.drugbank.ca/drugs/DB06777	http://bio2rdf.org/drugbank:DB06777
+CHLORAL	http://www.drugbank.ca/drugs/DB02650	http://bio2rdf.org/drugbank:DB02650
+CHLORAMBUCIL	http://www.drugbank.ca/drugs/DB00291	http://bio2rdf.org/drugbank:DB00291
+CHLORAMPHENICOL	http://www.drugbank.ca/drugs/DB00446	http://bio2rdf.org/drugbank:DB00446
+CHLORDIAZEPOXIDE	http://www.drugbank.ca/drugs/DB00475	http://bio2rdf.org/drugbank:DB00475
+CHLORHEXIDINE	http://www.drugbank.ca/drugs/DB00878	http://bio2rdf.org/drugbank:DB00878
+CHLOROPROCAINE	http://www.drugbank.ca/drugs/DB01161	http://bio2rdf.org/drugbank:DB01161
+CHLOROQUINE	http://www.drugbank.ca/drugs/DB00608	http://bio2rdf.org/drugbank:DB00608
+CHLOROTHIAZIDE	http://www.drugbank.ca/drugs/DB00880	http://bio2rdf.org/drugbank:DB00880
+CHLOROXINE	http://www.drugbank.ca/drugs/DB01243	http://bio2rdf.org/drugbank:DB01243
+CHLORPHENIRAMINE	http://www.drugbank.ca/drugs/DB01114	http://bio2rdf.org/drugbank:DB01114
+CHLORPROMAZINE	http://www.drugbank.ca/drugs/DB00477	http://bio2rdf.org/drugbank:DB00477
+CHLORPROPAMIDE	http://www.drugbank.ca/drugs/DB00672	http://bio2rdf.org/drugbank:DB00672
+CHLORTHALIDONE	http://www.drugbank.ca/drugs/DB00310	http://bio2rdf.org/drugbank:DB00310
+CHLORZOXAZONE	http://www.drugbank.ca/drugs/DB00356	http://bio2rdf.org/drugbank:DB00356
+CHOLECALCIFEROL	http://www.drugbank.ca/drugs/DB00169	http://bio2rdf.org/drugbank:DB00169
+CHOLESTYRAMINE	http://www.drugbank.ca/drugs/DB01432	http://bio2rdf.org/drugbank:DB01432
+CHOLINE	http://www.drugbank.ca/drugs/DB00122	http://bio2rdf.org/drugbank:DB00122
+CHORIOGONADOTROPIN ALFA	http://www.drugbank.ca/drugs/DB00097	http://bio2rdf.org/drugbank:DB00097
+CICLESONIDE	http://www.drugbank.ca/drugs/DB01410	http://bio2rdf.org/drugbank:DB01410
+CICLOPIROX	http://www.drugbank.ca/drugs/DB01188	http://bio2rdf.org/drugbank:DB01188
+CIDOFOVIR ANHYDROUS	http://www.drugbank.ca/drugs/DB00369	http://bio2rdf.org/drugbank:DB00369
+CILASTATIN	http://www.drugbank.ca/drugs/DB01597	http://bio2rdf.org/drugbank:DB01597
+CILOSTAZOL	http://www.drugbank.ca/drugs/DB01166	http://bio2rdf.org/drugbank:DB01166
+CIMETIDINE	http://www.drugbank.ca/drugs/DB00501	http://bio2rdf.org/drugbank:DB00501
+CINACALCET	http://www.drugbank.ca/drugs/DB01012	http://bio2rdf.org/drugbank:DB01012
+CIPROFLOXACIN	http://www.drugbank.ca/drugs/DB00537	http://bio2rdf.org/drugbank:DB00537
+CISPLATIN	http://www.drugbank.ca/drugs/DB00515	http://bio2rdf.org/drugbank:DB00515
+CITALOPRAM	http://www.drugbank.ca/drugs/DB00215	http://bio2rdf.org/drugbank:DB00215
+CLADRIBINE	http://www.drugbank.ca/drugs/DB00242	http://bio2rdf.org/drugbank:DB00242
+CLARITHROMYCIN	http://www.drugbank.ca/drugs/DB01211	http://bio2rdf.org/drugbank:DB01211
+CLAVULANIC ACID	http://www.drugbank.ca/drugs/DB00766	http://bio2rdf.org/drugbank:DB00766
+CLEMASTINE	http://www.drugbank.ca/drugs/DB00283	http://bio2rdf.org/drugbank:DB00283
+CLIDINIUM	http://www.drugbank.ca/drugs/DB00771	http://bio2rdf.org/drugbank:DB00771
+CLIDINIUM BROMIDE	http://www.drugbank.ca/drugs/DB00771	http://bio2rdf.org/drugbank:DB00771
+CLINDAMYCIN	http://www.drugbank.ca/drugs/DB01190	http://bio2rdf.org/drugbank:DB01190
+CLOBAZAM	http://www.drugbank.ca/drugs/DB00349	http://bio2rdf.org/drugbank:DB00349
+CLOBETASOL	http://www.drugbank.ca/drugs/DB01013	http://bio2rdf.org/drugbank:DB01013
+CLOCORTOLONE	http://www.drugbank.ca/drugs/DB00838	http://bio2rdf.org/drugbank:DB00838
+CLOFARABINE	http://www.drugbank.ca/drugs/DB00631	http://bio2rdf.org/drugbank:DB00631
+CLOMIPHENE	http://www.drugbank.ca/drugs/DB00882	http://bio2rdf.org/drugbank:DB00882
+CLOMIPRAMINE	http://www.drugbank.ca/drugs/DB01242	http://bio2rdf.org/drugbank:DB01242
+CLONAZEPAM	http://www.drugbank.ca/drugs/DB01068	http://bio2rdf.org/drugbank:DB01068
+CLONIDINE	http://www.drugbank.ca/drugs/DB00575	http://bio2rdf.org/drugbank:DB00575
+CLOPIDOGREL	http://www.drugbank.ca/drugs/DB00758	http://bio2rdf.org/drugbank:DB00758
+CLORAZEPIC ACID	http://www.drugbank.ca/drugs/DB00628	http://bio2rdf.org/drugbank:DB00628
+CLOTRIMAZOLE	http://www.drugbank.ca/drugs/DB00257	http://bio2rdf.org/drugbank:DB00257
+CLOZAPINE	http://www.drugbank.ca/drugs/DB00363	http://bio2rdf.org/drugbank:DB00363
+COCAINE	http://www.drugbank.ca/drugs/DB00907	http://bio2rdf.org/drugbank:DB00907
+COCARBOXYLASE	http://www.drugbank.ca/drugs/DB01987	http://bio2rdf.org/drugbank:DB01987
+CODEINE	http://www.drugbank.ca/drugs/DB00318	http://bio2rdf.org/drugbank:DB00318
+CODEINE ANHYDROUS	http://www.drugbank.ca/drugs/DB00318	http://bio2rdf.org/drugbank:DB00318
+COLCHICINE	http://www.drugbank.ca/drugs/DB01394	http://bio2rdf.org/drugbank:DB01394
+COLESEVELAM	http://www.drugbank.ca/drugs/DB00930	http://bio2rdf.org/drugbank:DB00930
+COLESTIPOL	http://www.drugbank.ca/drugs/DB00375	http://bio2rdf.org/drugbank:DB00375
+COLISTIMETHATE	http://www.drugbank.ca/drugs/DB01111	http://bio2rdf.org/drugbank:DB01111
+COLISTIN	http://www.drugbank.ca/drugs/DB00803	http://bio2rdf.org/drugbank:DB00803
+COLLAGENASE CLOSTRIDIUM HISTOLYTICUM	http://www.drugbank.ca/drugs/DB00048	http://bio2rdf.org/drugbank:DB00048
+CONIVAPTAN	http://www.drugbank.ca/drugs/DB00872	http://bio2rdf.org/drugbank:DB00872
+CORTICOTROPIN	http://www.drugbank.ca/drugs/DB01285	http://bio2rdf.org/drugbank:DB01285
+COSYNTROPIN	http://www.drugbank.ca/drugs/DB01284	http://bio2rdf.org/drugbank:DB01284
+CRIZOTINIB	http://www.drugbank.ca/drugs/ 	http://bio2rdf.org/drugbank: 
+CRIZOTINIB	http://www.drugbank.ca/drugs/DB08700	http://bio2rdf.org/drugbank:DB08700
+CROMOLYN	http://www.drugbank.ca/drugs/DB01003	http://bio2rdf.org/drugbank:DB01003
+CROTAMITON	http://www.drugbank.ca/drugs/DB00265	http://bio2rdf.org/drugbank:DB00265
+CYANOCOBALAMIN	http://www.drugbank.ca/drugs/DB00115	http://bio2rdf.org/drugbank:DB00115
+CYCLOBENZAPRINE	http://www.drugbank.ca/drugs/DB00924	http://bio2rdf.org/drugbank:DB00924
+CYCLOPENTOLATE	http://www.drugbank.ca/drugs/DB00979	http://bio2rdf.org/drugbank:DB00979
+CYCLOPHOSPHAMIDE	http://www.drugbank.ca/drugs/DB00437	http://bio2rdf.org/drugbank:DB00437
+CYCLOPHOSPHAMIDE	http://www.drugbank.ca/drugs/DB00531	http://bio2rdf.org/drugbank:DB00531
+CYCLOPHOSPHAMIDE ANHYDROUS	http://www.drugbank.ca/drugs/DB00437	http://bio2rdf.org/drugbank:DB00437
+CYCLOSERINE	http://www.drugbank.ca/drugs/DB00260	http://bio2rdf.org/drugbank:DB00260
+CYCLOSPORINE	http://www.drugbank.ca/drugs/DB00091	http://bio2rdf.org/drugbank:DB00091
+CYPROHEPTADINE	http://www.drugbank.ca/drugs/DB00434	http://bio2rdf.org/drugbank:DB00434
+CYSTEAMINE	http://www.drugbank.ca/drugs/DB00847	http://bio2rdf.org/drugbank:DB00847
+CYSTEINE	http://www.drugbank.ca/drugs/DB00151	http://bio2rdf.org/drugbank:DB00151
+CYSTEINE	http://www.drugbank.ca/drugs/DB03201	http://bio2rdf.org/drugbank:DB03201
+CYTARABINE	http://www.drugbank.ca/drugs/DB00987	http://bio2rdf.org/drugbank:DB00987
+DABIGATRAN ETEXILATE	http://www.drugbank.ca/drugs/DB06695	http://bio2rdf.org/drugbank:DB06695
+DACARBAZINE	http://www.drugbank.ca/drugs/ 	http://bio2rdf.org/drugbank: 
+DACARBAZINE	http://www.drugbank.ca/drugs/DB00851	http://bio2rdf.org/drugbank:DB00851
+DACTINOMYCIN	http://www.drugbank.ca/drugs/DB00970	http://bio2rdf.org/drugbank:DB00970
+DALFOPRISTIN	http://www.drugbank.ca/drugs/DB01764	http://bio2rdf.org/drugbank:DB01764
+DALTEPARIN	http://www.drugbank.ca/drugs/DB06779	http://bio2rdf.org/drugbank:DB06779
+DANAZOL	http://www.drugbank.ca/drugs/DB01406	http://bio2rdf.org/drugbank:DB01406
+DANTROLENE	http://www.drugbank.ca/drugs/DB01219	http://bio2rdf.org/drugbank:DB01219
+DAPSONE	http://www.drugbank.ca/drugs/DB00250	http://bio2rdf.org/drugbank:DB00250
+DAPTOMYCIN	http://www.drugbank.ca/drugs/DB00080	http://bio2rdf.org/drugbank:DB00080
+DARBEPOETIN ALFA	http://www.drugbank.ca/drugs/DB00012	http://bio2rdf.org/drugbank:DB00012
+DARIFENACIN	http://www.drugbank.ca/drugs/DB00496	http://bio2rdf.org/drugbank:DB00496
+DARUNAVIR	http://www.drugbank.ca/drugs/DB01264	http://bio2rdf.org/drugbank:DB01264
+DASATINIB	http://www.drugbank.ca/drugs/DB01254	http://bio2rdf.org/drugbank:DB01254
+DAUNORUBICIN	http://www.drugbank.ca/drugs/DB00694	http://bio2rdf.org/drugbank:DB00694
+DECITABINE	http://www.drugbank.ca/drugs/ 	http://bio2rdf.org/drugbank: 
+DECITABINE	http://www.drugbank.ca/drugs/DB01262	http://bio2rdf.org/drugbank:DB01262
+DEFERASIROX	http://www.drugbank.ca/drugs/DB01609	http://bio2rdf.org/drugbank:DB01609
+DEFEROXAMINE	http://www.drugbank.ca/drugs/DB00746	http://bio2rdf.org/drugbank:DB00746
+DEGARELIX	http://www.drugbank.ca/drugs/DB06699	http://bio2rdf.org/drugbank:DB06699
+DELAVIRDINE	http://www.drugbank.ca/drugs/DB00705	http://bio2rdf.org/drugbank:DB00705
+DEMECLOCYCLINE	http://www.drugbank.ca/drugs/DB00618	http://bio2rdf.org/drugbank:DB00618
+DENILEUKIN DIFTITOX	http://www.drugbank.ca/drugs/DB00004	http://bio2rdf.org/drugbank:DB00004
+DESERPIDINE	http://www.drugbank.ca/drugs/DB01089	http://bio2rdf.org/drugbank:DB01089
+DESFLURANE	http://www.drugbank.ca/drugs/DB01189	http://bio2rdf.org/drugbank:DB01189
+DESIPRAMINE	http://www.drugbank.ca/drugs/DB01151	http://bio2rdf.org/drugbank:DB01151
+DESLORATADINE	http://www.drugbank.ca/drugs/DB00967	http://bio2rdf.org/drugbank:DB00967
+DESMOPRESSIN	http://www.drugbank.ca/drugs/DB00035	http://bio2rdf.org/drugbank:DB00035
+DESOGESTREL	http://www.drugbank.ca/drugs/DB00304	http://bio2rdf.org/drugbank:DB00304
+DESONIDE	http://www.drugbank.ca/drugs/DB01260	http://bio2rdf.org/drugbank:DB01260
+DESOXIMETASONE	http://www.drugbank.ca/drugs/DB00547	http://bio2rdf.org/drugbank:DB00547
+DESVENLAFAXINE	http://www.drugbank.ca/drugs/DB06700	http://bio2rdf.org/drugbank:DB06700
+DEXAMETHASONE	http://www.drugbank.ca/drugs/DB01234	http://bio2rdf.org/drugbank:DB01234
+DEXBROMPHENIRAMINE	http://www.drugbank.ca/drugs/DB00405	http://bio2rdf.org/drugbank:DB00405
+DEXMEDETOMIDINE	http://www.drugbank.ca/drugs/DB00633	http://bio2rdf.org/drugbank:DB00633
+DEXMETHYLPHENIDATE	http://www.drugbank.ca/drugs/DB06701	http://bio2rdf.org/drugbank:DB06701
+DEXRAZOXANE	http://www.drugbank.ca/drugs/DB00380	http://bio2rdf.org/drugbank:DB00380
+DEXTROAMPHETAMINE	http://www.drugbank.ca/drugs/DB01576	http://bio2rdf.org/drugbank:DB01576
+DEXTROMETHORPHAN	http://www.drugbank.ca/drugs/DB00514	http://bio2rdf.org/drugbank:DB00514
+DIATRIZOIC ACID	http://www.drugbank.ca/drugs/DB00271	http://bio2rdf.org/drugbank:DB00271
+DIAZEPAM	http://www.drugbank.ca/drugs/DB00829	http://bio2rdf.org/drugbank:DB00829
+DIAZOXIDE	http://www.drugbank.ca/drugs/DB01119	http://bio2rdf.org/drugbank:DB01119
+DIBUCAINE	http://www.drugbank.ca/drugs/DB00527	http://bio2rdf.org/drugbank:DB00527
+DICHLORPHENAMIDE	http://www.drugbank.ca/drugs/DB01144	http://bio2rdf.org/drugbank:DB01144
+DICLOFENAC	http://www.drugbank.ca/drugs/DB00586	http://bio2rdf.org/drugbank:DB00586
+DICLOXACILLIN	http://www.drugbank.ca/drugs/DB00485	http://bio2rdf.org/drugbank:DB00485
+DICYCLOMINE	http://www.drugbank.ca/drugs/DB00804	http://bio2rdf.org/drugbank:DB00804
+DIDANOSINE	http://www.drugbank.ca/drugs/DB00900	http://bio2rdf.org/drugbank:DB00900
+DIETHYLPROPION	http://www.drugbank.ca/drugs/DB00937	http://bio2rdf.org/drugbank:DB00937
+DIFENOXIN	http://www.drugbank.ca/drugs/DB01501	http://bio2rdf.org/drugbank:DB01501
+DIFLORASONE	http://www.drugbank.ca/drugs/DB00223	http://bio2rdf.org/drugbank:DB00223
+DIFLORASONE DIACETATE	http://www.drugbank.ca/drugs/DB00223	http://bio2rdf.org/drugbank:DB00223
+DIFLUNISAL	http://www.drugbank.ca/drugs/DB00861	http://bio2rdf.org/drugbank:DB00861
+DIFLUPREDNATE	http://www.drugbank.ca/drugs/DB06781	http://bio2rdf.org/drugbank:DB06781
+DIGOXIN	http://www.drugbank.ca/drugs/DB00390	http://bio2rdf.org/drugbank:DB00390
+DIHYDROCODEINE	http://www.drugbank.ca/drugs/DB01551	http://bio2rdf.org/drugbank:DB01551
+DIHYDROERGOTAMINE	http://www.drugbank.ca/drugs/DB00320	http://bio2rdf.org/drugbank:DB00320
+DILTIAZEM	http://www.drugbank.ca/drugs/DB00343	http://bio2rdf.org/drugbank:DB00343
+DIMENHYDRINATE	http://www.drugbank.ca/drugs/DB00985	http://bio2rdf.org/drugbank:DB00985
+DIMETHYL SULFOXIDE	http://www.drugbank.ca/drugs/DB01093	http://bio2rdf.org/drugbank:DB01093
+DINOPROSTONE	http://www.drugbank.ca/drugs/DB00917	http://bio2rdf.org/drugbank:DB00917
+DIPHENHYDRAMINE	http://www.drugbank.ca/drugs/DB01075	http://bio2rdf.org/drugbank:DB01075
+DIPHENOXYLATE	http://www.drugbank.ca/drugs/DB01081	http://bio2rdf.org/drugbank:DB01081
+DIPIVEFRIN	http://www.drugbank.ca/drugs/DB00449	http://bio2rdf.org/drugbank:DB00449
+DIPYRIDAMOLE	http://www.drugbank.ca/drugs/DB00975	http://bio2rdf.org/drugbank:DB00975
+DISOPYRAMIDE	http://www.drugbank.ca/drugs/DB00280	http://bio2rdf.org/drugbank:DB00280
+DISULFIRAM	http://www.drugbank.ca/drugs/DB00822	http://bio2rdf.org/drugbank:DB00822
+DOBUTAMINE	http://www.drugbank.ca/drugs/DB00841	http://bio2rdf.org/drugbank:DB00841
+DOCETAXEL	http://www.drugbank.ca/drugs/DB00731	http://bio2rdf.org/drugbank:DB00731
+DOCETAXEL	http://www.drugbank.ca/drugs/DB01248	http://bio2rdf.org/drugbank:DB01248
+DOCETAXEL ANHYDROUS	http://www.drugbank.ca/drugs/DB00731	http://bio2rdf.org/drugbank:DB00731
+DOCETAXEL ANHYDROUS	http://www.drugbank.ca/drugs/DB01248	http://bio2rdf.org/drugbank:DB01248
+DOCONEXENT	http://www.drugbank.ca/drugs/ 	http://bio2rdf.org/drugbank: 
+DOCONEXENT	http://www.drugbank.ca/drugs/DB03756	http://bio2rdf.org/drugbank:DB03756
+DOCOSANOL	http://www.drugbank.ca/drugs/DB00632	http://bio2rdf.org/drugbank:DB00632
+DOFETILIDE	http://www.drugbank.ca/drugs/DB00204	http://bio2rdf.org/drugbank:DB00204
+DOLASETRON	http://www.drugbank.ca/drugs/DB00757	http://bio2rdf.org/drugbank:DB00757
+DONEPEZIL	http://www.drugbank.ca/drugs/DB00843	http://bio2rdf.org/drugbank:DB00843
+DOPAMINE	http://www.drugbank.ca/drugs/DB00988	http://bio2rdf.org/drugbank:DB00988
+DORNASE ALFA	http://www.drugbank.ca/drugs/DB00003	http://bio2rdf.org/drugbank:DB00003
+DORZOLAMIDE	http://www.drugbank.ca/drugs/DB00869	http://bio2rdf.org/drugbank:DB00869
+DOXAPRAM	http://www.drugbank.ca/drugs/DB00561	http://bio2rdf.org/drugbank:DB00561
+DOXAZOSIN	http://www.drugbank.ca/drugs/DB00590	http://bio2rdf.org/drugbank:DB00590
+DOXEPIN	http://www.drugbank.ca/drugs/DB01142	http://bio2rdf.org/drugbank:DB01142
+DOXORUBICIN	http://www.drugbank.ca/drugs/DB00997	http://bio2rdf.org/drugbank:DB00997
+DOXYCYCLINE	http://www.drugbank.ca/drugs/DB00254	http://bio2rdf.org/drugbank:DB00254
+DOXYLAMINE	http://www.drugbank.ca/drugs/DB00366	http://bio2rdf.org/drugbank:DB00366
+DRONABINOL	http://www.drugbank.ca/drugs/DB00470	http://bio2rdf.org/drugbank:DB00470
+DROPERIDOL	http://www.drugbank.ca/drugs/DB00450	http://bio2rdf.org/drugbank:DB00450
+DROSPIRENONE	http://www.drugbank.ca/drugs/DB01395	http://bio2rdf.org/drugbank:DB01395
+DULOXETINE	http://www.drugbank.ca/drugs/DB00476	http://bio2rdf.org/drugbank:DB00476
+DUTASTERIDE	http://www.drugbank.ca/drugs/DB01126	http://bio2rdf.org/drugbank:DB01126
+DYCLONINE	http://www.drugbank.ca/drugs/DB00645	http://bio2rdf.org/drugbank:DB00645
+DYPHYLLINE	http://www.drugbank.ca/drugs/DB00651	http://bio2rdf.org/drugbank:DB00651
+ECHOTHIOPHATE	http://www.drugbank.ca/drugs/DB01057	http://bio2rdf.org/drugbank:DB01057
+ECONAZOLE	http://www.drugbank.ca/drugs/DB01127	http://bio2rdf.org/drugbank:DB01127
+ECONAZOLE	http://www.drugbank.ca/drugs/DB00447	http://bio2rdf.org/drugbank:DB00447
+ECULIZUMAB	http://www.drugbank.ca/drugs/DB01257	http://bio2rdf.org/drugbank:DB01257
+EDETIC ACID	http://www.drugbank.ca/drugs/DB00974	http://bio2rdf.org/drugbank:DB00974
+EDROPHONIUM	http://www.drugbank.ca/drugs/DB01010	http://bio2rdf.org/drugbank:DB01010
+EFAVIRENZ	http://www.drugbank.ca/drugs/DB00625	http://bio2rdf.org/drugbank:DB00625
+EFLORNITHINE	http://www.drugbank.ca/drugs/DB03856	http://bio2rdf.org/drugbank:DB03856
+ELETRIPTAN	http://www.drugbank.ca/drugs/DB00216	http://bio2rdf.org/drugbank:DB00216
+EMEDASTINE	http://www.drugbank.ca/drugs/DB01084	http://bio2rdf.org/drugbank:DB01084
+EMTRICITABINE	http://www.drugbank.ca/drugs/DB00879	http://bio2rdf.org/drugbank:DB00879
+ENALAPRIL	http://www.drugbank.ca/drugs/DB00584	http://bio2rdf.org/drugbank:DB00584
+ENFLURANE	http://www.drugbank.ca/drugs/DB00228	http://bio2rdf.org/drugbank:DB00228
+ENFUVIRTIDE	http://www.drugbank.ca/drugs/DB00109	http://bio2rdf.org/drugbank:DB00109
+ENOXAPARIN	http://www.drugbank.ca/drugs/DB01109	http://bio2rdf.org/drugbank:DB01109
+ENOXAPARIN	http://www.drugbank.ca/drugs/DB01225	http://bio2rdf.org/drugbank:DB01225
+ENTACAPONE	http://www.drugbank.ca/drugs/DB00494	http://bio2rdf.org/drugbank:DB00494
+ENTECAVIR	http://www.drugbank.ca/drugs/DB00442	http://bio2rdf.org/drugbank:DB00442
+EPHEDRINE	http://www.drugbank.ca/drugs/DB01364	http://bio2rdf.org/drugbank:DB01364
+EPINASTINE	http://www.drugbank.ca/drugs/DB00751	http://bio2rdf.org/drugbank:DB00751
+EPINEPHRINE	http://www.drugbank.ca/drugs/DB00668	http://bio2rdf.org/drugbank:DB00668
+EPIRUBICIN	http://www.drugbank.ca/drugs/DB00445	http://bio2rdf.org/drugbank:DB00445
+EPLERENONE	http://www.drugbank.ca/drugs/DB00700	http://bio2rdf.org/drugbank:DB00700
+EPOPROSTENOL	http://www.drugbank.ca/drugs/DB01240	http://bio2rdf.org/drugbank:DB01240
+EPROSARTAN	http://www.drugbank.ca/drugs/DB00876	http://bio2rdf.org/drugbank:DB00876
+EPTIFIBATIDE	http://www.drugbank.ca/drugs/DB00063	http://bio2rdf.org/drugbank:DB00063
+ERGOCALCIFEROL	http://www.drugbank.ca/drugs/DB00153	http://bio2rdf.org/drugbank:DB00153
+ERGOTAMINE	http://www.drugbank.ca/drugs/DB00320	http://bio2rdf.org/drugbank:DB00320
+ERGOTAMINE	http://www.drugbank.ca/drugs/DB00696	http://bio2rdf.org/drugbank:DB00696
+ERLOTINIB	http://www.drugbank.ca/drugs/DB00530	http://bio2rdf.org/drugbank:DB00530
+ERTAPENEM	http://www.drugbank.ca/drugs/DB00303	http://bio2rdf.org/drugbank:DB00303
+ERYTHROMYCIN	http://www.drugbank.ca/drugs/DB00199	http://bio2rdf.org/drugbank:DB00199
+ERYTHROPOIETIN	http://www.drugbank.ca/drugs/DB00016	http://bio2rdf.org/drugbank:DB00016
+ESCITALOPRAM	http://www.drugbank.ca/drugs/DB01175	http://bio2rdf.org/drugbank:DB01175
+ESMOLOL	http://www.drugbank.ca/drugs/DB00187	http://bio2rdf.org/drugbank:DB00187
+ESOMEPRAZOLE	http://www.drugbank.ca/drugs/DB00736	http://bio2rdf.org/drugbank:DB00736
+ESOMEPRAZOLE MAGNESIUM	http://www.drugbank.ca/drugs/DB00736	http://bio2rdf.org/drugbank:DB00736
+ESTAZOLAM	http://www.drugbank.ca/drugs/DB01215	http://bio2rdf.org/drugbank:DB01215
+ESTRADIOL	http://www.drugbank.ca/drugs/DB00783	http://bio2rdf.org/drugbank:DB00783
+ESTRAMUSTINE	http://www.drugbank.ca/drugs/DB01196	http://bio2rdf.org/drugbank:DB01196
+ESTROGENS, CONJUGATED	http://www.drugbank.ca/drugs/DB00286	http://bio2rdf.org/drugbank:DB00286
+ESTRONE	http://www.drugbank.ca/drugs/DB00655	http://bio2rdf.org/drugbank:DB00655
+ESTROPIPATE	http://www.drugbank.ca/drugs/DB04574	http://bio2rdf.org/drugbank:DB04574
+ESZOPICLONE	http://www.drugbank.ca/drugs/DB00402	http://bio2rdf.org/drugbank:DB00402
+ETANERCEPT	http://www.drugbank.ca/drugs/DB00005	http://bio2rdf.org/drugbank:DB00005
+ETHACRYNIC ACID	http://www.drugbank.ca/drugs/DB00903	http://bio2rdf.org/drugbank:DB00903
+ETHAMBUTOL	http://www.drugbank.ca/drugs/DB00330	http://bio2rdf.org/drugbank:DB00330
+ETHINYL ESTRADIOL	http://www.drugbank.ca/drugs/DB00977	http://bio2rdf.org/drugbank:DB00977
+ETHINYL ESTRADIOL	http://www.drugbank.ca/drugs/DB00303	http://bio2rdf.org/drugbank:DB00303
+ETHIONAMIDE	http://www.drugbank.ca/drugs/DB00609	http://bio2rdf.org/drugbank:DB00609
+ETHOSUXIMIDE	http://www.drugbank.ca/drugs/DB00593	http://bio2rdf.org/drugbank:DB00593
+ETHOTOIN	http://www.drugbank.ca/drugs/DB00754	http://bio2rdf.org/drugbank:DB00754
+ETHYNODIOL	http://www.drugbank.ca/drugs/DB00823	http://bio2rdf.org/drugbank:DB00823
+ETIDRONIC ACID	http://www.drugbank.ca/drugs/DB01077	http://bio2rdf.org/drugbank:DB01077
+ETODOLAC	http://www.drugbank.ca/drugs/DB00749	http://bio2rdf.org/drugbank:DB00749
+ETOMIDATE	http://www.drugbank.ca/drugs/DB00292	http://bio2rdf.org/drugbank:DB00292
+ETONOGESTREL	http://www.drugbank.ca/drugs/DB00294	http://bio2rdf.org/drugbank:DB00294
+ETOPOSIDE	http://www.drugbank.ca/drugs/DB00773	http://bio2rdf.org/drugbank:DB00773
+ETRAVIRINE	http://www.drugbank.ca/drugs/DB07191	http://bio2rdf.org/drugbank:DB07191
+EUCALYPTOL	http://www.drugbank.ca/drugs/DB03852	http://bio2rdf.org/drugbank:DB03852
+EVEROLIMUS	http://www.drugbank.ca/drugs/DB01590	http://bio2rdf.org/drugbank:DB01590
+EXEMESTANE	http://www.drugbank.ca/drugs/DB00990	http://bio2rdf.org/drugbank:DB00990
+EXENATIDE	http://www.drugbank.ca/drugs/DB01276	http://bio2rdf.org/drugbank:DB01276
+EZETIMIBE	http://www.drugbank.ca/drugs/DB00973	http://bio2rdf.org/drugbank:DB00973
+FAMCICLOVIR	http://www.drugbank.ca/drugs/DB00426	http://bio2rdf.org/drugbank:DB00426
+FAMOTIDINE	http://www.drugbank.ca/drugs/DB00927	http://bio2rdf.org/drugbank:DB00927
+FELBAMATE	http://www.drugbank.ca/drugs/DB00949	http://bio2rdf.org/drugbank:DB00949
+FELODIPINE	http://www.drugbank.ca/drugs/DB01023	http://bio2rdf.org/drugbank:DB01023
+FENOFIBRATE	http://www.drugbank.ca/drugs/DB01039	http://bio2rdf.org/drugbank:DB01039
+FENOFIBRIC ACID	http://www.drugbank.ca/drugs/DB01039	http://bio2rdf.org/drugbank:DB01039
+FENOLDOPAM	http://www.drugbank.ca/drugs/DB00800	http://bio2rdf.org/drugbank:DB00800
+FENOPROFEN	http://www.drugbank.ca/drugs/DB00573	http://bio2rdf.org/drugbank:DB00573
+FENTANYL	http://www.drugbank.ca/drugs/DB00813	http://bio2rdf.org/drugbank:DB00813
+FESOTERODINE	http://www.drugbank.ca/drugs/DB06702	http://bio2rdf.org/drugbank:DB06702
+FEXOFENADINE	http://www.drugbank.ca/drugs/DB00950	http://bio2rdf.org/drugbank:DB00950
+FILGRASTIM	http://www.drugbank.ca/drugs/DB00099	http://bio2rdf.org/drugbank:DB00099
+FINASTERIDE	http://www.drugbank.ca/drugs/DB01216	http://bio2rdf.org/drugbank:DB01216
+FLAVOXATE	http://www.drugbank.ca/drugs/DB00687	http://bio2rdf.org/drugbank:DB00687
+FLAVOXATE	http://www.drugbank.ca/drugs/DB01148	http://bio2rdf.org/drugbank:DB01148
+FLECAINIDE	http://www.drugbank.ca/drugs/DB01195	http://bio2rdf.org/drugbank:DB01195
+FLOXURIDINE	http://www.drugbank.ca/drugs/DB00322	http://bio2rdf.org/drugbank:DB00322
+FLUCONAZOLE	http://www.drugbank.ca/drugs/DB00196	http://bio2rdf.org/drugbank:DB00196
+FLUCYTOSINE	http://www.drugbank.ca/drugs/DB01099	http://bio2rdf.org/drugbank:DB01099
+FLUDARABINE	http://www.drugbank.ca/drugs/DB01073	http://bio2rdf.org/drugbank:DB01073
+FLUDROCORTISONE	http://www.drugbank.ca/drugs/DB00687	http://bio2rdf.org/drugbank:DB00687
+FLUMAZENIL	http://www.drugbank.ca/drugs/DB00751	http://bio2rdf.org/drugbank:DB00751
+FLUMAZENIL	http://www.drugbank.ca/drugs/DB01205	http://bio2rdf.org/drugbank:DB01205
+FLUNISOLIDE	http://www.drugbank.ca/drugs/DB00180	http://bio2rdf.org/drugbank:DB00180
+FLUOCINOLONE ACETONIDE	http://www.drugbank.ca/drugs/DB00591	http://bio2rdf.org/drugbank:DB00591
+FLUOCINONIDE	http://www.drugbank.ca/drugs/DB01047	http://bio2rdf.org/drugbank:DB01047
+FLUORESCEIN	http://www.drugbank.ca/drugs/DB00693	http://bio2rdf.org/drugbank:DB00693
+FLUOROMETHOLONE	http://www.drugbank.ca/drugs/DB00324	http://bio2rdf.org/drugbank:DB00324
+FLUOROURACIL	http://www.drugbank.ca/drugs/DB00544	http://bio2rdf.org/drugbank:DB00544
+FLUOXETINE	http://www.drugbank.ca/drugs/DB00472	http://bio2rdf.org/drugbank:DB00472
+FLUOXYMESTERONE	http://www.drugbank.ca/drugs/DB00852	http://bio2rdf.org/drugbank:DB00852
+FLUOXYMESTERONE	http://www.drugbank.ca/drugs/DB01185	http://bio2rdf.org/drugbank:DB01185
+FLUPHENAZINE	http://www.drugbank.ca/drugs/DB00623	http://bio2rdf.org/drugbank:DB00623
+FLUPHENAZINE DECANOATE	http://www.drugbank.ca/drugs/DB00623	http://bio2rdf.org/drugbank:DB00623
+FLURANDRENOLIDE	http://www.drugbank.ca/drugs/DB00846	http://bio2rdf.org/drugbank:DB00846
+FLURAZEPAM	http://www.drugbank.ca/drugs/DB00690	http://bio2rdf.org/drugbank:DB00690
+FLURBIPROFEN	http://www.drugbank.ca/drugs/DB00712	http://bio2rdf.org/drugbank:DB00712
+FLUTAMIDE	http://www.drugbank.ca/drugs/DB00499	http://bio2rdf.org/drugbank:DB00499
+FLUVASTATIN	http://www.drugbank.ca/drugs/DB01095	http://bio2rdf.org/drugbank:DB01095
+FLUVOXAMINE	http://www.drugbank.ca/drugs/DB00176	http://bio2rdf.org/drugbank:DB00176
+FOLIC ACID	http://www.drugbank.ca/drugs/DB00158	http://bio2rdf.org/drugbank:DB00158
+FOLLITROPIN	http://www.drugbank.ca/drugs/DB00066	http://bio2rdf.org/drugbank:DB00066
+FOMEPIZOLE	http://www.drugbank.ca/drugs/DB01213	http://bio2rdf.org/drugbank:DB01213
+FOMEPIZOLE	http://www.drugbank.ca/drugs/DB00546	http://bio2rdf.org/drugbank:DB00546
+FORMALDEHYDE	http://www.drugbank.ca/drugs/DB03843	http://bio2rdf.org/drugbank:DB03843
+FORMOTEROL	http://www.drugbank.ca/drugs/DB02956	http://bio2rdf.org/drugbank:DB02956
+FORMOTEROL	http://www.drugbank.ca/drugs/DB00983	http://bio2rdf.org/drugbank:DB00983
+FOSCARNET	http://www.drugbank.ca/drugs/DB00529	http://bio2rdf.org/drugbank:DB00529
+FOSFOMYCIN	http://www.drugbank.ca/drugs/DB00828	http://bio2rdf.org/drugbank:DB00828
+FOSINOPRIL	http://www.drugbank.ca/drugs/DB00492	http://bio2rdf.org/drugbank:DB00492
+FOSPHENYTOIN	http://www.drugbank.ca/drugs/DB01320	http://bio2rdf.org/drugbank:DB01320
+FOSPROPOFOL	http://www.drugbank.ca/drugs/DB06716	http://bio2rdf.org/drugbank:DB06716
+FROVATRIPTAN	http://www.drugbank.ca/drugs/DB00998	http://bio2rdf.org/drugbank:DB00998
+FRUCTOSE	http://www.drugbank.ca/drugs/DB04173	http://bio2rdf.org/drugbank:DB04173
+FULVESTRANT	http://www.drugbank.ca/drugs/DB00947	http://bio2rdf.org/drugbank:DB00947
+FUROSEMIDE	http://www.drugbank.ca/drugs/DB00695	http://bio2rdf.org/drugbank:DB00695
+GABAPENTIN	http://www.drugbank.ca/drugs/DB00996	http://bio2rdf.org/drugbank:DB00996
+GADOBENIC ACID	http://www.drugbank.ca/drugs/DB00743	http://bio2rdf.org/drugbank:DB00743
+GADODIAMIDE	http://www.drugbank.ca/drugs/DB00225	http://bio2rdf.org/drugbank:DB00225
+GADOTERIDOL	http://www.drugbank.ca/drugs/DB00597	http://bio2rdf.org/drugbank:DB00597
+GADOVERSETAMIDE	http://www.drugbank.ca/drugs/DB00538	http://bio2rdf.org/drugbank:DB00538
+GALANTAMINE	http://www.drugbank.ca/drugs/DB00674	http://bio2rdf.org/drugbank:DB00674
+GALSULFASE	http://www.drugbank.ca/drugs/DB01279	http://bio2rdf.org/drugbank:DB01279
+GANCICLOVIR	http://www.drugbank.ca/drugs/DB01004	http://bio2rdf.org/drugbank:DB01004
+GATIFLOXACIN	http://www.drugbank.ca/drugs/DB01044	http://bio2rdf.org/drugbank:DB01044
+GEFITINIB	http://www.drugbank.ca/drugs/DB00317	http://bio2rdf.org/drugbank:DB00317
+GEMCITABINE	http://www.drugbank.ca/drugs/DB00441	http://bio2rdf.org/drugbank:DB00441
+GEMFIBROZIL	http://www.drugbank.ca/drugs/DB01241	http://bio2rdf.org/drugbank:DB01241
+GEMIFLOXACIN	http://www.drugbank.ca/drugs/DB01155	http://bio2rdf.org/drugbank:DB01155
+GEMTUZUMAB OZOGAMICIN	http://www.drugbank.ca/drugs/DB00056	http://bio2rdf.org/drugbank:DB00056
+GENTAMICIN	http://www.drugbank.ca/drugs/DB00798	http://bio2rdf.org/drugbank:DB00798
+GENTIAN VIOLET	http://www.drugbank.ca/drugs/DB00406	http://bio2rdf.org/drugbank:DB00406
+GINKGO	http://www.drugbank.ca/drugs/DB01381	http://bio2rdf.org/drugbank:DB01381
+GLIMEPIRIDE	http://www.drugbank.ca/drugs/DB00222	http://bio2rdf.org/drugbank:DB00222
+GLIPIZIDE	http://www.drugbank.ca/drugs/DB01067	http://bio2rdf.org/drugbank:DB01067
+GLUCAGON	http://www.drugbank.ca/drugs/DB00040	http://bio2rdf.org/drugbank:DB00040
+GLUCONIC ACID	http://www.drugbank.ca/drugs/DB04304	http://bio2rdf.org/drugbank:DB04304
+GLUTAMIC ACID	http://www.drugbank.ca/drugs/DB00142	http://bio2rdf.org/drugbank:DB00142
+GLUTAMINE	http://www.drugbank.ca/drugs/DB00130	http://bio2rdf.org/drugbank:DB00130
+GLUTAMINE	http://www.drugbank.ca/drugs/DB02174	http://bio2rdf.org/drugbank:DB02174
+GLUTATHIONE	http://www.drugbank.ca/drugs/DB00143	http://bio2rdf.org/drugbank:DB00143
+GLYBURIDE	http://www.drugbank.ca/drugs/DB01016	http://bio2rdf.org/drugbank:DB01016
+GLYCERIN	http://www.drugbank.ca/drugs/DB04077	http://bio2rdf.org/drugbank:DB04077
+GLYCINE	http://www.drugbank.ca/drugs/DB00145	http://bio2rdf.org/drugbank:DB00145
+GLYCOLIC ACID	http://www.drugbank.ca/drugs/DB03085	http://bio2rdf.org/drugbank:DB03085
+GLYCOPYRROLATE	http://www.drugbank.ca/drugs/DB00986	http://bio2rdf.org/drugbank:DB00986
+GOSERELIN	http://www.drugbank.ca/drugs/DB00014	http://bio2rdf.org/drugbank:DB00014
+GRANISETRON	http://www.drugbank.ca/drugs/DB00889	http://bio2rdf.org/drugbank:DB00889
+GRISEOFULVIN	http://www.drugbank.ca/drugs/DB00400	http://bio2rdf.org/drugbank:DB00400
+GUAIFENESIN	http://www.drugbank.ca/drugs/DB00874	http://bio2rdf.org/drugbank:DB00874
+GUANABENZ	http://www.drugbank.ca/drugs/DB00629	http://bio2rdf.org/drugbank:DB00629
+GUANFACINE	http://www.drugbank.ca/drugs/DB01018	http://bio2rdf.org/drugbank:DB01018
+GUANIDINE	http://www.drugbank.ca/drugs/DB00536	http://bio2rdf.org/drugbank:DB00536
+HALOBETASOL	http://www.drugbank.ca/drugs/DB00596	http://bio2rdf.org/drugbank:DB00596
+HALOPERIDOL	http://www.drugbank.ca/drugs/DB00502	http://bio2rdf.org/drugbank:DB00502
+HALOTHANE	http://www.drugbank.ca/drugs/DB01159	http://bio2rdf.org/drugbank:DB01159
+HEPARIN	http://www.drugbank.ca/drugs/DB01109	http://bio2rdf.org/drugbank:DB01109
+HEXACHLOROPHENE	http://www.drugbank.ca/drugs/DB00756	http://bio2rdf.org/drugbank:DB00756
+HISTAMINE	http://www.drugbank.ca/drugs/DB00667	http://bio2rdf.org/drugbank:DB00667
+HISTIDINE	http://www.drugbank.ca/drugs/DB00117	http://bio2rdf.org/drugbank:DB00117
+HISTRELIN	http://www.drugbank.ca/drugs/DB06733	http://bio2rdf.org/drugbank:DB06733
+HOMATROPINE METHYLBROMIDE	http://www.drugbank.ca/drugs/DB00725	http://bio2rdf.org/drugbank:DB00725
+HYALURONIC ACID	http://www.drugbank.ca/drugs/DB08818	http://bio2rdf.org/drugbank:DB08818
+HYALURONIDASE, OVINE	http://www.drugbank.ca/drugs/DB00070	http://bio2rdf.org/drugbank:DB00070
+HYDRALAZINE	http://www.drugbank.ca/drugs/DB01275	http://bio2rdf.org/drugbank:DB01275
+HYDROCHLOROTHIAZIDE	http://www.drugbank.ca/drugs/DB00999	http://bio2rdf.org/drugbank:DB00999
+HYDROCODONE	http://www.drugbank.ca/drugs/DB00956	http://bio2rdf.org/drugbank:DB00956
+HYDROCORTISONE	http://www.drugbank.ca/drugs/DB07886	http://bio2rdf.org/drugbank:DB07886
+HYDROCORTISONE	http://www.drugbank.ca/drugs/DB00741	http://bio2rdf.org/drugbank:DB00741
+HYDROFLUMETHIAZIDE	http://www.drugbank.ca/drugs/DB00774	http://bio2rdf.org/drugbank:DB00774
+HYDROMORPHONE	http://www.drugbank.ca/drugs/DB00327	http://bio2rdf.org/drugbank:DB00327
+HYDROXOCOBALAMIN	http://www.drugbank.ca/drugs/DB00200	http://bio2rdf.org/drugbank:DB00200
+HYDROXYCHLOROQUINE	http://www.drugbank.ca/drugs/DB01611	http://bio2rdf.org/drugbank:DB01611
+HYDROXYPROPYL CELLULOSE	http://www.drugbank.ca/drugs/DB00840	http://bio2rdf.org/drugbank:DB00840
+HYDROXYUREA	http://www.drugbank.ca/drugs/DB01005	http://bio2rdf.org/drugbank:DB01005
+HYDROXYZINE	http://www.drugbank.ca/drugs/DB00557	http://bio2rdf.org/drugbank:DB00557
+HYOSCYAMINE	http://www.drugbank.ca/drugs/DB00424	http://bio2rdf.org/drugbank:DB00424
+IBANDRONIC ACID	http://www.drugbank.ca/drugs/DB00710	http://bio2rdf.org/drugbank:DB00710
+IBUPROFEN	http://www.drugbank.ca/drugs/DB01050	http://bio2rdf.org/drugbank:DB01050
+IBUTILIDE	http://www.drugbank.ca/drugs/DB00308	http://bio2rdf.org/drugbank:DB00308
+ICATIBANT	http://www.drugbank.ca/drugs/DB06196	http://bio2rdf.org/drugbank:DB06196
+ICODEXTRIN	http://www.drugbank.ca/drugs/DB00702	http://bio2rdf.org/drugbank:DB00702
+ICOSAPENT	http://www.drugbank.ca/drugs/DB00159	http://bio2rdf.org/drugbank:DB00159
+IDARUBICIN	http://www.drugbank.ca/drugs/DB01177	http://bio2rdf.org/drugbank:DB01177
+IDOXURIDINE	http://www.drugbank.ca/drugs/ 	http://bio2rdf.org/drugbank: 
+IDOXURIDINE	http://www.drugbank.ca/drugs/DB00249	http://bio2rdf.org/drugbank:DB00249
+IDURSULFASE	http://www.drugbank.ca/drugs/DB01271	http://bio2rdf.org/drugbank:DB01271
+IFOSFAMIDE	http://www.drugbank.ca/drugs/DB01181	http://bio2rdf.org/drugbank:DB01181
+ILOPROST	http://www.drugbank.ca/drugs/DB01088	http://bio2rdf.org/drugbank:DB01088
+IMATINIB	http://www.drugbank.ca/drugs/DB00619	http://bio2rdf.org/drugbank:DB00619
+IMIGLUCERASE	http://www.drugbank.ca/drugs/DB00053	http://bio2rdf.org/drugbank:DB00053
+IMIPENEM	http://www.drugbank.ca/drugs/DB01598	http://bio2rdf.org/drugbank:DB01598
+IMIPENEM ANHYDROUS	http://www.drugbank.ca/drugs/DB01598	http://bio2rdf.org/drugbank:DB01598
+IMIPRAMINE	http://www.drugbank.ca/drugs/DB00458	http://bio2rdf.org/drugbank:DB00458
+IMIQUIMOD	http://www.drugbank.ca/drugs/DB00724	http://bio2rdf.org/drugbank:DB00724
+INAMRINONE	http://www.drugbank.ca/drugs/DB01427	http://bio2rdf.org/drugbank:DB01427
+INDACATEROL	http://www.drugbank.ca/drugs/DB05039	http://bio2rdf.org/drugbank:DB05039
+INDAPAMIDE	http://www.drugbank.ca/drugs/DB00808	http://bio2rdf.org/drugbank:DB00808
+INDINAVIR	http://www.drugbank.ca/drugs/DB00224	http://bio2rdf.org/drugbank:DB00224
+INDOMETHACIN	http://www.drugbank.ca/drugs/DB00328	http://bio2rdf.org/drugbank:DB00328
+INFLIXIMAB	http://www.drugbank.ca/drugs/DB00065	http://bio2rdf.org/drugbank:DB00065
+INSULIN ASPART	http://www.drugbank.ca/drugs/DB01306	http://bio2rdf.org/drugbank:DB01306
+INSULIN DETEMIR	http://www.drugbank.ca/drugs/DB01307	http://bio2rdf.org/drugbank:DB01307
+INSULIN GLARGINE	http://www.drugbank.ca/drugs/DB00047	http://bio2rdf.org/drugbank:DB00047
+INSULIN GLULISINE	http://www.drugbank.ca/drugs/DB01309	http://bio2rdf.org/drugbank:DB01309
+INSULIN LISPRO	http://www.drugbank.ca/drugs/DB00046	http://bio2rdf.org/drugbank:DB00046
+INTERFERON ALFA-2A	http://www.drugbank.ca/drugs/DB00034	http://bio2rdf.org/drugbank:DB00034
+INTERFERON ALFA-2B	http://www.drugbank.ca/drugs/DB00105	http://bio2rdf.org/drugbank:DB00105
+INTERFERON ALFACON-1	http://www.drugbank.ca/drugs/DB00069	http://bio2rdf.org/drugbank:DB00069
+INTERFERON BETA-1A	http://www.drugbank.ca/drugs/DB00060	http://bio2rdf.org/drugbank:DB00060
+INTERFERON BETA-1B	http://www.drugbank.ca/drugs/DB00068	http://bio2rdf.org/drugbank:DB00068
+INTERFERON GAMMA-1B	http://www.drugbank.ca/drugs/DB00033	http://bio2rdf.org/drugbank:DB00033
+IODIPAMIDE	http://www.drugbank.ca/drugs/DB04711	http://bio2rdf.org/drugbank:DB04711
+IOHEXOL	http://www.drugbank.ca/drugs/DB01362	http://bio2rdf.org/drugbank:DB01362
+IPRATROPIUM	http://www.drugbank.ca/drugs/DB00332	http://bio2rdf.org/drugbank:DB00332
+IPRATROPIUM	http://www.drugbank.ca/drugs/DB00121	http://bio2rdf.org/drugbank:DB00121
+IPRATROPIUM BROMIDE	http://www.drugbank.ca/drugs/DB00332	http://bio2rdf.org/drugbank:DB00332
+IRBESARTAN	http://www.drugbank.ca/drugs/DB01029	http://bio2rdf.org/drugbank:DB01029
+IRINOTECAN	http://www.drugbank.ca/drugs/DB00762	http://bio2rdf.org/drugbank:DB00762
+IRON	http://www.drugbank.ca/drugs/DB01592	http://bio2rdf.org/drugbank:DB01592
+IRON DEXTRAN	http://www.drugbank.ca/drugs/DB00893	http://bio2rdf.org/drugbank:DB00893
+ISOCARBOXAZID	http://www.drugbank.ca/drugs/DB01247	http://bio2rdf.org/drugbank:DB01247
+ISOFLURANE	http://www.drugbank.ca/drugs/DB00753	http://bio2rdf.org/drugbank:DB00753
+ISOFLURANE	http://www.drugbank.ca/drugs/DB00142	http://bio2rdf.org/drugbank:DB00142
+ISOLEUCINE	http://www.drugbank.ca/drugs/DB00167	http://bio2rdf.org/drugbank:DB00167
+ISOMETHEPTENE	http://www.drugbank.ca/drugs/DB06706	http://bio2rdf.org/drugbank:DB06706
+ISONIAZID	http://www.drugbank.ca/drugs/DB00951	http://bio2rdf.org/drugbank:DB00951
+ISOPROTERENOL	http://www.drugbank.ca/drugs/DB01064	http://bio2rdf.org/drugbank:DB01064
+ISOPROTERENOL	http://www.drugbank.ca/drugs/DB01119	http://bio2rdf.org/drugbank:DB01119
+ISOSORBIDE DINITRATE	http://www.drugbank.ca/drugs/DB00883	http://bio2rdf.org/drugbank:DB00883
+ISOSORBIDE MONONITRATE	http://www.drugbank.ca/drugs/DB01020	http://bio2rdf.org/drugbank:DB01020
+ISOTRETINOIN	http://www.drugbank.ca/drugs/DB00982	http://bio2rdf.org/drugbank:DB00982
+ISRADIPINE	http://www.drugbank.ca/drugs/DB00270	http://bio2rdf.org/drugbank:DB00270
+ITRACONAZOLE	http://www.drugbank.ca/drugs/DB00322	http://bio2rdf.org/drugbank:DB00322
+ITRACONAZOLE	http://www.drugbank.ca/drugs/DB01167	http://bio2rdf.org/drugbank:DB01167
+IVACAFTOR	http://www.drugbank.ca/drugs/DB08820	http://bio2rdf.org/drugbank:DB08820
+IVERMECTIN	http://www.drugbank.ca/drugs/DB00602	http://bio2rdf.org/drugbank:DB00602
+IXABEPILONE	http://www.drugbank.ca/drugs/DB04845	http://bio2rdf.org/drugbank:DB04845
+KANAMYCIN	http://www.drugbank.ca/drugs/DB00864	http://bio2rdf.org/drugbank:DB00864
+KANAMYCIN	http://www.drugbank.ca/drugs/DB01172	http://bio2rdf.org/drugbank:DB01172
+KAOLIN	http://www.drugbank.ca/drugs/DB01575	http://bio2rdf.org/drugbank:DB01575
+KETAMINE	http://www.drugbank.ca/drugs/DB01221	http://bio2rdf.org/drugbank:DB01221
+KETOCONAZOLE	http://www.drugbank.ca/drugs/DB01026	http://bio2rdf.org/drugbank:DB01026
+KETOPROFEN	http://www.drugbank.ca/drugs/DB01009	http://bio2rdf.org/drugbank:DB01009
+KETOROLAC	http://www.drugbank.ca/drugs/DB00465	http://bio2rdf.org/drugbank:DB00465
+KETOROLAC TROMETHAMINE	http://www.drugbank.ca/drugs/DB00465	http://bio2rdf.org/drugbank:DB00465
+KETOTIFEN	http://www.drugbank.ca/drugs/DB00920	http://bio2rdf.org/drugbank:DB00920
+LABETALOL	http://www.drugbank.ca/drugs/DB00598	http://bio2rdf.org/drugbank:DB00598
+LACTIC ACID	http://www.drugbank.ca/drugs/DB04398	http://bio2rdf.org/drugbank:DB04398
+LACTULOSE	http://www.drugbank.ca/drugs/DB00581	http://bio2rdf.org/drugbank:DB00581
+LAMIVUDINE	http://www.drugbank.ca/drugs/DB00709	http://bio2rdf.org/drugbank:DB00709
+LAMOTRIGINE	http://www.drugbank.ca/drugs/DB00555	http://bio2rdf.org/drugbank:DB00555
+LANSOPRAZOLE	http://www.drugbank.ca/drugs/DB00448	http://bio2rdf.org/drugbank:DB00448
+LAPATINIB	http://www.drugbank.ca/drugs/DB01259	http://bio2rdf.org/drugbank:DB01259
+LARONIDASE	http://www.drugbank.ca/drugs/DB00090	http://bio2rdf.org/drugbank:DB00090
+LATANOPROST	http://www.drugbank.ca/drugs/DB00654	http://bio2rdf.org/drugbank:DB00654
+LATANOPROST	http://www.drugbank.ca/drugs/DB00634	http://bio2rdf.org/drugbank:DB00634
+LEFLUNOMIDE	http://www.drugbank.ca/drugs/DB01097	http://bio2rdf.org/drugbank:DB01097
+LENALIDOMIDE	http://www.drugbank.ca/drugs/DB00480	http://bio2rdf.org/drugbank:DB00480
+LEPIRUDIN	http://www.drugbank.ca/drugs/DB00001	http://bio2rdf.org/drugbank:DB00001
+LETROZOLE	http://www.drugbank.ca/drugs/DB01006	http://bio2rdf.org/drugbank:DB01006
+LEUCINE	http://www.drugbank.ca/drugs/DB00149	http://bio2rdf.org/drugbank:DB00149
+LEUCINE	http://www.drugbank.ca/drugs/DB01746	http://bio2rdf.org/drugbank:DB01746
+LEUCOVORIN	http://www.drugbank.ca/drugs/DB00650	http://bio2rdf.org/drugbank:DB00650
+LEUCOVORIN	http://www.drugbank.ca/drugs/DB03256	http://bio2rdf.org/drugbank:DB03256
+LEUCOVORIN CALCIUM	http://www.drugbank.ca/drugs/DB00650	http://bio2rdf.org/drugbank:DB00650
+LEVETIRACETAM	http://www.drugbank.ca/drugs/DB01202	http://bio2rdf.org/drugbank:DB01202
+LEVOBUNOLOL	http://www.drugbank.ca/drugs/DB01210	http://bio2rdf.org/drugbank:DB01210
+LEVOCABASTINE	http://www.drugbank.ca/drugs/DB01106	http://bio2rdf.org/drugbank:DB01106
+LEVOCARNITINE	http://www.drugbank.ca/drugs/DB00583	http://bio2rdf.org/drugbank:DB00583
+LEVODOPA	http://www.drugbank.ca/drugs/DB01235	http://bio2rdf.org/drugbank:DB01235
+LEVOFLOXACIN	http://www.drugbank.ca/drugs/DB01137	http://bio2rdf.org/drugbank:DB01137
+LEVOMENTHOL	http://www.drugbank.ca/drugs/DB00825	http://bio2rdf.org/drugbank:DB00825
+LEVONORDEFRIN	http://www.drugbank.ca/drugs/DB06707	http://bio2rdf.org/drugbank:DB06707
+LEVONORGESTREL	http://www.drugbank.ca/drugs/DB00367	http://bio2rdf.org/drugbank:DB00367
+LEVORPHANOL	http://www.drugbank.ca/drugs/DB00854	http://bio2rdf.org/drugbank:DB00854
+LEVOTHYROXINE	http://www.drugbank.ca/drugs/DB00451	http://bio2rdf.org/drugbank:DB00451
+LIDOCAINE	http://www.drugbank.ca/drugs/DB00281	http://bio2rdf.org/drugbank:DB00281
+LINCOMYCIN	http://www.drugbank.ca/drugs/DB01627	http://bio2rdf.org/drugbank:DB01627
+LINDANE	http://www.drugbank.ca/drugs/DB00431	http://bio2rdf.org/drugbank:DB00431
+LINEZOLID	http://www.drugbank.ca/drugs/DB00601	http://bio2rdf.org/drugbank:DB00601
+LINOLENIC ACID	http://www.drugbank.ca/drugs/DB00160	http://bio2rdf.org/drugbank:DB00160
+LINOLENIC ACID	http://www.drugbank.ca/drugs/DB00132	http://bio2rdf.org/drugbank:DB00132
+LIOTHYRONINE	http://www.drugbank.ca/drugs/DB00279	http://bio2rdf.org/drugbank:DB00279
+LIRAGLUTIDE	http://www.drugbank.ca/drugs/DB06655	http://bio2rdf.org/drugbank:DB06655
+LISDEXAMFETAMINE	http://www.drugbank.ca/drugs/DB01255	http://bio2rdf.org/drugbank:DB01255
+LISINOPRIL	http://www.drugbank.ca/drugs/DB00722	http://bio2rdf.org/drugbank:DB00722
+LISINOPRIL ANHYDROUS	http://www.drugbank.ca/drugs/DB00722	http://bio2rdf.org/drugbank:DB00722
+LITHIUM	http://www.drugbank.ca/drugs/DB01356	http://bio2rdf.org/drugbank:DB01356
+LITHIUM CATION	http://www.drugbank.ca/drugs/DB01356	http://bio2rdf.org/drugbank:DB01356
+LOMEFLOXACIN	http://www.drugbank.ca/drugs/DB00978	http://bio2rdf.org/drugbank:DB00978
+LOMUSTINE	http://www.drugbank.ca/drugs/DB01206	http://bio2rdf.org/drugbank:DB01206
+LOPERAMIDE	http://www.drugbank.ca/drugs/DB00836	http://bio2rdf.org/drugbank:DB00836
+LOPINAVIR	http://www.drugbank.ca/drugs/DB01601	http://bio2rdf.org/drugbank:DB01601
+LORATADINE	http://www.drugbank.ca/drugs/DB00455	http://bio2rdf.org/drugbank:DB00455
+LORAZEPAM	http://www.drugbank.ca/drugs/DB00186	http://bio2rdf.org/drugbank:DB00186
+LOSARTAN	http://www.drugbank.ca/drugs/DB00678	http://bio2rdf.org/drugbank:DB00678
+LOTEPREDNOL	http://www.drugbank.ca/drugs/DB00873	http://bio2rdf.org/drugbank:DB00873
+LOTEPREDNOL ETABONATE	http://www.drugbank.ca/drugs/DB00873	http://bio2rdf.org/drugbank:DB00873
+LOVASTATIN	http://www.drugbank.ca/drugs/DB00227	http://bio2rdf.org/drugbank:DB00227
+LOXAPINE	http://www.drugbank.ca/drugs/DB00408	http://bio2rdf.org/drugbank:DB00408
+LUBIPROSTONE	http://www.drugbank.ca/drugs/DB01046	http://bio2rdf.org/drugbank:DB01046
+LUMEFANTRINE	http://www.drugbank.ca/drugs/DB06708	http://bio2rdf.org/drugbank:DB06708
+LUTROPIN ALFA	http://www.drugbank.ca/drugs/DB00044	http://bio2rdf.org/drugbank:DB00044
+MAGNESIUM	http://www.drugbank.ca/drugs/DB01378	http://bio2rdf.org/drugbank:DB01378
+MAGNESIUM OXIDE	http://www.drugbank.ca/drugs/DB01377	http://bio2rdf.org/drugbank:DB01377
+MAGNESIUM SALICYLATE	http://www.drugbank.ca/drugs/DB01397	http://bio2rdf.org/drugbank:DB01397
+MALATHION	http://www.drugbank.ca/drugs/DB00772	http://bio2rdf.org/drugbank:DB00772
+MANNITOL	http://www.drugbank.ca/drugs/DB00742	http://bio2rdf.org/drugbank:DB00742
+MAPROTILINE	http://www.drugbank.ca/drugs/DB00934	http://bio2rdf.org/drugbank:DB00934
+MARAVIROC	http://www.drugbank.ca/drugs/DB04835	http://bio2rdf.org/drugbank:DB04835
+MEBENDAZOLE	http://www.drugbank.ca/drugs/DB00643	http://bio2rdf.org/drugbank:DB00643
+MECAMYLAMINE	http://www.drugbank.ca/drugs/DB00657	http://bio2rdf.org/drugbank:DB00657
+MECASERMIN	http://www.drugbank.ca/drugs/DB01277	http://bio2rdf.org/drugbank:DB01277
+MECHLORETHAMINE	http://www.drugbank.ca/drugs/DB00888	http://bio2rdf.org/drugbank:DB00888
+MECLIZINE	http://www.drugbank.ca/drugs/DB00737	http://bio2rdf.org/drugbank:DB00737
+MECLOFENAMIC ACID	http://www.drugbank.ca/drugs/DB00939	http://bio2rdf.org/drugbank:DB00939
+MEDROXYPROGESTERONE	http://www.drugbank.ca/drugs/DB00603	http://bio2rdf.org/drugbank:DB00603
+MEDRYSONE	http://www.drugbank.ca/drugs/DB00253	http://bio2rdf.org/drugbank:DB00253
+MEFENAMIC ACID	http://www.drugbank.ca/drugs/DB00784	http://bio2rdf.org/drugbank:DB00784
+MEFLOQUINE	http://www.drugbank.ca/drugs/DB00358	http://bio2rdf.org/drugbank:DB00358
+MEGESTROL	http://www.drugbank.ca/drugs/DB00351	http://bio2rdf.org/drugbank:DB00351
+MELOXICAM	http://www.drugbank.ca/drugs/DB00814	http://bio2rdf.org/drugbank:DB00814
+MELPHALAN	http://www.drugbank.ca/drugs/DB01042	http://bio2rdf.org/drugbank:DB01042
+MEMANTINE	http://www.drugbank.ca/drugs/DB01043	http://bio2rdf.org/drugbank:DB01043
+MENTHOL	http://www.drugbank.ca/drugs/DB00825	http://bio2rdf.org/drugbank:DB00825
+MEPENZOLATE	http://www.drugbank.ca/drugs/DB04843	http://bio2rdf.org/drugbank:DB04843
+MEPERIDINE	http://www.drugbank.ca/drugs/DB00454	http://bio2rdf.org/drugbank:DB00454
+MEPHENYTOIN	http://www.drugbank.ca/drugs/DB00532	http://bio2rdf.org/drugbank:DB00532
+MEPIVACAINE	http://www.drugbank.ca/drugs/DB00961	http://bio2rdf.org/drugbank:DB00961
+MEPROBAMATE	http://www.drugbank.ca/drugs/DB00371	http://bio2rdf.org/drugbank:DB00371
+MERCAPTOPURINE	http://www.drugbank.ca/drugs/DB01033	http://bio2rdf.org/drugbank:DB01033
+MERCAPTOPURINE ANHYDROUS	http://www.drugbank.ca/drugs/DB01033	http://bio2rdf.org/drugbank:DB01033
+MEROPENEM	http://www.drugbank.ca/drugs/DB00760	http://bio2rdf.org/drugbank:DB00760
+MESALAMINE	http://www.drugbank.ca/drugs/DB00244	http://bio2rdf.org/drugbank:DB00244
+MESORIDAZINE	http://www.drugbank.ca/drugs/DB00933	http://bio2rdf.org/drugbank:DB00933
+MESTRANOL	http://www.drugbank.ca/drugs/DB01357	http://bio2rdf.org/drugbank:DB01357
+METAPROTERENOL	http://www.drugbank.ca/drugs/ 	http://bio2rdf.org/drugbank: 
+METAPROTERENOL	http://www.drugbank.ca/drugs/DB00816	http://bio2rdf.org/drugbank:DB00816
+METAXALONE	http://www.drugbank.ca/drugs/DB00660	http://bio2rdf.org/drugbank:DB00660
+METFORMIN	http://www.drugbank.ca/drugs/DB00331	http://bio2rdf.org/drugbank:DB00331
+METHADONE	http://www.drugbank.ca/drugs/DB00333	http://bio2rdf.org/drugbank:DB00333
+METHAMPHETAMINE	http://www.drugbank.ca/drugs/DB01577	http://bio2rdf.org/drugbank:DB01577
+METHAZOLAMIDE	http://www.drugbank.ca/drugs/DB00703	http://bio2rdf.org/drugbank:DB00703
+METHIMAZOLE	http://www.drugbank.ca/drugs/DB00763	http://bio2rdf.org/drugbank:DB00763
+METHIONINE	http://www.drugbank.ca/drugs/DB00134	http://bio2rdf.org/drugbank:DB00134
+METHOCARBAMOL	http://www.drugbank.ca/drugs/DB00423	http://bio2rdf.org/drugbank:DB00423
+METHOHEXITAL	http://www.drugbank.ca/drugs/DB00474	http://bio2rdf.org/drugbank:DB00474
+METHOTREXATE	http://www.drugbank.ca/drugs/DB00563	http://bio2rdf.org/drugbank:DB00563
+METHOXSALEN	http://www.drugbank.ca/drugs/DB00553	http://bio2rdf.org/drugbank:DB00553
+METHSCOPOLAMINE	http://www.drugbank.ca/drugs/DB00462	http://bio2rdf.org/drugbank:DB00462
+METHSCOPOLAMINE BROMIDE	http://www.drugbank.ca/drugs/DB00462	http://bio2rdf.org/drugbank:DB00462
+METHSUXIMIDE	http://www.drugbank.ca/drugs/DB05246	http://bio2rdf.org/drugbank:DB05246
+METHYCLOTHIAZIDE	http://www.drugbank.ca/drugs/DB00232	http://bio2rdf.org/drugbank:DB00232
+METHYL AMINOLEVULINATE	http://www.drugbank.ca/drugs/DB00992	http://bio2rdf.org/drugbank:DB00992
+METHYLCOBALAMIN	http://www.drugbank.ca/drugs/DB03614	http://bio2rdf.org/drugbank:DB03614
+METHYLDOPA	http://www.drugbank.ca/drugs/DB00968	http://bio2rdf.org/drugbank:DB00968
+METHYLDOPA ANHYDROUS	http://www.drugbank.ca/drugs/DB00968	http://bio2rdf.org/drugbank:DB00968
+METHYLERGONOVINE	http://www.drugbank.ca/drugs/DB00353	http://bio2rdf.org/drugbank:DB00353
+METHYLHOMATROPINE	http://www.drugbank.ca/drugs/DB00725	http://bio2rdf.org/drugbank:DB00725
+METHYLPHENIDATE	http://www.drugbank.ca/drugs/DB00422	http://bio2rdf.org/drugbank:DB00422
+METHYLPREDNISOLONE	http://www.drugbank.ca/drugs/DB00959	http://bio2rdf.org/drugbank:DB00959
+METHYLTESTOSTERONE	http://www.drugbank.ca/drugs/DB06710	http://bio2rdf.org/drugbank:DB06710
+METHYSERGIDE	http://www.drugbank.ca/drugs/DB00247	http://bio2rdf.org/drugbank:DB00247
+METIPRANOLOL	http://www.drugbank.ca/drugs/DB01214	http://bio2rdf.org/drugbank:DB01214
+METOCLOPRAMIDE	http://www.drugbank.ca/drugs/DB01233	http://bio2rdf.org/drugbank:DB01233
+METOLAZONE	http://www.drugbank.ca/drugs/DB00524	http://bio2rdf.org/drugbank:DB00524
+METOPROLOL	http://www.drugbank.ca/drugs/DB00264	http://bio2rdf.org/drugbank:DB00264
+METRONIDAZOLE	http://www.drugbank.ca/drugs/DB00916	http://bio2rdf.org/drugbank:DB00916
+METYRAPONE	http://www.drugbank.ca/drugs/DB01011	http://bio2rdf.org/drugbank:DB01011
+METYROSINE	http://www.drugbank.ca/drugs/DB00765	http://bio2rdf.org/drugbank:DB00765
+MEXILETINE	http://www.drugbank.ca/drugs/DB00379	http://bio2rdf.org/drugbank:DB00379
+MICAFUNGIN	http://www.drugbank.ca/drugs/DB01141	http://bio2rdf.org/drugbank:DB01141
+MICONAZOLE	http://www.drugbank.ca/drugs/DB01110	http://bio2rdf.org/drugbank:DB01110
+MICONAZOLE NITRATE	http://www.drugbank.ca/drugs/DB01110	http://bio2rdf.org/drugbank:DB01110
+MIDAZOLAM	http://www.drugbank.ca/drugs/DB00683	http://bio2rdf.org/drugbank:DB00683
+MIDODRINE	http://www.drugbank.ca/drugs/DB00211	http://bio2rdf.org/drugbank:DB00211
+MIFEPRISTONE	http://www.drugbank.ca/drugs/DB00834	http://bio2rdf.org/drugbank:DB00834
+MIGLITOL	http://www.drugbank.ca/drugs/DB00491	http://bio2rdf.org/drugbank:DB00491
+MIGLUSTAT	http://www.drugbank.ca/drugs/DB00419	http://bio2rdf.org/drugbank:DB00419
+MILNACIPRAN	http://www.drugbank.ca/drugs/DB04896	http://bio2rdf.org/drugbank:DB04896
+MILRINONE	http://www.drugbank.ca/drugs/DB00235	http://bio2rdf.org/drugbank:DB00235
+MINOCYCLINE	http://www.drugbank.ca/drugs/DB01017	http://bio2rdf.org/drugbank:DB01017
+MINOXIDIL	http://www.drugbank.ca/drugs/DB00350	http://bio2rdf.org/drugbank:DB00350
+MIRTAZAPINE	http://www.drugbank.ca/drugs/DB00370	http://bio2rdf.org/drugbank:DB00370
+MISOPROSTOL	http://www.drugbank.ca/drugs/DB00929	http://bio2rdf.org/drugbank:DB00929
+MITOMYCIN	http://www.drugbank.ca/drugs/DB00305	http://bio2rdf.org/drugbank:DB00305
+MITOTANE	http://www.drugbank.ca/drugs/DB00648	http://bio2rdf.org/drugbank:DB00648
+MITOXANTRONE	http://www.drugbank.ca/drugs/DB01204	http://bio2rdf.org/drugbank:DB01204
+MIVACURIUM	http://www.drugbank.ca/drugs/DB01226	http://bio2rdf.org/drugbank:DB01226
+MODAFINIL	http://www.drugbank.ca/drugs/DB00745	http://bio2rdf.org/drugbank:DB00745
+MOEXIPRIL	http://www.drugbank.ca/drugs/DB00691	http://bio2rdf.org/drugbank:DB00691
+MOMETASONE	http://www.drugbank.ca/drugs/DB00764	http://bio2rdf.org/drugbank:DB00764
+MOMETASONE FUROATE	http://www.drugbank.ca/drugs/DB00764	http://bio2rdf.org/drugbank:DB00764
+MONOBENZONE	http://www.drugbank.ca/drugs/DB00600	http://bio2rdf.org/drugbank:DB00600
+MONTELUKAST	http://www.drugbank.ca/drugs/DB00471	http://bio2rdf.org/drugbank:DB00471
+MORICIZINE	http://www.drugbank.ca/drugs/DB00680	http://bio2rdf.org/drugbank:DB00680
+MORPHINE	http://www.drugbank.ca/drugs/DB00295	http://bio2rdf.org/drugbank:DB00295
+MOXIFLOXACIN	http://www.drugbank.ca/drugs/DB00218	http://bio2rdf.org/drugbank:DB00218
+MUPIROCIN	http://www.drugbank.ca/drugs/DB00410	http://bio2rdf.org/drugbank:DB00410
+MUROMONAB-CD3	http://www.drugbank.ca/drugs/DB00075	http://bio2rdf.org/drugbank:DB00075
+MYCOPHENOLIC ACID	http://www.drugbank.ca/drugs/DB01024	http://bio2rdf.org/drugbank:DB01024
+N-ACETYLGLUCOSAMINE	http://www.drugbank.ca/drugs/DB00141	http://bio2rdf.org/drugbank:DB00141
+NABILONE	http://www.drugbank.ca/drugs/DB00486	http://bio2rdf.org/drugbank:DB00486
+NABUMETONE	http://www.drugbank.ca/drugs/DB00461	http://bio2rdf.org/drugbank:DB00461
+NADIDE	http://www.drugbank.ca/drugs/DB01907	http://bio2rdf.org/drugbank:DB01907
+NADIDE	http://www.drugbank.ca/drugs/DB00157	http://bio2rdf.org/drugbank:DB00157
+NADOLOL	http://www.drugbank.ca/drugs/DB01203	http://bio2rdf.org/drugbank:DB01203
+NAFARELIN	http://www.drugbank.ca/drugs/DB00666	http://bio2rdf.org/drugbank:DB00666
+NAFCILLIN	http://www.drugbank.ca/drugs/DB00607	http://bio2rdf.org/drugbank:DB00607
+NAFTIFINE	http://www.drugbank.ca/drugs/DB00735	http://bio2rdf.org/drugbank:DB00735
+NALBUPHINE	http://www.drugbank.ca/drugs/DB00844	http://bio2rdf.org/drugbank:DB00844
+NALIDIXIC ACID	http://www.drugbank.ca/drugs/DB00779	http://bio2rdf.org/drugbank:DB00779
+NALOXONE	http://www.drugbank.ca/drugs/DB01183	http://bio2rdf.org/drugbank:DB01183
+NALTREXONE	http://www.drugbank.ca/drugs/DB00704	http://bio2rdf.org/drugbank:DB00704
+NAPHAZOLINE	http://www.drugbank.ca/drugs/DB06711	http://bio2rdf.org/drugbank:DB06711
+NAPROXEN	http://www.drugbank.ca/drugs/DB00788	http://bio2rdf.org/drugbank:DB00788
+NARATRIPTAN	http://www.drugbank.ca/drugs/DB00952	http://bio2rdf.org/drugbank:DB00952
+NATALIZUMAB	http://www.drugbank.ca/drugs/DB00108	http://bio2rdf.org/drugbank:DB00108
+NATAMYCIN	http://www.drugbank.ca/drugs/DB00826	http://bio2rdf.org/drugbank:DB00826
+NATEGLINIDE	http://www.drugbank.ca/drugs/DB00731	http://bio2rdf.org/drugbank:DB00731
+NEBIVOLOL	http://www.drugbank.ca/drugs/DB04861	http://bio2rdf.org/drugbank:DB04861
+NEDOCROMIL	http://www.drugbank.ca/drugs/DB00716	http://bio2rdf.org/drugbank:DB00716
+NEFAZODONE	http://www.drugbank.ca/drugs/DB01149	http://bio2rdf.org/drugbank:DB01149
+NELFINAVIR	http://www.drugbank.ca/drugs/DB00220	http://bio2rdf.org/drugbank:DB00220
+NEOMYCIN	http://www.drugbank.ca/drugs/DB00994	http://bio2rdf.org/drugbank:DB00994
+NEOSTIGMINE	http://www.drugbank.ca/drugs/DB01400	http://bio2rdf.org/drugbank:DB01400
+NEPAFENAC	http://www.drugbank.ca/drugs/DB06802	http://bio2rdf.org/drugbank:DB06802
+NESIRITIDE	http://www.drugbank.ca/drugs/DB04899	http://bio2rdf.org/drugbank:DB04899
+NEVIRAPINE	http://www.drugbank.ca/drugs/DB00238	http://bio2rdf.org/drugbank:DB00238
+NIACIN	http://www.drugbank.ca/drugs/DB00627	http://bio2rdf.org/drugbank:DB00627
+NIACINAMIDE	http://www.drugbank.ca/drugs/DB02701	http://bio2rdf.org/drugbank:DB02701
+NICARDIPINE	http://www.drugbank.ca/drugs/DB00622	http://bio2rdf.org/drugbank:DB00622
+NICOTINE	http://www.drugbank.ca/drugs/DB00184	http://bio2rdf.org/drugbank:DB00184
+NIFEDIPINE	http://www.drugbank.ca/drugs/DB01115	http://bio2rdf.org/drugbank:DB01115
+NIFEDIPINE	http://www.drugbank.ca/drugs/DB00233	http://bio2rdf.org/drugbank:DB00233
+NILOTINIB	http://www.drugbank.ca/drugs/DB04868	http://bio2rdf.org/drugbank:DB04868
+NILUTAMIDE	http://www.drugbank.ca/drugs/DB00665	http://bio2rdf.org/drugbank:DB00665
+NIMODIPINE	http://www.drugbank.ca/drugs/ 	http://bio2rdf.org/drugbank: 
+NIMODIPINE	http://www.drugbank.ca/drugs/DB00393	http://bio2rdf.org/drugbank:DB00393
+NISOLDIPINE	http://www.drugbank.ca/drugs/DB00401	http://bio2rdf.org/drugbank:DB00401
+NITAZOXANIDE	http://www.drugbank.ca/drugs/DB00507	http://bio2rdf.org/drugbank:DB00507
+NITISINONE	http://www.drugbank.ca/drugs/DB00348	http://bio2rdf.org/drugbank:DB00348
+NITRIC OXIDE	http://www.drugbank.ca/drugs/DB00435	http://bio2rdf.org/drugbank:DB00435
+NITROFURANTOIN	http://www.drugbank.ca/drugs/DB00698	http://bio2rdf.org/drugbank:DB00698
+NITROGLYCERIN	http://www.drugbank.ca/drugs/DB00727	http://bio2rdf.org/drugbank:DB00727
+NIZATIDINE	http://www.drugbank.ca/drugs/DB00585	http://bio2rdf.org/drugbank:DB00585
+NORELGESTROMIN	http://www.drugbank.ca/drugs/DB06713	http://bio2rdf.org/drugbank:DB06713
+NOREPINEPHRINE	http://www.drugbank.ca/drugs/DB00368	http://bio2rdf.org/drugbank:DB00368
+NORETHINDRONE	http://www.drugbank.ca/drugs/DB00717	http://bio2rdf.org/drugbank:DB00717
+NORFLOXACIN	http://www.drugbank.ca/drugs/DB01059	http://bio2rdf.org/drugbank:DB01059
+NORGESTIMATE	http://www.drugbank.ca/drugs/DB00957	http://bio2rdf.org/drugbank:DB00957
+NORGESTREL	http://www.drugbank.ca/drugs/DB01172	http://bio2rdf.org/drugbank:DB01172
+NORTRIPTYLINE	http://www.drugbank.ca/drugs/DB00540	http://bio2rdf.org/drugbank:DB00540
+NYSTATIN	http://www.drugbank.ca/drugs/DB00646	http://bio2rdf.org/drugbank:DB00646
+OCTREOTIDE	http://www.drugbank.ca/drugs/DB00104	http://bio2rdf.org/drugbank:DB00104
+OFLOXACIN	http://www.drugbank.ca/drugs/DB01165	http://bio2rdf.org/drugbank:DB01165
+OLANZAPINE	http://www.drugbank.ca/drugs/DB00334	http://bio2rdf.org/drugbank:DB00334
+OLMESARTAN	http://www.drugbank.ca/drugs/DB00275	http://bio2rdf.org/drugbank:DB00275
+OLOPATADINE	http://www.drugbank.ca/drugs/DB00768	http://bio2rdf.org/drugbank:DB00768
+OLSALAZINE	http://www.drugbank.ca/drugs/DB01250	http://bio2rdf.org/drugbank:DB01250
+OMALIZUMAB	http://www.drugbank.ca/drugs/DB00043	http://bio2rdf.org/drugbank:DB00043
+OMEPRAZOLE	http://www.drugbank.ca/drugs/DB00338	http://bio2rdf.org/drugbank:DB00338
+OMEPRAZOLE MAGNESIUM	http://www.drugbank.ca/drugs/DB00338	http://bio2rdf.org/drugbank:DB00338
+ONDANSETRON	http://www.drugbank.ca/drugs/DB00904	http://bio2rdf.org/drugbank:DB00904
+OPRELVEKIN	http://www.drugbank.ca/drugs/DB00038	http://bio2rdf.org/drugbank:DB00038
+ORLISTAT	http://www.drugbank.ca/drugs/DB01083	http://bio2rdf.org/drugbank:DB01083
+ORPHENADRINE	http://www.drugbank.ca/drugs/DB01173	http://bio2rdf.org/drugbank:DB01173
+OSELTAMIVIR	http://www.drugbank.ca/drugs/DB00198	http://bio2rdf.org/drugbank:DB00198
+OVINE DIGOXIN IMMUNE FAB	http://www.drugbank.ca/drugs/DB00076	http://bio2rdf.org/drugbank:DB00076
+OXACILLIN	http://www.drugbank.ca/drugs/DB00713	http://bio2rdf.org/drugbank:DB00713
+OXALIPLATIN	http://www.drugbank.ca/drugs/DB00526	http://bio2rdf.org/drugbank:DB00526
+OXANDROLONE	http://www.drugbank.ca/drugs/DB00621	http://bio2rdf.org/drugbank:DB00621
+OXAPROZIN	http://www.drugbank.ca/drugs/DB00991	http://bio2rdf.org/drugbank:DB00991
+OXAZEPAM	http://www.drugbank.ca/drugs/DB00842	http://bio2rdf.org/drugbank:DB00842
+OXCARBAZEPINE	http://www.drugbank.ca/drugs/DB00776	http://bio2rdf.org/drugbank:DB00776
+OXICONAZOLE	http://www.drugbank.ca/drugs/DB00239	http://bio2rdf.org/drugbank:DB00239
+OXYBENZONE	http://www.drugbank.ca/drugs/DB01428	http://bio2rdf.org/drugbank:DB01428
+OXYBUTYNIN	http://www.drugbank.ca/drugs/DB01062	http://bio2rdf.org/drugbank:DB01062
+OXYCODONE	http://www.drugbank.ca/drugs/DB00497	http://bio2rdf.org/drugbank:DB00497
+OXYMETAZOLINE	http://www.drugbank.ca/drugs/DB00935	http://bio2rdf.org/drugbank:DB00935
+OXYMORPHONE	http://www.drugbank.ca/drugs/DB01192	http://bio2rdf.org/drugbank:DB01192
+OXYQUINOLINE	http://www.drugbank.ca/drugs/DB04745	http://bio2rdf.org/drugbank:DB04745
+OXYTETRACYCLINE	http://www.drugbank.ca/drugs/DB00595	http://bio2rdf.org/drugbank:DB00595
+OXYTOCIN	http://www.drugbank.ca/drugs/DB00107	http://bio2rdf.org/drugbank:DB00107
+PACLITAXEL	http://www.drugbank.ca/drugs/DB01229	http://bio2rdf.org/drugbank:DB01229
+PALIFERMIN	http://www.drugbank.ca/drugs/DB00039	http://bio2rdf.org/drugbank:DB00039
+PALIPERIDONE	http://www.drugbank.ca/drugs/DB01267	http://bio2rdf.org/drugbank:DB01267
+PALIVIZUMAB	http://www.drugbank.ca/drugs/DB00110	http://bio2rdf.org/drugbank:DB00110
+PALONOSETRON	http://www.drugbank.ca/drugs/DB00377	http://bio2rdf.org/drugbank:DB00377
+PAMIDRONIC ACID	http://www.drugbank.ca/drugs/DB00282	http://bio2rdf.org/drugbank:DB00282
+PANCRELIPASE	http://www.drugbank.ca/drugs/DB00085	http://bio2rdf.org/drugbank:DB00085
+PANCURONIUM	http://www.drugbank.ca/drugs/DB01337	http://bio2rdf.org/drugbank:DB01337
+PANITUMUMAB	http://www.drugbank.ca/drugs/DB01269	http://bio2rdf.org/drugbank:DB01269
+PANTOPRAZOLE	http://www.drugbank.ca/drugs/DB00213	http://bio2rdf.org/drugbank:DB00213
+PANTOTHENIC ACID	http://www.drugbank.ca/drugs/DB01783	http://bio2rdf.org/drugbank:DB01783
+PAPAVERINE	http://www.drugbank.ca/drugs/DB01113	http://bio2rdf.org/drugbank:DB01113
+PARICALCITOL	http://www.drugbank.ca/drugs/DB00910	http://bio2rdf.org/drugbank:DB00910
+PAROMOMYCIN	http://www.drugbank.ca/drugs/DB01421	http://bio2rdf.org/drugbank:DB01421
+PAROXETINE	http://www.drugbank.ca/drugs/DB00715	http://bio2rdf.org/drugbank:DB00715
+PEACH	http://www.drugbank.ca/drugs/DB01361	http://bio2rdf.org/drugbank:DB01361
+PEGADEMASE BOVINE	http://www.drugbank.ca/drugs/DB00061	http://bio2rdf.org/drugbank:DB00061
+PEGAPTANIB	http://www.drugbank.ca/drugs/DB04895	http://bio2rdf.org/drugbank:DB04895
+PEGASPARGASE	http://www.drugbank.ca/drugs/DB00059	http://bio2rdf.org/drugbank:DB00059
+PEGFILGRASTIM	http://www.drugbank.ca/drugs/DB00019	http://bio2rdf.org/drugbank:DB00019
+PEGINTERFERON ALFA-2A	http://www.drugbank.ca/drugs/DB00008	http://bio2rdf.org/drugbank:DB00008
+PEGINTERFERON ALFA-2B	http://www.drugbank.ca/drugs/DB00022	http://bio2rdf.org/drugbank:DB00022
+PEGVISOMANT	http://www.drugbank.ca/drugs/DB00082	http://bio2rdf.org/drugbank:DB00082
+PEMETREXED	http://www.drugbank.ca/drugs/DB00642	http://bio2rdf.org/drugbank:DB00642
+PEMIROLAST	http://www.drugbank.ca/drugs/DB00885	http://bio2rdf.org/drugbank:DB00885
+PEMOLINE	http://www.drugbank.ca/drugs/DB01230	http://bio2rdf.org/drugbank:DB01230
+PENBUTOLOL	http://www.drugbank.ca/drugs/DB01359	http://bio2rdf.org/drugbank:DB01359
+PENCICLOVIR	http://www.drugbank.ca/drugs/DB00299	http://bio2rdf.org/drugbank:DB00299
+PENICILLAMINE	http://www.drugbank.ca/drugs/DB00859	http://bio2rdf.org/drugbank:DB00859
+PENICILLIN G	http://www.drugbank.ca/drugs/DB01053	http://bio2rdf.org/drugbank:DB01053
+PENICILLIN V	http://www.drugbank.ca/drugs/DB00417	http://bio2rdf.org/drugbank:DB00417
+PENTAGASTRIN	http://www.drugbank.ca/drugs/DB00183	http://bio2rdf.org/drugbank:DB00183
+PENTAMIDINE	http://www.drugbank.ca/drugs/DB00738	http://bio2rdf.org/drugbank:DB00738
+PENTAZOCINE	http://www.drugbank.ca/drugs/DB00652	http://bio2rdf.org/drugbank:DB00652
+PENTOBARBITAL	http://www.drugbank.ca/drugs/DB00312	http://bio2rdf.org/drugbank:DB00312
+PENTOSAN POLYSULFATE	http://www.drugbank.ca/drugs/DB00686	http://bio2rdf.org/drugbank:DB00686
+PENTOSTATIN	http://www.drugbank.ca/drugs/DB00552	http://bio2rdf.org/drugbank:DB00552
+PENTOXIFYLLINE	http://www.drugbank.ca/drugs/DB00806	http://bio2rdf.org/drugbank:DB00806
+PERFLUTREN	http://www.drugbank.ca/drugs/DB00556	http://bio2rdf.org/drugbank:DB00556
+PERGOLIDE	http://www.drugbank.ca/drugs/DB01186	http://bio2rdf.org/drugbank:DB01186
+PERINDOPRIL	http://www.drugbank.ca/drugs/DB00790	http://bio2rdf.org/drugbank:DB00790
+PERINDOPRIL ERBUMINE	http://www.drugbank.ca/drugs/DB00790	http://bio2rdf.org/drugbank:DB00790
+PERMETHRIN	http://www.drugbank.ca/drugs/DB04930	http://bio2rdf.org/drugbank:DB04930
+PERPHENAZINE	http://www.drugbank.ca/drugs/DB00850	http://bio2rdf.org/drugbank:DB00850
+PHENAZOPYRIDINE	http://www.drugbank.ca/drugs/DB01438	http://bio2rdf.org/drugbank:DB01438
+PHENDIMETRAZINE	http://www.drugbank.ca/drugs/DB01579	http://bio2rdf.org/drugbank:DB01579
+PHENELZINE	http://www.drugbank.ca/drugs/DB00780	http://bio2rdf.org/drugbank:DB00780
+PHENIRAMINE	http://www.drugbank.ca/drugs/DB01620	http://bio2rdf.org/drugbank:DB01620
+PHENOBARBITAL	http://www.drugbank.ca/drugs/DB01174	http://bio2rdf.org/drugbank:DB01174
+PHENOL	http://www.drugbank.ca/drugs/DB03255	http://bio2rdf.org/drugbank:DB03255
+PHENOXYBENZAMINE	http://www.drugbank.ca/drugs/DB00925	http://bio2rdf.org/drugbank:DB00925
+PHENTERMINE	http://www.drugbank.ca/drugs/DB00191	http://bio2rdf.org/drugbank:DB00191
+PHENTOLAMINE	http://www.drugbank.ca/drugs/DB00692	http://bio2rdf.org/drugbank:DB00692
+PHENYLALANINE	http://www.drugbank.ca/drugs/DB00120	http://bio2rdf.org/drugbank:DB00120
+PHENYLBUTYRIC ACID	http://www.drugbank.ca/drugs/DB02000	http://bio2rdf.org/drugbank:DB02000
+PHENYLEPHRINE	http://www.drugbank.ca/drugs/DB00388	http://bio2rdf.org/drugbank:DB00388
+PHENYTOIN	http://www.drugbank.ca/drugs/DB00252	http://bio2rdf.org/drugbank:DB00252
+PHYSOSTIGMINE	http://www.drugbank.ca/drugs/DB00981	http://bio2rdf.org/drugbank:DB00981
+PHYTONADIONE	http://www.drugbank.ca/drugs/DB01022	http://bio2rdf.org/drugbank:DB01022
+PILOCARPINE	http://www.drugbank.ca/drugs/DB01085	http://bio2rdf.org/drugbank:DB01085
+PIMECROLIMUS	http://www.drugbank.ca/drugs/DB00337	http://bio2rdf.org/drugbank:DB00337
+PIMOZIDE	http://www.drugbank.ca/drugs/DB01100	http://bio2rdf.org/drugbank:DB01100
+PINDOLOL	http://www.drugbank.ca/drugs/DB00960	http://bio2rdf.org/drugbank:DB00960
+PIOGLITAZONE	http://www.drugbank.ca/drugs/DB01132	http://bio2rdf.org/drugbank:DB01132
+PIPERACILLIN	http://www.drugbank.ca/drugs/DB00319	http://bio2rdf.org/drugbank:DB00319
+PIPERACILLIN ANHYDROUS	http://www.drugbank.ca/drugs/DB00319	http://bio2rdf.org/drugbank:DB00319
+PIRBUTEROL	http://www.drugbank.ca/drugs/DB01291	http://bio2rdf.org/drugbank:DB01291
+PIROXICAM	http://www.drugbank.ca/drugs/DB00554	http://bio2rdf.org/drugbank:DB00554
+PLERIXAFOR	http://www.drugbank.ca/drugs/DB06809	http://bio2rdf.org/drugbank:DB06809
+PODOFILOX	http://www.drugbank.ca/drugs/DB01179	http://bio2rdf.org/drugbank:DB01179
+POLYSTYRENE SULFONIC ACID	http://www.drugbank.ca/drugs/DB01344	http://bio2rdf.org/drugbank:DB01344
+POLYTHIAZIDE	http://www.drugbank.ca/drugs/DB01324	http://bio2rdf.org/drugbank:DB01324
+PORFIMER	http://www.drugbank.ca/drugs/DB00707	http://bio2rdf.org/drugbank:DB00707
+POSACONAZOLE	http://www.drugbank.ca/drugs/DB01263	http://bio2rdf.org/drugbank:DB01263
+POTASSIUM CHLORIDE	http://www.drugbank.ca/drugs/DB00761	http://bio2rdf.org/drugbank:DB00761
+PRALIDOXIME	http://www.drugbank.ca/drugs/DB00733	http://bio2rdf.org/drugbank:DB00733
+PRAMIPEXOLE	http://www.drugbank.ca/drugs/DB00413	http://bio2rdf.org/drugbank:DB00413
+PRAMLINTIDE	http://www.drugbank.ca/drugs/DB01278	http://bio2rdf.org/drugbank:DB01278
+PRASUGREL	http://www.drugbank.ca/drugs/DB06209	http://bio2rdf.org/drugbank:DB06209
+PRAVASTATIN	http://www.drugbank.ca/drugs/DB00175	http://bio2rdf.org/drugbank:DB00175
+PRAZIQUANTEL	http://www.drugbank.ca/drugs/DB01058	http://bio2rdf.org/drugbank:DB01058
+PRAZOSIN	http://www.drugbank.ca/drugs/DB00457	http://bio2rdf.org/drugbank:DB00457
+PREDNICARBATE	http://www.drugbank.ca/drugs/DB01130	http://bio2rdf.org/drugbank:DB01130
+PREDNISOLONE	http://www.drugbank.ca/drugs/DB00860	http://bio2rdf.org/drugbank:DB00860
+PREDNISONE	http://www.drugbank.ca/drugs/DB00635	http://bio2rdf.org/drugbank:DB00635
+PREGABALIN	http://www.drugbank.ca/drugs/DB00230	http://bio2rdf.org/drugbank:DB00230
+PRILOCAINE	http://www.drugbank.ca/drugs/DB00750	http://bio2rdf.org/drugbank:DB00750
+PRIMAQUINE	http://www.drugbank.ca/drugs/DB00114	http://bio2rdf.org/drugbank:DB00114
+PRIMAQUINE	http://www.drugbank.ca/drugs/DB01087	http://bio2rdf.org/drugbank:DB01087
+PRIMIDONE	http://www.drugbank.ca/drugs/DB00794	http://bio2rdf.org/drugbank:DB00794
+PRIMIDONE	http://www.drugbank.ca/drugs/ 	http://bio2rdf.org/drugbank: 
+PROBENECID	http://www.drugbank.ca/drugs/DB01032	http://bio2rdf.org/drugbank:DB01032
+PROCAINAMIDE	http://www.drugbank.ca/drugs/DB01035	http://bio2rdf.org/drugbank:DB01035
+PROCAINE	http://www.drugbank.ca/drugs/DB00721	http://bio2rdf.org/drugbank:DB00721
+PROCARBAZINE	http://www.drugbank.ca/drugs/DB01168	http://bio2rdf.org/drugbank:DB01168
+PROCHLORPERAZINE	http://www.drugbank.ca/drugs/DB00433	http://bio2rdf.org/drugbank:DB00433
+PROGESTERONE	http://www.drugbank.ca/drugs/DB00396	http://bio2rdf.org/drugbank:DB00396
+PROGUANIL	http://www.drugbank.ca/drugs/DB01131	http://bio2rdf.org/drugbank:DB01131
+PROLINE	http://www.drugbank.ca/drugs/DB02853	http://bio2rdf.org/drugbank:DB02853
+PROLINE	http://www.drugbank.ca/drugs/DB00172	http://bio2rdf.org/drugbank:DB00172
+PROMETHAZINE	http://www.drugbank.ca/drugs/DB01069	http://bio2rdf.org/drugbank:DB01069
+PROPAFENONE	http://www.drugbank.ca/drugs/DB01182	http://bio2rdf.org/drugbank:DB01182
+PROPANTHELINE	http://www.drugbank.ca/drugs/DB00782	http://bio2rdf.org/drugbank:DB00782
+PROPARACAINE	http://www.drugbank.ca/drugs/DB00807	http://bio2rdf.org/drugbank:DB00807
+PROPOFOL	http://www.drugbank.ca/drugs/DB00818	http://bio2rdf.org/drugbank:DB00818
+PROPOXYPHENE	http://www.drugbank.ca/drugs/DB00647	http://bio2rdf.org/drugbank:DB00647
+PROPRANOLOL	http://www.drugbank.ca/drugs/DB00571	http://bio2rdf.org/drugbank:DB00571
+PROPYLENE GLYCOL	http://www.drugbank.ca/drugs/DB01839	http://bio2rdf.org/drugbank:DB01839
+PROPYLTHIOURACIL	http://www.drugbank.ca/drugs/DB00550	http://bio2rdf.org/drugbank:DB00550
+PROTRIPTYLINE	http://www.drugbank.ca/drugs/DB00344	http://bio2rdf.org/drugbank:DB00344
+PSEUDOEPHEDRINE	http://www.drugbank.ca/drugs/DB00852	http://bio2rdf.org/drugbank:DB00852
+PYRAZINAMIDE	http://www.drugbank.ca/drugs/DB00339	http://bio2rdf.org/drugbank:DB00339
+PYRIDOSTIGMINE	http://www.drugbank.ca/drugs/DB00545	http://bio2rdf.org/drugbank:DB00545
+PYRIDOXAL 5-PHOSPHATE	http://www.drugbank.ca/drugs/DB00114	http://bio2rdf.org/drugbank:DB00114
+PYRIDOXINE	http://www.drugbank.ca/drugs/DB00165	http://bio2rdf.org/drugbank:DB00165
+PYRILAMINE	http://www.drugbank.ca/drugs/DB06691	http://bio2rdf.org/drugbank:DB06691
+PYRIMETHAMINE	http://www.drugbank.ca/drugs/DB00205	http://bio2rdf.org/drugbank:DB00205
+PYROPHOSPHORIC ACID	http://www.drugbank.ca/drugs/DB04160	http://bio2rdf.org/drugbank:DB04160
+QUETIAPINE	http://www.drugbank.ca/drugs/DB01224	http://bio2rdf.org/drugbank:DB01224
+QUINAPRIL	http://www.drugbank.ca/drugs/DB00881	http://bio2rdf.org/drugbank:DB00881
+QUINIDINE	http://www.drugbank.ca/drugs/DB00908	http://bio2rdf.org/drugbank:DB00908
+QUININE	http://www.drugbank.ca/drugs/DB00468	http://bio2rdf.org/drugbank:DB00468
+QUINUPRISTIN	http://www.drugbank.ca/drugs/DB01369	http://bio2rdf.org/drugbank:DB01369
+RABEPRAZOLE	http://www.drugbank.ca/drugs/DB01129	http://bio2rdf.org/drugbank:DB01129
+RACEPINEPHRINE	http://www.drugbank.ca/drugs/DB00668	http://bio2rdf.org/drugbank:DB00668
+RALOXIFENE	http://www.drugbank.ca/drugs/DB00481	http://bio2rdf.org/drugbank:DB00481
+RAMELTEON	http://www.drugbank.ca/drugs/DB00980	http://bio2rdf.org/drugbank:DB00980
+RAMIPRIL	http://www.drugbank.ca/drugs/DB00178	http://bio2rdf.org/drugbank:DB00178
+RANIBIZUMAB	http://www.drugbank.ca/drugs/DB01270	http://bio2rdf.org/drugbank:DB01270
+RANITIDINE	http://www.drugbank.ca/drugs/DB00863	http://bio2rdf.org/drugbank:DB00863
+RANOLAZINE	http://www.drugbank.ca/drugs/DB00243	http://bio2rdf.org/drugbank:DB00243
+RASAGILINE	http://www.drugbank.ca/drugs/DB01367	http://bio2rdf.org/drugbank:DB01367
+RASBURICASE	http://www.drugbank.ca/drugs/DB00049	http://bio2rdf.org/drugbank:DB00049
+REMIFENTANIL	http://www.drugbank.ca/drugs/DB00899	http://bio2rdf.org/drugbank:DB00899
+REPAGLINIDE	http://www.drugbank.ca/drugs/DB00912	http://bio2rdf.org/drugbank:DB00912
+RESERPINE	http://www.drugbank.ca/drugs/DB00206	http://bio2rdf.org/drugbank:DB00206
+RETAPAMULIN	http://www.drugbank.ca/drugs/DB01256	http://bio2rdf.org/drugbank:DB01256
+RETEPLASE	http://www.drugbank.ca/drugs/DB00015	http://bio2rdf.org/drugbank:DB00015
+RETINOL	http://www.drugbank.ca/drugs/DB00162	http://bio2rdf.org/drugbank:DB00162
+RIBAVIRIN	http://www.drugbank.ca/drugs/DB00811	http://bio2rdf.org/drugbank:DB00811
+RIBOFLAVIN	http://www.drugbank.ca/drugs/DB00140	http://bio2rdf.org/drugbank:DB00140
+RIFABUTIN	http://www.drugbank.ca/drugs/DB00615	http://bio2rdf.org/drugbank:DB00615
+RIFAMPIN	http://www.drugbank.ca/drugs/DB01045	http://bio2rdf.org/drugbank:DB01045
+RIFAPENTINE	http://www.drugbank.ca/drugs/DB01201	http://bio2rdf.org/drugbank:DB01201
+RIFAXIMIN	http://www.drugbank.ca/drugs/DB01220	http://bio2rdf.org/drugbank:DB01220
+RILPIVIRINE	http://www.drugbank.ca/drugs/DB08592	http://bio2rdf.org/drugbank:DB08592
+RILUZOLE	http://www.drugbank.ca/drugs/DB00740	http://bio2rdf.org/drugbank:DB00740
+RIMABOTULINUMTOXINB	http://www.drugbank.ca/drugs/DB00042	http://bio2rdf.org/drugbank:DB00042
+RIMANTADINE	http://www.drugbank.ca/drugs/DB00478	http://bio2rdf.org/drugbank:DB00478
+RIMEXOLONE	http://www.drugbank.ca/drugs/DB00896	http://bio2rdf.org/drugbank:DB00896
+RISEDRONIC ACID	http://www.drugbank.ca/drugs/DB00884	http://bio2rdf.org/drugbank:DB00884
+RISPERIDONE	http://www.drugbank.ca/drugs/DB00734	http://bio2rdf.org/drugbank:DB00734
+RITONAVIR	http://www.drugbank.ca/drugs/DB00503	http://bio2rdf.org/drugbank:DB00503
+RITUXIMAB	http://www.drugbank.ca/drugs/DB00073	http://bio2rdf.org/drugbank:DB00073
+RIVAROXABAN	http://www.drugbank.ca/drugs/DB06228	http://bio2rdf.org/drugbank:DB06228
+RIVAROXABAN	http://www.drugbank.ca/drugs/DB08477	http://bio2rdf.org/drugbank:DB08477
+RIVASTIGMINE	http://www.drugbank.ca/drugs/DB00989	http://bio2rdf.org/drugbank:DB00989
+RIZATRIPTAN	http://www.drugbank.ca/drugs/DB00953	http://bio2rdf.org/drugbank:DB00953
+ROCURONIUM	http://www.drugbank.ca/drugs/DB00728	http://bio2rdf.org/drugbank:DB00728
+ROPINIROLE	http://www.drugbank.ca/drugs/DB00268	http://bio2rdf.org/drugbank:DB00268
+ROPIVACAINE	http://www.drugbank.ca/drugs/DB00296	http://bio2rdf.org/drugbank:DB00296
+ROSIGLITAZONE	http://www.drugbank.ca/drugs/DB00412	http://bio2rdf.org/drugbank:DB00412
+ROSUVASTATIN	http://www.drugbank.ca/drugs/DB01098	http://bio2rdf.org/drugbank:DB01098
+ROSUVASTATIN CALCIUM	http://www.drugbank.ca/drugs/DB01098	http://bio2rdf.org/drugbank:DB01098
+ROTIGOTINE	http://www.drugbank.ca/drugs/DB05271	http://bio2rdf.org/drugbank:DB05271
+SALICYLAMIDE	http://www.drugbank.ca/drugs/DB08797	http://bio2rdf.org/drugbank:DB08797
+SALICYLIC ACID	http://www.drugbank.ca/drugs/DB00936	http://bio2rdf.org/drugbank:DB00936
+SALMETEROL	http://www.drugbank.ca/drugs/DB00938	http://bio2rdf.org/drugbank:DB00938
+SALSALATE	http://www.drugbank.ca/drugs/DB01399	http://bio2rdf.org/drugbank:DB01399
+SAPROPTERIN	http://www.drugbank.ca/drugs/DB00360	http://bio2rdf.org/drugbank:DB00360
+SAQUINAVIR	http://www.drugbank.ca/drugs/DB01232	http://bio2rdf.org/drugbank:DB01232
+SARGRAMOSTIM	http://www.drugbank.ca/drugs/DB00020	http://bio2rdf.org/drugbank:DB00020
+SAXAGLIPTIN	http://www.drugbank.ca/drugs/DB06335	http://bio2rdf.org/drugbank:DB06335
+SCOPOLAMINE	http://www.drugbank.ca/drugs/DB00747	http://bio2rdf.org/drugbank:DB00747
+SECOBARBITAL	http://www.drugbank.ca/drugs/DB00418	http://bio2rdf.org/drugbank:DB00418
+SELEGILINE	http://www.drugbank.ca/drugs/DB01037	http://bio2rdf.org/drugbank:DB01037
+SELENIUM SULFIDE	http://www.drugbank.ca/drugs/DB00971	http://bio2rdf.org/drugbank:DB00971
+SERINE	http://www.drugbank.ca/drugs/DB00133	http://bio2rdf.org/drugbank:DB00133
+SERTACONAZOLE	http://www.drugbank.ca/drugs/DB01153	http://bio2rdf.org/drugbank:DB01153
+SERTRALINE	http://www.drugbank.ca/drugs/DB01104	http://bio2rdf.org/drugbank:DB01104
+SEVELAMER	http://www.drugbank.ca/drugs/DB00658	http://bio2rdf.org/drugbank:DB00658
+SEVOFLURANE	http://www.drugbank.ca/drugs/DB01236	http://bio2rdf.org/drugbank:DB01236
+SIBUTRAMINE	http://www.drugbank.ca/drugs/DB01105	http://bio2rdf.org/drugbank:DB01105
+SILDENAFIL	http://www.drugbank.ca/drugs/DB00203	http://bio2rdf.org/drugbank:DB00203
+SILVER SULFADIAZINE	http://www.drugbank.ca/drugs/DB05245	http://bio2rdf.org/drugbank:DB05245
+SIMVASTATIN	http://www.drugbank.ca/drugs/DB00641	http://bio2rdf.org/drugbank:DB00641
+SIROLIMUS	http://www.drugbank.ca/drugs/DB00877	http://bio2rdf.org/drugbank:DB00877
+SITAGLIPTIN	http://www.drugbank.ca/drugs/DB01261	http://bio2rdf.org/drugbank:DB01261
+SODIUM BICARBONATE	http://www.drugbank.ca/drugs/DB01390	http://bio2rdf.org/drugbank:DB01390
+SODIUM TETRADECYL SULFATE	http://www.drugbank.ca/drugs/DB00464	http://bio2rdf.org/drugbank:DB00464
+SOLIFENACIN	http://www.drugbank.ca/drugs/DB01591	http://bio2rdf.org/drugbank:DB01591
+SOMATROPIN	http://www.drugbank.ca/drugs/DB00052	http://bio2rdf.org/drugbank:DB00052
+SORAFENIB	http://www.drugbank.ca/drugs/DB00398	http://bio2rdf.org/drugbank:DB00398
+SOTALOL	http://www.drugbank.ca/drugs/DB00489	http://bio2rdf.org/drugbank:DB00489
+SPECTINOMYCIN	http://www.drugbank.ca/drugs/DB00919	http://bio2rdf.org/drugbank:DB00919
+SPIRONOLACTONE	http://www.drugbank.ca/drugs/DB00421	http://bio2rdf.org/drugbank:DB00421
+STAVUDINE	http://www.drugbank.ca/drugs/DB00649	http://bio2rdf.org/drugbank:DB00649
+STEARIC ACID	http://www.drugbank.ca/drugs/DB03193	http://bio2rdf.org/drugbank:DB03193
+STREPTOMYCIN	http://www.drugbank.ca/drugs/DB01082	http://bio2rdf.org/drugbank:DB01082
+STREPTOZOCIN	http://www.drugbank.ca/drugs/DB00428	http://bio2rdf.org/drugbank:DB00428
+SUCCINIC ACID	http://www.drugbank.ca/drugs/DB00139	http://bio2rdf.org/drugbank:DB00139
+SUCCINYLCHOLINE	http://www.drugbank.ca/drugs/DB00202	http://bio2rdf.org/drugbank:DB00202
+SUCRALFATE	http://www.drugbank.ca/drugs/DB00364	http://bio2rdf.org/drugbank:DB00364
+SUCROSE	http://www.drugbank.ca/drugs/DB02772	http://bio2rdf.org/drugbank:DB02772
+SUFENTANIL	http://www.drugbank.ca/drugs/DB00708	http://bio2rdf.org/drugbank:DB00708
+SULFACETAMIDE	http://www.drugbank.ca/drugs/DB00634	http://bio2rdf.org/drugbank:DB00634
+SULFADIAZINE	http://www.drugbank.ca/drugs/DB00359	http://bio2rdf.org/drugbank:DB00359
+SULFAMETHOXAZOLE	http://www.drugbank.ca/drugs/DB01015	http://bio2rdf.org/drugbank:DB01015
+SULFANILAMIDE	http://www.drugbank.ca/drugs/DB00259	http://bio2rdf.org/drugbank:DB00259
+SULFASALAZINE	http://www.drugbank.ca/drugs/DB00795	http://bio2rdf.org/drugbank:DB00795
+SULFISOXAZOLE	http://www.drugbank.ca/drugs/DB00263	http://bio2rdf.org/drugbank:DB00263
+SULINDAC	http://www.drugbank.ca/drugs/DB00605	http://bio2rdf.org/drugbank:DB00605
+SUMATRIPTAN	http://www.drugbank.ca/drugs/DB00669	http://bio2rdf.org/drugbank:DB00669
+SUNITINIB	http://www.drugbank.ca/drugs/DB01268	http://bio2rdf.org/drugbank:DB01268
+SUPROFEN	http://www.drugbank.ca/drugs/DB00870	http://bio2rdf.org/drugbank:DB00870
+TACRINE	http://www.drugbank.ca/drugs/DB00382	http://bio2rdf.org/drugbank:DB00382
+TACROLIMUS	http://www.drugbank.ca/drugs/DB00864	http://bio2rdf.org/drugbank:DB00864
+TACROLIMUS ANHYDROUS	http://www.drugbank.ca/drugs/DB00864	http://bio2rdf.org/drugbank:DB00864
+TADALAFIL	http://www.drugbank.ca/drugs/DB00820	http://bio2rdf.org/drugbank:DB00820
+TAFLUPROST	http://www.drugbank.ca/drugs/DB08819	http://bio2rdf.org/drugbank:DB08819
+TAMOXIFEN	http://www.drugbank.ca/drugs/DB00675	http://bio2rdf.org/drugbank:DB00675
+TAMSULOSIN	http://www.drugbank.ca/drugs/DB00706	http://bio2rdf.org/drugbank:DB00706
+TAURINE	http://www.drugbank.ca/drugs/DB01956	http://bio2rdf.org/drugbank:DB01956
+TAZAROTENE	http://www.drugbank.ca/drugs/DB00799	http://bio2rdf.org/drugbank:DB00799
+TAZOBACTAM	http://www.drugbank.ca/drugs/DB01606	http://bio2rdf.org/drugbank:DB01606
+TEGASEROD	http://www.drugbank.ca/drugs/DB01079	http://bio2rdf.org/drugbank:DB01079
+TELAPREVIR	http://www.drugbank.ca/drugs/DB05521	http://bio2rdf.org/drugbank:DB05521
+TELBIVUDINE	http://www.drugbank.ca/drugs/DB01265	http://bio2rdf.org/drugbank:DB01265
+TELITHROMYCIN	http://www.drugbank.ca/drugs/DB00976	http://bio2rdf.org/drugbank:DB00976
+TELMISARTAN	http://www.drugbank.ca/drugs/DB00966	http://bio2rdf.org/drugbank:DB00966
+TEMAZEPAM	http://www.drugbank.ca/drugs/DB00231	http://bio2rdf.org/drugbank:DB00231
+TEMOZOLOMIDE	http://www.drugbank.ca/drugs/DB00853	http://bio2rdf.org/drugbank:DB00853
+TEMSIROLIMUS	http://www.drugbank.ca/drugs/DB06287	http://bio2rdf.org/drugbank:DB06287
+TENECTEPLASE	http://www.drugbank.ca/drugs/DB00031	http://bio2rdf.org/drugbank:DB00031
+TENIPOSIDE	http://www.drugbank.ca/drugs/DB00444	http://bio2rdf.org/drugbank:DB00444
+TENOFOVIR	http://www.drugbank.ca/drugs/DB00300	http://bio2rdf.org/drugbank:DB00300
+TERAZOSIN	http://www.drugbank.ca/drugs/DB01162	http://bio2rdf.org/drugbank:DB01162
+TERBINAFINE	http://www.drugbank.ca/drugs/DB00857	http://bio2rdf.org/drugbank:DB00857
+TERBUTALINE	http://www.drugbank.ca/drugs/DB00871	http://bio2rdf.org/drugbank:DB00871
+TERCONAZOLE	http://www.drugbank.ca/drugs/DB00251	http://bio2rdf.org/drugbank:DB00251
+TERIPARATIDE	http://www.drugbank.ca/drugs/DB06285	http://bio2rdf.org/drugbank:DB06285
+TESTOSTERONE	http://www.drugbank.ca/drugs/DB00624	http://bio2rdf.org/drugbank:DB00624
+TETRABENAZINE	http://www.drugbank.ca/drugs/DB04844	http://bio2rdf.org/drugbank:DB04844
+TETRACYCLINE	http://www.drugbank.ca/drugs/DB00759	http://bio2rdf.org/drugbank:DB00759
+THALIDOMIDE	http://www.drugbank.ca/drugs/DB01041	http://bio2rdf.org/drugbank:DB01041
+THEOPHYLLINE	http://www.drugbank.ca/drugs/DB00277	http://bio2rdf.org/drugbank:DB00277
+THEOPHYLLINE ANHYDROUS	http://www.drugbank.ca/drugs/DB00277	http://bio2rdf.org/drugbank:DB00277
+THIABENDAZOLE	http://www.drugbank.ca/drugs/DB00730	http://bio2rdf.org/drugbank:DB00730
+THIAMINE	http://www.drugbank.ca/drugs/DB00152	http://bio2rdf.org/drugbank:DB00152
+THIOGUANINE	http://www.drugbank.ca/drugs/DB00352	http://bio2rdf.org/drugbank:DB00352
+THIORIDAZINE	http://www.drugbank.ca/drugs/DB00679	http://bio2rdf.org/drugbank:DB00679
+THIOTEPA	http://www.drugbank.ca/drugs/DB04572	http://bio2rdf.org/drugbank:DB04572
+THIOTHIXENE	http://www.drugbank.ca/drugs/DB01623	http://bio2rdf.org/drugbank:DB01623
+THREONINE	http://www.drugbank.ca/drugs/DB00156	http://bio2rdf.org/drugbank:DB00156
+THYMOL	http://www.drugbank.ca/drugs/DB02513	http://bio2rdf.org/drugbank:DB02513
+THYROTROPIN ALFA	http://www.drugbank.ca/drugs/DB00024	http://bio2rdf.org/drugbank:DB00024
+TIAGABINE	http://www.drugbank.ca/drugs/DB00906	http://bio2rdf.org/drugbank:DB00906
+TICAGRELOR	http://www.drugbank.ca/drugs/DB08816	http://bio2rdf.org/drugbank:DB08816
+TICARCILLIN	http://www.drugbank.ca/drugs/DB01607	http://bio2rdf.org/drugbank:DB01607
+TICLOPIDINE	http://www.drugbank.ca/drugs/DB00208	http://bio2rdf.org/drugbank:DB00208
+TIGECYCLINE	http://www.drugbank.ca/drugs/DB00560	http://bio2rdf.org/drugbank:DB00560
+TILUDRONIC ACID	http://www.drugbank.ca/drugs/DB01133	http://bio2rdf.org/drugbank:DB01133
+TIMOLOL	http://www.drugbank.ca/drugs/DB00373	http://bio2rdf.org/drugbank:DB00373
+TINIDAZOLE	http://www.drugbank.ca/drugs/DB00911	http://bio2rdf.org/drugbank:DB00911
+TINZAPARIN	http://www.drugbank.ca/drugs/DB06822	http://bio2rdf.org/drugbank:DB06822
+TIOCONAZOLE	http://www.drugbank.ca/drugs/DB01007	http://bio2rdf.org/drugbank:DB01007
+TIOTROPIUM	http://www.drugbank.ca/drugs/DB01409	http://bio2rdf.org/drugbank:DB01409
+TIPRANAVIR	http://www.drugbank.ca/drugs/DB00932	http://bio2rdf.org/drugbank:DB00932
+TIROFIBAN	http://www.drugbank.ca/drugs/DB00775	http://bio2rdf.org/drugbank:DB00775
+TIZANIDINE	http://www.drugbank.ca/drugs/DB00697	http://bio2rdf.org/drugbank:DB00697
+TOBRAMYCIN	http://www.drugbank.ca/drugs/DB00684	http://bio2rdf.org/drugbank:DB00684
+TOCOPHEROL	http://www.drugbank.ca/drugs/DB00163	http://bio2rdf.org/drugbank:DB00163
+TOLAZAMIDE	http://www.drugbank.ca/drugs/DB00839	http://bio2rdf.org/drugbank:DB00839
+TOLBUTAMIDE	http://www.drugbank.ca/drugs/DB01124	http://bio2rdf.org/drugbank:DB01124
+TOLCAPONE	http://www.drugbank.ca/drugs/DB00323	http://bio2rdf.org/drugbank:DB00323
+TOLMETIN	http://www.drugbank.ca/drugs/DB00500	http://bio2rdf.org/drugbank:DB00500
+TOLNAFTATE	http://www.drugbank.ca/drugs/DB00525	http://bio2rdf.org/drugbank:DB00525
+TOLTERODINE	http://www.drugbank.ca/drugs/DB01036	http://bio2rdf.org/drugbank:DB01036
+TOPIRAMATE	http://www.drugbank.ca/drugs/DB00273	http://bio2rdf.org/drugbank:DB00273
+TOPOTECAN	http://www.drugbank.ca/drugs/DB01030	http://bio2rdf.org/drugbank:DB01030
+TOREMIFENE	http://www.drugbank.ca/drugs/DB00539	http://bio2rdf.org/drugbank:DB00539
+TORSEMIDE	http://www.drugbank.ca/drugs/DB00214	http://bio2rdf.org/drugbank:DB00214
+TOSITUMOMAB	http://www.drugbank.ca/drugs/DB00081	http://bio2rdf.org/drugbank:DB00081
+TRAMADOL	http://www.drugbank.ca/drugs/DB00193	http://bio2rdf.org/drugbank:DB00193
+TRANDOLAPRIL	http://www.drugbank.ca/drugs/DB00519	http://bio2rdf.org/drugbank:DB00519
+TRANEXAMIC ACID	http://www.drugbank.ca/drugs/DB00302	http://bio2rdf.org/drugbank:DB00302
+TRANYLCYPROMINE	http://www.drugbank.ca/drugs/DB00752	http://bio2rdf.org/drugbank:DB00752
+TRASTUZUMAB	http://www.drugbank.ca/drugs/DB00072	http://bio2rdf.org/drugbank:DB00072
+TRAVOPROST	http://www.drugbank.ca/drugs/DB00287	http://bio2rdf.org/drugbank:DB00287
+TRAZODONE	http://www.drugbank.ca/drugs/DB00656	http://bio2rdf.org/drugbank:DB00656
+TREPROSTINIL	http://www.drugbank.ca/drugs/DB00374	http://bio2rdf.org/drugbank:DB00374
+TRETINOIN	http://www.drugbank.ca/drugs/DB00755	http://bio2rdf.org/drugbank:DB00755
+TRIAMCINOLONE	http://www.drugbank.ca/drugs/DB00620	http://bio2rdf.org/drugbank:DB00620
+TRIAMTERENE	http://www.drugbank.ca/drugs/DB00384	http://bio2rdf.org/drugbank:DB00384
+TRIAZOLAM	http://www.drugbank.ca/drugs/DB00897	http://bio2rdf.org/drugbank:DB00897
+TRICLOSAN	http://www.drugbank.ca/drugs/DB08604	http://bio2rdf.org/drugbank:DB08604
+TRIFLUOPERAZINE	http://www.drugbank.ca/drugs/DB00831	http://bio2rdf.org/drugbank:DB00831
+TRIFLURIDINE	http://www.drugbank.ca/drugs/DB00432	http://bio2rdf.org/drugbank:DB00432
+TRIHEXYPHENIDYL	http://www.drugbank.ca/drugs/DB00376	http://bio2rdf.org/drugbank:DB00376
+TRIMETHADIONE	http://www.drugbank.ca/drugs/DB00347	http://bio2rdf.org/drugbank:DB00347
+TRIMETHOBENZAMIDE	http://www.drugbank.ca/drugs/DB00662	http://bio2rdf.org/drugbank:DB00662
+TRIMETHOPRIM	http://www.drugbank.ca/drugs/DB00440	http://bio2rdf.org/drugbank:DB00440
+TRIMETREXATE	http://www.drugbank.ca/drugs/DB01157	http://bio2rdf.org/drugbank:DB01157
+TRIMIPRAMINE	http://www.drugbank.ca/drugs/DB00726	http://bio2rdf.org/drugbank:DB00726
+TRIPROLIDINE	http://www.drugbank.ca/drugs/DB00427	http://bio2rdf.org/drugbank:DB00427
+TROMETHAMINE	http://www.drugbank.ca/drugs/DB03754	http://bio2rdf.org/drugbank:DB03754
+TROPICAMIDE	http://www.drugbank.ca/drugs/DB00809	http://bio2rdf.org/drugbank:DB00809
+TROSPIUM	http://www.drugbank.ca/drugs/DB00209	http://bio2rdf.org/drugbank:DB00209
+TROVAFLOXACIN	http://www.drugbank.ca/drugs/DB00685	http://bio2rdf.org/drugbank:DB00685
+TRYPTOPHAN	http://www.drugbank.ca/drugs/DB00150	http://bio2rdf.org/drugbank:DB00150
+TYROSINE	http://www.drugbank.ca/drugs/DB03839	http://bio2rdf.org/drugbank:DB03839
+TYROSINE	http://www.drugbank.ca/drugs/DB00135	http://bio2rdf.org/drugbank:DB00135
+UREA	http://www.drugbank.ca/drugs/DB03904	http://bio2rdf.org/drugbank:DB03904
+UROKINASE	http://www.drugbank.ca/drugs/DB00013	http://bio2rdf.org/drugbank:DB00013
+URSODIOL	http://www.drugbank.ca/drugs/DB01586	http://bio2rdf.org/drugbank:DB01586
+VALACYCLOVIR	http://www.drugbank.ca/drugs/DB00577	http://bio2rdf.org/drugbank:DB00577
+VALDECOXIB	http://www.drugbank.ca/drugs/DB00580	http://bio2rdf.org/drugbank:DB00580
+VALGANCICLOVIR	http://www.drugbank.ca/drugs/DB01610	http://bio2rdf.org/drugbank:DB01610
+VALINE	http://www.drugbank.ca/drugs/DB00161	http://bio2rdf.org/drugbank:DB00161
+VALPROIC ACID	http://www.drugbank.ca/drugs/DB00313	http://bio2rdf.org/drugbank:DB00313
+VALRUBICIN	http://www.drugbank.ca/drugs/DB00385	http://bio2rdf.org/drugbank:DB00385
+VALSARTAN	http://www.drugbank.ca/drugs/DB00177	http://bio2rdf.org/drugbank:DB00177
+VANCOMYCIN	http://www.drugbank.ca/drugs/DB00512	http://bio2rdf.org/drugbank:DB00512
+VANDETANIB	http://www.drugbank.ca/drugs/DB08764	http://bio2rdf.org/drugbank:DB08764
+VARDENAFIL	http://www.drugbank.ca/drugs/DB00862	http://bio2rdf.org/drugbank:DB00862
+VARENICLINE	http://www.drugbank.ca/drugs/DB01273	http://bio2rdf.org/drugbank:DB01273
+VASOPRESSIN	http://www.drugbank.ca/drugs/DB00067	http://bio2rdf.org/drugbank:DB00067
+VECURONIUM	http://www.drugbank.ca/drugs/DB01339	http://bio2rdf.org/drugbank:DB01339
+VENLAFAXINE	http://www.drugbank.ca/drugs/DB00285	http://bio2rdf.org/drugbank:DB00285
+VERAPAMIL	http://www.drugbank.ca/drugs/DB00661	http://bio2rdf.org/drugbank:DB00661
+VERTEPORFIN	http://www.drugbank.ca/drugs/DB00460	http://bio2rdf.org/drugbank:DB00460
+VIGABATRIN	http://www.drugbank.ca/drugs/DB01080	http://bio2rdf.org/drugbank:DB01080
+VILAZODONE	http://www.drugbank.ca/drugs/DB06684	http://bio2rdf.org/drugbank:DB06684
+VINBLASTINE	http://www.drugbank.ca/drugs/DB00570	http://bio2rdf.org/drugbank:DB00570
+VINCRISTINE	http://www.drugbank.ca/drugs/DB00541	http://bio2rdf.org/drugbank:DB00541
+VINORELBINE	http://www.drugbank.ca/drugs/DB00361	http://bio2rdf.org/drugbank:DB00361
+VITAMIN A	http://www.drugbank.ca/drugs/DB00162	http://bio2rdf.org/drugbank:DB00162
+VITAMIN D	http://www.drugbank.ca/drugs/DB00153	http://bio2rdf.org/drugbank:DB00153
+VORICONAZOLE	http://www.drugbank.ca/drugs/DB00582	http://bio2rdf.org/drugbank:DB00582
+VORINOSTAT	http://www.drugbank.ca/drugs/DB02546	http://bio2rdf.org/drugbank:DB02546
+WARFARIN	http://www.drugbank.ca/drugs/DB00682	http://bio2rdf.org/drugbank:DB00682
+XYLOMETAZOLINE	http://www.drugbank.ca/drugs/DB06694	http://bio2rdf.org/drugbank:DB06694
+ZAFIRLUKAST	http://www.drugbank.ca/drugs/DB00549	http://bio2rdf.org/drugbank:DB00549
+ZALCITABINE	http://www.drugbank.ca/drugs/DB00943	http://bio2rdf.org/drugbank:DB00943
+ZALEPLON	http://www.drugbank.ca/drugs/DB00962	http://bio2rdf.org/drugbank:DB00962
+ZANAMIVIR	http://www.drugbank.ca/drugs/DB00558	http://bio2rdf.org/drugbank:DB00558
+ZIDOVUDINE	http://www.drugbank.ca/drugs/DB00495	http://bio2rdf.org/drugbank:DB00495
+ZILEUTON	http://www.drugbank.ca/drugs/DB00744	http://bio2rdf.org/drugbank:DB00744
+ZINC	http://www.drugbank.ca/drugs/DB01593	http://bio2rdf.org/drugbank:DB01593
+ZIPRASIDONE	http://www.drugbank.ca/drugs/DB00246	http://bio2rdf.org/drugbank:DB00246
+ZOLEDRONIC ACID	http://www.drugbank.ca/drugs/DB00399	http://bio2rdf.org/drugbank:DB00399
+ZOLMITRIPTAN	http://www.drugbank.ca/drugs/DB00315	http://bio2rdf.org/drugbank:DB00315
+ZOLPIDEM	http://www.drugbank.ca/drugs/DB00425	http://bio2rdf.org/drugbank:DB00425
+ZONISAMIDE	http://www.drugbank.ca/drugs/DB00343	http://bio2rdf.org/drugbank:DB00343
+ZONISAMIDE	http://www.drugbank.ca/drugs/DB00909	http://bio2rdf.org/drugbank:DB00909

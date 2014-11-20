@@ -1,0 +1,1100 @@
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/190521>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/89013>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/18330>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/38400>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/83367>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1256>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1102129>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1147320>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1828>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/194000>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2002>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2101>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/20352>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/140587>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/318341>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/318341>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/44281>.
+  ?splId dailymed:setId ?setId.
+}
+
+WARNING: more than one active moiety/rxcui match (single active moiety case) CHLORDIAZEPOXIDE AND AMITRIPTYLINE:[('CHLORDIAZEPOXIDE AND AMITRIPTYLINE', 'http://purl.bioontology.org/ontology/RXNORM/2356'), ('CHLORDIAZEPOXIDE AND AMITRIPTYLINE', 'http://purl.bioontology.org/ontology/RXNORM/704')]
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2356>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/704>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2393>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2555>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2556>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2556>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/21241>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2597>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/32968>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2626>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/2670>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1148495>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/3108>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/475342>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/214470>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/3247>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/816346>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/816346>.
+  ?splId dailymed:setId ?setId.
+}
+
+WARNING: more than one active moiety/rxcui match (single active moiety case) DEXTROMETHORPHAN AND QUINIDINE:[('DEXTROMETHORPHAN AND QUINIDINE', 'http://purl.bioontology.org/ontology/RXNORM/3289'), ('DEXTROMETHORPHAN AND QUINIDINE', 'http://purl.bioontology.org/ontology/RXNORM/9068')]
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/3289>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/9068>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/3322>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/3638>.
+  ?splId dailymed:setId ?setId.
+}
+
+ERROR: no active moiety match found for DROSPIRENONE AND ETHINYL ESTRADIOL; testing if this is a multiple active moiety case 
+ERROR: no active moiety match found for ETHINYL ESTRADIOL; skipping case DROSPIRENONE AND ETHINYL ESTRADIOL 
+ERROR: possible multiple active moiety case but could not acquire at least one rxcui per moiety
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/711942>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/711942>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/337525>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/283742>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/141704>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/258494>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/4492>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/4493>.
+  ?splId dailymed:setId ?setId.
+}
+
+WARNING: more than one active moiety/rxcui match (single active moiety case) FLUOXETINE AND OLANZAPINE:[('FLUOXETINE AND OLANZAPINE', 'http://purl.bioontology.org/ontology/RXNORM/4493'), ('FLUOXETINE AND OLANZAPINE', 'http://purl.bioontology.org/ontology/RXNORM/61381')]
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/4493>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/61381>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/4502>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/42355>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/282357>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/4637>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/328134>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/73178>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/282388>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/282388>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/282388>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/282388>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/5691>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1114326>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/51499>.
+  ?splId dailymed:setId ?setId.
+}
+
+WARNING: more than one active moiety/rxcui match (single active moiety case) ISOSORBIDE AND HYDRALAZINE:[('ISOSORBIDE AND HYDRALAZINE', 'http://purl.bioontology.org/ontology/RXNORM/6057'), ('ISOSORBIDE AND HYDRALAZINE', 'http://purl.bioontology.org/ontology/RXNORM/5470')]
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/6057>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/5470>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1243041>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/480167>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/342369>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/72965>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/620216>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/103>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/6918>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/30125>.
+  ?splId dailymed:setId ?setId.
+}
+
+ERROR: no active moiety match found for MYCOPHENOLIC ACID; testing if this is a multiple active moiety case 
+ERROR: no active moiety match found for MYCOPHENOLIC ACID; skipping case MYCOPHENOLIC ACID 
+ERROR: possible multiple active moiety case but could not acquire at least one rxcui per moiety
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/31565>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/662281>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/662281>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/7531>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/7646>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/263034>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/263034>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/40790>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/32937>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/253453>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/8076>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1298944>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/8183>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/8331>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/613391>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/42463>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/8754>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/8787>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/8886>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/9068>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/114979>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/283821>.
+  ?splId dailymed:setId ?setId.
+}
+
+ERROR: no active moiety match found for "RIFAMPIN, ISONIAZID, AND PYRAZINAMIDE"; testing if this is a multiple active moiety case 
+ERROR: no active moiety match found for "RIFAMPIN, ISONIAZID,; skipping case "RIFAMPIN, ISONIAZID, AND PYRAZINAMIDE" 
+ERROR: possible multiple active moiety case but could not acquire at least one rxcui per moiety
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/35636>.
+  ?splId dailymed:setId ?setId.
+}
+
+WARNING: more than one active moiety/rxcui match (single active moiety case) SODIUM PHENYLACETATE AND SODIUM BENZOATE:[('SODIUM PHENYLACETATE AND SODIUM BENZOATE', 'http://purl.bioontology.org/ontology/RXNORM/56510'), ('SODIUM PHENYLACETATE AND SODIUM BENZOATE', 'http://purl.bioontology.org/ontology/RXNORM/56455')]
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/56510>.
+  ?splId dailymed:setId ?setId.
+}
+
+ERROR: no results from query
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/56455>.
+  ?splId dailymed:setId ?setId.
+}
+
+ERROR: no results from query
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/214837>.
+  ?splId dailymed:setId ?setId.
+}
+
+ERROR: no results from query
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/10324>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/10324>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/10324>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1102261>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/37801>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/10390>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/10485>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/10502>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1116632>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/119565>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/263010>.
+  ?splId dailymed:setId ?setId.
+}
+
+WARNING: more than one active moiety/rxcui match (single active moiety case) TRAMADOL AND ACETAMINOPHEN:[('TRAMADOL AND ACETAMINOPHEN', 'http://purl.bioontology.org/ontology/RXNORM/10689'), ('TRAMADOL AND ACETAMINOPHEN', 'http://purl.bioontology.org/ontology/RXNORM/161')]
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/10689>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/161>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/224905>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/10753>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/10834>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/11118>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/1147220>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/39786>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/121243>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/11289>.
+  ?splId dailymed:setId ?setId.
+}
+
+single
+QUERY: 
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+
+SELECT DISTINCT ?setId WHERE {
+  ?splId dailymed:activeMoietyRxCUI <http://purl.bioontology.org/ontology/RXNORM/11289>.
+  ?splId dailymed:setId ?setId.
+}
+
+TODO: ADD THE FOLLOWING LINES TO THE FILE THAT MAPS FDA ACTIVE INGREDIENTS TO RXCUIS
+

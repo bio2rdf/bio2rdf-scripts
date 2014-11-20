@@ -1,0 +1,2180 @@
+4-ALLYLPHENOL	http://purl.obolibrary.org/obo/CHEBI_50158
+4-AMINO-3,5-DIMETHYLPHENOL	http://purl.obolibrary.org/obo/CHEBI_55545
+4-AMINO-M-CRESOL	http://purl.obolibrary.org/obo/CHEBI_55546
+4-BIPHENYLAMINE	http://purl.obolibrary.org/obo/CHEBI_1784
+4-BROMO-2,5-DIMETHOXYPHENETHYLAMINE	http://purl.obolibrary.org/obo/CHEBI_189669
+4-CHLORO-3-(TRIFLUOROMETHYL)ANILINE	http://purl.obolibrary.org/obo/CHEBI_59245
+4-CHLOROMERCURIBENZENESULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_33206
+4-CHLOROPHENOXYACETIC ACID	http://purl.obolibrary.org/obo/CHEBI_1808
+4-HYDROXYBENZYL CYANIDE	http://purl.obolibrary.org/obo/CHEBI_16667
+4-HYDROXYBUTANOIC ACID	http://purl.obolibrary.org/obo/CHEBI_30830
+4-HYDROXYESTRADIOL	http://purl.obolibrary.org/obo/CHEBI_62845
+4-HYDROXYPHENYLGLYCINE	http://purl.obolibrary.org/obo/CHEBI_15695
+4-METHYLBENZENAMINE	http://purl.obolibrary.org/obo/CHEBI_37825
+4-PENTENOIC ACID	http://purl.obolibrary.org/obo/CHEBI_35936
+4'-PHOSPHOPANTETHEINE	http://purl.obolibrary.org/obo/CHEBI_16858
+4'-PHOSPHOPANTETHEINE	http://purl.obolibrary.org/obo/CHEBI_4222
+4-TOLUENESULFONAMIDE	http://purl.obolibrary.org/obo/CHEBI_34435
+4-VINYLPHENOL	http://purl.obolibrary.org/obo/CHEBI_1883
+5-(HYDROXYMETHYL)-2-FURALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_412516
+5-AMINOINDOLE	http://purl.obolibrary.org/obo/CHEBI_33067
+5-METHOXYTRYPTAMINE	http://purl.obolibrary.org/obo/CHEBI_2089
+5'-METHYLTHIOADENOSINE	http://purl.obolibrary.org/obo/CHEBI_17509
+6-HYDROXY-3,7-DIMETHYLOCTANOIC ACID LACTONE	http://purl.obolibrary.org/obo/CHEBI_50243
+7-AMINOCEPHALOSPORANIC ACID	http://purl.obolibrary.org/obo/CHEBI_2255
+7-DEHYDROCHOLESTEROL	http://purl.obolibrary.org/obo/CHEBI_17759
+7-OXOCHOLESTEROL	http://purl.obolibrary.org/obo/CHEBI_64294
+9-AMINOPHENANTHRENE	http://purl.obolibrary.org/obo/CHEBI_50475
+9-DECENOIC ACID	http://purl.obolibrary.org/obo/CHEBI_32381
+9-FLUORENONE	http://purl.obolibrary.org/obo/CHEBI_17922
+9-HYDROXYFLUORENE	http://purl.obolibrary.org/obo/CHEBI_16904
+ABACAVIR	http://purl.obolibrary.org/obo/CHEBI_421707
+ABARELIX	http://purl.obolibrary.org/obo/CHEBI_337298
+ABIETYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_29510
+ABRINE	http://purl.obolibrary.org/obo/CHEBI_15334
+ABSCISIC ACID	http://purl.obolibrary.org/obo/CHEBI_2365
+ABSCISIC ACID	http://purl.obolibrary.org/obo/CHEBI_22152
+ACACETIN	http://purl.obolibrary.org/obo/CHEBI_15335
+ACAMPROSATE	http://purl.obolibrary.org/obo/CHEBI_51041
+ACARBOSE	http://purl.obolibrary.org/obo/CHEBI_2376
+ACEBUTOLOL	http://purl.obolibrary.org/obo/CHEBI_2379
+ACECAINIDE	http://purl.obolibrary.org/obo/CHEBI_60728
+ACEDOBEN	http://purl.obolibrary.org/obo/CHEBI_46171
+ACENEURAMIC ACID	http://purl.obolibrary.org/obo/CHEBI_17012
+ACENOCOUMAROL	http://purl.obolibrary.org/obo/CHEBI_53769
+ACENOCOUMAROL	http://purl.obolibrary.org/obo/CHEBI_53766
+ACENOCOUMAROL	http://purl.obolibrary.org/obo/CHEBI_53768
+ACEPROMETAZINE	http://purl.obolibrary.org/obo/CHEBI_53771
+ACEPROMETAZINE	http://purl.obolibrary.org/obo/CHEBI_53772
+ACEPROMETAZINE	http://purl.obolibrary.org/obo/CHEBI_53770
+ACETAMINOPHEN	http://purl.obolibrary.org/obo/CHEBI_46195
+ACETAMINOPHEN GLUCURONIDE	http://purl.obolibrary.org/obo/CHEBI_32636
+ACETAMINOPHEN SULFATE	http://purl.obolibrary.org/obo/CHEBI_32635
+ACETAMIPRID	http://purl.obolibrary.org/obo/CHEBI_39164
+ACETANILIDE	http://purl.obolibrary.org/obo/CHEBI_28884
+ACETATE ION	http://purl.obolibrary.org/obo/CHEBI_30089
+ACETAZOLAMIDE	http://purl.obolibrary.org/obo/CHEBI_27690
+ACETIMIDOQUINONE	http://purl.obolibrary.org/obo/CHEBI_29132
+ACETOHYDROXAMIC ACID	http://purl.obolibrary.org/obo/CHEBI_27777
+ACETOL	http://purl.obolibrary.org/obo/CHEBI_27957
+ACETOPHENAZINE MALEATE	http://purl.obolibrary.org/obo/CHEBI_2402
+ACETOXIME	http://purl.obolibrary.org/obo/CHEBI_15349
+ACETURIC ACID	http://purl.obolibrary.org/obo/CHEBI_40410
+ACETYLCARNITINE	http://purl.obolibrary.org/obo/CHEBI_57589
+ACETYLCYSTEINE	http://purl.obolibrary.org/obo/CHEBI_28939
+ACETYLDIGITOXIN	http://purl.obolibrary.org/obo/CHEBI_53773
+ACETYLENEUREA	http://purl.obolibrary.org/obo/CHEBI_42946
+ACETYLISONIAZID	http://purl.obolibrary.org/obo/CHEBI_7207
+ACETYLLEUCINE	http://purl.obolibrary.org/obo/CHEBI_17786
+ACETYLSULFAMETHOXAZOLE	http://purl.obolibrary.org/obo/CHEBI_31169
+ACID RED 87	http://purl.obolibrary.org/obo/CHEBI_52053
+ACITRETIN	http://purl.obolibrary.org/obo/CHEBI_50173
+ACRONINE	http://purl.obolibrary.org/obo/CHEBI_2437
+ACTINIUM	http://purl.obolibrary.org/obo/CHEBI_33337
+ADAPALENE	http://purl.obolibrary.org/obo/CHEBI_31174
+ADENOSINE PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_16027
+ADENOSINE TRIPHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_15422
+ADICILLIN	http://purl.obolibrary.org/obo/CHEBI_18203
+ADINAZOLAM	http://purl.obolibrary.org/obo/CHEBI_251412
+AFALANINE	http://purl.obolibrary.org/obo/CHEBI_21626
+AFIMOXIFENE	http://purl.obolibrary.org/obo/CHEBI_44616
+AGROCLAVINE	http://purl.obolibrary.org/obo/CHEBI_65042
+AICAR	http://purl.obolibrary.org/obo/CHEBI_18406
+AIR	http://purl.obolibrary.org/obo/CHEBI_28843
+ALANINE	http://purl.obolibrary.org/obo/CHEBI_46217
+ALANINE	http://purl.obolibrary.org/obo/CHEBI_16977
+ALANINE GLUTAMATE	http://purl.obolibrary.org/obo/CHEBI_61565
+ALBENDAZOLE OXIDE	http://purl.obolibrary.org/obo/CHEBI_16959
+ALCLOMETASONE	http://purl.obolibrary.org/obo/CHEBI_53776
+ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_16236
+ALCURONIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31185
+ALDOSTERONE	http://purl.obolibrary.org/obo/CHEBI_30834
+ALENDRONIC ACID	http://purl.obolibrary.org/obo/CHEBI_2567
+ALEXIDINE	http://purl.obolibrary.org/obo/CHEBI_53661
+ALFENTANIL	http://purl.obolibrary.org/obo/CHEBI_2569
+ALFUZOSIN	http://purl.obolibrary.org/obo/CHEBI_51141
+ALGESTONE	http://purl.obolibrary.org/obo/CHEBI_763
+ALISKIREN	http://purl.obolibrary.org/obo/CHEBI_601027
+ALISKIREN HEMIFUMARATE	http://purl.obolibrary.org/obo/CHEBI_53777
+ALITRETINOIN	http://purl.obolibrary.org/obo/CHEBI_50648
+ALLYL DISULFIDE	http://purl.obolibrary.org/obo/CHEBI_4488
+ALLYL MERCAPTAN	http://purl.obolibrary.org/obo/CHEBI_59723
+ALMECILLIN	http://purl.obolibrary.org/obo/CHEBI_51207
+ALMITRINE	http://purl.obolibrary.org/obo/CHEBI_53778
+ALMITRINE MESYLATE	http://purl.obolibrary.org/obo/CHEBI_53779
+ALMOTRIPTAN	http://purl.obolibrary.org/obo/CHEBI_520985
+ALOSETRON	http://purl.obolibrary.org/obo/CHEBI_253342
+ALOSETRON	http://purl.obolibrary.org/obo/CHEBI_53783
+ALPRENOLOL	http://purl.obolibrary.org/obo/CHEBI_51211
+ALPROSTADIL	http://purl.obolibrary.org/obo/CHEBI_15544
+ALTRETAMINE	http://purl.obolibrary.org/obo/CHEBI_24564
+ALUMINUM	http://purl.obolibrary.org/obo/CHEBI_28984
+ALUMINUM CATION	http://purl.obolibrary.org/obo/CHEBI_30150
+ALUMINUM CHLORIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_30114
+ALUMINUM FLUORIDE	http://purl.obolibrary.org/obo/CHEBI_49464
+ALUMINUM HYDROXIDE	http://purl.obolibrary.org/obo/CHEBI_33130
+ALUMINUM LACTATE	http://purl.obolibrary.org/obo/CHEBI_31196
+ALUMINUM NITRIDE	http://purl.obolibrary.org/obo/CHEBI_50884
+ALUMINUM OXIDE	http://purl.obolibrary.org/obo/CHEBI_30187
+ALUMINUM PHOSPHIDE	http://purl.obolibrary.org/obo/CHEBI_38495
+ALUMINUM STEARATE	http://purl.obolibrary.org/obo/CHEBI_37867
+ALVERINE	http://purl.obolibrary.org/obo/CHEBI_518413
+AMANTADINE	http://purl.obolibrary.org/obo/CHEBI_2618
+AMBENONIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_2628
+AMCINONIDE	http://purl.obolibrary.org/obo/CHEBI_31199
+AMDINOCILLIN	http://purl.obolibrary.org/obo/CHEBI_51208
+AMDINOCILLIN PIVOXIL	http://purl.obolibrary.org/obo/CHEBI_51210
+AMDINOCILLIN PIVOXIL HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_51213
+AMERICIUM	http://purl.obolibrary.org/obo/CHEBI_33389
+AMIFOSTINE	http://purl.obolibrary.org/obo/CHEBI_2636
+AMIKACIN	http://purl.obolibrary.org/obo/CHEBI_2637
+AMIKACIN SULFATE	http://purl.obolibrary.org/obo/CHEBI_2638
+AMILORIDE	http://purl.obolibrary.org/obo/CHEBI_2639
+AMINEPTINE	http://purl.obolibrary.org/obo/CHEBI_32499
+AMINO ACIDS	http://purl.obolibrary.org/obo/CHEBI_33709
+AMINOCAPROIC ACID	http://purl.obolibrary.org/obo/CHEBI_16586
+AMINOGLUTETHIMIDE	http://purl.obolibrary.org/obo/CHEBI_2654
+AMINOHIPPURATE SODIUM	http://purl.obolibrary.org/obo/CHEBI_31204
+AMINOHIPPURIC ACID	http://purl.obolibrary.org/obo/CHEBI_104011
+AMINOLEVULINIC ACID	http://purl.obolibrary.org/obo/CHEBI_17549
+AMINOMETHYL PROPANEDIOL	http://purl.obolibrary.org/obo/CHEBI_991
+AMINOPTERIN	http://purl.obolibrary.org/obo/CHEBI_22526
+AMINOPYRINE	http://purl.obolibrary.org/obo/CHEBI_160246
+AMINOSALICYLIC ACID	http://purl.obolibrary.org/obo/CHEBI_27565
+AMISULPRIDE	http://purl.obolibrary.org/obo/CHEBI_64045
+AMLEXANOX	http://purl.obolibrary.org/obo/CHEBI_31205
+AMLODIPINE	http://purl.obolibrary.org/obo/CHEBI_53796
+AMLODIPINE	http://purl.obolibrary.org/obo/CHEBI_2669
+AMLODIPINE	http://purl.obolibrary.org/obo/CHEBI_53795
+AMLODIPINE	http://purl.obolibrary.org/obo/CHEBI_2668
+AMLODIPINE BESYLATE	http://purl.obolibrary.org/obo/CHEBI_2669
+AMMONIAC	http://purl.obolibrary.org/obo/CHEBI_16134
+AMMONIUM CITRATE, DIBASIC	http://purl.obolibrary.org/obo/CHEBI_63076
+AMMONIUM PHOSPHATE, DIBASIC	http://purl.obolibrary.org/obo/CHEBI_63051
+AMOCARZINE	http://purl.obolibrary.org/obo/CHEBI_38946
+AMODIAQUINE	http://purl.obolibrary.org/obo/CHEBI_2674
+AMOROLFINE	http://purl.obolibrary.org/obo/CHEBI_599440
+AMOSCANATE	http://purl.obolibrary.org/obo/CHEBI_38944
+AMOXAPINE	http://purl.obolibrary.org/obo/CHEBI_2675
+AMOXICILLIN	http://purl.obolibrary.org/obo/CHEBI_2676
+AMOXICILLIN ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_2676
+AMPHOTERICIN B	http://purl.obolibrary.org/obo/CHEBI_2682
+AMPICILLIN	http://purl.obolibrary.org/obo/CHEBI_28971
+AMPYRONE	http://purl.obolibrary.org/obo/CHEBI_59026
+AMYL NITRITE	http://purl.obolibrary.org/obo/CHEBI_55344
+ANABASINE	http://purl.obolibrary.org/obo/CHEBI_74
+ANAGRELIDE	http://purl.obolibrary.org/obo/CHEBI_142290
+ANAGRELIDE	http://purl.obolibrary.org/obo/CHEBI_55345
+ANASTROZOLE	http://purl.obolibrary.org/obo/CHEBI_2704
+ANDROSTENEDIOL	http://purl.obolibrary.org/obo/CHEBI_2710
+ANDROSTENEDIONE	http://purl.obolibrary.org/obo/CHEBI_16422
+ANDROSTENOL	http://purl.obolibrary.org/obo/CHEBI_40933
+ANETHOLE	http://purl.obolibrary.org/obo/CHEBI_35616
+ANGIOTENSIN II	http://purl.obolibrary.org/obo/CHEBI_2719
+ANHYDROUS LACTOSE	http://purl.obolibrary.org/obo/CHEBI_36219
+ANIDULAFUNGIN	http://purl.obolibrary.org/obo/CHEBI_55346
+ANILERIDINE	http://purl.obolibrary.org/obo/CHEBI_61203
+ANILERIDINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_61208
+ANISINDIONE	http://purl.obolibrary.org/obo/CHEBI_133809
+ANISOMYCIN	http://purl.obolibrary.org/obo/CHEBI_338412
+ANTHRALIN	http://purl.obolibrary.org/obo/CHEBI_2756
+ANTHRAQUINONE	http://purl.obolibrary.org/obo/CHEBI_40448
+ANTIMONY	http://purl.obolibrary.org/obo/CHEBI_30513
+ANTIMONY POTASSIUM TARTRATE	http://purl.obolibrary.org/obo/CHEBI_2761
+ANTIMONY SODIUM TARTRATE	http://purl.obolibrary.org/obo/CHEBI_31224
+APALCILLIN	http://purl.obolibrary.org/obo/CHEBI_51691
+APALCILLIN SODIUM	http://purl.obolibrary.org/obo/CHEBI_51697
+APIGETRIN	http://purl.obolibrary.org/obo/CHEBI_16778
+APOCAROTENAL	http://purl.obolibrary.org/obo/CHEBI_53154
+APRACLONIDINE	http://purl.obolibrary.org/obo/CHEBI_2788
+APRACLONIDINE	http://purl.obolibrary.org/obo/CHEBI_2789
+APRAMYCIN	http://purl.obolibrary.org/obo/CHEBI_2790
+APREPITANT	http://purl.obolibrary.org/obo/CHEBI_499361
+ARBEKACIN	http://purl.obolibrary.org/obo/CHEBI_37922
+ARBUTAMINE	http://purl.obolibrary.org/obo/CHEBI_50580
+ARBUTIN	http://purl.obolibrary.org/obo/CHEBI_18305
+ARFORMOTEROL	http://purl.obolibrary.org/obo/CHEBI_408174
+ARGININE	http://purl.obolibrary.org/obo/CHEBI_16467
+ARGININE	http://purl.obolibrary.org/obo/CHEBI_32696
+ARGIPRESSIN	http://purl.obolibrary.org/obo/CHEBI_9937
+ARGON	http://purl.obolibrary.org/obo/CHEBI_49475
+ARGON	http://purl.obolibrary.org/obo/CHEBI_49474
+ARIPIPRAZOLE	http://purl.obolibrary.org/obo/CHEBI_31236
+AROMADENDRIN	http://purl.obolibrary.org/obo/CHEBI_15401
+ARSENATE ION	http://purl.obolibrary.org/obo/CHEBI_29125
+ARSENIC	http://purl.obolibrary.org/obo/CHEBI_27563
+ARSENIC TRIOXIDE	http://purl.obolibrary.org/obo/CHEBI_30621
+ARTEMETHER	http://purl.obolibrary.org/obo/CHEBI_195280
+ARTEMISININ	http://purl.obolibrary.org/obo/CHEBI_223316
+ARTESUNATE	http://purl.obolibrary.org/obo/CHEBI_63918
+ASCORBIC ACID	http://purl.obolibrary.org/obo/CHEBI_29073
+ASPARAGINE	http://purl.obolibrary.org/obo/CHEBI_50347
+ASPARAGINE	http://purl.obolibrary.org/obo/CHEBI_50348
+ASPARAGINE	http://purl.obolibrary.org/obo/CHEBI_17196
+ASPARTAME	http://purl.obolibrary.org/obo/CHEBI_2877
+ASPARTIC ACID	http://purl.obolibrary.org/obo/CHEBI_17053
+ASPIRIN	http://purl.obolibrary.org/obo/CHEBI_15365
+ASTEMIZOLE	http://purl.obolibrary.org/obo/CHEBI_2896
+ATAZANAVIR	http://purl.obolibrary.org/obo/CHEBI_37924
+ATENOLOL	http://purl.obolibrary.org/obo/CHEBI_2904
+ATENOLOL	http://purl.obolibrary.org/obo/CHEBI_55352
+ATOMOXETINE	http://purl.obolibrary.org/obo/CHEBI_127342
+ATOMOXETINE	http://purl.obolibrary.org/obo/CHEBI_331697
+ATORVASTATIN	http://purl.obolibrary.org/obo/CHEBI_39548
+ATOVAQUONE	http://purl.obolibrary.org/obo/CHEBI_575568
+AURANOFIN	http://purl.obolibrary.org/obo/CHEBI_2922
+AZACITIDINE	http://purl.obolibrary.org/obo/CHEBI_2038
+AZATADINE	http://purl.obolibrary.org/obo/CHEBI_2946
+AZELASTINE	http://purl.obolibrary.org/obo/CHEBI_2951
+AZELASTINE	http://purl.obolibrary.org/obo/CHEBI_2950
+AZELASTINE	http://purl.obolibrary.org/obo/CHEBI_55362
+AZELASTINE	http://purl.obolibrary.org/obo/CHEBI_55363
+AZLOCILLIN	http://purl.obolibrary.org/obo/CHEBI_2956
+AZOSEMIDE	http://purl.obolibrary.org/obo/CHEBI_31248
+AZTREONAM	http://purl.obolibrary.org/obo/CHEBI_161680
+BACAMPICILLIN	http://purl.obolibrary.org/obo/CHEBI_2968
+BACLOFEN	http://purl.obolibrary.org/obo/CHEBI_2972
+BAICALIN	http://purl.obolibrary.org/obo/CHEBI_61283
+BALSALAZIDE	http://purl.obolibrary.org/obo/CHEBI_267413
+BAMBERMYCINS	http://purl.obolibrary.org/obo/CHEBI_28908
+BAMBUTEROL	http://purl.obolibrary.org/obo/CHEBI_553827
+BAMBUTEROL	http://purl.obolibrary.org/obo/CHEBI_59180
+BAMBUTEROL	http://purl.obolibrary.org/obo/CHEBI_59179
+BARBASCO	http://purl.obolibrary.org/obo/CHEBI_28201
+BARBITAL	http://purl.obolibrary.org/obo/CHEBI_31252
+BARIUM	http://purl.obolibrary.org/obo/CHEBI_32594
+BARIUM	http://purl.obolibrary.org/obo/CHEBI_37136
+BARIUM CATION	http://purl.obolibrary.org/obo/CHEBI_37137
+BARIUM HYDROXIDE	http://purl.obolibrary.org/obo/CHEBI_35112
+BASIFUNGIN	http://purl.obolibrary.org/obo/CHEBI_61739
+BATILOL	http://purl.obolibrary.org/obo/CHEBI_34117
+BEKANAMYCIN	http://purl.obolibrary.org/obo/CHEBI_28098
+BELINOSTAT	http://purl.obolibrary.org/obo/CHEBI_61076
+BENDROFLUMETHIAZIDE	http://purl.obolibrary.org/obo/CHEBI_3013
+BENDROFLUMETHIAZIDE	http://purl.obolibrary.org/obo/CHEBI_59243
+BENETHAMINE PENICILLIN	http://purl.obolibrary.org/obo/CHEBI_52151
+BENOXINATE	http://purl.obolibrary.org/obo/CHEBI_309594
+BENSERAZIDE	http://purl.obolibrary.org/obo/CHEBI_64187
+BENTIROMIDE	http://purl.obolibrary.org/obo/CHEBI_31263
+BENZALKONIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_3020
+BENZENEARSONIC ACID	http://purl.obolibrary.org/obo/CHEBI_29851
+BENZENEBORONIC ACID	http://purl.obolibrary.org/obo/CHEBI_44923
+BENZIMIDAZOLE	http://purl.obolibrary.org/obo/CHEBI_41275
+BENZO(A)PYRENE	http://purl.obolibrary.org/obo/CHEBI_29865
+BENZO(E)PYRENE	http://purl.obolibrary.org/obo/CHEBI_34567
+BENZOCAINE	http://purl.obolibrary.org/obo/CHEBI_116735
+BENZOFURAN	http://purl.obolibrary.org/obo/CHEBI_35260
+BENZOIC HYDRAZIDE	http://purl.obolibrary.org/obo/CHEBI_38454
+BENZONATATE	http://purl.obolibrary.org/obo/CHEBI_3032
+BENZOXAZOLE	http://purl.obolibrary.org/obo/CHEBI_38814
+BENZOYLACETIC ACID	http://purl.obolibrary.org/obo/CHEBI_28759
+BENZOYLECGONINE	http://purl.obolibrary.org/obo/CHEBI_41001
+BENZQUINAMIDE	http://purl.obolibrary.org/obo/CHEBI_27662
+BENZTHIAZIDE	http://purl.obolibrary.org/obo/CHEBI_3047
+BENZTROPINE	http://purl.obolibrary.org/obo/CHEBI_3048
+BENZTROPINE MESYLATE	http://purl.obolibrary.org/obo/CHEBI_3049
+BENZYLAMINE	http://purl.obolibrary.org/obo/CHEBI_225238
+BERGAPTEN	http://purl.obolibrary.org/obo/CHEBI_18293
+BERYLLIUM	http://purl.obolibrary.org/obo/CHEBI_30501
+BERYLLIUM	http://purl.obolibrary.org/obo/CHEBI_33783
+BERYTHROMYCIN	http://purl.obolibrary.org/obo/CHEBI_28196
+BETADEX	http://purl.obolibrary.org/obo/CHEBI_495055
+BETAINE	http://purl.obolibrary.org/obo/CHEBI_17750
+BETAMETHASONE	http://purl.obolibrary.org/obo/CHEBI_3077
+BETAMETHASONE ACIBUTATE	http://purl.obolibrary.org/obo/CHEBI_50894
+BETAXOLOL	http://purl.obolibrary.org/obo/CHEBI_3082
+BETAXOLOL	http://purl.obolibrary.org/obo/CHEBI_59251
+BETAXOLOL	http://purl.obolibrary.org/obo/CHEBI_59254
+BETAZOLE	http://purl.obolibrary.org/obo/CHEBI_59170
+BETAZOLE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31280
+BEVANTOLOL	http://purl.obolibrary.org/obo/CHEBI_59184
+BEVANTOLOL	http://purl.obolibrary.org/obo/CHEBI_59185
+BEVANTOLOL	http://purl.obolibrary.org/obo/CHEBI_238698
+BEXAROTENE	http://purl.obolibrary.org/obo/CHEBI_50859
+BEZAFIBRATE	http://purl.obolibrary.org/obo/CHEBI_47612
+BIBENZYL	http://purl.obolibrary.org/obo/CHEBI_34047
+BICALUTAMIDE	http://purl.obolibrary.org/obo/CHEBI_3090
+BICARBONATE ION	http://purl.obolibrary.org/obo/CHEBI_17544
+BICINE	http://purl.obolibrary.org/obo/CHEBI_40957
+BICOZAMYCIN	http://purl.obolibrary.org/obo/CHEBI_60584
+BIMATOPROST	http://purl.obolibrary.org/obo/CHEBI_51230
+BIOALLETHRIN	http://purl.obolibrary.org/obo/CHEBI_34572
+BIOTIN	http://purl.obolibrary.org/obo/CHEBI_57586
+BIPERIDEN	http://purl.obolibrary.org/obo/CHEBI_3112
+BISMUTH	http://purl.obolibrary.org/obo/CHEBI_33301
+BISOPROLOL	http://purl.obolibrary.org/obo/CHEBI_3127
+BITOLTEROL	http://purl.obolibrary.org/obo/CHEBI_59189
+BITOLTEROL	http://purl.obolibrary.org/obo/CHEBI_59188
+BITOLTEROL	http://purl.obolibrary.org/obo/CHEBI_3133
+BIVALIRUDIN	http://purl.obolibrary.org/obo/CHEBI_59173
+BLEOMYCIN	http://purl.obolibrary.org/obo/CHEBI_3139
+BOLDENONE	http://purl.obolibrary.org/obo/CHEBI_34584
+BORATE ION	http://purl.obolibrary.org/obo/CHEBI_22908
+BORATE ION	http://purl.obolibrary.org/obo/CHEBI_41132
+BORON	http://purl.obolibrary.org/obo/CHEBI_27560
+BORON	http://purl.obolibrary.org/obo/CHEBI_33609
+BORON	http://purl.obolibrary.org/obo/CHEBI_51707
+BORTEZOMIB	http://purl.obolibrary.org/obo/CHEBI_52717
+BRIMONIDINE	http://purl.obolibrary.org/obo/CHEBI_3175
+BROMFENAC	http://purl.obolibrary.org/obo/CHEBI_240107
+BROMFENAC SODIUM	http://purl.obolibrary.org/obo/CHEBI_59176
+BROMFENAC SODIUM	http://purl.obolibrary.org/obo/CHEBI_140536
+BROMIDE ION	http://purl.obolibrary.org/obo/CHEBI_15858
+BROMINE	http://purl.obolibrary.org/obo/CHEBI_29224
+BROMINE	http://purl.obolibrary.org/obo/CHEBI_22927
+BROMINE	http://purl.obolibrary.org/obo/CHEBI_33117
+BROMOCRIPTINE	http://purl.obolibrary.org/obo/CHEBI_3181
+BROMOCRIPTINE MESYLATE	http://purl.obolibrary.org/obo/CHEBI_3182
+BROMODIPHENHYDRAMINE	http://purl.obolibrary.org/obo/CHEBI_59177
+BROMODIPHENHYDRAMINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_59178
+BROMOXYNIL	http://purl.obolibrary.org/obo/CHEBI_17192
+BROMPHENIRAMINE	http://purl.obolibrary.org/obo/CHEBI_3183
+BROXURIDINE	http://purl.obolibrary.org/obo/CHEBI_472552
+BUCKMINSTERFULLERENE	http://purl.obolibrary.org/obo/CHEBI_33128
+BUCLADESINE	http://purl.obolibrary.org/obo/CHEBI_50095
+BUCLIZINE	http://purl.obolibrary.org/obo/CHEBI_3205
+BUCLIZINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_61193
+BUCOLOME	http://purl.obolibrary.org/obo/CHEBI_31314
+BUDESONIDE	http://purl.obolibrary.org/obo/CHEBI_3207
+BUFOTENINE	http://purl.obolibrary.org/obo/CHEBI_3210
+BUMETANIDE	http://purl.obolibrary.org/obo/CHEBI_3213
+BUNOLOL	http://purl.obolibrary.org/obo/CHEBI_29110
+BUPIVACAINE	http://purl.obolibrary.org/obo/CHEBI_3215
+BUPIVACAINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_60789
+BUPIVACAINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31322
+BUPRENORPHINE	http://purl.obolibrary.org/obo/CHEBI_3216
+BUPRENORPHINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_652822
+BUSPIRONE	http://purl.obolibrary.org/obo/CHEBI_3223
+BUTALBITAL	http://purl.obolibrary.org/obo/CHEBI_102524
+BUTANILICAINE	http://purl.obolibrary.org/obo/CHEBI_55518
+BUTENAFINE	http://purl.obolibrary.org/obo/CHEBI_3238
+BUTOCONAZOLE	http://purl.obolibrary.org/obo/CHEBI_59288
+BUTOCONAZOLE	http://purl.obolibrary.org/obo/CHEBI_59287
+BUTOCONAZOLE	http://purl.obolibrary.org/obo/CHEBI_3240
+BUTORPHANOL	http://purl.obolibrary.org/obo/CHEBI_3242
+BUTYL ISOCYANATE	http://purl.obolibrary.org/obo/CHEBI_136519
+BUTYL PHENYL KETONE	http://purl.obolibrary.org/obo/CHEBI_36812
+BUTYLAMINE	http://purl.obolibrary.org/obo/CHEBI_43799
+BUTYLATED HYDROXYTOLUENE	http://purl.obolibrary.org/obo/CHEBI_34247
+BUTYRALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_15743
+BUTYROLACTONE	http://purl.obolibrary.org/obo/CHEBI_42639
+CABAZITAXEL	http://purl.obolibrary.org/obo/CHEBI_63584
+CABERGOLINE	http://purl.obolibrary.org/obo/CHEBI_3286
+CACODYLIC ACID	http://purl.obolibrary.org/obo/CHEBI_48765
+CADMIUM	http://purl.obolibrary.org/obo/CHEBI_22977
+CADMIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_35456
+CAFFEIC ACID	http://purl.obolibrary.org/obo/CHEBI_17395
+CAFFEIC ACID	http://purl.obolibrary.org/obo/CHEBI_16433
+CALCIFEDIOL	http://purl.obolibrary.org/obo/CHEBI_17933
+CALCIFEDIOL ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_17933
+CALCIPOTRIENE	http://purl.obolibrary.org/obo/CHEBI_50749
+CALCITRIOL	http://purl.obolibrary.org/obo/CHEBI_17823
+CALCIUM	http://purl.obolibrary.org/obo/CHEBI_22984
+CALCIUM ACETATE	http://purl.obolibrary.org/obo/CHEBI_59199
+CALCIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_31338
+CALCIUM CARBIMIDE	http://purl.obolibrary.org/obo/CHEBI_64301
+CALCIUM CATION	http://purl.obolibrary.org/obo/CHEBI_39099
+CALCIUM CHLORIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_3312
+CALCIUM FLUORIDE	http://purl.obolibrary.org/obo/CHEBI_35437
+CALCIUM GLUCEPTATE	http://purl.obolibrary.org/obo/CHEBI_3314
+CALCIUM HYDROXIDE	http://purl.obolibrary.org/obo/CHEBI_35111
+CALCIUM HYDROXIDE	http://purl.obolibrary.org/obo/CHEBI_31341
+CALCIUM PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_9679
+CALCIUM PYROPHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_32598
+CALIFORNIUM	http://purl.obolibrary.org/obo/CHEBI_33392
+CALOMEL	http://purl.obolibrary.org/obo/CHEBI_33050
+CANADINE L-FORM	http://purl.obolibrary.org/obo/CHEBI_16592
+CANDICIDIN	http://purl.obolibrary.org/obo/CHEBI_354984
+CANDOXATRIL	http://purl.obolibrary.org/obo/CHEBI_3353
+CANDOXATRILAT	http://purl.obolibrary.org/obo/CHEBI_3354
+CANERTINIB	http://purl.obolibrary.org/obo/CHEBI_61399
+CANRENOIC ACID	http://purl.obolibrary.org/obo/CHEBI_50156
+CAPECITABINE	http://purl.obolibrary.org/obo/CHEBI_31348
+CAPROLACTAM	http://purl.obolibrary.org/obo/CHEBI_28579
+CAPRYLALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_17935
+CAPRYLENE	http://purl.obolibrary.org/obo/CHEBI_46708
+CAPRYLIC ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_16188
+CAPTOPRIL	http://purl.obolibrary.org/obo/CHEBI_3380
+CARBACHOL	http://purl.obolibrary.org/obo/CHEBI_3385
+CARBAMAZEPINE	http://purl.obolibrary.org/obo/CHEBI_3387
+CARBANILIC ACID	http://purl.obolibrary.org/obo/CHEBI_52496
+CARBARIL	http://purl.obolibrary.org/obo/CHEBI_3390
+CARBAZOLE	http://purl.obolibrary.org/obo/CHEBI_27543
+CARBENICILLIN	http://purl.obolibrary.org/obo/CHEBI_3393
+CARBENICILLIN INDANYL	http://purl.obolibrary.org/obo/CHEBI_52015
+CARBENICILLIN INDANYL SODIUM	http://purl.obolibrary.org/obo/CHEBI_31358
+CARBENICILLIN PHENYL	http://purl.obolibrary.org/obo/CHEBI_3414
+CARBENICILLIN PHENYL SODIUM	http://purl.obolibrary.org/obo/CHEBI_34612
+CARBETOCIN	http://purl.obolibrary.org/obo/CHEBI_59204
+CARBIDOPA	http://purl.obolibrary.org/obo/CHEBI_3395
+CARBINOXAMINE	http://purl.obolibrary.org/obo/CHEBI_3398
+CARBINOXAMINE	http://purl.obolibrary.org/obo/CHEBI_59328
+CARBOCYSTEINE	http://purl.obolibrary.org/obo/CHEBI_16163
+CARBOHYDRAZIDE	http://purl.obolibrary.org/obo/CHEBI_61308
+CARBON TETRACHLORIDE	http://purl.obolibrary.org/obo/CHEBI_27385
+CARBONATE ION	http://purl.obolibrary.org/obo/CHEBI_41609
+CARBOPROST	http://purl.obolibrary.org/obo/CHEBI_3403
+CARBOSTYRIL	http://purl.obolibrary.org/obo/CHEBI_18289
+CARFENTANIL	http://purl.obolibrary.org/obo/CHEBI_61084
+CARISOPRODOL	http://purl.obolibrary.org/obo/CHEBI_59334
+CARISOPRODOL	http://purl.obolibrary.org/obo/CHEBI_3419
+CARISOPRODOL	http://purl.obolibrary.org/obo/CHEBI_59336
+CARMOXIROLE	http://purl.obolibrary.org/obo/CHEBI_64200
+CARNITINE	http://purl.obolibrary.org/obo/CHEBI_39547
+CARNITINE	http://purl.obolibrary.org/obo/CHEBI_3424
+CARNITINE	http://purl.obolibrary.org/obo/CHEBI_16347
+CARPROFEN	http://purl.obolibrary.org/obo/CHEBI_364453
+CARPROFEN	http://purl.obolibrary.org/obo/CHEBI_59206
+CARPROFEN	http://purl.obolibrary.org/obo/CHEBI_59207
+CARTEOLOL	http://purl.obolibrary.org/obo/CHEBI_3437
+CARUMONAM	http://purl.obolibrary.org/obo/CHEBI_55486
+CARVEDILOL	http://purl.obolibrary.org/obo/CHEBI_3441
+CARYOPHYLLENE	http://purl.obolibrary.org/obo/CHEBI_10357
+CASPOFUNGIN	http://purl.obolibrary.org/obo/CHEBI_474180
+CATHINONE	http://purl.obolibrary.org/obo/CHEBI_4110
+CEFACLOR ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_3478
+CEFADROXIL	http://purl.obolibrary.org/obo/CHEBI_53667
+CEFADROXIL ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_3479
+CEFAMANDOLE	http://purl.obolibrary.org/obo/CHEBI_3480
+CEFAZOLIN	http://purl.obolibrary.org/obo/CHEBI_474053
+CEFDINIR	http://purl.obolibrary.org/obo/CHEBI_3485
+CEFDITOREN	http://purl.obolibrary.org/obo/CHEBI_59343
+CEFEPIME	http://purl.obolibrary.org/obo/CHEBI_478164
+CEFEPIME DIHYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31368
+CEFIXIME	http://purl.obolibrary.org/obo/CHEBI_472657
+CEFMENOXIME	http://purl.obolibrary.org/obo/CHEBI_55490
+CEFMETAZOLE	http://purl.obolibrary.org/obo/CHEBI_3489
+CEFODIZIME	http://purl.obolibrary.org/obo/CHEBI_63214
+CEFONICID	http://purl.obolibrary.org/obo/CHEBI_3491
+CEFOPERAZONE	http://purl.obolibrary.org/obo/CHEBI_3493
+CEFORANIDE	http://purl.obolibrary.org/obo/CHEBI_3495
+CEFOTAXIME	http://purl.obolibrary.org/obo/CHEBI_204928
+CEFOTAXIME	http://purl.obolibrary.org/obo/CHEBI_3498
+CEFOTETAN	http://purl.obolibrary.org/obo/CHEBI_3499
+CEFOTIAM	http://purl.obolibrary.org/obo/CHEBI_355510
+CEFOTIAM HEXETIL HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31373
+CEFOTIAM HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31374
+CEFOXITIN	http://purl.obolibrary.org/obo/CHEBI_209807
+CEFPIRAMIDE	http://purl.obolibrary.org/obo/CHEBI_59213
+CEFPODOXIME	http://purl.obolibrary.org/obo/CHEBI_3504
+CEFPROZIL ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_3506
+CEFSULODIN	http://purl.obolibrary.org/obo/CHEBI_3507
+CEFTAZIDIME	http://purl.obolibrary.org/obo/CHEBI_3508
+CEFTAZIDIME	http://purl.obolibrary.org/obo/CHEBI_3509
+CEFTAZIDIME ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_3508
+CEFTIBUTEN	http://purl.obolibrary.org/obo/CHEBI_34618
+CEFTIBUTEN	http://purl.obolibrary.org/obo/CHEBI_3510
+CEFTIZOXIME	http://purl.obolibrary.org/obo/CHEBI_553473
+CEFTRIAXONE	http://purl.obolibrary.org/obo/CHEBI_29007
+CEFUROXIME	http://purl.obolibrary.org/obo/CHEBI_3515
+CEFUZONAM	http://purl.obolibrary.org/obo/CHEBI_55488
+CEPHALEXIN	http://purl.obolibrary.org/obo/CHEBI_3535
+CEPHALORIDINE	http://purl.obolibrary.org/obo/CHEBI_3537
+CEPHALOTHIN	http://purl.obolibrary.org/obo/CHEBI_124991
+CERIVASTATIN	http://purl.obolibrary.org/obo/CHEBI_3558
+CERTOPARIN	http://purl.obolibrary.org/obo/CHEBI_28304
+CERULETIDE	http://purl.obolibrary.org/obo/CHEBI_59219
+CESIUM	http://purl.obolibrary.org/obo/CHEBI_30514
+CESIUM CATION	http://purl.obolibrary.org/obo/CHEBI_49547
+CESIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_63039
+CESIUM HYDROXIDE	http://purl.obolibrary.org/obo/CHEBI_33988
+CETIRIZINE	http://purl.obolibrary.org/obo/CHEBI_3561
+CETRIMIDE	http://purl.obolibrary.org/obo/CHEBI_3567
+CETRIMONIUM	http://purl.obolibrary.org/obo/CHEBI_39561
+CETRIMONIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_3567
+CETRIMONIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_53581
+CETRORELIX	http://purl.obolibrary.org/obo/CHEBI_59224
+CETYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_16125
+CETYLPYRIDINIUM CHLORIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_32915
+CEVIMELINE	http://purl.obolibrary.org/obo/CHEBI_3568
+CHENODIOL	http://purl.obolibrary.org/obo/CHEBI_16755
+CHIMYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_34115
+CHLORAL	http://purl.obolibrary.org/obo/CHEBI_48814
+CHLORAMINE-T	http://purl.obolibrary.org/obo/CHEBI_53767
+CHLORAMPHENICOL	http://purl.obolibrary.org/obo/CHEBI_17698
+CHLORANIL	http://purl.obolibrary.org/obo/CHEBI_36703
+CHLORATE ION	http://purl.obolibrary.org/obo/CHEBI_49709
+CHLORDIAZEPOXIDE	http://purl.obolibrary.org/obo/CHEBI_3611
+CHLORIDE ION	http://purl.obolibrary.org/obo/CHEBI_17996
+CHLORINE	http://purl.obolibrary.org/obo/CHEBI_23116
+CHLORINE	http://purl.obolibrary.org/obo/CHEBI_29310
+CHLORINE DIOXIDE	http://purl.obolibrary.org/obo/CHEBI_29415
+CHLORMERODRIN	http://purl.obolibrary.org/obo/CHEBI_59445
+CHLORMEZANONE	http://purl.obolibrary.org/obo/CHEBI_3619
+CHLORMEZANONE	http://purl.obolibrary.org/obo/CHEBI_59467
+CHLORMEZANONE	http://purl.obolibrary.org/obo/CHEBI_59468
+CHLOROPROCAINE	http://purl.obolibrary.org/obo/CHEBI_3636
+CHLOROQUINE	http://purl.obolibrary.org/obo/CHEBI_3638
+CHLOROSULFURIC ACID	http://purl.obolibrary.org/obo/CHEBI_29291
+CHLOROTHIAZIDE	http://purl.obolibrary.org/obo/CHEBI_3640
+CHLOROTRIANISENE	http://purl.obolibrary.org/obo/CHEBI_3641
+CHLORPHENESIN	http://purl.obolibrary.org/obo/CHEBI_59480
+CHLORPHENESIN	http://purl.obolibrary.org/obo/CHEBI_59479
+CHLORPHENESIN	http://purl.obolibrary.org/obo/CHEBI_3642
+CHLORPHENIRAMINE	http://purl.obolibrary.org/obo/CHEBI_52010
+CHLORPROMAZINE	http://purl.obolibrary.org/obo/CHEBI_3647
+CHLORPROPAMIDE	http://purl.obolibrary.org/obo/CHEBI_3650
+CHLORPROTHIXENE	http://purl.obolibrary.org/obo/CHEBI_3651
+CHLORPROTHIXENE	http://purl.obolibrary.org/obo/CHEBI_50931
+CHLORZOXAZONE	http://purl.obolibrary.org/obo/CHEBI_3655
+CHOLECALCIFEROL	http://purl.obolibrary.org/obo/CHEBI_28940
+CHOLINE ALFOSCERATE	http://purl.obolibrary.org/obo/CHEBI_55397
+CHOLINE ALFOSCERATE	http://purl.obolibrary.org/obo/CHEBI_16870
+CHOLINE CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_133341
+CHROMATE	http://purl.obolibrary.org/obo/CHEBI_35404
+CHROMIC CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_53351
+CHROMIC OXIDE	http://purl.obolibrary.org/obo/CHEBI_48240
+CHROMIC SULFATE	http://purl.obolibrary.org/obo/CHEBI_53471
+CHROMIUM	http://purl.obolibrary.org/obo/CHEBI_28073
+CHROMIUM NICOTINATE	http://purl.obolibrary.org/obo/CHEBI_50368
+CHROMIUM PICOLINATE	http://purl.obolibrary.org/obo/CHEBI_50369
+CHROMYL CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_33038
+CHRYSAROBIN	http://purl.obolibrary.org/obo/CHEBI_3686
+CHRYSOPHANIC ACID	http://purl.obolibrary.org/obo/CHEBI_3687
+CIAFTALAN ZINC	http://purl.obolibrary.org/obo/CHEBI_51218
+CIANIDANOL	http://purl.obolibrary.org/obo/CHEBI_15600
+CICLOPIROX	http://purl.obolibrary.org/obo/CHEBI_453011
+CIDOFOVIR	http://purl.obolibrary.org/obo/CHEBI_59495
+CIDOFOVIR	http://purl.obolibrary.org/obo/CHEBI_530615
+CIDOFOVIR	http://purl.obolibrary.org/obo/CHEBI_3696
+CIFOSTODINE	http://purl.obolibrary.org/obo/CHEBI_27652
+CIGLITAZONE	http://purl.obolibrary.org/obo/CHEBI_64227
+CILASTATIN	http://purl.obolibrary.org/obo/CHEBI_3697
+CILNIDIPINE	http://purl.obolibrary.org/obo/CHEBI_31399
+CILOFUNGIN	http://purl.obolibrary.org/obo/CHEBI_315019
+CILOSTAZOL	http://purl.obolibrary.org/obo/CHEBI_31401
+CIMETIDINE	http://purl.obolibrary.org/obo/CHEBI_3699
+CINACALCET	http://purl.obolibrary.org/obo/CHEBI_48390
+CINALUKAST	http://purl.obolibrary.org/obo/CHEBI_126598
+CINIDON-ETHYL	http://purl.obolibrary.org/obo/CHEBI_63927
+CINNARIZINE	http://purl.obolibrary.org/obo/CHEBI_31403
+CINOLAZEPAM	http://purl.obolibrary.org/obo/CHEBI_59514
+CINOXACIN	http://purl.obolibrary.org/obo/CHEBI_3716
+CIPROFIBRATE	http://purl.obolibrary.org/obo/CHEBI_50867
+CIPROFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_100241
+CIPROFLOXACIN HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_310388
+CIPROFLOXACIN HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_59936
+CISAPRIDE	http://purl.obolibrary.org/obo/CHEBI_3720
+CISPLATIN	http://purl.obolibrary.org/obo/CHEBI_27899
+CITALOPRAM	http://purl.obolibrary.org/obo/CHEBI_3723
+CITICOLINE	http://purl.obolibrary.org/obo/CHEBI_16436
+CITRININ	http://purl.obolibrary.org/obo/CHEBI_48707
+CITRULLINE	http://purl.obolibrary.org/obo/CHEBI_16349
+CLADRIBINE	http://purl.obolibrary.org/obo/CHEBI_567361
+CLARITHROMYCIN	http://purl.obolibrary.org/obo/CHEBI_3732
+CLAVULANIC ACID	http://purl.obolibrary.org/obo/CHEBI_48947
+CLEMASTINE	http://purl.obolibrary.org/obo/CHEBI_3738
+CLEMIZOLE	http://purl.obolibrary.org/obo/CHEBI_52140
+CLEMIZOLE PENICILLIN	http://purl.obolibrary.org/obo/CHEBI_52139
+CLENBUTEROL	http://purl.obolibrary.org/obo/CHEBI_174690
+CLENBUTEROL	http://purl.obolibrary.org/obo/CHEBI_59567
+CLENBUTEROL	http://purl.obolibrary.org/obo/CHEBI_59568
+CLIDINIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_3744
+CLINOLAMIDE	http://purl.obolibrary.org/obo/CHEBI_60054
+CLOBAZAM	http://purl.obolibrary.org/obo/CHEBI_31413
+CLOBETASOL	http://purl.obolibrary.org/obo/CHEBI_205919
+CLOCORTOLONE	http://purl.obolibrary.org/obo/CHEBI_59582
+CLODRONATE DISODIUM	http://purl.obolibrary.org/obo/CHEBI_59586
+CLODRONATE DISODIUM	http://purl.obolibrary.org/obo/CHEBI_59587
+CLODRONIC ACID	http://purl.obolibrary.org/obo/CHEBI_110423
+CLOFARABINE	http://purl.obolibrary.org/obo/CHEBI_681569
+CLOFAZIMINE	http://purl.obolibrary.org/obo/CHEBI_3749
+CLOFEZONE	http://purl.obolibrary.org/obo/CHEBI_8768
+CLOFIBRATE	http://purl.obolibrary.org/obo/CHEBI_3750
+CLOFIBRIC ACID	http://purl.obolibrary.org/obo/CHEBI_34648
+CLOMOCYCLINE	http://purl.obolibrary.org/obo/CHEBI_59589
+CLONAZEPAM	http://purl.obolibrary.org/obo/CHEBI_3756
+CLONIDINE	http://purl.obolibrary.org/obo/CHEBI_46631
+CLOPIDOGREL	http://purl.obolibrary.org/obo/CHEBI_37941
+CLOPIDOGREL BISULFATE	http://purl.obolibrary.org/obo/CHEBI_3759
+CLORAZEPATE DIPOTASSIUM	http://purl.obolibrary.org/obo/CHEBI_3762
+CLOXACILLIN	http://purl.obolibrary.org/obo/CHEBI_49566
+CLOXACILLIN SODIUM ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_51357
+CLOZAPINE	http://purl.obolibrary.org/obo/CHEBI_3766
+CLUPANODONIC ACID	http://purl.obolibrary.org/obo/CHEBI_53488
+COBALT	http://purl.obolibrary.org/obo/CHEBI_27638
+COBALTOUS CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_35696
+COBALTOUS SULFATE	http://purl.obolibrary.org/obo/CHEBI_53470
+COCAINE	http://purl.obolibrary.org/obo/CHEBI_60056
+COCARBOXYLASE	http://purl.obolibrary.org/obo/CHEBI_18290
+COCLAURINE	http://purl.obolibrary.org/obo/CHEBI_15950
+COCLAURINE	http://purl.obolibrary.org/obo/CHEBI_18417
+CODEINE	http://purl.obolibrary.org/obo/CHEBI_16714
+CODEINE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_16714
+COENZYME Q7	http://purl.obolibrary.org/obo/CHEBI_46448
+COLCHICINE	http://purl.obolibrary.org/obo/CHEBI_27882
+COLESEVELAM	http://purl.obolibrary.org/obo/CHEBI_59594
+COLESTOLONE	http://purl.obolibrary.org/obo/CHEBI_61829
+COLFORSIN	http://purl.obolibrary.org/obo/CHEBI_42471
+COLISTIMETHATE	http://purl.obolibrary.org/obo/CHEBI_34650
+COLISTIMETHATE SODIUM	http://purl.obolibrary.org/obo/CHEBI_34650
+CONGO RED	http://purl.obolibrary.org/obo/CHEBI_38217
+CONIFERYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_17745
+CONIINE	http://purl.obolibrary.org/obo/CHEBI_28322
+CONIVAPTAN	http://purl.obolibrary.org/obo/CHEBI_681850
+COPPER	http://purl.obolibrary.org/obo/CHEBI_28694
+CORTICOTROPIN	http://purl.obolibrary.org/obo/CHEBI_3892
+CORTODOXONE	http://purl.obolibrary.org/obo/CHEBI_28324
+CRIZOTINIB	http://purl.obolibrary.org/obo/CHEBI_64310
+CROCETIN	http://purl.obolibrary.org/obo/CHEBI_62767
+CROMOLYN	http://purl.obolibrary.org/obo/CHEBI_128458
+CROMOLYN	http://purl.obolibrary.org/obo/CHEBI_59773
+CROMOLYN SODIUM	http://purl.obolibrary.org/obo/CHEBI_128458
+CROTAMITON	http://purl.obolibrary.org/obo/CHEBI_31439
+CROTONIC ACID	http://purl.obolibrary.org/obo/CHEBI_17217
+CUMIC ACID	http://purl.obolibrary.org/obo/CHEBI_28122
+CUPRIC CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_49553
+CUPRIC CHLORIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_49553
+CUPRIC SULFATE	http://purl.obolibrary.org/obo/CHEBI_31440
+CUPRIC SULFATE	http://purl.obolibrary.org/obo/CHEBI_23414
+CUPRIC SULFATE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_23414
+CURDLAN	http://purl.obolibrary.org/obo/CHEBI_37671
+CYANOCOBALAMIN	http://purl.obolibrary.org/obo/CHEBI_17439
+CYANOGEN	http://purl.obolibrary.org/obo/CHEBI_29306
+CYANOGEN	http://purl.obolibrary.org/obo/CHEBI_29308
+CYANURIC ACID CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_58964
+CYBUTRYNE	http://purl.obolibrary.org/obo/CHEBI_5962
+CYCLANDELATE	http://purl.obolibrary.org/obo/CHEBI_3988
+CYCLIZINE	http://purl.obolibrary.org/obo/CHEBI_3994
+CYCLOBENZAPRINE	http://purl.obolibrary.org/obo/CHEBI_3996
+CYCLOBUTYROL	http://purl.obolibrary.org/obo/CHEBI_61024
+CYCLOHEXANEACETIC ACID	http://purl.obolibrary.org/obo/CHEBI_37277
+CYCLONITE	http://purl.obolibrary.org/obo/CHEBI_24556
+CYCLOPENTOLATE	http://purl.obolibrary.org/obo/CHEBI_4024
+CYCLOPENTOLATE	http://purl.obolibrary.org/obo/CHEBI_59689
+CYCLOPENTOLATE	http://purl.obolibrary.org/obo/CHEBI_59688
+CYCLOPHOSPHAMIDE	http://purl.obolibrary.org/obo/CHEBI_4026
+CYCLOPHOSPHAMIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_4027
+CYCLOPIAZONIC ACID	http://purl.obolibrary.org/obo/CHEBI_22450
+CYCLOSPORINE	http://purl.obolibrary.org/obo/CHEBI_4031
+CYCLOTHIAZIDE	http://purl.obolibrary.org/obo/CHEBI_31448
+CYCRIMINE	http://purl.obolibrary.org/obo/CHEBI_59692
+CYCRIMINE	http://purl.obolibrary.org/obo/CHEBI_59707
+CYCRIMINE	http://purl.obolibrary.org/obo/CHEBI_59706
+CYPROHEPTADINE	http://purl.obolibrary.org/obo/CHEBI_4046
+CYPROHEPTADINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_650917
+CYPROHEPTADINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_59695
+CYPROHEPTADINE HYDROCHLORIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_59695
+CYPROTERONE	http://purl.obolibrary.org/obo/CHEBI_50742
+CYSTEINE	http://purl.obolibrary.org/obo/CHEBI_35237
+CYSTEINE	http://purl.obolibrary.org/obo/CHEBI_17561
+CYSTEINESULFENIC ACID	http://purl.obolibrary.org/obo/CHEBI_41710
+DACTINOMYCIN	http://purl.obolibrary.org/obo/CHEBI_27666
+DAIDZIN	http://purl.obolibrary.org/obo/CHEBI_42202
+DANAZOL	http://purl.obolibrary.org/obo/CHEBI_4315
+DANTHRON	http://purl.obolibrary.org/obo/CHEBI_3682
+DANTROLENE	http://purl.obolibrary.org/obo/CHEBI_4317
+DANTROLENE SODIUM	http://purl.obolibrary.org/obo/CHEBI_4318
+DANTROLENE SODIUM	http://purl.obolibrary.org/obo/CHEBI_184644
+DAPHNETIN	http://purl.obolibrary.org/obo/CHEBI_17313
+DAPIPRAZOLE	http://purl.obolibrary.org/obo/CHEBI_51066
+DAPSONE	http://purl.obolibrary.org/obo/CHEBI_4325
+DAPTOMYCIN	http://purl.obolibrary.org/obo/CHEBI_600103
+DARIFENACIN	http://purl.obolibrary.org/obo/CHEBI_391960
+DARUNAVIR	http://purl.obolibrary.org/obo/CHEBI_367163
+DASATINIB	http://purl.obolibrary.org/obo/CHEBI_49375
+DAUNORUBICIN	http://purl.obolibrary.org/obo/CHEBI_41977
+DAUNORUBICIN	http://purl.obolibrary.org/obo/CHEBI_64677
+DDMS	http://purl.obolibrary.org/obo/CHEBI_28555
+DEANOL	http://purl.obolibrary.org/obo/CHEBI_271436
+DECITABINE	http://purl.obolibrary.org/obo/CHEBI_50131
+DEFERASIROX	http://purl.obolibrary.org/obo/CHEBI_49005
+DEFEROXAMINE	http://purl.obolibrary.org/obo/CHEBI_4356
+DEFEROXAMINE MESYLATE	http://purl.obolibrary.org/obo/CHEBI_31460
+DEHYDROASCORBIC ACID	http://purl.obolibrary.org/obo/CHEBI_27956
+DEHYDROCHOLIC ACID	http://purl.obolibrary.org/obo/CHEBI_31459
+DELAVIRDINE	http://purl.obolibrary.org/obo/CHEBI_119573
+DEMECARIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_4391
+DEMECLOCYCLINE	http://purl.obolibrary.org/obo/CHEBI_4392
+DEMECLOCYCLINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_59725
+DEMECOLCINE	http://purl.obolibrary.org/obo/CHEBI_4393
+DEOXYURIDINE	http://purl.obolibrary.org/obo/CHEBI_16450
+DEPTROPINE	http://purl.obolibrary.org/obo/CHEBI_50189
+DESIPRAMINE	http://purl.obolibrary.org/obo/CHEBI_47781
+DESLANOSIDE	http://purl.obolibrary.org/obo/CHEBI_31468
+DESLORATADINE	http://purl.obolibrary.org/obo/CHEBI_291342
+DESMOPRESSIN	http://purl.obolibrary.org/obo/CHEBI_4450
+DESMOPRESSIN ACETATE	http://purl.obolibrary.org/obo/CHEBI_59726
+DESMOPRESSIN ACETATE	http://purl.obolibrary.org/obo/CHEBI_59728
+DESOGESTREL	http://purl.obolibrary.org/obo/CHEBI_4453
+DESONIDE	http://purl.obolibrary.org/obo/CHEBI_204734
+DESOXIMETASONE	http://purl.obolibrary.org/obo/CHEBI_691037
+DESOXYCORTICOSTERONE	http://purl.obolibrary.org/obo/CHEBI_16973
+DESOXYCORTICOSTERONE PIVALATE	http://purl.obolibrary.org/obo/CHEBI_50782
+DEUTERIUM OXIDE	http://purl.obolibrary.org/obo/CHEBI_41981
+DEXAMETHASONE	http://purl.obolibrary.org/obo/CHEBI_41879
+DEXBROMPHENIRAMINE	http://purl.obolibrary.org/obo/CHEBI_59269
+DEXCHLORPHENIRAMINE	http://purl.obolibrary.org/obo/CHEBI_4464
+DEXFENFLURAMINE	http://purl.obolibrary.org/obo/CHEBI_439329
+DEXFENFLURAMINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_59730
+DEXFOSFOSERINE	http://purl.obolibrary.org/obo/CHEBI_15811
+DEXMEDETOMIDINE	http://purl.obolibrary.org/obo/CHEBI_4466
+DEXPANTHENOL	http://purl.obolibrary.org/obo/CHEBI_27373
+DEXPROPRANOLOL	http://purl.obolibrary.org/obo/CHEBI_8736
+DEXRAZOXANE	http://purl.obolibrary.org/obo/CHEBI_50223
+DEXTRAN 40	http://purl.obolibrary.org/obo/CHEBI_52071
+DEXTRAN 70	http://purl.obolibrary.org/obo/CHEBI_52071
+DEXTROAMPHETAMINE	http://purl.obolibrary.org/obo/CHEBI_4469
+DEXTROAMPHETAMINE SULFATE	http://purl.obolibrary.org/obo/CHEBI_51064
+DEXTRORPHAN	http://purl.obolibrary.org/obo/CHEBI_29133
+DEXTROSE	http://purl.obolibrary.org/obo/CHEBI_4167
+DEXTROSE	http://purl.obolibrary.org/obo/CHEBI_17634
+DEXTROTHYROXINE	http://purl.obolibrary.org/obo/CHEBI_30659
+DEZOCINE	http://purl.obolibrary.org/obo/CHEBI_4474
+DHURRIN	http://purl.obolibrary.org/obo/CHEBI_27826
+DIACETYL	http://purl.obolibrary.org/obo/CHEBI_16583
+DIACETYLMORPHINE	http://purl.obolibrary.org/obo/CHEBI_27808
+DIATRIZOATE MEGLUMINE	http://purl.obolibrary.org/obo/CHEBI_31812
+DIATRIZOATE SODIUM	http://purl.obolibrary.org/obo/CHEBI_53692
+DIATRIZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_53691
+DIATRIZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_59733
+DIAVERIDINE	http://purl.obolibrary.org/obo/CHEBI_123115
+DIAZOXIDE	http://purl.obolibrary.org/obo/CHEBI_4495
+DIBEKACIN	http://purl.obolibrary.org/obo/CHEBI_37945
+DIBENZO-P-DIOXIN	http://purl.obolibrary.org/obo/CHEBI_28891
+DIBORANE	http://purl.obolibrary.org/obo/CHEBI_33590
+DIBUCAINE	http://purl.obolibrary.org/obo/CHEBI_247956
+DIBUCAINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_59735
+DICHLOBENIL	http://purl.obolibrary.org/obo/CHEBI_943
+DICHLORODIPHENYLDICHLOROETHANE	http://purl.obolibrary.org/obo/CHEBI_27841
+DICHLORPHENAMIDE	http://purl.obolibrary.org/obo/CHEBI_101085
+DICLOFENAC	http://purl.obolibrary.org/obo/CHEBI_47381
+DICLOXACILLIN SODIUM	http://purl.obolibrary.org/obo/CHEBI_52019
+DICUMAROL	http://purl.obolibrary.org/obo/CHEBI_4513
+DICYCLOHEXYLMETHANE 4,4'-DIISOCYANATE	http://purl.obolibrary.org/obo/CHEBI_53216
+DIDANOSINE	http://purl.obolibrary.org/obo/CHEBI_490877
+DIENESTROL	http://purl.obolibrary.org/obo/CHEBI_4518
+DIETHYLSTILBESTROL	http://purl.obolibrary.org/obo/CHEBI_41922
+DIFENOXIN	http://purl.obolibrary.org/obo/CHEBI_4534
+DIFLORASONE	http://purl.obolibrary.org/obo/CHEBI_59750
+DIGLYCINE	http://purl.obolibrary.org/obo/CHEBI_24786
+DIGOXIN	http://purl.obolibrary.org/obo/CHEBI_4551
+DIHEXADECYL PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_60424
+DIHYDROERGOTAMINE	http://purl.obolibrary.org/obo/CHEBI_4562
+DIHYDROMYRICETIN	http://purl.obolibrary.org/obo/CHEBI_28429
+DIHYDROQUERCETIN	http://purl.obolibrary.org/obo/CHEBI_17948
+DIHYDROTACHYSTEROL	http://purl.obolibrary.org/obo/CHEBI_4591
+DIHYDROTHIOCTIC ACID	http://purl.obolibrary.org/obo/CHEBI_18047
+DIHYDROXYACETONE	http://purl.obolibrary.org/obo/CHEBI_16016
+DIIODOTYROSINE	http://purl.obolibrary.org/obo/CHEBI_15768
+DILTIAZEM	http://purl.obolibrary.org/obo/CHEBI_101278
+DIMENHYDRINATE	http://purl.obolibrary.org/obo/CHEBI_4604
+DIMERCAPROL	http://purl.obolibrary.org/obo/CHEBI_64198
+DIMETHICONE	http://purl.obolibrary.org/obo/CHEBI_61468
+DIMETHICONE	http://purl.obolibrary.org/obo/CHEBI_31498
+DIMETHICONE 350	http://purl.obolibrary.org/obo/CHEBI_61468
+DIMETHICONE 350	http://purl.obolibrary.org/obo/CHEBI_31498
+DIMETHYL SULFONE	http://purl.obolibrary.org/obo/CHEBI_9349
+DIMETHYL SULFOXIDE	http://purl.obolibrary.org/obo/CHEBI_28262
+DIMETHYLPHENYLPIPERAZINIUM IODIDE	http://purl.obolibrary.org/obo/CHEBI_4290
+DIMETHYLTHIAMBUTENE	http://purl.obolibrary.org/obo/CHEBI_59781
+DIMPYLATE	http://purl.obolibrary.org/obo/CHEBI_34682
+DINITROCHLOROBENZENE	http://purl.obolibrary.org/obo/CHEBI_34718
+DINITROGEN TETROXIDE	http://purl.obolibrary.org/obo/CHEBI_29803
+DINOPROST	http://purl.obolibrary.org/obo/CHEBI_15553
+DINOPROSTONE	http://purl.obolibrary.org/obo/CHEBI_15551
+DI-N-PROPYLPHTHALATE	http://purl.obolibrary.org/obo/CHEBI_60069
+DIPHEMANIL METHYLSULFATE	http://purl.obolibrary.org/obo/CHEBI_59782
+DIPHENCYPRONE	http://purl.obolibrary.org/obo/CHEBI_53074
+DIPHENHYDRAMINE	http://purl.obolibrary.org/obo/CHEBI_4636
+DIPHENOXYLATE	http://purl.obolibrary.org/obo/CHEBI_4639
+DIPHENYLPYRALINE	http://purl.obolibrary.org/obo/CHEBI_59788
+DIPYRIDAMOLE	http://purl.obolibrary.org/obo/CHEBI_4653
+DIPYRONE	http://purl.obolibrary.org/obo/CHEBI_59033
+DIQUAFOSOL	http://purl.obolibrary.org/obo/CHEBI_27791
+DIRITHROMYCIN	http://purl.obolibrary.org/obo/CHEBI_474014
+DISODIUM MALONATE	http://purl.obolibrary.org/obo/CHEBI_62983
+DISOPYRAMIDE	http://purl.obolibrary.org/obo/CHEBI_4657
+DITHIAZANINE	http://purl.obolibrary.org/obo/CHEBI_52806
+DITHIAZANINE IODIDE	http://purl.obolibrary.org/obo/CHEBI_228275
+DITHIOTHREITOL	http://purl.obolibrary.org/obo/CHEBI_18320
+DIVALPROEX SODIUM	http://purl.obolibrary.org/obo/CHEBI_4667
+DNOC	http://purl.obolibrary.org/obo/CHEBI_39349
+DOBUTAMINE	http://purl.obolibrary.org/obo/CHEBI_4670
+DOBUTAMINE	http://purl.obolibrary.org/obo/CHEBI_59804
+DOBUTAMINE	http://purl.obolibrary.org/obo/CHEBI_59805
+DOCEBENONE	http://purl.obolibrary.org/obo/CHEBI_2340
+DOCETAXEL	http://purl.obolibrary.org/obo/CHEBI_4672
+DOCETAXEL	http://purl.obolibrary.org/obo/CHEBI_59809
+DOCONEXENT	http://purl.obolibrary.org/obo/CHEBI_28125
+DOCOSANOL	http://purl.obolibrary.org/obo/CHEBI_31000
+DOFETILIDE	http://purl.obolibrary.org/obo/CHEBI_4681
+DOMPERIDONE	http://purl.obolibrary.org/obo/CHEBI_31515
+DONEPEZIL	http://purl.obolibrary.org/obo/CHEBI_53290
+DONEPEZIL	http://purl.obolibrary.org/obo/CHEBI_53289
+DONEPEZIL	http://purl.obolibrary.org/obo/CHEBI_53292
+DOPAMINE	http://purl.obolibrary.org/obo/CHEBI_59905
+DOPAMINE	http://purl.obolibrary.org/obo/CHEBI_18243
+DORZOLAMIDE	http://purl.obolibrary.org/obo/CHEBI_4702
+DOXACURIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_4707
+DOXAPRAM	http://purl.obolibrary.org/obo/CHEBI_681848
+DOXAPRAM	http://purl.obolibrary.org/obo/CHEBI_59842
+DOXAPRAM	http://purl.obolibrary.org/obo/CHEBI_59843
+DOXAPRAM HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31520
+DOXAPRAM HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_59837
+DOXAZOSIN	http://purl.obolibrary.org/obo/CHEBI_4708
+DOXORUBICIN	http://purl.obolibrary.org/obo/CHEBI_64816
+DOXORUBICIN	http://purl.obolibrary.org/obo/CHEBI_28748
+DOXYCYCLINE	http://purl.obolibrary.org/obo/CHEBI_50845
+DOXYCYCLINE	http://purl.obolibrary.org/obo/CHEBI_60648
+DOXYLAMINE	http://purl.obolibrary.org/obo/CHEBI_51380
+DROMOSTANOLONE	http://purl.obolibrary.org/obo/CHEBI_34838
+DRONEDARONE	http://purl.obolibrary.org/obo/CHEBI_50659
+DROPERIDOL	http://purl.obolibrary.org/obo/CHEBI_4717
+DROSPIRENONE	http://purl.obolibrary.org/obo/CHEBI_50838
+DULOXETINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31526
+DYCLONINE	http://purl.obolibrary.org/obo/CHEBI_4724
+DYDROGESTERONE	http://purl.obolibrary.org/obo/CHEBI_31527
+DYSPROSIUM	http://purl.obolibrary.org/obo/CHEBI_33377
+ECGONINE METHYL ESTER	http://purl.obolibrary.org/obo/CHEBI_59908
+ECHOTHIOPHATE	http://purl.obolibrary.org/obo/CHEBI_4753
+EDETATE DISODIUM	http://purl.obolibrary.org/obo/CHEBI_64758
+EDETATE DISODIUM	http://purl.obolibrary.org/obo/CHEBI_64734
+EDETATE DISODIUM ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_64734
+EDETATE TRISODIUM	http://purl.obolibrary.org/obo/CHEBI_63125
+EDETIC ACID	http://purl.obolibrary.org/obo/CHEBI_42191
+EDROPHONIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_4759
+EFLORNITHINE	http://purl.obolibrary.org/obo/CHEBI_41948
+EGTAZIC ACID	http://purl.obolibrary.org/obo/CHEBI_30740
+EICOSANE	http://purl.obolibrary.org/obo/CHEBI_43619
+ELETRIPTAN	http://purl.obolibrary.org/obo/CHEBI_50922
+ELTANOLONE	http://purl.obolibrary.org/obo/CHEBI_1712
+EMAMECTIN	http://purl.obolibrary.org/obo/CHEBI_50346
+EMEDASTINE	http://purl.obolibrary.org/obo/CHEBI_4779
+EMIVIRINE	http://purl.obolibrary.org/obo/CHEBI_44143
+ENALAPRIL	http://purl.obolibrary.org/obo/CHEBI_4784
+ENALAPRILAT	http://purl.obolibrary.org/obo/CHEBI_4786
+ENALAPRILAT	http://purl.obolibrary.org/obo/CHEBI_59877
+ENALAPRILAT ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_4786
+ENCAINIDE	http://purl.obolibrary.org/obo/CHEBI_4788
+ENOXACIN	http://purl.obolibrary.org/obo/CHEBI_157175
+ENOXAPARIN	http://purl.obolibrary.org/obo/CHEBI_28304
+ENOXOLONE	http://purl.obolibrary.org/obo/CHEBI_30853
+ENPROFYLLINE	http://purl.obolibrary.org/obo/CHEBI_126237
+ENTACAPONE	http://purl.obolibrary.org/obo/CHEBI_4798
+ENTECAVIR	http://purl.obolibrary.org/obo/CHEBI_59902
+ENTECAVIR	http://purl.obolibrary.org/obo/CHEBI_473990
+EPHEDRINE	http://purl.obolibrary.org/obo/CHEBI_15407
+EPICILLIN	http://purl.obolibrary.org/obo/CHEBI_58974
+EPINASTINE	http://purl.obolibrary.org/obo/CHEBI_51032
+EPINEPHRINE	http://purl.obolibrary.org/obo/CHEBI_28918
+EPINEPHRINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_6213
+EPIRUBICIN	http://purl.obolibrary.org/obo/CHEBI_47898
+EPLERENONE	http://purl.obolibrary.org/obo/CHEBI_31547
+EPOPROSTENOL	http://purl.obolibrary.org/obo/CHEBI_15552
+EPROSARTAN	http://purl.obolibrary.org/obo/CHEBI_4814
+EPROSARTAN MESYLATE	http://purl.obolibrary.org/obo/CHEBI_48409
+ERBUMINE	http://purl.obolibrary.org/obo/CHEBI_44639
+ERGOCALCIFEROL	http://purl.obolibrary.org/obo/CHEBI_28934
+ERGOLOID MESYLATES	http://purl.obolibrary.org/obo/CHEBI_34706
+ERGONOVINE	http://purl.obolibrary.org/obo/CHEBI_4822
+ERGONOVINE MALEATE	http://purl.obolibrary.org/obo/CHEBI_31554
+ERGOTAMINE	http://purl.obolibrary.org/obo/CHEBI_64318
+ERLOTINIB	http://purl.obolibrary.org/obo/CHEBI_114785
+ERTAPENEM	http://purl.obolibrary.org/obo/CHEBI_404903
+ERYTHORBIC ACID	http://purl.obolibrary.org/obo/CHEBI_51438
+ERYTHROMYCIN	http://purl.obolibrary.org/obo/CHEBI_42355
+ERYTHROMYCIN PROPIONATE	http://purl.obolibrary.org/obo/CHEBI_48913
+ESATENOLOL	http://purl.obolibrary.org/obo/CHEBI_31556
+ESCITALOPRAM	http://purl.obolibrary.org/obo/CHEBI_36791
+ESFLURBIPROFEN	http://purl.obolibrary.org/obo/CHEBI_42446
+ESKETAMINE	http://purl.obolibrary.org/obo/CHEBI_60799
+ESMOLOL	http://purl.obolibrary.org/obo/CHEBI_4856
+ESMOLOL	http://purl.obolibrary.org/obo/CHEBI_60075
+ESMOLOL	http://purl.obolibrary.org/obo/CHEBI_60074
+ESOMEPRAZOLE	http://purl.obolibrary.org/obo/CHEBI_50275
+ESOXYBUTYNIN	http://purl.obolibrary.org/obo/CHEBI_51329
+ESTAZOLAM	http://purl.obolibrary.org/obo/CHEBI_4858
+ESTRADIOL	http://purl.obolibrary.org/obo/CHEBI_16469
+ESTRAMUSTINE	http://purl.obolibrary.org/obo/CHEBI_4868
+ESTRONE	http://purl.obolibrary.org/obo/CHEBI_17263
+ESTRONE SULFATE	http://purl.obolibrary.org/obo/CHEBI_17474
+ESZOPICLONE	http://purl.obolibrary.org/obo/CHEBI_53760
+ETHAMBUTOL	http://purl.obolibrary.org/obo/CHEBI_4877
+ETHAMBUTOL HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_4878
+ETHANE	http://purl.obolibrary.org/obo/CHEBI_6015
+ETHCHLORVYNOL	http://purl.obolibrary.org/obo/CHEBI_4882
+ETHEPHON	http://purl.obolibrary.org/obo/CHEBI_52741
+ETHER	http://purl.obolibrary.org/obo/CHEBI_35702
+ETHINAMATE	http://purl.obolibrary.org/obo/CHEBI_4884
+ETHINYL ESTRADIOL	http://purl.obolibrary.org/obo/CHEBI_4903
+ETHOPROP	http://purl.obolibrary.org/obo/CHEBI_38665
+ETHOPROPAZINE	http://purl.obolibrary.org/obo/CHEBI_313639
+ETHOPROPAZINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31568
+ETHOSUXIMIDE	http://purl.obolibrary.org/obo/CHEBI_60354
+ETHOSUXIMIDE	http://purl.obolibrary.org/obo/CHEBI_60355
+ETHOSUXIMIDE	http://purl.obolibrary.org/obo/CHEBI_4887
+ETHOTOIN	http://purl.obolibrary.org/obo/CHEBI_60359
+ETHOTOIN	http://purl.obolibrary.org/obo/CHEBI_60360
+ETHOTOIN	http://purl.obolibrary.org/obo/CHEBI_4888
+ETHYL CARBONATE	http://purl.obolibrary.org/obo/CHEBI_50849
+ETHYL CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_47554
+ETHYLAMINE	http://purl.obolibrary.org/obo/CHEBI_566789
+ETHYLENE	http://purl.obolibrary.org/obo/CHEBI_18153
+ETHYLENE CHLOROHYDRIN	http://purl.obolibrary.org/obo/CHEBI_28200
+ETHYLENE DICHLORIDE	http://purl.obolibrary.org/obo/CHEBI_27789
+ETHYLENE GLYCOL MONOETHYL ETHER	http://purl.obolibrary.org/obo/CHEBI_46788
+ETHYLENE OXIDE	http://purl.obolibrary.org/obo/CHEBI_27561
+ETHYLENEIMINE	http://purl.obolibrary.org/obo/CHEBI_30969
+ETIDOCAINE	http://purl.obolibrary.org/obo/CHEBI_4904
+ETIDRONIC ACID	http://purl.obolibrary.org/obo/CHEBI_4907
+ETIOCHOLANOLONE	http://purl.obolibrary.org/obo/CHEBI_28195
+ETODOLAC	http://purl.obolibrary.org/obo/CHEBI_4909
+ETOFENPROX	http://purl.obolibrary.org/obo/CHEBI_39348
+ETOMIDATE	http://purl.obolibrary.org/obo/CHEBI_4910
+ETONOGESTREL	http://purl.obolibrary.org/obo/CHEBI_50777
+ETOPOSIDE	http://purl.obolibrary.org/obo/CHEBI_4911
+ETORICOXIB	http://purl.obolibrary.org/obo/CHEBI_6339
+ETORPHINE	http://purl.obolibrary.org/obo/CHEBI_4912
+ETRAVIRINE	http://purl.obolibrary.org/obo/CHEBI_63589
+ETRETINATE	http://purl.obolibrary.org/obo/CHEBI_4913
+EUCALYPTOL	http://purl.obolibrary.org/obo/CHEBI_27961
+EUROPIUM	http://purl.obolibrary.org/obo/CHEBI_32999
+EXEMESTANE	http://purl.obolibrary.org/obo/CHEBI_4953
+EXENATIDE	http://purl.obolibrary.org/obo/CHEBI_64073
+EXISULIND	http://purl.obolibrary.org/obo/CHEBI_64212
+EZETIMIBE	http://purl.obolibrary.org/obo/CHEBI_49040
+FAMCICLOVIR	http://purl.obolibrary.org/obo/CHEBI_4974
+FAMOTIDINE	http://purl.obolibrary.org/obo/CHEBI_4975
+FARNESOL	http://purl.obolibrary.org/obo/CHEBI_42680
+FAROPENEM	http://purl.obolibrary.org/obo/CHEBI_51257
+FD&C RED NO. 3	http://purl.obolibrary.org/obo/CHEBI_61000
+FELBAMATE	http://purl.obolibrary.org/obo/CHEBI_4995
+FELBINAC	http://purl.obolibrary.org/obo/CHEBI_31597
+FELODIPINE	http://purl.obolibrary.org/obo/CHEBI_585948
+FELYPRESSIN	http://purl.obolibrary.org/obo/CHEBI_60564
+FENCHYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_15405
+FENFLURAMINE	http://purl.obolibrary.org/obo/CHEBI_5000
+FENOLDOPAM	http://purl.obolibrary.org/obo/CHEBI_5002
+FENOPROFEN	http://purl.obolibrary.org/obo/CHEBI_5004
+FENOPROFEN CALCIUM	http://purl.obolibrary.org/obo/CHEBI_5005
+FENOPROFEN CALCIUM ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_5010
+FENOTEROL	http://purl.obolibrary.org/obo/CHEBI_149226
+FENRETINIDE	http://purl.obolibrary.org/obo/CHEBI_42588
+FENTANYL	http://purl.obolibrary.org/obo/CHEBI_119915
+FENTICLOR	http://purl.obolibrary.org/obo/CHEBI_556580
+FERRIC CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_30808
+FERRIC SULFATE	http://purl.obolibrary.org/obo/CHEBI_53438
+FERROUS CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_30812
+FINASTERIDE	http://purl.obolibrary.org/obo/CHEBI_5062
+FINGOLIMOD	http://purl.obolibrary.org/obo/CHEBI_63115
+FIREFLY LUCIFERIN	http://purl.obolibrary.org/obo/CHEBI_17165
+FLAVIN ADENINE DINUCLEOTIDE	http://purl.obolibrary.org/obo/CHEBI_16238
+FLAVIN MONONUCLEOTIDE	http://purl.obolibrary.org/obo/CHEBI_17621
+FLAVOXATE	http://purl.obolibrary.org/obo/CHEBI_5088
+FLOXURIDINE	http://purl.obolibrary.org/obo/CHEBI_60761
+FLUCLOXACILLIN	http://purl.obolibrary.org/obo/CHEBI_5098
+FLUDROCORTISONE	http://purl.obolibrary.org/obo/CHEBI_50885
+FLUFENAMIC ACID	http://purl.obolibrary.org/obo/CHEBI_42638
+FLUMAZENIL	http://purl.obolibrary.org/obo/CHEBI_5103
+FLUNISOLIDE	http://purl.obolibrary.org/obo/CHEBI_5106
+FLUORIDE ION	http://purl.obolibrary.org/obo/CHEBI_17051
+FLUORINE	http://purl.obolibrary.org/obo/CHEBI_24061
+FLUORINE	http://purl.obolibrary.org/obo/CHEBI_30236
+FLUOROACETAMIDE	http://purl.obolibrary.org/obo/CHEBI_53124
+FLUOROBENZENE	http://purl.obolibrary.org/obo/CHEBI_5115
+FLUOROURACIL	http://purl.obolibrary.org/obo/CHEBI_46345
+FLUOXETINE	http://purl.obolibrary.org/obo/CHEBI_5118
+FLUOXYMESTERONE	http://purl.obolibrary.org/obo/CHEBI_5120
+FLUPENTIXOL	http://purl.obolibrary.org/obo/CHEBI_5121
+FLUPHENAZINE	http://purl.obolibrary.org/obo/CHEBI_5123
+FLURBIPROFEN	http://purl.obolibrary.org/obo/CHEBI_42446
+FLUTAMIDE	http://purl.obolibrary.org/obo/CHEBI_5132
+FLUVASTATIN	http://purl.obolibrary.org/obo/CHEBI_38561
+FLUVASTATIN	http://purl.obolibrary.org/obo/CHEBI_5136
+FLUVOXAMINE	http://purl.obolibrary.org/obo/CHEBI_5138
+FOMEPIZOLE	http://purl.obolibrary.org/obo/CHEBI_5141
+FORMOTEROL	http://purl.obolibrary.org/obo/CHEBI_5147
+FORODESINE	http://purl.obolibrary.org/obo/CHEBI_43362
+FOSCARNET	http://purl.obolibrary.org/obo/CHEBI_127780
+FOSCARNET SODIUM	http://purl.obolibrary.org/obo/CHEBI_141644
+FOSFOMYCIN	http://purl.obolibrary.org/obo/CHEBI_28915
+FOSFOMYCIN	http://purl.obolibrary.org/obo/CHEBI_62247
+FOSFOMYCIN	http://purl.obolibrary.org/obo/CHEBI_62419
+FOSINOPRIL	http://purl.obolibrary.org/obo/CHEBI_5163
+FOSMIDOMYCIN	http://purl.obolibrary.org/obo/CHEBI_443725
+FRUCTOSE	http://purl.obolibrary.org/obo/CHEBI_28645
+FULVESTRANT	http://purl.obolibrary.org/obo/CHEBI_31638
+FUMAGILLIN	http://purl.obolibrary.org/obo/CHEBI_42601
+GADODIAMIDE	http://purl.obolibrary.org/obo/CHEBI_31642
+GADOLINIUM	http://purl.obolibrary.org/obo/CHEBI_33375
+GADOLINIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_37288
+GADOTERIDOL	http://purl.obolibrary.org/obo/CHEBI_31643
+GALANTAMINE	http://purl.obolibrary.org/obo/CHEBI_42944
+GALLIUM	http://purl.obolibrary.org/obo/CHEBI_49631
+GAMOLENIC ACID	http://purl.obolibrary.org/obo/CHEBI_28661
+GANCICLOVIR	http://purl.obolibrary.org/obo/CHEBI_465284
+GATIFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_5280
+GATIFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_53562
+GATIFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_53560
+GEMCITABINE	http://purl.obolibrary.org/obo/CHEBI_175901
+GEMFIBROZIL	http://purl.obolibrary.org/obo/CHEBI_5296
+GEMIFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_101853
+GENISTIN	http://purl.obolibrary.org/obo/CHEBI_27514
+GENTAMICIN	http://purl.obolibrary.org/obo/CHEBI_17833
+GENTAMICIN C1	http://purl.obolibrary.org/obo/CHEBI_27412
+GENTAMICIN C1A	http://purl.obolibrary.org/obo/CHEBI_27784
+GENTAMICIN C2	http://purl.obolibrary.org/obo/CHEBI_28292
+GENTISIC ACID	http://purl.obolibrary.org/obo/CHEBI_17189
+GEOSMIN	http://purl.obolibrary.org/obo/CHEBI_46702
+GERANYL FORMATE	http://purl.obolibrary.org/obo/CHEBI_31648
+GERMANIUM	http://purl.obolibrary.org/obo/CHEBI_30441
+GEROQUINOL	http://purl.obolibrary.org/obo/CHEBI_24233
+GIBBERELLIC ACID	http://purl.obolibrary.org/obo/CHEBI_28833
+GLAFENINE	http://purl.obolibrary.org/obo/CHEBI_31653
+GLUCAGON	http://purl.obolibrary.org/obo/CHEBI_5391
+GLUCONIC ACID	http://purl.obolibrary.org/obo/CHEBI_33198
+GLUCONOLACTONE	http://purl.obolibrary.org/obo/CHEBI_16217
+GLUCUROLACTONE	http://purl.obolibrary.org/obo/CHEBI_18268
+GLUCURONIC ACID	http://purl.obolibrary.org/obo/CHEBI_4178
+GLUTAMIC ACID	http://purl.obolibrary.org/obo/CHEBI_16015
+GLUTAMINE	http://purl.obolibrary.org/obo/CHEBI_18050
+GLUTARAL	http://purl.obolibrary.org/obo/CHEBI_64276
+GLUTATHIONE	http://purl.obolibrary.org/obo/CHEBI_57925
+GLYCERIC ACID	http://purl.obolibrary.org/obo/CHEBI_32398
+GLYCERIN	http://purl.obolibrary.org/obo/CHEBI_17754
+GLYCERYL TRIOLEATE	http://purl.obolibrary.org/obo/CHEBI_53753
+GLYCINE	http://purl.obolibrary.org/obo/CHEBI_57305
+GLYCINE	http://purl.obolibrary.org/obo/CHEBI_29947
+GLYCOCYAMINE	http://purl.obolibrary.org/obo/CHEBI_16344
+GLYCOL DIMETHACRYLATE	http://purl.obolibrary.org/obo/CHEBI_53436
+GLYCYRRHIZIN	http://purl.obolibrary.org/obo/CHEBI_15939
+GLYCYRRHIZIN	http://purl.obolibrary.org/obo/CHEBI_29807
+GOLD	http://purl.obolibrary.org/obo/CHEBI_29287
+GOLD	http://purl.obolibrary.org/obo/CHEBI_59965
+GOLD SODIUM THIOMALATE	http://purl.obolibrary.org/obo/CHEBI_35864
+GOLD SODIUM THIOMALATE	http://purl.obolibrary.org/obo/CHEBI_5516
+GOLD SODIUM THIOSULFATE	http://purl.obolibrary.org/obo/CHEBI_53622
+GRAPHITE	http://purl.obolibrary.org/obo/CHEBI_36977
+GRISEOFULVIN	http://purl.obolibrary.org/obo/CHEBI_27779
+GUANADREL	http://purl.obolibrary.org/obo/CHEBI_5555
+GUANETHIDINE	http://purl.obolibrary.org/obo/CHEBI_5557
+GUANIDINE	http://purl.obolibrary.org/obo/CHEBI_30087
+HAFNIUM	http://purl.obolibrary.org/obo/CHEBI_33343
+HALOPERIDOL	http://purl.obolibrary.org/obo/CHEBI_5613
+HELIUM	http://purl.obolibrary.org/obo/CHEBI_33681
+HELIUM	http://purl.obolibrary.org/obo/CHEBI_30217
+HEMATOXYLIN	http://purl.obolibrary.org/obo/CHEBI_51686
+HENEICOSANE	http://purl.obolibrary.org/obo/CHEBI_32931
+HESPERETIN	http://purl.obolibrary.org/obo/CHEBI_61249
+HESPERIDIN	http://purl.obolibrary.org/obo/CHEBI_61606
+HETACILLIN	http://purl.obolibrary.org/obo/CHEBI_5683
+HEXAMETHYLENEDIAMINE	http://purl.obolibrary.org/obo/CHEBI_39618
+HEXYLENE GLYCOL	http://purl.obolibrary.org/obo/CHEBI_62995
+HIPPURIC ACID	http://purl.obolibrary.org/obo/CHEBI_18089
+HISTIDINE	http://purl.obolibrary.org/obo/CHEBI_15971
+HISTRELIN	http://purl.obolibrary.org/obo/CHEBI_5739
+HOLMIUM	http://purl.obolibrary.org/obo/CHEBI_49648
+HOMATROPINE METHYLBROMIDE	http://purl.obolibrary.org/obo/CHEBI_50373
+HOMIDIUM	http://purl.obolibrary.org/obo/CHEBI_42478
+HOMIDIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_4883
+HOMOFENAZINE	http://purl.obolibrary.org/obo/CHEBI_59071
+HOMOSERINE	http://purl.obolibrary.org/obo/CHEBI_15699
+HOMOVERATRYLAMINE	http://purl.obolibrary.org/obo/CHEBI_136995
+HUMULENE	http://purl.obolibrary.org/obo/CHEBI_5768
+HUMULON	http://purl.obolibrary.org/obo/CHEBI_5769
+HYCANTHONE	http://purl.obolibrary.org/obo/CHEBI_52768
+HYDRACRYLIC ACID	http://purl.obolibrary.org/obo/CHEBI_33404
+HYDRALAZINE	http://purl.obolibrary.org/obo/CHEBI_5775
+HYDROBROMIC ACID	http://purl.obolibrary.org/obo/CHEBI_47266
+HYDROCHLORIC ACID	http://purl.obolibrary.org/obo/CHEBI_17883
+HYDROCODONE	http://purl.obolibrary.org/obo/CHEBI_5779
+HYDROCORTAMATE	http://purl.obolibrary.org/obo/CHEBI_50851
+HYDROCORTISONE	http://purl.obolibrary.org/obo/CHEBI_17650
+HYDROCORTISONE ACETATE	http://purl.obolibrary.org/obo/CHEBI_17609
+HYDROCORTISONE BUTYRATE	http://purl.obolibrary.org/obo/CHEBI_31674
+HYDROCORTISONE SODIUM PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_5781
+HYDROCORTISONE VALERATE	http://purl.obolibrary.org/obo/CHEBI_50865
+HYDROFLUORIC ACID	http://purl.obolibrary.org/obo/CHEBI_29228
+HYDROGEN	http://purl.obolibrary.org/obo/CHEBI_18276
+HYDROGEN	http://purl.obolibrary.org/obo/CHEBI_49637
+HYDROGEN SULFIDE	http://purl.obolibrary.org/obo/CHEBI_29919
+HYDROMORPHONE	http://purl.obolibrary.org/obo/CHEBI_5790
+HYDROXIDE ION	http://purl.obolibrary.org/obo/CHEBI_16234
+HYDROXY(4-HYDROXY-3-METHOXYPHENYL)ACETIC ACID	http://purl.obolibrary.org/obo/CHEBI_20106
+HYDROXYLYSINE	http://purl.obolibrary.org/obo/CHEBI_60175
+HYDROXYPROGESTERONE	http://purl.obolibrary.org/obo/CHEBI_17252
+HYDROXYPROLINE	http://purl.obolibrary.org/obo/CHEBI_18095
+HYDROXYPYRUVIC ACID	http://purl.obolibrary.org/obo/CHEBI_30841
+HYDROXYTOLUIC ACID	http://purl.obolibrary.org/obo/CHEBI_20141
+HYDROXYZINE	http://purl.obolibrary.org/obo/CHEBI_5818
+HYMECROMONE	http://purl.obolibrary.org/obo/CHEBI_17224
+HYOSCYAMINE	http://purl.obolibrary.org/obo/CHEBI_17486
+IBUPROFEN	http://purl.obolibrary.org/obo/CHEBI_43415
+ICOMUCRET	http://purl.obolibrary.org/obo/CHEBI_15558
+ICOSAPENT	http://purl.obolibrary.org/obo/CHEBI_28364
+IDAZOXAN	http://purl.obolibrary.org/obo/CHEBI_5862
+IDOXURIDINE	http://purl.obolibrary.org/obo/CHEBI_147675
+IFOSFAMIDE	http://purl.obolibrary.org/obo/CHEBI_5864
+ILOPROST	http://purl.obolibrary.org/obo/CHEBI_63916
+IMATINIB	http://purl.obolibrary.org/obo/CHEBI_45783
+IMATINIB MESYLATE	http://purl.obolibrary.org/obo/CHEBI_31690
+IMIDAZOLE	http://purl.obolibrary.org/obo/CHEBI_50059
+IMIDAZOLE	http://purl.obolibrary.org/obo/CHEBI_16069
+IMIDOCARB	http://purl.obolibrary.org/obo/CHEBI_51804
+IMIDODICARBONIC DIAMIDE	http://purl.obolibrary.org/obo/CHEBI_18138
+IMIPENEM	http://purl.obolibrary.org/obo/CHEBI_51799
+IMIPENEM ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_471744
+IMIPRAMINE	http://purl.obolibrary.org/obo/CHEBI_47499
+INDAN	http://purl.obolibrary.org/obo/CHEBI_37911
+INDENE	http://purl.obolibrary.org/obo/CHEBI_41921
+INDICAN	http://purl.obolibrary.org/obo/CHEBI_43355
+INDIUM	http://purl.obolibrary.org/obo/CHEBI_30430
+INDOLE	http://purl.obolibrary.org/obo/CHEBI_16881
+INDOLEACETIC ACID	http://purl.obolibrary.org/obo/CHEBI_16411
+INDOLEBUTYRIC ACID	http://purl.obolibrary.org/obo/CHEBI_33070
+INOSINE	http://purl.obolibrary.org/obo/CHEBI_17596
+INOSINIC ACID	http://purl.obolibrary.org/obo/CHEBI_17202
+INOSITOL	http://purl.obolibrary.org/obo/CHEBI_17268
+INOSITOL NIACINATE	http://purl.obolibrary.org/obo/CHEBI_31699
+INOSITOL NIACINATE	http://purl.obolibrary.org/obo/CHEBI_33064
+IODAMIDE	http://purl.obolibrary.org/obo/CHEBI_31703
+IODIDE ION	http://purl.obolibrary.org/obo/CHEBI_16382
+IODINE	http://purl.obolibrary.org/obo/CHEBI_17606
+IODINE	http://purl.obolibrary.org/obo/CHEBI_24859
+IODIXANOL	http://purl.obolibrary.org/obo/CHEBI_31705
+IOHEXOL	http://purl.obolibrary.org/obo/CHEBI_31709
+IOMEPROL	http://purl.obolibrary.org/obo/CHEBI_31710
+IOPAMIDOL	http://purl.obolibrary.org/obo/CHEBI_31711
+IOPROMIDE	http://purl.obolibrary.org/obo/CHEBI_63578
+IOXAGLIC ACID	http://purl.obolibrary.org/obo/CHEBI_31718
+IPRATROPIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_5957
+IPRATROPIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_46659
+IPRATROPIUM BROMIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_46659
+IRBESARTAN	http://purl.obolibrary.org/obo/CHEBI_5959
+IRIDIUM	http://purl.obolibrary.org/obo/CHEBI_49666
+IRON	http://purl.obolibrary.org/obo/CHEBI_18248
+IRON PENTACARBONYL	http://purl.obolibrary.org/obo/CHEBI_30251
+ISOAMYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_15837
+ISOBUTYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_46645
+ISOBUTYLAMINE	http://purl.obolibrary.org/obo/CHEBI_15997
+ISOFLURANE	http://purl.obolibrary.org/obo/CHEBI_6015
+ISOFLUROPHATE	http://purl.obolibrary.org/obo/CHEBI_17941
+ISOLEUCINE	http://purl.obolibrary.org/obo/CHEBI_17191
+ISONIAZID	http://purl.obolibrary.org/obo/CHEBI_6030
+ISOPENTYL NITRITE	http://purl.obolibrary.org/obo/CHEBI_2691
+ISOPROPYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_17824
+ISOPROPYL MERCAPTAN	http://purl.obolibrary.org/obo/CHEBI_8474
+ISOPROTERENOL	http://purl.obolibrary.org/obo/CHEBI_64317
+ISOPULEGONE	http://purl.obolibrary.org/obo/CHEBI_37046
+ISOQUERCITRIN	http://purl.obolibrary.org/obo/CHEBI_28299
+ISOSORBIDE DINITRATE	http://purl.obolibrary.org/obo/CHEBI_6061
+ISOSORBIDE MONONITRATE	http://purl.obolibrary.org/obo/CHEBI_6062
+ISOTRETINOIN	http://purl.obolibrary.org/obo/CHEBI_6067
+ISOVALERALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_16638
+IVERMECTIN	http://purl.obolibrary.org/obo/CHEBI_6078
+IVERMECTIN B1A	http://purl.obolibrary.org/obo/CHEBI_63941
+IVERMECTIN B1B	http://purl.obolibrary.org/obo/CHEBI_63943
+IXABEPILONE	http://purl.obolibrary.org/obo/CHEBI_63605
+JANUS GREEN B	http://purl.obolibrary.org/obo/CHEBI_21184
+KAINIC ACID	http://purl.obolibrary.org/obo/CHEBI_31746
+KANAMYCIN SULFATE	http://purl.obolibrary.org/obo/CHEBI_6109
+KERACYANIN	http://purl.obolibrary.org/obo/CHEBI_16726
+KETAMINE	http://purl.obolibrary.org/obo/CHEBI_6121
+KETANSERIN	http://purl.obolibrary.org/obo/CHEBI_6123
+KETENE	http://purl.obolibrary.org/obo/CHEBI_48003
+KETHOXAL	http://purl.obolibrary.org/obo/CHEBI_59052
+KETOCONAZOLE	http://purl.obolibrary.org/obo/CHEBI_47519
+KRYPTON	http://purl.obolibrary.org/obo/CHEBI_49695
+KRYPTON	http://purl.obolibrary.org/obo/CHEBI_49696
+LABETALOL	http://purl.obolibrary.org/obo/CHEBI_6343
+LACTIC ACID	http://purl.obolibrary.org/obo/CHEBI_42111
+LACTOSE	http://purl.obolibrary.org/obo/CHEBI_36218
+LACTOSE	http://purl.obolibrary.org/obo/CHEBI_36219
+LACTULOSE	http://purl.obolibrary.org/obo/CHEBI_6359
+LAMIVUDINE	http://purl.obolibrary.org/obo/CHEBI_63577
+LAMOTRIGINE	http://purl.obolibrary.org/obo/CHEBI_6367
+LANTHANUM	http://purl.obolibrary.org/obo/CHEBI_33336
+LAURTRIMONIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_282662
+LAURYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_28878
+LAVOLTIDINE	http://purl.obolibrary.org/obo/CHEBI_6550
+LEAD	http://purl.obolibrary.org/obo/CHEBI_25016
+LEAD	http://purl.obolibrary.org/obo/CHEBI_27889
+LEAD ACETATE	http://purl.obolibrary.org/obo/CHEBI_31767
+LEFRADAFIBAN	http://purl.obolibrary.org/obo/CHEBI_60634
+LENALIDOMIDE	http://purl.obolibrary.org/obo/CHEBI_63791
+LEPIDINE	http://purl.obolibrary.org/obo/CHEBI_48983
+LETROZOLE	http://purl.obolibrary.org/obo/CHEBI_6413
+LEUCINE	http://purl.obolibrary.org/obo/CHEBI_15603
+LEUCOCIANIDOL	http://purl.obolibrary.org/obo/CHEBI_15758
+LEUCOVORIN	http://purl.obolibrary.org/obo/CHEBI_15640
+LEUKOTRIENE C4	http://purl.obolibrary.org/obo/CHEBI_57973
+LEVALBUTEROL	http://purl.obolibrary.org/obo/CHEBI_8746
+LEVAMFETAMINE	http://purl.obolibrary.org/obo/CHEBI_42724
+LEVETIRACETAM	http://purl.obolibrary.org/obo/CHEBI_6437
+LEVISOPRENALINE	http://purl.obolibrary.org/obo/CHEBI_6257
+LEVOBUPIVACAINE	http://purl.obolibrary.org/obo/CHEBI_6149
+LEVOCARNITINE	http://purl.obolibrary.org/obo/CHEBI_16347
+LEVODOPA	http://purl.obolibrary.org/obo/CHEBI_15765
+LEVOFENFLURAMINE	http://purl.obolibrary.org/obo/CHEBI_521051
+LEVOFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_63598
+LEVOLEUCOVORIN	http://purl.obolibrary.org/obo/CHEBI_63606
+LEVOMENTHOL	http://purl.obolibrary.org/obo/CHEBI_15409
+LEVOMEPROMAZINE	http://purl.obolibrary.org/obo/CHEBI_6838
+LEVOMETHADYL	http://purl.obolibrary.org/obo/CHEBI_6441
+LEVOMETHADYL ACETATE	http://purl.obolibrary.org/obo/CHEBI_6441
+LEVONORGESTREL	http://purl.obolibrary.org/obo/CHEBI_6443
+LEVOPROPOXYPHENE	http://purl.obolibrary.org/obo/CHEBI_51174
+LEVOSIMENDAN	http://purl.obolibrary.org/obo/CHEBI_50567
+LEVOSULPIRIDE	http://purl.obolibrary.org/obo/CHEBI_64119
+LEVOTHYROXINE	http://purl.obolibrary.org/obo/CHEBI_18332
+LEVOTHYROXINE SODIUM	http://purl.obolibrary.org/obo/CHEBI_6446
+LEVULINIC ACID	http://purl.obolibrary.org/obo/CHEBI_45630
+LIDOCAINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_60791
+LIDOCAINE HYDROCHLORIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_50512
+LINDANE	http://purl.obolibrary.org/obo/CHEBI_32888
+LINEZOLID	http://purl.obolibrary.org/obo/CHEBI_63607
+LINOLENIC ACID	http://purl.obolibrary.org/obo/CHEBI_27432
+LIOTHYRONINE	http://purl.obolibrary.org/obo/CHEBI_18258
+LISINOPRIL	http://purl.obolibrary.org/obo/CHEBI_6503
+LISINOPRIL ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_43755
+LISURIDE	http://purl.obolibrary.org/obo/CHEBI_51164
+LITHIUM	http://purl.obolibrary.org/obo/CHEBI_30145
+LITHIUM ALUMINUM HYDRIDE	http://purl.obolibrary.org/obo/CHEBI_30142
+LITHIUM CATION	http://purl.obolibrary.org/obo/CHEBI_49713
+LITHIUM CITRATE	http://purl.obolibrary.org/obo/CHEBI_64735
+LITHIUM CITRATE	http://purl.obolibrary.org/obo/CHEBI_64754
+LITHIUM HYDROXIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_33979
+LOBELINE	http://purl.obolibrary.org/obo/CHEBI_48723
+LOFEXIDINE	http://purl.obolibrary.org/obo/CHEBI_51368
+LOMEFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_116278
+LONIDAMINE	http://purl.obolibrary.org/obo/CHEBI_50138
+LOPERAMIDE	http://purl.obolibrary.org/obo/CHEBI_6532
+LORACARBEF	http://purl.obolibrary.org/obo/CHEBI_281056
+LORACARBEF	http://purl.obolibrary.org/obo/CHEBI_47544
+LORACARBEF	http://purl.obolibrary.org/obo/CHEBI_214480
+LORAZEPAM	http://purl.obolibrary.org/obo/CHEBI_52993
+LOSARTAN	http://purl.obolibrary.org/obo/CHEBI_6541
+LOTEPREDNOL	http://purl.obolibrary.org/obo/CHEBI_50848
+LOXAPINE	http://purl.obolibrary.org/obo/CHEBI_50841
+LUCANTHONE	http://purl.obolibrary.org/obo/CHEBI_51052
+LUMEFANTRINE	http://purl.obolibrary.org/obo/CHEBI_156095
+LUMIFLAVINE	http://purl.obolibrary.org/obo/CHEBI_43661
+LUPANINE	http://purl.obolibrary.org/obo/CHEBI_64261
+LUTEOLIN	http://purl.obolibrary.org/obo/CHEBI_57545
+LUTETIUM	http://purl.obolibrary.org/obo/CHEBI_33382
+LYMECYCLINE	http://purl.obolibrary.org/obo/CHEBI_59040
+LYSERGIDE	http://purl.obolibrary.org/obo/CHEBI_6605
+MAGNESIUM	http://purl.obolibrary.org/obo/CHEBI_25107
+MAGNESIUM CATION	http://purl.obolibrary.org/obo/CHEBI_33974
+MAGNESIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_6636
+MAGNESIUM CHLORIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_6636
+MAGNESIUM HYDROXIDE	http://purl.obolibrary.org/obo/CHEBI_6637
+MAGNESIUM HYDROXIDE	http://purl.obolibrary.org/obo/CHEBI_35110
+MAGNESIUM STEARATE	http://purl.obolibrary.org/obo/CHEBI_9254
+MAGNESIUM SULFATE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_32599
+MALONDIALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_566274
+MALTOSE	http://purl.obolibrary.org/obo/CHEBI_18167
+M-AMINOBENZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_42682
+M-AMINOPHENOL	http://purl.obolibrary.org/obo/CHEBI_28924
+MANGANESE	http://purl.obolibrary.org/obo/CHEBI_35154
+MANGANESE	http://purl.obolibrary.org/obo/CHEBI_18291
+MANNITOL	http://purl.obolibrary.org/obo/CHEBI_16899
+MARAVIROC	http://purl.obolibrary.org/obo/CHEBI_63608
+MARIMASTAT	http://purl.obolibrary.org/obo/CHEBI_50662
+MASITINIB	http://purl.obolibrary.org/obo/CHEBI_63450
+M-CHLOROBENZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_49410
+M-CHLOROPHENOL	http://purl.obolibrary.org/obo/CHEBI_38855
+MECYSTEINE	http://purl.obolibrary.org/obo/CHEBI_41531
+MEDETOMIDINE	http://purl.obolibrary.org/obo/CHEBI_48552
+MEDICARPIN	http://purl.obolibrary.org/obo/CHEBI_100
+MEDICARPIN	http://purl.obolibrary.org/obo/CHEBI_6714
+MEDROXYPROGESTERONE	http://purl.obolibrary.org/obo/CHEBI_6715
+MEFLOQUINE	http://purl.obolibrary.org/obo/CHEBI_63609
+MEGESTROL	http://purl.obolibrary.org/obo/CHEBI_6722
+MEGLUMINE	http://purl.obolibrary.org/obo/CHEBI_59732
+MEGLUTOL	http://purl.obolibrary.org/obo/CHEBI_16831
+MELPHALAN	http://purl.obolibrary.org/obo/CHEBI_28876
+MEMANTINE	http://purl.obolibrary.org/obo/CHEBI_64312
+MENADIONE SODIUM BISULFITE	http://purl.obolibrary.org/obo/CHEBI_63928
+MENADIONE SODIUM BISULFITE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_63928
+MEPIVACAINE	http://purl.obolibrary.org/obo/CHEBI_6759
+MERCAPTOPURINE	http://purl.obolibrary.org/obo/CHEBI_50667
+MERCURIC ACETATE	http://purl.obolibrary.org/obo/CHEBI_33211
+MERCURIC CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_31823
+MERCURIC CYANIDE	http://purl.obolibrary.org/obo/CHEBI_36573
+MERCURIC IODIDE	http://purl.obolibrary.org/obo/CHEBI_49659
+MERCUROUS ACETATE	http://purl.obolibrary.org/obo/CHEBI_33210
+MERCURY	http://purl.obolibrary.org/obo/CHEBI_16170
+MERCURY	http://purl.obolibrary.org/obo/CHEBI_25195
+MEROPENEM	http://purl.obolibrary.org/obo/CHEBI_43968
+MEROPENEM ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_43968
+MESITYLENE	http://purl.obolibrary.org/obo/CHEBI_34833
+MESORIDAZINE	http://purl.obolibrary.org/obo/CHEBI_6780
+MESOXALIC ACID	http://purl.obolibrary.org/obo/CHEBI_30842
+MESTRANOL	http://purl.obolibrary.org/obo/CHEBI_6784
+METACRESOL	http://purl.obolibrary.org/obo/CHEBI_17231
+METAMPICILLIN	http://purl.obolibrary.org/obo/CHEBI_52060
+METANILIC ACID	http://purl.obolibrary.org/obo/CHEBI_27764
+METARAMINOL	http://purl.obolibrary.org/obo/CHEBI_6794
+METERGOLINE	http://purl.obolibrary.org/obo/CHEBI_64216
+METHACHOLINE CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_50142
+METHADONE	http://purl.obolibrary.org/obo/CHEBI_6807
+METHENAMINE	http://purl.obolibrary.org/obo/CHEBI_6824
+METHICILLIN SODIUM ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_52065
+METHIONINE	http://purl.obolibrary.org/obo/CHEBI_16643
+METHIONINE	http://purl.obolibrary.org/obo/CHEBI_64558
+METHOHEXITAL	http://purl.obolibrary.org/obo/CHEBI_102216
+METHOTREXATE	http://purl.obolibrary.org/obo/CHEBI_44185
+METHOTREXATE SODIUM	http://purl.obolibrary.org/obo/CHEBI_50679
+METHSCOPOLAMINE BROMIDE	http://purl.obolibrary.org/obo/CHEBI_61276
+METHYL 2-NONYNOATE	http://purl.obolibrary.org/obo/CHEBI_51749
+METHYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_17790
+METHYL AMINOLEVULINATE	http://purl.obolibrary.org/obo/CHEBI_724125
+METHYL AMINOLEVULINATE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_60641
+METHYL BROMIDE	http://purl.obolibrary.org/obo/CHEBI_39275
+METHYL CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_36014
+METHYL ETHYL KETONE	http://purl.obolibrary.org/obo/CHEBI_28398
+METHYL EUGENOL	http://purl.obolibrary.org/obo/CHEBI_4918
+METHYL IODIDE	http://purl.obolibrary.org/obo/CHEBI_39282
+METHYL JASMONATE	http://purl.obolibrary.org/obo/CHEBI_15929
+METHYL PROPYL KETONE	http://purl.obolibrary.org/obo/CHEBI_16472
+METHYL SULFIDE	http://purl.obolibrary.org/obo/CHEBI_17437
+METHYLAL	http://purl.obolibrary.org/obo/CHEBI_48341
+METHYLCHLOROISOTHIAZOLINONE	http://purl.obolibrary.org/obo/CHEBI_53621
+METHYLDIBROMO GLUTARONITRILE	http://purl.obolibrary.org/obo/CHEBI_62823
+METHYLDOPA	http://purl.obolibrary.org/obo/CHEBI_61058
+METHYLDOPA ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_61058
+METHYLENE BLUE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_6872
+METHYLENE CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_15767
+METHYLPHENIDATE	http://purl.obolibrary.org/obo/CHEBI_6887
+METHYLPREDNISOLONE	http://purl.obolibrary.org/obo/CHEBI_6888
+METHYLTESTOSTERONE	http://purl.obolibrary.org/obo/CHEBI_27436
+METHYSERGIDE	http://purl.obolibrary.org/obo/CHEBI_584020
+METIAZINIC ACID	http://purl.obolibrary.org/obo/CHEBI_31838
+METIPRANOLOL	http://purl.obolibrary.org/obo/CHEBI_6897
+METITEPINE	http://purl.obolibrary.org/obo/CHEBI_64203
+METOCLOPRAMIDE	http://purl.obolibrary.org/obo/CHEBI_107736
+METOFENAZATE	http://purl.obolibrary.org/obo/CHEBI_59116
+METOLAZONE	http://purl.obolibrary.org/obo/CHEBI_64354
+METRIBOLONE	http://purl.obolibrary.org/obo/CHEBI_379896
+METRONIDAZOLE	http://purl.obolibrary.org/obo/CHEBI_6909
+METYRAPONE	http://purl.obolibrary.org/obo/CHEBI_44241
+METYROSINE	http://purl.obolibrary.org/obo/CHEBI_6912
+MEVALONIC ACID	http://purl.obolibrary.org/obo/CHEBI_17710
+MEXILETINE	http://purl.obolibrary.org/obo/CHEBI_6916
+MEZLOCILLIN	http://purl.obolibrary.org/obo/CHEBI_6919
+M-HYDROXYANISOLE	http://purl.obolibrary.org/obo/CHEBI_52678
+MIANSERIN	http://purl.obolibrary.org/obo/CHEBI_51137
+MICAFUNGIN	http://purl.obolibrary.org/obo/CHEBI_600520
+MIDODRINE	http://purl.obolibrary.org/obo/CHEBI_6933
+MIDOSTAURIN	http://purl.obolibrary.org/obo/CHEBI_63452
+MIFEPRISTONE	http://purl.obolibrary.org/obo/CHEBI_50692
+MIGLUSTAT	http://purl.obolibrary.org/obo/CHEBI_50381
+MILRINONE	http://purl.obolibrary.org/obo/CHEBI_50693
+MINAPRINE	http://purl.obolibrary.org/obo/CHEBI_51038
+MINOCYCLINE	http://purl.obolibrary.org/obo/CHEBI_50694
+MIRTAZAPINE	http://purl.obolibrary.org/obo/CHEBI_6950
+MISOPROSTOL	http://purl.obolibrary.org/obo/CHEBI_63610
+MITOMYCIN	http://purl.obolibrary.org/obo/CHEBI_27504
+MITOXANTRONE	http://purl.obolibrary.org/obo/CHEBI_50729
+MITOXANTRONE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_50727
+M-NITROPHENOL	http://purl.obolibrary.org/obo/CHEBI_34346
+MOENOMYCIN A	http://purl.obolibrary.org/obo/CHEBI_28908
+MOLYBDATE ION	http://purl.obolibrary.org/obo/CHEBI_36264
+MOLYBDENUM	http://purl.obolibrary.org/obo/CHEBI_28685
+MOMETASONE	http://purl.obolibrary.org/obo/CHEBI_6970
+MONENSIN	http://purl.obolibrary.org/obo/CHEBI_27617
+MONOBENZONE	http://purl.obolibrary.org/obo/CHEBI_34380
+MONOETHANOLAMINE	http://purl.obolibrary.org/obo/CHEBI_16000
+MONOPHOSPHOTHIAMINE	http://purl.obolibrary.org/obo/CHEBI_18338
+MONTELUKAST	http://purl.obolibrary.org/obo/CHEBI_50730
+MOXIFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_63611
+M-PHENYLENEDIAMINE	http://purl.obolibrary.org/obo/CHEBI_8092
+MYCOPHENOLIC ACID	http://purl.obolibrary.org/obo/CHEBI_168396
+MYRICETIN	http://purl.obolibrary.org/obo/CHEBI_58395
+MYROPHINE	http://purl.obolibrary.org/obo/CHEBI_59860
+N,N-DIMETHYL-5-METHOXYTRYPTAMINE	http://purl.obolibrary.org/obo/CHEBI_2086
+N2-ACETYL-L-LYSINE	http://purl.obolibrary.org/obo/CHEBI_35704
+N6-BENZYLADENINE	http://purl.obolibrary.org/obo/CHEBI_29022
+N-ACETYLGLUCOSAMINE	http://purl.obolibrary.org/obo/CHEBI_28009
+NADIDE	http://purl.obolibrary.org/obo/CHEBI_44215
+NADIDE	http://purl.obolibrary.org/obo/CHEBI_15846
+NADOLOL	http://purl.obolibrary.org/obo/CHEBI_7444
+NAFCILLIN	http://purl.obolibrary.org/obo/CHEBI_7447
+NAFCILLIN SODIUM ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_7448
+NAFTALOFOS	http://purl.obolibrary.org/obo/CHEBI_51962
+NALBUPHINE	http://purl.obolibrary.org/obo/CHEBI_7454
+NALIDIXIC ACID	http://purl.obolibrary.org/obo/CHEBI_100147
+NALOXONE	http://purl.obolibrary.org/obo/CHEBI_7459
+NALTREXONE	http://purl.obolibrary.org/obo/CHEBI_7465
+NANAFROCIN	http://purl.obolibrary.org/obo/CHEBI_48202
+NAPROXEN	http://purl.obolibrary.org/obo/CHEBI_7476
+NAPROXOL	http://purl.obolibrary.org/obo/CHEBI_61022
+NARATRIPTAN	http://purl.obolibrary.org/obo/CHEBI_7478
+NARINGENIN	http://purl.obolibrary.org/obo/CHEBI_17846
+NEBIVOLOL	http://purl.obolibrary.org/obo/CHEBI_64022
+NEDOCROMIL	http://purl.obolibrary.org/obo/CHEBI_7492
+NEFAZODONE	http://purl.obolibrary.org/obo/CHEBI_7494
+NEMONAPRIDE	http://purl.obolibrary.org/obo/CHEBI_31899
+NEODYMIUM	http://purl.obolibrary.org/obo/CHEBI_33372
+NEON	http://purl.obolibrary.org/obo/CHEBI_33310
+NEOSTIGMINE BROMIDE	http://purl.obolibrary.org/obo/CHEBI_179557
+NEPTUNIUM	http://purl.obolibrary.org/obo/CHEBI_33387
+NERATINIB	http://purl.obolibrary.org/obo/CHEBI_61397
+NEROLIDOL	http://purl.obolibrary.org/obo/CHEBI_59958
+NETILMICIN	http://purl.obolibrary.org/obo/CHEBI_7528
+NEVIRAPINE	http://purl.obolibrary.org/obo/CHEBI_63613
+NIACIN	http://purl.obolibrary.org/obo/CHEBI_15940
+NIACINAMIDE	http://purl.obolibrary.org/obo/CHEBI_17154
+NICKEL	http://purl.obolibrary.org/obo/CHEBI_28112
+NICKEL CATION	http://purl.obolibrary.org/obo/CHEBI_30399
+NICKEL(II) CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_34887
+NICOTINE	http://purl.obolibrary.org/obo/CHEBI_17688
+NIFEDIPINE	http://purl.obolibrary.org/obo/CHEBI_7565
+NILOTINIB	http://purl.obolibrary.org/obo/CHEBI_52172
+NILUTAMIDE	http://purl.obolibrary.org/obo/CHEBI_7573
+NIMODIPINE	http://purl.obolibrary.org/obo/CHEBI_7575
+NIOBIUM	http://purl.obolibrary.org/obo/CHEBI_33344
+N-ISOPROPYL-N'-PHENYL-1,4-PHENYLENEDIAMINE	http://purl.obolibrary.org/obo/CHEBI_63569
+NITARSONE	http://purl.obolibrary.org/obo/CHEBI_62629
+NITENPYRAM	http://purl.obolibrary.org/obo/CHEBI_39170
+NITISINONE	http://purl.obolibrary.org/obo/CHEBI_50378
+NITRAMINE	http://purl.obolibrary.org/obo/CHEBI_28950
+NITRAMINE	http://purl.obolibrary.org/obo/CHEBI_7579
+NITRATE ION	http://purl.obolibrary.org/obo/CHEBI_17632
+NITRITE ION	http://purl.obolibrary.org/obo/CHEBI_16301
+NITROBLUE TETRAZOLIUM CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_9505
+NITROFLUORENE	http://purl.obolibrary.org/obo/CHEBI_1224
+NITROGEN	http://purl.obolibrary.org/obo/CHEBI_25555
+NITROGEN	http://purl.obolibrary.org/obo/CHEBI_17997
+NITROUS OXIDE	http://purl.obolibrary.org/obo/CHEBI_17045
+NOCODAZOLE	http://purl.obolibrary.org/obo/CHEBI_34892
+NOMIFENSINE	http://purl.obolibrary.org/obo/CHEBI_116225
+NONYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_35986
+NORDAZEPAM	http://purl.obolibrary.org/obo/CHEBI_111762
+NOREPINEPHRINE	http://purl.obolibrary.org/obo/CHEBI_18357
+NOREPINEPHRINE	http://purl.obolibrary.org/obo/CHEBI_33569
+NORETHINDRONE	http://purl.obolibrary.org/obo/CHEBI_7627
+NORFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_100246
+NORGESTIMATE	http://purl.obolibrary.org/obo/CHEBI_50815
+NORGESTREL	http://purl.obolibrary.org/obo/CHEBI_7630
+NORLEUCINE	http://purl.obolibrary.org/obo/CHEBI_44556
+NORLEUCINE	http://purl.obolibrary.org/obo/CHEBI_36405
+NORLEUCINE	http://purl.obolibrary.org/obo/CHEBI_18347
+N-PHENYL-P-PHENYLENEDIAMINE	http://purl.obolibrary.org/obo/CHEBI_59038
+NYSTATIN	http://purl.obolibrary.org/obo/CHEBI_7660
+O-AMINOPHENOL	http://purl.obolibrary.org/obo/CHEBI_18112
+O-BENZOQUINONE	http://purl.obolibrary.org/obo/CHEBI_17253
+O-CHLOROBENZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_30793
+OCTANOIC ACID	http://purl.obolibrary.org/obo/CHEBI_28837
+OCTOXYNOL 9	http://purl.obolibrary.org/obo/CHEBI_9750
+OFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_7731
+OFTASCEINE	http://purl.obolibrary.org/obo/CHEBI_51903
+O-IODOBENZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_287979
+OLANZAPINE	http://purl.obolibrary.org/obo/CHEBI_7735
+OLSALAZINE	http://purl.obolibrary.org/obo/CHEBI_7770
+OMEGA-3 FATTY ACIDS	http://purl.obolibrary.org/obo/CHEBI_25681
+OMEGA-6 FATTY ACIDS	http://purl.obolibrary.org/obo/CHEBI_36009
+OMEPRAZOLE	http://purl.obolibrary.org/obo/CHEBI_7772
+OMOCIANINE	http://purl.obolibrary.org/obo/CHEBI_59529
+O-PHENANTHROLINE	http://purl.obolibrary.org/obo/CHEBI_44975
+O-PHENYLENEDIAMINE	http://purl.obolibrary.org/obo/CHEBI_34043
+ORNITHINE	http://purl.obolibrary.org/obo/CHEBI_44667
+ORPHENADRINE	http://purl.obolibrary.org/obo/CHEBI_7789
+ORSELLINIC ACID	http://purl.obolibrary.org/obo/CHEBI_32807
+ORTHANILIC ACID	http://purl.obolibrary.org/obo/CHEBI_1015
+ORTHOCRESOL	http://purl.obolibrary.org/obo/CHEBI_28054
+OSELTAMIVIR	http://purl.obolibrary.org/obo/CHEBI_7798
+OSMIUM	http://purl.obolibrary.org/obo/CHEBI_30687
+OXALIPLATIN	http://purl.obolibrary.org/obo/CHEBI_31941
+OXAMATE	http://purl.obolibrary.org/obo/CHEBI_18058
+OXANDROLONE	http://purl.obolibrary.org/obo/CHEBI_7820
+OXCARBAZEPINE	http://purl.obolibrary.org/obo/CHEBI_7824
+OXEDRINE	http://purl.obolibrary.org/obo/CHEBI_29081
+OXIGLUTATIONE	http://purl.obolibrary.org/obo/CHEBI_17858
+OXITRIPTAN	http://purl.obolibrary.org/obo/CHEBI_17780
+OXMETIDINE	http://purl.obolibrary.org/obo/CHEBI_7847
+OXOLINIC ACID	http://purl.obolibrary.org/obo/CHEBI_138856
+OXYBENZONE	http://purl.obolibrary.org/obo/CHEBI_34283
+OXYBUTYNIN	http://purl.obolibrary.org/obo/CHEBI_7856
+OXYCODONE	http://purl.obolibrary.org/obo/CHEBI_7852
+OXYGEN	http://purl.obolibrary.org/obo/CHEBI_15379
+OXYGEN	http://purl.obolibrary.org/obo/CHEBI_25805
+OXYGEN FLUORIDE	http://purl.obolibrary.org/obo/CHEBI_30242
+OXYPURINOL	http://purl.obolibrary.org/obo/CHEBI_28315
+OXYQUINOLINE	http://purl.obolibrary.org/obo/CHEBI_48981
+OXYTOCIN	http://purl.obolibrary.org/obo/CHEBI_7872
+P-AMINOAZOBENZENE	http://purl.obolibrary.org/obo/CHEBI_233869
+P-AMINOPHENOL	http://purl.obolibrary.org/obo/CHEBI_17602
+PANCURONIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_7908
+P-ANISIC ACID	http://purl.obolibrary.org/obo/CHEBI_40813
+PANTHENOL	http://purl.obolibrary.org/obo/CHEBI_27373
+PANTOPRAZOLE	http://purl.obolibrary.org/obo/CHEBI_7915
+PANTOTHENIC ACID	http://purl.obolibrary.org/obo/CHEBI_46905
+PARACHLOROPHENOL	http://purl.obolibrary.org/obo/CHEBI_28078
+PARADICHLOROBENZENE	http://purl.obolibrary.org/obo/CHEBI_28618
+PARAFORMALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_61538
+PARAFORMALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_31962
+PARAXANTHINE	http://purl.obolibrary.org/obo/CHEBI_25858
+PARICALCITOL	http://purl.obolibrary.org/obo/CHEBI_7931
+PARNAPARIN	http://purl.obolibrary.org/obo/CHEBI_28304
+PAROMOMYCIN	http://purl.obolibrary.org/obo/CHEBI_7934
+P-CHLOROACETANILIDE	http://purl.obolibrary.org/obo/CHEBI_116915
+P-CHLOROBENZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_30747
+P-COUMARIC ACID	http://purl.obolibrary.org/obo/CHEBI_32374
+P-COUMARIC ACID	http://purl.obolibrary.org/obo/CHEBI_36090
+P-DIBROMOBENZENE	http://purl.obolibrary.org/obo/CHEBI_37150
+PEA	http://purl.obolibrary.org/obo/CHEBI_17553
+PEFLOXACIN	http://purl.obolibrary.org/obo/CHEBI_50199
+PELARGONIC ACID	http://purl.obolibrary.org/obo/CHEBI_29019
+PEMETREXED	http://purl.obolibrary.org/obo/CHEBI_63616
+PENCICLOVIR	http://purl.obolibrary.org/obo/CHEBI_7956
+PENICILLAMINE	http://purl.obolibrary.org/obo/CHEBI_7959
+PENICILLIN G	http://purl.obolibrary.org/obo/CHEBI_18208
+PENICILLIN G BENZATHINE	http://purl.obolibrary.org/obo/CHEBI_51352
+PENICILLIN G BENZATHINE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_51352
+PENICILLIN G POTASSIUM	http://purl.obolibrary.org/obo/CHEBI_7963
+PENICILLIN G PROCAINE	http://purl.obolibrary.org/obo/CHEBI_52154
+PENICILLIN G SODIUM	http://purl.obolibrary.org/obo/CHEBI_51765
+PENICILLIN V	http://purl.obolibrary.org/obo/CHEBI_27446
+PENICILLIN V BENZATHINE	http://purl.obolibrary.org/obo/CHEBI_31973
+PENICILLIN V HYDRABAMINE	http://purl.obolibrary.org/obo/CHEBI_52173
+PENICILLIN V POTASSIUM	http://purl.obolibrary.org/obo/CHEBI_7967
+PENTAMIDINE	http://purl.obolibrary.org/obo/CHEBI_45081
+PERFLEXANE	http://purl.obolibrary.org/obo/CHEBI_39427
+PERFLUAMINE	http://purl.obolibrary.org/obo/CHEBI_38850
+PERFLUNAFENE	http://purl.obolibrary.org/obo/CHEBI_38848
+PERFLUTREN	http://purl.obolibrary.org/obo/CHEBI_31980
+PERGOLIDE	http://purl.obolibrary.org/obo/CHEBI_63617
+PERICIAZINE	http://purl.obolibrary.org/obo/CHEBI_31981
+PERILLALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_15421
+PERILLYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_10782
+PERMETHRIN	http://purl.obolibrary.org/obo/CHEBI_34911
+PEROXOMONOSULPHURIC ACID	http://purl.obolibrary.org/obo/CHEBI_29286
+PERPHENAZINE	http://purl.obolibrary.org/obo/CHEBI_8028
+P-FLUOROBENZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_20364
+PHENACETIN	http://purl.obolibrary.org/obo/CHEBI_8050
+PHENETHYLAMINE	http://purl.obolibrary.org/obo/CHEBI_18397
+PHENETICILLIN	http://purl.obolibrary.org/obo/CHEBI_52427
+PHENINDIONE	http://purl.obolibrary.org/obo/CHEBI_8066
+PHENOBARBITAL	http://purl.obolibrary.org/obo/CHEBI_8069
+PHENOBARBITAL SODIUM	http://purl.obolibrary.org/obo/CHEBI_8070
+PHENOLSULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_32354
+PHENOLSULFONPHTHALEIN	http://purl.obolibrary.org/obo/CHEBI_31991
+PHENOSAFRANIN	http://purl.obolibrary.org/obo/CHEBI_33601
+PHENOTHIAZINE	http://purl.obolibrary.org/obo/CHEBI_37931
+PHENOXYETHANOL	http://purl.obolibrary.org/obo/CHEBI_64275
+PHENPROCOUMON	http://purl.obolibrary.org/obo/CHEBI_50438
+PHENTERMINE	http://purl.obolibrary.org/obo/CHEBI_8080
+PHENYLALANINE	http://purl.obolibrary.org/obo/CHEBI_17295
+PHENYLBUTAZONE	http://purl.obolibrary.org/obo/CHEBI_48574
+PHENYLEPHRINE	http://purl.obolibrary.org/obo/CHEBI_8093
+PHENYLETHYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_49000
+PHENYLHYDROXYLAMINE	http://purl.obolibrary.org/obo/CHEBI_28902
+PHENYLMERCURIC ACETATE	http://purl.obolibrary.org/obo/CHEBI_27684
+PHLOROACETOPHENONE	http://purl.obolibrary.org/obo/CHEBI_64344
+PHOLCODINE	http://purl.obolibrary.org/obo/CHEBI_53579
+PHOSPHATE ION	http://purl.obolibrary.org/obo/CHEBI_18367
+PHOSPHOCREATINE	http://purl.obolibrary.org/obo/CHEBI_17287
+PHOSPHORUS	http://purl.obolibrary.org/obo/CHEBI_28659
+PHOSPHORUS	http://purl.obolibrary.org/obo/CHEBI_35895
+PHYSCIONE	http://purl.obolibrary.org/obo/CHEBI_38167
+PHYTONADIONE	http://purl.obolibrary.org/obo/CHEBI_18067
+PIDOLIC ACID	http://purl.obolibrary.org/obo/CHEBI_18183
+PILOCARPINE	http://purl.obolibrary.org/obo/CHEBI_8207
+PIMAGEDINE	http://purl.obolibrary.org/obo/CHEBI_40618
+PIMOBENDAN	http://purl.obolibrary.org/obo/CHEBI_32003
+PIMOZIDE	http://purl.obolibrary.org/obo/CHEBI_8212
+PINDOLOL	http://purl.obolibrary.org/obo/CHEBI_8214
+PIOGLITAZONE	http://purl.obolibrary.org/obo/CHEBI_8228
+PIPERACILLIN	http://purl.obolibrary.org/obo/CHEBI_8232
+PIPERACILLIN ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_8232
+PIPERIDINE	http://purl.obolibrary.org/obo/CHEBI_589779
+PIRENZEPINE	http://purl.obolibrary.org/obo/CHEBI_8247
+PIROCTONE	http://purl.obolibrary.org/obo/CHEBI_59009
+PIROXICAM	http://purl.obolibrary.org/obo/CHEBI_8249
+PIVAMPICILLIN	http://purl.obolibrary.org/obo/CHEBI_8255
+PIZOTYLINE	http://purl.obolibrary.org/obo/CHEBI_50212
+PLATINUM	http://purl.obolibrary.org/obo/CHEBI_33400
+PLICAMYCIN	http://purl.obolibrary.org/obo/CHEBI_31856
+P-METHYLAMINOPHENOL	http://purl.obolibrary.org/obo/CHEBI_55416
+P-METHYLAMINOPHENOL SULFATE	http://purl.obolibrary.org/obo/CHEBI_55413
+P-NITROANILINE	http://purl.obolibrary.org/obo/CHEBI_17064
+P-NITROPHENOL	http://purl.obolibrary.org/obo/CHEBI_16836
+P-NITROSO-N,N-DIMETHYLANILINE	http://purl.obolibrary.org/obo/CHEBI_59990
+P-NITROTOLUENE	http://purl.obolibrary.org/obo/CHEBI_35227
+PODOFILOX	http://purl.obolibrary.org/obo/CHEBI_50305
+POLYETHYLENE GLYCOL 500	http://purl.obolibrary.org/obo/CHEBI_46550
+POLYETHYLENE GLYCOLS	http://purl.obolibrary.org/obo/CHEBI_46793
+POLYLACTIDE	http://purl.obolibrary.org/obo/CHEBI_60159
+POLYLACTIDE	http://purl.obolibrary.org/obo/CHEBI_53407
+POLYMYXIN B	http://purl.obolibrary.org/obo/CHEBI_8309
+POLYSORBATE 20	http://purl.obolibrary.org/obo/CHEBI_53424
+POLYSORBATE 40	http://purl.obolibrary.org/obo/CHEBI_53423
+POLYSORBATE 60	http://purl.obolibrary.org/obo/CHEBI_53425
+POLYSORBATE 80	http://purl.obolibrary.org/obo/CHEBI_53426
+POLYSTYRENE SULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_53278
+POLYTETRAFLUOROETHYLENE	http://purl.obolibrary.org/obo/CHEBI_53251
+POLYVINYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_17246
+PORFIMER SODIUM	http://purl.obolibrary.org/obo/CHEBI_60773
+PORPHINE	http://purl.obolibrary.org/obo/CHEBI_8337
+POSACONAZOLE	http://purl.obolibrary.org/obo/CHEBI_64355
+POTASSIUM	http://purl.obolibrary.org/obo/CHEBI_26216
+POTASSIUM CITRATE	http://purl.obolibrary.org/obo/CHEBI_64733
+POTASSIUM CITRATE	http://purl.obolibrary.org/obo/CHEBI_64746
+POTASSIUM CITRATE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_64733
+POTASSIUM FERRICYANIDE	http://purl.obolibrary.org/obo/CHEBI_30060
+POTASSIUM FERROCYANIDE	http://purl.obolibrary.org/obo/CHEBI_30059
+POTASSIUM MERCURIC IODIDE	http://purl.obolibrary.org/obo/CHEBI_51568
+POTASSIUM PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_63036
+POTASSIUM TARTRATE	http://purl.obolibrary.org/obo/CHEBI_63018
+POVIDONE	http://purl.obolibrary.org/obo/CHEBI_53248
+P-PHENYLENEDIAMINE	http://purl.obolibrary.org/obo/CHEBI_51403
+PRACTOLOL	http://purl.obolibrary.org/obo/CHEBI_258351
+PRALIDOXIME	http://purl.obolibrary.org/obo/CHEBI_8354
+PRAMIPEXOLE	http://purl.obolibrary.org/obo/CHEBI_8356
+PRAMIPEXOLE DIHYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_51148
+PRAMOXINE	http://purl.obolibrary.org/obo/CHEBI_8357
+PRASEODYMIUM	http://purl.obolibrary.org/obo/CHEBI_49828
+PRASTERONE	http://purl.obolibrary.org/obo/CHEBI_28689
+PRASTERONE SULFATE	http://purl.obolibrary.org/obo/CHEBI_16814
+PRATENSEIN	http://purl.obolibrary.org/obo/CHEBI_61323
+PRATOSARTAN	http://purl.obolibrary.org/obo/CHEBI_32041
+PRAVASTATIN	http://purl.obolibrary.org/obo/CHEBI_63618
+PRAZOSIN	http://purl.obolibrary.org/obo/CHEBI_8364
+PREDNISONE	http://purl.obolibrary.org/obo/CHEBI_8382
+PREGABALIN	http://purl.obolibrary.org/obo/CHEBI_64356
+PRENISTEINE	http://purl.obolibrary.org/obo/CHEBI_47914
+PRIMAQUINE	http://purl.obolibrary.org/obo/CHEBI_8405
+PROCAINAMIDE	http://purl.obolibrary.org/obo/CHEBI_8428
+PROCAINE	http://purl.obolibrary.org/obo/CHEBI_8430
+PROCHLORPERAZINE	http://purl.obolibrary.org/obo/CHEBI_8435
+PROCHLORPERAZINE DIMETHANESULFONATE	http://purl.obolibrary.org/obo/CHEBI_34932
+PROCYCLIDINE	http://purl.obolibrary.org/obo/CHEBI_8448
+PROFLAVINE	http://purl.obolibrary.org/obo/CHEBI_8452
+PROGUANIL	http://purl.obolibrary.org/obo/CHEBI_8455
+PROLINE	http://purl.obolibrary.org/obo/CHEBI_17203
+PROMAZINE	http://purl.obolibrary.org/obo/CHEBI_8459
+PROMETHAZINE	http://purl.obolibrary.org/obo/CHEBI_8461
+PROMETRYNE	http://purl.obolibrary.org/obo/CHEBI_26276
+PROPACHLOR	http://purl.obolibrary.org/obo/CHEBI_19503
+PROPADIENE	http://purl.obolibrary.org/obo/CHEBI_37601
+PROPAFENONE	http://purl.obolibrary.org/obo/CHEBI_63619
+PROPARGYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_28905
+PROPICILLIN	http://purl.obolibrary.org/obo/CHEBI_52429
+PROPIOLACTONE	http://purl.obolibrary.org/obo/CHEBI_49073
+PROPIOMAZINE	http://purl.obolibrary.org/obo/CHEBI_8491
+PROPIONALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_17153
+PROPOFOL	http://purl.obolibrary.org/obo/CHEBI_44915
+PROPRANOLOL	http://purl.obolibrary.org/obo/CHEBI_8499
+PROPYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_28831
+PROPYL DISULFIDE	http://purl.obolibrary.org/obo/CHEBI_45758
+PROPYL MERCAPTAN	http://purl.obolibrary.org/obo/CHEBI_8473
+PROPYLENE	http://purl.obolibrary.org/obo/CHEBI_16052
+PROPYLENE GLYCOL	http://purl.obolibrary.org/obo/CHEBI_16997
+PROPYLENE OXIDE	http://purl.obolibrary.org/obo/CHEBI_38685
+PROPYLTHIOURACIL	http://purl.obolibrary.org/obo/CHEBI_8502
+PROPYPHENAZONE	http://purl.obolibrary.org/obo/CHEBI_135538
+PROTACTINIUM	http://purl.obolibrary.org/obo/CHEBI_33386
+PROTOCATECHUALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_50205
+PRUNASIN	http://purl.obolibrary.org/obo/CHEBI_17396
+PSEUDOCUMENE	http://purl.obolibrary.org/obo/CHEBI_34039
+PSEUDOEPHEDRINE	http://purl.obolibrary.org/obo/CHEBI_51209
+PSILOCYBINE	http://purl.obolibrary.org/obo/CHEBI_8614
+PTEROIC ACID	http://purl.obolibrary.org/obo/CHEBI_37055
+PTEROIC ACID	http://purl.obolibrary.org/obo/CHEBI_27623
+PULEGONE	http://purl.obolibrary.org/obo/CHEBI_35596
+PULEGONE	http://purl.obolibrary.org/obo/CHEBI_26381
+PURINE	http://purl.obolibrary.org/obo/CHEBI_17258
+PUROMYCIN	http://purl.obolibrary.org/obo/CHEBI_17939
+PUROMYCIN	http://purl.obolibrary.org/obo/CHEBI_60255
+PURPUROGALLINE	http://purl.obolibrary.org/obo/CHEBI_8647
+PUTRESCINE	http://purl.obolibrary.org/obo/CHEBI_326268
+PYRAZINAMIDE	http://purl.obolibrary.org/obo/CHEBI_45285
+PYRAZOLE	http://purl.obolibrary.org/obo/CHEBI_17241
+PYRIDARONE	http://purl.obolibrary.org/obo/CHEBI_34377
+PYRIDOXAL 5-PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_18405
+PYRIDOXAL PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_18405
+PYRIDOXAMINE PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_18335
+PYRILAMINE	http://purl.obolibrary.org/obo/CHEBI_6762
+PYRIMETHAMINE	http://purl.obolibrary.org/obo/CHEBI_8673
+PYRITHIONE ZINC	http://purl.obolibrary.org/obo/CHEBI_32076
+PYROCATECHOL	http://purl.obolibrary.org/obo/CHEBI_18135
+PYROPHOSPHORIC ACID	http://purl.obolibrary.org/obo/CHEBI_29888
+PYROXYLIN	http://purl.obolibrary.org/obo/CHEBI_53325
+PYRROLE	http://purl.obolibrary.org/obo/CHEBI_19203
+PYRUVALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_17158
+QUERCETIN	http://purl.obolibrary.org/obo/CHEBI_57694
+QUETIAPINE	http://purl.obolibrary.org/obo/CHEBI_8707
+QUINACRINE	http://purl.obolibrary.org/obo/CHEBI_49845
+QUINAPRIL	http://purl.obolibrary.org/obo/CHEBI_8713
+QUINESTROL	http://purl.obolibrary.org/obo/CHEBI_8716
+QUINIC ACID	http://purl.obolibrary.org/obo/CHEBI_17521
+QUINIDINE GLUCONATE	http://purl.obolibrary.org/obo/CHEBI_27502
+QUININE	http://purl.obolibrary.org/obo/CHEBI_137041
+QUININE BISULFATE	http://purl.obolibrary.org/obo/CHEBI_52250
+QUINONE	http://purl.obolibrary.org/obo/CHEBI_16509
+QUINOVOSE	http://purl.obolibrary.org/obo/CHEBI_42606
+RABEPRAZOLE	http://purl.obolibrary.org/obo/CHEBI_8768
+RACEMETHIONINE	http://purl.obolibrary.org/obo/CHEBI_16811
+RADIUM	http://purl.obolibrary.org/obo/CHEBI_33325
+RADON	http://purl.obolibrary.org/obo/CHEBI_33314
+RALOXIFENE	http://purl.obolibrary.org/obo/CHEBI_8772
+RANITIDINE	http://purl.obolibrary.org/obo/CHEBI_8776
+RASAGILINE	http://purl.obolibrary.org/obo/CHEBI_63620
+RAZOXANE	http://purl.obolibrary.org/obo/CHEBI_50225
+REMIFENTANIL	http://purl.obolibrary.org/obo/CHEBI_8802
+RESACETOPHENONE	http://purl.obolibrary.org/obo/CHEBI_18414
+RESVERATROL	http://purl.obolibrary.org/obo/CHEBI_45713
+RETINOL	http://purl.obolibrary.org/obo/CHEBI_45479
+RETINOL	http://purl.obolibrary.org/obo/CHEBI_17336
+REVIPARIN	http://purl.obolibrary.org/obo/CHEBI_28304
+RHODIUM	http://purl.obolibrary.org/obo/CHEBI_33359
+RIBAVIRIN	http://purl.obolibrary.org/obo/CHEBI_63580
+RIBOFLAVIN	http://purl.obolibrary.org/obo/CHEBI_57986
+RIBOFLAVIN	http://purl.obolibrary.org/obo/CHEBI_17015
+RIBOPRINE	http://purl.obolibrary.org/obo/CHEBI_62881
+RIBOSTAMYCIN	http://purl.obolibrary.org/obo/CHEBI_10003
+RIFAMPIN	http://purl.obolibrary.org/obo/CHEBI_28077
+RISPERIDONE	http://purl.obolibrary.org/obo/CHEBI_8871
+RITANSERIN	http://purl.obolibrary.org/obo/CHEBI_64195
+RIVASTIGMINE	http://purl.obolibrary.org/obo/CHEBI_8874
+RIZATRIPTAN	http://purl.obolibrary.org/obo/CHEBI_48273
+ROCURONIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_8885
+ROLICYCLIDINE	http://purl.obolibrary.org/obo/CHEBI_60805
+ROLIPRAM	http://purl.obolibrary.org/obo/CHEBI_104872
+ROLIPRAM	http://purl.obolibrary.org/obo/CHEBI_40133
+ROLITETRACYCLINE	http://purl.obolibrary.org/obo/CHEBI_63334
+ROMIDEPSIN	http://purl.obolibrary.org/obo/CHEBI_61080
+ROPINIROLE	http://purl.obolibrary.org/obo/CHEBI_8888
+ROPIVACAINE	http://purl.obolibrary.org/obo/CHEBI_8890
+ROPIVACAINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_34954
+ROPIVACAINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_60803
+ROSIGLITAZONE	http://purl.obolibrary.org/obo/CHEBI_50122
+ROTOXAMINE	http://purl.obolibrary.org/obo/CHEBI_59329
+ROXARSONE	http://purl.obolibrary.org/obo/CHEBI_35817
+ROXINDOLE	http://purl.obolibrary.org/obo/CHEBI_48558
+ROXITHROMYCIN	http://purl.obolibrary.org/obo/CHEBI_32109
+ROXITHROMYCIN	http://purl.obolibrary.org/obo/CHEBI_48935
+RUBIDIUM	http://purl.obolibrary.org/obo/CHEBI_33322
+RUTHENIUM	http://purl.obolibrary.org/obo/CHEBI_30682
+RUTIN	http://purl.obolibrary.org/obo/CHEBI_61606
+SAFINGOL	http://purl.obolibrary.org/obo/CHEBI_16566
+SALICYLAMIDE	http://purl.obolibrary.org/obo/CHEBI_32114
+SALMETEROL	http://purl.obolibrary.org/obo/CHEBI_9011
+SAMARIUM	http://purl.obolibrary.org/obo/CHEBI_33374
+SANTAMARINE	http://purl.obolibrary.org/obo/CHEBI_9023
+SAPROPTERIN	http://purl.obolibrary.org/obo/CHEBI_59560
+SAQUINAVIR	http://purl.obolibrary.org/obo/CHEBI_63621
+SARCOSINE	http://purl.obolibrary.org/obo/CHEBI_57433
+SARSASAPOGENIN	http://purl.obolibrary.org/obo/CHEBI_15578
+S-BIOALLETHRIN	http://purl.obolibrary.org/obo/CHEBI_39115
+SCANDIUM	http://purl.obolibrary.org/obo/CHEBI_33330
+SCOPOLAMINE	http://purl.obolibrary.org/obo/CHEBI_16794
+SCOPOLAMINE HYDROBROMIDE	http://purl.obolibrary.org/obo/CHEBI_61272
+SCOPOLAMINE HYDROBROMIDE	http://purl.obolibrary.org/obo/CHEBI_61271
+SECALCIFEROL	http://purl.obolibrary.org/obo/CHEBI_28818
+SECOBARBITAL	http://purl.obolibrary.org/obo/CHEBI_9073
+SELEGILINE	http://purl.obolibrary.org/obo/CHEBI_9086
+SELEGILINE	http://purl.obolibrary.org/obo/CHEBI_50217
+SELEGILINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_9087
+SELENATE ION	http://purl.obolibrary.org/obo/CHEBI_15075
+SELENIOUS ACID	http://purl.obolibrary.org/obo/CHEBI_26642
+SELENIUM	http://purl.obolibrary.org/obo/CHEBI_27568
+SELENOCYSTEINE	http://purl.obolibrary.org/obo/CHEBI_16633
+SENECIALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_15825
+SERINE	http://purl.obolibrary.org/obo/CHEBI_17115
+SEROTONIN	http://purl.obolibrary.org/obo/CHEBI_350546
+SERTINDOLE	http://purl.obolibrary.org/obo/CHEBI_9122
+SERTRALINE	http://purl.obolibrary.org/obo/CHEBI_9123
+SEVOFLURANE	http://purl.obolibrary.org/obo/CHEBI_9130
+SILDENAFIL	http://purl.obolibrary.org/obo/CHEBI_9139
+SILICON	http://purl.obolibrary.org/obo/CHEBI_27573
+SILVER	http://purl.obolibrary.org/obo/CHEBI_9141
+SILVER	http://purl.obolibrary.org/obo/CHEBI_30512
+SILVER CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_30341
+SILVER DIAMMINE FLUORIDE	http://purl.obolibrary.org/obo/CHEBI_32129
+SILVER NITRATE	http://purl.obolibrary.org/obo/CHEBI_32130
+SILVER SULFADIAZINE	http://purl.obolibrary.org/obo/CHEBI_9142
+SIMVASTATIN	http://purl.obolibrary.org/obo/CHEBI_9150
+SIROLIMUS	http://purl.obolibrary.org/obo/CHEBI_9168
+SISOMICIN	http://purl.obolibrary.org/obo/CHEBI_9169
+SMCC	http://purl.obolibrary.org/obo/CHEBI_63174
+SMILAGENIN	http://purl.obolibrary.org/obo/CHEBI_28933
+SODIUM	http://purl.obolibrary.org/obo/CHEBI_26708
+SODIUM ACETATE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_32954
+SODIUM ARSENITE	http://purl.obolibrary.org/obo/CHEBI_29678
+SODIUM BICARBONATE	http://purl.obolibrary.org/obo/CHEBI_32139
+SODIUM BISULFITE	http://purl.obolibrary.org/obo/CHEBI_26709
+SODIUM BORATE	http://purl.obolibrary.org/obo/CHEBI_38909
+SODIUM BORATE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_38892
+SODIUM CACODYLATE	http://purl.obolibrary.org/obo/CHEBI_62956
+SODIUM CITRATE	http://purl.obolibrary.org/obo/CHEBI_32142
+SODIUM DESOXYCHOLATE	http://purl.obolibrary.org/obo/CHEBI_9177
+SODIUM FERROCYANIDE	http://purl.obolibrary.org/obo/CHEBI_30061
+SODIUM LAURYL SULFATE	http://purl.obolibrary.org/obo/CHEBI_8984
+SODIUM NITROPRUSSIDE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_29321
+SODIUM PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_37583
+SODIUM PHOSPHATE, MONOBASIC	http://purl.obolibrary.org/obo/CHEBI_37585
+SODIUM PHOSPHATE, TRIBASIC	http://purl.obolibrary.org/obo/CHEBI_37583
+SODIUM POLYSTYRENE SULFONATE	http://purl.obolibrary.org/obo/CHEBI_53280
+SODIUM POLYSTYRENE SULFONATE	http://purl.obolibrary.org/obo/CHEBI_53279
+SODIUM SELENITE	http://purl.obolibrary.org/obo/CHEBI_48843
+SODIUM STIBOGLUCONATE	http://purl.obolibrary.org/obo/CHEBI_28148
+SODIUM TARTRATE	http://purl.obolibrary.org/obo/CHEBI_63017
+SODIUM THIOSULFATE	http://purl.obolibrary.org/obo/CHEBI_32150
+SODIUM VANADATE	http://purl.obolibrary.org/obo/CHEBI_35607
+SOLANINE	http://purl.obolibrary.org/obo/CHEBI_32491
+SOMATOSTATIN	http://purl.obolibrary.org/obo/CHEBI_64628
+SORAFENIB	http://purl.obolibrary.org/obo/CHEBI_50924
+SORBITOL	http://purl.obolibrary.org/obo/CHEBI_30911
+SOTALOL	http://purl.obolibrary.org/obo/CHEBI_63622
+SPIPERONE	http://purl.obolibrary.org/obo/CHEBI_9233
+SPIRAMIDE	http://purl.obolibrary.org/obo/CHEBI_64207
+SPIRONOLACTONE	http://purl.obolibrary.org/obo/CHEBI_9241
+STACHYDRINE	http://purl.obolibrary.org/obo/CHEBI_35280
+STANNIC OXIDE	http://purl.obolibrary.org/obo/CHEBI_52991
+STANOLONE	http://purl.obolibrary.org/obo/CHEBI_16330
+STAVUDINE	http://purl.obolibrary.org/obo/CHEBI_63581
+STEARAMINE	http://purl.obolibrary.org/obo/CHEBI_63866
+STIGMASTEROL	http://purl.obolibrary.org/obo/CHEBI_28824
+STIROFOS	http://purl.obolibrary.org/obo/CHEBI_35005
+STREPTOMYCIN	http://purl.obolibrary.org/obo/CHEBI_17076
+STREPTOZOCIN	http://purl.obolibrary.org/obo/CHEBI_9288
+S-TRIAZINE	http://purl.obolibrary.org/obo/CHEBI_30259
+STRONTIUM	http://purl.obolibrary.org/obo/CHEBI_35104
+STRONTIUM	http://purl.obolibrary.org/obo/CHEBI_33324
+STRONTIUM CATION	http://purl.obolibrary.org/obo/CHEBI_37132
+STRONTIUM CHLORIDE HEXAHYDRATE	http://purl.obolibrary.org/obo/CHEBI_36385
+SUCCIMER	http://purl.obolibrary.org/obo/CHEBI_63623
+SUFENTANIL	http://purl.obolibrary.org/obo/CHEBI_9316
+SULBACTAM	http://purl.obolibrary.org/obo/CHEBI_9321
+SULBENICILLIN	http://purl.obolibrary.org/obo/CHEBI_9322
+SULBENICILLIN SODIUM	http://purl.obolibrary.org/obo/CHEBI_32160
+SULCOFURON	http://purl.obolibrary.org/obo/CHEBI_59247
+SULFACETAMIDE	http://purl.obolibrary.org/obo/CHEBI_63845
+SULFACETAMIDE SODIUM	http://purl.obolibrary.org/obo/CHEBI_9327
+SULFACHLORPYRIDAZINE	http://purl.obolibrary.org/obo/CHEBI_59057
+SULFADOXINE	http://purl.obolibrary.org/obo/CHEBI_9329
+SULFAMERAZINE	http://purl.obolibrary.org/obo/CHEBI_102130
+SULFAMETER	http://purl.obolibrary.org/obo/CHEBI_53727
+SULFAMETHIZOLE	http://purl.obolibrary.org/obo/CHEBI_9331
+SULFAMETHOXYPYRIDAZINE	http://purl.obolibrary.org/obo/CHEBI_102516
+SULFAMOXOLE	http://purl.obolibrary.org/obo/CHEBI_55546
+SULFAMOXOLE	http://purl.obolibrary.org/obo/CHEBI_55548
+SULFANILIC ACID	http://purl.obolibrary.org/obo/CHEBI_27500
+SULFAPYRIDINE	http://purl.obolibrary.org/obo/CHEBI_132842
+SULFASALAZINE	http://purl.obolibrary.org/obo/CHEBI_9334
+SULFATE ION	http://purl.obolibrary.org/obo/CHEBI_16189
+SULFATHIAZOLE	http://purl.obolibrary.org/obo/CHEBI_9337
+SULFITE ION	http://purl.obolibrary.org/obo/CHEBI_17359
+SULFOBETAINE	http://purl.obolibrary.org/obo/CHEBI_16471
+SULFUR	http://purl.obolibrary.org/obo/CHEBI_17909
+SULFUR	http://purl.obolibrary.org/obo/CHEBI_26833
+SULFURYL CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_29291
+SULFURYL FLUORIDE	http://purl.obolibrary.org/obo/CHEBI_39287
+SULINDAC	http://purl.obolibrary.org/obo/CHEBI_9352
+SULMAZOLE	http://purl.obolibrary.org/obo/CHEBI_34988
+SULPIRIDE	http://purl.obolibrary.org/obo/CHEBI_32168
+SULTAMICILLIN	http://purl.obolibrary.org/obo/CHEBI_51770
+SUMATRIPTAN	http://purl.obolibrary.org/obo/CHEBI_10650
+SUNITINIB	http://purl.obolibrary.org/obo/CHEBI_38940
+SUPROFEN	http://purl.obolibrary.org/obo/CHEBI_9362
+SUXIBUZONE	http://purl.obolibrary.org/obo/CHEBI_32173
+SYMCLOSENE	http://purl.obolibrary.org/obo/CHEBI_33015
+TACROLIMUS	http://purl.obolibrary.org/obo/CHEBI_61049
+TACROLIMUS	http://purl.obolibrary.org/obo/CHEBI_61057
+TACROLIMUS ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_61049
+TAMOXIFEN	http://purl.obolibrary.org/obo/CHEBI_41774
+TAMSULOSIN	http://purl.obolibrary.org/obo/CHEBI_9398
+TANTALUM	http://purl.obolibrary.org/obo/CHEBI_33348
+TARENFLURBIL	http://purl.obolibrary.org/obo/CHEBI_38666
+TAURINE	http://purl.obolibrary.org/obo/CHEBI_507393
+TAZAROTENE	http://purl.obolibrary.org/obo/CHEBI_32184
+TEGASEROD	http://purl.obolibrary.org/obo/CHEBI_51043
+TELBIVUDINE	http://purl.obolibrary.org/obo/CHEBI_63624
+TELLURIUM	http://purl.obolibrary.org/obo/CHEBI_30452
+TELMISARTAN	http://purl.obolibrary.org/obo/CHEBI_9434
+TEMOCILLIN	http://purl.obolibrary.org/obo/CHEBI_51817
+TEMOCILLIN SODIUM	http://purl.obolibrary.org/obo/CHEBI_52434
+TENOFOVIR	http://purl.obolibrary.org/obo/CHEBI_63716
+TENOFOVIR	http://purl.obolibrary.org/obo/CHEBI_63625
+TEPA	http://purl.obolibrary.org/obo/CHEBI_49798
+TERAZOSIN	http://purl.obolibrary.org/obo/CHEBI_9445
+TERBIUM	http://purl.obolibrary.org/obo/CHEBI_33376
+TERT-BUTYL ALCOHOL	http://purl.obolibrary.org/obo/CHEBI_45895
+TESTOSTERONE	http://purl.obolibrary.org/obo/CHEBI_17347
+TETRABENAZINE	http://purl.obolibrary.org/obo/CHEBI_9467
+TETRABROMOBISPHENOL A	http://purl.obolibrary.org/obo/CHEBI_33217
+TETRACAINE	http://purl.obolibrary.org/obo/CHEBI_9468
+TETRACHLOROETHYLENE	http://purl.obolibrary.org/obo/CHEBI_17300
+TETRACYCLINE	http://purl.obolibrary.org/obo/CHEBI_27902
+TETRAFLUOROETHYLENE	http://purl.obolibrary.org/obo/CHEBI_38866
+TETRAHYDROFURAN	http://purl.obolibrary.org/obo/CHEBI_26911
+TETRAHYDROPYRAN	http://purl.obolibrary.org/obo/CHEBI_46941
+TETRAXETAN	http://purl.obolibrary.org/obo/CHEBI_61028
+THALIDOMIDE	http://purl.obolibrary.org/obo/CHEBI_9513
+THEBAINE	http://purl.obolibrary.org/obo/CHEBI_59953
+THEOPHYLLINE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_28177
+THERMORUBIN	http://purl.obolibrary.org/obo/CHEBI_48480
+THIAMINE	http://purl.obolibrary.org/obo/CHEBI_18385
+THIAMINE	http://purl.obolibrary.org/obo/CHEBI_33283
+THIAMINE HYDROCHLORIDE	http://purl.obolibrary.org/obo/CHEBI_49105
+THIANAPHTHENE	http://purl.obolibrary.org/obo/CHEBI_35858
+THIAZOLIDINE	http://purl.obolibrary.org/obo/CHEBI_50120
+THIAZOLIDINE	http://purl.obolibrary.org/obo/CHEBI_35622
+THIETHYLPERAZINE	http://purl.obolibrary.org/obo/CHEBI_9544
+THIOACETIC ACID	http://purl.obolibrary.org/obo/CHEBI_16555
+THIOLACTIC ACID	http://purl.obolibrary.org/obo/CHEBI_47872
+THIOPENTAL SODIUM	http://purl.obolibrary.org/obo/CHEBI_9561
+THIOPROPAZATE	http://purl.obolibrary.org/obo/CHEBI_59119
+THIOPROPERAZINE	http://purl.obolibrary.org/obo/CHEBI_59120
+THIOREDOXIN	http://purl.obolibrary.org/obo/CHEBI_15967
+THIORIDAZINE	http://purl.obolibrary.org/obo/CHEBI_9566
+THIOSULFURIC ACID	http://purl.obolibrary.org/obo/CHEBI_5587
+THIRAM	http://purl.obolibrary.org/obo/CHEBI_9495
+THREONATE	http://purl.obolibrary.org/obo/CHEBI_15908
+THREONINE	http://purl.obolibrary.org/obo/CHEBI_16857
+THULIUM	http://purl.obolibrary.org/obo/CHEBI_33380
+TIAPROFENIC ACID	http://purl.obolibrary.org/obo/CHEBI_32221
+TIBOLONE	http://purl.obolibrary.org/obo/CHEBI_32223
+TICARCILLIN	http://purl.obolibrary.org/obo/CHEBI_9587
+TICLOPIDINE	http://purl.obolibrary.org/obo/CHEBI_9588
+TIFORMIN	http://purl.obolibrary.org/obo/CHEBI_18062
+TIGLIC ACID	http://purl.obolibrary.org/obo/CHEBI_36432
+TILARGININE	http://purl.obolibrary.org/obo/CHEBI_28229
+TIMOLOL	http://purl.obolibrary.org/obo/CHEBI_60787
+TIMOLOL	http://purl.obolibrary.org/obo/CHEBI_9599
+TIMOLOL MALEATE	http://purl.obolibrary.org/obo/CHEBI_9600
+TIMONACIC	http://purl.obolibrary.org/obo/CHEBI_64564
+TIN	http://purl.obolibrary.org/obo/CHEBI_32990
+TIN	http://purl.obolibrary.org/obo/CHEBI_27007
+TIOXOLONE	http://purl.obolibrary.org/obo/CHEBI_568021
+TIPRANAVIR	http://purl.obolibrary.org/obo/CHEBI_63628
+TIROFIBAN	http://purl.obolibrary.org/obo/CHEBI_9605
+TITANIUM	http://purl.obolibrary.org/obo/CHEBI_33341
+TIXOCORTOL	http://purl.obolibrary.org/obo/CHEBI_63560
+TIZANIDINE	http://purl.obolibrary.org/obo/CHEBI_63629
+TOCAINIDE	http://purl.obolibrary.org/obo/CHEBI_9611
+TOLBUTAMIDE	http://purl.obolibrary.org/obo/CHEBI_27999
+TOLCAPONE	http://purl.obolibrary.org/obo/CHEBI_63630
+TOLRESTAT	http://purl.obolibrary.org/obo/CHEBI_48549
+TOLTERODINE	http://purl.obolibrary.org/obo/CHEBI_9622
+TOPIRAMATE	http://purl.obolibrary.org/obo/CHEBI_63631
+TOPOTECAN	http://purl.obolibrary.org/obo/CHEBI_63632
+TOREMIFENE	http://purl.obolibrary.org/obo/CHEBI_9635
+TOXOPYRIMIDINE	http://purl.obolibrary.org/obo/CHEBI_16892
+TRANEXAMIC ACID	http://purl.obolibrary.org/obo/CHEBI_48669
+TRAZODONE	http://purl.obolibrary.org/obo/CHEBI_9654
+TREHALOSE	http://purl.obolibrary.org/obo/CHEBI_16551
+TREPROSTINIL	http://purl.obolibrary.org/obo/CHEBI_50861
+TRETINOIN	http://purl.obolibrary.org/obo/CHEBI_15367
+TRIBASIC CALCIUM PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_9679
+TRIBROMSALAN	http://purl.obolibrary.org/obo/CHEBI_127105
+TRICALCIUM PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_9679
+TRICHLOROETHYLENE	http://purl.obolibrary.org/obo/CHEBI_16602
+TRICHLOROMONOFLUOROMETHANE	http://purl.obolibrary.org/obo/CHEBI_48236
+TRICIN	http://purl.obolibrary.org/obo/CHEBI_59979
+TRICLOCARBAN	http://purl.obolibrary.org/obo/CHEBI_48347
+TRICLOSAN	http://purl.obolibrary.org/obo/CHEBI_164200
+TRIDIHEXETHYL IODIDE	http://purl.obolibrary.org/obo/CHEBI_9704
+TRIENTINE	http://purl.obolibrary.org/obo/CHEBI_39501
+TRIETHYLENEMELAMINE	http://purl.obolibrary.org/obo/CHEBI_27919
+TRIFLUOPERAZINE	http://purl.obolibrary.org/obo/CHEBI_45951
+TRIFLUPROMAZINE	http://purl.obolibrary.org/obo/CHEBI_9711
+TRIGONELLINE	http://purl.obolibrary.org/obo/CHEBI_18123
+TRILOSTANE	http://purl.obolibrary.org/obo/CHEBI_32260
+TRIMETHOBENZAMIDE	http://purl.obolibrary.org/obo/CHEBI_27796
+TRIMETHYLAMINE	http://purl.obolibrary.org/obo/CHEBI_58389
+TRIMETHYLAMINE OXIDE	http://purl.obolibrary.org/obo/CHEBI_15724
+TRI-N-BUTYL PHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_35019
+TRI-N-PROPYLAMINE	http://purl.obolibrary.org/obo/CHEBI_38880
+TRIPTORELIN	http://purl.obolibrary.org/obo/CHEBI_63633
+TRIS(2-CARBOXYETHYL)PHOSPHINE	http://purl.obolibrary.org/obo/CHEBI_63213
+TROGLITAZONE	http://purl.obolibrary.org/obo/CHEBI_9753
+TROLAMINE	http://purl.obolibrary.org/obo/CHEBI_28621
+TROMETHAMINE	http://purl.obolibrary.org/obo/CHEBI_9754
+TROPANSERIN	http://purl.obolibrary.org/obo/CHEBI_64142
+TRYPTOPHAN	http://purl.obolibrary.org/obo/CHEBI_16828
+TUNGSTEN	http://purl.obolibrary.org/obo/CHEBI_27998
+TYRAMINE	http://purl.obolibrary.org/obo/CHEBI_327995
+TYROSINE	http://purl.obolibrary.org/obo/CHEBI_17895
+UBIDECARENONE	http://purl.obolibrary.org/obo/CHEBI_46245
+UNDECYLENIC ACID	http://purl.obolibrary.org/obo/CHEBI_39448
+UNOPROSTONE	http://purl.obolibrary.org/obo/CHEBI_39455
+URACIL MUSTARD	http://purl.obolibrary.org/obo/CHEBI_9884
+URANIUM	http://purl.obolibrary.org/obo/CHEBI_49936
+URANIUM	http://purl.obolibrary.org/obo/CHEBI_27214
+URIC ACID	http://purl.obolibrary.org/obo/CHEBI_17775
+URIDINE 5'-TRIPHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_46398
+URIDINE 5'-TRIPHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_15713
+URIDINE MONOPHOSPHATE	http://purl.obolibrary.org/obo/CHEBI_16695
+URSODIOL	http://purl.obolibrary.org/obo/CHEBI_9907
+VALENCENE	http://purl.obolibrary.org/obo/CHEBI_61700
+VALGANCICLOVIR	http://purl.obolibrary.org/obo/CHEBI_63635
+VALINE	http://purl.obolibrary.org/obo/CHEBI_16414
+VALPROATE SODIUM	http://purl.obolibrary.org/obo/CHEBI_9925
+VALPROIC ACID	http://purl.obolibrary.org/obo/CHEBI_39867
+VALSARTAN	http://purl.obolibrary.org/obo/CHEBI_9927
+VANADIUM	http://purl.obolibrary.org/obo/CHEBI_35170
+VANADIUM	http://purl.obolibrary.org/obo/CHEBI_27698
+VANCOMYCIN	http://purl.obolibrary.org/obo/CHEBI_28001
+VANOXERINE	http://purl.obolibrary.org/obo/CHEBI_64089
+VECURONIUM BROMIDE	http://purl.obolibrary.org/obo/CHEBI_9940
+VELIPARIB	http://purl.obolibrary.org/obo/CHEBI_62880
+VENLAFAXINE	http://purl.obolibrary.org/obo/CHEBI_9943
+VERAPAMIL	http://purl.obolibrary.org/obo/CHEBI_9948
+VERATRIC ACID	http://purl.obolibrary.org/obo/CHEBI_296881
+VERTEPORFIN	http://purl.obolibrary.org/obo/CHEBI_32293
+VIDARABINE	http://purl.obolibrary.org/obo/CHEBI_45327
+VIGABATRIN	http://purl.obolibrary.org/obo/CHEBI_63638
+VINBLASTINE	http://purl.obolibrary.org/obo/CHEBI_27375
+VINBLASTINE SULFATE	http://purl.obolibrary.org/obo/CHEBI_9984
+VINDOLINE	http://purl.obolibrary.org/obo/CHEBI_57753
+VINORELBINE	http://purl.obolibrary.org/obo/CHEBI_480999
+VINORELBINE TARTRATE	http://purl.obolibrary.org/obo/CHEBI_32296
+VINORELBINE TARTRATE	http://purl.obolibrary.org/obo/CHEBI_53750
+VINYL CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_28509
+VIOMYCIN	http://purl.obolibrary.org/obo/CHEBI_60081
+VITAMIN A	http://purl.obolibrary.org/obo/CHEBI_17336
+VITAMIN A PALMITATE	http://purl.obolibrary.org/obo/CHEBI_17616
+VORICONAZOLE	http://purl.obolibrary.org/obo/CHEBI_10023
+WARFARIN	http://purl.obolibrary.org/obo/CHEBI_10033
+XALIPRODEN	http://purl.obolibrary.org/obo/CHEBI_48520
+XANOMELINE	http://purl.obolibrary.org/obo/CHEBI_10056
+XANTHINE	http://purl.obolibrary.org/obo/CHEBI_17712
+XENON	http://purl.obolibrary.org/obo/CHEBI_49956
+XENON	http://purl.obolibrary.org/obo/CHEBI_49957
+XIMOPROFEN	http://purl.obolibrary.org/obo/CHEBI_48521
+YTTRIUM	http://purl.obolibrary.org/obo/CHEBI_33331
+ZAFIRLUKAST	http://purl.obolibrary.org/obo/CHEBI_10100
+ZALCITABINE	http://purl.obolibrary.org/obo/CHEBI_10101
+ZALEPLON	http://purl.obolibrary.org/obo/CHEBI_10102
+ZANAMIVIR	http://purl.obolibrary.org/obo/CHEBI_50663
+ZARDAVERINE	http://purl.obolibrary.org/obo/CHEBI_46548
+ZEATIN	http://purl.obolibrary.org/obo/CHEBI_16522
+ZIDOVUDINE	http://purl.obolibrary.org/obo/CHEBI_10110
+ZILEUTON	http://purl.obolibrary.org/obo/CHEBI_10112
+ZINC	http://purl.obolibrary.org/obo/CHEBI_27363
+ZINC	http://purl.obolibrary.org/obo/CHEBI_30185
+ZINC ACETATE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_62984
+ZINC CATION	http://purl.obolibrary.org/obo/CHEBI_29105
+ZINC CHLORIDE	http://purl.obolibrary.org/obo/CHEBI_49976
+ZINC SULFATE	http://purl.obolibrary.org/obo/CHEBI_32312
+ZINC SULFATE ANHYDROUS	http://purl.obolibrary.org/obo/CHEBI_35176
+ZIPRASIDONE	http://purl.obolibrary.org/obo/CHEBI_10119
+ZIPRASIDONE MESYLATE	http://purl.obolibrary.org/obo/CHEBI_53757
+ZIRCONIUM	http://purl.obolibrary.org/obo/CHEBI_33342
+ZOLEDRONIC ACID	http://purl.obolibrary.org/obo/CHEBI_46557
+ZOLMITRIPTAN	http://purl.obolibrary.org/obo/CHEBI_10124
+ZOLPIDEM	http://purl.obolibrary.org/obo/CHEBI_10125
+ZONISAMIDE	http://purl.obolibrary.org/obo/CHEBI_10127
+ZOPICLONE	http://purl.obolibrary.org/obo/CHEBI_53762
+ZOPICLONE	http://purl.obolibrary.org/obo/CHEBI_32315
+ZOTEPINE	http://purl.obolibrary.org/obo/CHEBI_32316
+ZUCLOPENTHIXOL	http://purl.obolibrary.org/obo/CHEBI_51364
+(HYDROXYMETHYL)PHOSPHONIC ACID	http://purl.obolibrary.org/obo/CHEBI_5810
+1,1-DICHLOROETHYLENE	http://purl.obolibrary.org/obo/CHEBI_34031
+1,2-(METHYLENEDIOXY)BENZENE	http://purl.obolibrary.org/obo/CHEBI_38732
+1,2,3,4-TETRACHLORODIBENZO-P-DIOXIN	http://purl.obolibrary.org/obo/CHEBI_27785
+1,2,4-TRIHYDROXYBENZENE	http://purl.obolibrary.org/obo/CHEBI_16971
+1,2-BENZOPYRAN	http://purl.obolibrary.org/obo/CHEBI_35601
+1,2-BUTADIENE	http://purl.obolibrary.org/obo/CHEBI_39480
+1,2-BUTANEDIOL	http://purl.obolibrary.org/obo/CHEBI_52682
+1,2-DICHLOROETHYLENE	http://purl.obolibrary.org/obo/CHEBI_18882
+1,2-DIMYRISTOYL-SN-GLYCERO-3-PHOSPHOCHOLINE	http://purl.obolibrary.org/obo/CHEBI_45240
+1,3,5-BENZENETRICARBOXYLIC ACID	http://purl.obolibrary.org/obo/CHEBI_46032
+1,3,6,8-TETRAAZATRICYCLO(6.2.1.13,6)DODECANE	http://purl.obolibrary.org/obo/CHEBI_63487
+1,3,6,8-TETRACHLORODIBENZO-P-DIOXIN	http://purl.obolibrary.org/obo/CHEBI_27936
+1,3-BUTADIENE	http://purl.obolibrary.org/obo/CHEBI_39478
+1,3-BUTADIYNE	http://purl.obolibrary.org/obo/CHEBI_37820
+1,3-CYCLOHEXADIENE	http://purl.obolibrary.org/obo/CHEBI_37610
+1,3-CYCLOPENTANEDIONE	http://purl.obolibrary.org/obo/CHEBI_41456
+1,3-DIHYDROXYANTHRAQUINONE	http://purl.obolibrary.org/obo/CHEBI_37502
+1,4,8,11-TETRAAZAUNDECANE	http://purl.obolibrary.org/obo/CHEBI_30348
+1,4-ANDROSTADIENE-3,17-DIONE	http://purl.obolibrary.org/obo/CHEBI_40799
+1,4-BUTANEDIOL	http://purl.obolibrary.org/obo/CHEBI_41189
+1,4-CYCLOHEXADIENE	http://purl.obolibrary.org/obo/CHEBI_37611
+1,4-DIHYDRO-1-METHYL-4-OXO-3-PYRIDINECARBOXAMIDE	http://purl.obolibrary.org/obo/CHEBI_27838
+1,5-I-AEDANS	http://purl.obolibrary.org/obo/CHEBI_58984
+1,6-NAPHTHALENEDISULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_30891
+10-HYDROXYDECANOIC ACID	http://purl.obolibrary.org/obo/CHEBI_17409
+11-DODECENOIC ACID	http://purl.obolibrary.org/obo/CHEBI_38381
+16-HENTRIACONTANONE	http://purl.obolibrary.org/obo/CHEBI_5658
+16-HYDROXYPALMITIC ACID	http://purl.obolibrary.org/obo/CHEBI_55328
+19-ALDOANDROSTENEDIONE	http://purl.obolibrary.org/obo/CHEBI_799
+1-AMINO-2-NAPHTHOL-4-SULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_19024
+1-AMINOANTHRACENE	http://purl.obolibrary.org/obo/CHEBI_40678
+1-BUTENE	http://purl.obolibrary.org/obo/CHEBI_48362
+1-BUTYNE	http://purl.obolibrary.org/obo/CHEBI_48087
+1-HENTRIACONTANOL	http://purl.obolibrary.org/obo/CHEBI_27640
+1-HEXACOSANOL	http://purl.obolibrary.org/obo/CHEBI_28415
+1-METHYLHYDANTOIN	http://purl.obolibrary.org/obo/CHEBI_16354
+1-METHYLIMIDAZOLE	http://purl.obolibrary.org/obo/CHEBI_113454
+1-NAPHTHALENEACETIC ACID	http://purl.obolibrary.org/obo/CHEBI_32918
+1-NONADECENE	http://purl.obolibrary.org/obo/CHEBI_64503
+1-OCTACOSANOL	http://purl.obolibrary.org/obo/CHEBI_28243
+1-OCTEN-3-OL	http://purl.obolibrary.org/obo/CHEBI_34118
+1-OCTEN-3-OL	http://purl.obolibrary.org/obo/CHEBI_39932
+1-PENTADECENE	http://purl.obolibrary.org/obo/CHEBI_64501
+1-PENTANOL	http://purl.obolibrary.org/obo/CHEBI_44884
+1-PENTOL	http://purl.obolibrary.org/obo/CHEBI_44884
+1-PYRROLINE	http://purl.obolibrary.org/obo/CHEBI_36781
+1-TESTOSTERONE	http://purl.obolibrary.org/obo/CHEBI_59714
+1-TRIACONTANOL	http://purl.obolibrary.org/obo/CHEBI_28409
+2(5H)-FURANONE	http://purl.obolibrary.org/obo/CHEBI_38118
+2-(METHYLTHIO)BENZOTHIAZOLE	http://purl.obolibrary.org/obo/CHEBI_1217
+2-(METHYLTHIO)ETHANOL	http://purl.obolibrary.org/obo/CHEBI_63861
+2,3,7,8-TETRACHLORODIBENZO-P-DIOXIN	http://purl.obolibrary.org/obo/CHEBI_28119
+2,3-BUTANEDIOL	http://purl.obolibrary.org/obo/CHEBI_62064
+2,3-DIHYDROXYPHENYLPROPIONIC ACID	http://purl.obolibrary.org/obo/CHEBI_18136
+2,3-DIMERCAPTO-1-PROPANESULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_888
+2,3-NAPHTHALENEDIOL	http://purl.obolibrary.org/obo/CHEBI_38135
+2,3-PENTANEDIONE	http://purl.obolibrary.org/obo/CHEBI_52774
+2,4,5-T	http://purl.obolibrary.org/obo/CHEBI_27903
+2,5-DIHYDROXYPYRIDINE	http://purl.obolibrary.org/obo/CHEBI_16364
+2,5-PIPERAZINEDIONE	http://purl.obolibrary.org/obo/CHEBI_16535
+2,6-LUTIDINE	http://purl.obolibrary.org/obo/CHEBI_32548
+2,6-NAPHTHALENEDISULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_41070
+2,6-NONADIENAL, (2E,6Z)-	http://purl.obolibrary.org/obo/CHEBI_7610
+2,6-PYRIDINEDICARBOXYLIC ACID	http://purl.obolibrary.org/obo/CHEBI_46837
+2,6-XYLIDINE	http://purl.obolibrary.org/obo/CHEBI_28738
+24-HYDROXYCHOLESTEROL	http://purl.obolibrary.org/obo/CHEBI_34310
+2-ACETONAPHTHONE	http://purl.obolibrary.org/obo/CHEBI_52364
+2-AMINO-3-HYDROXYBENZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_15793
+2-AMINOANTHRACENE	http://purl.obolibrary.org/obo/CHEBI_34260
+2-BUTENE	http://purl.obolibrary.org/obo/CHEBI_48363
+2-CHLORO-4-AMINOBENZOIC ACID	http://purl.obolibrary.org/obo/CHEBI_59472
+2-CYCLOHEXENONE	http://purl.obolibrary.org/obo/CHEBI_15977
+2-FURYL METHYL KETONE	http://purl.obolibrary.org/obo/CHEBI_59983
+2-HEPTANONE	http://purl.obolibrary.org/obo/CHEBI_5672
+2-HYDROXYBENZENEPROPANOIC ACID	http://purl.obolibrary.org/obo/CHEBI_16104
+2-HYDROXYPYRIDINE	http://purl.obolibrary.org/obo/CHEBI_16540
+2-INDOLINONE	http://purl.obolibrary.org/obo/CHEBI_31697
+2-KETO-L-GULONIC ACID	http://purl.obolibrary.org/obo/CHEBI_19543
+2-MERCAPTOBENZOTHIAZOLE	http://purl.obolibrary.org/obo/CHEBI_34292
+2-MERCAPTOETHANESULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_17905
+2-MERCAPTOETHANOL	http://purl.obolibrary.org/obo/CHEBI_41218
+2-METHYL-1-BUTANOL	http://purl.obolibrary.org/obo/CHEBI_48945
+2-METHYLBUTYRALDEHYDE	http://purl.obolibrary.org/obo/CHEBI_16182
+2-METHYLLACTIC ACID	http://purl.obolibrary.org/obo/CHEBI_50129
+2-NAPHTHALENESULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_44229
+2-NAPHTHYLAMINE-6-SULFONIC ACID	http://purl.obolibrary.org/obo/CHEBI_20700
+2-OCTANOL	http://purl.obolibrary.org/obo/CHEBI_37869
+2-OXOVALERIC ACID	http://purl.obolibrary.org/obo/CHEBI_33033
+2-PYRROLIDONE	http://purl.obolibrary.org/obo/CHEBI_36592
+2-UNDECANONE	http://purl.obolibrary.org/obo/CHEBI_17700
+3-(4-HYDROXYPHENYL)PYRUVIC ACID	http://purl.obolibrary.org/obo/CHEBI_15999
+3,20-ALLOPREGNANEDIONE	http://purl.obolibrary.org/obo/CHEBI_28952
+3,3',5,5'-TETRACHLORO-4,4'-BIPHENYLDIOL	http://purl.obolibrary.org/obo/CHEBI_35434
+3,3'-IMINOBISPROPYLAMINE	http://purl.obolibrary.org/obo/CHEBI_16841
+3-BIPHENYLOL	http://purl.obolibrary.org/obo/CHEBI_34338
+3-CARBETHOXYPSORALEN	http://purl.obolibrary.org/obo/CHEBI_50100
+3-CARENE	http://purl.obolibrary.org/obo/CHEBI_35661
+3-CHLORO-4-METHYL-7-HYDROXYCOUMARIN	http://purl.obolibrary.org/obo/CHEBI_38620
+3-ETHYL-3-METHYLPYRUVIC ACID	http://purl.obolibrary.org/obo/CHEBI_35932
+3'-GUANYLIC ACID	http://purl.obolibrary.org/obo/CHEBI_28072
+3-HEPTANONE	http://purl.obolibrary.org/obo/CHEBI_50139
+3-HYDROXYBENZENEACETIC ACID	http://purl.obolibrary.org/obo/CHEBI_17445
+3-MERCAPTOPROPIONIC ACID	http://purl.obolibrary.org/obo/CHEBI_44111
+3-METHYL-2-OXOBUTYRIC ACID	http://purl.obolibrary.org/obo/CHEBI_16530
+3-METHYL-3-BUTEN-1-OL	http://purl.obolibrary.org/obo/CHEBI_62898
+3-METHYLXANTHINE	http://purl.obolibrary.org/obo/CHEBI_62207
+3-METHYLXANTHINE	http://purl.obolibrary.org/obo/CHEBI_62208
+3-NITROPROPANOL	http://purl.obolibrary.org/obo/CHEBI_49042
+3-NITROPROPIONIC ACID	http://purl.obolibrary.org/obo/CHEBI_16348
+4-(METHYLTHIO)-M-CRESOL	http://purl.obolibrary.org/obo/CHEBI_38681
+4,4'-BIPHENYLDIOL	http://purl.obolibrary.org/obo/CHEBI_34367
+4,4'-METHYLENEDIANILINE	http://purl.obolibrary.org/obo/CHEBI_32506
+4,4'-THIOBIPHENYL	http://purl.obolibrary.org/obo/CHEBI_34363

@@ -1,0 +1,114 @@
+Drug,Therapeutic Area,Biomarker,Label Sections
+Abacavir ,Antivirals ,HLA-B*5701 ,"Boxed Warning, Contraindications, Warnings and Precautions, Patient Counseling Information "
+Aripiprazole ,Psychiatry ,CYP2D6 ,"Clinical Pharmacology, Dosage and Administration "
+Arsenic Trioxide ,Oncology ,PML/RARα ,"Boxed Warning, Clinical Pharmacology, Indications and Usage, Warnings "
+Atomoxetine ,Psychiatry ,CYP2D6 ,"Dosage and Administration, Warnings and Precautions, Drug Interactions, Clinical Pharmacology "
+Atorvastatin ,Metabolic and Endocrinology ,LDL receptor ,"Indications and Usage, Dosage and Administration, Warnings and Precautions, Clinical Pharmacology, Clinical Studies "
+Azathioprine ,Rheumatology ,TPMT ,"Dosage and Administration, Warnings and Precautions, Drug Interactions, Adverse Reactions, Clinical Pharmacology "
+Boceprevir ,Antivirals ,IL28B ,Clinical Pharmacology 
+Brentuximab Vedotin ,Oncology ,CD30 ,"Indications and Usage, Description, Clinical Pharmacology "
+Busulfan ,Oncology ,Ph Chromosome ,Clinical Studies 
+Capecitabine ,Oncology ,DPD ,"Contraindications, Precautions, Patient Information "
+Carbamazepine ,Neurology ,HLA-B*1502 ,"Boxed Warning, Warnings and Precautions "
+Carisoprodol ,Musculoskeletal ,CYP2C19 ,"Clinical Pharmacology, Special Populations "
+Carvedilol ,Cardiovascular ,CYP2D6 ,"Drug Interactions, Clinical Pharmacology "
+Celecoxib ,Analgesics ,CYP2C9 ,"Dosage and Administration, Drug Interactions, Use in Specific Populations, Clinical Pharmacology "
+Cetuximab (1) ,Oncology ,EGFR ,"Indications and Usage, Warnings and Precautions, Description, Clinical Pharmacology, Clinical Studies "
+Cetuximab (2) ,Oncology ,KRAS ,"Indications and Usage, Dosage and Administration, Warnings and Precautions, Adverse Reactions, Clinical Pharmacology, Clinical Studies "
+Cevimeline ,Dermatology and Dental ,CYP2D6 ,Drug Interactions 
+Chlordiazepoxide and Amitriptyline ,Psychiatry ,CYP2D6 ,Precautions 
+Chloroquine ,Antiinfectives ,G6PD ,Precautions 
+Cisplatin ,Oncology ,TPMT ,"Clinical Pharmacology, Warnings, Precautions "
+Citalopram (1) ,Psychiatry ,CYP2C19 ,"Drug Interactions, Warnings "
+Citalopram (2) ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Clobazam ,Neurology ,CYP2C19 ,"Clinical Pharmacology, Dosage and Administration, Use in Specific Populations "
+Clomiphene ,Reproductive and Urologic ,Rh genotype ,Precautions 
+Clomipramine ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Clopidogrel ,Cardiovascular ,CYP2C19 ,"Boxed Warning, Dosage and Administration, Warnings and Precautions, Drug Interactions, Clinical Pharmacology "
+Clozapine ,Psychiatry ,CYP2D6 ,"Drug Interactions, Clinical Pharmacology "
+Codeine ,Analgesics ,CYP2D6 ,"Warnings and Precautions, Use in Specific Populations, Clinical Pharmacology "
+Crizotinib ,Oncology ,ALK ,"Indications and Usage, Warnings and Precautions, Adverse Reactions, Clinical Pharmacology, Clinical Studies "
+Dapsone ,Dermatology and Dental ,G6PD ,"Indications and Usage, Precautions, Adverse Reactions, Patient Counseling Information "
+Dasatinib ,Oncology ,Ph Chromosome ,"Indications and Usage, Clinical Studies, Patient Counseling Information "
+Denileukin Diftitox ,Oncology ,CD25 ,"Indications and Usage, Warnings and Precautions, Clinical Studies "
+Desipramine ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Desloratadine and Pseudoephedrine ,Allergy ,CYP2D6 ,Clinical Pharmacology 
+Dexlansoprazole (1) ,Gastroenterology ,CYP2C19 ,"Clinical Pharmacology, Drug Interactions "
+Dexlansoprazole (2) ,Gastroenterology ,CYP1A2 ,Clinical Pharmacology 
+Dextromethorphan and Quinidine ,Neurology ,CYP2D6 ,"Clinical Pharmacology, Warnings and Precautions "
+Diazepam ,Psychiatry ,CYP2C19 ,"Drug Interactions, Clinical Pharmacology "
+Doxepin ,Psychiatry ,CYP2D6 ,Precautions 
+Drospirenone and Ethinyl Estradiol ,Reproductive ,CYP2C19 ,"Precautions, Drug Interactions "
+Erlotinib ,Oncology ,EGFR ,Clinical Pharmacology 
+Esomeprazole ,Gastroenterology ,CYP2C19 ,"Drug Interactions, Clinical Pharmacology "
+Exemestane ,Oncology ,ER &/ PgR receptor ,"Indications and Usage, Dosage and Administration, Clinical Studies, Clinical Pharmacology "
+Fluorouracil ,Dermatology and Dental ,DPD ,"Contraindications, Warnings "
+Fluoxetine ,Psychiatry ,CYP2D6 ,"Warnings, Precautions, Clinical Pharmacology "
+Fluoxetine and Olanzapine ,Psychiatry ,CYP2D6 ,"Drug Interactions, Clinical Pharmacology "
+Flurbiprofen ,Rheumatology ,CYP2C9 ,"Clinical Pharmacology, Special Populations "
+Fluvoxamine  ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Fulvestrant ,Oncology ,ER receptor ,"Indications and Usage, Patient Counseling Information "
+Galantamine ,Neurology ,CYP2D6 ,Special Populations 
+Gefitinib  ,Oncology ,EGFR ,Clinical Pharmacology 
+Iloperidone ,Psychiatry ,CYP2D6 ,"Clinical Pharmacology, Dosage and Administration, Drug Interactions, Specific Populations, Warnings and Precautions "
+Imatinib (1) ,Oncology ,C-Kit ,"Indications and Usage, Dosage and Administration Clinical Pharmacology, Clinical Studies "
+Imatinib (2) ,Oncology ,Ph Chromosome ,"Indications and Usage, Dosage and Administration, Clinical Pharmacology, Clinical Studies "
+Imatinib (3) ,Oncology ,PDGFR ,"Indications and Usage, Dosage and Administration, Clincal Studies "
+Imatinib (4) ,Oncology ,FIP1L1-PDGFRα ,"Indications and Usage, Dosage and Administration, Clinical Studies "
+Imipramine ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Indacaterol ,Pulmonary ,UGT1A1 ,Clinical Pharmacology 
+Irinotecan ,Oncology ,UGT1A1 ,"Dosage and Administration, Warnings, Clinical Pharmacology "
+Isosorbide and Hydralazine ,Cardiovascular ,NAT1; NAT2 ,Clinical Pharmacology 
+Ivacaftor ,Pulmonary ,CFTR (G551D) ,"Indications and Usage, Adverse Reactions, Use in Specific Populations, Clinical Pharmacology, Clinical Studies "
+Lapatinib ,Oncology ,Her2/neu ,"Indications and Usage, Clinical Pharmacology, Patient Counseling Information "
+Lenalidomide ,Hematology ,Chromosome 5q ,"Boxed Warning, Indications and Usage, Clinical Studies, Patient Counseling "
+Letrozole ,Oncology ,ER &/ PgR receptor ,"Indications and Usage, Adverse Reactions, Clinical Studies, Clinical Pharmacology "
+Maraviroc ,Antivirals ,CCR5 ,"Indications and Usage, Warnings and Precautions, Clinical Pharmacology, Clinical Studies, Patient Counseling Information "
+Mercaptopurine ,Oncology ,TPMT ,"Dosage and Administration, Contraindications, Precautions, Adverse Reactions, Clinical Pharmacology "
+Metoprolol ,Cardiovascular ,CYP2D6 ,"Precautions, Clinical Pharmacology "
+Modafinil  ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Nefazodone ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Nilotinib (1) ,Oncology ,Ph Chromosome ,"Indications and Usage, Patient Counseling Information "
+Nilotinib (2) ,Oncology ,UGT1A1 ,"Warnings and Precautions, Clinical Pharmacology "
+Nortriptyline ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Omeprazole ,Gastroenterology ,CYP2C19 ,"Dosage and Administration, Warnings and Precautions, Drug Interactions "
+Panitumumab (1) ,Oncology ,EGFR ,"Indications and Usage, Warnings and Precautions, Clinical Pharmacology, Clinical Studies "
+Panitumumab (2) ,Oncology ,KRAS ,"Indications and Usage, Clinical Pharmacology, Clinical Studies "
+Pantoprazole ,Gastroenterology ,CYP2C19 ,"Clinical Pharmacology, Drug Interactions, Special Populations "
+Paroxetine ,Psychiatry ,CYP2D6 ,"Clinical Pharmacology, Drug Interactions "
+Peginterferon alfa-2b ,Antivirals ,IL28B ,Clinical Pharmacology 
+Perphenazine ,Psychiatry ,CYP2D6 ,"Clinical Pharmacology, Drug Interactions "
+Pertuzumab ,Oncology ,Her2/neu ,"Indications and Usage, Warnings and Precautions, Adverse Reactions, Clinical Studies, Clinical Pharmacology "
+Phenytoin ,Neurology ,HLA-B*1502 ,Warnings 
+Pimozide ,Psychiatry ,CYP2D6 ,"Warnings, Precautions, Contraindications, Dosage and Administration "
+Prasugrel ,Cardiovascular ,CYP2C19 ,"Use in Specific Populations, Clinical Pharmacology, Clinical Studies "
+Pravastatin ,Metabolic and Endocrinology ,ApoE2 ,"Clinical Studies, Use in Specific Populations "
+Propafenone ,Cardiovascular ,CYP2D6 ,Clinical Pharmacology 
+Propranolol ,Cardiovascular ,CYP2D6 ,"Precautions, Drug Interactions, Clinical Pharmacology "
+Protriptyline ,Psychiatry ,CYP2D6 ,Precautions 
+Quinidine ,Antiarrhythmics ,CYP2D6 ,Precautions 
+Rabeprazole ,Gastroenterology ,CYP2C19 ,"Drug Interactions, Clinical Pharmacology "
+Rasburicase ,Oncology ,G6PD ,"Boxed Warning, Contraindications "
+"Rifampin, Isoniazid, and Pyrazinamide ",Antiinfectives ,NAT1; NAT2 ,"Adverse Reactions, Clinical Pharmacology "
+Risperidone ,Psychiatry ,CYP2D6 ,"Drug Interactions, Clinical Pharmacology "
+Sodium Phenylacetate and Sodium Benzoate ,Gastroenterology ,UCD (NAGS; CPS; ASS; OTC; ASL; ARG) ,"Indications and Usage, Description, Clinical Pharmacology "
+Sodium Phenylbutyrate ,Gastroenterology ,UCD (NAGS; CPS; ASS; OTC; ASL; ARG) ,"Indications and Usage, Dosage and Administration, Nutritional Management "
+Tamoxifen ,Oncology ,ER receptor ,"Indications and Usage, Precautions, Medication Guide "
+Telaprevir ,Antivirals ,IL28B ,Clinical Pharmacology 
+Terbinafine ,Antifungals ,CYP2D6 ,Drug Interactions 
+Tetrabenazine ,Neurology ,CYP2D6 ,"Dosage and Administration, Warnings, Clinical Pharmacology "
+Thioguanine ,Oncology ,TPMT ,"Dosage and Administration, Precautions, Warnings "
+Thioridazine ,Psychiatry ,CYP2D6 ,"Precautions, Warnings, Contraindications "
+Ticagrelor ,Cardiovascular ,CYP2C19 ,Clinical Studies 
+Tolterodine ,Reproductive and Urologic ,CYP2D6 ,"Clinical Pharmacology, Drug Interactions, Warnings and Precautions "
+Tositumomab ,Oncology ,CD20 antigen ,"Indications and Usage, Clinical Pharmacology "
+Tramadol and Acetaminophen ,Analgesics ,CYP2D6 ,Clinical Pharmacology 
+Trastuzumab ,Oncology ,Her2/neu ,"Indications and Usage, Precautions, Clinical Pharmacology "
+Tretinoin ,Dermatology and Dental ,PML/RARα ,"Boxed Warning, Dosage and Administration, Precautions "
+Trimipramine ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Valproic Acid ,Psychiatry ,UCD (NAGS; CPS; ASS; OTC; ASL; ARG) ,"Contraindications, Precautions, Adverse Reactions "
+Vemurafenib ,Oncology ,BRAF ,"Indications and Usage, Warning and Precautions, Clinical Pharmacology, Clinical Studies, Patient Counseling Information "
+Venlafaxine ,Psychiatry ,CYP2D6 ,Drug Interactions 
+Voriconazole ,Antifungals ,CYP2C19 ,"Clinical Pharmacology, Drug Interactions "
+Warfarin (1) ,Hematology ,CYP2C9 ,"Dosage and Administration, Precautions, Clinical Pharmacology "
+Warfarin (2) ,Hematology ,VKORC1 ,"Dosage and Administration, Precautions, Clinical Pharmacology "

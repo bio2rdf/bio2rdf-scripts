@@ -1,0 +1,16 @@
+Changes made to fda-pharmgx-table-data-10012012.csv
+
+-added new line(41): Eltrombopag (1), Hematology, Factor V Leiden (FV),Warnings and Precautions
+-added new line(42): Eltrombopag (2), Hematology, Antithrombin III deficiency (SERPINC1),Warnings and Precautions
+-line(45-everolimus): changed capitalization of "Her2/neu" to "HER2/NEU"
+-line(46-exemestane): changed "ER &/ PgR receptor" to "ER &/ PGR"
+-line(52-fluvestrant): changed "ER receptor" to "ER"
+-line(65-lapatinib): changed capitalization of "Her2/neu" to "HER2/NEU"
+-line (67-letrozole): changed "ER &/ PgR receptor" to "ER &/ PGR"
+-added new line(72): Mycophenolic Acid ,Transplantation ,HGPRT ,Precautions
+-line (84-pertuzumab): changed capitalization of "Her2/neu" to "HER2/NEU"
+-line (88-pravastatin): changed capitalization of "ApoE2" to "APOE2"
+-line (99-tamoxifen): changed "Tamoxifen" to "Tamoxifen (1)" and "ER receptor" to "ER"
+-added new line (100): Tamoxifen (2) ,Oncology ,Factor V Leiden (FV) ,Warnings
+-added new line (101): Tamoxifen (3) ,Oncology ,Prothrombin mutations (F2) ,Warnings
+-line (111-trastuzumab): changed capitalization of "Her2/neu" to "HER2/NEU"

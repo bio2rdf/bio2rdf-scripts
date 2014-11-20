@@ -1,0 +1,41 @@
+FDAString	HGNCGeneSymbol	Synonymns	AlleleVariant	Pharmgkb	URI	Ontology	CuratorComments
+Antithrombin III deficiency (SERPINC1)	SERPINC1			PA35026	http://purl.obolibrary.org/obo/PR_000003252	PRotein Ontology (PRO)	human SERPINC1 gene
+ApoE2	APOE		E2	PA55	http://purl.obolibrary.org/obo/PR_000004155	PRotein Ontology (PRO)	E2 or epsilon 2 is allele that is associated with a disorder of lipid metabolism
+BRAF	BRAF			PA25408	http://purl.obolibrary.org/obo/PR_000004801	PRotein Ontology (PRO)	Testing for the variant is required for using vemurafenib.
+C-Kit	KIT	C-Kit		PA30128	http://purl.obolibrary.org/obo/PR_000009345	PRotein Ontology (PRO)	Map to KIT (gene symbol). C-kit is a synonym/alias
+CCR5	CCR5			PA26170	http://purl.obolibrary.org/obo/PR_000001201	PRotein Ontology (PRO)	Testing for the tropism is required for using maraviroc.
+CD20 antigen	MS4A1	CD20 antigen		PA31111	http://purl.obolibrary.org/obo/PR_000001289	PRotein Ontology (PRO)	MS4A2 is an alias for MS4A1, but MS4A2 is also listed in HGNC as a separate gene. PharmGKB links CD20 Antigen to MS4A2. Requires further investigation to disambiguate.
+CD25	IL2RA	CD25		PA29828	http://purl.obolibrary.org/obo/PR_000001380	PRotein Ontology (PRO)	Map to IL2RA (gene symbol). CD25 is a synonym/alias
+CD30	TNFRSF8	CD30		PA36616	http://purl.obolibrary.org/obo/PR_000001964	PRotein Ontology (PRO)	Map to TNFRSF8 (gene symbol). CD30 is a synonym/alias
+CYP1A2	CYP1A2			PA27093	http://purl.obolibrary.org/obo/PR_000006102	PRotein Ontology (PRO)	
+CYP2C19	CYP2C19			PA124	http://purl.obolibrary.org/obo/PR_000006118	PRotein Ontology (PRO)	
+CYP2C9	CYP2C9			PA126	http://purl.obolibrary.org/obo/PR_000006120	PRotein Ontology (PRO)	
+CYP2D6	CYP2D6			PA128	http://purl.obolibrary.org/obo/PR_000006121	PRotein Ontology (PRO)	
+Chromosome 5q							Deletion of part of chr 5q; is one cause of MDS, used as indication for treatment w/ drug
+DPD	DPYD	DPD		PA145	http://purl.obolibrary.org/obo/PR_000006678	PRotein Ontology (PRO)	Map to DPYD, DPD is a synonym/alias
+EGFR	EGFR	epidermal growth factor receptor		PA7360	http://purl.obolibrary.org/obo/PR_000006933	PRotein Ontology (PRO)	EGFR - correct; the epidermal growth factor receptor.
+ER &/ PgR	PGR	progesterone receptor		PA266	http://purl.obolibrary.org/obo/PR_000012621	PRotein Ontology (PRO)	 
+ER &/ PgR	ESR1			PA156	http://purl.obolibrary.org/obo/PR_000007204	PRotein Ontology (PRO)	ESR1 and ESR2 can homo or heterodimerize to form the ER receptor
+ER &/ PgR	ESR2			PA27886	http://purl.obolibrary.org/obo/PR_000007205	PRotein Ontology (PRO)	ESR1 and ESR2 can homo or heterodimerize to form the ER receptor
+ER	ESR1			PA156	http://purl.obolibrary.org/obo/PR_000007204	PRotein Ontology (PRO)	ESR1 and ESR2 can homo or heterodimerize to form the ER receptor
+ER	ESR2			PA27886	http://purl.obolibrary.org/obo/PR_000007205	PRotein Ontology (PRO)	ESR1 and ESR2 can homo or heterodimerize to form the ER receptor
+Factor V Leiden (FV)	F5			PA159	http://purl.obolibrary.org/obo/PR_000007300	PRotein Ontology (PRO)	 human coagulation factor V (F5)  
+FIP1L1-PDGFRα							Oncology biomarker that causes CEL, which is treated with TK inhibitors; chromosomal deletion at 4q12 that results in a gene fusion
+G6PD	G6PD	glucose-6-phosphate dehydrogenase		PA28469	http://purl.obolibrary.org/obo/PR_000007749	PRotein Ontology (PRO)	 
+HGPRT	HPRT1			PA29427	http://purl.obolibrary.org/obo/PR_000008735	PRotein Ontology (PRO)	the human HPRT1 gene 
+HLA-B*1502	HLA-B		HLA-B*1502	PA35056	http://purl.obolibrary.org/obo/PR_000002010	PRotein Ontology (PRO)	*1502 is an allele associated with drug toxicity (skin reactions)
+HLA-B*5701	HLA-B		HLA-B*5701	PA35056	http://purl.obolibrary.org/obo/PR_000002010	PRotein Ontology (PRO)	*5701 is an allele associated with drug hypersensitivity reactions
+ERBB2 (HER2)	ERBB2	Her2|neu		PA27844	http://purl.obolibrary.org/obo/PR_000002082	PRotein Ontology (PRO)	Map to ERBB2 (gene symbol), Her2 and Neu are synonym/aliases.
+IL28B	IL28B	interleukin 28B		PA134952671	http://purl.obolibrary.org/obo/PR_000001470	PRotein Ontology (PRO)	
+KRAS	KRAS	Kirsten rat sarcoma viral oncogene homolog		PA30196	http://purl.obolibrary.org/obo/PR_000009442	PRotein Ontology (PRO)	
+LDL receptor	LDLR			PA227	http://purl.obolibrary.org/obo/PR_000009744	PRotein Ontology (PRO)	
+NAT1; NAT2	NAT1	N-acetyltransferase 1		PA17	http://purl.obolibrary.org/obo/PR_000010994	PRotein Ontology (PRO)	
+NAT1; NAT2	NAT2	N-acetyltransferase 2		PA18	http://purl.obolibrary.org/obo/PR_000011001	PRotein Ontology (PRO)	
+PDGFR	PDGFR	platelet-derived growth factor receptor		PA33147	http://purl.obolibrary.org/obo/PR_000012492	PRotein Ontology (PRO)	
+PML/RARα							PML and RARA fusion gene, dependent on retinoic acid for transcription
+Ph Chromosome							Oncology biomarker, BCR and ABL1 fusion gene due to chromosomal translocation
+Prothrombin mutations (F2)	F2			PA157	http://purl.obolibrary.org/obo/PR_000007299	PRotein Ontology (PRO)	the human F2 gene
+Rh genotype	RHD	Rh genotype		PA34387	http://purl.obolibrary.org/obo/PR_000001442	PRotein Ontology (PRO)	
+TPMT	TPMT	thiopurine S-methyltransferase		PA356	http://purl.obolibrary.org/obo/PR_000016583	PRotein Ontology (PRO)	
+UGT1A1	UGT1A1	UDP glucuronosyltransferase 1 family, polypeptide A1		PA420	http://purl.obolibrary.org/obo/PR_000017048	PRotein Ontology (PRO)	
+VKORC1	VKORC1	vitamin K epoxide reductase complex, subunit 1		PA133787052	http://purl.obolibrary.org/obo/PR_000017303	PRotein Ontology (PRO)	
