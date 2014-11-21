@@ -157,8 +157,9 @@ map:pharmgxTherAppl a d2rq:PropertyBridge;
 map:pharmgxRxCuiActiveMoiety a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property linkedspls_vocabulary:activeMoietyRxCUI;
-	d2rq:join "FDAPharmgxTable.activeMoiety <= FDAPreferredSubstanceToRxNORM.PreferredSubstance";
-	d2rq:uriColumn "FDAPreferredSubstanceToRxNORM.RxNORM";
+	#d2rq:join "FDAPharmgxTable.activeMoiety <= FDAPreferredSubstanceToRxNORM.PreferredSubstance";
+	d2rq:join "FDAPharmgxTable.activeMoiety <= RXNCONSO.STR";
+	d2rq:uriColumn "RXNCONSO.RXCUI";
 	.
 
 
