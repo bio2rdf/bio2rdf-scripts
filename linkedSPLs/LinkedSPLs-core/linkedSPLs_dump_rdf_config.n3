@@ -39,9 +39,11 @@
 map:database a d2rq:Database;
     d2rq:jdbcDriver "com.mysql.jdbc.Driver";
 
-    #d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=root";
+    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=root";
 
-    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=5bboys";
+    #d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=5bboys";
+
+    #d2rq:jdbcDSN "jdbc:mysql://136.142.148.191/linkedSPLs?autoReconnect=true&user=root&password=cjirtR01";
 
     # d2rq:resultSizeLimit 500;
     # d2rq:fetchSize 500;
@@ -152,20 +154,11 @@ map:pharmgxTherAppl a d2rq:PropertyBridge;
 	d2rq:propertyDefinitionComment "The therapeutic application that the FDA provides in its pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>"@en;	
 	.
 
-# map:pharmgxRxCuiActiveMoiety a d2rq:PropertyBridge;
-# 	d2rq:belongsToClassMap map:FDAPharmgxTable;
-# 	d2rq:property linkedspls_vocabulary:activeMoietyRxCUI;
-# 	d2rq:join "FDAPharmgxTable.activeMoiety <= FDAPreferredSubstanceToRxNORM.PreferredSubstance";
-# 	d2rq:uriColumn "FDAPreferredSubstanceToRxNORM.RxNORM";
-# 	.
-
-# instead of get mappings of perferred term and rxcui, Using RXNCONSO table from UMLS
-
 map:pharmgxRxCuiActiveMoiety a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property linkedspls_vocabulary:activeMoietyRxCUI;
-	d2rq:join "FDAPharmgxTable.activeMoiety <= RXNCONSO.STR";
-	d2rq:uriColumn "RXNCONSO.RXCUI";
+	d2rq:join "FDAPharmgxTable.activeMoiety <= FDAPreferredSubstanceToRxNORM.PreferredSubstance";
+	d2rq:uriColumn "FDAPreferredSubstanceToRxNORM.RxNORM";
 	.
 
 

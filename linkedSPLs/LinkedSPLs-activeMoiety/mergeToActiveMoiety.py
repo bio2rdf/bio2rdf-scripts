@@ -15,28 +15,22 @@ import numpy as np
 
 ## Define data inputs
 
-ACTIVE_INGREDIENTS = "mappings/active-ingredients-from-rrf-11192014.txt"
-
-DRON_CHEBI_RXCUI = "mappings/cleaned_dron-to-chebi-and-rxnorm-11192014.txt"
-OMOP_RXCUI = "mappings/mappings-backup-0723/omopid_rxcui.csv"
-PT_CHEBI = "mappings/UNIIToChEBI-11162014.txt"
-PT_DRUGBANK = "mappings/fda-substance-preferred-name-to-drugbank-11162014.txt"
-PT_RXCUI = "mappings/fda-active-moiety-string-name-rxnorm-mapping.csv"
-PT_UNII = "mappings/FDAPreferredSubstanceToUNII-11162014.txt"
-UNII_NUI_PREFERRED_NAME_ROLE = "mappings/EPC_extraction_most_recent_11162014.txt"
+DRON_CHEBI_RXCUI = "mappings/dronid_chebi_rxcui-07232014.txt"
+OMOP_RXCUI = "mappings/omopid_rxcui.csv"
+PT_CHEBI = "mappings/pt_chebi-03132014.txt"
+PT_DRUGBANK = "mappings/pt_drugbank-04082014.txt"
+PT_RXCUI = "mappings/pt_rxcui-03132014.txt"
+PT_UNII = "mappings/pt_unii-03202014.csv"
+UNII_NUI_PREFERRED_NAME_ROLE = "mappings/unii_nui_preferrednamerole-05202014.txt"
 
 CHEBI_BASE_URI = "http://purl.obolibrary.org/obo/"
 
-## read list of active ingredient
-
-pt_cols = ['pt']
-pt_DF = pd.read_csv(ACTIVE_INGREDIENTS, sep='\t', names=pt_cols)[['pt']]
 
 
 ## read mappings of pt and unii
 
-pt_unii_cols = ['pt','unii']
-pt_unii_DF = pd.read_csv(PT_UNII, sep='\t', names=pt_unii_cols)[['pt','unii']]
+pt_unii_cols = ['id','pt','unii']
+pt_unii_DF = pd.read_csv(PT_UNII, sep='|', names=pt_unii_cols)[['pt','unii']]
 #print pt_unii_DF
 #pt_unii_DF.to_csv('test.csv', sep='|')
 
@@ -49,8 +43,8 @@ pt_drugbank_DF = pd.read_csv(PT_DRUGBANK, sep='\t', names=pt_drugbank_cols)
 
 ## read mappings of pt and rxcui
 
-pt_rxcui_cols = ['rxcui','pt']
-pt_rxcui_DF = pd.read_csv(PT_RXCUI, sep='|', names=pt_rxcui_cols)
+pt_rxcui_cols = ['pt','rxcui']
+pt_rxcui_DF = pd.read_csv(PT_RXCUI, sep='\t', names=pt_rxcui_cols)
 #pt_rxcui_DF["rxcui"].astype(str)
 #print pt_rxcui_DF.head()
 
@@ -82,13 +76,9 @@ print unii_nui_namerole_DF.info()
 #print unii_nui_namerole_DF.to_string()
 
 
-
-
-filtered_pt_unii_DF = pt_DF.merge(pt_unii_DF, on=['pt'], how='left')
-
 ## merge pt, unii and drugbank uri
 
-pt_unii_db_DF = filtered_pt_unii_DF.merge(pt_drugbank_DF, on=['pt'], how='left')
+pt_unii_db_DF = pt_unii_DF.merge(pt_drugbank_DF, on=['pt'], how='left')
 #print pt_unii_db_DF.info()
 
 
@@ -96,6 +86,7 @@ pt_unii_db_DF = filtered_pt_unii_DF.merge(pt_drugbank_DF, on=['pt'], how='left')
 
 pt_unii_db_rxcui_DF = pt_unii_db_DF.merge(pt_rxcui_DF, on=['pt'], how='left')
 #print pt_unii_db_rxcui_DF
+
 
 ## merge omop to pt_unii_db_rxcui_DF
 
