@@ -17,6 +17,7 @@ import traceback
 import csv
 import difflib
 from rdflib import Graph, BNode, Literal, Namespace, URIRef, RDF, RDFS
+from sets import Set
 
 OUT_FILE = "activeMoietySub-in-rdf.xml"
 ACTIVEMOIETY_BASE = "http://bio2rdf.org/linkedspls:"
@@ -30,17 +31,30 @@ NDFRT_BASE = "http://purl.bioontology.org/ontology/NDFRT/"
 OHDSI_BASE = "http://purl.org/net/ohdsi#"
 
 class DictItem:
-   def __init__(self, pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole):
+
+   nuis = Set()
+   nameAndRoles = Set()
+
+   def __init__(self, pt, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole):
+
       self.pt = str(pt)
-      self.unii = str(unii)
       self.db_uri1 = str(db_uri1)
       self.db_uri2 = str(db_uri2)
       self.rxcui = str(rxcui)
       self.omopid = str(omopid)
       self.chebi = str(chebi)
       self.dron = str(dron)
-      self.nui = str(nui)
-      self.nameAndRole = str(nameAndRole)
+
+      #pts = Set(str(pt))
+      self.nuis.add(str(nui))
+      self.nameAndRoles.add(str(nameAndRole))
+      
+   def addNUI(nui):
+      self.nuis.add(str(nui))
+   def addNameAndRole(nameAndRole):
+      self.nameAndRoles.add(str(nameAndRole))
+
+
 
 data_set = csv.DictReader(open("mergedActiveMoiety.csv","rb"), delimiter='\t')
 dict_moieties = {}
@@ -50,14 +64,30 @@ dict_moieties = {}
 for item in data_set:
 
    if item["unii"] not in dict_moieties:
-      moiety = DictItem(item["pt"], item["unii"], item["db_uri1"], item["db_uri2"], item["rxcui"], item["omopid"], item["chebi"], item["dron"], item["nui"], item["nameAndRole"])
+      moiety = DictItem(item["pt"], item["db_uri1"], item["db_uri2"], item["rxcui"], item["omopid"], item["chebi"], item["dron"], item["nui"], item["nameAndRole"])
       dict_moieties[item["unii"]]=moiety
    else:
-      if item["nui"].strip() is not None:
-         dict_moieties[item["unii"]].nui += "|" + item["nui"]
-          
-      if item["nameAndRole"].strip() is not None:
-         dict_moieties[item["unii"]].nameAndRole += "|" + item["nameAndRole"]
+      if not dict_moieties[item["unii"]].pt:
+         dict_moieties[item["unii"]].pt = item["pt"]  
+      if not dict_moieties[item["unii"]].db_uri1:
+         dict_moieties[item["unii"]].db_uri1 = item["db_uri1"]      
+      if not dict_moieties[item["unii"]].db_uri2:
+         dict_moieties[item["unii"]].db_uri2 = item["db_uri2"] 
+      if not dict_moieties[item["unii"]].rxcui:
+         dict_moieties[item["unii"]].rxcui = item["rxcui"] 
+      if not dict_moieties[item["unii"]].omopid:
+         dict_moieties[item["unii"]].omopid = item["omopid"] 
+      if not dict_moieties[item["unii"]].chebi:
+         dict_moieties[item["unii"]].chebi = item["chebi"] 
+      if not dict_moieties[item["unii"]].dron:
+         dict_moieties[item["unii"]].dron = item["dron"] 
+
+      #print '|'+item["pt"] + '|'
+      #preferredterm = item["pt"] 
+      #dict_moieties[item["unii"]].addPT(preferredterm) 
+
+      dict_moieties[item["unii"]].nuis.add(item['nui'])
+      dict_moieties[item["unii"]].nameAndRoles.add(item["nameAndRole"])
 
 
 #print dict_moieties
@@ -117,36 +147,32 @@ for k,v in dict_moieties.items():
 
    # pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole
 
-   graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["UNII"], Literal(v.unii)))
-   graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), RDFS.label, Literal(v.pt.strip())))
-   graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), RDF.type, linkedspls_vocabulary["ActiveMoietyUNII"]))
+   graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["UNII"], Literal(k)))
+   graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), RDFS.label, Literal(v.pt.strip())))
+   graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), RDF.type, linkedspls_vocabulary["ActiveMoietyUNII"]))
    if v.rxcui:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(int(float(v.rxcui))))))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(int(float(v.rxcui))))))
 
    if v.chebi:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["ChEBI"], URIRef(CHEBI_BASE + v.chebi)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["ChEBI"], URIRef(CHEBI_BASE + v.chebi)))
 
    if v.db_uri1:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["subjectXref"], URIRef(v.db_uri1)))
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["subjectXref"], URIRef(v.db_uri2)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["subjectXref"], URIRef(v.db_uri1)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["subjectXref"], URIRef(v.db_uri2)))
 
    if v.omopid:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["OMOPConceptId"], Literal(OHDSI_BASE + str(int(float(v.omopid))))))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["OMOPConceptId"], Literal(OHDSI_BASE + str(int(float(v.omopid))))))
 
    if v.dron:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + v.dron)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + v.dron)))
 
-   #print "****|" + v.nui + "|"
 
-   if v.nui.strip() and v.nui.find("|") and v.nameAndRole.find("|") and  v.nameAndRole.strip():
-      nuis = v.nui.split("|")
-      nameAndRoles = v.nameAndRole.split("|")
 
-      if nuis and nameAndRoles and len(nuis) == len(nameAndRoles):
+   ## TODO: add nuis and name and roles into active moiety sub graph
 
-         for index in range(len(nuis)):
-         #print "***" + nuis[index] + "***" + nameAndRoles[index]
-            graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), ndfrt[str(nuis[index])], Literal(nameAndRoles[index])))
+   # for (nui, role) in v.nuis, v.nameAndRoles:
+   #     graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), ndfrt[nui], Literal(role)))
+
 
 
 ##display the graph
