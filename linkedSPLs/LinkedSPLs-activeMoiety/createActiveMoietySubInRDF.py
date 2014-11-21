@@ -121,7 +121,6 @@ graph.namespace_manager.bind("dcterms", "http://purl.org/dc/terms/")
 graph.namespace_manager.bind("pav", "http://purl.org/pav");
 graph.namespace_manager.bind("dctypes", "http://purl.org/dc/dcmitype/")
 
-#graph.namespace_manager.bind('dailymed','http://linkedspls.bio2rdf.org/dailymed#')
 graph.namespace_manager.bind('linkedspls_vocabulary', 'http://bio2rdf.org/linkedspls_vocabulary:')
 
 graph.namespace_manager.bind('sio', 'http://semanticscience.org/resource/')
