@@ -1,5 +1,5 @@
 ################################################################################
-# GRAPH: http://purl.org/net/nlprepository/spl-core-10022014
+# GRAPH: http://purl.org/net/nlprepository/spl-core-11242014
 # GRAPH: http://purl.org/net/nlprepository/spl-active-moiety-poc-09162014
 ################################################################################
 
@@ -11,7 +11,6 @@ PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
 ## Get metadata for the SPLs of all products containing a drug ##
 SELECT ?label ?splId ?version ?setId ?org ?date ?homepage
-FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 WHERE {
 
 ?splId rdfs:label ?label.
@@ -37,7 +36,6 @@ PREFIX loinc: <http://www.hipaaspace.com/Medical_Billing/Coding/Logical.Observat
 ## Get metadata for the SPLs of all products containing a drug ##
 
 SELECT ?textClinicalStudies ?textDrugInteractions ?textClinicalPharmacology
-FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 WHERE {
 
 OPTIONAL { <%s> loinc:34092-7 ?textClinicalStudies }
@@ -53,10 +51,9 @@ PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
 SELECT DISTINCT ?setId ?biomarker ?sectionTag ?sectionLoinc ?sectionText
-FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 
 WHERE {
-?s dc:subject <http://purl.bioontology.org/ontology/RXNORM/213169>.
+?s dc:subject <http://purl.bioontology.org/ontology/RXNORM/197446>.
 ?s linkedspls_vocabulary:setId ?setId.
 
 ?pharmgxData linkedspls_vocabulary:setId ?setId.
@@ -77,7 +74,6 @@ PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
 SELECT DISTINCT ?setId ?rxcuiDrugProduct ?sectionTag 
-FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 WHERE {
 ?pharmgxData linkedspls_vocabulary:pharmgxBiomarker "CYP2D6".
 ?pharmgxData linkedspls_vocabulary:setId ?setId.
@@ -97,7 +93,6 @@ PREFIX ncbit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
 PREFIX fn:<http://www.w3.org/2005/xpath-functions#>
 
 SELECT DISTINCT * 
-FROM <http://purl.org/net/nlprepository/spl-core-10022014>
 WHERE {
 ?s linkedspls_vocabulary:setId ?setId.
 ?pharmgxData linkedspls_vocabulary:setId ?setId.
