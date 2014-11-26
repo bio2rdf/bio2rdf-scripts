@@ -19,8 +19,8 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import simplejson as json
 
 RAW_DATA_FILE = "genetic-biomarker-table-raw-import.csv"
-#RAW_DATA_FILE = "/tmp/genetic-biomarker-table-raw-import.csv"
 OUTFILE = "FDAPharmgxTable.csv"
+
 #LINKED_SPL_SPARQL = SPARQLWrapper("http://dbmi-icode-01.dbmi.pitt.edu:8080/sparql")
 #LINKED_SPL_SPARQL.addDefaultGraph("http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/")
 LINKED_SPL_SPARQL = SPARQLWrapper("http://130.49.206.86:8890/sparql")
@@ -28,6 +28,15 @@ LINKED_SPL_SPARQL = SPARQLWrapper("http://130.49.206.86:8890/sparql")
 RXNORM_BASE = "http://purl.bioontology.org/ontology/RXNORM/"
 
 ########################################################################################################################
+
+if len(sys.argv) > 3:
+    RAW_DATA_FILE = str(sys.argv[1])
+    PT_RXCUI = str(sys.argv[2])
+    OUTFILE = str(sys.argv[3])
+else:
+    print "Usage: createFDAPharmgxDBTable.py <path to raw data file> <PreferredTermRxcui-mapping.txt> <path to output file>"
+    sys.exit(1)
+
 
 
 '''
@@ -53,7 +62,7 @@ SELECT DISTINCT ?setId WHERE {
 }
 
 ''' % rxcuiMoiety
-    print "QUERY: %s" % qry
+    #print "QUERY: %s" % qry
 
     sparql.setQuery(qry)
     sparql.setReturnFormat(JSON)
@@ -95,7 +104,7 @@ SELECT DISTINCT ?setId WHERE {
 }
 ''' % "\n".join(["?s rdf:type linkedspls_vocabulary:structuredProductLabelMetadata; linkedspls_vocabulary:setId ?setId; linkedspls_vocabulary:activeMoiety ?activeMoiety. ?activeMoiety linkedspls_vocabulary:RxCUI <%s>." % x for x in rxcuiMoietyL]
 )
-    print "QUERY: %s" % qry
+    #print "QUERY: %s" % qry
 
     sparql.setQuery(qry)
     sparql.setReturnFormat(JSON)
@@ -121,7 +130,7 @@ f.close()
 
 # get RXCUI to active moiety mappings
 rxcuis = []
-f = open("fda-active-moiety-string-name-rxnorm-mapping.csv", "r")
+f = open(PT_RXCUI, "r")
 rxcuiLines = f.readlines()
 f.close()
 
@@ -130,12 +139,11 @@ for l in rxcuiLines:
         break
 
     l = l.strip()
-    (rxcui, tty, activeIngred) = l.split("|")
+    (activeIngred, rxcui) = l.split("\t")
 
-    if tty == "IN":
-        rxcuis.append((activeIngred, RXNORM_BASE + rxcui))
+    rxcuis.append((activeIngred, RXNORM_BASE + rxcui))
 
-print rxcuis
+#print rxcuis
 
 newLines = []
 ingredRxcuiToAdd = ""

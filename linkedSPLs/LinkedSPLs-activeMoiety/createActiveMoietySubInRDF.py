@@ -32,8 +32,7 @@ OHDSI_BASE = "http://purl.org/net/ohdsi#"
 
 class DictItem:
 
-   nuis = Set()
-   nameAndRoles = Set()
+   drugClass = Set()
 
    def __init__(self, pt, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole):
 
@@ -45,15 +44,7 @@ class DictItem:
       self.chebi = str(chebi)
       self.dron = str(dron)
 
-      #pts = Set(str(pt))
-      self.nuis.add(str(nui))
-      self.nameAndRoles.add(str(nameAndRole))
-      
-   def addNUI(nui):
-      self.nuis.add(str(nui))
-   def addNameAndRole(nameAndRole):
-      self.nameAndRoles.add(str(nameAndRole))
-
+      self.drugClass.add(str(nui)+'|'+str(nameAndRole))
 
 
 data_set = csv.DictReader(open("mergedActiveMoiety.csv","rb"), delimiter='\t')
@@ -82,12 +73,8 @@ for item in data_set:
       if not dict_moieties[item["unii"]].dron:
          dict_moieties[item["unii"]].dron = item["dron"] 
 
-      #print '|'+item["pt"] + '|'
-      #preferredterm = item["pt"] 
-      #dict_moieties[item["unii"]].addPT(preferredterm) 
-
-      dict_moieties[item["unii"]].nuis.add(item['nui'])
-      dict_moieties[item["unii"]].nameAndRoles.add(item["nameAndRole"])
+      # dict_moieties[item["unii"]].drugClass.add(item['nui']+'|'+item['nameAndRole'])
+ 
 
 
 #print dict_moieties
@@ -156,8 +143,8 @@ for k,v in dict_moieties.items():
       graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["ChEBI"], URIRef(CHEBI_BASE + v.chebi)))
 
    if v.db_uri1:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["subjectXref"], URIRef(v.db_uri1)))
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["subjectXref"], URIRef(v.db_uri2)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["x-drugbank"], URIRef(v.db_uri1)))
+      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["x-drugbank"], URIRef(v.db_uri2)))
 
    if v.omopid:
       graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["OMOPConceptId"], Literal(OHDSI_BASE + str(int(float(v.omopid))))))
@@ -169,8 +156,9 @@ for k,v in dict_moieties.items():
 
    ## TODO: add nuis and name and roles into active moiety sub graph
 
-   # for (nui, role) in v.nuis, v.nameAndRoles:
-   #     graph.add((URIRef(ACTIVEMOIETY_BASE + str(v.unii)), ndfrt[nui], Literal(role)))
+   # for dc in v.drugClass:
+   #    idx = dc.find('|')
+   #    graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), ndfrt[dc[0:idx]], Literal(dc[idx+1:])))
 
 
 

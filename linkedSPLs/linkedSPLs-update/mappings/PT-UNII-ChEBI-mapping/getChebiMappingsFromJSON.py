@@ -63,6 +63,8 @@ api_key = "74028721-e60e-4ece-989b-1d2c17d14e9c"
 json_string = query(qry, api_key, sparql_service)
 resultset=json.loads(json_string)
 
+#print "ResultSet:" + str(resultset)
+
 if len(resultset["results"]["bindings"]) == 0:
     print "INFO: No result for %s" % d
 else:
@@ -75,7 +77,8 @@ else:
 
         f = open(FDAPreferredSubstanceToUNII, "r")
 
-    dl = [x.split("\t")[0] for x in f.readlines()]
+    dl = [x.split("\t")[1].strip('\r\n') for x in f.readlines()]
+
     f.close()
 
     uniiToChebiD = {}
