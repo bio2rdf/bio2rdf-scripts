@@ -1,6 +1,6 @@
 ################################################################################
-# GRAPH: http://purl.org/net/nlprepository/spl-core-11242014
-# GRAPH: http://purl.org/net/nlprepository/spl-active-moiety-poc-09162014
+# GRAPH: http://purl.org/net/nlprepository/spl-core-11262014
+# GRAPH: http://purl.org/net/nlprepository/spl-active-moiety-11262014
 ################################################################################
 
 # Queries for product label content and metadata present in the LinkedSPLs RDF graph

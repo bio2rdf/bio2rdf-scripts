@@ -75,7 +75,7 @@ map:SPLToPharmgxData a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
 	d2rq:property linkedspls_vocabulary:pharmgxData;
 	d2rq:join "structuredProductLabelMetadata.setId => FDAPharmgxTable.setId";
-	#d2rq:uriSqlExpression "CONCAT('http://dbmi-icode-01.dbmi.pitt.edu/linkedspls/resource/FDAPharmgxTable/', CAST(FDAPharmgxTable.id AS CHAR))";
+	#d2rq:uriSqlExpression "CONCAT('http://localhost/linkedspls/resource/FDAPharmgxTable/', CAST(FDAPharmgxTable.id AS CHAR))";
 	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls.FDAPharmgxTable:', CAST(FDAPharmgxTable.id AS CHAR))";
 	d2rq:propertyDefinitionLabel "pharmgxData"@en;
 	d2rq:propertyDefinitionComment "Data provided by the FDA in SPLs for making therapeutic decisions using pharmacogenetic and pharmacogenomic information"@en;
@@ -110,7 +110,7 @@ map:pharmgxAlleleVariant a d2rq:PropertyBridge;
 map:pharmgxPharmgkb a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property foaf:homepage;
-	d2rq:join " FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
+	d2rq:join "FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
 	d2rq:uriSqlExpression "CONCAT('http://pharmgkb.org/gene/', FDAPharmgxTableToOntologyMap.Pharmgkb)";
 	.
 
@@ -158,7 +158,6 @@ map:pharmgxRxCuiActiveMoiety a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property linkedspls_vocabulary:activeMoietyRxCUI;
 	d2rq:join "FDAPharmgxTable.activeMoiety <= FDAPreferredSubstanceToRxNORM.PreferredSubstance";
-	#d2rq:join "FDAPharmgxTable.activeMoiety <= RXNCONSO.STR";
 	d2rq:uriColumn "FDAPreferredSubstanceToRxNORM.RxNORM";
 	.
 

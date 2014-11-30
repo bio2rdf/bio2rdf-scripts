@@ -18,8 +18,12 @@ import pickle
 from SPARQLWrapper import SPARQLWrapper, JSON
 import simplejson as json
 
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 RAW_DATA_FILE = "genetic-biomarker-table-raw-import.csv"
 OUTFILE = "FDAPharmgxTable.csv"
+PT_RXCUI = "../RxNORM-mapping/PreferredTermRxcui-mapping.txt"
 
 #LINKED_SPL_SPARQL = SPARQLWrapper("http://dbmi-icode-01.dbmi.pitt.edu:8080/sparql")
 #LINKED_SPL_SPARQL.addDefaultGraph("http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/")
@@ -159,15 +163,18 @@ for l in lines:
 
     l = l.strip()
     elts = l.split("|")
-    rxcuiL = filter(lambda x: x[0].upper() == elts[0].upper(), rxcuis)
+
+    #print "***" + str(elts)
+
+    rxcuiL = filter(lambda x: x[0].upper() == elts[0].strip('"').upper(), rxcuis)
     if len(rxcuiL) == 0:
-        print "ERROR: no active moiety match found for %s; testing if this is a multiple active moiety case " % elts[0].upper()
-        sL = elts[0].upper().split(" AND ")
+        print "ERROR: no active moiety match found for %s; testing if this is a multiple active moiety case " % elts[0].strip('"').upper()
+        sL = elts[0].strip('"').upper().split(" AND ")
         mL = []
         for ingr in sL:
             rxcuiL2 = filter(lambda x: x[0].upper() == ingr, rxcuis)
             if len(rxcuiL2) == 0:
-                print "ERROR: no active moiety match found for %s; skipping case %s " % (ingr, elts[0].upper())
+                print "ERROR: no active moiety match found for %s; skipping case %s " % (ingr, elts[0].strip('"').upper())
                 break
             elif len(rxcuiL2) > 1:
                 print "WARNING: more than one active moiety/rxcui match %s:%s" % (ingr, rxcuiL2)
@@ -178,7 +185,7 @@ for l in lines:
             rxcuiL.append(mL)
             
     elif len(rxcuiL) > 1:
-        print "WARNING: more than one active moiety/rxcui match (single active moiety case) %s:%s" % (elts[0].upper(), rxcuiL)
+        print "WARNING: more than one active moiety/rxcui match (single active moiety case) %s:%s" % (elts[0].strip('"').upper(), rxcuiL)
     
     for rxcui in rxcuiL:
         sects = elts[-1].strip('"').split(",")
@@ -187,18 +194,18 @@ for l in lines:
         setids = None
         if type(rxcui[0]) == type(()): # multiple active moieties
             print "multi %s" % rxcui
-            ingredRxcuiToAdd += "\n" +"\n".join([elts[0].upper() + "\t" + x[1] for x in rxcui])
+            ingredRxcuiToAdd += "\n" +"\n".join([elts[0].strip('"').upper() + "\t" + x[1] for x in rxcui])
             setids = getSPLSetIdsForMultipleMoieties(LINKED_SPL_SPARQL, [x[1] for x in rxcui])
             for setid in setids:
                 for sect in sects:
-                    newLines.append("%s	%s	%s	%s	%s" % (elts[0].upper(), elts[1], elts[2], setid, sect.strip()))
+                    newLines.append("%s	%s	%s	%s	%s" % (elts[0].strip('"').upper(), elts[1].strip('"'), elts[2].strip('"'), setid, sect.strip()))
 
         else: # single active moiety
             print "single"
             setids = getSPLSetIdsForMoiety(LINKED_SPL_SPARQL, rxcui[1])
             for setid in setids:
                 for sect in sects:
-                    newLines.append("%s	%s	%s	%s	%s" % (elts[0].upper(), elts[1], elts[2], setid, sect.strip()))
+                    newLines.append("%s	%s	%s	%s	%s" % (elts[0].strip('"').upper(), elts[1].strip('"'), elts[2].strip('"'), setid, sect.strip()))
     
 print "TODO: ADD THE FOLLOWING LINES TO THE FILE THAT MAPS FDA ACTIVE INGREDIENTS TO RXCUIS"
 print ingredRxcuiToAdd
