@@ -224,62 +224,63 @@ class DrugBankParser extends Bio2RDFizer
 
             } else {
                 // work with nested elements
-		// default handling for collections
-		$found = false;
-		$list_name = $k;
-		$item_name = substr($k,0,-1);
-		foreach($v->children() AS $k2 => $v2) {
-			if($k2 == "action") {
-				$aid = str_replace(array(" ","/"),"-",$v2);
-				parent::addRDF(
-					parent::describeIndividual($lid,$v2,parent::getVoc()."Action").
-					parent::describeClass(parent::getVoc()."Action","Action").
-					parent::triplify($lid,parent::getVoc()."action",parent::getVoc().$aid)
-				);
-			} else {
-				if($k2 == 'gene-sequence' or $k2=='amino-acid-sequence') {
-					parent::addRDF(
-						parent::triplifyString($pid, parent::getVoc().$k2, "".$v2)
-					);
-				}
-				foreach($v2->children() AS $k3 => $v3) {
-					if(!$v3->children()) {
+				// default handling for collections
+				$found = false;
+				$list_name = $k;
+				$item_name = substr($k,0,-1);
+				foreach($v->children() AS $k2 => $v2) {
+					if($k2 == "action") {
+						$aid = str_replace(array(" ","/"),"-",$v2);
 						parent::addRDF(
-							parent::triplifyString($pid,parent::getVoc().$k3, "".$v3)
+							parent::describeIndividual($lid,$v2,parent::getVoc()."Action").
+							parent::describeClass(parent::getVoc()."Action","Action").
+							parent::triplify($lid,parent::getVoc()."action",parent::getVoc().$aid)
 						);
 					} else {
-						 if($k3 == 'external-identifiers') {
-							foreach($v3 AS $k4 => $v4) {
-								$ns = $this->NSMap($v4->resource);
-								$id = (string) $v4->identifier;
-								$id = str_replace(array("GNC:","HGNC:"),"",$id);
+						if($k2 == 'gene-sequence' or $k2=='amino-acid-sequence') {
+							parent::addRDF(
+								parent::triplifyString($pid, parent::getVoc().$k2, "".$v2)
+							);
+						}
+						foreach($v2->children() AS $k3 => $v3) {
+							if(!$v3->children()) {
 								parent::addRDF(
-									parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
+									parent::triplifyString($pid,parent::getVoc().$k3, "".$v3)
 								);
+							} else {
+						
+								 if($k3 == 'external-identifiers') {
+									foreach($v3 AS $k4 => $v4) {
+										$ns = $this->NSMap($v4->resource);
+										$id = (string) $v4->identifier;
+										$id = str_replace(array("GNC:","HGNC:"),"",$id);
+										parent::addRDF(
+											parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
+										);
+									}
+								 } else if($k3 == 'pfams') {
+									foreach($v3 AS $k4 => $v4) {
+										parent::addRDF(
+											parent::triplify($pid, parent::getVoc()."x-pfam","pfam:"."".$v4->identifier)
+										);
+									}
+								} else if($k3 == 'gene-sequence' or $k3=='amino-acid-sequence') {
+									foreach($v3 AS $k4 =>$v4) {
+										parent::addRDF(
+											parent::triplifyString($pid, parent::getVoc().$k3, "".$v4)
+										);
+									}
+								} else {
+									foreach($v3->children() AS $k4 => $v4) {
+										parent::addRDF(
+											parent::triplifyString($pid, parent::getVoc().$k4, $v4)
+										);
+									}
+								 }
 							}
-						 } else if($k3 == 'pfams') {
-							foreach($v3 AS $k4 => $v4) {
-								parent::addRDF(
-									parent::triplify($pid, parent::getVoc()."x-pfam","pfam:"."".$v4->identifier)
-								);
-							}
-						} else if($k3 == 'gene-sequence' or $k3=='amino-acid-sequence') {
-							foreach($v3 AS $k4 =>$v4) {
-								parent::addRDF(
-									parent::triplifyString($pid, parent::getVoc().$k3, "".$v4)
-								);
-							}
-						} else {
-							foreach($v3->children() AS $k4 => $v4) {
-								parent::addRDF(
-									parent::triplifyString($pid, parent::getVoc().$k4, $v4)
-								);
-							}
-						 }
+						}
 					}
-				}
-			}
-                 } // foreach
+				} // foreach
             }
          }
     }
