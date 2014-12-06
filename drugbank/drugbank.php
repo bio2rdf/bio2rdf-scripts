@@ -237,6 +237,11 @@ class DrugBankParser extends Bio2RDFizer
 					parent::triplify($lid,parent::getVoc()."action",parent::getVoc().$aid)
 				);
 			} else {
+				if($k2 == 'gene-sequence' or $k2=='amino-acid-sequence') {
+					parent::addRDF(
+						parent::triplifyString($pid, parent::getVoc().$k2, "".$v2)
+					);
+				}
 				foreach($v2->children() AS $k3 => $v3) {
 					if(!$v3->children()) {
 						parent::addRDF(
@@ -304,7 +309,8 @@ class DrugBankParser extends Bio2RDFizer
         $dbid        = (string) $x->{"drugbank-id"};
         $did         = "drugbank:".$dbid;
         $name        = (string)$x->name;
-	$type        = (string)str_replace(" ","-",$x->attributes()->type);
+	$type        = ucfirst((string)str_replace(" ","-",$x->attributes()->type));
+	$type_label  = ucfirst($x->attributes()->type);
         $description = null;
 
 	if(isset($this->id_list)) {
@@ -322,9 +328,9 @@ class DrugBankParser extends Bio2RDFizer
 		parent::describeClass(parent::getVoc()."Drug","Drug").
 		parent::triplify($did,"owl:sameAs","http://identifiers.org/drugbank/".$dbid).
 		parent::triplify($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid). 
-		parent::describeIndividual(parent::getVoc().str_replace(" ","-",$x->attributes()->type[0]), ucfirst($x->attributes()->type[0]),parent::getVoc()."Type").
-		parent::describeClass(parent::getVoc()."Type", "Type").
-		parent::triplify($did,parent::getVoc()."type", parent::getVoc().ucfirst(str_replace(" ","-",$x->attributes()->type[0])))
+		parent::describeIndividual(parent::getVoc().$type, $type_label, parent::getVoc()."Drug-Type").
+		parent::describeClass(parent::getVoc()."Drug-Type", "Drug Type").
+		parent::triplify($did,parent::getVoc()."type", parent::getVoc().$type)
         );
 
 	$literals = array(
