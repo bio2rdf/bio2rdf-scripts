@@ -44,16 +44,33 @@ class NCBIGeneParser extends Bio2RDFizer
 		"gene2unigene" => "gene2unigene",
 		"gene2vega" => "gene2vega.gz",					
 	);
-		
+	private $taxids = null;
+	private $default_taxids = array(
+		"9606" => "Homo Sapiens",
+		"44689" => "Dictyostelium Discoideum",
+		"4896" => "Schizosaccharomyces pombe",
+		"4932" => "Saccharomyces cerevisiae",
+		"6239" => "Caenorhabditis elegans",
+		"7227" => "Drosophila melanogaster",
+		"8355" => "Xenopus laevis",
+		"9913" => "Bos taurus",
+		"10116" => "Rattus norvegicus",
+		"10090" => "Mus musculus",
+		"7955" => "Danio rerio",
+		"3702" => "Arabidopsis thaliana",
+		"562" => "Escherichia coli"
+	);
 	function __construct($argv) {
 		parent::__construct($argv,"ncbigene");
-			
+
 		// set and print application parameters
 		parent::addParameter('files',true,'all|geneinfo|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega','','files to process');
 		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/gene/DATA/');
-		parent::initialize();		
+		parent::addParameter('limit_organisms',false,'true|false','false','flag to use specified organisms');
+		parent::addParameter('organisms',false,null,implode(",",array_keys($this->default_taxids)),'taxonomy ids for organisms to process');
+		parent::initialize();
 	}//constructor
-	  
+
 	function Run()
 	{
 		$this->process();
@@ -67,7 +84,7 @@ class NCBIGeneParser extends Bio2RDFizer
 		$rdir = parent::getParameterValue('download_url');
 
 		//which files are to be converted?
-		$files = trim($this->GetParameterValue('files'));		 
+		$files = trim($this->GetParameterValue('files'));
 		if($files == 'all') {
 			$files = $this->getPackageMap();
 		} else {
@@ -78,9 +95,11 @@ class NCBIGeneParser extends Bio2RDFizer
 				if(array_key_exists($a, $pm)){
 					$files[$a] = $pm[$a];
 				}
-			}	
+			}
 		}
-
+		if($this->getParameterValue('limit_organisms') == true) {
+			$this->taxids = array_flip(explode(",",$this->getParameterValue('organisms')));
+		}
 		//set dataset graph to be dataset URI
 		$graph_uri = parent::getGraphURI();
 		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
@@ -184,6 +203,7 @@ class NCBIGeneParser extends Bio2RDFizer
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 7){
 					$taxid = trim($splitLine[0]);
+					if(isset($this->taxids) and !isset($this->taxids[$taxid])) {continue;}
 					$aGeneId = trim($splitLine[1]);
 					$vegaGeneId = trim($splitLine[2]);
 					$rnaNucleotideAccession = trim($splitLine[3]);
@@ -253,6 +273,7 @@ class NCBIGeneParser extends Bio2RDFizer
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 3){
 					$taxid = trim($splitLine[0]);
+					if(isset($this->taxids) and !isset($this->taxids[$taxid])) {continue;}
 					$aGeneId = trim($splitLine[1]);
 					$pubmedId = trim($splitLine[2]);
 					$this->AddRDF(
@@ -282,6 +303,9 @@ class NCBIGeneParser extends Bio2RDFizer
 			$a = explode("\t",rtrim($l));
 			if(count($a) != 7) { trigger_error("gene2ensembl: expecting 7 columns, found ".count($a)." instead", E_USER_ERROR);}
 			$id = parent::getNamespace().$a[0];
+
+			$taxid = $a[0];
+			if(isset($this->taxids) and !isset($this->taxids[$taxid])) {continue;}
 
 			foreach($header AS $i => $v) {
 				if($a[$i] == "-" or $i == "1") continue;
@@ -322,6 +346,8 @@ class NCBIGeneParser extends Bio2RDFizer
 			if(($z++) % 10000 == 0) {echo $z.PHP_EOL;parent::clear();}
 			$a = explode("\t",rtrim($l));
 			if(count($a) != 16) { trigger_error("gene2accession: expecting 16 columns, found ".count($a)." instead", E_USER_ERROR);}
+			$taxid = $a[0];
+			if(isset($this->taxids) and !isset($this->taxids[$taxid])) {continue;}
 
 			$id = parent::getNamespace().$a[1];
 			$refseq = false;
@@ -374,6 +400,9 @@ class NCBIGeneParser extends Bio2RDFizer
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 8){
 					$taxid = "taxon:".trim($splitLine[0]);
+
+					if(isset($this->taxids) and !isset($this->taxids[ trim($splitLine[0]) ])) {continue;}
+
 					$aGeneId = trim($splitLine[1]);
 					$goid = strtolower(trim($splitLine[2]));
 					$evidenceCode = trim($splitLine[3]);
@@ -427,6 +456,7 @@ class NCBIGeneParser extends Bio2RDFizer
 			$a = $splitLine = explode("\t", $aLine);
 			if(count($splitLine) == 15){
 				$taxid = "taxon:".trim($splitLine[0]);
+				if(isset($this->taxids) and !isset($this->taxids[ trim($splitLine[0]) ])) {continue;}
 				$aGeneId = trim($splitLine[1]);
 				$geneid = "ncbigene:".trim($splitLine[1]);
 				$symbol = addslashes(stripslashes(trim($splitLine[2])));
