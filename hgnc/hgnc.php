@@ -214,8 +214,11 @@ class HGNCParser extends Bio2RDFizer {
 			if(!empty($previous_symbols)){
 				$previous_symbols = explode(", ", $previous_symbols);
 				foreach($previous_symbols as $previous_symbol){
+					$previous_symbol_uri = "hgnc.symbol:".$previous_symbol;
 					parent::AddRDF(
-						parent::triplifyString($id_res, $this->getVoc()."previous-symbol", utf8_encode(htmlspecialchars($previous_symbol))).
+						parent::describeIndividual($previous_symbol_uri, $previous_symbol, parent::getVoc()."Previous-Symbol").
+						parent::describeClass(parent::getVoc()."Previous-Symbol","Previous Symbol").
+						parent::triplify($id_res, $this->getVoc()."previous-symbol", $previous_symbol_uri).
 						parent::describeProperty($this->getVoc()."previous-symbol", "HGNC previous symbol","Symbols previously approved by the HGNC for this gene")
 					);
 				}
