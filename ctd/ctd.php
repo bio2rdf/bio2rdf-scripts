@@ -707,7 +707,7 @@ function CTD_Genes()
 			foreach($b AS $c) {
 				if(isset($v['ns'])) {
 					parent::addRDF(
-						parent::triplify($geneid, parent::getVoc().$v['rel'], $v['ns'].$c)
+						parent::triplify($geneid, parent::getVoc().$v['rel'], $v['ns'].":".$c)
 					);
 				} else {
 					parent::addRDF(

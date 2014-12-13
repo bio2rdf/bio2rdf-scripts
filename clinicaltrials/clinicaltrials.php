@@ -835,7 +835,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					parent::addRDF(
 						parent::describeIndividual($lid, $this->getString('./description',$link), parent::getVoc()."Link").
 						parent::describeClass(parent::getVoc()."Link","Link").
-						parent::triplify($lid,parent::getVoc()."url",$this->getString('./url',$link)).
+						parent::triplify($lid,parent::getVoc()."url",preg_replace("/>$/","",$this->getString('./url',$link))).
 						parent::triplify($study_id,parent::getVoc()."link",$lid)
 					);
 				}
