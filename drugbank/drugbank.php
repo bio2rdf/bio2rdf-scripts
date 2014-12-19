@@ -329,8 +329,8 @@ class DrugBankParser extends Bio2RDFizer
 		parent::describeClass(parent::getVoc()."Drug","Drug").
 		parent::triplify($did,"owl:sameAs","http://identifiers.org/drugbank/".$dbid).
 		parent::triplify($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid). 
-		parent::triplify($did,"rdf:type", parent::getVoc().$type)
-		parent::describeClass(parent::getVoc().$type, $type_label);
+		parent::triplify($did,"rdf:type", parent::getVoc().$type).
+		parent::describeClass(parent::getVoc().$type, $type_label)
         );
 
 	$literals = array(
