@@ -344,6 +344,12 @@ class DrugBankParser extends Bio2RDFizer
 		parent::describeClass(parent::getVoc().$type, $type_label)
         );
 
+	foreach($x->{'drugbank-id'} AS $id) {
+		parent::addRDF(
+			parent::triplifyString($did, parent::getVoc()."drugbank-id", $id)
+		);
+	}
+ 
 	$literals = array(
 		"indication",
 		"pharmacology",
@@ -372,6 +378,15 @@ class DrugBankParser extends Bio2RDFizer
         // TODO:: Replace the next two lines
 	$this->AddList($x,$did,"groups","group",parent::getVoc()."group");
 	$this->AddList($x,$did,"categories","category",parent::getVoc()."category");
+
+	foreach($x->classification->children() AS $k => $v) {
+		$cid = parent::getRes().md5($v);
+		parent::addRDF(
+			parent::describeIndividual($cid, $v, parent::getVoc()."Drug-Classification-Category").
+			parent::describeClass(parent::getVoc()."Drug-Classification-Category","Drug Classification Category").
+			parent::triplify($did, parent::getVoc()."drug-classification-category", $cid)
+		);
+	}
 
 	$this->addLinkedResource($x, $did, 'atc-codes','atc-code','atc');
 	$this->addLinkedResource($x, $did, 'ahfs-codes','ahfs-code','ahfs');
@@ -546,11 +561,11 @@ class DrugBankParser extends Bio2RDFizer
              parent::addRDF(
                 parent::triplify($did,$this->getVoc()."patent",$id).
                 parent::describeIndividual($id,$patent->country." patent ".$patent->number,$this->getVoc()."Patent").
-				parent::describeClass(parent::getVoc()."Patent","patent").
+		parent::describeClass(parent::getVoc()."Patent","patent").
                 parent::triplifyString($id,$this->getVoc()."approved","".$patent->approved).
                 parent::triplifyString($id,$this->getVoc()."expires","".$patent->expires)
              );
-                           
+
              $cid = parent::getRes().md5($patent->country);
              $this->typify($id,$cid,"Country","".$patent->country);
          }
@@ -593,10 +608,10 @@ class DrugBankParser extends Bio2RDFizer
 
      // food-interactions
      $this->AddText($x,$did,"food-interactions","food-interaction",parent::getVoc()."food-interaction");
-     
+
      // affected-organisms
      $this->AddCategory($x,$did,"affected-organisms","affected-organism",parent::getVoc()."affected-organism");
-        
+
      //  <external-identifiers>
      if(isset($x->{"external-identifiers"})) {
          foreach($x->{"external-identifiers"} AS $objs) {
@@ -613,15 +628,12 @@ class DrugBankParser extends Bio2RDFizer
      }
      // <external-links>
      if(isset($x->{"external-links"})) {
-         foreach($x->{"external-links"} AS $objs) {
-             foreach($objs AS $obj) {
-                    if(strpos($obj->url,'http') !== false){
-
-                        parent::addRDF(
-                            parent::triplify($did,"rdfs:seeAlso","".$obj->url)
-                        );
-                    }
-                }
+         foreach($x->{"external-links"}->{'external-link'} AS $el) {
+            if(strpos($el->url,'http') !== false) {
+               parent::addRDF(
+                  parent::triplify($did,"rdfs:seeAlso","".$el->url)
+               );
+            }
          }
      }
         
