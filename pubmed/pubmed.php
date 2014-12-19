@@ -126,6 +126,7 @@ class PubmedParser extends Bio2RDFizer
 		$this->setWriteFile($ofile, $gz);
 		$this->setCheckPoint('file');
 		$this->pubmed();
+		$this->writeRDFBufferToWriteFile();
 		$this->getWriteFile()->close();	
 	}
 
