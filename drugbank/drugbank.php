@@ -349,6 +349,11 @@ class DrugBankParser extends Bio2RDFizer
 			parent::triplifyString($did, parent::getVoc()."drugbank-id", $id)
 		);
 	}
+	if(isset($x->{'cas-number'})) {
+		parent::addRDF(
+			parent::triplify($did, parent::getVoc()."x-cas", "cas:".$x->{'cas-number'})
+		);
+	}
  
 	$literals = array(
 		"indication",
