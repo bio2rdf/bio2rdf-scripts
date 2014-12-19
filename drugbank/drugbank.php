@@ -329,9 +329,8 @@ class DrugBankParser extends Bio2RDFizer
 		parent::describeClass(parent::getVoc()."Drug","Drug").
 		parent::triplify($did,"owl:sameAs","http://identifiers.org/drugbank/".$dbid).
 		parent::triplify($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid). 
-		parent::describeIndividual(parent::getVoc().$type, $type_label, parent::getVoc()."Drug-Type").
-		parent::describeClass(parent::getVoc()."Drug-Type", "Drug Type").
-		parent::triplify($did,parent::getVoc()."type", parent::getVoc().$type)
+		parent::triplify($did,"rdf:type", parent::getVoc().$type)
+		parent::describeClass(parent::getVoc().$type, $type_label);
         );
 
 	$literals = array(
@@ -417,22 +416,22 @@ class DrugBankParser extends Bio2RDFizer
          foreach($x->packagers AS $items) {
              if(isset($items->packager)) {
                  foreach($items->packager AS $item) {
-					$pid = parent::getRes().md5($item->name);
+			$pid = parent::getRes().md5($item->name);
 
+			parent::addRDF(
+				parent::triplify($did,parent::getVoc()."packager",$pid)
+			);
+			if(!isset($defined[$pid])) {
+				$defined[$pid] = '';
+				parent::addRDF(
+					parent::describe($pid,"".$item->name[0])
+				);
+
+				if(strstr($item->url,"http://") && $item->url != "http://BASF Corp."){
 					parent::addRDF(
-						parent::triplify($did,parent::getVoc()."packager",$pid)
-					);                
-                    if(!isset($defined[$pid])) {
-                        $defined[$pid] = '';
-						parent::addRDF(
-							parent::describe($pid,"".$item->name[0])
-						);
-
-						if(strstr($item->url,"http://") && $item->url != "http://BASF Corp."){
-							parent::addRDF(
-								$this->triplify($pid,"rdfs:seeAlso","".$item->url[0])
-							);
-						}    
+						$this->triplify($pid,"rdfs:seeAlso","".$item->url[0])
+					);
+				}
                     }
                  }
              }
@@ -443,45 +442,43 @@ class DrugBankParser extends Bio2RDFizer
      $this->AddText($x,$did,"manufacturers","manufacturer",parent::getVoc()."manufacturer"); // @TODO RESOURCE
         
      // prices
-     if(isset($x->prices->price)) {
-         foreach($x->prices->price AS $product) {
+	if(isset($x->prices->price)) {
+		foreach($x->prices->price AS $product) {
 			$pid = parent::getRes().md5($product->description);
-			
 			parent::addRDF(
 				parent::describeIndividual($pid,$product->description,parent::getVoc()."Pharmaceutical",$product->description).
-				parent::describeClass(parent::getVoc()."Pharmaceutical","pharmaceutical"). 
-				parent::triplify($did,parent::getVoc()."product",$pid).
-				parent::triplifyString($pid,parent::getVoc()."price","".$product->cost,"xsd:float")
+				parent::describeClass(parent::getVoc()."Pharmaceutical","pharmaceutical").
+				parent::triplifyString($pid,parent::getVoc()."price","".$product->cost,"xsd:float").
+				parent::triplify($did,parent::getVoc()."product",$pid)
 			);
 
 			$uid = parent::getVoc().md5($product->unit);
 			parent::addRDF(
 				parent::describeIndividual($uid,$product->unit,parent::getVoc()."Unit",$product->unit).
 				parent::describeClass(parent::getVoc()."Unit","unit").
-				parent::triplify($pid,parent::getVoc()."form",$uid) 
+				parent::triplify($pid,parent::getVoc()."form",$uid)
 			);
-             
-         }
-     }           
-        
+		}
+	}
+
      // dosages <dosages><dosage><form>Powder, for solution</form><route>Intravenous</route><strength></strength></dosage>
      if(isset($x->dosages->dosage)) {
          foreach($x->dosages->dosage AS $dosage) {
-            $id = parent::getRes().md5($dosage->form.$dosage->route);
-			$label = $dosage->form." by ".$dosage->route;
-            parent::addRDF(
-			parent::triplify($did,parent::getVoc()."dosage",$id).
-			parent::describe($id,$label,parent::getVoc()."Dosage", $label).
-			parent::describeClass(parent::getVoc()."Dosage","dosage")
-            );
+		$id = parent::getRes().md5($dosage->form.$dosage->route);
+		$label = $dosage->form." form with ".$dosage->route. " route";
+		parent::addRDF(
+			parent::describe($id,$label,parent::getVoc()."Dosage").
+			parent::describeClass(parent::getVoc()."Dosage","Dosage").
+			parent::triplify($did, parent::getVoc()."dosage", $id)
+		);
 
-            $rid = parent::getVoc().md5($dosage->route);
-            $this->typify($id,$rid,"Route","".$dosage->route);
+		$rid = parent::getVoc().md5($dosage->route);
+		$this->typify($id,$rid,"Route","".$dosage->route);
 
-            $fid =  parent::getVoc().md5($dosage->form);
-            $this->typify($id,$fid,"Form","".$dosage->form);
+		$fid =  parent::getVoc().md5($dosage->form);
+		$this->typify($id,$fid,"Form","".$dosage->form);
          }
-     } 
+     }
 
     // experimental-properties
 	$props = array("experimental-properties","calculated-properties");
