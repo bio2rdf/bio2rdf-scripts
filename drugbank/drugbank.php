@@ -151,6 +151,7 @@ class DrugBankParser extends Bio2RDFizer
         $source = strtolower($source);
         switch($source) {
             case 'uniprotkb':
+            case 'uniprot accession':
                 return 'uniprot';
             case "pubchem compound":
                 return 'pubchemcompound';
@@ -162,7 +163,7 @@ class DrugBankParser extends Bio2RDFizer
             case 'kegg drug':
                 return 'kegg';
             case 'national drug code directory':
-                return 'ndc';       
+                return 'ndc';
             case 'guide to pharmacology':
                 return 'gtp';
             case 'human protein reference database (hprd)':
@@ -199,7 +200,7 @@ class DrugBankParser extends Bio2RDFizer
         // iterate over all the child nodes
         foreach($x->children() AS $k => $v) {
             // get the direct values
-            if(!$v->children()) {
+             if(!$v->children()) {
                 // special cases
                 if($k == "references") { // for local pivot
                     $a = preg_match_all("/pubmed\/([0-9]+)/",$v,$m);
@@ -224,63 +225,73 @@ class DrugBankParser extends Bio2RDFizer
 
             } else {
                 // work with nested elements
-				// default handling for collections
-				$found = false;
-				$list_name = $k;
-				$item_name = substr($k,0,-1);
-				foreach($v->children() AS $k2 => $v2) {
-					if($k2 == "action") {
-						$aid = str_replace(array(" ","/"),"-",$v2);
+		$found = false;
+		$list_name = $k;
+		$item_name = substr($k,0,-1);
+		foreach($v->children() AS $k2 => $v2) {
+			if($k2 == "organism") {
+				// extract the ncbi id
+				$taxid = $v2->attributes()->{'ncbi-taxonomy-id'};
+				$label = $v2;
+				parent::addRDF(
+					parent::triplify($pid, parent::getVoc()."x-taxonomy", "taxonomy:$taxid").
+					parent::triplifyString("taxonomy:$taxid","rdfs:label",$label)
+				);
+				continue;
+			}
+
+			if(!$v2->children()) {
+				// echo "not nested $k2".PHP_EOL;
+				if($k2 == "action") {
+					$aid = str_replace(array(" ","/"),"-",$v2);
+					parent::addRDF(
+						parent::describeIndividual($lid,$v2,parent::getVoc()."Action").
+						parent::describeClass(parent::getVoc()."Action","Action").
+						parent::triplify($lid,parent::getVoc()."action",parent::getVoc().$aid)
+					);
+				} else {
+					// default handler
+					parent::addRDF(
+						parent::triplifyString($pid, parent::getVoc().$k2, "".$v2)
+					);
+				}
+			} else { // nested elements
+				// echo "nested $k2".PHP_EOL;
+				foreach($v2->children() AS $k3 => $v3) {
+					// echo " ".$k3.PHP_EOL;
+					if(!$v3->children()) {
 						parent::addRDF(
-							parent::describeIndividual($lid,$v2,parent::getVoc()."Action").
-							parent::describeClass(parent::getVoc()."Action","Action").
-							parent::triplify($lid,parent::getVoc()."action",parent::getVoc().$aid)
+							parent::triplifyString($pid,parent::getVoc().$k3, "".$v3)
 						);
 					} else {
-						if($k2 == 'gene-sequence' or $k2=='amino-acid-sequence') {
-							parent::addRDF(
-								parent::triplifyString($pid, parent::getVoc().$k2, "".$v2)
-							);
-						}
-						foreach($v2->children() AS $k3 => $v3) {
-							if(!$v3->children()) {
+						foreach($v3 AS $k4 => $v4) {
+							if($k3 == 'external-identifier') {
+								$ns = $this->NSMap($v3->resource);
+								$id = (string) $v3->identifier;
+								$id = str_replace(array("GNC:","HGNC:"),"",$id);
 								parent::addRDF(
-									parent::triplifyString($pid,parent::getVoc().$k3, "".$v3)
+									parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
+								);
+							} else if($k3 == 'pfam') {
+								parent::addRDF(
+									parent::triplify($pid, parent::getVoc()."x-pfam","pfam:"."".$v3->identifier)
+								);
+							} else if($k3 == "go-classifier") {
+								parent::addRDF(
+									parent::triplifyString($pid, parent::getVoc()."go-".$v3->category, $v3->description)
 								);
 							} else {
-						
-								 if($k3 == 'external-identifiers') {
-									foreach($v3 AS $k4 => $v4) {
-										$ns = $this->NSMap($v4->resource);
-										$id = (string) $v4->identifier;
-										$id = str_replace(array("GNC:","HGNC:"),"",$id);
-										parent::addRDF(
-											parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
-										);
-									}
-								 } else if($k3 == 'pfams') {
-									foreach($v3 AS $k4 => $v4) {
-										parent::addRDF(
-											parent::triplify($pid, parent::getVoc()."x-pfam","pfam:"."".$v4->identifier)
-										);
-									}
-								} else if($k3 == 'gene-sequence' or $k3=='amino-acid-sequence') {
-									foreach($v3 AS $k4 =>$v4) {
-										parent::addRDF(
-											parent::triplifyString($pid, parent::getVoc().$k3, "".$v4)
-										);
-									}
-								} else {
-									foreach($v3->children() AS $k4 => $v4) {
-										parent::addRDF(
-											parent::triplifyString($pid, parent::getVoc().$k4, $v4)
-										);
-									}
-								 }
+								trigger_error("no handler for $k3",E_USER_WARNING);
+/*								parent::addRDF(
+									parent::triplifyString($pid, parent::getVoc().$k3, $v4)
+								);
+*/
 							}
-						}
+						 }
 					}
-				} // foreach
+				}
+			}
+		} // foreach
             }
          }
     }
@@ -377,7 +388,7 @@ class DrugBankParser extends Bio2RDFizer
         // brand names
         $this->AddCategory($x,$did,"brands","brand",parent::getVoc()."brand");
 
-		// salt
+	// salt
         $this->AddText($x,$did,"salts","salt",parent::getVoc()."salt");
 
         // mixtures
