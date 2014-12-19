@@ -460,7 +460,7 @@ class DrugBankParser extends Bio2RDFizer
 				parent::describeIndividual($pid,$product->description,parent::getVoc()."Pharmaceutical",$product->description).
 				parent::describeClass(parent::getVoc()."Pharmaceutical","pharmaceutical").
 				parent::triplifyString($pid,parent::getVoc()."price","".$product->cost,"xsd:float").
-				parent::triplify($did,parent::getVoc()."product",$pid)
+				parent::triplify($did, parent::getVoc()."product", $pid)
 			);
 
 			$uid = parent::getVoc().md5($product->unit);
@@ -488,6 +488,12 @@ class DrugBankParser extends Bio2RDFizer
 
 		$fid =  parent::getVoc().md5($dosage->form);
 		$this->typify($id,$fid,"Form","".$dosage->form);
+
+		if($dosage->strength) {
+			parent::addRDF(
+				parent::triplifyString($id, parent::getVoc()."strength", $dosage->strength)
+			);
+		}
          }
      }
 
@@ -696,6 +702,11 @@ class DrugBankParser extends Bio2RDFizer
 							$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst($item_name)).
 							$this->triplify($id,$predicate,$kid)
 						);
+						foreach($l->attributes() AS $ka => $va) {
+							parent::addRDF(
+								$this->triplifyString($kid, parent::getVoc().$ka, $va)
+							);
+						}
 					}
 				}
 			}
