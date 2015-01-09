@@ -8,6 +8,7 @@ Created 08/18/2014
 '''
 
 import sys
+import time
 sys.path = sys.path + ['.']
 
 import re, codecs, uuid, datetime
@@ -32,10 +33,7 @@ OHDSI_BASE = "http://purl.org/net/ohdsi#"
 
 class DictItem:
 
-   drugClass = Set()
-
    def __init__(self, pt, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole):
-
       self.pt = str(pt)
       self.db_uri1 = str(db_uri1)
       self.db_uri2 = str(db_uri2)
@@ -44,7 +42,10 @@ class DictItem:
       self.chebi = str(chebi)
       self.dron = str(dron)
 
-      self.drugClass.add(str(nui)+'|'+str(nameAndRole))
+      if nui and nameAndRole:
+         self.drugClass = Set([str(nui)+'|'+str(nameAndRole)])
+      else:
+         self.drugClass = Set()
 
 
 data_set = csv.DictReader(open("mergedActiveMoiety.csv","rb"), delimiter='\t')
@@ -57,12 +58,14 @@ for item in data_set:
    if item["unii"] not in dict_moieties:
       moiety = DictItem(item["pt"], item["db_uri1"], item["db_uri2"], item["rxcui"], item["omopid"], item["chebi"], item["dron"], item["nui"], item["nameAndRole"])
       dict_moieties[item["unii"]]=moiety
+      #print str(dict_moieties[item["unii"]].drugClass) 
+
    else:
-      if not dict_moieties[item["unii"]].pt:
+      if not dict_moieties[item["unii"]].pt and item["pt"]:
          dict_moieties[item["unii"]].pt = item["pt"]  
-      if not dict_moieties[item["unii"]].db_uri1:
+      if not dict_moieties[item["unii"]].db_uri1 and item["db_uri1"]:
          dict_moieties[item["unii"]].db_uri1 = item["db_uri1"]      
-      if not dict_moieties[item["unii"]].db_uri2:
+      if not dict_moieties[item["unii"]].db_uri2 and item["db_uri2"]:
          dict_moieties[item["unii"]].db_uri2 = item["db_uri2"] 
       if not dict_moieties[item["unii"]].rxcui:
          dict_moieties[item["unii"]].rxcui = item["rxcui"] 
@@ -71,13 +74,18 @@ for item in data_set:
       if not dict_moieties[item["unii"]].chebi:
          dict_moieties[item["unii"]].chebi = item["chebi"] 
       if not dict_moieties[item["unii"]].dron:
-         dict_moieties[item["unii"]].dron = item["dron"] 
-
-      # dict_moieties[item["unii"]].drugClass.add(item['nui']+'|'+item['nameAndRole'])
+         dict_moieties[item["unii"]].dron = item["dron"]
  
+      #print item['nui']+'|'+item['nameAndRole']
+
+      if item['nui'] and item['nameAndRole']:
+         if dict_moieties[item["unii"]].drugClass:
+            dict_moieties[item["unii"]].drugClass.add(item['nui']+'|'+item['nameAndRole'])
+         else:
+            dict_moieties[item["unii"]].drugClass = Set(item['nui']+'|'+item['nameAndRole'])
+      
 
 
-#print dict_moieties
 
 ## set up RDF graph
 # identify namespaces for other ontologies to be used                                                                                    
@@ -94,18 +102,17 @@ siocns = Namespace('http://rdfs.org/sioc/ns#')
 swande = Namespace('http://purl.org/swan/1.2/discourse-elements#')
 dikbD2R = Namespace('http://dbmi-icode-01.dbmi.pitt.edu/dikb/vocab/resource/')
 linkedspls = Namespace('file:///home/rdb20/Downloads/d2rq-0.8.1/linkedspls-dump.nt#structuredProductLabelMetadata/')
-poc = Namespace('http://purl.org/net/nlprepository/spl-ddi-annotation-poc#')
 ncbit = Namespace('http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#')
 dikbEvidence = Namespace('http://dbmi-icode-01.dbmi.pitt.edu/dikb-evidence/DIKB_evidence_ontology_v1.3.owl#')
-mp = Namespace('http://purl.org/mp/') # namespace for micropublication
-
 ndfrt = Namespace('http://purl.bioontology.org/ontology/NDFRT/')
+activemoiety = Namespace('http://purl.org/net/nlprepository/spl-active-moiety')
+
 
 graph = Graph()
 
 graph.namespace_manager.reset()
 graph.namespace_manager.bind("dcterms", "http://purl.org/dc/terms/")
-graph.namespace_manager.bind("pav", "http://purl.org/pav");
+graph.namespace_manager.bind("pav",  "http://purl.org/pav");
 graph.namespace_manager.bind("dctypes", "http://purl.org/dc/dcmitype/")
 
 graph.namespace_manager.bind('linkedspls_vocabulary', 'http://bio2rdf.org/linkedspls_vocabulary:')
@@ -120,12 +127,19 @@ graph.namespace_manager.bind('swande','http://purl.org/swan/1.2/discourse-elemen
 graph.namespace_manager.bind('dikbD2R','http://dbmi-icode-01.dbmi.pitt.edu/dikb/vocab/resource/')
 
 graph.namespace_manager.bind('linkedspls','file:///home/rdb20/Downloads/d2rq-0.8.1/linkedspls-dump.nt#structuredProductLabelMetadata/')
-graph.namespace_manager.bind('poc','http://purl.org/net/nlprepository/spl-ddi-annotation-poc#')
 graph.namespace_manager.bind('ncbit','http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#')
 graph.namespace_manager.bind('dikbEvidence','http://dbmi-icode-01.dbmi.pitt.edu/dikb-evidence/DIKB_evidence_ontology_v1.3.owl#')
-graph.namespace_manager.bind('mp','http://purl.org/mp/')
 graph.namespace_manager.bind('ndfrt','http://purl.bioontology.org/ontology/NDFRT/')
 
+graph.namespace_manager.bind('activemoiety','http://purl.org/net/nlprepository/spl-active-moiety')
+
+## metadata
+
+graph.add((URIRef(activemoiety), pav["createdBy"], Literal('Richard D. Boyce, PhD')))
+graph.add((URIRef(activemoiety), pav["contributedBy"], Literal('Yifan Ning, MS')))
+graph.add((URIRef(activemoiety), pav["createdOn"], Literal(time.strftime("%m/%d/%Y-%H:%M"))))
+graph.add((URIRef(activemoiety), dcterms['publisher'], Literal("Department of Biomedical Informatics, University of Pittsburgh")))
+graph.add((URIRef(activemoiety), dcterms['license'], URIRef("http://www.opendatacommons.org/licenses/by/1.0")))
 
 index =1
 
@@ -152,15 +166,26 @@ for k,v in dict_moieties.items():
    if v.dron:
       graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + v.dron)))
 
+   if v.drugClass:
 
+      for dc in v.drugClass:
+         idx = dc.find('|')
+         nui = dc[0:idx]
+         dcStr = dc[idx+1:]
 
-   ## TODO: add nuis and name and roles into active moiety sub graph
+         dcGroup = None
 
-   # for dc in v.drugClass:
-   #    idx = dc.find('|')
-   #    graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), ndfrt[dc[0:idx]], Literal(dc[idx+1:])))
+         if '[PE]' in dcStr:
+            dcGroup = "N0000009802"
+         elif '[MoA]' in dcStr:
+            dcGroup = "N0000000223"
+         elif '[Chemical/Ingredient]' in dcStr:
+            dcGroup = "N0000000002"
+         elif '[EPC]' in dcStr:
+            dcGroup = "N0000182631"
 
-
+         if dcGroup:
+            graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), ndfrt[dcGroup], ndfrt[nui]))
 
 ##display the graph
 f = codecs.open(OUT_FILE,"w","utf8")
