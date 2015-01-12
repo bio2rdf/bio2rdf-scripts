@@ -562,6 +562,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 				$arm_groups = $root->xpath('//arm_group');
 				foreach ($arm_groups as $arm_group) {
 					$arm_group_id = $this->getString('./arm_group_label',$arm_group);
+					$arm_group_id = md5($arm_group_id);
 					$arm_group_uri = parent::getRes().$this->nct_id."/arm-group/".$arm_group_id;
 					$arm_group_label = $this->nct_id." arm group ".$arm_group_id;
 					$arm_group_type = ucfirst(str_replace(" ","_",$this->getString('./arm_group_type',$arm_group)));
@@ -572,6 +573,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						parent::describeIndividual($arm_group_uri,$arm_group_label,parent::getVoc().$arm_group_type).
 						parent::describeClass(parent::getVoc().$arm_group_type,ucfirst(str_replace("_"," ",$arm_group_type))).
 						parent::triplifyString($arm_group_uri, parent::getVoc()."description", $description).
+						parent::describeIndividual($arm_group_uri,$arm_group,parent::getVoc()."Arm-Group").
+						parent::describeClass(parent::getVoc()."Arm-Group","Arm Group").
 						parent::triplify($study_id,parent::getVoc()."arm-group",$arm_group_uri)
 					);
 				}
@@ -602,8 +605,11 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					);
 					$agl = $intervention->xpath("./arm_group_label");
 					foreach($agl AS $a) {
-						$ag = parent::getRes().$this->nct_id."/arm-group/".$a;
+						$arm_group_id = md5($a);
+						$ag = parent::getRes().$this->nct_id."/arm-group/".$arm_group_id;
 						parent::addRDF(
+							parent::describeIndividual($ag,$a,parent::getVoc()."Arm-Group").
+							parent::describeClass(parent::getVoc()."Arm-Group","Arm Group").
 							parent::triplify($intervention_id, parent::getVoc()."arm-group",$ag)
 						);
 					}
@@ -829,7 +835,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 					parent::addRDF(
 						parent::describeIndividual($lid, $this->getString('./description',$link), parent::getVoc()."Link").
 						parent::describeClass(parent::getVoc()."Link","Link").
-						parent::triplify($lid,parent::getVoc()."url",$this->getString('./url',$link)).
+						parent::triplify($lid,parent::getVoc()."url",preg_replace("/>$/","",$this->getString('./url',$link))).
 						parent::triplify($study_id,parent::getVoc()."link",$lid)
 					);
 				}
@@ -926,14 +932,31 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						);
 					}
 				}
-			}
-			catch(Exception $e){
+			} catch(Exception $e){
 				echo "There was an error parsing $browse_type/mesh_term element: $e\n";
 			}
 
 			################################################################################
 			# clinical results 
 			################################################################################
+			try {
+				$cr = @array_shift($root->xpath('//clinical_results'));
+				if($cr) {
+					$cr_id = parent::getRes().md5($study_id.$cr->asXML());
+					parent::addRDF(
+						parent::describeIndividual($cr_id,"clinical results for $study_id",parent::getVoc()."Clinical-Result").
+						parent::describeClass(parent::getVoc()."Clinical-Result","Clinical Result").
+						parent::triplifyString($cr_id,parent::getVoc()."description",$this->getString('./desc',$cr)).
+						parent::triplifyString($cr_id,parent::getVoc()."restrictive-agreement",$this->getString('./restrictive_agreement',$cr)).
+						parent::triplifyString($cr_id,parent::getVoc()."limitations-and-caveats",$this->getString('./limitations_and_caveats',$cr)).
+						parent::triplify($study_id,parent::getVoc()."clinical-result",$cr_id)
+					);
+				}
+			} catch(Exception $e){
+				echo "There was an error parsing clinical results: $e\n";
+			}
+
+		
 
 			################################################################################
 			# Participant Flow

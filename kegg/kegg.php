@@ -258,7 +258,7 @@ class KEGGParser extends Bio2RDFizer
 		while($l = fgets($fp,100000)) {
 			$k_t = trim(substr($l,0,12));			
 			$v = trim(substr($l,12));
-			if($v == '') continue;
+			if(!$k_t and $v == '') continue;
 			
 			// set the key to the current key if not empty, else keep using what was there before
 			if(!isset($k)) $k = $k_t;
@@ -301,6 +301,14 @@ class KEGGParser extends Bio2RDFizer
 								parent::triplify($uri,parent::getVoc()."x-ec",$m[1])
 							);
 						}
+				} else if($k == "COMMENT") {
+					preg_match("/ICD-O: ([^,]+),/",$v,$m);
+					if(isset($m[1])) {
+						parent::addRDF(
+							parent::triplify($uri,parent::getVoc()."x-icdo","icdo:".$m[1])
+						);
+						continue;
+					}
 				} else {
 					parent::addRDF(
 						parent::triplifyString($uri,parent::getVoc().strtolower($k),$v)
@@ -323,7 +331,7 @@ class KEGGParser extends Bio2RDFizer
 			}
 			
 			// key with semi-colon separated values
-			if(in_array($k, array("CLASS","CATEGORY","KEYWORDS","CHROMOSOME","ANNOTATION","ACTIVITY"))) {  
+			if(in_array($k, array("CLASS","CATEGORY","KEYWORDS","CHROMOSOME","ANNOTATION","ACTIVITY","TYPE"))) {  
 				$a = explode(";",$v);
 				foreach($a AS $c) {
 					parent::addRDF(
@@ -363,6 +371,8 @@ class KEGGParser extends Bio2RDFizer
 				);
 				continue;
 			}
+			
+			// REACTION parsing
 			if(preg_match("/\[RN:([^\]]+)]/",$v,$m) != FALSE) {
 				$list = explode(" ",$m[1]);
 				foreach($list AS $item) {
@@ -413,8 +423,10 @@ class KEGGParser extends Bio2RDFizer
 
 				$a = explode("  ",$v,2);
 				$ids = explode(",",$a[0]);
+				if($k == "REACTION" and $ids[0][0] != "R")  {echo "unable to parse $k".PHP_EOL;continue;}
 				if(!isset($a[1])) {echo $k." ".$v;continue;}
 				$str = $a[1];
+				
 				foreach($ids AS $id) {
 					$o = '';
 					$o['id'] = $id;
@@ -517,27 +529,54 @@ class KEGGParser extends Bio2RDFizer
 			}
 			
 			if($k == "REFERENCE") {
-				if(!isset($r)) $r = 1;
-				else $r++;
+				
+				if(!isset($ref)) $ref = 1;
+				else {
+					if(!isset($e['reference'][$ref]['title'])) continue; // this is a bug where the reference declaration is split onto two lines
+					$ref++;
+				}
 				if(strstr($v,"PMID")) {
 					// PMID:11529849 (marker)
 					preg_match("/(PMID:[0-9]+) /",$v,$m);
 					if(isset($m[1])) {
-						$e['reference'][$r]['pubmed'] = $m[1];
+						$e['reference'][$ref]['pubmed'] = $m[1];
 					}
 				}
 				continue;
 			}
 			if($k == "AUTHORS") {
-				$e['reference'][$r]['authors'] = $v;
+				$e['reference'][$ref]['authors'] = $v;
 				continue;
 			}
 			if($k == "TITLE") {
-				$e['reference'][$r]['title'] = $v;
+				$e['reference'][$ref]['title'] = $v;
 				continue;
 			}
 			if($k == "JOURNAL") {
-				$e['reference'][$r]['journal'] = $v;
+				$e['reference'][$ref]['journal'] = $v;
+				continue;
+			}
+			
+			if($e['type'] == "Disease" and ($k == "GENE" or $k == "MARKER")) {
+				// BCR-ABL (translocation) [HSA:613 25] [KO:K08878 K06619]
+				preg_match_all("/ \[([^\]]+)\]/",$v,$m);
+				if(isset($m[1])) {
+					foreach($m[1] AS $idlist) {
+						$a = explode(":",$idlist);
+						$ns = $a[0];
+						$b = explode(" ",$a[1]);
+						foreach($b AS $id) {
+							if($ns == "KO") {$rel = "ko-".strtolower($k);$gene = $id;}
+							else {$rel = strtolower($k); $gene = $ns."_".$id;}
+							parent::addRDF(
+								parent::triplify($uri,parent::getVoc().$rel,"kegg:$gene")
+							);
+						}
+						
+					}
+				} else {
+					echo $v;
+				}
 				continue;
 			}
 			
@@ -553,9 +592,39 @@ class KEGGParser extends Bio2RDFizer
 						parent::triplify($uri,parent::getVoc()."gene",$gene)
 					);
 				}
+				echo parent::getRDF();exit;
 				continue;			
 			}
-			
+			if($k == "DRUG_TARGET") {
+				// Afatinib: D09724 D09733
+				$s = substr($v,strpos($v,":")+2);
+				$list = explode(" ",$s);
+				foreach($list AS $item) {
+					parent::addRDF(
+						parent::triplify($uri,parent::getVoc()."drug-target","kegg:$item")
+					);				
+				}
+				continue;
+			}
+			if($k == "STRUCTURE") {
+				$list = explode(" ",$v);
+				foreach($list AS $item) {
+					if(trim($item) == '') continue;
+					parent::addRDF(
+						parent::triplify($uri,parent::getVoc()."x-pdb","pdb:$item")
+					);					
+				}
+				continue;
+			}
+			if($k == "MOTIF") {
+				$list = explode(" ",$v);
+				foreach($list AS $item) {
+					parent::addRDF(
+						parent::triplify($uri,parent::getVoc()."x-pfam","pfam:$item")
+					);				
+				}
+				continue;
+			}
 			if(in_array($k, array("INTERACTION","METABOLISM","TARGET"))) {
 				// dopamine D2-receptor antagonist [HSA:1813] [KO:K04145]
 				$id = parent::getRes().md5($uri.$v);
@@ -590,11 +659,11 @@ class KEGGParser extends Bio2RDFizer
 			}
 			
 			// skip these
-			if(in_array($k, array( "ATOM","BOND","BRITE","AASEQ","NTSEQ"))) {
+			if(in_array($k, array( "ATOM","BOND","BRITE","AASEQ","NTSEQ","SEQUENCE"))) {
 				continue;
 			}
 			// simple strings to keep as is
-			if(in_array($k, array("EXACT_MASS","FORMULA","MOL_WEIGHT","LINEAGE","LENGTH","MASS","COMPOSITION","NODE","EDGE"))) {
+			if(in_array($k, array("EXACT_MASS","FORMULA","MOL_WEIGHT","LINEAGE","LENGTH","MASS","COMPOSITION","NODE","EDGE","POSITION"))) {
 				parent::addRDF(
 					parent::triplifyString($uri,parent::getVoc().strtolower($k),$v)
 				);

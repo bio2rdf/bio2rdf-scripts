@@ -37,7 +37,7 @@ $options = array(
 	"graph" => "", // statistics graph
 	"instance" => "", // dataset
 	"bio2rdf.version" => "", // specify a bio2rdf version #
-	"odir" => "", // output directory
+	"odir" => "html/", // output directory
 	"ofile" => "", // output file
 	"download" => "false", // download registry
 );
@@ -67,8 +67,6 @@ if(!file_exists($options['isql'])) {
 if($options['odir']) @mkdir($options['odir'],0777);
 
 if($options['instance']) {
-	$dataset = $options['instance'];
-
 	// using the virtuoso instances; 
 	$registry_file = "registry.csv";
 	if(!file_exists($registry_file) or $options['download'] == "true") {
@@ -80,22 +78,38 @@ if($options['instance']) {
 	}
 
 	$registry  = getRegistry($registry_file);
-	$entry     = getRecord($registry,$dataset);
-	$endpoint  = getEndpointInfo($dataset);
-	$options['port'] = $endpoint['isql'];
+	$dataset = $options['instance'];
 
-	$options['sparql'] = $entry['sparql'] = "http://localhost:".$endpoint['sparql']."/sparql";
+	$fp = fopen("instances.tab","r");
+        while($l = fgets($fp)) {
+                if(!$l or $l[0] == "#" ) continue;
+                $a = explode("\t",$l);
+                if($dataset == 'all' or $dataset == trim($a[2])) $list[] = trim($a[2]);
+        }
+        fclose($fp);
 
-	$entry['target.endpoint'] = $entry['sparql'];
-	if($options['target.endpoint']) $entry['target.endpoint'] = $options['target.endpoint']; 
+	foreach($list AS $dataset) {
+		if($dataset == "mappings") continue;
+		echo "processing $dataset ...";
+		$entry     = getRecord($registry,$dataset);
+		$endpoint  = getEndpointInfo($dataset);
+		$options['port'] = $endpoint['isql'];
 
-	if($options['bio2rdf.version'] == '') {
-		echo "specify bio2rdf.version!";exit;
+		$options['sparql'] = $entry['sparql'] = "http://localhost:".$endpoint['sparql']."/sparql";
+
+		$entry['target.endpoint'] = $entry['sparql'];
+		if($options['target.endpoint']) $entry['target.endpoint'] = $options['target.endpoint']; 
+
+		if($options['bio2rdf.version'] == '') {
+			echo "specify bio2rdf.version!";exit;
+		}
+		$options['graph'] = $entry['graph'] = "http://bio2rdf.org/".$dataset."_resource:bio2rdf.dataset.$dataset.R".$options['bio2rdf.version'].".statistics";
+		$entry['from'] = "FROM <".$entry['graph'].">";
+		$entry['describe'] = '';
+		$outfile = $options['odir'].$dataset."/$dataset.html";
+		makeHTML($entry,$outfile);
+		echo "done.".PHP_EOL;
 	}
-	$options['graph'] = $entry['graph'] = "http://bio2rdf.org/".$dataset."_resource:bio2rdf.dataset.$dataset.R".$options['bio2rdf.version'].".statistics";
-	$entry['from'] = "FROM <".$entry['graph'].">";
-	$entry['describe'] = '';
-	$outfile = $options['odir'].$dataset.'.html';
 } else {
 	if($options['graph'] == '') {
 		echo "please specify a graph!".PHP_EOL;
@@ -157,7 +171,7 @@ function getEndpointInfo($entry)
 	$fh = fopen($filename, "r") or die("Could not open file: $filename!".PHP_EOL);
 	while(($l = fgets($fh, 4096)) !== false){
 		$a = explode("\t",trim($l));
-		if($a[0] == '#' or $a[0] == '') continue;	
+		if($a[0] == '' or $a[0][0] == '#') continue;
 		if($a[2] == $entry) {
 			$info['isql'] = $a[0];
 			$info['sparql'] = $a[1];
@@ -352,13 +366,17 @@ function makeHTML($entry, $ofile){
 	$html .= addObjectPropertyCountTable($entry);
 	echo "datatype property counts".PHP_EOL;
 	$html .= addDatatypePropertyCountTable($entry);
+	echo "subject type property counts".PHP_EOL;
+	$html .= addSubjectTypePropertyCountTable($entry);
 	echo "property object type counts".PHP_EOL;
 	$html .= addPropertyObjectTypeCountTable($entry);
-	echo "subject property object counts".PHP_EOL;
-	$html .= addSubjectPropertyObjectCountTable($entry);
+//	echo "subject property object counts".PHP_EOL;
+//	$html .= addSubjectPropertyObjectCountTable($entry);
 	echo "type property type counts".PHP_EOL;
 	$html .= addTypePropertyTypeCountTable($entry);
-	
+	echo "dataset property dataset counts".PHP_EOL;
+	$html .= addDatasetPropertyDatasetCountTable($entry);
+
 	$html .= "</div>";
 	$html .= "</body>";
 	$html .= "</html>";
@@ -399,15 +417,14 @@ function addTypeCountTable($entry)
 	$rm .= "<table id='tc'>";
 	$rm .= "<thead><tr>
 		<th>Type</th>
-		<th>Label</th>
 		<th>Count</th>
 		</tr></thead><tbody>";
 	$r = getTypeCount($entry);
+
 	foreach($r as $t => $c){
 		$rm .= '<tr>
-			<td><a href="'.$entry['describe'].$c->e->value.'">'.$c->e->value.'</a></th>
-			<td>'.(isset($c->label)?$c->label->value:"")."</td>
-			<td>".$c->n->value."</td>
+			<td>'.(isset($c->label)?$c->label->value.'<br>':'').'<a href="'.$entry['describe'].$c->e->value.'">'.$c->e->value.'</a></td>
+			<td>'.$c->n->value."</td>
 			</tr>";
 	}
 	$rm .= "</tbody></table>";
@@ -422,15 +439,13 @@ function addPropertyCountTable($entry)
 	$rm .= "<thead>
 		<tr>
 			<th>Property</th>
-			<th>Label</th>
 			<th>Count</th>
 		</tr></thead><tbody>";
 	$r = getPropertyCount($entry);
 	foreach($r as $t => $c){
 		$rm .= '
 		<tr>
-			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
-			<td>'.(isset($c->plabel)?$c->plabel->value:"")."</td>
+			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a>'.(isset($c->plabel)?'<br>'.$c->plabel->value:"")."</td>
 			<td>".$c->n->value."</td>
 		</tr>";
 	}
@@ -446,7 +461,6 @@ function addObjectPropertyCountTable($entry)
 	$rm .= "<thead>
 		<tr>
 			<th>Object Property</th>
-			<th>Label</th>
 			<th>Distinct Objects</th>
 			<th>Total Objects</th>
 		</tr></thead><tbody>";
@@ -454,11 +468,10 @@ function addObjectPropertyCountTable($entry)
 	foreach($r as $t => $c){
 		$rm .= '
 		<tr>
-			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
-			<td>'.(isset($c->plabel)?$c->plabel->value:"")."</td>
-			<td>".$c->dn->value."</td>
-			<td>".$c->n->value."</td>
-		</tr>";
+			<td>'.(isset($c->plabel)?$c->plabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.$c->dn->value.'</td>
+			<td>'.$c->n->value.'</td>
+		</tr>';
 	}
 	$rm .= "</tbody></table>";
 	return $rm;
@@ -472,7 +485,6 @@ function addDatatypePropertyCountTable($entry)
 	$rm .= "<thead>
 		<tr>
 			<th>Datatype Property</th>
-			<th>Label</th>
 			<th>Distinct Literals</th>
 			<th>Literals</th>
 		</tr></thead><tbody>";
@@ -480,11 +492,10 @@ function addDatatypePropertyCountTable($entry)
 	foreach($r as $t => $c){
 		$rm .= '
 		<tr>
-			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
-			<td>'.(isset($c->plabel)?$c->plabel->value:"")."</td>
-			<td>".$c->dn->value."</td>
-			<td>".$c->n->value."</td>
-		</tr>";
+			<td>'.(isset($c->plabel)?$c->plabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.$c->dn->value.'</td>
+			<td>'.$c->n->value.'</td>
+		</tr>';
 	}
 	$rm .= "</tbody></table>";
 	return $rm;
@@ -498,9 +509,7 @@ function addPropertyObjectTypeCountTable($entry)
 	$rm .= "<thead>
 		<tr>
 			<th>Property</th>
-			<th>Property Label</th>
 			<th>Object Type</th>
-			<th>Object Type Label</th>
 			<th>Unique Objects</th>
 			<th>Total Objects</th>
 		</tr></thead><tbody>";
@@ -508,13 +517,38 @@ function addPropertyObjectTypeCountTable($entry)
 	foreach($r as $t => $c){
 		$rm .= '
 		<tr>
-			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
-			<td>'.(isset($c->plabel)?$c->plabel->value:"").'</td>
-			<td><a href="'.$entry['describe'].$c->c->value.'">'.$c->c->value.'</a></td>
-			<td>'.(isset($c->clabel)?$c->clabel->value:"")."</td>
-			<td>".$c->dn->value."</td>
-			<td>".$c->n->value."</td>
-		</tr>";
+			<td>'.(isset($c->plabel)?$c->plabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.(isset($c->clabel)?$c->clabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->c->value.'">'.$c->c->value.'</a></td>
+			<td>'.$c->dn->value.'</td>
+			<td>'.$c->n->value.'</td>
+		</tr>';
+	}
+	$rm .= "</tbody></table>";
+	return $rm;
+}
+
+function addSubjectTypePropertyCountTable($entry)
+{
+	$rm = "<hr>";
+	$rm .= "<h2>Subject Type and Property</h2>";
+	$rm .= "<table id='stpc'>";
+	$rm .= "<thead>
+		<tr>
+			<th>Unique Objects</th>
+			<th>Total Objects</th>
+			<th>Subject Type</th>
+			<th>Property</th>
+		</tr></thead><tbody>";
+	$r = getSubjectTypePropertyCount($entry);
+	foreach($r as $t => $c){
+		if(strstr($c->c->value,":Resource")) continue;
+		$rm .= '
+		<tr>
+			<td>'.$c->dn->value.'</td>
+			<td>'.$c->n->value.'</td>
+			<td>'.(isset($c->clabel)?$c->clabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->c->value.'">'.$c->c->value.'</a></td>
+			<td>'.(isset($c->plabel)?$c->plabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+		</tr>';
 	}
 	$rm .= "</tbody></table>";
 	return $rm;
@@ -530,7 +564,6 @@ function addSubjectPropertyObjectCountTable($entry)
 			<th>Total Subjects</th>
 			<th>Distinct Subjects</th>
 			<th>Property</th>
-			<th>Property Label</th>
 			<th>Distinct Objects</th>
 			<th>Total Objects</th>
 		</tr></thead><tbody>";
@@ -540,8 +573,7 @@ function addSubjectPropertyObjectCountTable($entry)
 		<tr>
 			<td>'.$c->sn->value.'</td>
 			<td>'.$c->dsn->value.'</td>
-			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
-			<td>'.(isset($c->plabel)?$c->plabel->value:'').'</td>
+			<td>'.(isset($c->plabel)?$c->plabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
 			<td>'.$c->don->value.'</td>
 			<td>'.$c->on->value.'</td>
 		</tr>';
@@ -554,17 +586,14 @@ function addTypePropertyTypeCountTable($entry)
 {
 	$rm = "<hr>";
 	$rm .= "<h2>Type-Property-Type List</h2>";
-	$rm .= "<table id='spoc'>";
+	$rm .= "<table id='tptc'>";
 	$rm .= "<thead>
 		<tr>
 			<th>Total Subjects</th>
 			<th>Distinct Subjects</th>
 			<th>Subject Type</th>
-			<th>Subject Type Label</th>
 			<th>Property</th>
-			<th>Property Label</th>
 			<th>Object Type</th>
-			<th>Object type Label</th>
 			<th>Distinct Objects</th>
 			<th>Total Objects</th>
 		</tr></thead><tbody>";
@@ -574,12 +603,9 @@ function addTypePropertyTypeCountTable($entry)
 		<tr>
 			<td>'.$c->sn->value.'</td>
 			<td>'.$c->dsn->value.'</td>
-			<td><a href="'.$entry['describe'].$c->sc->value.'">'.$c->sc->value.'</a></td>
-			<td>'.(isset($c->slabel)?$c->slabel->value:"").'</td>
-			<td><a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
-			<td>'.(isset($c->plabel)?$c->plabel->value:"").'</td>
-			<td><a href="'.$entry['describe'].$c->oc->value.'">'.$c->oc->value.'</a></td>
-			<td>'.(isset($c->olabel)?$c->olabel->value:"").'</td>
+			<td>'.(isset($c->slabel)?$c->slabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->sc->value.'">'.$c->sc->value.'</a></td>
+			<td>'.(isset($c->plabel)?$c->plabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+			<td>'.(isset($c->olabel)?$c->olabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->oc->value.'">'.$c->oc->value.'</a></td>
 			<td>'.$c->don->value.'</td>
 			<td>'.$c->on->value.'</td>
 		</tr>';
@@ -588,6 +614,31 @@ function addTypePropertyTypeCountTable($entry)
 	return $rm;
 }
 
+function addDatasetPropertyDatasetCountTable($entry)
+{
+        $rm = "<hr>";
+        $rm .= "<h2>Dataset-Property-Dataset List</h2>";
+        $rm .= "<table id='spoc'>";
+        $rm .= "<thead>
+                <tr>
+                        <th>Dataset</th>
+                        <th>Property</th>
+                        <th>Dataset</th>
+                </tr></thead><tbody>";
+        $r = getDatasetPropertyDatasetCount($entry);
+        foreach($r as $t => $c){
+                preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->s->value,$m1);
+                preg_match("/http:\/\/bio2rdf.org\/([^_]+)_vocabulary/",$c->o->value,$m2);
+                $rm .= '
+                <tr>
+                        <td>'.$m1[1].'</td>
+			<td>'.(isset($c->plabel)?$c->plabel->value.'<br>':"").'<a href="'.$entry['describe'].$c->p->value.'">'.$c->p->value.'</a></td>
+                        <td>'.$m2[1].'</td>
+                </tr>';
+        }
+        $rm .= "</tbody></table>";
+        return $rm;
+}
 
 
 
@@ -700,7 +751,7 @@ $q = '
 PREFIX void: <http://rdfs.org/ns/void#>
 PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
 
-SELECT ?e ?label ?n 
+SELECT distinct ?e (str(?label) AS ?label) ?n 
  '.$e['from'].' 
 WHERE { 
 	?d void:subset [ 
@@ -721,7 +772,7 @@ $q = '
 PREFIX void: <http://rdfs.org/ns/void#>
 PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
 
-SELECT ?p ?plabel ?n 
+SELECT distinct ?p (str(?plabel) AS ?plabel) ?n 
 '.$e['from'].' 
 WHERE { 
 	?d void:subset [ 
@@ -742,7 +793,7 @@ $q = '
 PREFIX void: <http://rdfs.org/ns/void#>
 PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
 
-SELECT ?p ?plabel ?n ?dn 
+SELECT distinct ?p (str(?plabel) AS ?plabel) ?n ?dn 
 '.$e['from'].' 
 WHERE { 
 	?d void:subset [ 
@@ -766,7 +817,7 @@ $q = '
 PREFIX void: <http://rdfs.org/ns/void#>
 PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
 
-SELECT ?p ?plabel ?n ?dn 
+SELECT distinct ?p (str(?plabel) AS ?plabel) ?n ?dn 
 '.$e['from'].' 
 WHERE { 
 	?d void:subset [ 
@@ -790,7 +841,7 @@ $q = '
 PREFIX void: <http://rdfs.org/ns/void#>
 PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
 
-SELECT ?p ?plabel ?c ?clabel ?n ?dn 
+SELECT distinct ?p (str(?plabel) AS ?plabel) ?c (str(?clabel) AS ?clabel) ?n ?dn 
  '.$e['from'].' 
 WHERE { 
 	?d void:subset [ 
@@ -808,6 +859,30 @@ WHERE {
 }';
 	return query($q);
 }
+function getSubjectTypePropertyCount($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT distinct ?p (str(?plabel) AS ?plabel) ?c (str(?clabel) AS ?clabel) ?n ?dn 
+ '.$e['from'].'
+WHERE {
+	?d void:subset [
+		a v:Dataset-Subject-Type-Property-Count; 
+		void:linkPredicate ?p ;
+		void:subjectsTarget [
+			void:class ?c;
+			void:entities ?n ;
+			void:distinctEntities ?dn 
+		]
+	]
+
+	OPTIONAL {?p rdfs:label ?plabel}
+	OPTIONAL {?c rdfs:label ?clabel}
+}';
+	return query($q);
+}
 
 function getSubjectPropertyObjectCount($e)
 {
@@ -815,7 +890,7 @@ $q = '
 PREFIX void: <http://rdfs.org/ns/void#>
 PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
 
-SELECT ?p ?plabel ?sn ?dsn ?on ?don 
+SELECT distinct ?p (str(?plabel) AS ?plabel) ?sn ?dsn ?on ?don 
 '.$e['from'].' 
 WHERE { 
 	?d void:subset [ 
@@ -844,7 +919,7 @@ $q = '
 PREFIX void: <http://rdfs.org/ns/void#>
 PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
 
-SELECT ?sc ?slabel ?sn ?dsn ?p ?plabel ?oc ?olabel ?on ?don 
+SELECT distinct ?sc (str(?slabel) AS ?slabel) ?sn ?dsn ?p (str(?plabel) AS ?plabel) ?oc (str(?olabel) AS ?olabel) ?on ?don 
  '.$e['from'].' 
 WHERE { 
 	?d void:subset [ 
@@ -871,5 +946,26 @@ WHERE {
 	return query($q);
 }
 
+function getDatasetPropertyDatasetCount($e)
+{
+$q = '
+PREFIX void: <http://rdfs.org/ns/void#>
+PREFIX v: <http://bio2rdf.org/bio2rdf.dataset_vocabulary:>
+
+SELECT distinct (str(?plabel) as ?plabel) ?s ?p ?o ?triples
+'.$e['from'].'
+WHERE {
+        ?d void:subset [
+                a v:Dataset-Dataset-Property-Dataset-Count;
+                void:linkPredicate ?p ;
+                void:subjectsTarget ?s ;
+                void:objectsTarget ?o;
+                void:triples ?triples;
+        ]
+
+        OPTIONAL {?p rdfs:label ?plabel}
+}';
+        return query($q);
+}
 
 ?>

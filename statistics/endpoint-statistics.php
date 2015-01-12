@@ -677,7 +677,7 @@ function addSubjectTypePropertyCount()
 			(isset($c->plabel)? QuadLiteral($c->p->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->plabel->value):'').
 			Quad($id, "http://rdfs.org/ns/void#subjectsTarget", $sid).
 			Quad($sid, "http://rdfs.org/ns/void#class", $c->stype->value).
-			(isset($c->stype_label)? QuadLiteral($c->stype->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->stype_label->value):'').
+			(isset($c->stype_label)? QuadLiteral($c->stype->value, "http://www.w3.org/2000/01/rdf-schema#label", $c->stype_label->value, null, "en"):'').
 			QuadLiteral($sid, "http://rdfs.org/ns/void#entities", $c->n->value, "long").
 			QuadLiteral($sid, "http://rdfs.org/ns/void#distinctEntities", $c->dn->value, "long").
 			
@@ -751,7 +751,7 @@ function addTypePropertyTypeCount()
 	".$options['from-graph']." 
 {
 	{
-		SELECT ?stype ?p ?otype (COUNT(?s) AS ?sn) (COUNT(DISTINCT ?s) AS ?dsn) (COUNT(?o) AS ?on) (COUNT(DISTINCT ?o) AS ?don)
+		SELECT distinct ?stype ?p ?otype (COUNT(?s) AS ?sn) (COUNT(DISTINCT ?s) AS ?dsn) (COUNT(?o) AS ?on) (COUNT(DISTINCT ?o) AS ?don)
 		{
 			?s ?p ?o . 
 			?s a ?stype .
