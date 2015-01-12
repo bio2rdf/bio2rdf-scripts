@@ -18,24 +18,10 @@ Inputs are original mappings listed as belows:
 
 (6) RxNORM to OMOP
 
+(6) PreferredTerm to drug class
+
 Outputs is a RDF/XML graph that represents all active moiety with linked resouces.
 
-
---------------------------------------------------------------------------------
-PRE-REQUISITES:
---------------------------------------------------------------------------------
-
-python libraries:
-
-(1) Bio 
-from "http://biopython.org/wiki/Download"
-
-(2) rdflib 
-
-(3) rdflib-jsonld
-from "https://github.com/RDFLib/rdflib-jsonld"
-
-(4) pandas
 
 --------------------------------------------------------------------------------
 Procedures to get active moieties RDF graph
@@ -64,3 +50,21 @@ STEP 3: run python script to create RDF graph for all active moieties
 $ python createActiveMoietySubInRDF.py
 
 outputs: activeMoietySub-in-rdf.xml
+
+
+--------------------------------------------------------------------------------
+PRE-REQUISITES:
+--------------------------------------------------------------------------------
+
+python libraries:
+
+(1) Bio 
+from "http://biopython.org/wiki/Download"
+
+(2) rdflib 
+
+(3) rdflib-jsonld
+from "https://github.com/RDFLib/rdflib-jsonld"
+
+(4) pandas
+

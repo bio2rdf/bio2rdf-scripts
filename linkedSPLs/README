@@ -51,6 +51,8 @@ Inputs: csv file that comes from FDA table
 
 Inputs: pharmacists's annotations 
 
+Outputs: run the python elastico parsing program, which using RESTful API to fetch pgx annotations from data store, to dump annotations set in RDF. 
+
 ------------------------------------------------------------
 ADR (adverse drug reactions)
 ------------------------------------------------------------
@@ -63,11 +65,32 @@ SPLICER NLP
 DDIs 
 ------------------------------------------------------------
 
-This graph contains drug-drug interactions information, representing by PDDI model. Originally, DDI details are defined by NLP pipline. Then, annotators complete all interactions with assistence of pre-loaded NLP annotations. 
+This graph contains drug-drug interactions information, representing by PDDI model. Originally, DDI details are defined by NLP pipline. Then, annotators help to complete all interactions with assistence of pre-loaded NLP annotations. 
 
+Run the python elastico parsing program for DDIs, which using RESTful API to fetch Drug-drug interaction annotations from elastico data store, to generate data set in RDF. 
 
 ################################################################################
 HOW TO UPDATE LINKEDSPLS
 ################################################################################
 
-In folder LinkedSPLs-update, there is an ant program that helps update all mappings of linkedSPLs. 
+------------------------------------------------------------
+update linkedSPLs-core graph
+------------------------------------------------------------
+
+In folder LinkedSPLs-update, there is an ant program that helps update all mappings of linkedSPLs. Those mappings include pharmgxTable which comes from FDA and dailymed product label sections. All linkedspls mappings will be store in mysql which prepared to dump out by d2r server. 
+
+LinkedSPLs-core/linkedSPLs_dump_rdf_config.n3 is the configuration file that refers to mappings in mysql RDB and define the output n3 format graph.
+
+Please see the README under LinkedSPLs-core folder to dump core graph.
+
+------------------------------------------------------------
+update active moiety graph
+------------------------------------------------------------
+
+see LinkedSPLs-activeMoiety/README
+
+------------------------------------------------------------
+update pharmgx annotation graph and DDIs graph
+------------------------------------------------------------
+
+annotation set in rdf comes from elastico parsing program.

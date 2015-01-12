@@ -1,6 +1,6 @@
 CODE TO GENERATE THE SQL AND LINKED-DATA VERSION OF LINKEDSPLS
 Authors: Richard Boyce, Greg Gardner, Yifan Ning
-Date: 03/21/2014
+Date: 1/12/2015
 
 ################################################################################
 OVERVIEW
@@ -10,44 +10,39 @@ The University of Pittsburgh Linked Structured Product Label (SPL) repository re
 
 
 Most recent update at the time of creating this file: 
-- Labels for prescription drugs downloaded from http://dailymed.nlm.nih.gov/dailymed/downloadLabels.cfm on Feb 15, 2014
+- Labels for prescription drugs downloaded from http://dailymed.nlm.nih.gov/dailymed/spl-resources.cfm   Nov 15, 2014
 
-updated in 28 Feb 2014 08:00:31 AM EST
-- All labels loaded except for few potential error SPLs listed as follows (might be the file follows too old standard):
+updated in Nov 15 2014 08:00:31 AM EST
 
-0AAAA03E-B258-45EC-89C8-06E1353F57EF.xml
-42BED965-4B8F-4471-BCC9-091F87238653.xml
-53A2ECC1-F154-4D5B-83B3-E47C8A354AE3.xml
-05613E85-CC86-47FC-8FF9-15FAB38AC9FA.xml
-21979869-0695-43d5-9eee-94cba710f4aa.xml
-B886D0D8-AA57-4944-B6D4-8E5882000743.xml
-bdeb47eb-e538-498d-ae98-14d5db29eab0.xml
-BE27854A-A805-4300-9729-ACCD1B7F226F.xml
-d1fbba3e-fd74-43b9-8044-b3276155a0de.xml
-d996baf4-d301-4192-9ee7-523ec51b056c.xml
-d1304e5b-559b-41b9-a43c-b3019f2b0745.xml
-ddd2db12-e338-45c4-ad62-bb89e5f1a5ad.xml
+- The file load-dailymed-spls/TableSchema.sql has the RDB schema needed to load the data. Note that, for manually way of update mappings, not all data is loaded using Python, read the rest of the README to see other data and how it is loaded. Recommended way of update and load mappings is run the ant program by following commands:
 
 
-- The file TableSchema.sql has the RDB schema needed to load the
-  data. Note that not all data is loaded using Python, read the rest
-  of the README to see other data and how it is loaded.
-
-- The D2R file has the mapping from RDB tables to RDF: dailymed_d2r_map_config_d2rq_8_1.n3
-
-------------------------------------------------------------
-TODOs (3/21/2014)
-------------------------------------------------------------
-
-- Complete mapping to DrugBank and ChEBI entities
-
-- Bring in RxNorm to DRON mappings
-
-- test mappings and rendered SPLs for completeness and accuracy
-
-------------------------------------------------------------
+################################################################################
 LOADING AND UPDATING 
-------------------------------------------------------------
+################################################################################
+
+Run shell commands below to create database schema and unzip and parse dailymed XMLs and load product label sections from dailymed XMLs into Mysql Schema linkedSPLs
+
+$ cd LinkedSPLs-update
+$ ant linkedSPLs-setup
+
+Update all linkedSPLs mappings by command below
+       (1) mappings of preferred term to UNII
+       (2) mappings of preferred term to ChEBI
+       (3) mappings of Preferred term and Rxnorm
+       (4) mappings of Preferred term, UNII and Drugbank URI
+       (5) mappings of Preferred term, rxcui and Dailymed setid
+       (6) mappings of RxNORM, NUI and NDFRT label
+       (7) mappings of setId, UNII, NUI and PreferredNameAndRole
+
+
+$ ant linkedSPLs-update
+
+################################################################################
+Details for update each linkedSPLs mappings
+################################################################################
+
+-Scripts are using in Ant task linkedSPLs-setup
 
 update_lodd_dailymed.py:
 To do a full update, run update_lodd_dailymed.py directly.  This simply executes
@@ -512,3 +507,4 @@ Approach 4:
 
 - Results: PENDING
 
+- The D2R file has the mapping from RDB tables to RDF: ../LinkedSPLs-core/linkedSPLs_dump_rdf_config.n3
