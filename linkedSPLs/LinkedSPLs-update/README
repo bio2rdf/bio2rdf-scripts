@@ -21,6 +21,11 @@ updated in Nov 15 2014 08:00:31 AM EST
 LOADING AND UPDATING 
 ################################################################################
 
+Downloads and update latest version of data source files based on PRE-REQUISITES says
+Config all paths at: data-source.properties
+Config mysql db connection at : db-connection.properties
+
+
 Run shell commands below to create database schema and unzip and parse dailymed XMLs and load product label sections from dailymed XMLs into Mysql Schema linkedSPLs
 
 $ cd LinkedSPLs-update
@@ -37,6 +42,66 @@ Update all linkedSPLs mappings by command below
 
 
 $ ant linkedSPLs-update
+
+
+################################################################################
+PRE-REQUISITES
+################################################################################
+
+Download and organized all source data files in data folder
+
+--------------------------------------------------------
+Dailymed:
+--------------------------------------------------------
+
+(1) dailymed-labels:
+
+Download dm_spl_release_human_rx.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm
+
+Download dm_spl_release_human_otc.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm
+
+(2) dailymed-mappings:
+
+Download rxnorm_mappings.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-mapping-files.cfm
+
+
+(3) dailymed-indexing:
+
+Download pharmacologic_class_indexing_spl_files.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-indexing-files.cfm
+
+--------------------------------------------------------
+FDA:
+--------------------------------------------------------
+
+(1) FDA_UNII_Names 
+
+(2) UNIIs_Records 
+
+Downloads 'UNIIs 27Jun2014 Records.txt' as UNII records from http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162523.htm
+
+--------------------------------------------------------
+Drugbanks: 
+--------------------------------------------------------
+
+(1) drugbank.xml for drugbank4.1 from drugbank (/media/Backup/DrugBank-4/)AND 
+
+--------------------------------------------------------
+umlsdbmi:
+--------------------------------------------------------
+
+DrOn to RxNorm and ChEBI
+
+Data retrieved on 07/23/2014 from:
+http://purl.obolibrary.org/obo/dron/dev/dron-rxnorm.owl 
+
+Loaded into a triple store by:
+rdfproc -n dron parse dron-rxnorm.owl
+
+Mappings pulled using:
+rdfproc -c dron query sparql - '       
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-to-chebi-and-rxnorm.txt
+
+
 
 ################################################################################
 Details for update each linkedSPLs mappings
