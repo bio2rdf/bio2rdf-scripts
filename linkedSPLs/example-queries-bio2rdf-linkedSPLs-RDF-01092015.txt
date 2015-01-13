@@ -1,6 +1,6 @@
 ################################################################################
-# GRAPH: http://purl.org/net/nlprepository/spl-core-11262014
-# GRAPH: http://purl.org/net/nlprepository/spl-active-moiety-11262014
+# GRAPH: http://purl.org/net/nlprepository/spl-core-poc-11282014
+# GRAPH: http://purl.org/net/nlprepository/spl-active-moiety
 ################################################################################
 
 # Queries for product label content and metadata present in the LinkedSPLs RDF graph
@@ -67,17 +67,17 @@ WHERE {
 ################################################################################
 # return all setIds and drug product rxcuis for product labels that contain sections with FDA pharmgx data for biomarker "CYPD6":
 
-TODO: add section text
-## sparql query is not support "BIND" or replace/substring function in where clause
-
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
-SELECT DISTINCT ?setId ?rxcuiDrugProduct ?sectionTag 
+SELECT DISTINCT ?setId ?rxcuiDrugProduct ?sectionTag ?sectionText 
 WHERE {
 ?pharmgxData linkedspls_vocabulary:pharmgxBiomarker "CYP2D6".
 ?pharmgxData linkedspls_vocabulary:setId ?setId.
-?pharmgxData linkedspls_vocabulary:pharmgxSPLSection ?sectionTag.
+?pharmgxData linkedspls_vocabulary:pharmgxSPLSection ?sectionLoinc.
+?sectionLoinc rdfs:label ?sectionTag.
+?s ?sectionLoinc ?sectionText.
+
 ?spl linkedspls_vocabulary:setId ?setId.
 
 ?spl dc:subject ?rxcuiDrugProduct.
@@ -107,81 +107,96 @@ WHERE {
 LIMIT 10
 
 ################################################################################
-# return SPLs for all drugs that are of the statin class:
+# what pharmgx biomarkers are common to PE classes?
 
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX ncbit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
 PREFIX ndfrt: <http://purl.bioontology.org/ontology/NDFRT/>
 
-SELECT DISTINCT * 
+SELECT DISTINCT ?biomarker ?peURI
 WHERE {
-
 ?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
-?activeMoiety ?epc "HMG-CoA Reductase Inhibitor [EPC]".
+?s linkedspls_vocabulary:setId ?setId.
+
+?activeMoiety <http://purl.bioontology.org/ontology/NDFRT/N0000009802> ?peURI.
 ?s linkedspls_vocabulary:fullName ?med.
+
+?pharmgx linkedspls_vocabulary:setId ?setId.
+?pharmgx linkedspls_vocabulary:pharmgxBiomarker ?biomarker.
+
 }
 LIMIT 100
 
 ################################################################################
 # what pharmgx biomarkers are common to EPC classes?
 
+
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX ncbit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
+PREFIX ndfrt: <http://purl.bioontology.org/ontology/NDFRT/>
 
-SELECT DISTINCT ?biomarker ?epcName WHERE {
-
-?s a linkedspls_vocabulary:structuredProductLabelMetadata.
+SELECT DISTINCT ?biomarker ?epcURI
+WHERE {
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
 ?s linkedspls_vocabulary:setId ?setId.
 
-?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
-?activeMoiety ?epc ?epcName.FILTER (REGEX(?epcName,"\\[EPC\\]")).
+?activeMoiety <http://purl.bioontology.org/ontology/NDFRT/N0000182631> ?epcURI.
+?s linkedspls_vocabulary:fullName ?med.
 
 ?pharmgx linkedspls_vocabulary:setId ?setId.
 ?pharmgx linkedspls_vocabulary:pharmgxBiomarker ?biomarker.
 
 }
-ORDER BY ?biomarker
 LIMIT 100
+
 
 ################################################################################
 # what pharmgx biomarkers are common to MoA (mechanism of action) classes?
 
+
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX ncbit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
+PREFIX ndfrt: <http://purl.bioontology.org/ontology/NDFRT/>
 
-SELECT DISTINCT ?biomarker ?epcName WHERE {
-
-?s a linkedspls_vocabulary:structuredProductLabelMetadata.
+SELECT DISTINCT ?biomarker ?moaURI
+WHERE {
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
 ?s linkedspls_vocabulary:setId ?setId.
 
-?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
-?activeMoiety ?epc ?epcName.FILTER (REGEX(?epcName," \\[MoA\\]")).
+?activeMoiety <http://purl.bioontology.org/ontology/NDFRT/N0000000223> ?moaURI.
+?s linkedspls_vocabulary:fullName ?med.
 
 ?pharmgx linkedspls_vocabulary:setId ?setId.
 ?pharmgx linkedspls_vocabulary:pharmgxBiomarker ?biomarker.
 
 }
-ORDER BY ?biomarker
 LIMIT 100
 
 ################################################################################
 # what pharmgx biomarkers are common to Chemical/Ingredient classes (suggests how incomplete the class mapping is)?
 
+PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX ncbit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#>
+PREFIX ndfrt: <http://purl.bioontology.org/ontology/NDFRT/>
 
-SELECT DISTINCT ?biomarker ?epcName WHERE {
-
-?s a linkedspls_vocabulary:structuredProductLabelMetadata.
+SELECT DISTINCT ?biomarker ?ciURI
+WHERE {
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
 ?s linkedspls_vocabulary:setId ?setId.
 
-?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
-?activeMoiety ?epc ?epcName.FILTER (REGEX(?epcName," \\[Chemical/Ingredient\\]")).
+?activeMoiety <http://purl.bioontology.org/ontology/NDFRT/N0000000002> ?ciURI.
+?s linkedspls_vocabulary:fullName ?med.
 
 ?pharmgx linkedspls_vocabulary:setId ?setId.
 ?pharmgx linkedspls_vocabulary:pharmgxBiomarker ?biomarker.
 
 }
-ORDER BY ?biomarker
 LIMIT 100
+
 
 ################################################################################
 # Get the most recent product label for ....
