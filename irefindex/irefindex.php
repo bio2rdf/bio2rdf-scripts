@@ -136,7 +136,6 @@ class irefindexParser extends Bio2RDFizer
 				->setRights("restricted-by-source-license")
 				->setLicense("http://creativecommons.org/licenses/by/3.0/")
 				->setDataset(parent::getDatasetURI());
-
 			if($gz) $output_file->setFormat("application/gzip");
 			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
 			else $output_file->setFormat("application/n-quads");
@@ -165,28 +164,52 @@ class irefindexParser extends Bio2RDFizer
 		while($l = parent::getReadFile()->read(500000)) {
 			$a = explode("\t",trim($l));
 
-			// 13 is the original identifier
-			$ids = explode("|",$a[13],2);
-			parent::getRegistry()->parseQName($ids[0],$ns,$str);
-			
-			$data = $this->ParseIDLabelArray($str);
-			$id = str_replace('"','', trim($data["id"]));
-			$label = trim($data["label"]);
-			$iid = $ns.":".$id;
+			// irefindex identifiers
+			$rigid  = "irefindex.".$a[34];     # checksum for interaction
+			$rogida = "irefindex.".$a[32];     # checksum for A
+			$rogidb = "irefindex.".$a[33];     # checksum for B
+			$irigid   = "irefindex.irigid:".$a[44];   # integer id for interaction
+			$irogida  = "irefindex.irogid:".$a[42];   # integer id for A 
+			$irogidb  = "irefindex.irogid:".$a[43];   # integer id for B
+			$crigid   = "irefindex.crigid:".$a[47];   # checksum for canonical interaction
+			$icrigid  = "irefindex.icrigid:".$a[50];  # integer id for canonical interaction
+			$crogida  = "irefindex.crogid:".$a[45];   # checksum for A's canonical group
+			$crogidb  = "irefindex.crogid:".$a[46];  # checksum for B's canonical group
+			$icrogida = "irefindex.icrogid:".$a[48]; # integer for A's canonical group
+			$icrogidb = "irefindex.icrogid:".$a[49];  # integer for B's canonical group
+
+
+			// 13 contains the original identifier, the rigid, and the edgetype
+			$ids = explode("|",$a[13]);
+			if(count($ids) != 3) {
+				trigger_error("Expecting 3 entries in column 14");
+				print_r($ids);
+				exit;
+			}
+			parent::getRegistry()->parseQName($ids[0],$ns,$id);
+			if($id == '-') {
+				// this happens with hprd
+				$iid = "hprd:".substr($ids[1],6);
+			} else {
+				$iid = $ns.":".$id;
+			}
 
 			// get the type
 			if($a[52] == "X") {
-				$label = "Pairwise interaction between $a[0] and $a[1]";
+				$label = "$a[0] - $a[1] Interaction";
 				$type = "Pairwise-Interaction";
 			} else if($a[52] == "C") {
-				$label = $a[53]." component complex";
+				$label = $a[53]." component complex"; #num of participants
 				$type = "Multimeric-Complex";
 			} else if($a[52] == "Y") {
-				$label = "homomeric complex composed of $a[0]";  
+				$label = "$a[0] homomeric complex";  
 				$type = "Homopolymeric-Complex";
 			}
+			parent::addRDF(
+				parent::describeIndividual($iid, $label, parent::getVoc().$type).
+				parent::describeClass(parent::getVoc().$type, str_replace("-"," ",$type))
+			);
 
-			// generate the label
 			// interaction type[52] by method[6]
 			unset($method);
 			if($a[6] != '-') {
@@ -198,18 +221,11 @@ class irefindexParser extends Bio2RDFizer
 						parent::triplify($iid,parent::getVoc()."method",$qname).
 						parent::describeClass($qname,$data['label'])
 					);
-				} 
+				}
 			}
 
-			$method_label = '';
-			if(isset($method)) $method_label = " identified by $method ";
 			parent::addRDF(
-				parent::describeIndividual($iid,$label.$method_label,parent::getVoc().$type).
-				parent::describeClass(parent::getVoc().$type, str_replace("-"," ",$type))
-			);
-
-			parent::addRDF(
-				parent::QQuadO_URL($iid,"rdfs:seeAlso","http://wodaklab.org/iRefWeb/interaction/show/".$a[50])
+				parent::triplify($iid,"rdfs:seeAlso","http://wodaklab.org/iRefWeb/interaction/show/".$a[50])
 			);
 
 			// set the interactors
@@ -262,58 +278,33 @@ class irefindexParser extends Bio2RDFizer
 			// add the alternatives through the taxon + seq redundant group
 			for($i=2;$i<=3;$i++) {
 				$taxid = '';
-				$irogid = "irefindex_irogid:".$a[42+($i-2)];
-				if(!isset($defined[$irogid])) {
-					$defined[$irogid] = '';
+				$rogid = "irefindex.".$a[32+($i-2)];
+				parent::addRDF(
+					parent::describeIndividual($rogid,"",parent::getVoc()."Taxon-Sequence-Identical-Group").
+					parent::describeClass(parent::getVoc()."Taxon-Sequence-Identical-Group","Taxon + Sequence Identical Group")
+				);
+				$tax = $a[9+($i-2)];
+				if($tax && $tax != '-' && $tax != '-1') {
+					$data = $this->ParseStringArray($tax);
+					$taxid = trim($data["ns"]).":".trim($data["id"]);
 					parent::addRDF(
-						parent::describeIndividual($irogid,"",parent::getVoc()."Taxon-Sequence-Identical-Group").
-						parent::describeClass(parent::getVoc()."Taxon-Sequence-Identical-Group","Taxon + Sequence Identical Group")
+						parent::triplify($rogid, parent::getVoc()."x-taxonomy", $taxid)
 					);
-					$tax = $a[9+($i-2)];
-					if($tax && $tax != '-' && $tax != '-1') {
-						$data = $this->ParseStringArray($tax);
-						$taxid = trim($data["ns"]).":".trim($data["id"]);
-						parent::addRDF(
-							parent::triplify($irogid,parent::getVoc()."x-taxonomy",$taxid)
-						);
-					}
 				}
 
 				$list = explode("|",$a[3]);
 				foreach($list AS $item) {
 					$data = $this->ParseStringArray($item);
 					$ns = trim($data["ns"]);
-					$qname = $ns.":".trim($data["id"]);
-					if($ns && $ns != 'irefindex_rogid' && $ns != 'irefindex_irogid') {
+					$id = trim($data["id"]);
+					$qname = $ns.":".$id;
+					if($ns && $ns != 'rogid' && $ns != 'irogid' and $id != '-') {
 						parent::addRDF(
-							parent::triplify($qname,parent::getVoc()."taxon-sequence-identical-group",$irogid)
-						);	
+							parent::triplify($rogid,parent::getVoc()."has-member",$qname)
+						);
 						if($taxid && $taxid != '-' && $taxid != '-1') parent::addRDF(
 							parent::triplify($qname,parent::getVoc()."x-taxonomy",$taxid)
 						);
-					}
-				}
-			}	
-			// add the aliases through the canonical group
-			for($i=4;$i<=5;$i++) {
-				$icrogid = "irefindex_icrogid:".$a[49+($i-4)];
-				if(!isset($defined[$icrogid])) {
-					$defined[$icrogid] = '';
-					parent::addRDF(
-						parent::describeIndividual($icrogid, "",parent::getVoc()."Taxon-Sequence-Similar-Group").
-						parent::describeClass(parent::getVoc()."Taxon-Sequence-Similar-Group","Taxon + Sequence Similar Group")
-					);
-				}
-
-				$list = explode("|",$a[3]);
-				foreach($list AS $item) {
-					$data = $this->ParseStringArray($item);
-					$ns = trim($data["ns"]);
-					$qname = $ns.":".trim($data["id"]);
-					if($ns && $ns != 'crogid' && $ns != 'icrogid') {
-						parent::addRDF(
-							parent::triplify($qname,parent::getVoc()."taxon-sequence-similar-group",$icrogid)
-						);	
 					}
 				}
 			}
@@ -328,7 +319,7 @@ class irefindexParser extends Bio2RDFizer
 					parent::triplify($iid,parent::getVoc()."article",$qname)
 				);
 			}
-			
+
 			// MI interaction type
 			if($a[11] != '-' && $a[11] != 'NA') {
 				$data = $this->ParseStringArray($a[11]);
@@ -341,7 +332,7 @@ class irefindexParser extends Bio2RDFizer
 					);
 				}
 			}
-			
+
 			// source
 			if($a[12] != '-') {
 				$data = $this->ParseStringArray($a[12]);
@@ -350,7 +341,7 @@ class irefindexParser extends Bio2RDFizer
 					parent::triplify($iid,parent::getVoc()."source",$qname)
 				);
 			}
-		
+
 			// confidence
 			$list = explode("|",$a[14]);
 			foreach($list AS $item) {
@@ -371,14 +362,17 @@ class irefindexParser extends Bio2RDFizer
 					//  total number of unique PMIDs used to support the interaction 
 					parent::addRDF(
 						parent::triplifyString($iid,parent::getVoc()."number-supporting-articles",$id)
-					);				
+					);
 				}
 			}
 
 			// expansion method
 			if($a[15]) {
+				$id = parent::getRes().md5($a[15]);
 				parent::addRDF(
-					parent::triplifyString($iid,parent::getVoc()."expansion-method",$a[15])
+					parent::describeIndividual($id, $a[15], parent::getVoc()."Expansion-Method").
+					parent::describeClass(parent::getVoc()."Expansion-Method","Expansion Method").
+					parent::triplify($iid,parent::getVoc()."expansion-method",$id)
 				);
 			}
 
@@ -398,16 +392,35 @@ class irefindexParser extends Bio2RDFizer
 				parent::triplifyString($iid,"dc:created", $date,"xsd:dateTime")
 			);
 
+
 			// taxon-sequence identical interaction group
 			parent::addRDF(
-				parent::triplify($iid,parent::getVoc()."taxon-sequence-identical-interaction-group", "irefindex_irigid:".$a[44])
-			);
+				parent::triplify($iid,     parent::getVoc()."taxon-sequence-identical-interaction", $rigid).
+				parent::triplify($rigid,   "rdf:type", parent::getVoc()."Taxon-Sequence-Identical-Interaction").
+				parent::describeClass(parent::getVoc()."Taxon-Sequence-Identical-Interaction","Taxon + Sequence Identical Interaction").
+				parent::triplify($rigid,   parent::getVoc()."irigid", $irigid).
+				parent::triplify($rigid,   parent::getVoc()."interactor-a", $rogida).
+				parent::triplify($rogida,  parent::getVoc()."irogid", $irogida).
+				parent::triplify($rigid,   parent::getVoc()."interactor-b", $rogidb).
+				parent::triplify($rogidb,  parent::getVoc()."irogid", $irogidb).
+				parent::triplify($rogida,  parent::getVoc()."canonical-group", $crogida).
+				parent::triplify($rogidb,  parent::getVoc()."canonical-group", $crogidb).
 
-			// taxon-sequence similar interaction group
-			parent::addRDF(
-				parent::triplify($iid,parent::getVoc()."taxon-sequence-similar-interaction-group", "irefindex_crigid:".$a[50])
-			);
+				parent::triplify($rigid,   parent::getVoc()."taxon-sequence-similar-interaction", $crigid).
+				parent::triplify($crigid,   "rdf:type", parent::getVoc()."Taxon-Sequence-Canonical-Interaction").
+				parent::describeClass(parent::getVoc()."Taxon-Sequence-Canonical-Interaction","Taxon + Sequence Canonical Interaction").
+				parent::triplify($crigid,  parent::getVoc()."icrigid", $icrigid).
 
+				parent::triplify($crigid,  parent::getVoc()."interactor-a-canonical-group", $crogida).
+				parent::triplify($crogida, "rdf:type", parent::getVoc()."Taxon-Sequence-Similar-Group").
+				parent::triplify($crogida, parent::getVoc()."icrogid", $icrogida).
+
+				parent::triplify($crigid,  parent::getVoc()."interactor-b-canonical-group", $crogidb).
+				parent::triplify($crogidb, "rdf:type", parent::getVoc()."Taxon-Sequence-Similar-Group").
+				parent::triplify($crogidb, parent::getVoc()."icrogid", $icrogidb).
+				parent::describeClass(parent::getVoc()."Taxon-Sequence-Similar-Group","Taxon + Sequence Similar Group")
+
+			);
 			parent::writeRDFBufferToWriteFile();
 		}
 	}

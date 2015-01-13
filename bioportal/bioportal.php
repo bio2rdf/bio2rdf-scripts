@@ -524,7 +524,7 @@ class BioportalParser extends Bio2RDFizer
 							if($ns == "id-validation-regexp") {
 								$buf .= parent::triplifyString($tid,"obo_vocabulary:$ns", addslashes($id));
 							} else {
-								$buf .= parent::triplify($tid,"obo_vocabulary:x-$ns", "$ns:$id");
+								$buf .= parent::triplify($tid,"obo_vocabulary:x-$ns", "$ns:".str_replace(" ","-",$id));
 							}
 						}
 					}

@@ -151,6 +151,7 @@ class DrugBankParser extends Bio2RDFizer
         $source = strtolower($source);
         switch($source) {
             case 'uniprotkb':
+            case 'uniprot accession':
                 return 'uniprot';
             case "pubchem compound":
                 return 'pubchemcompound';
@@ -162,7 +163,7 @@ class DrugBankParser extends Bio2RDFizer
             case 'kegg drug':
                 return 'kegg';
             case 'national drug code directory':
-                return 'ndc';       
+                return 'ndc';
             case 'guide to pharmacology':
                 return 'gtp';
             case 'human protein reference database (hprd)':
@@ -185,7 +186,7 @@ class DrugBankParser extends Bio2RDFizer
         $pid = "drugbank:".$id;
 	$lid = parent::getRes().substr($did,strpos($did,":")+1)."_".$id; // local pivot to keep the action between the drug and target
         $name = (string) $x->name;
-	$parent = parent::getVoc().ucfirst($type);
+	$parent = parent::getVoc().ucfirst(str_replace(" ","-",$type));
         parent::addRDF(
 		parent::describeIndividual($pid,$name,$parent).
 		parent::describeClass($parent,ucfirst($type)).
@@ -199,7 +200,7 @@ class DrugBankParser extends Bio2RDFizer
         // iterate over all the child nodes
         foreach($x->children() AS $k => $v) {
             // get the direct values
-            if(!$v->children()) {
+             if(!$v->children()) {
                 // special cases
                 if($k == "references") { // for local pivot
                     $a = preg_match_all("/pubmed\/([0-9]+)/",$v,$m);
@@ -224,41 +225,73 @@ class DrugBankParser extends Bio2RDFizer
 
             } else {
                 // work with nested elements
-		// default handling for collections
 		$found = false;
 		$list_name = $k;
 		$item_name = substr($k,0,-1);
 		foreach($v->children() AS $k2 => $v2) {
-			if($k2 == "action") {
-				$aid = str_replace(array(" ","/"),"-",$v2);
+			if($k2 == "organism") {
+				// extract the ncbi id
+				$taxid = $v2->attributes()->{'ncbi-taxonomy-id'};
+				$label = $v2;
 				parent::addRDF(
-					parent::describeIndividual($lid,$v2,parent::getVoc()."Action").
-					parent::describeClass(parent::getVoc()."Action","Action").
-					parent::triplify($lid,parent::getVoc()."action",parent::getVoc().$aid)
+					parent::triplify($pid, parent::getVoc()."x-taxonomy", "taxonomy:$taxid").
+					parent::triplifyString("taxonomy:$taxid","rdfs:label",$label)
 				);
-			} else {
+				continue;
+			}
+
+			if(!$v2->children()) {
+				// echo "not nested $k2".PHP_EOL;
+				if($k2 == "action") {
+					$aid = str_replace(array(" ","/"),"-",$v2);
+					parent::addRDF(
+						parent::describeIndividual($lid,$v2,parent::getVoc()."Action").
+						parent::describeClass(parent::getVoc()."Action","Action").
+						parent::triplify($lid,parent::getVoc()."action",parent::getVoc().$aid)
+					);
+				} else {
+					// default handler
+					parent::addRDF(
+						parent::triplifyString($pid, parent::getVoc().$k2, "".$v2)
+					);
+				}
+			} else { // nested elements
+				// echo "nested $k2".PHP_EOL;
 				foreach($v2->children() AS $k3 => $v3) {
+					// echo " ".$k3.PHP_EOL;
 					if(!$v3->children()) {
 						parent::addRDF(
 							parent::triplifyString($pid,parent::getVoc().$k3, "".$v3)
 						);
 					} else {
-						 if($k3 == 'external-identifiers') {
-							foreach($v3 AS $k4 => $v4) {
-								$ns = $this->NSMap($v4->resource);
-								$id = (string) $v4->identifier;
+						foreach($v3 AS $k4 => $v4) {
+							if($k3 == 'external-identifier') {
+								$ns = $this->NSMap($v3->resource);
+								$id = (string) $v3->identifier;
 								$id = str_replace(array("GNC:","HGNC:"),"",$id);
 								parent::addRDF(
 									parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
 								);
+							} else if($k3 == 'pfam') {
+								parent::addRDF(
+									parent::triplify($pid, parent::getVoc()."x-pfam","pfam:"."".$v3->identifier)
+								);
+							} else if($k3 == "go-classifier") {
+								parent::addRDF(
+									parent::triplifyString($pid, parent::getVoc()."go-".$v3->category, $v3->description)
+								);
+							} else {
+								trigger_error("no handler for $k3",E_USER_WARNING);
+/*								parent::addRDF(
+									parent::triplifyString($pid, parent::getVoc().$k3, $v4)
+								);
+*/
 							}
-						 } else {
-							// @todo 
 						 }
 					}
 				}
 			}
-                 } // foreach
+		} // foreach
             }
          }
     }
@@ -288,7 +321,8 @@ class DrugBankParser extends Bio2RDFizer
         $dbid        = (string) $x->{"drugbank-id"};
         $did         = "drugbank:".$dbid;
         $name        = (string)$x->name;
-	$type        = (string)$x->attributes()->type;
+	$type        = ucfirst((string)str_replace(" ","-",$x->attributes()->type));
+	$type_label  = ucfirst($x->attributes()->type);
         $description = null;
 
 	if(isset($this->id_list)) {
@@ -306,11 +340,21 @@ class DrugBankParser extends Bio2RDFizer
 		parent::describeClass(parent::getVoc()."Drug","Drug").
 		parent::triplify($did,"owl:sameAs","http://identifiers.org/drugbank/".$dbid).
 		parent::triplify($did,"rdfs:seeAlso","http://www.drugbank.ca/drugs/".$dbid). 
-		parent::describeIndividual(parent::getVoc().$x->attributes()->type[0], ucfirst($x->attributes()->type[0]),parent::getVoc()."Type").
-		parent::describeClass(parent::getVoc()."Type", "Type").
-		parent::triplify($did,parent::getVoc()."type", parent::getVoc().ucfirst($x->attributes()->type[0]))
+		parent::triplify($did,"rdf:type", parent::getVoc().$type).
+		parent::describeClass(parent::getVoc().$type, $type_label)
         );
 
+	foreach($x->{'drugbank-id'} AS $id) {
+		parent::addRDF(
+			parent::triplifyString($did, parent::getVoc()."drugbank-id", $id)
+		);
+	}
+	if(isset($x->{'cas-number'})) {
+		parent::addRDF(
+			parent::triplify($did, parent::getVoc()."x-cas", "cas:".$x->{'cas-number'})
+		);
+	}
+ 
 	$literals = array(
 		"indication",
 		"pharmacology",
@@ -340,6 +384,17 @@ class DrugBankParser extends Bio2RDFizer
 	$this->AddList($x,$did,"groups","group",parent::getVoc()."group");
 	$this->AddList($x,$did,"categories","category",parent::getVoc()."category");
 
+	if(isset($x->classification)) {
+		foreach($x->classification->children() AS $k => $v) {
+			$cid = parent::getRes().md5($v);
+			parent::addRDF(
+				parent::describeIndividual($cid, $v, parent::getVoc()."Drug-Classification-Category").
+				parent::describeClass(parent::getVoc()."Drug-Classification-Category","Drug Classification Category").
+				parent::triplify($did, parent::getVoc()."drug-classification-category", $cid)
+			);
+		}
+	}
+
 	$this->addLinkedResource($x, $did, 'atc-codes','atc-code','atc');
 	$this->addLinkedResource($x, $did, 'ahfs-codes','ahfs-code','ahfs');
 
@@ -355,7 +410,7 @@ class DrugBankParser extends Bio2RDFizer
         // brand names
         $this->AddCategory($x,$did,"brands","brand",parent::getVoc()."brand");
 
-		// salt
+	// salt
         $this->AddText($x,$did,"salts","salt",parent::getVoc()."salt");
 
         // mixtures
@@ -394,22 +449,22 @@ class DrugBankParser extends Bio2RDFizer
          foreach($x->packagers AS $items) {
              if(isset($items->packager)) {
                  foreach($items->packager AS $item) {
-					$pid = parent::getRes().md5($item->name);
+			$pid = parent::getRes().md5($item->name);
 
+			parent::addRDF(
+				parent::triplify($did,parent::getVoc()."packager",$pid)
+			);
+			if(!isset($defined[$pid])) {
+				$defined[$pid] = '';
+				parent::addRDF(
+					parent::describe($pid,"".$item->name[0])
+				);
+
+				if(strstr($item->url,"http://") && $item->url != "http://BASF Corp."){
 					parent::addRDF(
-						parent::triplify($did,parent::getVoc()."packager",$pid)
-					);                
-                    if(!isset($defined[$pid])) {
-                        $defined[$pid] = '';
-						parent::addRDF(
-							parent::describe($pid,"".$item->name[0])
-						);
-
-						if(strstr($item->url,"http://") && $item->url != "http://BASF Corp."){
-							parent::addRDF(
-								$this->triplify($pid,"rdfs:seeAlso","".$item->url[0])
-							);
-						}    
+						$this->triplify($pid,"rdfs:seeAlso","".$item->url[0])
+					);
+				}
                     }
                  }
              }
@@ -420,45 +475,50 @@ class DrugBankParser extends Bio2RDFizer
      $this->AddText($x,$did,"manufacturers","manufacturer",parent::getVoc()."manufacturer"); // @TODO RESOURCE
         
      // prices
-     if(isset($x->prices->price)) {
-         foreach($x->prices->price AS $product) {
+	if(isset($x->prices->price)) {
+		foreach($x->prices->price AS $product) {
 			$pid = parent::getRes().md5($product->description);
-			
 			parent::addRDF(
 				parent::describeIndividual($pid,$product->description,parent::getVoc()."Pharmaceutical",$product->description).
-				parent::describeClass(parent::getVoc()."Pharmaceutical","pharmaceutical"). 
-				parent::triplify($did,parent::getVoc()."product",$pid).
-				parent::triplifyString($pid,parent::getVoc()."price","".$product->cost,"xsd:float")
+				parent::describeClass(parent::getVoc()."Pharmaceutical","pharmaceutical").
+				parent::triplifyString($pid,parent::getVoc()."price","".$product->cost,"xsd:float").
+				parent::triplify($did, parent::getVoc()."product", $pid)
 			);
 
 			$uid = parent::getVoc().md5($product->unit);
 			parent::addRDF(
 				parent::describeIndividual($uid,$product->unit,parent::getVoc()."Unit",$product->unit).
 				parent::describeClass(parent::getVoc()."Unit","unit").
-				parent::triplify($pid,parent::getVoc()."form",$uid) 
+				parent::triplify($pid,parent::getVoc()."form",$uid)
 			);
-             
-         }
-     }           
-        
+		}
+	}
+
      // dosages <dosages><dosage><form>Powder, for solution</form><route>Intravenous</route><strength></strength></dosage>
      if(isset($x->dosages->dosage)) {
          foreach($x->dosages->dosage AS $dosage) {
-            $id = parent::getRes().md5($dosage->form.$dosage->route);
-			$label = $dosage->form." by ".$dosage->route;
-            parent::addRDF(
-			parent::triplify($did,parent::getVoc()."dosage",$id).
-			parent::describe($id,$label,parent::getVoc()."Dosage", $label).
-			parent::describeClass(parent::getVoc()."Dosage","dosage")
-            );
+		$id = parent::getRes().md5($dosage->strength.$dosage->form.$dosage->route);
+		$label = (($dosage->strength != '')?$dosage->strength." ":"").$dosage->form." form with ".$dosage->route. " route";
 
-            $rid = parent::getVoc().md5($dosage->route);
-            $this->typify($id,$rid,"Route","".$dosage->route);
+		parent::addRDF(
+			parent::describeIndividual($id,$label,parent::getVoc()."Dosage").
+			parent::describeClass(parent::getVoc()."Dosage","Dosage").
+			parent::triplify($did, parent::getVoc()."dosage", $id)
+		);
 
-            $fid =  parent::getVoc().md5($dosage->form);
-            $this->typify($id,$fid,"Form","".$dosage->form);
+		$rid = parent::getVoc().md5($dosage->route);
+		$this->typify($id,$rid,"Route","".$dosage->route);
+
+		$fid =  parent::getVoc().md5($dosage->form);
+		$this->typify($id,$fid,"Form","".$dosage->form);
+
+		if($dosage->strength != '') {
+			parent::addRDF(
+				parent::triplifyString($id, parent::getVoc()."strength", $dosage->strength)
+			);
+		}
          }
-     } 
+     }
 
     // experimental-properties
 	$props = array("experimental-properties","calculated-properties");
@@ -509,11 +569,11 @@ class DrugBankParser extends Bio2RDFizer
              parent::addRDF(
                 parent::triplify($did,$this->getVoc()."patent",$id).
                 parent::describeIndividual($id,$patent->country." patent ".$patent->number,$this->getVoc()."Patent").
-				parent::describeClass(parent::getVoc()."Patent","patent").
+		parent::describeClass(parent::getVoc()."Patent","patent").
                 parent::triplifyString($id,$this->getVoc()."approved","".$patent->approved).
                 parent::triplifyString($id,$this->getVoc()."expires","".$patent->expires)
              );
-                           
+
              $cid = parent::getRes().md5($patent->country);
              $this->typify($id,$cid,"Country","".$patent->country);
          }
@@ -556,10 +616,10 @@ class DrugBankParser extends Bio2RDFizer
 
      // food-interactions
      $this->AddText($x,$did,"food-interactions","food-interaction",parent::getVoc()."food-interaction");
-     
+
      // affected-organisms
      $this->AddCategory($x,$did,"affected-organisms","affected-organism",parent::getVoc()."affected-organism");
-        
+
      //  <external-identifiers>
      if(isset($x->{"external-identifiers"})) {
          foreach($x->{"external-identifiers"} AS $objs) {
@@ -576,15 +636,12 @@ class DrugBankParser extends Bio2RDFizer
      }
      // <external-links>
      if(isset($x->{"external-links"})) {
-         foreach($x->{"external-links"} AS $objs) {
-             foreach($objs AS $obj) {
-                    if(strpos($obj->url,'http') !== false){
-
-                        parent::addRDF(
-                            parent::triplify($did,"rdfs:seeAlso","".$obj->url)
-                        );
-                    }
-                }
+         foreach($x->{"external-links"}->{'external-link'} AS $el) {
+            if(strpos($el->url,'http') !== false) {
+               parent::addRDF(
+                  parent::triplify($did,"rdfs:seeAlso","".$el->url)
+               );
+            }
          }
      }
         
@@ -596,8 +653,13 @@ class DrugBankParser extends Bio2RDFizer
     {
         if(isset($x->$list_name)) {
             foreach($x->$list_name AS $item) {
+		
                 if(isset($item->$item_name) && ($item->$item_name != '')) {
-                    $l = $ns.":".$item->$item_name;
+					if($item_name == "atc-code") {
+						$l = $ns.":".$item->$item_name->attributes()->code;
+					} else {
+						$l = $ns.":".$item->$item_name;
+					}
                     $this->addRDF($this->triplify($id,parent::getVoc()."x-$ns",trim($l)));
                 }
             }
@@ -612,13 +674,13 @@ class DrugBankParser extends Bio2RDFizer
                     $l = $item->$item_name;
                     if(isset($l->$list_item_name)) {
                         foreach($l->$list_item_name AS $k) {
-							$kid = parent::getRes().md5($k);
-                            $this->addRDF(
-								$this->describeIndividual($kid,"$item_name for $id",parent::getVoc().ucfirst($item_name)).
-								$this->describeClass(parent::getVoc().ucfirst($item_name),$item_name).
-								$this->triplifyString($kid,"rdf:value",$k).
-								$this->triplify($id,$predicate,$kid)
-							);
+				$kid = parent::getRes().md5($k);
+				$this->addRDF(
+					$this->describeIndividual($kid,"$item_name for $id",parent::getVoc().ucfirst($item_name)).
+					$this->describeClass(parent::getVoc().ucfirst($item_name),$item_name).
+					$this->triplifyString($kid,"rdf:value",$k).
+					$this->triplify($id,$predicate,$kid)
+				);
                         }
                     } else {
 						$kid = parent::getRes().md5($l);
@@ -650,37 +712,48 @@ class DrugBankParser extends Bio2RDFizer
 							);
 						}
 					} else {
-						$kid = parent::getVoc().ucfirst(str_replace(" ","-",$l));
+						if($item_name == "synonym") {
+							$kid = parent::getvoc().md5($l);
+						} else {
+							$kid = parent::getVoc().ucfirst(str_replace(" ","-",$l));
+						}
 						$this->addRDF(
 							$this->describeIndividual($kid,ucfirst($l),parent::getVoc().ucfirst($item_name)).
 							$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst($item_name)).
 							$this->triplify($id,$predicate,$kid)
 						);
+						foreach($l->attributes() AS $ka => $va) {
+							parent::addRDF(
+								$this->triplifyString($kid, parent::getVoc().$ka, $va)
+							);
+						}
 					}
 				}
 			}
 		}
 	}
 	
-	function AddList(&$x, $id, $list_name,$item_name,$predicate, $list_item_name = null)
+	function AddList(&$x, $id, $list_name, $item_name, $predicate, $list_item_name = null)
     {
         if(isset($x->$list_name)) {
-            foreach($x->$list_name AS $item) {
+            foreach($x->$list_name->$item_name AS $item) {
                 if(isset($item->$item_name) && ($item->$item_name != '')) { 
-                    $l = $item->$item_name;
-					foreach($l AS $k) {
-						$kid = parent::getVoc().ucfirst(str_replace(" ","-",$k)); // generate a new identifier for the list item
-						$this->addRDF(
-							$this->describeIndividual($kid,$k,parent::getVoc().ucfirst($item_name)).
-							$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst($item_name)).
-							$this->triplify($id,$predicate,$kid)
-						);
-					}
-				}
+			$l = $item->$item_name;
+			foreach($l AS $k) {
+				if(!trim($k)) continue;
+				$kid = parent::getVoc().ucfirst(str_replace(" ","-",$k)); // generate a new identifier for the list item
+				$this->addRDF(
+					$this->describeIndividual($kid,$k,parent::getVoc().ucfirst($item_name)).
+					$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst($item_name)).
+					$this->triplify($id,$predicate,$kid)
+				);
 			}
-		}	
+		}
+	     }
+	  }
 	}
 
 } // end class
 
 ?>
+

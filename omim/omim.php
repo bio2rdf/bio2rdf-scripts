@@ -34,7 +34,7 @@ class OMIMParser extends Bio2RDFizer
 		parent::__construct($argv, 'omim');
 		parent::addParameter('files',true,null,'all|omim#','entries to process: comma-separated list or hyphen-separated range');
 		parent::addParameter('omim_api_url',false,null,'http://api.omim.org/api/entry?include=all&format=json');
-		parent::addParameter('omim_api_key',false,null,'B398C0820DE54FA34751B8070ED4D721C3B81E5D');
+		parent::addParameter('omim_api_key',false,null,'D43076A680B921682DA253BEFE05DE998957B3FC');
 		parent::initialize();
 	}
 	
@@ -210,28 +210,27 @@ class OMIMParser extends Bio2RDFizer
 	function get_phenotype_mapping_method_type($id = null, $generate_declaration = false)
 	{
 		$pmm = array(
-			"1" => array("name"=>"association",
+			"1" => array("name"=>"mapping-by-association",
 					"description" => "the disorder is placed on the map based on its association with a gene"),
-			"2" => array("name" => "linkage",
+			"2" => array("name" => "mapping-by-linkage",
 					"description" => "the disorder is placed on the map by linkage"),
-			"3" => array("name" => "mutation",
+			"3" => array("name" => "mapping-by-mutation",
 					"description" => "the disorder is placed on the map and a mutation has been found in the gene"),
-			"4" => array("name" => "copy-number-variation",
+			"4" => array("name" => "mapping-by-copy-number-variation",
 					"description" => "the disorder is caused by one or more genes deleted or duplicated")
 		);
 		
 		if($generate_declaration == true) {
 			foreach($pmm AS $i => $o) {
-				$pmm_uri = parent::getVoc().$pmm[$i]['name'];
+				$pmm_uri = parent::getVoc().ucfirst($pmm[$i]['name']);
 				parent::addRDF(
 					parent::describeClass($pmm_uri, $pmm[$id]['name'], parent::getVoc().'Mapping-Method', $pmm[$id]['description'])
-					
 				);
 			}
 		}
 			
 		if(isset($id)) {
-			if(isset($pmm[$id])) return parent::getVoc().$pmm[$id]['name'];
+			if(isset($pmm[$id])) return parent::getVoc().ucfirst($pmm[$id]['name']);
 			else return false;
 		}
 		return true;
@@ -356,7 +355,10 @@ class OMIMParser extends Bio2RDFizer
 				if(isset($v['text'])) parent::addRDF(parent::triplifyString($uri,"dc:description",$v['text']));
 				if(isset($v['mutations'])) parent::addRDF(parent::triplifyString($uri,parent::getVoc()."mutation",$v['mutations']));				
 				if(isset($v['dbSnps'])) {
-					parent::addRDF(parent::triplify($uri, parent::getVoc()."x-dbsnp", "dbsnp:".$v['dbSnps']));
+					$snps = explode(",",$v['dbSnps']);
+					foreach($snps AS $snp) {
+						parent::addRDF(parent::triplify($uri, parent::getVoc()."x-dbsnp", "dbsnp:".$snp));
+					}
 				}
 				parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."variant", $uri));
 			}
@@ -472,17 +474,32 @@ class OMIMParser extends Bio2RDFizer
 			}
 			if(isset($map['geneInheritance']) && $map['geneInheritance'] != '') {
 				parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."gene-inheritance", $map['geneInheritance']));
-			}			
-			if(isset($map['phenotypeMapList'])) {
-				foreach($map['phenotypeMapList'] AS $phenotypeMap) {
-					$phenotypeMap = $phenotypeMap['phenotypeMap'];
-					if(isset($phenotypeMap['phenotypeMimNumber']))			
-						parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."phenotype", "omim:".$phenotypeMap['phenotypeMimNumber']));
-						
-					// $pmmt = get_phenotype_mapping_method_type($phenotype_map['phenotypeMappingKey']
-				}
-			}		
+			}	
 		}
+		if(isset($o['phenotypeMapList'])) {	
+			foreach($o['phenotypeMapList'] AS $i => $phenotypeMap) {
+				$phenotypeMap = $phenotypeMap['phenotypeMap'];
+				$pm_uri = parent::getRes().$omim_id."_pm_".($i+1);
+				parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."phenotype-map", $pm_uri));
+				
+				foreach(array_keys($phenotypeMap) AS $k) {
+					if(in_array($k, array("mimNumber","phenotypeMimNumber","phenotypicSeriesMimNumber"))) {
+						parent::addRDF(parent::triplify($pm_uri, parent::getVoc().$k, "omim:".$phenotypeMap[$k]));
+					} else if($k == "geneSymbols") {
+						$l = explode(", ",$phenotypeMap[$k]);
+						foreach($l AS $gene) {
+							parent::addRDF(parent::triplify($pm_uri, parent::getVoc().$k, "hgnc.symbol:".$gene));
+						}
+					} else if ($k == "phenotypeMappingKey") {
+						$l = $this->get_phenotype_mapping_method_type($phenotypeMap[$k]);
+						parent::addRDF(parent::triplify($pm_uri, parent::getVoc()."mapping-method", $l));
+					} else {
+						parent::addRDF(parent::triplifyString($pm_uri, parent::getVoc().$k, $phenotypeMap[$k]));
+					}
+				}
+			}
+		}
+		
 		
 		// references
 		if(isset($o['referenceList'])) {
@@ -500,7 +517,7 @@ class OMIMParser extends Bio2RDFizer
 		}
 	
 		// external ids
-		if(isset($o['externalLinks'])) {
+		if(isset($o['externalLinks'])) {		
 			foreach($o['externalLinks'] AS $k => $id) {
 
 				$ns = '';
@@ -550,16 +567,17 @@ class OMIMParser extends Bio2RDFizer
 					default:
 						echo "unhandled external link $k $id".PHP_EOL;
 				}
-			
-			
+
 				$ids = explode(",",$id);
 				foreach($ids AS $id) {
 					if($ns) {
 						$b = explode(";;",$id); // multiple ids//names
 						foreach($b AS $c) {
-							if(is_numeric($c) == TRUE) {
+							preg_match("/([a-z])/",$c,$m);
+							if(!isset($m[1])) {
 								parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-$ns", $ns.':'.$c)); 
-						}}
+							}
+						}
 					}
 				}
 			}

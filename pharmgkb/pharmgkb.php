@@ -37,7 +37,8 @@ class PharmGKBParser extends Bio2RDFizer
 	
 	function __construct($argv) {
 		parent::__construct($argv, "pharmgkb");
-		$this->AddParameter('files',true,'all|drugs|genes|diseases|pathways|relationships|annotations|offsides|twosides|rsid','all','all or comma-separated list of files to process'); /** pathways **/
+		$this->AddParameter('files',true,'all|drugs|genes|diseases|pathways|relationships|annotations|rsid','all','all or comma-separated list of files to process'); /** pathways **/
+		$this->addParameter('additional',false,'none|offsides|twosides','none','process offsides and/or twosides');
 		$this->AddParameter('download_url',false,null,'https://www.pharmgkb.org/download.do?dlCls=common&objId=');
 		parent::initialize();
 	}
@@ -50,6 +51,10 @@ class PharmGKBParser extends Bio2RDFizer
 			array_shift($files);
 		} else {
 			$files = explode(",",$this->GetParameterValue('files'));
+		}
+		if($this->getParameterValue('additional') != 'none') {
+			$f = explode(",",$this->getParameterValue('additional'));
+			$files = array_merge($files,$f);
 		}
 
 		$ldir = $this->GetParameterValue('indir');
@@ -92,6 +97,10 @@ class PharmGKBParser extends Bio2RDFizer
 			array_shift($files);
 		} else {
 			$files = explode(",",$this->GetParameterValue('files'));
+		}
+		if($this->getParameterValue('additional') != 'none') {
+			$f = explode(",",$this->getParameterValue('additional'));
+			$files = array_merge($files,$f);
 		}
 
 		$ldir = $this->GetParameterValue('indir');
@@ -581,6 +590,7 @@ class PharmGKBParser extends Bio2RDFizer
 			$d = preg_match_all('/[,]?([^\:]+):([A-Za-z0-9]+)\(([^\)]+)\)/',$a[4],$m, PREG_SET_ORDER);
 			foreach($m AS $n) {
 				if(isset($n[1]) && isset($n[2]) && !strstr($n[1]," ")) {
+					$n[1] = str_replace("),","",strtolower($n[1]));
 					$id2 = $n[1].':'.$n[2];
 					parent::addRDF(
 						parent::triplify($id, "pharmgkb_vocabulary:x-".$n[1], $id2)
