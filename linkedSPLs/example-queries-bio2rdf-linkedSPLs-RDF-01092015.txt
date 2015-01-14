@@ -1,6 +1,7 @@
 ################################################################################
-# GRAPH: http://purl.org/net/nlprepository/spl-core-poc-11282014
-# GRAPH: http://purl.org/net/nlprepository/spl-active-moiety
+# Queries for GRAPH: http://purl.org/net/nlprepository/spl-core-poc-11282014
+#
+# Core graph contains all SPLs (structured product labelings) label sections with metadata. They are directly comes from Dailymed product label in XMLs.
 ################################################################################
 
 # Queries for product label content and metadata present in the LinkedSPLs RDF graph
@@ -23,10 +24,11 @@ WHERE {
 
 }
 
-################################################################################
-## Get the three sections of interest for a specific SPL ##
-## (substituting an ?splid value from the above query for %s. ##
-## For example, try <http://bio2rdf.org/linkedspls:2150f73a-179b-4afc-b8ce-67c85cc72f04>) ##
+--------------------------------------------------------------------------------
+Get the three sections of interest for a specific SPL ##
+(substituting an ?splid value from the above query for %s. ##
+For example, try <http://bio2rdf.org/linkedspls:2150f73a-179b-4afc-b8ce-67c85cc72f04>) ##
+--------------------------------------------------------------------------------
 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -44,8 +46,9 @@ OPTIONAL { <%s> loinc:34090-1 ?textClinicalPharmacology }
 
 }
 
-################################################################################
-# return all sections from all drug products containing clopidogrel 75 MG oral tablet that the FDA notes as having pharmgx information:
+--------------------------------------------------------------------------------
+return all sections from all drug products containing clopidogrel 75 MG oral tablet that the FDA notes as having pharmgx information:
+--------------------------------------------------------------------------------
 
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -64,8 +67,9 @@ WHERE {
 ?s ?sectionLoinc ?sectionText.
 }
 
-################################################################################
+--------------------------------------------------------------------------------
 # return all setIds and drug product rxcuis for product labels that contain sections with FDA pharmgx data for biomarker "CYPD6":
+--------------------------------------------------------------------------------
 
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -84,8 +88,9 @@ WHERE {
 
 } LIMIT 10
 
-################################################################################
-# get all sections w/ FDA pharmgx data for drugs with an antidepressant application.
+--------------------------------------------------------------------------------
+get all sections w/ FDA pharmgx data for drugs with an antidepressant application.
+--------------------------------------------------------------------------------
 
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -106,8 +111,38 @@ WHERE {
 }
 LIMIT 10
 
+
+--------------------------------------------------------------------------------
+Get the PRO, HUGO, and Pharmgkb mappings for pharmgx biomarkers associated with TRIMIPRAMINE in product labeling
+--------------------------------------------------------------------------------
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+SELECT * WHERE {
+?pharmgxData a linkedspls_vocabulary:pharmgxData;
+linkedspls_vocabulary:pharmgxDrug "TRIMIPRAMINE";
+linkedspls_vocabulary:pharmgxBiomarker ?biomarker;
+linkedspls_vocabulary:pharmgxSPLSection ?splSect;
+linkedspls_vocabulary:HGNCGeneSymbol ?genSymb;
+owl:sameAs ?biomarkerMapping;
+foaf:homepage ?home;
+linkedspls_vocabulary:setId ?setId.
+}
+
+
+
 ################################################################################
-# what pharmgx biomarkers are common to PE classes?
+# Queries for GRAPH: http://purl.org/net/nlprepository/spl-active-moiety
+# active moiety graph is a RDF set that included mappings, (UNII, RxNorm, ChEBI, Drugbank, DrOn, OMOP and NDFRT), for active ingredients.
+################################################################################
+
+
+--------------------------------------------------------------------------------
+what pharmgx biomarkers are common to PE classes?
+--------------------------------------------------------------------------------
 
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -128,9 +163,9 @@ WHERE {
 }
 LIMIT 100
 
-################################################################################
-# what pharmgx biomarkers are common to EPC classes?
-
+--------------------------------------------------------------------------------
+what pharmgx biomarkers are common to EPC classes?
+--------------------------------------------------------------------------------
 
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -152,9 +187,9 @@ WHERE {
 LIMIT 100
 
 
-################################################################################
-# what pharmgx biomarkers are common to MoA (mechanism of action) classes?
-
+--------------------------------------------------------------------------------
+what pharmgx biomarkers are common to MoA (mechanism of action) classes?
+--------------------------------------------------------------------------------
 
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -175,8 +210,9 @@ WHERE {
 }
 LIMIT 100
 
-################################################################################
-# what pharmgx biomarkers are common to Chemical/Ingredient classes (suggests how incomplete the class mapping is)?
+--------------------------------------------------------------------------------
+what pharmgx biomarkers are common to Chemical/Ingredient classes (suggests how incomplete the class mapping is)?
+--------------------------------------------------------------------------------
 
 PREFIX dc: <http://purl.org/dc/elements/1.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -198,8 +234,9 @@ WHERE {
 LIMIT 100
 
 
-################################################################################
-# Get the most recent product label for ....
+--------------------------------------------------------------------------------
+Get the most recent product label for ....
+--------------------------------------------------------------------------------
 
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
@@ -213,27 +250,10 @@ SELECT DISTINCT ?s ?date WHERE {
 ORDER BY DESC(?date)
 LIMIT 1
 
-################################################################################
-# Get the PRO, HUGO, and Pharmgkb mappings for pharmgx biomarkers associated with TRIMIPRAMINE in product labeling
 
-PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-
-SELECT * WHERE {
-?pharmgxData a linkedspls_vocabulary:pharmgxData;
-linkedspls_vocabulary:pharmgxDrug "TRIMIPRAMINE";
-linkedspls_vocabulary:pharmgxBiomarker ?biomarker;
-linkedspls_vocabulary:pharmgxSPLSection ?splSect;
-linkedspls_vocabulary:HGNCGeneSymbol ?genSymb;
-owl:sameAs ?biomarkerMapping;
-foaf:homepage ?home;
-linkedspls_vocabulary:setId ?setId.
-}
-
-################################################################################
-# Query chain that gets all sections containing pharmgx data from the most recent PI for warfarin and clopidogrel:
+--------------------------------------------------------------------------------
+chain that gets all sections containing pharmgx data from the most recent PI for warfarin and clopidogrel:
+--------------------------------------------------------------------------------
 
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -251,8 +271,10 @@ linkedspls_vocabulary:effectiveTime ?date.
 ORDER BY DESC(?date)
 LIMIT 1
 
-################################################################################
-# Query chain that gets all sections containing pharmgx data from the most recent PI with its setid
+--------------------------------------------------------------------------------
+Join graph active moiety with pharmgxTable in core graph by dailymed setid
+Query chain that gets all sections containing pharmgx data from the most recent PI with its setid
+--------------------------------------------------------------------------------
 
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
@@ -275,6 +297,7 @@ linkedspls_vocabulary:setId "d655ff56-c17d-4331-8e9c-93e36f4ffeae".
 
 ################################################################################
 # GRAPH: http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014
+# Pharmgx graph is a dataset in RDF that have pharmacists's annotations for dailymed product label
 ################################################################################
 
 # PURPOSE: To demonstrate an interoperable annotation data set
@@ -283,8 +306,9 @@ linkedspls_vocabulary:setId "d655ff56-c17d-4331-8e9c-93e36f4ffeae".
 # published according to the W3C Open Data Annotation standard
 # <http://www.openannotation.org/spec/core/>
 
-
-# QUERY: Following the Open Annotation Data Model (www.openannotation.org/spec/beta/), each annotation links an annotation "body" to a "target." Show a complete annotation by enumerating the body and target URIs 
+--------------------------------------------------------------------------------
+QUERY: Following the Open Annotation Data Model (www.openannotation.org/spec/beta/), each annotation links an annotation "body" to a "target." Show a complete annotation by enumerating the body and target URIs 
+--------------------------------------------------------------------------------
 
 PREFIX fn:<http://www.w3.org/2005/xpath-functions#>
 PREFIX oa:<http://www.w3.org/ns/oa#>
@@ -335,8 +359,9 @@ WHERE {
 GROUP BY ?text
 ORDER BY DESC(?item)
 
-################################################################################
-# QUERY: Get back the SPL URL for an annotation over a given piece of text. To do this, replace the text in the regex with the text you are interested in:
+--------------------------------------------------------------------------------
+QUERY: Get back the SPL URL for an annotation over a given piece of text. To do this, replace the text in the regex with the text you are interested in:
+--------------------------------------------------------------------------------
 
 PREFIX oa: <http://www.w3.org/ns/oa#>
 PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
@@ -358,16 +383,17 @@ WHERE {
 
 }   
 
-################################################################################
-# QUERY: Annotations are grouped into Collections, one per SPL resource; show the number of annotations in each annotation collection for CLOPIDOGREL product labels
+--------------------------------------------------------------------------------
+QUERY: Annotations are grouped into Collections, one per SPL resource; show the number of annotations in each annotation collection for CLOPIDOGREL product labels
 
-#Comment: the source uri won't matched in most cases 
+Comment: the source uri won't matched in most cases 
 
-# same product name but there are different srouce uri in spl-core and pharmgx consensus data
-# ex1: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=edae8df1-caf9-ff72-1304-5ae8b355f8e7
-# ex2: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1
+same product name but there are different srouce uri in spl-core and pharmgx consensus data
+ex1: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=edae8df1-caf9-ff72-1304-5ae8b355f8e7
+ex2: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1
 
-# updated linkedSPLs probably can fix this mismatching problem
+update linkedSPLs probably can fix this mismatching problem
+--------------------------------------------------------------------------------
 
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
@@ -395,8 +421,9 @@ SELECT ?item ?annCreatedOn ?annCreatedBy ?setId COUNT(?item) ?source WHERE {
 
 }  
 
-################################################################################
-# QUERY: Show for all annotations for a given CLOPIDOGREL/CYP2C19 occuring in the boxedWarning  section
+--------------------------------------------------------------------------------
+QUERY: Show for all annotations for a given CLOPIDOGREL/CYP2C19 occuring in the boxedWarning  section
+--------------------------------------------------------------------------------
 
 PREFIX oa: <http://www.w3.org/ns/oa#>
 PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
@@ -419,8 +446,9 @@ WHERE {
         dailymed:HGNCGeneSymbol "CYP2C19".
 }  
 
-################################################################################
-# QUERY: Show all annotations of any SPL boxedWarning section
+--------------------------------------------------------------------------------
+QUERY: Show all annotations of any SPL boxedWarning section
+--------------------------------------------------------------------------------
 
 PREFIX oa: <http://www.w3.org/ns/oa#>
 PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
@@ -446,8 +474,9 @@ WHERE {
 GROUP BY ?drug
 ORDER BY ?drug 
 
-################################################################################
-# QUERY: Show any pharmacodynamic impact for HLA-B*5701      
+--------------------------------------------------------------------------------
+QUERY: Show any pharmacodynamic impact for HLA-B*5701      
+--------------------------------------------------------------------------------
 
 PREFIX oa: <http://www.w3.org/ns/oa#>
 PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
@@ -474,8 +503,9 @@ WHERE {
 GROUP BY ?section
 ORDER BY ?drug 
 
-################################################################################
-# QUERY: Show any biomarkers expected to have a pharmacokinetic impact on any drug
+--------------------------------------------------------------------------------
+QUERY: Show any biomarkers expected to have a pharmacokinetic impact on any drug
+--------------------------------------------------------------------------------
 
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 PREFIX sio: <http://semanticscience.org/resource/>
@@ -508,10 +538,13 @@ ORDER BY ?gene
 
 
 ################################################################################
-#INTEGRATION WITH linkedSPLs 
+# INTEGRATION WITH linkedSPLs 
+# Queries below are join linkedSPLs core graph and pharmacists's annotation graph  
 ################################################################################
 
-# What do product labels say about for Pharmgkb PA124 (CYP2C19)?
+--------------------------------------------------------------------------------
+What do product labels say about for Pharmgkb PA124 (CYP2C19)?
+--------------------------------------------------------------------------------
 
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX dctypes: <http://purl.org/dc/dcmitype/>
@@ -555,8 +588,9 @@ ORDER BY ?drug
 LIMIT 10
 
 
-################################################################################
-# For which drugs do product labels associate  Pharmgkb PA124 (CYP2C19) with a toxicity?
+--------------------------------------------------------------------------------
+For which drugs do product labels associate  Pharmgkb PA124 (CYP2C19) with a toxicity?
+--------------------------------------------------------------------------------
 
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX dctypes: <http://purl.org/dc/dcmitype/>
@@ -601,8 +635,9 @@ ORDER BY ?drug
 LIMIT 10
 
 
-################################################################################
-# For which drugs do product labels associate a biomarker with toxicity?
+--------------------------------------------------------------------------------
+For which drugs do product labels associate a biomarker with toxicity?
+--------------------------------------------------------------------------------
 
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX dctypes: <http://purl.org/dc/dcmitype/>
@@ -647,10 +682,9 @@ ORDER BY ?biomarker
 LIMIT 10
 
 
-################################################################################
-# Show the annotations on product label statements for Pharmgkb PA124 (CYP2C19)
-
-# Should maps pharmgxTable to pgxConsensus data by RxCUI but consensus data is using Drug Bank id 
+--------------------------------------------------------------------------------
+Show the annotations on product label statements for Pharmgkb PA124 (CYP2C19)
+--------------------------------------------------------------------------------
 
 PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX dctypes: <http://purl.org/dc/dcmitype/>
@@ -705,6 +739,7 @@ LIMIT 10
 
 ################################################################################
 # GRAPH: http://purl.org/net/nlprepository/ddi-expert2-11-20-11282014
+# This graph contains drug-drug interactions annotations from experts. 
 ################################################################################
 
 PREFIX oa:<http://www.w3.org/ns/oa#>
@@ -757,8 +792,9 @@ GROUP BY ?exactText
 ORDER BY DESC(?annot)
 
 
-################################################################################
-# query ddi annotations, label 11 - 20, by dailymed URI with setid
+--------------------------------------------------------------------------------
+query ddi annotations, label 11 - 20, by dailymed URI with setid
+--------------------------------------------------------------------------------
 
 PREFIX oa: <http://www.w3.org/ns/oa#>
 PREFIX sio: <http://semanticscience.org/resource/>
