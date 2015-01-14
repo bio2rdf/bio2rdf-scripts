@@ -57,9 +57,10 @@ Outputs: run the python elastico parsing program, which using RESTful API to fet
 ADR (adverse drug reactions)
 ------------------------------------------------------------
 
-SPLICER NLP
+ADR data from SPLs will be provided in the OHDSI Knowledge Base (LAERTES)
 
-
+The link to OHDSI project:
+http://www.ohdsi.org/web/wiki/doku.php?id=projects:workgroups:kb-wg
 
 ------------------------------------------------------------
 DDIs 
