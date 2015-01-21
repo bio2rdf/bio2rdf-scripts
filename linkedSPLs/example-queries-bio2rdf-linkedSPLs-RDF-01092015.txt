@@ -323,6 +323,7 @@ PREFIX ncit:<http://purl.bioontology.org/ontology/NCIT#>
 
 SELECT ?item ?source ?text ?drug ?section ?gene ?biomarker ?pkImpact ?pdImpact ?drugRec ?doseRec ?testRec ?monitRec 
 ?variant ?prodrug ?medicationConcern ?variantFreq ?clinical ?medicalCondition ?testResult ?alleles ?comment
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
 
 WHERE {
 
@@ -368,7 +369,7 @@ PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX pav: <http://purl.org/pav/>
 
 SELECT ?item ?source ?text ?annCreatedOn
-
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
 WHERE {
   ?item a oa:SPLAnnotation;
     pav:createdOn ?annCreatedOn;
@@ -431,7 +432,7 @@ PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 
 SELECT ?item ?source ?text 
-
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
 WHERE {
   ?item a oa:SPLAnnotation;
        oa:hasTarget ?target.
@@ -456,7 +457,7 @@ PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 
 SELECT ?drug ?gene ?biomarker ?text 
-
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
 WHERE {
   ?item a oa:SPLAnnotation;
        oa:hasTarget ?target.
@@ -484,7 +485,7 @@ PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 
 SELECT ?drug ?section ?text 
-
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
 WHERE {
   ?item a oa:SPLAnnotation;
        oa:hasTarget ?target.
@@ -514,7 +515,9 @@ PREFIX gcds: <http://www.genomic-cds.org/ont/genomic-cds.owl#>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 
-SELECT ?pkImpact ?pdImpact ?gene ?drug ?section ?text WHERE {
+SELECT ?pkImpact ?pdImpact ?gene ?drug ?section ?text 
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
+WHERE {
   ?item a oa:SPLAnnotation;
       oa:hasTarget ?target.
 
@@ -559,7 +562,10 @@ PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX fn: <http://www.w3.org/2005/xpath-functions/#>
 
-SELECT DISTINCT ?text ?drug ?section ?biomarker ?setId WHERE {
+SELECT DISTINCT ?text ?drug ?section ?biomarker ?setId 
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
+FROM <http://purl.org/net/nlprepository/spl-core-poc-11282014>
+WHERE {
   ?pgx a linkedspls_vocabulary:pharmgxData;
       linkedspls_vocabulary:pharmgxXref <http://bio2rdf.org/pharmgkb:PA124>;
       linkedspls_vocabulary:pharmgxDrug  ?drug;
@@ -605,7 +611,10 @@ PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX fn: <http://www.w3.org/2005/xpath-functions/#>
 
-SELECT DISTINCT ?text ?drug ?section ?setId WHERE {
+SELECT DISTINCT ?text ?drug ?section ?setId 
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
+FROM <http://purl.org/net/nlprepository/spl-core-poc-11282014>
+WHERE {
   ?pgx a linkedspls_vocabulary:pharmgxData;
       linkedspls_vocabulary:pharmgxXref <http://bio2rdf.org/pharmgkb:PA124>;
       linkedspls_vocabulary:pharmgxDrug  ?drug;
@@ -652,7 +661,10 @@ PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX fn: <http://www.w3.org/2005/xpath-functions/#>
 
-SELECT ?biomarker ?HGNC ?pharmgkb ?drug ?section ?text ?setId WHERE {
+SELECT ?biomarker ?HGNC ?pharmgkb ?drug ?section ?text ?setId 
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
+FROM <http://purl.org/net/nlprepository/spl-core-poc-11282014>
+WHERE {
   ?pgx a linkedspls_vocabulary:pharmgxData;
       linkedspls_vocabulary:pharmgxXref ?pharmgkb;
       linkedspls_vocabulary:pharmgxDrug  ?drug;
@@ -700,7 +712,8 @@ PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX fn: <http://www.w3.org/2005/xpath-functions/#>
 
 SELECT DISTINCT ?text ?drug ?section ?setId ?pdImpact ?pkImpact ?monitRec ?drugRec ?doseRec ?testRec 
-
+FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
+FROM <http://purl.org/net/nlprepository/spl-core-poc-11282014>
 WHERE {
   ?pgx a linkedspls_vocabulary:pharmgxData;
       linkedspls_vocabulary:pharmgxXref <http://bio2rdf.org/pharmgkb:PA124>;
