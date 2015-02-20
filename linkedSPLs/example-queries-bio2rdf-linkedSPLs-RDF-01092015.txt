@@ -1,5 +1,5 @@
 ################################################################################
-# Queries for GRAPH: http://purl.org/net/nlprepository/spl-core-poc-11282014
+# Queries for GRAPH: http://purl.org/net/nlprepository/spl-core
 #
 # Core graph contains all SPLs (structured product labelings) label sections with metadata. They are directly comes from Dailymed product label in XMLs.
 ################################################################################
@@ -12,6 +12,7 @@ PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
 ## Get metadata for the SPLs of all products containing a drug ##
 SELECT ?label ?splId ?version ?setId ?org ?date ?homepage
+FROM <http://purl.org/net/nlprepository/spl-core>
 WHERE {
 
 ?splId rdfs:label ?label.
@@ -24,6 +25,8 @@ WHERE {
 
 }
 
+Results set in shorten URL: Results set in shorten URL: http://goo.gl/nU95fy
+
 --------------------------------------------------------------------------------
 Get the three sections of interest for a specific SPL ##
 (substituting an ?splid value from the above query for %s. ##
@@ -35,16 +38,19 @@ PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 PREFIX loinc: <http://www.hipaaspace.com/Medical_Billing/Coding/Logical.Observation.Identifiers.Names.and.Codes/>
 
-## Get metadata for the SPLs of all products containing a drug ##
-
 SELECT ?textClinicalStudies ?textDrugInteractions ?textClinicalPharmacology
+FROM <http://purl.org/net/nlprepository/spl-core>
 WHERE {
 
-OPTIONAL { <%s> loinc:34092-7 ?textClinicalStudies }
-OPTIONAL { <%s> loinc:34073-7 ?textDrugInteractions }
-OPTIONAL { <%s> loinc:34090-1 ?textClinicalPharmacology }
+OPTIONAL { <http://bio2rdf.org/linkedspls:2150f73a-179b-4afc-b8ce-67c85cc72f04> loinc:34092-7 ?textClinicalStudies }
+OPTIONAL { <http://bio2rdf.org/linkedspls:2150f73a-179b-4afc-b8ce-67c85cc72f04> loinc:34073-7 ?textDrugInteractions }
+OPTIONAL { <http://bio2rdf.org/linkedspls:2150f73a-179b-4afc-b8ce-67c85cc72f04> loinc:34090-1 ?textClinicalPharmacology }
 
 }
+LIMIT 10
+
+
+Results set in shorten URL: Results set in shorten URL: http://goo.gl/KfSGSR
 
 --------------------------------------------------------------------------------
 return all sections from all drug products containing clopidogrel 75 MG oral tablet that the FDA notes as having pharmgx information:
@@ -67,6 +73,8 @@ WHERE {
 ?s ?sectionLoinc ?sectionText.
 }
 
+Results set in shorten URL: http://goo.gl/9RFeL9
+
 --------------------------------------------------------------------------------
 # return all setIds and drug product rxcuis for product labels that contain sections with FDA pharmgx data for biomarker "CYPD6":
 --------------------------------------------------------------------------------
@@ -87,6 +95,8 @@ WHERE {
 ?spl dc:subject ?rxcuiDrugProduct.
 
 } LIMIT 10
+
+Results set in shorten URL: http://goo.gl/Igwoh4
 
 --------------------------------------------------------------------------------
 get all sections w/ FDA pharmgx data for drugs with an antidepressant application.
@@ -111,6 +121,7 @@ WHERE {
 }
 LIMIT 10
 
+Results set in shorten URL: http://goo.gl/OzKUmR
 
 --------------------------------------------------------------------------------
 Get the PRO, HUGO, and Pharmgkb mappings for pharmgx biomarkers associated with TRIMIPRAMINE in product labeling
@@ -132,7 +143,7 @@ foaf:homepage ?home;
 linkedspls_vocabulary:setId ?setId.
 }
 
-
+Results set in shorten URL: http://goo.gl/Uur5fX
 
 ################################################################################
 # Queries for GRAPH: http://purl.org/net/nlprepository/spl-active-moiety
@@ -163,6 +174,8 @@ WHERE {
 }
 LIMIT 100
 
+Results set in shorten URL: http://goo.gl/krLPjh
+
 --------------------------------------------------------------------------------
 what pharmgx biomarkers are common to EPC classes?
 --------------------------------------------------------------------------------
@@ -186,6 +199,7 @@ WHERE {
 }
 LIMIT 100
 
+Results set in shorten URL: http://goo.gl/54gUBL
 
 --------------------------------------------------------------------------------
 what pharmgx biomarkers are common to MoA (mechanism of action) classes?
@@ -210,6 +224,8 @@ WHERE {
 }
 LIMIT 100
 
+Results set in shorten URL: http://goo.gl/N9vEiX
+
 --------------------------------------------------------------------------------
 what pharmgx biomarkers are common to Chemical/Ingredient classes (suggests how incomplete the class mapping is)?
 --------------------------------------------------------------------------------
@@ -233,9 +249,10 @@ WHERE {
 }
 LIMIT 100
 
+Results set in shorten URL: http://goo.gl/9ABxC9
 
 --------------------------------------------------------------------------------
-Get the most recent product label for ....
+Get the most recent product label for DULOXETINE
 --------------------------------------------------------------------------------
 
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -250,6 +267,7 @@ SELECT DISTINCT ?s ?date WHERE {
 ORDER BY DESC(?date)
 LIMIT 1
 
+Results set in shorten URL: http://goo.gl/ZDoj0I
 
 --------------------------------------------------------------------------------
 chain that gets all sections containing pharmgx data from the most recent PI for warfarin and clopidogrel:
@@ -270,6 +288,8 @@ linkedspls_vocabulary:effectiveTime ?date.
 }
 ORDER BY DESC(?date)
 LIMIT 1
+
+Results set in shorten URL: http://goo.gl/aWhdSR
 
 --------------------------------------------------------------------------------
 Join graph active moiety with pharmgxTable in core graph by dailymed setid
@@ -294,6 +314,8 @@ linkedspls_vocabulary:setId "d655ff56-c17d-4331-8e9c-93e36f4ffeae".
 ?activeMoiety linkedspls_vocabulary:RxCUI ?rxcui.
 
 }
+
+Results set in shorten URL: http://goo.gl/JvhA9D
 
 ################################################################################
 # GRAPH: http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014
@@ -360,6 +382,8 @@ WHERE {
 GROUP BY ?text
 ORDER BY DESC(?item)
 
+Results set in shorten URL: http://goo.gl/UTavRR
+
 --------------------------------------------------------------------------------
 QUERY: Get back the SPL URL for an annotation over a given piece of text. To do this, replace the text in the regex with the text you are interested in:
 --------------------------------------------------------------------------------
@@ -383,6 +407,8 @@ WHERE {
       oa:exact ?text.FILTER(regex(?text,"The prevalence of this CYP2D6 phenotype varies widely and has been estimated at 0.5 to 1% in Chinese "))
 
 }   
+
+Results set in shorten URL: http://goo.gl/tKtZ22
 
 --------------------------------------------------------------------------------
 QUERY: Annotations are grouped into Collections, one per SPL resource; show the number of annotations in each annotation collection for CLOPIDOGREL product labels
@@ -447,6 +473,8 @@ WHERE {
         dailymed:HGNCGeneSymbol "CYP2C19".
 }  
 
+Results set in shorten URL: http://goo.gl/cFpkqd
+
 --------------------------------------------------------------------------------
 QUERY: Show all annotations of any SPL boxedWarning section
 --------------------------------------------------------------------------------
@@ -474,6 +502,8 @@ WHERE {
 }  
 GROUP BY ?drug
 ORDER BY ?drug 
+
+Results set in shorten URL: http://goo.gl/7zSxSw
 
 --------------------------------------------------------------------------------
 QUERY: Show any pharmacodynamic impact for HLA-B*5701      
@@ -503,6 +533,8 @@ WHERE {
 }  
 GROUP BY ?section
 ORDER BY ?drug 
+
+Results set in shorten URL: http://goo.gl/mwymrO
 
 --------------------------------------------------------------------------------
 QUERY: Show any biomarkers expected to have a pharmacokinetic impact on any drug
@@ -538,6 +570,7 @@ WHERE {
 GROUP BY ?pkImpact
 ORDER BY ?gene
 
+Results set in shorten URL: http://goo.gl/58RIUJ
 
 
 ################################################################################
@@ -564,7 +597,7 @@ PREFIX fn: <http://www.w3.org/2005/xpath-functions/#>
 
 SELECT DISTINCT ?text ?drug ?section ?biomarker ?setId 
 FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
-FROM <http://purl.org/net/nlprepository/spl-core-poc-11282014>
+FROM <http://purl.org/net/nlprepository/spl-core>
 WHERE {
   ?pgx a linkedspls_vocabulary:pharmgxData;
       linkedspls_vocabulary:pharmgxXref <http://bio2rdf.org/pharmgkb:PA124>;
@@ -613,7 +646,7 @@ PREFIX fn: <http://www.w3.org/2005/xpath-functions/#>
 
 SELECT DISTINCT ?text ?drug ?section ?setId 
 FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
-FROM <http://purl.org/net/nlprepository/spl-core-poc-11282014>
+FROM <http://purl.org/net/nlprepository/spl-core>
 WHERE {
   ?pgx a linkedspls_vocabulary:pharmgxData;
       linkedspls_vocabulary:pharmgxXref <http://bio2rdf.org/pharmgkb:PA124>;
@@ -643,6 +676,7 @@ GROUP BY ?drug
 ORDER BY ?drug
 LIMIT 10
 
+Results set in shorten URL: http://goo.gl/6q0i7I
 
 --------------------------------------------------------------------------------
 For which drugs do product labels associate a biomarker with toxicity?
@@ -663,7 +697,7 @@ PREFIX fn: <http://www.w3.org/2005/xpath-functions/#>
 
 SELECT ?biomarker ?HGNC ?pharmgkb ?drug ?section ?text ?setId 
 FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
-FROM <http://purl.org/net/nlprepository/spl-core-poc-11282014>
+FROM <http://purl.org/net/nlprepository/spl-core>
 WHERE {
   ?pgx a linkedspls_vocabulary:pharmgxData;
       linkedspls_vocabulary:pharmgxXref ?pharmgkb;
@@ -713,7 +747,7 @@ PREFIX fn: <http://www.w3.org/2005/xpath-functions/#>
 
 SELECT DISTINCT ?text ?drug ?section ?setId ?pdImpact ?pkImpact ?monitRec ?drugRec ?doseRec ?testRec 
 FROM <http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014>
-FROM <http://purl.org/net/nlprepository/spl-core-poc-11282014>
+FROM <http://purl.org/net/nlprepository/spl-core>
 WHERE {
   ?pgx a linkedspls_vocabulary:pharmgxData;
       linkedspls_vocabulary:pharmgxXref <http://bio2rdf.org/pharmgkb:PA124>;
@@ -749,6 +783,7 @@ WHERE {
 
 LIMIT 10
 
+Results set in shorten URL: http://goo.gl/7KcMBj
 
 ################################################################################
 # GRAPH: http://purl.org/net/nlprepository/ddi-expert2-11-20-11282014
@@ -805,6 +840,8 @@ GROUP BY ?exactText
 ORDER BY DESC(?annot)
 
 
+Results set in shorten URL: http://goo.gl/4SDpgX
+
 --------------------------------------------------------------------------------
 query ddi annotations, label 11 - 20, by dailymed URI with setid
 --------------------------------------------------------------------------------
@@ -857,3 +894,6 @@ WHERE {
 }    
 GROUP BY ?exactText
 ORDER BY DESC(?annot)
+
+
+Results set in shorten URL: http://goo.gl/2inda4
