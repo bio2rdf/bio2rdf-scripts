@@ -270,7 +270,7 @@ class KEGGParser extends Bio2RDFizer
 				$e['id'] = str_replace(array("EC "," "),"",$a[0]);
 				if(isset($this->org)) $e['id'] = ($this->org)."_".$e['id'];
 				
-				$e['type'] = trim(str_replace(array("Complete "),"",$a[1]));
+				$e['type'] = trim(str_replace(array("Complete ","Pathway   Module"),array("","Pathway Module"),$a[1]));
 				$e['type_label'] = str_replace(" ","-",$e['type']);
 				$uri = parent::getNamespace().$e['id'];
 				continue;
@@ -421,10 +421,12 @@ class KEGGParser extends Bio2RDFizer
 				// K00844,K12407,K00845  hexokinase/glucokinase [EC:2.7.1.1 2.7.1.2] [RN:R01786]
 				// R01786,R02189,R09085  C00267 -> C00668
 
-				$a = explode("  ",$v,2);
+				$a = explode(" ",$v,2);
 				$ids = explode(",",$a[0]);
 				if($k == "REACTION" and $ids[0][0] != "R")  {echo "unable to parse $k".PHP_EOL;continue;}
-				if(!isset($a[1])) {echo $k." ".$v;continue;}
+				if(!isset($a[1])) {
+					echo "parse error: ".$k." ".$v.PHP_EOL;continue;
+				}
 				$str = $a[1];
 				
 				foreach($ids AS $id) {
@@ -592,7 +594,7 @@ class KEGGParser extends Bio2RDFizer
 						parent::triplify($uri,parent::getVoc()."gene",$gene)
 					);
 				}
-				echo parent::getRDF();exit;
+				//echo parent::getRDF();exit;
 				continue;			
 			}
 			if($k == "DRUG_TARGET") {
