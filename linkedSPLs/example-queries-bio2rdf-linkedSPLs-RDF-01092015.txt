@@ -786,7 +786,7 @@ LIMIT 10
 Results set in shorten URL: http://goo.gl/7KcMBj
 
 ################################################################################
-# GRAPH: http://purl.org/net/nlprepository/ddi-expert2-11-20-11282014
+# GRAPH: http://purl.org/net/nlprepository/ddi-expert2-11-20
 # This graph contains drug-drug interactions annotations from experts. 
 ################################################################################
 
@@ -800,7 +800,7 @@ PREFIX pav:<http://purl.org/pav/>
 PREFIX dailymed:<http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 
 SELECT ?annot ?source ?exactText ?modality ?statementType ?drug1Lab ?drug1Type ?drug1Role ?drug2Lab ?drug2Type ?drug2Role
-FROM <http://purl.org/net/nlprepository/ddi-expert2-11-20-11282014>
+FROM <http://purl.org/net/nlprepository/ddi-expert2-11-20>
 
 WHERE {
 
@@ -856,7 +856,7 @@ PREFIX pav:<http://purl.org/pav/>
 PREFIX dailymed:<http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 
 SELECT ?annot ?exactText ?modality ?statementType ?drug1Lab ?drug1Type ?drug1Role ?drug2Lab ?drug2Type ?drug2Role
-FROM <http://purl.org/net/nlprepository/ddi-expert2-11-20-11282014>
+FROM <http://purl.org/net/nlprepository/ddi-expert2-11-20>
 
 WHERE {
 
