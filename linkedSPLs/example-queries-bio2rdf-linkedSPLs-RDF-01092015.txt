@@ -840,7 +840,7 @@ GROUP BY ?exactText
 ORDER BY DESC(?annot)
 
 
-Results set in shorten URL: http://goo.gl/4SDpgX
+Results set in shorten URL: http://goo.gl/ZQTX8n
 
 --------------------------------------------------------------------------------
 query ddi annotations, label 11 - 20, by dailymed URI with setid
@@ -896,4 +896,4 @@ GROUP BY ?exactText
 ORDER BY DESC(?annot)
 
 
-Results set in shorten URL: http://goo.gl/2inda4
+Results set in shorten URL: http://goo.gl/y1oiW5
