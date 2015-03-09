@@ -328,7 +328,7 @@ class KEGGParser extends Bio2RDFizer
 					parent::triplify($id, parent::getVoc()."rpair", "kegg:".$list[0]).
 					parent::triplifyString($id, parent::getVoc()."role", $list[3]).
 					($rc!=''? parent::triplify($id, parent::getVoc()."reaction-center", $rc):'').
-					parent::triplify($uri, parent::getVoc().strtolower($k), $id)
+					parent::triplify($uri, parent::getVoc()."rpair-role", $id)
 				);
 				continue;
 			}
