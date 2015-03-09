@@ -242,7 +242,8 @@ class MGIParser extends Bio2RDFizer
 				trigger_error("Incorrect number of columns",E_USER_WARNING);
 				continue;
 			}
-			$id = trim($a[8]); 
+			$id = trim($a[8]);
+
 			$label = $a[0]." ".$a[3];
 			parent::addRDF(
 				parent::describeIndividual($id, $label, $this->getVoc()."Genotype").
@@ -256,7 +257,7 @@ class MGIParser extends Bio2RDFizer
 				$alleles = explode("|",$a[2]);
 				foreach($alleles AS $allele) {
 					parent::addRDF(
-						parent::triplify($id,$this->getVoc()."allele",$a[2])
+						parent::triplify($id,$this->getVoc()."allele",$allele)
 					);
 				}
 			}
@@ -271,7 +272,11 @@ class MGIParser extends Bio2RDFizer
 			}
 			$b = explode(",",$a[6]);
 			foreach($b AS $marker) {
-				parent::addRDF(parent::triplify($id,$this->getVoc()."marker",$marker));
+				parent::addRDF(
+					parent::triplify($id,$this->getVoc()."marker",$marker).
+					parent::triplify($marker, "rdf:type", parent::getVoc()."Marker").
+					parent::describeClass(parent::getVoc()."Marker","MGI Marker")
+				);
 			}
 			$this->writeRDFBufferToWriteFile();
 		}
