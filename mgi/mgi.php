@@ -136,12 +136,14 @@ class MGIParser extends Bio2RDFizer
         */
         function MGI_PhenotypicAllele($qtl = false)
         {
-		$line = 0;
+		$line = 0; $errors = 0;
 		while($l = $this->GetReadFile()->Read(200000)) {
 			$a = explode("\t",$l);
+			$line++;
 			if($a[0][0] == "#") continue;
 			if(count($a) != 12) {
 				echo "Expecting 12 columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
+				if($errors++ == 25) {echo 'stopping'.PHP_EOL;break;}
 				continue;
 			}
 			$id = strtolower($a[0]);
