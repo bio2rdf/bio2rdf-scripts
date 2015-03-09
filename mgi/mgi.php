@@ -35,7 +35,7 @@ class MGIParser extends Bio2RDFizer
 {
         function __construct($argv) {
                 parent::__construct($argv, "mgi");
-                parent::addParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|MGI_GenePheno|MRK_Sequence','all','all or comma-separated list to process');
+                parent::addParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|MGI_GenePheno|MRK_Sequence|MGI_Geno_Disease|MGI_Geno_NotDisease','all','all or comma-separated list to process');
                 parent::addParameter('download_url', false, null,'ftp://ftp.informatics.jax.org/pub/reports/' );
                 parent::initialize();
         }
@@ -372,6 +372,100 @@ class MGIParser extends Bio2RDFizer
                 }
         } //closes function
 
+	/*
+		0 Allelic Composition	
+		1 Allele Symbol(s)
+		2 Allele ID(s)	
+		3 Genetic Background	
+		4 Mammalian Phenotype ID	
+		5 PubMed ID	
+		6 MGI Marker Accession ID (comma-delimited)	
+		7 OMIM ID (comma-delimited)
+	*/
+	function MGI_Geno_Disease()
+	{
+		$line = 1;
+		while($l = $this->getReadFile()->read(248000)) {
+			$a = explode("\t",$l);
+			if(count($a) != 8) {
+				trigger_error("Incorrect number of columns",E_USER_WARNING);
+				continue;
+			}
+			
+			$allele = strtolower($a[2]);
+			if(!$allele) {echo "ignoring ".$a[0].PHP_EOL;continue;}
+			$diseases = explode(",",$a[7]);
+			foreach($diseases AS $d) {
+				$disease = "omim:$d";
+				$id = parent::getRes().md5($allele.$disease); 
+				$label = "$allele $disease association";
+				parent::addRDF(
+					parent::describeIndividual($id, $label, $this->getVoc()."Allele-Disease-Association").
+					parent::describeClass($this->getVoc()."Allele-Disease-Association","MGI Allele-Disease Association").
+					parent::triplify($id,$this->getVoc()."allele",$allele).
+					parent::triplify($id,$this->getVoc()."disease",$disease)
+				);
+				
+				if($a[5]) {
+					$pmids = explode(",",$a[5]);
+					foreach($pmids AS $pmid) {
+						parent::addRDF(		
+							parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pmid)	
+						);
+					}
+				}
+			}
+			$this->writeRDFBufferToWriteFile();
+		}
+	}
+	
+		/*
+		0 Allelic Composition	
+		1 Allele Symbol(s)
+		2 Allele ID(s)	
+		3 Genetic Background	
+		4 Mammalian Phenotype ID	
+		5 PubMed ID	
+		6 MGI Marker Accession ID (comma-delimited)	
+		7 OMIM ID (comma-delimited)
+	*/
+	function MGI_Geno_NotDisease()
+	{
+		$line = 1;
+		while($l = $this->getReadFile()->read(248000)) {
+			$a = explode("\t",$l);
+			if(count($a) != 8) {
+				trigger_error("Incorrect number of columns",E_USER_WARNING);
+				continue;
+			}
+			
+			$allele = strtolower($a[2]);
+			$diseases = explode(",",$a[7]);
+			foreach($diseases AS $d) {
+				$disease = "omim:$d";
+				$id = parent::getRes().md5($allele.$disease); 
+				$label = "$allele $disease absent association";
+				parent::addRDF(
+					parent::describeIndividual($id, $label, $this->getVoc()."Allele-Disease-Non-Association").
+					parent::describeClass($this->getVoc()."Allele-Disease-Non-Association","MGI Allele-Disease Non-Association").
+					parent::triplify($id,$this->getVoc()."allele",$allele).
+					parent::triplify($id,$this->getVoc()."disease",$disease).
+					parent::triplifyString($id,$this->getVoc()."is-negated","true")
+				);
+				
+				if($a[5]) {
+					$pmids = explode(",",$a[5]);
+					foreach($pmids AS $pmid) {
+						parent::addRDF(		
+							parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pmid)	
+						);
+					}
+				}
+			}
+			$this->writeRDFBufferToWriteFile();
+		}
+	}
+	
 }
 
 ?>
