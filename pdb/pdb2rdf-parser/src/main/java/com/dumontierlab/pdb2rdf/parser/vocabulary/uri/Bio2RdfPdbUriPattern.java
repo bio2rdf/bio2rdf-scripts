@@ -121,12 +121,12 @@ public enum Bio2RdfPdbUriPattern implements UriPattern, Bio2RdfPdbNamespace {
 	PUBLISHER_NAME(PUBLISHER.pattern + "/name"),
 	GENE_SOURCE_CELL_DEV_STAGE(GENE_SOURCE_CELL.pattern + "/developmentStage"),
 	GENE_SOURCE_ORGANISM_DEV_STAGE(GENE_SOURCE_ORGANISM.pattern + "/developmentStage"),
-	RESIDUE_FORMULA_WEIGH("{0}/formulaWeight"), // {0} => Residue URI
+	RESIDUE_FORMULA_WEIGH("{0}/formulaWeight", false), // {0} => Residue URI
 	RESIDUE_TYPE(DEFAULT_NAMESPACE_RESOURCE + "{0}"), // {0} => residue type name
-	RESIDUE_NUMBER_OF_ATOMS("{0}/numberOfAtoms"), // {0} => Residue URI
-	RESIDUE_NUMBER_OF_NON_HYDROGEN_ATOMS("{0}/numberOfNonHydrogenAtoms"), // {0}
+	RESIDUE_NUMBER_OF_ATOMS("{0}/numberOfAtoms", false), // {0} => Residue URI
+	RESIDUE_NUMBER_OF_NON_HYDROGEN_ATOMS("{0}/numberOfNonHydrogenAtoms", false), // {0}
 	// => Residue URI
-	RESIDUE_FORMULA("{0}/formula"), // {0} => Residue URI
+	RESIDUE_FORMULA("{0}/formula", false), // {0} => Residue URI
 
 	PDB_GRAPH("http://bio2rdf.org/graph/pdb:{0}"),
 	SECONDARY_STRUCTURE(DEFAULT_NAMESPACE_RESOURCE + "{0}/secondaryStructure_{1}"), // {0}
@@ -239,11 +239,21 @@ public enum Bio2RdfPdbUriPattern implements UriPattern, Bio2RdfPdbNamespace {
 	GO("http://bio2rdf.org/go:{0}");
 
 	private final String pattern;
+	private boolean encode;
 
 	private Bio2RdfPdbUriPattern(String pattern) {
-		this.pattern = pattern;
+		this(pattern, true);
 	}
-
+	private Bio2RdfPdbUriPattern(String pattern, boolean encode){
+		this.pattern = pattern;
+		this.encode = encode;
+			
+	}
+	@Override
+	public boolean requiresEncoding(){
+		return this.encode;
+	}
+	@Override
 	public String getPattern() {
 		return pattern;
 	}

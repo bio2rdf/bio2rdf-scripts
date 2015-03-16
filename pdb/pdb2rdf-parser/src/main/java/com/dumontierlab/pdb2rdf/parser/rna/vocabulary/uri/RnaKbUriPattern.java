@@ -37,6 +37,10 @@ public enum RnaKbUriPattern implements UriPattern, RnaKbNamespace {
 		this.pattern = pattern;
 	}
 
+	public boolean requiresEncoding(){
+		return true;
+	}
+	
 	public String getPattern() {
 		return pattern;
 	}
