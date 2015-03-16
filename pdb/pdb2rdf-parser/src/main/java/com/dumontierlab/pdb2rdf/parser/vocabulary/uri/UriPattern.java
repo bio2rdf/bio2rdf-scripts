@@ -26,5 +26,7 @@ package com.dumontierlab.pdb2rdf.parser.vocabulary.uri;
 public interface UriPattern {
 
 	String getPattern();
+	
+	boolean requiresEncoding();
 
 }

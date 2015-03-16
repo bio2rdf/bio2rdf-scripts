@@ -25,20 +25,27 @@ import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 
+import javax.management.RuntimeErrorException;
+
 /**
  * @author Alexander De Leon
  */
 public class UriBuilder {
 
 	public String buildUri(UriPattern uriPatterns, String... args) {
-		ArrayList<String> encodedArgs = new ArrayList<String>(args.length);
-		for (String arg : args){
-			try{
-				encodedArgs.add(URLEncoder.encode(arg, "UTF-8"));
-			} catch(UnsupportedEncodingException e){
-				encodedArgs.add(arg);
+		if (uriPatterns.requiresEncoding()) {
+			ArrayList<String> encodedArgs = new ArrayList<String>(args.length);
+			for (String arg : args) {
+				
+				try {
+					encodedArgs.add(URLEncoder.encode(arg, "UTF-8"));
+				} catch (UnsupportedEncodingException e) {
+					encodedArgs.add(arg);
+				}
 			}
+			return MessageFormat.format(uriPatterns.getPattern(),
+					encodedArgs.toArray(new Object[encodedArgs.size()]));
 		}
-		return MessageFormat.format(uriPatterns.getPattern(), encodedArgs.toArray(new Object[encodedArgs.size()]));
+		return MessageFormat.format(uriPatterns.getPattern(), (Object[]) args);
 	}
 }
