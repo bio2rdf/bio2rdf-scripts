@@ -215,6 +215,12 @@ public class PdbRdfModel implements Model {
 				PdbOwlVocabulary.Class.Resource.resource());
 		Statement y = model.createStatement(p, RDF.type,
 				PdbOwlVocabulary.Class.Resource.resource());
+		
+		if (p.equals(RDF.type)){
+			Statement w = model.createStatement(o.asResource(), RDF.type, RDFS.Class);
+			model.add(w);
+		}
+		
 		model.add(x);
 		model.add(y);
 		return model.add(s, p, o);
