@@ -221,7 +221,7 @@
 
     <antcall target="load-FDAPreferredSubstanceToUNII" />
     <antcall target="load-FDA_UNII_to_ChEBI" />
-    <antcall target="load-load-FDAPreferredSubstanceToRxNORM" />
+    <antcall target="load-FDAPreferredSubstanceToRxNORM" />
     <antcall target="load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF" />
     <antcall target="load-SPLSetIDToRxNORM" />
     <antcall target="load-RXNORM_NDFRT_INGRED_Table" />
