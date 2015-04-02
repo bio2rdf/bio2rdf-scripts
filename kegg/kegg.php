@@ -270,7 +270,7 @@ class KEGGParser extends Bio2RDFizer
 				$e['id'] = str_replace(array("EC "," "),"",$a[0]);
 				if(isset($this->org)) $e['id'] = ($this->org)."_".$e['id'];
 				
-				$e['type'] = trim(str_replace(array("Complete "),"",$a[1]));
+				$e['type'] = trim(str_replace(array("Complete ","Pathway   Module"),array("","Pathway Module"),$a[1]));
 				$e['type_label'] = str_replace(" ","-",$e['type']);
 				$uri = parent::getNamespace().$e['id'];
 				continue;
@@ -314,6 +314,22 @@ class KEGGParser extends Bio2RDFizer
 						parent::triplifyString($uri,parent::getVoc().strtolower($k),$v)
 					);			
 				}
+				continue;
+			}
+			
+			if($k == "RPAIR" and $e['type'] == "Reaction") {
+				$list = explode(" ",$v);
+				$id = parent::getRes().$e['id'].".".$list[2].".".$list[3];
+				$rc = '';
+				if(isset($list[4])) $rc = "kegg:".substr($list[4],4,-1);
+				parent::addRDF(
+					parent::describeIndividual($id, $e['id']." ".$v, parent::getVoc()."RPair-Role").
+					parent::describeClass(parent::getVoc()."RPair-Role","RPair Role").
+					parent::triplify($id, parent::getVoc()."rpair", "kegg:".$list[0]).
+					parent::triplifyString($id, parent::getVoc()."role", $list[3]).
+					($rc!=''? parent::triplify($id, parent::getVoc()."reaction-center", $rc):'').
+					parent::triplify($uri, parent::getVoc()."rpair-role", $id)
+				);
 				continue;
 			}
 
@@ -421,10 +437,18 @@ class KEGGParser extends Bio2RDFizer
 				// K00844,K12407,K00845  hexokinase/glucokinase [EC:2.7.1.1 2.7.1.2] [RN:R01786]
 				// R01786,R02189,R09085  C00267 -> C00668
 
-				$a = explode("  ",$v,2);
+				$a = explode(" ",$v,2);
 				$ids = explode(",",$a[0]);
 				if($k == "REACTION" and $ids[0][0] != "R")  {echo "unable to parse $k".PHP_EOL;continue;}
-				if(!isset($a[1])) {echo $k." ".$v;continue;}
+				if(!isset($a[1])) {
+					if($e['type'] == "Reaction") {
+						parent::addRDF(
+							parent::triplify($uri, parent::getVoc()."orthology","kegg:".trim($a[0]))
+						);
+						continue;
+					}
+					echo "parse error: ".$k." ".$v.PHP_EOL;continue;
+				}
 				$str = $a[1];
 				
 				foreach($ids AS $id) {
@@ -592,7 +616,7 @@ class KEGGParser extends Bio2RDFizer
 						parent::triplify($uri,parent::getVoc()."gene",$gene)
 					);
 				}
-				echo parent::getRDF();exit;
+				//echo parent::getRDF();exit;
 				continue;			
 			}
 			if($k == "DRUG_TARGET") {

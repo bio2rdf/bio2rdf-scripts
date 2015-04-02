@@ -43,7 +43,7 @@ class RefSeqParser extends Bio2RDFizer{
 
 		//download
 		echo "Getting FTP file list".PHP_EOL;
-		$list = $this->getFtpFileList('ftp.ncbi.nlm.nih.gov', '/refseq/release/complete/','/(complete\.[0-9]+\.protein\.gpff\.gz)/');
+		//$list = $this->getFtpFileList('ftp.ncbi.nlm.nih.gov', '/refseq/release/complete/','/(complete\.[0-9]+\.protein\.gpff\.gz)/');
 		asort($list);
 		$counter = 1;
 		$total = count($list);
@@ -54,6 +54,7 @@ class RefSeqParser extends Bio2RDFizer{
 				echo "Downloading file ".($counter++)." out of $total : $rfile ... ".PHP_EOL;
 				utils::DownloadSingle($rfile,$lfile);
 			}
+			break;
 		}//if download
 		//iterate over the files
 		$files = $this->getFilePaths($ldir, 'gz');
@@ -102,19 +103,23 @@ class RefSeqParser extends Bio2RDFizer{
 				->setDataset(parent::getDatasetURI());
 			$dataset_description .= $output_file->toRDF().$source_file->toRDF();
 		}//for
-		$this->setWriteFile($odir.$this->getBio2RDFReleaseFile());
-		$this->getWriteFile()->write($dataset_description);
-		$this->getWriteFile()->close();
+		parent::writeToReleaseFile($dataset_description);
+		parent::getWriteFile()->close();
 	}//run
 
 
 	function process(){
 		$refseq_record_str = "";
-		while($aLine = $this->getReadFile()->Read(4096)){
-			 preg_match("/^\/\/$/", $aLine, $matches);
-		    if(count($matches)){
+		while($aLine = $this->getReadFile()->Read(40960)){
+			preg_match("/^\/\/$/", $aLine, $matches);
+			if(!count($matches)) {
+				preg_match("/^\n$/", $aLine, $matches);
+				if(count($matches) == 0){
+					$refseq_record_str .= $aLine.PHP_EOL;
+				}
+				continue;
+			} else {
 		    	//now remove the header if it is there
-		    	
 		    	$refseq_record_str = $this->removeHeader($refseq_record_str);
 		    	$sectionsRaw = $this->parseGenbankRaw($refseq_record_str);
 		    	/**
@@ -146,7 +151,6 @@ class RefSeqParser extends Bio2RDFizer{
 		    	//get the features
 		    	$features = $this->retrieveSections("FEATURES", $sectionsRaw);
 		   		$parsed_features_arr = $this->parseFeatures($features);
-
 		   		//lets make some rdf		   		
 		    	$refseq_res = $this->getNamespace().$parsed_version_arr['versioned_accession'];
 		    	$refseq_label = utf8_encode(htmlspecialchars($parsed_definition_arr[0]));
@@ -259,10 +263,6 @@ class RefSeqParser extends Bio2RDFizer{
 		    	$this->WriteRDFBufferToWriteFile();
 		    	continue;
 		   	}
-		   	preg_match("/^\n$/", $aLine, $matches);
-		    if(count($matches) == 0){
-		    	$refseq_record_str .= $aLine;
-		    }
 		}//while
 	}//process
 
@@ -848,7 +848,6 @@ class RefSeqParser extends Bio2RDFizer{
 	*/
 	function parseVersion($version_arr){
 		$rm = array();
-
 		foreach($version_arr as $version){
 			$version_raw = utf8_encode(trim($version['value']));
 			if(strlen($version_raw)){
@@ -963,7 +962,7 @@ class RefSeqParser extends Bio2RDFizer{
 
 	/**
 	* Pass in a text file containing multiple GB records
-	* returns an array with one genbank record per elment
+	* returns an array with one genbank record per element
 	* it removes the header at the top of the file
 	*/
 	function removeHeader($aGbRecord){
