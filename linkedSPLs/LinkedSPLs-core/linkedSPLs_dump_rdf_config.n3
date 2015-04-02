@@ -1,0 +1,1171 @@
+#-*- mode: Shell-script -*-
+@prefix map: <file:/home/rdb20/linkedspls/linkedspls_dump_rdf_config.n3#> .
+@prefix db: <> .
+@prefix bpRxnorm: <http://purl.bioontology.org/ontology/RXNORM/> .
+@prefix d2r: <http://sites.wiwiss.fu-berlin.de/suhl/bizer/d2r-server/config.rdf#> .
+@prefix d2rq: <http://www.wiwiss.fu-berlin.de/suhl/bizer/D2RQ/0.1#> .
+#@prefix dailymed: <http://bio2rdf.org/linkedspls_vocabulary:>.
+@prefix linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>.
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix diseasome: <http://www4.wiwiss.fu-berlin.de/diseasome/resource/diseasome/> .
+@prefix drugbank: <http://www4.wiwiss.fu-berlin.de/drugbank/resource/drugbank/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix meta: <http://www4.wiwiss.fu-berlin.de/bizer/d2r-server/metadata#> .
+@prefix obo: <http://purl.obolibrary.org/obo/>.
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix prv:      <http://purl.org/net/provenance/ns#> .
+@prefix prvFiles: <http://purl.org/net/provenance/files#> .
+@prefix prvIV:    <http://purl.org/net/provenance/integrity#> .
+@prefix prvTypes: <http://purl.org/net/provenance/types#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ncbit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
+@prefix loinc: <http://www.hipaaspace.com/Medical_Billing/Coding/Logical.Observation.Identifiers.Names.and.Codes/> . 
+
+<> a d2r:Server;
+      # Graph metadata
+      meta:datasetTitle "Linked Structured Product Labels" ;
+      meta:datasetDescription "A Linked Open Data representation of Structured Product Labels (SPLs) for over 35,000 prescription and over-the-counter drug products. Each SPL is represented as an RDF graph that contains the raw text for each product label section, the NDF-RT druc class of each active ingredient in a drug product, and links to RxNorm, www.drugbank.ca/, and ChEBI." ;
+      meta:datasetSource "The National Library of Medicine's LinkedSPLs_Vocabulary: http://dailymed.nlm.nih.gov/dailymed/" ;
+      meta:operatorName "Richard D. Boyce, PhD" ;
+      meta:operatorHomepage  <http://www.linkedin.com/in/boycer>;
+
+      rdfs:label "Linked Structured Product Labels";
+      # other dataset configuration options (e.g. d2r:baseURI, d2r:port)
+      .
+
+
+map:database a d2rq:Database;
+    d2rq:jdbcDriver "com.mysql.jdbc.Driver";
+
+    #d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=root";
+
+    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=5bboys";
+
+    #d2rq:jdbcDSN "jdbc:mysql://136.142.148.191/linkedSPLs?autoReconnect=true&user=root&password=";
+
+    # d2rq:resultSizeLimit 500;
+    # d2rq:fetchSize 500;
+    .
+
+map:DrugsRdfTypeBridge a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property rdf:type;
+    d2rq:constantValue <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#Label>;
+    .
+
+map:HomepageURL a d2rq:PropertyBridge;
+      d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+      d2rq:property foaf:homepage;
+      d2rq:uriSqlExpression "CONCAT('http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=', structuredProductLabelMetadata.setId)";
+      .
+
+# Table  FDAPharmgxTable
+map:FDAPharmgxTable a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	#d2rq:uriPattern "FDAPharmgxTable/@@FDAPharmgxTable.id@@";
+        d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls.FDAPharmgxTable:', CAST(FDAPharmgxTable.id AS CHAR))";
+
+	d2rq:class linkedspls_vocabulary:pharmgxData;
+	d2rq:classDefinitionLabel " Data from the FDA's pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>";
+        .
+
+map:SPLToPharmgxData a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property linkedspls_vocabulary:pharmgxData;
+	d2rq:join "structuredProductLabelMetadata.setId => FDAPharmgxTable.setId";
+	#d2rq:uriSqlExpression "CONCAT('http://localhost/linkedspls/resource/FDAPharmgxTable/', CAST(FDAPharmgxTable.id AS CHAR))";
+	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls.FDAPharmgxTable:', CAST(FDAPharmgxTable.id AS CHAR))";
+	d2rq:propertyDefinitionLabel "pharmgxData"@en;
+	d2rq:propertyDefinitionComment "Data provided by the FDA in SPLs for making therapeutic decisions using pharmacogenetic and pharmacogenomic information"@en;
+	.
+
+map:pharmgxBiomarker a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property linkedspls_vocabulary:pharmgxBiomarker;
+	d2rq:column "FDAPharmgxTable.biomarker";
+	d2rq:propertyDefinitionLabel "pharmgxBiomarker"@en;
+	d2rq:propertyDefinitionComment "The string that the FDA provides for the biomarker in its pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>"@en;	
+	.
+
+map:pharmgxGeneSymbol a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property linkedspls_vocabulary:HGNCGeneSymbol;
+	d2rq:join "FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
+	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/hugo:', FDAPharmgxTableToOntologyMap.HGNCGeneSymbol)";
+	d2rq:propertyDefinitionLabel "HGNCGeneSymbol"@en;
+	d2rq:propertyDefinitionComment "The official gene symbol from the HUGO Gene Nomenclature Committee (HGNC) <www.genenames.org/> for a string that the FDA provides for the biomarker in its pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>"@en;	
+	.
+
+map:pharmgxAlleleVariant a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property linkedspls_vocabulary:pharmgxAlleleVariant;
+	d2rq:join " FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
+	d2rq:column "FDAPharmgxTableToOntologyMap.AlleleVariant";
+	d2rq:propertyDefinitionLabel "pharmgxAlleleVariant"@en;
+	d2rq:propertyDefinitionComment "The allele variant indicated by the string that FDA provides for the biomarker in its pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>"@en;	
+	.
+
+map:pharmgxPharmgkb a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property foaf:homepage;
+	d2rq:join "FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
+	d2rq:uriSqlExpression "CONCAT('http://pharmgkb.org/gene/', FDAPharmgxTableToOntologyMap.Pharmgkb)";
+	.
+
+map:pharmgxBio2rdf a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property linkedspls_vocabulary:pharmgxXref;
+	d2rq:join " FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
+	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/pharmgkb:', FDAPharmgxTableToOntologyMap.Pharmgkb)";
+	d2rq:propertyDefinitionLabel "pharmgxXref"@en;
+	d2rq:propertyDefinitionComment "A URI that links a biomarker present in the FDA pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm> to an external Semantic Web source"@en;	
+	.
+
+map:pharmgxPRoEntity a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property owl:sameAs;
+	d2rq:join " FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
+	d2rq:uriColumn "FDAPharmgxTableToOntologyMap.URI";
+	.
+
+map:pharmgxComment a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property rdfs:comment;
+	d2rq:join " FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
+	d2rq:column "FDAPharmgxTableToOntologyMap.CuratorComments";
+	.
+
+map:pharmgxActiveMoiety a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property linkedspls_vocabulary:pharmgxDrug;
+	d2rq:column "FDAPharmgxTable.activeMoiety";
+	d2rq:propertyDefinitionLabel "pharmgxDrug"@en;
+	d2rq:propertyDefinitionComment "The drug string that the FDA provides in its pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>"@en;	
+	.
+
+map:pharmgxTherAppl a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property linkedspls_vocabulary:therapeuticApplication;
+	d2rq:uriColumn "FDAPharmgxTable.therapeuticApplication";
+	d2rq:translateWith map:pharmgxTherAppTranslate;
+	d2rq:propertyDefinitionLabel "therapeuticApplication"@en;
+	d2rq:propertyDefinitionComment "The therapeutic application that the FDA provides in its pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>"@en;	
+	.
+
+map:pharmgxRxCuiActiveMoiety a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property linkedspls_vocabulary:activeMoietyRxCUI;
+	d2rq:join "FDAPharmgxTable.activeMoiety <= FDAPreferredSubstanceToRxNORM.PreferredSubstance";
+	d2rq:uriColumn "FDAPreferredSubstanceToRxNORM.RxNORM";
+	.
+
+map:pharmgxSetId a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property linkedspls_vocabulary:setId;
+	d2rq:column "FDAPharmgxTable.setId"
+	.
+
+map:pharmgxSection a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:FDAPharmgxTable;
+	d2rq:property linkedspls_vocabulary:pharmgxSPLSection;
+	d2rq:uriColumn "FDAPharmgxTable.SPLSection";
+	d2rq:translateWith map:pharmgxSectionTranslate;
+	.
+
+map:pharmgxTherAppTranslate a d2rq:TranslationTable;
+    d2rq:translation [ d2rq:databaseValue "Hematology"; d2rq:rdfValue  ncbit:Hematology; ];
+    d2rq:translation [ d2rq:databaseValue "Oncology"; d2rq:rdfValue  ncbit:Oncology; ];
+    d2rq:translation [ d2rq:databaseValue "Analgesics"; d2rq:rdfValue  ncbit:Analgesic_Agent; ];
+    d2rq:translation [ d2rq:databaseValue "Neurology"; d2rq:rdfValue  ncbit:Neurology; ];
+    d2rq:translation [ d2rq:databaseValue "Cardiovascular"; d2rq:rdfValue  ncbit:Cardiovascular; ];
+    d2rq:translation [ d2rq:databaseValue "Psychiatry"; d2rq:rdfValue  ncbit:Psychiatry; ];
+    d2rq:translation [ d2rq:databaseValue "Gastroenterology"; d2rq:rdfValue  ncbit:Gastroenterology; ];
+    d2rq:translation [ d2rq:databaseValue "Musculoskeletal"; d2rq:rdfValue  ncbit:Musculoskeletal; ];
+    d2rq:translation [ d2rq:databaseValue "Pulmonary"; d2rq:rdfValue  ncbit:Pulmonary; ];
+    d2rq:translation [ d2rq:databaseValue "Rheumatology"; d2rq:rdfValue  ncbit:Rheumatology; ];
+    d2rq:translation [ d2rq:databaseValue "Antivirals"; d2rq:rdfValue  ncbit:Antiviral_Agent; ];
+    d2rq:translation [ d2rq:databaseValue "Antifungals"; d2rq:rdfValue  ncbit:Antifungal_Agent; ];
+    d2rq:translation [ d2rq:databaseValue "Metabolic and Endocrinology"; d2rq:rdfValue  ncbit:Endocrinology; ];
+    d2rq:translation [ d2rq:databaseValue "Dermatology and Dental"; d2rq:rdfValue  ncbit:Dermatology; ];
+    d2rq:translation [ d2rq:databaseValue "Antiinfectives"; d2rq:rdfValue  ncbit:Anti-Infective_Agent; ];
+    d2rq:translation [ d2rq:databaseValue "Reproductive and Urologic"; d2rq:rdfValue  ncbit:Urology; ];
+    d2rq:translation [ d2rq:databaseValue "Antiarrhythmics"; d2rq:rdfValue  ncbit:Arrhythmia; ].
+
+# map:pharmgxSectionTranslate a d2rq:TranslationTable;
+#      d2rq:translation [ d2rq:databaseValue "Adverse Reactions"; d2rq:rdfValue  linkedspls_vocabulary:adverseReactions; ];
+#      d2rq:translation [ d2rq:databaseValue "Boxed Warning"; d2rq:rdfValue  linkedspls_vocabulary:boxedWarning; ];
+#      d2rq:translation [ d2rq:databaseValue "Clinical Pharmacology"; d2rq:rdfValue  linkedspls_vocabulary:clinicalPharmacology; ];
+#      d2rq:translation [ d2rq:databaseValue "Clinical Studies"; d2rq:rdfValue  linkedspls_vocabulary:clinicalStudies; ];
+#      d2rq:translation [ d2rq:databaseValue "Contraindications"; d2rq:rdfValue  linkedspls_vocabulary:contraindications; ];
+#      d2rq:translation [ d2rq:databaseValue "Description"; d2rq:rdfValue  linkedspls_vocabulary:description; ];
+#      d2rq:translation [ d2rq:databaseValue "Dosage and Administration"; d2rq:rdfValue  linkedspls_vocabulary:dosageAndAdministration; ];
+#      d2rq:translation [ d2rq:databaseValue "Drug Interactions"; d2rq:rdfValue  linkedspls_vocabulary:drugInteractions; ];
+#      d2rq:translation [ d2rq:databaseValue "Indications and Usage"; d2rq:rdfValue  linkedspls_vocabulary:indicationsAndUsage; ];
+#      d2rq:translation [ d2rq:databaseValue "Patient Information"; d2rq:rdfValue  linkedspls_vocabulary:patientMedicationInformation; ];
+#      d2rq:translation [ d2rq:databaseValue "Patient Counseling Information"; d2rq:rdfValue  linkedspls_vocabulary:informationForPatients; ];
+#      d2rq:translation [ d2rq:databaseValue "Precautions"; d2rq:rdfValue  linkedspls_vocabulary:precautions; ];
+#      d2rq:translation [ d2rq:databaseValue "Special Populations"; d2rq:rdfValue  linkedspls_vocabulary:useInSpecificPopulations; ];
+#      d2rq:translation [ d2rq:databaseValue "Use in Specific Populations"; d2rq:rdfValue  linkedspls_vocabulary:useInSpecificPopulations; ];
+#      d2rq:translation [ d2rq:databaseValue "Warnings and Precautions"; d2rq:rdfValue  linkedspls_vocabulary:warningsAndPrecautions; ];
+#      d2rq:translation [ d2rq:databaseValue "Warnings"; d2rq:rdfValue  linkedspls_vocabulary:warnings; ];
+#      .
+
+# translate to resolvable loinc URI
+map:pharmgxSectionTranslate a d2rq:TranslationTable;
+     d2rq:translation [ d2rq:databaseValue "Adverse Reactions"; d2rq:rdfValue  loinc:34084-4; ];
+     d2rq:translation [ d2rq:databaseValue "Boxed Warning"; d2rq:rdfValue  loinc:34066-1; ];
+     d2rq:translation [ d2rq:databaseValue "Clinical Pharmacology"; d2rq:rdfValue  loinc:34090-1; ];
+     d2rq:translation [ d2rq:databaseValue "Clinical Studies"; d2rq:rdfValue  loinc:34092-7; ];
+     d2rq:translation [ d2rq:databaseValue "Contraindications"; d2rq:rdfValue  loinc:34070-3; ];
+     d2rq:translation [ d2rq:databaseValue "Description"; d2rq:rdfValue  loinc:34089-3; ];
+     d2rq:translation [ d2rq:databaseValue "Dosage and Administration"; d2rq:rdfValue  loinc:34068-7; ];
+     d2rq:translation [ d2rq:databaseValue "Drug Interactions"; d2rq:rdfValue  loinc:34073-7; ];
+     d2rq:translation [ d2rq:databaseValue "Indications and Usage"; d2rq:rdfValue  loinc:34067-9; ];
+     d2rq:translation [ d2rq:databaseValue "Patient Information"; d2rq:rdfValue  loinc:68498-5; ];
+     d2rq:translation [ d2rq:databaseValue "Patient Counseling Information"; d2rq:rdfValue  loinc:34076-0; ];
+     d2rq:translation [ d2rq:databaseValue "Precautions"; d2rq:rdfValue  loinc:34072-9; ];
+     d2rq:translation [ d2rq:databaseValue "Special Populations"; d2rq:rdfValue  loinc:43684-0; ];
+     d2rq:translation [ d2rq:databaseValue "Use in Specific Populations"; d2rq:rdfValue  loinc:43684-0; ];
+     d2rq:translation [ d2rq:databaseValue "Warnings and Precautions"; d2rq:rdfValue  loinc:43685-7; ];
+     d2rq:translation [ d2rq:databaseValue "Warnings"; d2rq:rdfValue  loinc:34071-1; ];
+     .
+
+
+
+
+# Table structuredProductLabelMetadata 
+map:structuredProductLabelMetadata a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	#d2rq:uriPattern "structuredProductLabelMetadata/@@structuredProductLabelMetadata.setId@@";
+        d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls:', structuredProductLabelMetadata.setId)";
+	d2rq:class linkedspls_vocabulary:structuredProductLabelMetadata;
+        .
+
+map:structuredProductLabelMetadata__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property rdfs:label;
+	d2rq:pattern "@@structuredProductLabelMetadata.fullName@@ (@@structuredProductLabelMetadata.representedOrganization@@) setid:@@structuredProductLabelMetadata.setId@@";
+	.
+
+map:setId a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property linkedspls_vocabulary:setId;
+	d2rq:column "structuredProductLabelMetadata.setId";
+	d2rq:propertyDefinitionLabel "setId"@en;
+	d2rq:propertyDefinitionComment "The setId is the unique identifier for a particular Structured Product Label assigned by the FDA and use to track the labels in DailyMed"@en;
+	.
+
+
+map:versionNumber a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property linkedspls_vocabulary:versionNumber;
+	d2rq:column "structuredProductLabelMetadata.versionNumber";
+	d2rq:propertyDefinitionLabel "versionNumber"@en;
+	d2rq:propertyDefinitionComment "The version number represents the version of a particular SPL"@en;	.
+
+map:effectiveTime a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property linkedspls_vocabulary:effectiveTime;
+	d2rq:column "structuredProductLabelMetadata.effectiveTime";
+	d2rq:propertyDefinitionLabel "effectiveTime"@en;
+	d2rq:propertyDefinitionComment "The effective time is the date of release for a particular version of a SPL "@en;
+	.
+
+map:fullName a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property linkedspls_vocabulary:fullName;
+	d2rq:column "structuredProductLabelMetadata.fullName";
+	d2rq:propertyDefinitionLabel "fullName"@en;
+	d2rq:propertyDefinitionComment "The title given to a SPL"@en;
+	.
+
+
+map:representedOrganization a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property linkedspls_vocabulary:representedOrganization;
+	d2rq:column "structuredProductLabelMetadata.representedOrganization";
+	d2rq:propertyDefinitionLabel "representedOrganization"@en;
+	d2rq:propertyDefinitionComment "The company that manufactured the product referred to in an SPL"@en;
+	.
+
+
+# map active moiety UNII
+map:activeMoietyUNII a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property linkedspls_vocabulary:activeMoiety;
+	d2rq:join "structuredProductLabelMetadata.id = spl_has_active_moiety.spl";
+	d2rq:join "spl_has_active_moiety.active_moiety = active_moiety.id";
+
+	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls:', active_moiety.UNII)";
+	d2rq:propertyDefinitionLabel "activeMoietyUNII"@en;
+	d2rq:propertyDefinitionComment "The FDA Unique Ingredient Identifier an active moiety contained in the drug product (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162523.htm)"@en;
+	.
+
+
+map:drugRxNormSubject a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property dc:subject;
+	d2rq:join "structuredProductLabelMetadata.setId = SPLSetIDToRxNORM.setId";
+	d2rq:uriSqlExpression "CONCAT('http://purl.bioontology.org/ontology/RXNORM/', SPLSetIDToRxNORM.RxCUI)";
+	.
+
+## Sections mappings	
+map:genericMedicine a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property linkedspls_vocabulary:genericMedicine;
+	d2rq:column "structuredProductLabelMetadata.genericMedicine";
+	d2rq:propertyDefinitionLabel "genericMedicine"@en;
+	d2rq:propertyDefinitionComment "The generic name of all active ingredients in a drug product"@en;
+	.
+
+map:routeOfAdministration a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property linkedspls_vocabulary:routeOfAdministration;
+
+	#d2rq:uriPattern "routeOfAdministration/@@structuredProductLabelMetadata.routeOfAdministration|urlify@@";
+	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls_vocabulary:routeOfAdministration#', structuredProductLabelMetadata.routeOfAdministration)";
+
+	d2rq:propertyDefinitionLabel "routeOfAdministration"@en;
+	d2rq:propertyDefinitionComment "The route by which a drug product is taken into the body"@en;
+	.
+
+map:supply a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34069-5;
+    d2rq:join "structuredProductLabelMetadata.id = how_supplied.splId";
+    d2rq:column "how_supplied.field";
+    d2rq:propertyDefinitionLabel "supply";
+    d2rq:propertyDefinitionComment "Specific information about how supplied for a drug product. The text is taken verbatim from the HOW SUPPLIED SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+map:boxed_warning a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34066-1;
+    d2rq:join "structuredProductLabelMetadata.id = boxed_warning.splId";
+    d2rq:column "boxed_warning.field";
+    d2rq:propertyDefinitionLabel "boxedWarning";
+    d2rq:propertyDefinitionComment "Specific information about boxed warning for a drug product. The text is taken verbatim from the BOXED WARNING SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:indications_and_usage a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34067-9;
+    d2rq:join "structuredProductLabelMetadata.id = indications_and_usage.splId";
+    d2rq:column "indications_and_usage.field";
+    d2rq:propertyDefinitionLabel "indicationsAndUsage";
+    d2rq:propertyDefinitionComment "Specific information about indications and usage for a drug product. The text is taken verbatim from the INDICATIONS & USAGE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:dosage_and_administration a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34068-7;
+    d2rq:join "structuredProductLabelMetadata.id = dosage_and_administration.splId";
+    d2rq:column "dosage_and_administration.field";
+    d2rq:propertyDefinitionLabel "dosageAndAdministration";
+    d2rq:propertyDefinitionComment "Specific information about dosage and administration for a drug product. The text is taken verbatim from the DOSAGE & ADMINISTRATION SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:how_supplied a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34069-5;
+    d2rq:join "structuredProductLabelMetadata.id = how_supplied.splId";
+    d2rq:column "how_supplied.field";
+    d2rq:propertyDefinitionLabel "howSupplied";
+    d2rq:propertyDefinitionComment "Specific information about how supplied for a drug product. The text is taken verbatim from the HOW SUPPLIED SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:contraindications a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34070-3;
+    d2rq:join "structuredProductLabelMetadata.id = contraindications.splId";
+    d2rq:column "contraindications.field";
+    d2rq:propertyDefinitionLabel "contraindications";
+    d2rq:propertyDefinitionComment "Specific information about contraindications for a drug product. The text is taken verbatim from the CONTRAINDICATIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:warnings a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34071-1;
+    d2rq:join "structuredProductLabelMetadata.id = warnings.splId";
+    d2rq:column "warnings.field";
+    d2rq:propertyDefinitionLabel "warnings";
+    d2rq:propertyDefinitionComment "Specific information about warnings for a drug product. The text is taken verbatim from the WARNINGS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:general_precautions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34072-9;
+    d2rq:join "structuredProductLabelMetadata.id = general_precautions.splId";
+    d2rq:column "general_precautions.field";
+    d2rq:propertyDefinitionLabel "generalPrecautions";
+    d2rq:propertyDefinitionComment "Specific information about general precautions for a drug product. The text is taken verbatim from the GENERAL PRECAUTIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:drug_interactions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34073-7;
+    d2rq:join "structuredProductLabelMetadata.id = drug_interactions.splId";
+    d2rq:column "drug_interactions.field";
+    d2rq:propertyDefinitionLabel "drugInteractions";
+    d2rq:propertyDefinitionComment "Specific information about drug interactions for a drug product. The text is taken verbatim from the DRUG INTERACTIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:drug_and_or_laboratory_test_interactions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34074-5;
+    d2rq:join "structuredProductLabelMetadata.id = drug_and_or_laboratory_test_interactions.splId";
+    d2rq:column "drug_and_or_laboratory_test_interactions.field";
+    d2rq:propertyDefinitionLabel "drugAndOrLaboratoryTestInteractions";
+    d2rq:propertyDefinitionComment "Specific information about drug and or laboratory test interactions for a drug product. The text is taken verbatim from the DRUG & OR LABORATORY TEST INTERACTIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:laboratory_tests a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34075-2;
+    d2rq:join "structuredProductLabelMetadata.id = laboratory_tests.splId";
+    d2rq:column "laboratory_tests.field";
+    d2rq:propertyDefinitionLabel "laboratoryTests";
+    d2rq:propertyDefinitionComment "Specific information about laboratory tests for a drug product. The text is taken verbatim from the LABORATORY TESTS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:information_for_patients a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34076-0;
+    d2rq:join "structuredProductLabelMetadata.id = information_for_patients.splId";
+    d2rq:column "information_for_patients.field";
+    d2rq:propertyDefinitionLabel "informationForPatients";
+    d2rq:propertyDefinitionComment "Specific information about information for patients for a drug product. The text is taken verbatim from the INFORMATION FOR PATIENTS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:teratogenic_effects a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34077-8;
+    d2rq:join "structuredProductLabelMetadata.id = teratogenic_effects.splId";
+    d2rq:column "teratogenic_effects.field";
+    d2rq:propertyDefinitionLabel "teratogenicEffects";
+    d2rq:propertyDefinitionComment "Specific information about teratogenic effects for a drug product. The text is taken verbatim from the TERATOGENIC EFFECTS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:nonteratogenic_effects a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34078-6;
+    d2rq:join "structuredProductLabelMetadata.id = nonteratogenic_effects.splId";
+    d2rq:column "nonteratogenic_effects.field";
+    d2rq:propertyDefinitionLabel "nonteratogenicEffects";
+    d2rq:propertyDefinitionComment "Specific information about nonteratogenic effects for a drug product. The text is taken verbatim from the NONTERATOGENIC EFFECTS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:labor_and_delivery a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34079-4;
+    d2rq:join "structuredProductLabelMetadata.id = labor_and_delivery.splId";
+    d2rq:column "labor_and_delivery.field";
+    d2rq:propertyDefinitionLabel "laborAndDelivery";
+    d2rq:propertyDefinitionComment "Specific information about labor and delivery for a drug product. The text is taken verbatim from the LABOR & DELIVERY SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:nursing_mothers a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34080-2;
+    d2rq:join "structuredProductLabelMetadata.id = nursing_mothers.splId";
+    d2rq:column "nursing_mothers.field";
+    d2rq:propertyDefinitionLabel "nursingMothers";
+    d2rq:propertyDefinitionComment "Specific information about nursing mothers for a drug product. The text is taken verbatim from the NURSING MOTHERS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:pediatric_use a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34081-0;
+    d2rq:join "structuredProductLabelMetadata.id = pediatric_use.splId";
+    d2rq:column "pediatric_use.field";
+    d2rq:propertyDefinitionLabel "pediatricUse";
+    d2rq:propertyDefinitionComment "Specific information about pediatric use for a drug product. The text is taken verbatim from the PEDIATRIC USE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:geriatric_use a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34082-8;
+    d2rq:join "structuredProductLabelMetadata.id = geriatric_use.splId";
+    d2rq:column "geriatric_use.field";
+    d2rq:propertyDefinitionLabel "geriatricUse";
+    d2rq:propertyDefinitionComment "Specific information about geriatric use for a drug product. The text is taken verbatim from the GERIATRIC USE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+# map:carcinogenesis_and_mutagenesis_and_impairment_of_fertility a d2rq:PropertyBridge;
+#     d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+#     d2rq:property linkedspls_vocabulary:carcinogenesisAndMutagenesisAndImpairmentOfFertility;
+#     d2rq:join "structuredProductLabelMetadata.id = carcinogenesis_and_mutagenesis_and_impairment_of_fertility.splId";
+#     d2rq:column "carcinogenesis_and_mutagenesis_and_impairment_of_fertility.field";
+#     d2rq:propertyDefinitionLabel "34083-6";
+#     d2rq:propertyDefinitionComment "Specific information about carcinogenesis and mutagenesis and impairment of fertility for a drug product. The text is taken verbatim from the CARCINOGENESIS & MUTAGENESIS & IMPAIRMENT OF FERTILITY SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+#     .
+
+
+map:adverse_reactions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34084-4;
+    d2rq:join "structuredProductLabelMetadata.id = adverse_reactions.splId";
+    d2rq:column "adverse_reactions.field";
+    d2rq:propertyDefinitionLabel "adverseReactions";
+    d2rq:propertyDefinitionComment "Specific information about adverse reactions for a drug product. The text is taken verbatim from the ADVERSE REACTIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:controlled_substance a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34085-1;
+    d2rq:join "structuredProductLabelMetadata.id = controlled_substance.splId";
+    d2rq:column "controlled_substance.field";
+    d2rq:propertyDefinitionLabel "controlledSubstance";
+    d2rq:propertyDefinitionComment "Specific information about controlled substance for a drug product. The text is taken verbatim from the CONTROLLED SUBSTANCE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:abuse a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34086-9;
+    d2rq:join "structuredProductLabelMetadata.id = abuse.splId";
+    d2rq:column "abuse.field";
+    d2rq:propertyDefinitionLabel "abuse";
+    d2rq:propertyDefinitionComment "Specific information about abuse for a drug product. The text is taken verbatim from the ABUSE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:dependence a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34087-7;
+    d2rq:join "structuredProductLabelMetadata.id = dependence.splId";
+    d2rq:column "dependence.field";
+    d2rq:propertyDefinitionLabel "dependence";
+    d2rq:propertyDefinitionComment "Specific information about dependence for a drug product. The text is taken verbatim from the DEPENDENCE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:overdosage a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34088-5;
+    d2rq:join "structuredProductLabelMetadata.id = overdosage.splId";
+    d2rq:column "overdosage.field";
+    d2rq:propertyDefinitionLabel "verdosage";
+    d2rq:propertyDefinitionComment "Specific information about overdosage for a drug product. The text is taken verbatim from the OVERDOSAGE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:description a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34089-3;
+    d2rq:join "structuredProductLabelMetadata.id = description.splId";
+    d2rq:column "description.field";
+    d2rq:propertyDefinitionLabel "description";
+    d2rq:propertyDefinitionComment "Specific information about description for a drug product. The text is taken verbatim from the DESCRIPTION SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:clinical_pharmacology a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34090-1;
+    d2rq:join "structuredProductLabelMetadata.id = clinical_pharmacology.splId";
+    d2rq:column "clinical_pharmacology.field";
+    d2rq:propertyDefinitionLabel "clinicalPharmacology";
+    d2rq:propertyDefinitionComment "Specific information about clinical pharmacology for a drug product. The text is taken verbatim from the CLINICAL PHARMACOLOGY SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:animal_pharmacology_and_or_toxicology a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34091-9;
+    d2rq:join "structuredProductLabelMetadata.id = animal_pharmacology_and_or_toxicology.splId";
+    d2rq:column "animal_pharmacology_and_or_toxicology.field";
+    d2rq:propertyDefinitionLabel "animalPharmacologyAndOrToxicology";
+    d2rq:propertyDefinitionComment "Specific information about animal pharmacology and or toxicology for a drug product. The text is taken verbatim from the ANIMAL PHARMACOLOGY & OR TOXICOLOGY SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:clinical_studies a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34092-7;
+    d2rq:join "structuredProductLabelMetadata.id = clinical_studies.splId";
+    d2rq:column "clinical_studies.field";
+    d2rq:propertyDefinitionLabel "clinicalStudies";
+    d2rq:propertyDefinitionComment "Specific information about clinical studies for a drug product. The text is taken verbatim from the CLINICAL STUDIES SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:references a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:34093-5;
+    d2rq:join "structuredProductLabelMetadata.id = references.splId";
+    d2rq:column "references.field";
+    d2rq:propertyDefinitionLabel "references";
+    d2rq:propertyDefinitionComment "Specific information about references for a drug product. The text is taken verbatim from the REFERENCES SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:supplemental_patient_material_section a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:38056-8;
+    d2rq:join "structuredProductLabelMetadata.id = supplemental_patient_material_section.splId";
+    d2rq:column "supplemental_patient_material_section.field";
+    d2rq:propertyDefinitionLabel "supplementalPatientMaterialSection";
+    d2rq:propertyDefinitionComment "Specific information about supplemental patient material section for a drug product. The text is taken verbatim from the SUPPLEMENTAL PATIENT MATERIAL SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:drug_abuse_and_dependence a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:42227-9;
+    d2rq:join "structuredProductLabelMetadata.id = drug_abuse_and_dependence.splId";
+    d2rq:column "drug_abuse_and_dependence.field";
+    d2rq:propertyDefinitionLabel "drugAbuseAndDependence";
+    d2rq:propertyDefinitionComment "Specific information about drug abuse and dependence for a drug product. The text is taken verbatim from the DRUG ABUSE AND DEPENDENCE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:pregnancy a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:42228-7;
+    d2rq:join "structuredProductLabelMetadata.id = pregnancy.splId";
+    d2rq:column "pregnancy.field";
+    d2rq:propertyDefinitionLabel "pregnancy";
+    d2rq:propertyDefinitionComment "Specific information about pregnancy for a drug product. The text is taken verbatim from the PREGNANCY SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:spl_unclassified a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:42229-5;
+    d2rq:join "structuredProductLabelMetadata.id = spl_unclassified.splId";
+    d2rq:column "spl_unclassified.field";
+    d2rq:propertyDefinitionLabel "splUnclassified";
+    d2rq:propertyDefinitionComment "Specific information about spl unclassified for a drug product. The text is taken verbatim from the SPL UNCLASSIFIED SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:spl_patient_package_insert a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:42230-3;
+    d2rq:join "structuredProductLabelMetadata.id = spl_patient_package_insert.splId";
+    d2rq:column "spl_patient_package_insert.field";
+    d2rq:propertyDefinitionLabel "splPatientPackageInsert";
+    d2rq:propertyDefinitionComment "Specific information about spl patient package insert for a drug product. The text is taken verbatim from the SPL PATIENT PACKAGE INSERT SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:spl_medguide a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:42231-1;
+    d2rq:join "structuredProductLabelMetadata.id = spl_medguide.splId";
+    d2rq:column "spl_medguide.field";
+    d2rq:propertyDefinitionLabel "splMedguide";
+    d2rq:propertyDefinitionComment "Specific information about spl medguide for a drug product. The text is taken verbatim from the SPL MEDGUIDE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:precautions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:42232-9;
+    d2rq:join "structuredProductLabelMetadata.id = precautions.splId";
+    d2rq:column "precautions.field";
+    d2rq:propertyDefinitionLabel "precautions";
+    d2rq:propertyDefinitionComment "Specific information about precautions for a drug product. The text is taken verbatim from the PRECAUTIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:dosage_forms_and_strengths a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:43678-2;
+    d2rq:join "structuredProductLabelMetadata.id = dosage_forms_and_strengths.splId";
+    d2rq:column "dosage_forms_and_strengths.field";
+    d2rq:propertyDefinitionLabel "dosageFormsAndStrengths";
+    d2rq:propertyDefinitionComment "Specific information about dosage forms and strengths for a drug product. The text is taken verbatim from the DOSAGE FORMS & STRENGTHS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:mechanism_of_action a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:43679-0;
+    d2rq:join "structuredProductLabelMetadata.id = mechanism_of_action.splId";
+    d2rq:column "mechanism_of_action.field";
+    d2rq:propertyDefinitionLabel "mechanismOfAction";
+    d2rq:propertyDefinitionComment "Specific information about mechanism of action for a drug product. The text is taken verbatim from the MECHANISM OF ACTION SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:nonclinical_toxicology a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:43680-8;
+    d2rq:join "structuredProductLabelMetadata.id = nonclinical_toxicology.splId";
+    d2rq:column "nonclinical_toxicology.field";
+    d2rq:propertyDefinitionLabel "nonclinicalToxicology";
+    d2rq:propertyDefinitionComment "Specific information about nonclinical toxicology for a drug product. The text is taken verbatim from the NONCLINICAL TOXICOLOGY SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:pharmacodynamics a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:43681-6;
+    d2rq:join "structuredProductLabelMetadata.id = pharmacodynamics.splId";
+    d2rq:column "pharmacodynamics.field";
+    d2rq:propertyDefinitionLabel "pharmacodynamics";
+    d2rq:propertyDefinitionComment "Specific information about pharmacodynamics for a drug product. The text is taken verbatim from the PHARMACODYNAMICS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:pharmacokinetics a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:43682-4;
+    d2rq:join "structuredProductLabelMetadata.id = pharmacokinetics.splId";
+    d2rq:column "pharmacokinetics.field";
+    d2rq:propertyDefinitionLabel "pharmacokinetics";
+    d2rq:propertyDefinitionComment "Specific information about pharmacokinetics for a drug product. The text is taken verbatim from the PHARMACOKINETICS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:recent_major_changes a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:43683-2;
+    d2rq:join "structuredProductLabelMetadata.id = recent_major_changes.splId";
+    d2rq:column "recent_major_changes.field";
+    d2rq:propertyDefinitionLabel "recentMajorChanges";
+    d2rq:propertyDefinitionComment "Specific information about recent major changes for a drug product. The text is taken verbatim from the RECENT MAJOR CHANGES SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:use_in_specific_populations a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:43684-0;
+    d2rq:join "structuredProductLabelMetadata.id = use_in_specific_populations.splId";
+    d2rq:column "use_in_specific_populations.field";
+    d2rq:propertyDefinitionLabel "useInSpecificPopulations";
+    d2rq:propertyDefinitionComment "Specific information about use in specific populations for a drug product. The text is taken verbatim from the USE IN SPECIFIC POPULATIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:warnings_and_precautions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:43685-7;
+    d2rq:join "structuredProductLabelMetadata.id = warnings_and_precautions.splId";
+    d2rq:column "warnings_and_precautions.field";
+    d2rq:propertyDefinitionLabel "warningsAndPrecautions";
+    d2rq:propertyDefinitionComment "Specific information about warnings and precautions for a drug product. The text is taken verbatim from the WARNINGS AND PRECAUTIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:storage_and_handling a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:44425-7;
+    d2rq:join "structuredProductLabelMetadata.id = storage_and_handling.splId";
+    d2rq:column "storage_and_handling.field";
+    d2rq:propertyDefinitionLabel "storageAndHandling";
+    d2rq:propertyDefinitionComment "Specific information about storage and handling for a drug product. The text is taken verbatim from the STORAGE AND HANDLING SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:spl_indexing_data_elements a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:48779-3;
+    d2rq:join "structuredProductLabelMetadata.id = spl_indexing_data_elements.splId";
+    d2rq:column "spl_indexing_data_elements.field";
+    d2rq:propertyDefinitionLabel "splIndexingDataElements";
+    d2rq:propertyDefinitionComment "Specific information about spl indexing data elements for a drug product. The text is taken verbatim from the SPL INDEXING DATA ELEMENTS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:spl_product_data_elements a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:48780-1;
+    d2rq:join "structuredProductLabelMetadata.id = spl_product_data_elements.splId";
+    d2rq:column "spl_product_data_elements.field";
+    d2rq:propertyDefinitionLabel "splProductDataElements";
+    d2rq:propertyDefinitionComment "Specific information about spl product data elements for a drug product. The text is taken verbatim from the SPL PRODUCT DATA ELEMENTS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:microbiology a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:49489-8;
+    d2rq:join "structuredProductLabelMetadata.id = microbiology.splId";
+    d2rq:column "microbiology.field";
+    d2rq:propertyDefinitionLabel "microbiology";
+    d2rq:propertyDefinitionComment "Specific information about microbiology for a drug product. The text is taken verbatim from the MICROBIOLOGY SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_keep_out_of_reach_of_children a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50565-1;
+    d2rq:join "structuredProductLabelMetadata.id = otc_keep_out_of_reach_of_children.splId";
+    d2rq:column "otc_keep_out_of_reach_of_children.field";
+    d2rq:propertyDefinitionLabel "otcKeepOutOfReachOfChildren";
+    d2rq:propertyDefinitionComment "Specific information about otc keep out of reach of children for a drug product. The text is taken verbatim from the OTC - KEEP OUT OF REACH OF CHILDREN SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_stop_use a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50566-9;
+    d2rq:join "structuredProductLabelMetadata.id = otc_stop_use.splId";
+    d2rq:column "otc_stop_use.field";
+    d2rq:propertyDefinitionLabel "otcStopUse";
+    d2rq:propertyDefinitionComment "Specific information about otc stop use for a drug product. The text is taken verbatim from the OTC - STOP USE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_when_using a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50567-7;
+    d2rq:join "structuredProductLabelMetadata.id = otc_when_using.splId";
+    d2rq:column "otc_when_using.field";
+    d2rq:propertyDefinitionLabel "otcWhenUsing";
+    d2rq:propertyDefinitionComment "Specific information about otc when using for a drug product. The text is taken verbatim from the OTC - WHEN USING SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_ask_doctor_pharmacist a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50568-5;
+    d2rq:join "structuredProductLabelMetadata.id = otc_ask_doctor_pharmacist.splId";
+    d2rq:column "otc_ask_doctor_pharmacist.field";
+    d2rq:propertyDefinitionLabel "otcAskDoctorPharmacist";
+    d2rq:propertyDefinitionComment "Specific information about otc ask doctor pharmacist for a drug product. The text is taken verbatim from the OTC - ASK DOCTOR/PHARMACIST SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_ask_doctor a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50569-3;
+    d2rq:join "structuredProductLabelMetadata.id = otc_ask_doctor.splId";
+    d2rq:column "otc_ask_doctor.field";
+    d2rq:propertyDefinitionLabel "otcAskDoctor";
+    d2rq:propertyDefinitionComment "Specific information about otc ask doctor for a drug product. The text is taken verbatim from the OTC - ASK DOCTOR SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_do_not_use a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50570-1;
+    d2rq:join "structuredProductLabelMetadata.id = otc_do_not_use.splId";
+    d2rq:column "otc_do_not_use.field";
+    d2rq:propertyDefinitionLabel "otcDoNotUse";
+    d2rq:propertyDefinitionComment "Specific information about otc do not use for a drug product. The text is taken verbatim from the OTC - DO NOT USE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:guaranteed_analysis_of_feed a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50740-0;
+    d2rq:join "structuredProductLabelMetadata.id = guaranteed_analysis_of_feed.splId";
+    d2rq:column "guaranteed_analysis_of_feed.field";
+    d2rq:propertyDefinitionLabel "guaranteedAnalysisOfFeed";
+    d2rq:propertyDefinitionComment "Specific information about guaranteed analysis of feed for a drug product. The text is taken verbatim from the GUARANTEED ANALYSIS OF FEED SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:safe_handling_warning a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50741-8;
+    d2rq:join "structuredProductLabelMetadata.id = safe_handling_warning.splId";
+    d2rq:column "safe_handling_warning.field";
+    d2rq:propertyDefinitionLabel "safeHandlingWarning";
+    d2rq:propertyDefinitionComment "Specific information about safe handling warning for a drug product. The text is taken verbatim from the SAFE HANDLING WARNING SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:environmental_warning a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50742-6;
+    d2rq:join "structuredProductLabelMetadata.id = environmental_warning.splId";
+    d2rq:column "environmental_warning.field";
+    d2rq:propertyDefinitionLabel "environmentalWarning";
+    d2rq:propertyDefinitionComment "Specific information about environmental warning for a drug product. The text is taken verbatim from the ENVIRONMENTAL WARNING SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:food_safety_warning a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50743-4;
+    d2rq:join "structuredProductLabelMetadata.id = food_safety_warning.splId";
+    d2rq:column "food_safety_warning.field";
+    d2rq:propertyDefinitionLabel "foodSafetyWarning";
+    d2rq:propertyDefinitionComment "Specific information about food safety warning for a drug product. The text is taken verbatim from the FOOD SAFETY WARNING SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:information_for_owners_caregivers a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50744-2;
+    d2rq:join "structuredProductLabelMetadata.id = information_for_owners_caregivers.splId";
+    d2rq:column "information_for_owners_caregivers.field";
+    d2rq:propertyDefinitionLabel "informationForOwnersCaregivers";
+    d2rq:propertyDefinitionComment "Specific information about information for owners caregivers for a drug product. The text is taken verbatim from the INFORMATION FOR OWNERS/CAREGIVERS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:veterinary_indications a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:50745-9;
+    d2rq:join "structuredProductLabelMetadata.id = veterinary_indications.splId";
+    d2rq:column "veterinary_indications.field";
+    d2rq:propertyDefinitionLabel "veterinaryIndications";
+    d2rq:propertyDefinitionComment "Specific information about veterinary indications for a drug product. The text is taken verbatim from the VETERINARY INDICATIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:inactive_ingredient a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:51727-6;
+    d2rq:join "structuredProductLabelMetadata.id = inactive_ingredient.splId";
+    d2rq:column "inactive_ingredient.field";
+    d2rq:propertyDefinitionLabel "inactiveIngredient";
+    d2rq:propertyDefinitionComment "Specific information about inactive ingredient for a drug product. The text is taken verbatim from the INACTIVE INGREDIENT SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:package_label_principal_display_panel a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:51945-4;
+    d2rq:join "structuredProductLabelMetadata.id = package_label_principal_display_panel.splId";
+    d2rq:column "package_label_principal_display_panel.field";
+    d2rq:propertyDefinitionLabel "packageLabelPrincipalDisplayPanel";
+    d2rq:propertyDefinitionComment "Specific information about package label principal display panel for a drug product. The text is taken verbatim from the PACKAGE LABEL.PRINCIPAL DISPLAY PANEL of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:residue_warning a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:53412-3;
+    d2rq:join "structuredProductLabelMetadata.id = residue_warning.splId";
+    d2rq:column "residue_warning.field";
+    d2rq:propertyDefinitionLabel "residueWarning";
+    d2rq:propertyDefinitionComment "Specific information about residue warning for a drug product. The text is taken verbatim from the RESIDUE WARNING SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_questions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:53413-1;
+    d2rq:join "structuredProductLabelMetadata.id = otc_questions.splId";
+    d2rq:column "otc_questions.field";
+    d2rq:propertyDefinitionLabel "otcQuestions";
+    d2rq:propertyDefinitionComment "Specific information about otc questions for a drug product. The text is taken verbatim from the OTC - QUESTIONS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_pregnancy_or_breast_feeding a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:53414-9;
+    d2rq:join "structuredProductLabelMetadata.id = otc_pregnancy_or_breast_feeding.splId";
+    d2rq:column "otc_pregnancy_or_breast_feeding.field";
+    d2rq:propertyDefinitionLabel "otcPregnancyOrBreastFeeding";
+    d2rq:propertyDefinitionComment "Specific information about otc pregnancy or breast feeding for a drug product. The text is taken verbatim from the OTC - PREGNANCY OR BREAST FEEDING SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:user_safety_warnings a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:54433-8;
+    d2rq:join "structuredProductLabelMetadata.id = user_safety_warnings.splId";
+    d2rq:column "user_safety_warnings.field";
+    d2rq:propertyDefinitionLabel "userSafetyWarnings";
+    d2rq:propertyDefinitionComment "Specific information about user safety warnings for a drug product. The text is taken verbatim from the USER SAFETY WARNINGS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_purpose a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:55105-1;
+    d2rq:join "structuredProductLabelMetadata.id = otc_purpose.splId";
+    d2rq:column "otc_purpose.field";
+    d2rq:propertyDefinitionLabel "otcPurpose";
+    d2rq:propertyDefinitionComment "Specific information about otc purpose for a drug product. The text is taken verbatim from the OTC - PURPOSE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:otc_active_ingredient a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:55106-9;
+    d2rq:join "structuredProductLabelMetadata.id = otc_active_ingredient.splId";
+    d2rq:column "otc_active_ingredient.field";
+    d2rq:propertyDefinitionLabel "otcActiveIngredient";
+    d2rq:propertyDefinitionComment "Specific information about otc active ingredient for a drug product. The text is taken verbatim from the OTC - ACTIVE INGREDIENT SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:instructions_for_use a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:59845-8;
+    d2rq:join "structuredProductLabelMetadata.id = instructions_for_use.splId";
+    d2rq:column "instructions_for_use.field";
+    d2rq:propertyDefinitionLabel "instructionsForUse";
+    d2rq:propertyDefinitionComment "Specific information about instructions for use for a drug product. The text is taken verbatim from the INSTRUCTIONS FOR USE SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:accessories a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:60555-0;
+    d2rq:join "structuredProductLabelMetadata.id = accessories.splId";
+    d2rq:column "accessories.field";
+    d2rq:propertyDefinitionLabel "accessories";
+    d2rq:propertyDefinitionComment "Specific information about accessories for a drug product. The text is taken verbatim from the ACCESSORIES of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:assembly_or_installation_instructions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:60556-8;
+    d2rq:join "structuredProductLabelMetadata.id = assembly_or_installation_instructions.splId";
+    d2rq:column "assembly_or_installation_instructions.field";
+    d2rq:propertyDefinitionLabel "assemblyOrInstallationInstructions";
+    d2rq:propertyDefinitionComment "Specific information about assembly or installation instructions for a drug product. The text is taken verbatim from the ASSEMBLY OR INSTALLATION INSTRUCTIONS of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:calibration_instructions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:60557-6;
+    d2rq:join "structuredProductLabelMetadata.id = calibration_instructions.splId";
+    d2rq:column "calibration_instructions.field";
+    d2rq:propertyDefinitionLabel "calibrationInstructions";
+    d2rq:propertyDefinitionComment "Specific information about calibration instructions for a drug product. The text is taken verbatim from the CALIBRATION INSTRUCTIONS of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:cleaning_disinfecting_and_sterilization_instructions a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:60558-4;
+    d2rq:join "structuredProductLabelMetadata.id = cleaning_disinfecting_and_sterilization_instructions.splId";
+    d2rq:column "cleaning_disinfecting_and_sterilization_instructions.field";
+    d2rq:propertyDefinitionLabel "cleaningDisinfectingAndSterilizationInstructions";
+    d2rq:propertyDefinitionComment "Specific information about cleaning disinfecting and sterilization instructions for a drug product. The text is taken verbatim from the CLEANING, DISINFECTING, AND STERILIZATION INSTRUCTIONS of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:components a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:60559-2;
+    d2rq:join "structuredProductLabelMetadata.id = components.splId";
+    d2rq:column "components.field";
+    d2rq:propertyDefinitionLabel "components";
+    d2rq:propertyDefinitionComment "Specific information about components for a drug product. The text is taken verbatim from the COMPONENTS of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:intended_use_of_the_device a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:60560-0;
+    d2rq:join "structuredProductLabelMetadata.id = intended_use_of_the_device.splId";
+    d2rq:column "intended_use_of_the_device.field";
+    d2rq:propertyDefinitionLabel "intendedUseOfTheDevice";
+    d2rq:propertyDefinitionComment "Specific information about intended use of the device for a drug product. The text is taken verbatim from the INTENDED USE OF THE DEVICE of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:other_safety_information a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:60561-8;
+    d2rq:join "structuredProductLabelMetadata.id = other_safety_information.splId";
+    d2rq:column "other_safety_information.field";
+    d2rq:propertyDefinitionLabel "otherSafetyInformation";
+    d2rq:propertyDefinitionComment "Specific information about other safety information for a drug product. The text is taken verbatim from the OTHER SAFETY INFORMATION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:route_method_and_frequency_of_administration a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:60562-6;
+    d2rq:join "structuredProductLabelMetadata.id = route_method_and_frequency_of_administration.splId";
+    d2rq:column "route_method_and_frequency_of_administration.field";
+    d2rq:propertyDefinitionLabel "routeMethodAndFrequencyOfAdministration";
+    d2rq:propertyDefinitionComment "Specific information about route method and frequency of administration for a drug product. The text is taken verbatim from the ROUTE, METHOD AND FREQUENCY OF ADMINISTRATION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:summary_of_safety_and_effectiveness a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:60563-4;
+    d2rq:join "structuredProductLabelMetadata.id = summary_of_safety_and_effectiveness.splId";
+    d2rq:column "summary_of_safety_and_effectiveness.field";
+    d2rq:propertyDefinitionLabel "summaryOfSafetyAndEffectiveness";
+    d2rq:propertyDefinitionComment "Specific information about summary of safety and effectiveness for a drug product. The text is taken verbatim from the SUMMARY OF SAFETY AND EFFECTIVENESS of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:pharmacogenomics a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:66106-6;
+    d2rq:join "structuredProductLabelMetadata.id = pharmacogenomics.splId";
+    d2rq:column "pharmacogenomics.field";
+    d2rq:propertyDefinitionLabel "pharmacogenomics";
+    d2rq:propertyDefinitionComment "Specific information about pharmacogenomics for a drug product. The text is taken verbatim from the PHARMACOGENOMICS SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:patient_medication_information a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:68498-5;
+    d2rq:join "structuredProductLabelMetadata.id = patient_medication_information.splId";
+    d2rq:column "patient_medication_information.field";
+    d2rq:propertyDefinitionLabel "patientMedicationInformation";
+    d2rq:propertyDefinitionComment "Specific information about patient medication information for a drug product. The text is taken verbatim from the PATIENT MEDICATION INFORMATION SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:statement_of_identity a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:69718-5;
+    d2rq:join "structuredProductLabelMetadata.id = statement_of_identity.splId";
+    d2rq:column "statement_of_identity.field";
+    d2rq:propertyDefinitionLabel "statementOfIdentity";
+    d2rq:propertyDefinitionComment "Specific information about statement of identity for a drug product. The text is taken verbatim from the STATEMENT OF IDENTITY SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:health_claim a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:69719-3;
+    d2rq:join "structuredProductLabelMetadata.id = health_claim.splId";
+    d2rq:column "health_claim.field";
+    d2rq:propertyDefinitionLabel "healthClaim";
+    d2rq:propertyDefinitionComment "Specific information about health claim for a drug product. The text is taken verbatim from the HEALTH CLAIM SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:disposal_and_waste_handling a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:69763-1;
+    d2rq:join "structuredProductLabelMetadata.id = disposal_and_waste_handling.splId";
+    d2rq:column "disposal_and_waste_handling.field";
+    d2rq:propertyDefinitionLabel "disposalAndWasteHandling";
+    d2rq:propertyDefinitionComment "Specific information about disposal and waste handling for a drug product. The text is taken verbatim from the DISPOSAL AND WASTE HANDLING of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+
+
+map:health_care_provider_letter_section a d2rq:PropertyBridge;
+    d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+    d2rq:property loinc:71744-7;
+    d2rq:join "structuredProductLabelMetadata.id = health_care_provider_letter_section.splId";
+    d2rq:column "health_care_provider_letter_section.field";
+    d2rq:propertyDefinitionLabel "healthCareProviderLetterSection";
+    d2rq:propertyDefinitionComment "Specific information about health care provider letter section for a drug product. The text is taken verbatim from the HEALTH CARE PROVIDER LETTER SECTION of product's SPL. Information in tables has been retained in HTML to support NLP programs. The label of this property lists the LOINC code for this section (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm)"@en;
+    .
+

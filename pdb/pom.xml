@@ -7,12 +7,6 @@
 	<name>PDBML RDFizer</name>
 	<version>2.0.0</version>
 	<packaging>pom</packaging>
-
-	<parent>
-		<artifactId>parent-pom</artifactId>
-		<groupId>com.dumontierlab</groupId>
-		<version>1.3</version>
-	</parent>
 	<modules>
 		<module>pdb2rdf-cli</module>
 		<module>pdb2rdf-parser</module>
@@ -122,6 +116,18 @@
 	</dependencyManagement>
 
 	<repositories>
+		<repository>
+
+			<id>virtuoso-repo</id>
+                        <url>http://maven.aksw.org/repository/internal/</url>
+                        <releases>
+                                <enabled>true</enabled>
+                        </releases>
+                        <snapshots>
+                                <enabled>false</enabled>
+                        </snapshots>
+
+		</repository>
 		<repository>
 			<id>apache-repo</id>
 			<url>https://repository.apache.org/content/repositories/releases/</url>

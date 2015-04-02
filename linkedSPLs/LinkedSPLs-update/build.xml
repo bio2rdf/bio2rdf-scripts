@@ -1,0 +1,813 @@
+<project name="linkedSPLs" basedir="." >
+  <!-- The controller for getting varies of mappings for linked structure product labeling -->
+  <!-- Authors: Richard D Boyce, PhD, Yifan Ning, MS -->
+  <!-- Copyright 2014-2015 University of Pittsburgh -->
+
+  <!-- GLOBAL PROPERTIES  -->
+
+  <property file="data-source.properties" />
+  <property file="db-connection.properties" />
+  <property name="mysql-driver" location="lib/mysql-connector-java-5.1.33/mysql-connector-java-5.1.33-bin.jar"/>
+
+  <tstamp>
+    <format property="TODAY_US" pattern="MMddyyyy" locale="US"/>
+  </tstamp>
+
+  <target  name="set.timestamp">
+      <tstamp>
+	<format property="current" pattern="yyyy:MM:dd hh:mm aa" locale="US"/>
+      </tstamp>
+      <echo message="&#x0A;[INFO] ${current} : ${message}" file="${LOAD_LOG}"  append="true" />  
+  </target>
+
+
+  <!-- unzip otc and prescription archives from dailymed to spls        
+  -->
+
+  <target name="unzip-spls" >
+
+    <antcall target="set.timestamp">
+      <param name="message" value="Begin unzip dailymed spls archives" />
+    </antcall>
+
+    <delete>
+      <fileset dir="${DAILYMED_LABELS}/archives">
+	<include name="**/*"/>
+      </fileset>
+    </delete>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='unzip ${DAILYMED_LABELS}/\*.zip -d ${DAILYMED_LABELS}/archives/' />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="delete existing SPLs xmls" />
+    </antcall>
+
+    <delete>
+      <fileset dir="${SPLS_LOAD}/spls">
+	<include name="**/*"/>
+      </fileset>
+    </delete>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='unzip ${DAILYMED_LABELS}/archives/otc/\*.zip -d ${SPLS_LOAD}/spls/' />
+    </exec>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='unzip ${DAILYMED_LABELS}/archives/prescription/\*.zip -d ${SPLS_LOAD}/spls/' />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="unziped all spls to ${SPLS_LOAD}/spls" />
+    </antcall>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='mv ${DAILYMED_LABELS}/*.zip ${DAILYMED_LABELS}/backups/'  />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="move spls archives from ${DAILYMED_LABELS}/ to ${DAILYMED_LABELS}/backups/" />
+    </antcall>
+
+  </target>
+
+  <!-- create linkedSPLs table schema -->
+
+  <target name="createTableSchema"  >
+
+    <sql
+	driver="com.mysql.jdbc.Driver"
+	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+	userid="${mysql-u}"
+	password="${mysql-p}" 
+	src = "${SCHEMA_SQL}">
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="Schema ${mysql-schema} is loaded" />
+    </antcall>
+
+  </target>
+
+  <!-- load loinc sections mapping into linkedSPLs schema -->
+
+  <target name="load-loincSection"  >
+
+    <sql
+	driver="com.mysql.jdbc.Driver"
+	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+	userid="${mysql-u}"
+	password="${mysql-p}" 
+	src = "${LOINC_SQL}">
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loinc sections are loaded" />
+    </antcall>
+
+  </target>
+
+
+  <!-- loaded all spls in xml format into RDB schema linkedSPLs -->
+
+  <target name="loadDailymedSPLsToRDB"  >
+
+    <exec executable="python" dir="${SPLS_LOAD}" failonerror="true">
+      <arg line="loadDailymedToSql.py" /> 
+      <redirector append="true">
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="all spls in ${SPLS_LOAD}/spls is loaded in ${mysql-schema}" />
+    </antcall>
+
+  </target>
+
+
+  <!-- linkedSPLs setup:
+
+       (1) download spls from dailymed site "http://dailymed.nlm.nih.gov/dailymed/spl-resources.cfm"
+       (2) unzip to folder spls/ and then keep archive in spls/otc and spls/prescription
+       (3) create table schema
+       (4) load loinc section table in
+       (5) parse xmls and load into RDB
+  -->
+
+  <target name="linkedSPLs-setup" >
+
+    <antcall target="set.timestamp">
+      <param name="message" value="Begin ${mysql-schema} setup..." />
+    </antcall>
+
+    <!-- <antcall target = "unzip-spls" /> -->
+    <!-- <antcall target = "createTableSchema" /> -->
+    <!-- <antcall target = "load-loincSection" /> -->
+    <!-- <antcall target = "loadDailymedSPLsToRDB" /> -->
+
+    <antcall target="set.timestamp">
+      <param name="message" value="${mysql-schema} setup process is done!" />
+    </antcall>
+
+  </target>
+
+
+
+  <!-- check data sources from FDA, dailymed, Drug bank, UMLS and bioportal -->
+
+  <target name ="check-mapping-sources">
+
+    <property name="datasource" value="${FDA_UNII_NAMES},${FDA_UNII_RECORDS},${DRUGBANK_XML},${PG_CLASS_INDEXING_SPLS},${RXNORM_SETID},${RXNCONSO_RRF},${RXNORM_FULL_SCHEMA},${DRON_RXNORM},${ERROR_LOG}"/>
+    <filelist id="data.sources" dir="." files="${datasource}" />
+    
+    <restrict id="missing.files">
+      <filelist refid="data.sources"/>
+      <not>
+	<exists/>
+      </not>
+    </restrict>
+
+    <property name="missing.files" refid="missing.files" />
+
+    <condition property="pathExist" value="true" else="false">
+      <length string="${missing.files}" length="0" />
+    </condition>
+    
+    <antcall target="set.timestamp">
+      <param name="message" value="Data source files all found: ${pathExist}" />
+    </antcall>
+
+    <fail message="[INFO] ${current} : Missing files: ${missing.files}">
+      <condition>
+        <length string="${missing.files}" when="greater" length="0" />
+      </condition>
+    </fail>
+
+  </target>
+
+
+  <!-- update all mappings in linkedSPLs:
+
+       (1) mappings of preferred term to UNII
+       (2) mappings of preferred term to ChEBI
+       (3) mappings of Preferred term and Rxnorm
+       (4) mappings of Preferred term, UNII and Drugbank URI
+       (5) mappings of Preferred term, rxcui and Dailymed setid
+       (6) mappings of RxNORM, NUI and NDFRT label
+       (7) mappings of setId, UNII, NUI and PreferredNameAndRole
+       
+       takes about 1 hour for update
+  -->
+
+  <target name="linkedSPLs-update" depends="check-mapping-sources">
+
+    <antcall target="set.timestamp">
+      <param name="message" value="Begin ${mysql-schema} update..." />
+    </antcall>
+
+    <antcall target="load-FDAPreferredSubstanceToUNII" />
+    <antcall target="load-FDA_UNII_to_ChEBI" />
+    <antcall target="load-FDAPreferredSubstanceToRxNORM" />
+    <antcall target="load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF" />
+    <antcall target="load-SPLSetIDToRxNORM" />
+    <antcall target="load-RXNORM_NDFRT_INGRED_Table" />
+    <antcall target="load-FDA_EPC_Table" />
+    <antcall target="load-DrOn_ChEBI_RXCUI" />
+    <antcall target="load-ChEBI_DRUGBANK_BIO2RDF" />
+
+
+    <antcall target="set.timestamp">
+      <param name="message" value="updated all mappings in ${mysql-schema}" />
+    </antcall>
+
+  </target>
+
+  
+  <!-- get mappings of FDA preferred term and UNII 
+       update table: FDAPreferredSubstanceToUNII
+       folder: PT-UNII-ChEBI-mapping
+  -->
+
+  <target name="load-FDAPreferredSubstanceToUNII" >
+
+    <delete file="data/FDA/FDAPreferredSubstanceToUNII.txt"/>
+
+    <exec executable="bash">
+      <arg value='-c' />
+      <arg value='cat ${FDA_UNII_NAMES} | grep PT | cut -f3,4 | sort | uniq > data/FDA/FDAPreferredSubstanceToUNII.txt' />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="mappings of Preferred term and UNII is created at data/FDA/FDAPreferredSubstanceToUNII.txt" />
+    </antcall>
+
+    <sql
+	driver="com.mysql.jdbc.Driver"
+	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+	userid="${mysql-u}"
+	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+
+      <transaction>
+	truncate FDAPreferredSubstanceToUNII;
+	LOAD DATA LOCAL INFILE "data/FDA/FDAPreferredSubstanceToUNIIS.txt" INTO TABLE FDAPreferredSubstanceToUNII IGNORE 1 LINES (UNII, PreferredSubstance);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of preferred term and UNII into ${mysql-schema}.FDAPreferredSubstanceToUNII" />
+    </antcall>
+
+  </target>
+
+
+  <!-- update mappings of FDA preferred term and ChEBI 
+       update table: FDA_UNII_to_ChEBI
+       folder: PT-UNII-ChEBI-mapping
+  -->
+
+  <target name="load-FDA_UNII_to_ChEBI" >
+
+    <delete file="${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt"/>
+
+    <exec executable="python" failonerror="true">
+      <arg line="${PT-UNII-ChEBI-mapping}/getChebiMappingsFromJSON.py data/FDA/FDAPreferredSubstanceToUNII.txt" /> 
+      <redirector append="true">
+        <outputmapper type="merge" to="${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt"/>
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="mappings of FDA preferred term and ChEBI is created at ${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt" />
+    </antcall>
+
+    <sql
+	driver="com.mysql.jdbc.Driver"
+	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+	userid="${mysql-u}"
+	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+
+      <transaction>
+	truncate FDA_UNII_to_ChEBI;
+	LOAD DATA LOCAL INFILE "${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt" INTO TABLE FDA_UNII_to_ChEBI(PreferredSubstance, ChEBI)
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of preferred term and Chebi into ${mysql-schema}.FDA)UNII_to_ChEBI" />
+    </antcall>
+
+  </target>
+
+
+  <!-- update mappings of FDA preferred term and drugbank URI 
+       update table: FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF
+       folder: ChEBI-DrugBank-bio2rdf-mapping
+       takes about 1 hour
+  -->
+
+  <target name="load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF" >
+
+    <delete file="${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/Name_Syns_UNII_DbId_0_${TODAY_US}.txt"/>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="execute script to parse ${DRUGBANK_XML}, ${FDA_UNII_NAMES} and ${FDA_UNII_RECORDS} " />
+    </antcall>
+
+    <echo>[INFO] : It takes about 1 hour ... </echo>
+
+    <exec executable="python" failonerror="true">
+      <arg line="${ChEBI-DrugBank-bio2rdf-mapping}/scripts/parseDBIdBySynsInchiName.py 0 ${DRUGBANK_XML} ${FDA_UNII_NAMES} ${FDA_UNII_RECORDS}"/>
+      <redirector append="true">
+        <outputmapper type="merge" to="${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/Name_Syns_UNII_DbId_0_${TODAY_US}.txt"/>
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <delete file="${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/INCHI-OR-Syns-OR-Name-${TODAY_US}.txt"/>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='cat ${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/Name_Syns_UNII_DbId_0_${TODAY_US}.txt | cut -f1,3,4,5 | sort | uniq > ${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/INCHI-OR-Syns-OR-Name-${TODAY_US}.txt' />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="mappings of perferred term, UNII and drugbank URI is created at ${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/INCHI-OR-Syns-OR-Name-${TODAY_US}.txt" />
+    </antcall>
+
+    <delete file="${ChEBI-DrugBank-bio2rdf-mapping}/fda-substance-preferred-name-to-drugbank-${TODAY_US}.txt"/>
+
+    <exec executable="python" dir="${ChEBI-DrugBank-bio2rdf-mapping}/scripts" output="${ChEBI-DrugBank-bio2rdf-mapping}/fda-substance-preferred-name-to-drugbank-${TODAY_US}.txt">
+      <arg line="addBio2rdf_UNII_to_DrugBank.py ../UNII-data/INCHI-OR-Syns-OR-Name-${TODAY_US}.txt"/>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="post-processed mappings of perferred term and drugbank URI is created at ${ChEBI-DrugBank-bio2rdf-mapping}/fda-substance-preferred-name-to-drugbank-${TODAY_US}.txt" />
+    </antcall>
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+
+      <transaction>
+   	truncate FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF;
+   	LOAD DATA LOCAL INFILE "${ChEBI-DrugBank-bio2rdf-mapping}/fda-substance-preferred-name-to-drugbank-${TODAY_US}.txt" INTO TABLE FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF(PreferredSubstance, DRUGBANK_CA, DRUGBANK_BIO2RDF);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of preferred term , $drugbank URI, into ${mysql-schema}.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF" />
+    </antcall>
+
+  </target>
+
+
+
+  <!-- update ChEBI_DRUGBANK_BIO2RDF
+  -->
+
+  <target name="load-ChEBI_DRUGBANK_BIO2RDF" >
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+      <transaction>
+	truncate FDAPharmgxTable;
+	INSERT INTO ChEBI_DRUGBANK_BIO2RDF(ChEBI_OBO,ChEBI_BIO2RDF,DRUGBANK_CA,DRUGBANK_BIO2RDF)
+	SELECT ChEBI AS ChEBI_OBO, REPLACE(ChEBI,'http://purl.obolibrary.org/obo/CHEBI_','http://bio2rdf.org/chebi:') AS ChEBI_BIO2RDF, DRUGBANK_CA, DRUGBANK_BIO2RDF 
+	FROM linkedSPLs.FDA_UNII_to_ChEBI pt_chebi, 
+		linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF pt_db
+	WHERE pt_chebi.PreferredSubstance = pt_db.PreferredSubstance;
+
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of chebi and drugbank into ${mysql-schema}.ChEBI_DRUGBANK_BIO2RDF" />
+    </antcall>
+
+  </target>
+
+
+  <!-- 
+       folder: RxNorm-mappings
+       table: FDAPreferredSubstanceToRxNORM
+       merge preferred term, UNII, rxcui by join mappings of UNII from UMLS and rxcui with mappings of FDA Preferredterm and UNII.
+  -->
+
+  <target name="load-FDAPreferredSubstanceToRxNORM" >
+
+   <delete file=" ${RxNORM-mapping}/PreferredTerm-UNII-Rxcui-mapping.txt"/>
+
+    <exec executable="python" failonerror="true">
+      <arg line="${RxNORM-mapping}/mergePT-UNII-RXCUI.py data/FDA/FDAPreferredSubstanceToUNII.txt data/UMLS/UNIIs-Rxcuis-from-UMLS.txt ${RxNORM-mapping}/PreferredTerm-UNII-Rxcui-mapping.txt ${RxNORM-mapping}/PreferredTermRxcui-mapping.txt" /> 
+      <redirector append="true">
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="get mappings of FDA Preferred term, UNII and Rxcui at ${RxNORM-mapping}/PreferredTerm-Rxcui-mapping.txt" />
+    </antcall>
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+
+   <transaction>
+     truncate FDAPreferredSubstanceToRxNORM;
+     load data local infile '${RxNORM-mapping}/PreferredTermRxcui-mapping.txt' into table FDAPreferredSubstanceToRxNORM fields terminated by '\t'
+     lines terminated by '\n' IGNORE 1 LINES (PreferredSubstance, RxNORM)
+   </transaction>
+
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="Table FDAPreferredSubstanceToRxNORM is loaded" />
+    </antcall>
+
+  </target>
+
+
+  <!-- update mappings of setid, RxCui and RxClinicalDrug 
+       update table: SPLSetIDToRxNORM
+
+       folder: RxNORM-mapping
+  -->
+
+  <target name="load-SPLSetIDToRxNORM" >
+
+    <delete file="${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt"/>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='cat ${RXNORM_SETID} | cut -f 1,3,4 -d "|" | sort > ${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt' />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="mappings of setid, RxCui and RxClinicalDrug is created at ${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt" />
+    </antcall>
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+      <transaction>
+	truncate SPLSetIDToRxNORM;
+	LOAD DATA LOCAL INFILE '${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt' INTO TABLE `SPLSetIDToRxNORM` FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (setId, RxCUI, RxClinicalDrug);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of setid, RxCui and RxClinicalDrug into ${mysql-schema}.SPLSetIDToRxNORM" />
+    </antcall>
+
+  </target>
+
+
+  <!-- update mappings of RxNORM, NUI and NDFRT label
+       update table: RXNORM_NDFRT_INGRED_Table
+       folder: NDFRT-to-RxNorm
+  -->
+
+  <target name="load-RXNORM_NDFRT_INGRED_Table" >
+
+    <delete file="${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping-${TODAY_US}.txt"/>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='cat ${RXNCONSO_RRF} | grep "Chemical/Ingredient" | cut -f 1,14,15 -d "|" > ${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping-${TODAY_US}.txt' />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="mappings of RxNORM, NUI and NDFRT label is created at ${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping-${TODAY_US}.txt" />
+    </antcall>
+
+    <delete file="${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient-${TODAY_US}.txt"/>
+
+    <exec executable="python" failonerror="true">
+      <arg line="${NDFRT-to-RxNorm}/convertNDFRTandRXNORM_UUIDsToPurls.py ${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping-${TODAY_US}.txt" /> 
+      <redirector append="true">
+        <outputmapper type="merge" to="${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient-${TODAY_US}.txt"/>
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="post-processed mappings of RxNORM, NUI and NDFRT label is created at ${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient-${TODAY_US}.txt" />
+    </antcall>
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+      <transaction>
+	truncate RXNORM_NDFRT_INGRED_Table;
+	LOAD DATA LOCAL INFILE "${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient-${TODAY_US}.txt" INTO TABLE RXNORM_NDFRT_INGRED_Table(RXNORM, NUI, NDFRT_LABEL);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of rxnrom, NUI and NDFRF label into ${mysql-schema}.RXNORM_NDFRT_INGRED_Table" />
+    </antcall>
+
+  </target>
+
+
+  <!-- update mappings of setId, UNII, NUI and PreferredNameAndRole
+       update table: FDA_EPC_Table
+       folder: pharmacologic_class_indexing
+  -->
+
+  <target name="load-FDA_EPC_Table" >
+
+    <delete file="${pharmacologic_class_indexing}/EPC_extraction_most_recent_${TODAY_US}.txt"/>
+
+    <exec executable="python" failonerror="true">
+      <arg line="${pharmacologic_class_indexing}/parseEPCfromXMLs.py ${PG_CLASS_INDEXING_SPLS}" /> 
+      <redirector append="true">
+        <outputmapper type="merge" to="${pharmacologic_class_indexing}/EPC_extraction_most_recent_${TODAY_US}.txt"/>
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="mappings of setId, UNII, NUI and PreferredNameAndRole is created at ${pharmacologic_class_indexing}/EPC_extraction_most_recent_${TODAY_US}.txt" />
+    </antcall>
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+      <transaction>
+	truncate FDA_EPC_Table;
+	LOAD DATA LOCAL INFILE "${pharmacologic_class_indexing}/EPC_extraction_most_recent_${TODAY_US}.txt" INTO TABLE FDA_EPC_Table(setId, UNII, NUI, PreferredNameAndRole);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of setId, UNII, NUI and PreferredNameAndRole into ${mysql-schema}.FDA_EPC_Table" />
+    </antcall>
+
+  </target>
+
+
+  <!-- using redland to parse dron-rxnorm mapping xml
+       update mappings of dronId, ChEBI and Rxnorm 
+       update table: DrOn_ChEBI_RXCUI
+       folder: DrOn-to-RxNorm
+  -->
+
+  <target name="load-DrOn_ChEBI_RXCUI" >
+
+    <delete file="${DrOn-to-RxNorm}/dron-to-chebi-and-rxnorm.txt" />
+
+    <exec executable="rdfproc" dir="${DrOn-to-RxNorm}/">
+      <arg value="-n" />
+      <arg value="dron" />
+      <arg value="parse" />
+      <arg value="../../${DRON_RXNORM}" />
+    </exec>
+
+    <exec executable="bash" dir="${DrOn-to-RxNorm}/" >
+      <arg line = "parseDrOnFromOWL.sh" />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="parse to get DrOn-rxnorm-chebi mappings from ${DRON_RXNORM}" />
+    </antcall>
+
+    <delete file="${DrOn-to-RxNorm}/cleaned_dron-to-chebi-and-rxnorm-${TODAY_US}.txt"/>
+
+    <exec executable="python" failonerror="true">
+      <arg line="${DrOn-to-RxNorm}/cleanData.py ${DrOn-to-RxNorm}/dron-to-chebi-and-rxnorm.txt" /> 
+      <redirector append="true">
+        <outputmapper type="merge" to="${DrOn-to-RxNorm}/cleaned_dron-to-chebi-and-rxnorm-${TODAY_US}.txt"/>
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="created DrOn mapping file" />
+    </antcall>
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+      <transaction>
+	truncate DrOn_ChEBI_RXCUI;
+	LOAD DATA LOCAL INFILE '${DrOn-to-RxNorm}/cleaned_dron-to-chebi-and-rxnorm-${TODAY_US}.txt' INTO TABLE `DrOn_ChEBI_RXCUI`  FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (dron_id, ChEBI, rxcui);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of dron_id, ChEBI, rxcui into ${mysql-schema}.DrOn_ChEBI_RXCUI" />
+    </antcall>
+
+
+  </target>
+
+
+  <!-- by using Rxnorm REST API (deprecated)
+       update mappings of FDA preferred term and RxCui 
+       update table: FDAPreferredSubstanceToRxNORM
+       folder: RxNORM-mapping
+  -->
+
+  <target name="load-FDAPreferredSubstanceToRxNORM-restAPI" >
+
+    <delete file="data/FDA/FDAPreferredSubstance_${TODAY_US}.txt"/>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='cat ${FDA_UNII_NAMES} | cut -f 1 | sort > data/FDA/FDAPreferredSubstance_${TODAY_US}.txt' />
+    </exec>
+
+    <delete file="${RxNORM-mapping}/PreferredSubstance-to-Rxcui-mapping_${TODAY_US}.txt"/>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="The script getPreferredSubstanceRxNORM_Mapping.py will takes couple of hours to parse rxcui for all preferred terms" />
+    </antcall>
+
+    <exec executable="python" output="${RxNORM-mapping}/PreferredSubstance-to-Rxcui-mapping_${TODAY_US}.txt">
+      <arg line="${RxNORM-mapping}/getPreferredSubstanceRxNORM_Mapping.py data/FDA/FDAPreferredSubstance_${TODAY_US}.txt"/>
+    </exec>
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+
+      <transaction>
+   	truncate FDAPreferredSubstanceToRxNORM;
+   	LOAD DATA LOCAL INFILE "${RxNORM-mapping}/PreferredSubstance-to-Rxcui-mapping_${TODAY_US}.txt" INTO TABLE FDAPreferredSubstanceToRxNORM FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (PreferredSubstance, RxNORM);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of preferred term , RxNorm into ${mysql-schema}.FDAPreferredSubstanceToRxNORM" />
+    </antcall>
+
+  </target>
+
+
+  <!-- update FDAPharmgxTable
+       query the latest version of core and active moiety graphs to get latest version of pharmgxTable (mappings of setid and rxcui)
+       TOTO; revise python sparql query script to excute query agaist RDB (Mysql)
+  -->
+
+  <target name="load-FDAPharmgxTable" >
+
+    <exec executable="python" failonerror="true">
+      <arg line="${FDA-pharmacogenetic-info-mapping}/createFDAPharmgxDBTable.py ${FDA-pharmacogenetic-info-mapping}/genetic-biomarker-table-raw-import.csv ${RxNORM-mapping}/PreferredTermRxcui-mapping.txt ${FDA-pharmacogenetic-info-mapping}/FDAPharmgxTable.csv" /> 
+      <redirector append="true">
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="pharmgxTable.csv is created" />
+    </antcall>
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+      <transaction>
+	truncate FDAPharmgxTable;
+	LOAD DATA LOCAL INFILE "${FDA-pharmacogenetic-info-mapping}/FDAPharmgxTable.csv" INTO TABLE FDAPharmgxTable(activeMoiety, therapeuticApplication, biomarker,setId,SPLSection);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of activeMoiety, therapeuticApplication, biomarker,setId,SPLSection into ${mysql-schema}.FDAPharmgxTable" />
+    </antcall>
+
+  </target>
+
+  <target name="load-FDAPharmgxTableToOntologyMap" >
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+      <transaction>
+	truncate FDAPharmgxTableToOntologyMap;
+	LOAD DATA LOCAL INFILE "${FDA-pharmacogenetic-info-mapping}/biomarker-to-ontology-mapping.csv" INTO TABLE FDAPharmgxTableToOntologyMap(FDAReferencedSubgroup,HGNCGeneSymbol,Synonymns,AlleleVariant,Pharmgkb,URI,Ontology,CuratorComments);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded mappings of FDAReferencedSubgroup,HGNCGeneSymbol,Synonymns,AlleleVariant,Pharmgkb,URI,Ontology,CuratorComments into ${mysql-schema}.FDAPharmgxTableToOntologyMap" />
+    </antcall>
+
+  </target>
+
+
+  <!-- get mappings of UNIIs and rxcui for all active moieties from rrf/RXNCONSO
+  -->
+
+  <target name="extract-UNIIs-RXCUIs-from-UMLS" >
+
+    <delete file="${UNIIS_RXCUIS_FROM_UMLS}"/>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ="cat ${RXNCONSO_RRF} | grep MTHSPL\|SU | cut -f1,14 -d\| | sort | uniq > ${UNIIS_RXCUIS_FROM_UMLS}" />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="pulled list of UNIIs from RXNCONSO rrf file at ${UNIIS_RXCUIS_FROM_UMLS}" />
+    </antcall>
+
+  </target>
+
+
+</project>
+
+
+
+<!-- deprecated -->
+
+
+  <!-- cut and copy Preferred term and rxnorm mappings from rrf/RXNCONSO to folder FDA-pharmacogenetic-info-mapping
+  -->
+
+  <!-- <target name="copy-RxNorm-mappings" > -->
+
+  <!--   <delete file="${FDA-pharmacogenetic-info-mapping}/fda-active-moiety-string-name-rxnorm-mapping.csv"/> -->
+
+  <!--   <exec executable="bash"> -->
+  <!--     <arg value="-c" /> -->
+  <!--     <arg value ="cat ${RXNCONSO_RRF} | cut -f1,13,15 -d '|' > ${FDA-pharmacogenetic-info-mapping}/fda-active-moiety-string-name-rxnorm-mapping.csv" /> -->
+  <!--   </exec> -->
+
+  <!--   <antcall target="set.timestamp"> -->
+  <!--     <param name="message" value="cut and copy the mappings of active moiety string and rxcui to ${FDA-pharmacogenetic-info-mapping}/fda-active-moiety-string-name-rxnorm-mapping.csv" /> -->
+  <!--   </antcall> -->
+
+  <!-- </target> -->
