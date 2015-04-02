@@ -40,21 +40,37 @@ class RefSeqParser extends Bio2RDFizer{
 		$dataset_description = '';
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
-
-		//download
-		echo "Getting FTP file list".PHP_EOL;
-		//$list = $this->getFtpFileList('ftp.ncbi.nlm.nih.gov', '/refseq/release/complete/','/(complete\.[0-9]+\.protein\.gpff\.gz)/');
-		asort($list);
+		
+		$list_file = $ldir."ftp_list.txt";
+		if(!file_exists($list_file) || $this->getParameterValue('download') == true){
+			echo "Getting FTP file list ...";
+			$list = $this->getFtpFileList('ftp.ncbi.nlm.nih.gov', '/refseq/release/complete/','/(complete\.[0-9]+\.protein\.gpff\.gz)/');
+			if(!isset($list) or count($list) == 0) {
+				trigger_error("Unable to get list of files from FTP site. Check internet connection",E_USER_ERROR);
+				exit(-1);
+			}
+			asort($list);
+			$buf = implode("\n",$list);
+			file_put_contents($list_file,$buf);
+			echo "Done.".PHP_EOL;
+		} else {
+			echo "Using existing ftp list".PHP_EOL;
+			$list = explode("\n", file_get_contents($list_file));
+		}
 		$counter = 1;
 		$total = count($list);
 		foreach($list as $f){
 			$lfile = $ldir.$f;
+			echo "Processing ".($counter++)."/$total $f. ";
 			if(!file_exists($lfile) || $this->getParameterValue('download') == true){
 				$rfile = parent::getParameterValue('download_url').$f;
-				echo "Downloading file ".($counter++)." out of $total : $rfile ... ".PHP_EOL;
+				echo "Downloading ...";
 				utils::DownloadSingle($rfile,$lfile);
+				echo "done.";
+			} else {
+				echo "Using existing file.";
 			}
-			break;
+			echo PHP_EOL;
 		}//if download
 		//iterate over the files
 		$files = $this->getFilePaths($ldir, 'gz');
@@ -168,9 +184,9 @@ class RefSeqParser extends Bio2RDFizer{
 		    	foreach ($parsed_features_arr as $aFeature) {
 					$type = $aFeature['type'];
 					$feat_desc = $this->getFeatures($type);
-					$label = null;
+					$label = $type; $def = '';
 					if(isset($feat_desc['definition'])){
-						$label =  preg_replace('/\s\s*/', ' ', $feat_desc['definition']);
+						$def =  preg_replace('/\s\s*/', ' ', $feat_desc['definition']);
 					}
 					$comment = null;
 					$value = $aFeature['value'];
@@ -185,10 +201,11 @@ class RefSeqParser extends Bio2RDFizer{
 						$label .= " ".$comment;
 					}
 					parent::AddRDF(
-						parent::describeClass($class_id, $label, parent::getVoc()."Feature").
+						parent::describeClass($class_id, $label, parent::getVoc()."Feature", $label, $def).
 						parent::describeIndividual($feat_res, $feat_label,  $class_id).
 						parent::triplify($refseq_res, $this->getVoc()."has-feature", $feat_res)
 					);
+
 					foreach($value_arr as $aL){
 						//check if aL has an equals in it
 						$p = "/(\S+)\=(.*)/";
