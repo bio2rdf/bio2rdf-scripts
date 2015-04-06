@@ -302,7 +302,7 @@ class NCBIGeneParser extends Bio2RDFizer
 		while($l = $this->getReadFile()->read(200000)){
 			$a = explode("\t",rtrim($l));
 			if(count($a) != 7) { trigger_error("gene2ensembl: expecting 7 columns, found ".count($a)." instead", E_USER_ERROR);}
-			$id = parent::getNamespace().$a[0];
+			$id = parent::getNamespace().$a[1];
 
 			$taxid = $a[0];
 			if(isset($this->taxids) and !isset($this->taxids[$taxid])) {continue;}
