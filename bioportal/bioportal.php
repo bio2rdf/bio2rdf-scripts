@@ -363,18 +363,23 @@ class BioportalParser extends Bio2RDFizer
 	function OBO2RDF($abbv)
 	{
 		$abbv = strtolower($abbv);
+		if($abbv == "doid") $abbv = "do";
 		$minimal = (parent::getParameterValue('detail') == 'min')?true:false;
 		$minimalp = (parent::getParameterValue('detail') == 'min+')?true:false;
-		
+
 		$tid = '';
 		$first = true;
 		$is_a = false;
 		$is_deprecated = false;
 		$min = $buf = '';
-		$ouri = "http://bio2rdf.org/lsr:".strtolower($abbv);
+		$ouri = "http://bio2rdf.org/lsr:".$abbv;
+
+		$dataset_uri = $abbv."_resource:bio2rdf.dataset.$abbv.R3";
+		parent::setGraphURI($dataset_uri);
 		$buf = parent::triplify($ouri,"rdf:type","owl:Ontology");
 		$graph_uri = '<'.parent::getRegistry()->getFQURI(parent::getGraphURI()).'>';
 		$bid = 1;
+
 		while($l = parent::getReadFile()->read()) {
 			$lt = trim($l);
 			if(strlen($lt) == 0) continue;
