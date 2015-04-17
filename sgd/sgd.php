@@ -620,19 +620,36 @@ class SGDParser extends Bio2RDFizer {
 			"FPrintScan" => "fprintscan",
 			"Gene3D" => "gene3d",
 			"Coil" => "coil",
+			"Coils" => "coil",
+			"Pfam" => "pfam",
+			"PANTHER" => "panther",
+			"Phobius" => "phobius",
+			"PIRSF" => "pirsf",
+			"PRINTS" => "prints",
 			"Seg" => "seg",
+			"SMART" => "smart",
+			"SUPERFAMILY" => "superfamily",
+			"TIGRPFAM" => "pfam",
+			"TIGRFAM" => "pfam",
 			"HMMSmart" => "smart",
 			"HMMPanther" => "panther",
 			"HMMPfam" => "pfam",
 			"HMMPIR" => "pir",
-			"HMMTigr" => "tigr"
+			"HMMTigr" => "tigr",
+			"SignalP_GRAM_POSITIVE" => "signalp",
+			"SignalP_GRAM_NEGATIVE" => "signalp",
+			"SignalP_EUK" => "signalp",
+			"TMHMM" => "tmhmm" 
 		);
-		
+
 		while($l = $this->GetReadFile()->Read(2048)) {
 			$a = explode("\t",$l);
 
 			$id = "sgd:".$a[0]."p";
-			
+			if(!isset($domain_ns[$a[3]])) {
+				echo "unable to find ".$a[3]." in domain namespace".PHP_EOL;
+				continue;
+			}
 			$domain = $domain_ns[$a[3]].":".$a[4];
 			//if a[4] = 'seg', URI not necessarily unique - adding protein, start and stop positions to domain identifier as well
 			if($a[4] == 'seg'){

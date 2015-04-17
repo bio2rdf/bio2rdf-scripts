@@ -39,7 +39,7 @@ class dbSNPParser extends Bio2RDFizer
 	function __construct($argv) {
 		parent::__construct($argv,'dbsnp');	
 		// set and print application parameters
-		parent::addParameter('files',true,null,'all','all|clinical|omim|snp#,snp#');
+		parent::addParameter('files',true,null,'all','all|clinical|omim|pharmgkb|snp#,snp#');
 		parent::addParameter('download_url',false,null,'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=snp&retmode=xml&id=','the download url for individual snps');
 		parent::initialize();
 	}
@@ -51,10 +51,10 @@ class dbSNPParser extends Bio2RDFizer
 
 		// get the snps from pharmgkb
 		$snps = explode(",",parent::getParameterValue('files'));
-		if($snps[0] == 'all') $snps[0] = 'clinical'; // for now.
-
-		if($snps[0] == 'clinical') {
-			$snps = $this->getSNPs();
+		if($snps[0] == 'all') {
+			$snps =  $this->getSNPs();
+		} else if($snps[0] == 'clinical') {
+			$snps = $this->getSNPs(true);
 		} else if($snps[0] == 'omim') {
 			$lfile = $ldir.'snp_omimvar.txt';
 			if(!file_exists($lfile) || (parent::getParameterValue('download') == true)) {
@@ -62,11 +62,11 @@ class dbSNPParser extends Bio2RDFizer
 			}
 			$snps = $this->processOMIMVar($lfile);
 		} else if($snps[0] == 'pharmgkb') {
-			// @todo get the pharmgkb variants
-			
-		} else if($snps[0] == 'all') {
-			// @todo get the big list
-			
+			$lfile = $ldir.'pharmgkb.snp.zip';
+			if(!file_exists($lfile) || (parent::getParameterValue('download') == true)) {
+				$ret = utils::DownloadSingle('http://www.pharmgkb.org/download.do?objId=rsid.zip&dlCls=common',$lfile);
+			}
+			$snps = $this->processPharmGKBSnps($lfile);
 		}
 
 		$outfile = $odir."dbsnp.".parent::getParameterValue('output_format');
@@ -74,36 +74,36 @@ class dbSNPParser extends Bio2RDFizer
 		parent::setWriteFile($outfile, $gz);
 		$n = count($snps);
 
+		$z = 0;
 		foreach($snps AS $i => $snp) {
-			$file = $snp.'.xml';
+			$file = $snp.'.xml.gz';
 			$infile = $ldir.$file;
-			
+
 			$rfile = parent::getParameterValue('download_url').$snp;
 			//$outfile = $odir.$snp.".".parent::getParameterValue('output_format');
-			
+
 			// check if exists
 			$download = false;
 			if(!file_exists($infile)) {
 				//trigger_error($lfile." not found. Will attempt to download. ", E_USER_NOTICE);
 				parent::setParameterValue('download',true);
 			}
-			
+
 			// download
 			if(parent::getParameterValue('download') == true) {
 				trigger_error("Downloading $file",E_USER_NOTICE);
-				$ret = utils::downloadSingle($rfile,$infile,true);
+				$ret = utils::downloadSingle($rfile,"compress.zlib://".$infile,true);
 				if($ret === false) continue;
 			}
-			
+
 			// process
 			echo "Processing $snp (".($i+1)."/$n)".PHP_EOL;
 			$this->parse($infile);
 			parent::writeRDFBufferToWriteFile();
-
+			if($z++ % 10000 == 0) parent::clear();
 		}
 		parent::getWriteFile()->close();
-		
-			
+
 		// generate the dataset description file
 		$source_file = (new DataResource($this))
 			->setURI($rfile)
@@ -136,48 +136,60 @@ class dbSNPParser extends Bio2RDFizer
 		if($gz) $output_file->setFormat("application/gzip");
 		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
 		else $output_file->setFormat("application/n-quads");
-		
+
 		$dataset_description = $source_file->toRDF().$output_file->toRDF();
-			
+
 		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
 	}
 
 
-	function getSNPs()
+	function getSNPs($clinical_flag = false)
 	{
-	
-		$lfile = $this->getParameterValue("indir")."ncbi-snps.xml";
+		$all= array("unknown","untested","non-pathogenic","probable-non-pathogenic","probable-pathogenic","pathogenic","drug-response","histocompatibility","other");
+		$clinical = array("pathogenic","probable-pathogenic","drug-response","other");
+		if($clinical_flag == true) {
+			$term = implode("[Clinical Significance] or ",$all);
+			$term = '"'.substr($term,0)."\"[Clinical Significance]";
+		} else {
+			$term = "snp";
+		}
+		$lfile = $this->getParameterValue("indir")."snps.json";
 		if(!file_exists($lfile) || $this->getParameterValue('download') == true) {
-			$retmax = 100000;
-			$url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=snp&retmax=$retmax&term=%22pathogenic%22[Clinical%20Significance]%20or%20%22drug-response%22[Clinical%20Significance]%20or%20%22probable%20pathogenic%22[Clinical%20Significance]%20OR%20%22other%22[Clinical%20Significance]";
-			$ret = file_get_contents($url);
-			if($ret === FALSE) {
-				trigger_error("Unable to get snps from ncbi eutils",E_USER_ERROR);
-				return FALSE;
-			}
-			$ret = file_put_contents($lfile, $ret);
-			if($ret === FALSE) {
-				trigger_error("Unable to save snps into $lfile",E_USER_ERROR);
-				return FALSE;
-			}
+			echo "Downloading snp list ";
+			$xmlfile = $this->getParameterValue('indir').'snp.list.xml';
+			$retmax = 10000000;
+//			$retmax = 10;
+			$start = 0;
+			$mylist = array();
+			do {
+				echo count($mylist).PHP_EOL;
+				$url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=snp&retmax=$retmax&term=".urlencode($term)."&retstart=$start";
+
+				$c = file_get_contents($url);
+				preg_match_all("/<Id>([^\<]+)<\/Id>/",$c,$m);
+				if(!isset($m[1])) break;
+				$mylist = array_merge($mylist,$m[1]);
+				$start += $retmax;
+			} while(true);
+			file_put_contents($lfile,json_encode($mylist));
+			echo PHP_EOL;
+		} else {
+			$mylist = json_decode( file_get_contents($lfile));
 		}
 		// load the file
-		$xml = simplexml_load_file($lfile);
-		$json = json_encode($xml);
-		$a = json_decode($json,TRUE);
-		return $a['IdList']['Id'];
+		return $mylist;
 	}
 
 
 	function parse($file)
-	{	
+	{
 		$xml = new CXML($file);		
 		$xml->parse();
 		$entry = $xml->getXMLRoot();
-	//	if(!isset($entry->children())) return false;
-		
+		if(!isset($entry) or !$entry) return false;
+
 		foreach($entry->children() AS $o) {
 			$rsid = "rs".$o->attributes()->rsId;
 			$id = parent::getNamespace().$rsid;
@@ -227,46 +239,48 @@ class dbSNPParser extends Bio2RDFizer
 			
 			// assembly
 			$assembly = $o->Assembly;
-			if($assembly->attributes()->reference == "true") {
+			if($assembly and $assembly->attributes()->reference == "true") {
 				parent::addRDF(
 					parent::triplifyString($id,parent::getVoc()."dbsnp-build",(string) $assembly->attributes()->dbSnpBuild).
 					parent::triplifyString($id,parent::getVoc()."genome-build",(string) $assembly->attributes()->genomeBuild)
 				);
 				
 				$component = $assembly->Component;
-				parent::addRDF(
-					parent::triplify($id,parent::getVoc()."contig-accession","genbank:".((string) $component->attributes()->accession)).
-					parent::triplify($id,parent::getVoc()."contig-gi","gi:".((string) $component->attributes()->gi)).
-					parent::triplifyString($id,parent::getVoc()."chromosome",((string) $component->attributes()->chromosome))
-				);
-				$maploc = $component->MapLoc;
-				
-				foreach($maploc->children() AS $fxnset) {
-					$fxnset_id = parent::getRes().md5($fxnset->asXML());
-					
+				if($component) {
 					parent::addRDF(
-						parent::triplify($id,parent::getVoc()."maps-to",$fxnset_id).
-						parent::triplify($fxnset_id,"rdf:type",parent::getVoc()."Fxnset").	
-						parent::describeClass(parent::getVoc()."Fxnset","Fxnset")
+						parent::triplify($id,parent::getVoc()."contig-accession","genbank:".((string) $component->attributes()->accession)).
+						parent::triplify($id,parent::getVoc()."contig-gi","gi:".((string) $component->attributes()->gi)).
+						parent::triplifyString($id,parent::getVoc()."chromosome",((string) $component->attributes()->chromosome))
 					);
-					if(isset($fxnset->attributes()->geneId)) 
-						parent::addRDF(parent::triplify($fxnset_id,parent::getVoc()."gene","ncbigene:".((string) $fxnset->attributes()->geneId)));
-					if(isset($fxnset->attributes()->symbol)) 
-						parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."gene-symbol", ((string) $fxnset->attributes()->symbol)));
-					if(isset($fxnset->attributes()->mrnaAcc)) 
-						parent::addRDF(parent::triplify($fxnset_id,parent::getVoc()."mrna","refseq:".((string) $fxnset->attributes()->mrnaAcc)));
-					if(isset($fxnset->attributes()->protAcc))
-						parent::addRDF(parent::triplify($fxnset_id,parent::getVoc()."protein","refseq:".((string) $fxnset->attributes()->protAcc)));
-					if(isset($fxnset->attributes()->fxnClass)) 
-						parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."fxn-class",((string) $fxnset->attributes()->fxnClass)));
-					if(isset($fxnset->attributes()->allele)) 
-						parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."allele",((string) $fxnset->attributes()->allele)));
-					if(isset($fxnset->attributes()->residue)) 
-						parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."residue",((string) $fxnset->attributes()->residue)));
-					if(isset($fxnset->attributes()->readingFrame)) 
-						parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."reading-frame",((string) $fxnset->attributes()->readingFrame)));
-					if(isset($fxnset->attributes()->aaPosition)) 
-						parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."position",((string) $fxnset->attributes()->aaPosition)));
+					$maploc = $component->MapLoc;
+					if($maploc) {
+						foreach($maploc->children() AS $fxnset) {
+							$fxnset_id = parent::getRes().md5($fxnset->asXML());
+							parent::addRDF(
+								parent::triplify($id,parent::getVoc()."maps-to",$fxnset_id).
+								parent::triplify($fxnset_id,"rdf:type",parent::getVoc()."Fxnset").
+								parent::describeClass(parent::getVoc()."Fxnset","Fxnset")
+							);
+							if(isset($fxnset->attributes()->geneId)) 
+								parent::addRDF(parent::triplify($fxnset_id,parent::getVoc()."gene","ncbigene:".((string) $fxnset->attributes()->geneId)));
+							if(isset($fxnset->attributes()->symbol)) 
+								parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."gene-symbol", ((string) $fxnset->attributes()->symbol)));
+							if(isset($fxnset->attributes()->mrnaAcc)) 
+								parent::addRDF(parent::triplify($fxnset_id,parent::getVoc()."mrna","refseq:".((string) $fxnset->attributes()->mrnaAcc)));
+							if(isset($fxnset->attributes()->protAcc))
+								parent::addRDF(parent::triplify($fxnset_id,parent::getVoc()."protein","refseq:".((string) $fxnset->attributes()->protAcc)));
+							if(isset($fxnset->attributes()->fxnClass)) 
+								parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."fxn-class",((string) $fxnset->attributes()->fxnClass)));
+							if(isset($fxnset->attributes()->allele)) 
+								parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."allele",((string) $fxnset->attributes()->allele)));
+							if(isset($fxnset->attributes()->residue)) 
+								parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."residue",((string) $fxnset->attributes()->residue)));
+							if(isset($fxnset->attributes()->readingFrame)) 
+								parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."reading-frame",((string) $fxnset->attributes()->readingFrame)));
+							if(isset($fxnset->attributes()->aaPosition)) 
+								parent::addRDF(parent::triplifyString($fxnset_id,parent::getVoc()."position",((string) $fxnset->attributes()->aaPosition)));
+						}
+					}
 				}
 			}
 		}
@@ -288,6 +302,29 @@ variant).
 		}
 		$snps = array_unique($snps);
 		fclose($fp);
+		return $snps;
+	}
+	public function processPharmGKBSnps($lfile)
+	{
+		$zin = new ZipArchive();
+		if($zin->open($lfile) === FALSE) {
+			trigger_error("Unable to open $lfile");
+			exit;
+		}
+
+		$f = "rsid.tsv";
+		$fp = $zin->getStream($f);
+		if(!$fp) {
+			trigger_error("Unable to get pointer to $f in $lfile", E_USER_ERROR);
+			return FALSE;
+		}
+		fgets($fp);
+		fgets($fp);
+		while($a = fgetcsv($fp,1000,"\t")) {
+			$snps[] = $a[0];
+		}
+		$zin->close();
+
 		return $snps;
 	}
 }

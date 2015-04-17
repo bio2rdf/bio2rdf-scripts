@@ -401,24 +401,28 @@ class MGIParser extends Bio2RDFizer
 			
 			$allele = strtolower($a[2]);
 			if(!$allele) {echo "ignoring ".$a[0].PHP_EOL;continue;}
+
+			$alleles = explode("|",strtolower($a[2]));
+
 			$diseases = explode(",",$a[7]);
 			foreach($diseases AS $d) {
 				$disease = "omim:$d";
-				$id = parent::getRes().md5($allele.$disease); 
-				$label = "$allele $disease association";
-				parent::addRDF(
-					parent::describeIndividual($id, $label, $this->getVoc()."Allele-Disease-Association").
-					parent::describeClass($this->getVoc()."Allele-Disease-Association","MGI Allele-Disease Association").
-					parent::triplify($id,$this->getVoc()."allele",$allele).
-					parent::triplify($id,$this->getVoc()."disease",$disease)
-				);
-				
-				if($a[5]) {
-					$pmids = explode(",",$a[5]);
-					foreach($pmids AS $pmid) {
-						parent::addRDF(		
-							parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pmid)	
-						);
+				foreach($alleles AS $allele) {
+					$id = parent::getRes().md5($allele.$disease); 
+					$label = "$allele $disease association";
+					parent::addRDF(
+						parent::describeIndividual($id, $label, $this->getVoc()."Allele-Disease-Association").
+						parent::describeClass($this->getVoc()."Allele-Disease-Association","MGI Allele-Disease Association").
+						parent::triplify($id,$this->getVoc()."allele",$allele).
+						parent::triplify($id,$this->getVoc()."disease",$disease)
+					);
+					if($a[5]) {
+						$pmids = explode(",",$a[5]);
+						foreach($pmids AS $pmid) {
+							parent::addRDF(		
+								parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pmid)	
+							);
+						}
 					}
 				}
 			}
@@ -446,26 +450,29 @@ class MGIParser extends Bio2RDFizer
 				continue;
 			}
 			
-			$allele = strtolower($a[2]);
+			$alleles = explode("|",strtolower($a[2]));
 			$diseases = explode(",",$a[7]);
 			foreach($diseases AS $d) {
 				$disease = "omim:$d";
-				$id = parent::getRes().md5($allele.$disease); 
-				$label = "$allele $disease absent association";
-				parent::addRDF(
-					parent::describeIndividual($id, $label, $this->getVoc()."Allele-Disease-Non-Association").
-					parent::describeClass($this->getVoc()."Allele-Disease-Non-Association","MGI Allele-Disease Non-Association").
-					parent::triplify($id,$this->getVoc()."allele",$allele).
-					parent::triplify($id,$this->getVoc()."disease",$disease).
-					parent::triplifyString($id,$this->getVoc()."is-negated","true")
-				);
-				
-				if($a[5]) {
-					$pmids = explode(",",$a[5]);
-					foreach($pmids AS $pmid) {
-						parent::addRDF(		
-							parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pmid)	
-						);
+
+				foreach($alleles AS $allele) {
+					$id = parent::getRes().md5($allele.$disease); 
+					$label = "$allele $disease absent association";
+					parent::addRDF(
+						parent::describeIndividual($id, $label, $this->getVoc()."Allele-Disease-Non-Association").
+						parent::describeClass($this->getVoc()."Allele-Disease-Non-Association","MGI Allele-Disease Non-Association").
+						parent::triplify($id,$this->getVoc()."allele",$allele).
+						parent::triplify($id,$this->getVoc()."disease",$disease).
+						parent::triplifyString($id,$this->getVoc()."is-negated","true")
+					);
+
+					if($a[5]) {
+						$pmids = explode(",",$a[5]);
+						foreach($pmids AS $pmid) {
+							parent::addRDF(		
+								parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pmid)	
+							);
+						}
 					}
 				}
 			}

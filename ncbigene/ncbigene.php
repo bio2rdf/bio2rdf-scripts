@@ -302,7 +302,7 @@ class NCBIGeneParser extends Bio2RDFizer
 		while($l = $this->getReadFile()->read(200000)){
 			$a = explode("\t",rtrim($l));
 			if(count($a) != 7) { trigger_error("gene2ensembl: expecting 7 columns, found ".count($a)." instead", E_USER_ERROR);}
-			$id = parent::getNamespace().$a[0];
+			$id = parent::getNamespace().$a[1];
 
 			$taxid = $a[0];
 			if(isset($this->taxids) and !isset($this->taxids[$taxid])) {continue;}
@@ -404,7 +404,6 @@ class NCBIGeneParser extends Bio2RDFizer
 				$splitLine = explode("\t",$aLine);
 				if(count($splitLine) == 8){
 					$taxid = "taxon:".trim($splitLine[0]);
-
 					if(isset($this->taxids) and !isset($this->taxids[ trim($splitLine[0]) ])) {continue;}
 
 					$aGeneId = trim($splitLine[1]);
@@ -414,11 +413,10 @@ class NCBIGeneParser extends Bio2RDFizer
 					$golabel = trim($splitLine[5]);
 					$pmids = explode("|", $splitLine[6]);
 					$goCategory = strtolower(trim($splitLine[7]));
-					
-					// $this->AddRDF($this->QQuad($geneid,"geneid_vocabulary:has_taxid",$taxid));
+
 					$this->AddRDF(
 						parent::triplify($this->getNamespace().$aGeneId, $this->getVoc().$goCategory, $goid).
-						parent::describeProperty($this->getVoc().$goCategory, "Relationship between a gene and a GO $goCategory")
+						parent::describeProperty($this->getVoc().$goCategory, "Relationship between a NCBI Gene and a GO $goCategory")
 					);
 
 					$i = substr($goid,3);
@@ -428,14 +426,13 @@ class NCBIGeneParser extends Bio2RDFizer
 						// create an evidence object
 						$eid = $this->getRes().$aGeneId."_".$i;
 						$this->AddRDF(
-							parent::describeIndividual($eid, $this->getNamespace().$aGeneId."-$goid association", $this->getVoc()."Gene-$goCategory-Association").
+							parent::describeIndividual($eid, "association between ".$this->getNamespace().$aGeneId." and $goid", $this->getVoc()."Gene-$goCategory-Association").
 							parent::triplify($this->getNamespace().$aGeneId, $this->getVoc()."gene-".$goCategory."-association", $eid).
 							parent::triplify($eid, $this->getVoc()."evidence", "eco:$evidenceCode").
 							parent::triplify($eid, $this->getVoc()."gene", $this->getNamespace().$aGeneId).
-							parent::triplifyString($eid, $this->getVoc()."go-category", $goCategory).
-							parent::triplify($eid, $this->getVoc()."go-term", $goid).
-							parent::describeProperty($this->getVoc()."gene-".$goCategory."-association", "Relationship between a gene and a gene-$goCategory-association")
-
+							parent::triplifyString($eid, $this->getVoc()."go-category", $this->getVoc().$goCategory).
+							parent::describeClass($this->getVoc().$goCategory, $goCategory).
+							parent::triplify($eid, $this->getVoc()."go-term", $goid)
 						);
 						foreach ($pmids as $pmid){
 							if($pmid != '-'){
