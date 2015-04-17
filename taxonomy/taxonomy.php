@@ -66,7 +66,8 @@ class TaxonomyParser extends Bio2RDFizer{
 
 	function __construct($argv) {
 		parent::__construct($argv, "taxonomy");
-		parent::addParameter('files',true,'all|taxdmp|gi2taxid_nucleotide|gi2taxid_protein','taxdmp','files to process');
+		parent::addParameter('files',true,'all|taxdmp','taxdmp','files to process');
+//		parent::addParameter('files',true,'all|taxdmp|gi2taxid_nucleotide|gi2taxid_protein','taxdmp','files to process');
 		parent::addParameter('download', false, 'true|false','false');
 		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip');
 		parent::initialize();
