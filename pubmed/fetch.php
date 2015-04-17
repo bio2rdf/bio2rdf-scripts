@@ -6,11 +6,13 @@ $output_dir = "$base_dir/pmid";
 @mkdir($input_dir);
 @mkdir($output_dir);
 
+system("cd $input_dir; /usr/bin/lftp -e 'o ftp://ftp.nlm.nih.gov/nlmdata/.medleasebaseline/gz && mirror --verbose && quit'; /usr/bin/lftp -e 'o ftp://ftp.nlm.nih.gov/nlmdata/.medlease/gz && mirror --verbose && quit'");
+exit;
+
 
 $item_start = '<MedlineCitation '; // defines the start of each item
 $id_regexp = '/<PMID Version=\"\d\">(\d+)<\/PMID>/'; // unique identifier used for the filename
 // fetch MEDLINE (needs NLM license)
-//system("cd $input_dir; /usr/bin/lftp -e 'o ftp://ftp.nlm.nih.gov/nlmdata/.medleasebaseline/gz && mirror --verbose && quit'; /usr/bin/lftp -e 'o ftp://ftp.nlm.nih.gov/nlmdata/.medlease/gz && mirror --verbose && quit'");
 
 // process all files ending in .xml.gz
 foreach (glob("$input_dir/*.xml.gz") as $file){ 
