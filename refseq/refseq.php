@@ -86,7 +86,7 @@ class RefSeqParser extends Bio2RDFizer{
 			$this->process();
 			parent::clear();
 			echo "done!".PHP_EOL;
-
+			
 			$this->getReadFile()->close();
 			$this->getWriteFile()->close();
 
@@ -177,8 +177,8 @@ class RefSeqParser extends Bio2RDFizer{
 		    		parent::triplifyString($refseq_res, $this->getVoc().'chromosome-shape', $parsed_locus_arr[0]['chromosome_shape']).
 		    		parent::triplifyString($refseq_res, $this->getVoc().'date-of-entry', $parsed_locus_arr[0]['date']).
 					parent::triplifyString($refseq_res, $this->getVoc().'source', utf8_encode($parsed_source_arr[0])).
-					parent::QQuadO_URL($refseq_res, $this->getVoc().'fasta-seq', 'https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?sendto=on&db=nucest&dopt=fasta&val='.$parsed_version_arr['gi']).
-					parent::QQuadO_URL('https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?sendto=on&db=nucest&dopt=fasta&val='.$parsed_version_arr['gi'], "rdf:type", $this->getVoc().'fasta-sequence')
+					parent::triplify($refseq_res, $this->getVoc().'fasta-seq', 'https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?sendto=on&db=nucest&dopt=fasta&val='.$parsed_version_arr['gi']).
+					parent::triplify('https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?sendto=on&db=nucest&dopt=fasta&val='.$parsed_version_arr['gi'], "rdf:type", $this->getVoc().'fasta-sequence')
 		    	);
 		    	//add the features to the rdf
 		    	foreach ($parsed_features_arr as $aFeature) {
@@ -189,7 +189,8 @@ class RefSeqParser extends Bio2RDFizer{
 						$def =  preg_replace('/\s\s*/', ' ', $feat_desc['definition']);
 					}
 					$comment = null;
-					$value = $aFeature['value'];
+//					$value = $aFeature['value'];
+					$value = str_replace("UniProtKB/Swiss-Prot","UniProt", $aFeature['value']);  // imperfect solution.
 					$value_arr = explode("/", $value);
 					$location = preg_replace('/\n/', '',$value_arr[0]);
 					$class_id = parent::getVoc().md5($type);
