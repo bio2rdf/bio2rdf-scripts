@@ -109,10 +109,12 @@ class LSRParser extends Bio2RDFizer
 			if(!isset($r['preferredPrefix'])) continue;
 			$dataset = $r['preferredPrefix'];
 			$id = $this->getNamespace().$r['preferredPrefix'];
-			
+
 			parent::addRDF( 
 				parent::QQuad($id,"rdf:type","dcat:Dataset").
-				parent::QQuad($id,"rdf:type","lsr:Dataset").
+				parent::QQuad($id,"rdf:type","lsr_vocabulary:Dataset").
+				parent::QQuad("lsr_vocabulary:Dataset","rdf:type","owl:Class").
+				parent::QQuadL("lsr_vocabulary:Dataset","rdfs:label", "Dataset").
 				parent::QQuadL($id,"dc:title",$r['title']).
 				parent::QQuadL($id,"dc:description",$r['description']).
 				parent::QQuadL($id,"rdfs:label", $r['title']." [".$id."]").
@@ -139,9 +141,11 @@ class LSRParser extends Bio2RDFizer
 			}
 			if($r['alternateURI']) {
 				foreach( explode(",",$r['alternateURI']) AS $alt_uri) {
-					parent::addRDF(
-						parent::QQuad($id,"void:uriRegexPattern",$alt_uri)
-					);
+					if(trim($alt_uri) != '') {
+						parent::addRDF(
+							parent::QQuad($id,"void:uriRegexPattern",$alt_uri)
+						);
+					}
 				}
 			}
 			if($r['miriam']) {
