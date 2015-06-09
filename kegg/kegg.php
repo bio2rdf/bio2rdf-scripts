@@ -248,6 +248,23 @@ class KEGGParser extends Bio2RDFizer
 			echo "parsing $nsid ... ";
 			$this->parseEntry($lfile);
 			parent::writeRDFBufferToWriteFile();
+			
+			if($db === "pathway") {
+					$ko = str_replace("map","ko",$id);
+					$lfile = $ldir.$id.".kgml";
+					$rfile = "http://www.kegg.jp/kegg-bin/download?entry=".$ko."&format=kgml";
+					if(!file_exists($lfile) || parent::getParameterValue('download') == 'true') {
+						echo "downloading KGML for $nsid ";
+						$ret = utils::downloadSingle($rfile,$lfile);
+						if($ret === false) {
+							echo "unable to download ".$nsid." ... skipping".PHP_EOL;
+							continue;
+						}
+						echo "done. ";
+					}
+					$this->parseKGML($lfile);
+					parent::writeRDFBufferToWriteFile();
+			}
 			echo "done!".PHP_EOL;
 		}
 	}
@@ -719,6 +736,17 @@ class KEGGParser extends Bio2RDFizer
 		fclose($fp);
 	}
 	
+	// php runparser.php parser=kegg files=pathway
+	function parseKGML($lfile)
+	{
+		// read XML
+		
+		// iterate over relations
+		
+		
+			// write rdf 
+		
+	}
 }
 
 
