@@ -230,6 +230,7 @@ class KEGGParser extends Bio2RDFizer
 				parent::describeIndividual($uri,$name,parent::getVoc().ucfirst($db)).
 				parent::describeClass(parent::getVoc().ucfirst($db),"KEGG $db").
 				parent::triplifyString($uri,parent::getVoc()."internal-id",$nsid)
+				// http://www.kegg.jp/entry/
 			);
 
 			// now get the entries for each
