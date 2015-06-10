@@ -272,6 +272,11 @@ class DrugBankParser extends Bio2RDFizer
 								parent::addRDF(
 									parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")
 								);
+								if($ns == "uniprot") {
+									parent::addRDF(
+										parent::triplify("$ns:$id","skos:exactMatch","http://purl.uniprot.org/uniprot/$id")
+									);
+								}
 							} else if($k3 == 'pfam') {
 								parent::addRDF(
 									parent::triplify($pid, parent::getVoc()."x-pfam","pfam:"."".$v3->identifier)
@@ -641,6 +646,12 @@ class DrugBankParser extends Bio2RDFizer
                  parent::addRDF(
                     parent::triplify($did,parent::getVoc()."x-$ns","$ns:$id")
                  );
+		 if($ns == "pubchemcompound") {
+			parent::addRDF(
+				parent::triplify("$ns:$id","skos:exactMatch","http://rdf.ncbi.nlm.nih.gov/pubchem/compound/$id")
+			);
+		 }
+
              }
          }
      }
