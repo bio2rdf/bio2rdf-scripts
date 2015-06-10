@@ -136,8 +136,8 @@ class DrugBankParser extends Bio2RDFizer
 
 
     function parse_drugbank($ldir,$infile)
-    {		
-		$xml = new CXML($ldir,$infile);
+    {
+		$xml = new CXML($ldir.$infile);
 		while($xml->parse("drug") == TRUE) {
 			if(isset($this->id_list) and count($this->id_list) == 0) break;
 			$this->parseDrugEntry($xml);
@@ -335,7 +335,7 @@ class DrugBankParser extends Bio2RDFizer
 		unset($this->id_list[$dbid]);
 	}
 
-	echo $dbid.PHP_EOL;
+	echo "Processing $dbid".PHP_EOL;
 	if(isset($x->description) && $x->description != '') {
 		$description = trim((string)$x->description);
         }
@@ -720,29 +720,17 @@ class DrugBankParser extends Bio2RDFizer
 			foreach($x->$list_name AS $item) {
 				if(isset($item->$item_name) && ($item->$item_name != '')) { 
 					$l = $item->$item_name;
-					if(isset($l->$list_item_name)) {
-						foreach($l->$list_item_name AS $k) {
-							$kid = parent::getVoc().ucfirst(str_replace(" ","-",$k));
-							$this->addRDF(
-								$this->describeIndividual($kid,ucfirst($k),parent::getVoc().ucfirst($item_name)).
-								$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst($item_name)).
-								$this->triplify($id,$predicate,$kid)
-							);
-						}
-					} else {
-						if($item_name == "synonym") {
-							$kid = parent::getvoc().md5($l);
-						} else {
-							$kid = parent::getVoc().ucfirst(str_replace(" ","-",$l));
-						}
+					$att = ($l->attributes()); 
+					foreach($l AS $item_value) {
+						$kid = parent::getvoc().md5($item_value);
 						$this->addRDF(
-							$this->describeIndividual($kid,ucfirst($l),parent::getVoc().ucfirst($item_name)).
+							$this->describeIndividual($kid,$item_value,parent::getVoc().ucfirst($item_name)).
 							$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst($item_name)).
 							$this->triplify($id,$predicate,$kid)
 						);
-						foreach($l->attributes() AS $ka => $va) {
+						foreach($att AS $ka => $va) {
 							parent::addRDF(
-								$this->triplifyString($kid, parent::getVoc().$ka, $va)
+								$this->triplifyString($kid, parent::getVoc().$ka, "".$va)
 							);
 						}
 					}
