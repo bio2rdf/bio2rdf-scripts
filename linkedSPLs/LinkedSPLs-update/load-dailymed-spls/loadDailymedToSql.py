@@ -360,13 +360,14 @@ def print_progress(current, total, filename):
         message += "...done\n"
     sys.stdout.write("\r\x1b[K" + message)
     sys.stdout.flush()
+    
 
 ##Insert new spls into database
 def run(logger, spls, limit=None):        
     count = 0
     
     for splF in spls:
-        print "\nStart parsing: {0}".format(splF)
+        print "\n Start parsing: {0}".format(splF)
         #tree = etree.ElementTree(file=splF)
         p = XMLParser(huge_tree=True)
         tree = parse(splF, parser=p)
@@ -379,6 +380,13 @@ def run(logger, spls, limit=None):
             logger.info("SetId {0} from file {1} not found in rxnorm".format(tags['setId'],splF))
             continue
 
+        ## check if there are deplicated setId
+        cursor.execute("SELECT id FROM structuredProductLabelMetadata WHERE setId=%s",[tags['setId']])
+        idExists = cursor.fetchall()
+        if idExists:
+            print "\n duplicated setId %s in file %s" % (tags['setId'], splF)
+            continue
+        
         try:
             insert_active_moieties(tags['activeMoieties'], tags['activeMoietyUNIIs'])
             insertQuery = "INSERT INTO structuredProductLabelMetadata(setId, versionNumber, fullName, routeOfAdministration, genericMedicine, representedOrganization, effectiveTime, filename) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"

@@ -27,7 +27,7 @@
   <target name="unzip-spls" >
 
     <antcall target="set.timestamp">
-      <param name="message" value="Begin unzip dailymed spls archives" />
+      <param name="message" value="Begin unzip dailymed spls archives (Estimate takes 1.5 hours)" />
     </antcall>
 
     <delete>
@@ -219,16 +219,17 @@
       <param name="message" value="Begin ${mysql-schema} update..." />
     </antcall>
 
-    <antcall target="load-FDAPreferredSubstanceToUNII" />
-    <antcall target="load-FDA_UNII_to_ChEBI" />
-    <antcall target="load-FDAPreferredSubstanceToRxNORM" />
-    <antcall target="load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF" />
-    <antcall target="load-SPLSetIDToRxNORM" />
-    <antcall target="load-RXNORM_NDFRT_INGRED_Table" />
-    <antcall target="load-FDA_EPC_Table" />
-    <antcall target="load-DrOn_ChEBI_RXCUI" />
-    <antcall target="load-ChEBI_DRUGBANK_BIO2RDF" />
-
+    <!-- <antcall target="load-FDAPreferredSubstanceToUNII" /> -->
+    <!-- <antcall target="load-FDA_UNII_to_ChEBI" /> -->
+    <!-- <antcall target="load-FDAPreferredSubstanceToRxNORM" /> -->
+    <!-- <antcall target="load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF" /> -->
+    <!-- <antcall target="load-SPLSetIDToRxNORM" /> -->
+    <!-- <antcall target="load-RXNORM_NDFRT_INGRED_Table" />   -->
+    <!-- <antcall target="load-FDA_EPC_Table" /> -->
+    <!-- <antcall target="load-DrOn_ChEBI_RXCUI" /> -->
+    <!-- <antcall target="load-ChEBI_DRUGBANK_BIO2RDF" /> -->
+    <!-- <antcall target="load-FDAPharmgxTable" /> -->
+    <!-- <antcall target="load-FDAPharmgxTableToOntologyMap" /> -->
 
     <antcall target="set.timestamp">
       <param name="message" value="updated all mappings in ${mysql-schema}" />
@@ -266,7 +267,7 @@
 
       <transaction>
 	truncate FDAPreferredSubstanceToUNII;
-	LOAD DATA LOCAL INFILE "data/FDA/FDAPreferredSubstanceToUNIIS.txt" INTO TABLE FDAPreferredSubstanceToUNII IGNORE 1 LINES (UNII, PreferredSubstance);
+	LOAD DATA LOCAL INFILE "data/FDA/FDAPreferredSubstanceToUNII.txt" INTO TABLE FDAPreferredSubstanceToUNII IGNORE 1 LINES (UNII, PreferredSubstance);
       </transaction>
     </sql>
 

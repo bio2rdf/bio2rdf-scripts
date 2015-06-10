@@ -177,9 +177,8 @@ map:pharmgxSection a d2rq:PropertyBridge;
 map:pharmgxTherAppTranslate a d2rq:TranslationTable;
     d2rq:translation [ d2rq:databaseValue "Hematology"; d2rq:rdfValue  ncbit:Hematology; ];
     d2rq:translation [ d2rq:databaseValue "Oncology"; d2rq:rdfValue  ncbit:Oncology; ];
-    d2rq:translation [ d2rq:databaseValue "Analgesics"; d2rq:rdfValue  ncbit:Analgesic_Agent; ];
+    d2rq:translation [ d2rq:databaseValue "Analgesic"; d2rq:rdfValue  ncbit:Analgesic_Agent; ];
     d2rq:translation [ d2rq:databaseValue "Neurology"; d2rq:rdfValue  ncbit:Neurology; ];
-    d2rq:translation [ d2rq:databaseValue "Cardiovascular"; d2rq:rdfValue  ncbit:Cardiovascular; ];
     d2rq:translation [ d2rq:databaseValue "Psychiatry"; d2rq:rdfValue  ncbit:Psychiatry; ];
     d2rq:translation [ d2rq:databaseValue "Gastroenterology"; d2rq:rdfValue  ncbit:Gastroenterology; ];
     d2rq:translation [ d2rq:databaseValue "Musculoskeletal"; d2rq:rdfValue  ncbit:Musculoskeletal; ];
@@ -188,10 +187,19 @@ map:pharmgxTherAppTranslate a d2rq:TranslationTable;
     d2rq:translation [ d2rq:databaseValue "Antivirals"; d2rq:rdfValue  ncbit:Antiviral_Agent; ];
     d2rq:translation [ d2rq:databaseValue "Antifungals"; d2rq:rdfValue  ncbit:Antifungal_Agent; ];
     d2rq:translation [ d2rq:databaseValue "Metabolic and Endocrinology"; d2rq:rdfValue  ncbit:Endocrinology; ];
-    d2rq:translation [ d2rq:databaseValue "Dermatology and Dental"; d2rq:rdfValue  ncbit:Dermatology; ];
+    d2rq:translation [ d2rq:databaseValue "Dental"; d2rq:rdfValue  ncbit:Dental; ];
+    d2rq:translation [ d2rq:databaseValue "Dermatology"; d2rq:rdfValue  ncbit:Dermatology; ];
     d2rq:translation [ d2rq:databaseValue "Antiinfectives"; d2rq:rdfValue  ncbit:Anti-Infective_Agent; ];
     d2rq:translation [ d2rq:databaseValue "Reproductive and Urologic"; d2rq:rdfValue  ncbit:Urology; ];
-    d2rq:translation [ d2rq:databaseValue "Antiarrhythmics"; d2rq:rdfValue  ncbit:Arrhythmia; ].
+    d2rq:translation [ d2rq:databaseValue "Antiarrhythmics"; d2rq:rdfValue  ncbit:Arrhythmia; ];
+    d2rq:translation [ d2rq:databaseValue "Infectious Diseases"; d2rq:rdfValue  ncbit:Infectious_Diseases; ];
+    d2rq:translation [ d2rq:databaseValue "Metabolic Disorders"; d2rq:rdfValue  ncbit:Metabolic_Disorders; ];
+    d2rq:translation [ d2rq:databaseValue "Cardiology"; d2rq:rdfValue  ncbit:Cardiology; ];
+    d2rq:translation [ d2rq:databaseValue "Anesthesiology"; d2rq:rdfValue  ncbit:Anesthesiology; ];
+    d2rq:translation [ d2rq:databaseValue "Transplantation"; d2rq:rdfValue  ncbit:Transplantation; ];
+    d2rq:translation [ d2rq:databaseValue "Cardiology or Hematology"; d2rq:rdfValue  ncbit:Cardiology_Hematology; ];
+    d2rq:translation [ d2rq:databaseValue "Endocrinology"; d2rq:rdfValue  ncbit:Endocrinology; ].
+
 
 # map:pharmgxSectionTranslate a d2rq:TranslationTable;
 #      d2rq:translation [ d2rq:databaseValue "Adverse Reactions"; d2rq:rdfValue  linkedspls_vocabulary:adverseReactions; ];
@@ -231,7 +239,6 @@ map:pharmgxSectionTranslate a d2rq:TranslationTable;
      d2rq:translation [ d2rq:databaseValue "Warnings and Precautions"; d2rq:rdfValue  loinc:43685-7; ];
      d2rq:translation [ d2rq:databaseValue "Warnings"; d2rq:rdfValue  loinc:34071-1; ];
      .
-
 
 
 

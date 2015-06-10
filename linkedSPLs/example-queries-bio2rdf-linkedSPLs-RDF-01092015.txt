@@ -145,6 +145,33 @@ linkedspls_vocabulary:setId ?setId.
 
 Results set in shorten URL: http://goo.gl/Uur5fX
 
+--------------------------------------------------------------------------------
+find most recently specific label sections, drug interaction and adverse reactions, for drug "Nardil"
+--------------------------------------------------------------------------------
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX loinc: <http://www.hipaaspace.com/Medical_Billing/Coding/Logical.Observation.Identifiers.Names.and.Codes/>
+
+SELECT ?spl ?setId ?medicine ?effectiveTime ?versionNumber ?drugInteractions ?adverseReactions
+FROM <http://purl.org/net/nlprepository/spl-core>
+WHERE {
+
+?spl linkedspls_vocabulary:fullName "Nardil";
+     linkedspls_vocabulary:genericMedicine ?medicine;
+     linkedspls_vocabulary:setId ?setId;
+     linkedspls_vocabulary:effectiveTime ?effectiveTime;
+     linkedspls_vocabulary:versionNumber ?versionNumber.
+
+OPTIONAL { ?spl loinc:34073-7 ?drugInteractions }
+OPTIONAL { ?spl loinc:34084-4 ?adverseReactions}
+
+}
+ORDER BY DESC(?effectiveTime)
+LIMIT 10
+
+
 ################################################################################
 # Queries for GRAPH: http://purl.org/net/nlprepository/spl-active-moiety
 # active moiety graph is a RDF set that included mappings, (UNII, RxNorm, ChEBI, Drugbank, DrOn, OMOP and NDFRT), for active ingredients.

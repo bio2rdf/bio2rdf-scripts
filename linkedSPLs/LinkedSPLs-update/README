@@ -1,6 +1,6 @@
 CODE TO GENERATE THE SQL AND LINKED-DATA VERSION OF LINKEDSPLS
 Authors: Richard Boyce, Greg Gardner, Yifan Ning
-Date: 1/12/2015
+Date: 6/08/2015
 
 ################################################################################
 OVERVIEW
@@ -12,7 +12,7 @@ The University of Pittsburgh Linked Structured Product Label (SPL) repository re
 Most recent update at the time of creating this file: 
 - Labels for prescription drugs downloaded from http://dailymed.nlm.nih.gov/dailymed/spl-resources.cfm   Nov 15, 2014
 
-updated in Nov 15 2014 08:00:31 AM EST
+updated in Jun 08 2015 08:00:31 AM EST
 
 - The file load-dailymed-spls/TableSchema.sql has the RDB schema needed to load the data. Note that, for manually way of update mappings, not all data is loaded using Python, read the rest of the README to see other data and how it is loaded. Recommended way of update and load mappings is run the ant program by following commands:
 
@@ -48,7 +48,7 @@ $ ant linkedSPLs-update
 PRE-REQUISITES
 ################################################################################
 
-Download and organized all source data files in data folder
+Download and organize all source data files in data folder
 
 --------------------------------------------------------
 Dailymed:
@@ -56,38 +56,58 @@ Dailymed:
 
 (1) dailymed-labels:
 
-Download dm_spl_release_human_rx.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm
+Download dm_spl_release_human_rx.zip and dm_spl_release_human_otc.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm
 
-Download dm_spl_release_human_otc.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm
+Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-labels/"
 
 (2) dailymed-mappings:
 
 Download rxnorm_mappings.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-mapping-files.cfm
 
+Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-mappings/"
 
 (3) dailymed-indexing:
 
 Download pharmacologic_class_indexing_spl_files.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-indexing-files.cfm
 
+Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-indexings/"
+
 --------------------------------------------------------
 FDA:
 --------------------------------------------------------
 
+Download from http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162523.htm
+
 (1) FDA_UNII_Names 
+Downloads UNII List ('UNIIs <DATE> Names.txt' as UNII lists)
 
 (2) UNIIs_Records 
+Downloads UNII Data ('UNIIs <DATE> Records.txt' as UNII records) 
 
-Downloads 'UNIIs 27Jun2014 Records.txt' as UNII records from http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162523.htm
+Keep in directory LinkedSPLs-update/data/FDA
+
+Edit LinkedSPLs-update/data-source.properties to reset FDA_UNII_NAMES and FDA_UNII_RECORDS
+
 
 --------------------------------------------------------
 Drugbanks: 
 --------------------------------------------------------
+Download from http://www.drugbank.ca/downloads
 
-(1) drugbank.xml for drugbank4.1 from drugbank (/media/Backup/DrugBank-4/)AND 
+download drugbank.xml as drugbankX.X and keep in directory LinkedSPLs-update/data/DrugBank
+
+--------------------------------------------------------
+UMLS:
+--------------------------------------------------------
+
+Download RXNORM mappings from UMLS at "http://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html"
+
+keep in directory: "LinkedSPLs-update/data/UMLS"
 
 --------------------------------------------------------
 umlsdbmi:
 --------------------------------------------------------
+Repository: https://bitbucket.org/uamsdbmi/dron
 
 DrOn to RxNorm and ChEBI
 
