@@ -224,7 +224,7 @@
     <!-- <antcall target="load-FDAPreferredSubstanceToRxNORM" /> -->
     <!-- <antcall target="load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF" /> -->
     <!-- <antcall target="load-SPLSetIDToRxNORM" /> -->
-    <!-- <antcall target="load-RXNORM_NDFRT_INGRED_Table" />   -->
+    <!-- <antcall target="load-RXNORM_NDFRT_INGRED_Table" /> -->
     <!-- <antcall target="load-FDA_EPC_Table" /> -->
     <!-- <antcall target="load-DrOn_ChEBI_RXCUI" /> -->
     <!-- <antcall target="load-ChEBI_DRUGBANK_BIO2RDF" /> -->
