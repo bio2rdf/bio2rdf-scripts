@@ -225,7 +225,6 @@ class DrugBankParser extends Bio2RDFizer
 
             } else {
                 // work with nested elements
-
 				$found = false;
 				$list_name = $k;
 				$item_name = substr($k,0,-1);
