@@ -101,7 +101,7 @@ class OMIMParser extends Bio2RDFizer
 		$total = count($entries);
 		foreach($entries AS $omim_id => $type) {
 			echo "processing ".(++$i)." of $total - omim# ";
-			$download_file = $ldir.$omim_id.".json";
+			$download_file = "compress.zlib://".$ldir.$omim_id.".json.gz";
 			// download if the file doesn't exist or we are told to
 			if(!file_exists($download_file) || parent::getParameterValue('download') == true) {
 				// download using the api
