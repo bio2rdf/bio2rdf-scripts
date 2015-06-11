@@ -5,5 +5,5 @@ load-dailymed-spls/spls/*
 *.pyc
 *~
 *#
-*backup
+*backups
 *deprecated

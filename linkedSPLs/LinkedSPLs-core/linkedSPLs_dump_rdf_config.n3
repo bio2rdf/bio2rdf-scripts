@@ -4,7 +4,6 @@
 @prefix bpRxnorm: <http://purl.bioontology.org/ontology/RXNORM/> .
 @prefix d2r: <http://sites.wiwiss.fu-berlin.de/suhl/bizer/d2r-server/config.rdf#> .
 @prefix d2rq: <http://www.wiwiss.fu-berlin.de/suhl/bizer/D2RQ/0.1#> .
-#@prefix dailymed: <http://bio2rdf.org/linkedspls_vocabulary:>.
 @prefix linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>.
 @prefix dc: <http://purl.org/dc/elements/1.1/>.
 @prefix diseasome: <http://www4.wiwiss.fu-berlin.de/diseasome/resource/diseasome/> .
@@ -35,13 +34,10 @@
       # other dataset configuration options (e.g. d2r:baseURI, d2r:port)
       .
 
-
 map:database a d2rq:Database;
     d2rq:jdbcDriver "com.mysql.jdbc.Driver";
 
-    #d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=root";
-
-    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=5bboys";
+    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=&password=";
 
     #d2rq:jdbcDSN "jdbc:mysql://136.142.148.191/linkedSPLs?autoReconnect=true&user=root&password=";
 
