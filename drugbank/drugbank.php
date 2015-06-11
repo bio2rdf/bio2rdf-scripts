@@ -263,6 +263,7 @@ class DrugBankParser extends Bio2RDFizer
 		$parent = parent::getVoc().ucfirst(str_replace(" ","-",$type));
 		$name = (string) $x->name;
 		$knownaction = (string) $x->{'known-action'};
+		$knownaction = $knownaction=="unknown"?'':$knownaction;
 
 		parent::addRDF(
 			parent::describeIndividual($pid,$name,$parent).
@@ -277,6 +278,7 @@ class DrugBankParser extends Bio2RDFizer
 		
 		// the main elements for the relation are actions, known-action, references, 
 		foreach($x->actions AS $actions => $action) {
+			if(!trim($action)) continue;
 			$aid = str_replace(array(" ","/"),"-",$action->action);
 			$auri = parent::getVoc().$aid;
 			parent::addRDF(
