@@ -1,5 +1,9 @@
 db-connection.properties
+load-dailymed-spls/spls/*
 *.db
-backup*/*
-deprecated/*
 *.txt
+*.pyc
+*~
+*#
+*backup
+*deprecated
