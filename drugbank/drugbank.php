@@ -185,7 +185,6 @@ class DrugBankParser extends Bio2RDFizer
 	{
 		$debug = false;
 		if(!isset($x->polypeptide)) {
-			echo "no polypeptide defined for $pid";
 			return;
 		}
 		$partner = $x->polypeptide;
@@ -412,7 +411,7 @@ class DrugBankParser extends Bio2RDFizer
 		$this->AddCategory($x,$did,"synonyms","synonym",parent::getVoc()."synonym");
 
 		// brand names
-		$this->AddCategory($x,$did,"brands","brand",parent::getVoc()."brand");
+		$this->AddCategory($x,$did,"international-brands","international-brand",parent::getVoc()."brand");
 
 		// salt
 		if(isset($x->salts->salt)) {
