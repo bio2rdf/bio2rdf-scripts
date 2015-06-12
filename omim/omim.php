@@ -45,15 +45,16 @@ class OMIMParser extends Bio2RDFizer
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
 		if(parent::getParameterValue('omim_api_key') == '') {
-			if(parent::getParameterValue('omim_api_key_file') != '') {
-				if(file_exists(parent::getParameterValue('omim_api_key_file'))) {
-					$key = file_get_contents(parent::getParameterValue('omim_api_key_file'));
-					if($key) {
-						parent::setParameterValue('omim_api_key', $key);
-					} else {
-						trigger_error("No OMIM key has been provided either by commmand line or in the expected omim key file",E_USER_WARNING);						
-					}
+			$key_file = parent::getParameterValue('omim_api_key_file');
+			if(file_exists($key_file)) {
+				$key = file_get_contents($key_file);
+				if($key) {
+					parent::setParameterValue('omim_api_key', $key);
+				} else {
+					trigger_error("No API key found in the specified omim key file $key_file",E_USER_WARNING);						
 				}
+			} else {	
+				trigger_error("No OMIM key has been provided either by commmand line or in the expected omim key file $key_file",E_USER_WARNING);	
 			}
 		}
 
