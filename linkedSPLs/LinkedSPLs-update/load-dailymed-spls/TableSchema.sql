@@ -151,6 +151,21 @@ CREATE TABLE `FDA_UNII_to_ChEBI` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8192 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+--
+-- Table structure for table `OMOP_RXCUI`
+--
+DROP TABLE IF EXISTS `OMOP_RXCUI`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `linkedSPLs`.`OMOP_RXCUI` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `OMOPConceptId` VARCHAR(20) NOT NULL,
+  `RxCUI` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4096 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;;
+
 --
 -- Table structure for table `RXNATOMARCHIVE`
 --

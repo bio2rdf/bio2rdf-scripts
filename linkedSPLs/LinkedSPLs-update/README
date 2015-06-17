@@ -51,7 +51,7 @@ PRE-REQUISITES
 Download and organize all source data files in data folder
 
 --------------------------------------------------------
-Dailymed:
+product label sections and mappings from Dailymed:
 --------------------------------------------------------
 
 (1) dailymed-labels:
@@ -73,7 +73,7 @@ Download pharmacologic_class_indexing_spl_files.zip from http://dailymed.nlm.nih
 Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-indexings/"
 
 --------------------------------------------------------
-FDA:
+FDA Preferred terms, UNIIs from FDA:
 --------------------------------------------------------
 
 Download from http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162523.htm
@@ -90,8 +90,9 @@ Edit LinkedSPLs-update/data-source.properties to reset FDA_UNII_NAMES and FDA_UN
 
 
 --------------------------------------------------------
-Drugbanks: 
+Drug bank Id from Drugbank: 
 --------------------------------------------------------
+
 Download from http://www.drugbank.ca/downloads
 
 download drugbank.xml as drugbankX.X and keep in directory LinkedSPLs-update/data/DrugBank
@@ -121,6 +122,12 @@ Mappings pulled using:
 rdfproc -c dron query sparql - '       
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-to-chebi-and-rxnorm.txt
 
+
+--------------------------------------------------------
+OMOP concept Id from OHDSI:
+--------------------------------------------------------
+
+Download from "https://github.com/OHDSI/KnowledgeBase/tree/master/LAERTES/terminology-mappings/StandardVocabToRxNorm/imeds_drugids_to_rxcuis.csv"
 
 
 ################################################################################
@@ -375,6 +382,18 @@ CREATE TABLE `RXNORM_NDFRT_INGRED_Table` (
 LOAD DATA LOCAL INFILE './converted-rxnorm-to-ndfrt-chemical-ingredient-03192014.txt' INTO TABLE `RXNORM_NDFRT_INGRED_Table` FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' (RxNORM, NUI, NDFRT_LABEL); 
 
 
+------------------------------------------------------
+LOADING THE OMOP Concept Id TO RxCUI MAPPING 
+------------------------------------------------------
+
+CREATE TABLE `linkedSPLs`.`OMOP_RXCUI` (
+  `Id` INT NOT NULL AUTO_INCREMENT,
+  `OMOPConceptId` VARCHAR(20) NOT NULL,
+  `RxCUI` VARCHAR(20) NOT NULL,
+  PRIMARY KEY (`Id`));
+
+LOAD DATA LOCAL INFILE 'data/OMOP-OHDSI/imeds_drugids_to_rxcuis.csv' INTO TABLE `OMOP_RXCUI` FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' IGNORE 1 LINES (OMOPConceptId, RxCUI);
+
 ------------------------------------------------------------
 TESTING THE D2R SERVER ON THE DEVELOPMENT MACHINE
 ------------------------------------------------------------
@@ -485,7 +504,7 @@ Approach 1:
 - Method: use Bioportal's SPARQL endpoint to identify exact string matches between the UNII preferred names and the RDF label of concepts in Bioportal
 
 - Base folder in SVN: 
-<https://swat-4-med-safety.googlecode.com/svn/trunk/linkedSPLs/UNII-to-ChEBI-mapping>
+<linkedSPLs/LinkedSPLs-update/mappings/UNII-to-ChEBI-mapping>
 
 - Date performed: 04/13/2012 and 09/14/2012
 
@@ -501,95 +520,11 @@ Approach 1:
 
 - Combined unique results: 4,411 (loaded into linkedSPLs: FDA-UNII-to-ChEBI-bioportal-mapping-04132012-PLUS-09142012.txt)
 
-Approach 2:
-
-- Method: Query the OBO SPARQL endpoint for entries that have a specified INCHI key in the obo:hasRelatedSynonym
-
-- Base folder in SVN: 
-<https://swat-4-med-safety.googlecode.com/svn/trunk/linkedSPLs/ChEBI-DrugBank-bio2rdf-mapping/NCI-resolver-results>
-
-- Date performed: 9/12/2012
-
-- Input: SPL_UNIIs_extraction_inchikey_2.txt -- a list of INCHI keys retrieved for SPL UNIIS by matching on structure strings using the NCI Resolver tool <cactus.nci.nih.gov/chemical/structure> *(WHAT SCRIPT CREATED THIS?)*
-
-- Script: Link2CHEBI_v2.java
-
-- Results File: SPL_CHEBI_inchikey_UNIQ.txt
-
-- Results: 1,823 of the 15,548 UNIIs that were mapped to INCHI keys could be mapped to ChEBI entities *(WHAT PROPORTION OF THE 2416 UNIQUE ATTACHED ACTIVE MOIETIES IN LINKEDSPLS?)*
-
 -----------
 
 * UNII to DrugBank:
 
-Approach 1:
-- Method: Query bio2rdf for all entries that have a ChEBI URI as an xref and pull the value of the rdfs:seeAlso reference that refers to a website in the www.drugbank.ca domain
-
-- Base folder in SVN: 
-<https://swat-4-med-safety.googlecode.com/svn/trunk/linkedSPLs/ChEBI-DrugBank-bio2rdf-mapping>
-
-- Date performed: 6/12/2012 and 9/15/2012
-
-- Input: All CHEBI URIs (obo namespace http://purl.obolibrary.org/obo/) mentioned in LinkedSPLs (using mapping created using Approach 1 for UNII to ChEBI above but selected by active moiety) 
-
-- Script: sparql-for-chebi-drugbank-mapping.py
-
-- Results file: chebi-drugbank-bio2rdf-mapping-09152012.csv (9/15/2012), chebi-drugbank-bio2rdf-mapping.csv (06/12/2012)
-
-- Results: 1,311 unique mappings on 09/15/2012 (up from 706 on 6/12/2012). Merging would up the number to 1,318 but this might include CUIs discontinued from ChEBI so the merge was not performed. *(WHAT PROPORTION OF THE 2416 UNIQUE ATTACHED ACTIVE MOIETIES IN LINKEDSPLS?)*
-
-Approach 2:
-
-- Method: Query the the bio2rdf DrugBank SPARQL endpoint for entries that have a specified INCHI key as the value for a calculated property
-
-- Base folder in SVN: 
-<https://swat-4-med-safety.googlecode.com/svn/trunk/linkedSPLs/ChEBI-DrugBank-bio2rdf-mapping/NCI-resolver-results>
-
-- Date performed: 08/31/2012
-
-- Input: SPL_UNIIs_extraction_inchikey_2.txt -- a list of INCHI keys retrieved for SPL UNIIS by matching on structure strings using the NCI Resolver tool <cactus.nci.nih.gov/chemical/structure> *(WHAT SCRIPT CREATED THIS?)*
-
-- Script: QueryBio2rdfForDrugBankUsingInchiAndSmiles.java *(NOTE NAME
-CHANGE)*
-
-- Results File: SPL_DrugBank_inchikey_unique.txt
-
-- Results: 1,001 of the 15,548 UNIIs mapped to INCHI. *(WHAT PROPORTION OF THE 2416 UNIQUE ATTACHED ACTIVE MOIETIES IN LINKEDSPLS?)*
-
-Approach 3:
-
-- Method: Query the the bio2rdf DrugBank SPARQL endpoint for entries that have a specified SMILES string as the value for a calculated property
-
-- Base folder in SVN: 
-<https://swat-4-med-safety.googlecode.com/svn/trunk/linkedSPLs/ChEBI-DrugBank-bio2rdf-mapping/NCI-resolver-results>
-
-- Date performed: 08/31/2012
-
-- Input: SPL_UNIIs_extraction_SMILES.txt -- a list of SMILES strings retrieved for SPL UNIIS by matching on structure strings using the NCI Resolver tool <cactus.nci.nih.gov/chemical/structure> *(WHAT SCRIPT CREATED THIS? ALSO, PLEASE COMMIT THE FILE)*
-
-- Script: QueryBio2rdfForDrugBankUsingInchiAndSmiles.java *(NOTE NAME
-CHANGE)*
-
-- Results File: SPL_DrugBank_SMILES_unique.txt
-
-- Results: 37 of the 15,074 UNIIs mapped to SMILES
 
 
-Approach 4:
-
-- Method: Query DBPedia live for all entities that have an FDA UNII code and an optional mapping to drugbank or chebi
-
-- Base folder in SVN: 
-<https://swat-4-med-safety.googlecode.com/svn/trunk/linkedSPLs/ChEBI-DrugBank-bio2rdf-mapping/DBPEDIA>
-
-- Date performed: 09/14/2012
-
-- Input: None
-
-- Script: dbpedia-sparql-for-chebi-drugbank-mapping.py (query pasted into http://live.dbpedia.org/sparql)
-
-- Results File: PENDING
-
-- Results: PENDING
 
 - The D2R file has the mapping from RDB tables to RDF: ../LinkedSPLs-core/linkedSPLs_dump_rdf_config.n3

@@ -27,20 +27,19 @@ CHEBI_BASE = "http://purl.obolibrary.org/obo/"
 RXNORM_BASE = "http://purl.bioontology.org/ontology/RXNORM/"
 DRUGBANK_CA = "http://www.drugbank.ca/drugs/"
 DRUGBANK_BIO2RDF = "http://bio2rdf.org/drugbank:"
-DRON_BASE = "http://purl.obolibrary.org/obo/"
 NDFRT_BASE = "http://purl.bioontology.org/ontology/NDFRT/"
-OHDSI_BASE = "http://purl.org/net/ohdsi#"
+#OHDSI_BASE = "http://purl.org/net/ohdsi#"
+#DRON_BASE = "http://purl.obolibrary.org/obo/"
 
 class DictItem:
 
-   def __init__(self, pt, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole):
+   def __init__(self, pt, db_uri1, db_uri2, rxcui, chebi, nui, nameAndRole):
       self.pt = str(pt)
       self.db_uri1 = str(db_uri1)
       self.db_uri2 = str(db_uri2)
       self.rxcui = str(rxcui)
-      self.omopid = str(omopid)
       self.chebi = str(chebi)
-      self.dron = str(dron)
+
 
       if nui and nameAndRole:
          self.drugClass = Set([str(nui)+'|'+str(nameAndRole)])
@@ -56,7 +55,7 @@ dict_moieties = {}
 for item in data_set:
 
    if item["unii"] not in dict_moieties:
-      moiety = DictItem(item["pt"], item["db_uri1"], item["db_uri2"], item["rxcui"], item["omopid"], item["chebi"], item["dron"], item["nui"], item["nameAndRole"])
+      moiety = DictItem(item["pt"], item["db_uri1"], item["db_uri2"], item["rxcui"], item["chebi"], item["nui"], item["nameAndRole"])
       dict_moieties[item["unii"]]=moiety
       #print str(dict_moieties[item["unii"]].drugClass) 
 
@@ -69,12 +68,8 @@ for item in data_set:
          dict_moieties[item["unii"]].db_uri2 = item["db_uri2"] 
       if not dict_moieties[item["unii"]].rxcui:
          dict_moieties[item["unii"]].rxcui = item["rxcui"] 
-      if not dict_moieties[item["unii"]].omopid:
-         dict_moieties[item["unii"]].omopid = item["omopid"] 
       if not dict_moieties[item["unii"]].chebi:
          dict_moieties[item["unii"]].chebi = item["chebi"] 
-      if not dict_moieties[item["unii"]].dron:
-         dict_moieties[item["unii"]].dron = item["dron"]
  
       #print item['nui']+'|'+item['nameAndRole']
 
@@ -160,11 +155,11 @@ for k,v in dict_moieties.items():
       graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["x-drugbank"], URIRef(v.db_uri1)))
       graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["x-drugbank"], URIRef(v.db_uri2)))
 
-   if v.omopid:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["OMOPConceptId"], Literal(OHDSI_BASE + str(int(float(v.omopid))))))
+   # if v.omopid:
+   #    graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["OMOPConceptId"], Literal(OHDSI_BASE + str(int(float(v.omopid))))))
 
-   if v.dron:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + v.dron)))
+   # if v.dron:
+   #    graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + v.dron)))
 
    if v.drugClass:
 
@@ -191,7 +186,7 @@ for k,v in dict_moieties.items():
 f = codecs.open(OUT_FILE,"w","utf8")
 s = graph.serialize(format="xml",encoding="utf8")
 f.write(unicode(s,errors='replace'))
-print graph.serialize(format="xml")
+#print graph.serialize(format="xml")
 f.close
 graph.close()
 

@@ -21,6 +21,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix ncbit: <http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#> .
 @prefix loinc: <http://www.hipaaspace.com/Medical_Billing/Coding/Logical.Observation.Identifiers.Names.and.Codes/> . 
+@prefix ohdsi: <http://purl.org/net/ohdsi#> .
 
 <> a d2r:Server;
       # Graph metadata
@@ -37,7 +38,7 @@
 map:database a d2rq:Database;
     d2rq:jdbcDriver "com.mysql.jdbc.Driver";
 
-    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=&password=";
+    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=5bboys";
 
     #d2rq:jdbcDSN "jdbc:mysql://136.142.148.191/linkedSPLs?autoReconnect=true&user=root&password=";
 
@@ -62,9 +63,8 @@ map:FDAPharmgxTable a d2rq:ClassMap;
 	d2rq:dataStorage map:database;
 	#d2rq:uriPattern "FDAPharmgxTable/@@FDAPharmgxTable.id@@";
         d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls.FDAPharmgxTable:', CAST(FDAPharmgxTable.id AS CHAR))";
-
 	d2rq:class linkedspls_vocabulary:pharmgxData;
-	d2rq:classDefinitionLabel " Data from the FDA's pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>";
+	d2rq:classDefinitionLabel "Data from the FDA's pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>";
         .
 
 map:SPLToPharmgxData a d2rq:PropertyBridge;
@@ -314,6 +314,26 @@ map:drugRxNormSubject a d2rq:PropertyBridge;
 	d2rq:uriSqlExpression "CONCAT('http://purl.bioontology.org/ontology/RXNORM/', SPLSetIDToRxNORM.RxCUI)";
 	.
 
+## Omop concept Id from OHDSI
+map:drugConceptId a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property ohdsi:Imeds;
+	d2rq:join "structuredProductLabelMetadata.setId <= SPLSetIDToRxNORM.setId";
+	d2rq:join "SPLSetIDToRxNORM.RxCUI <= OMOP_RXCUI.RxCUI";
+	d2rq:column "OMOP_RXCUI.OMOPConceptId";
+	d2rq:propertyDefinitionLabel "OMOPConceptId"@en;
+	.
+
+## DrOn Id 
+map:DrOnId a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+	d2rq:property obo:dronId;
+	d2rq:join "structuredProductLabelMetadata.setId <= SPLSetIDToRxNORM.setId";
+	d2rq:join "SPLSetIDToRxNORM.RxCUI <= DrOn_ChEBI_RXCUI.rxcui";
+	d2rq:uriSqlExpression "CONCAT('http://purl.obolibrary.org/obo/', DrOn_ChEBI_RXCUI.dron_id)";
+	d2rq:propertyDefinitionLabel "DrOn Id"@en;
+	.
+
 ## Sections mappings	
 map:genericMedicine a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
@@ -329,7 +349,6 @@ map:routeOfAdministration a d2rq:PropertyBridge;
 
 	#d2rq:uriPattern "routeOfAdministration/@@structuredProductLabelMetadata.routeOfAdministration|urlify@@";
 	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls_vocabulary:routeOfAdministration#', structuredProductLabelMetadata.routeOfAdministration)";
-
 	d2rq:propertyDefinitionLabel "routeOfAdministration"@en;
 	d2rq:propertyDefinitionComment "The route by which a drug product is taken into the body"@en;
 	.

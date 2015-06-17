@@ -41,6 +41,6 @@ for line in buf.split("\n"):
     else:
         rxcui = ""
 
-    print str(dron) + "|" + str(chebi) + "|http://purl.bioontology.org/ontology/RXNORM/" + str(rxcui).replace("rxcui=\"","")
+    print str(dron) + "|" + str(chebi) + "|" + str(rxcui).replace("rxcui=\"","")
         
 
