@@ -34,7 +34,7 @@ class irefindexParser extends Bio2RDFizer
 	function __construct($argv) { //
 		parent::__construct($argv,"irefindex");
 		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|A','all','all or comma-separated list of files to process');
-		parent::addParameter('version',false,'08122013|03022013|10182011','08122013','dated version of files to download');
+		parent::addParameter('version',false,'07042015|08122013|03022013|10182011','07042015','dated version of files to download');
 		parent::addParameter('download_url',false,null,'http://irefindex.org/download/irefindex/data/current/psi_mitab/MITAB2.6/');
 		parent::initialize();
 	}
@@ -79,11 +79,12 @@ class irefindexParser extends Bio2RDFizer
 			
 			$zin = new ZipArchive();
 			if ($zin->open($lfile) === FALSE) {
-				trigger_error("Unable to open $lfile");
+				trigger_error("Unable to open $lfile",E_USER_ERROR);
 				exit;
 			}
-			if(($fp = $zin->getStream($base_file)) === FALSE) {
-					trigger_error("Unable to get $base_file in ziparchive $lfile");
+			$ifile = $file.".mitab.04072015.txt"; // introduced because of file name change in this release
+			if(($fp = $zin->getStream($ifile)) === FALSE) {
+					trigger_error("Unable to get $ifile in ziparchive $lfile",E_USER_ERROR);
 					return FALSE;
 			}
 			parent::setReadFile($lfile);
@@ -156,14 +157,12 @@ class irefindexParser extends Bio2RDFizer
 		$l = parent::getReadFile()->read(100000);
 		$header = explode("\t",trim(substr($l,1)));
 		if(($c = count($header)) != 54) {
-			trigger_erorr("Expecting 54 columns, found $c!");
+			trigger_erorr("Expecting 54 columns, found $c!",E_USER_ERROR);
 			return FALSE;
 		}
-
 		// check # of columns
 		while($l = parent::getReadFile()->read(500000)) {
 			$a = explode("\t",trim($l));
-
 			// irefindex identifiers
 			$rigid  = "irefindex.".$a[34];     # checksum for interaction
 			$rogida = "irefindex.".$a[32];     # checksum for A
@@ -190,6 +189,10 @@ class irefindexParser extends Bio2RDFizer
 			if($id == '-') {
 				// this happens with hprd
 				$iid = "hprd:".substr($ids[1],6);
+			} else if($ns=="pubmed") {
+				$data = $this->ParseStringArray($a[12]);
+				$ns = $data['label'];
+				continue;
 			} else {
 				$iid = $ns.":".$id;
 			}
