@@ -169,6 +169,7 @@ class WormbaseParser extends Bio2RDFizer {
 			parent::addRDF(
 				parent::describeIndividual($id, $label, parent::getVoc()."Gene").
 				parent::describeClass(parent::getVoc()."Gene", "Wormbase Gene").
+				parent::triplify($id, "rdfs:seeAlso", "http://www.wormbase.org/db/gene/gene?name=".$data[1]).
 				parent::triplify($id, parent::getVoc()."x-taxonomy", "taxonomy:".$data[0]).
 				parent::triplifyString($id, parent::getVoc()."approved-gene-name", $data[2])
 			);
@@ -286,8 +287,7 @@ class WormbaseParser extends Bio2RDFizer {
  			$not = $data[3];
  			$phenotype = $data[4];
  			$paper = $data[5];
- 			$var_rnai = explode("WB:",$data[7]);
-	
+ 			$variant = explode("|",trim($data[7]));
 			$neg = ($not == "NOT"?"Negative ":"");
 
  			$pa_id = parent::getRes().($z++);
@@ -307,8 +307,10 @@ class WormbaseParser extends Bio2RDFizer {
  			);
 
 			if(strstr($data[7], "WBVar")){
-				foreach($var_rnai AS $v) {
+				foreach($variant AS $v) {
 					$v = str_replace("|","",$v);
+
+					if(trim($v) == '') continue;
 		 			parent::addRDF(
 		 				parent::describeIndividual(parent::getNamespace().$v, "Variant of ".$gene, parent::getVoc()."Gene-Variant").
 						parent::describeClass(parent::getVoc()."Gene-Variant","Gene Variant").
@@ -316,9 +318,9 @@ class WormbaseParser extends Bio2RDFizer {
 	 				);
 				}
 	 		} elseif(strstr($data[7], "WBRNAi")){
-				foreach($var_rnai AS $v) {
+				foreach($variant AS $v) {
 					$v = str_replace("|","",$v);
-		 			$var_rnai_id = parent::getNamespace().$v;
+		 			$var_rnai_id = $v;
 			 		$var_rnai_label = "RNAi ".$v;
 			 		$rnai_exp_id = parent::getRes().($z++);
 	 				parent::addRDF(
