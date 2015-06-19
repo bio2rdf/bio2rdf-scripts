@@ -155,7 +155,6 @@ class WormbaseParser extends Bio2RDFizer {
 			if($l[0] == '#') continue;
 			// taxon, gene id, symbol, cosmid, status
 			$data = explode(",",trim($l));
-
 			if($first) {
 				if(($c = count($data) != 5)) {
 					trigger_error("WormBase function expects 5 fields, found $c!".PHP_EOL, E_USER_WARNING);
@@ -170,7 +169,7 @@ class WormbaseParser extends Bio2RDFizer {
 			parent::addRDF(
 				parent::describeIndividual($id, $label, parent::getVoc()."Gene").
 				parent::describeClass(parent::getVoc()."Gene", "Wormbase Gene").
-				parent::triplify($id, parent::getVoc()."taxonomy", "taxonomy:".$data[1]).
+				parent::triplify($id, parent::getVoc()."x-taxonomy", "taxonomy:".$data[0]).
 				parent::triplifyString($id, parent::getVoc()."approved-gene-name", $data[2])
 			);
 			#Add cosmid name 
