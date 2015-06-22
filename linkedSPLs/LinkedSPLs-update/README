@@ -112,16 +112,25 @@ Repository: https://bitbucket.org/uamsdbmi/dron
 
 DrOn to RxNorm and ChEBI
 
-Data retrieved on 07/23/2014 from:
-http://purl.obolibrary.org/obo/dron/dev/dron-rxnorm.owl 
+Dron mapping file (dron-rxnorm.owl for drug and dron-ingredient.owl for ingredients) download from:
+https://bitbucket.org/uamsdbmi/dron/src
 
-Loaded into a triple store by:
-rdfproc -n dron parse dron-rxnorm.owl
+Install readland:
+$ sudo apt-get install redland-utils
+
+Load dron mapping for ingredient into a triple store by:
+rdfproc -n dron parse dron-ingredient.owl
+
+rdfproc -c dron-ingredient query sparql - '       
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/dron#>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-chebi-rxcui-ingredient.txt
+
+
+Load dron mapping for drug product into triple store by:
+rdfproc -n dron-drug parse dron-rxnorm.owl
 
 Mappings pulled using:
-rdfproc -c dron query sparql - '       
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-to-chebi-and-rxnorm.txt
-
+rdfproc -c dron-drug query sparql - '       
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/dron#>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-rxcui-drug.txt
 
 --------------------------------------------------------
 OMOP concept Id from OHDSI:
@@ -433,7 +442,7 @@ LOADING AN RDF DUMP OF THE DATA INTO VIRTUOSO (tested with OpenLink Virtuoso in 
 
 Initial load:
 $ isql-vt
-SQL> ld_dir('<wherever the dumped RDF resides>','linkedSPLs-dump.nt','http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/');
+SQL> ld_dir ('/path/to/files', '*.n3', 'http://dbpedia.org');
 SQL> rdf_loader_run();
 SQL> select * from DB.DBA.load_list;
 
@@ -444,56 +453,6 @@ SQL> SPARQL CLEAR GRAPH <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/>;
 SQL> update DB.DBA.load_list set ll_state = 0 where ll_file = '<name of RDF file>';
 SQL> rdf_loader_run();
 SQL> select * from DB.DBA.load_list; 
-
-
-------------------------------------------------------------------------------------------
-HOW SPL ACTIVE MOIETIES WERE MAPPED TO CHEBI AND DRUGBANK
-------------------------------------------------------------------------------------------
-
-- Source for UNIIs: UNIIs 2Mar2012.txt
-
-MANUAL APPROACHES:
-
-* UNII Preferred Names (i.e., active moieties) to RxNORM CUIs
-
-Approach:
-
-- Method: an exact string match (case insensitive) to the RxNorm ingredient string from the official FDA substance list (the same methods used by RxNorm folks, see
-<http://www.nlm.nih.gov/research/umls/rxnorm/docs/2012/rxnorm_doco_full_2012-3.html#s8_0>)
-
-- Base folder in SVN: 
-<https://swat-4-med-safety.googlecode.com/svn/trunk/linkedSPLs/RxNORM-mapping>
-
-- Date performed: 8/17/2012
-
-- Input: active_moieties.txt -- all unique UNII preferred names from listed in "UNIIs 2Mar2012.txt"
-
-- Script: bioportal-query-for-drug-entities-in-rxnorm.py
-
-- Results File: fda-active-moiety-string-name-rxnorm-mapping.csv
-
-- Results: 3,261 of the 39,741 unique ingredients; *(WE NEED TO DETERMINE COVERAGE OF THE ATTACHED LIST OF 2,416 UNIQUE ACTIVE MOIETIES CURRENTLY IN LINKEDSPLS)*
-
------------
-
-* Product label setid to RxCUI for the product
-
-Approach:
-
-- Method: Get all related branded and clinical products for an active moiety RxCUI using the "related" REST call and specifying SBD and SCD types
-
-- Base folder in SVN: 
-<https://swat-4-med-safety.googlecode.com/svn/trunk/linkedSPLs/RxNORM-mapping>
-
-- Date performed: 8/31/2012
-
-- Input: All active moiety RxCUIs from LinkedSPLs
-
-- Script: rxnorm-api-query-SPL-setid-to-rxnorm-clinical-drug-cui.py
-
-- Results file: SPL-setid-to-rxnorm-clinical-drug-cui.csv
-
-- Results: 36,344 unique SPL setids mapped to 9,127 unique branded and clinical products
 
 -----------
 
@@ -521,10 +480,6 @@ Approach 1:
 - Combined unique results: 4,411 (loaded into linkedSPLs: FDA-UNII-to-ChEBI-bioportal-mapping-04132012-PLUS-09142012.txt)
 
 -----------
-
-* UNII to DrugBank:
-
-
 
 
 - The D2R file has the mapping from RDB tables to RDF: ../LinkedSPLs-core/linkedSPLs_dump_rdf_config.n3

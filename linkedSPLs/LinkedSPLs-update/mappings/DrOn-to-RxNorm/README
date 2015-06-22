@@ -3,12 +3,22 @@ DrOn to RxNorm and ChEBI
 Dron mapping file (dron-rxnorm.owl) download from:
 https://bitbucket.org/uamsdbmi/dron/src
 
-Loaded into a triple store by:
-rdfproc -n dron parse dron-rxnorm.owl
+Install readland:
+$ sudo apt-get install redland-utils
+
+Load dron mapping for ingredient into a triple store by:
+rdfproc -n dron parse dron-ingredient.owl
+
+rdfproc -c dron-ingredient query sparql - '       
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/dron#>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-chebi-rxcui-ingredient.txt
+
+
+Load dron mapping for drug product into triple store by:
+rdfproc -n dron-drug parse dron-rxnorm.owl
 
 Mappings pulled using:
-rdfproc -c dron query sparql - '       
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-to-chebi-and-rxnorm.txt
+rdfproc -c dron-drug query sparql - '       
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/dron#>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-rxcui-drug.txt
 
 ------------------------------------------------------------------
 
@@ -18,11 +28,11 @@ $ python cleanData.py > cleaned_dron-to-chebi-and-rxnorm-07232014.txt
 
 outputs: <dron_id>|<chebi_id>|<rxcui>
 
-(2) If there is no table "DrOn_ChEBI_RXCUI" in Mysql, create table:
+(2) If there is no table "DrOn_ChEBI_RXCUI_DRUG" in Mysql, create table:
 
 DROP TABLE IF EXISTS `DrOn_ChEBI_RXCUI`;
 
-CREATE TABLE `DrOn_ChEBI_RXCUI` (
+CREATE TABLE `DrOn_ChEBI_RXCUI_DRUG` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `dron_id` varchar(30) NOT NULL,
   `ChEBI` varchar(50) NOT NULL,
@@ -30,8 +40,25 @@ CREATE TABLE `DrOn_ChEBI_RXCUI` (
   PRIMARY KEY (`id`)
 ) DEFAULT CHARSET=utf8;
 
+
+ If there is no table "DrOn_ChEBI_RXCUI_INGREDIENT" in Mysql, create table:
+
+DROP TABLE IF EXISTS `DrOn_ChEBI_RXCUI_INGREDIENT`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `DrOn_ChEBI_RXCUI_INGREDIENT` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dron_id` varchar(30) NOT NULL,
+  `ChEBI` varchar(50) NOT NULL,
+  `rxcui` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+)  ENGINE=InnoDB AUTO_INCREMENT=6933 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+
 (3) load data into table DrOn_ChEBI_RXCUI
 
 $ mysql -u root -p --local-infile linkedSPLs
 
-LOAD DATA LOCAL INFILE './cleaned_dron-to-chebi-and-rxnorm-07232014.txt' INTO TABLE `DrOn_ChEBI_RXCUI`  FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (dron_id, ChEBI, rxcui);
+LOAD DATA LOCAL INFILE './cleaned_dron-to-chebi-and-rxnorm-07232014.txt' INTO TABLE `DrOn_ChEBI_RXCUI_DRUG`  FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (dron_id, ChEBI, rxcui);

@@ -1948,12 +1948,30 @@ CREATE TABLE `warnings_and_precautions` (
 
 
 --
--- Table structure for table `DrOn_ChEBI_RXCUI`
+-- Table structure for table `DrOn_ChEBI_RXCUI_DRUG`
 --
-DROP TABLE IF EXISTS `DrOn_ChEBI_RXCUI`;
+DROP TABLE IF EXISTS `DrOn_ChEBI_RXCUI_DRUG`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `DrOn_ChEBI_RXCUI` (
+CREATE TABLE `DrOn_ChEBI_RXCUI_DRUG` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dron_id` varchar(30) NOT NULL,
+  `ChEBI` varchar(50) NOT NULL,
+  `rxcui` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+)  ENGINE=InnoDB AUTO_INCREMENT=6933 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+
+
+--
+-- Table structure for table `DrOn_ChEBI_RXCUI_INGREDIENT`
+--
+DROP TABLE IF EXISTS `DrOn_ChEBI_RXCUI_INGREDIENT`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `DrOn_ChEBI_RXCUI_INGREDIENT` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `dron_id` varchar(30) NOT NULL,
   `ChEBI` varchar(50) NOT NULL,

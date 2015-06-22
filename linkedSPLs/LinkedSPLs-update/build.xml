@@ -171,7 +171,7 @@
 
   <target name ="check-mapping-sources">
 
-    <property name="datasource" value="${FDA_UNII_NAMES},${FDA_UNII_RECORDS},${DRUGBANK_XML},${PG_CLASS_INDEXING_SPLS},${RXNORM_SETID},${RXNCONSO_RRF},${RXNORM_FULL_SCHEMA},${DRON_RXNORM},${ERROR_LOG}"/>
+    <property name="datasource" value="${FDA_UNII_NAMES},${FDA_UNII_RECORDS},${DRUGBANK_XML},${PG_CLASS_INDEXING_SPLS},${RXNORM_SETID},${RXNCONSO_RRF},${RXNORM_FULL_SCHEMA},${DRON_RXCUI_INGREDIENT},${DRON_RXNORM_DRUG},${ERROR_LOG}"/>
     <filelist id="data.sources" dir="." files="${datasource}" />
     
     <restrict id="missing.files">
@@ -603,35 +603,35 @@
 
   <!-- using redland to parse dron-rxnorm mapping xml
        update mappings of dronId, ChEBI and Rxnorm 
-       update table: DrOn_ChEBI_RXCUI
+       update table: DrOn_ChEBI_RXCUI_DRUG
        folder: DrOn-to-RxNorm
   -->
 
-  <target name="load-DrOn_ChEBI_RXCUI" >
+  <target name="load-DrOn_RXCUI_DRUG" >
 
-    <delete file="${DrOn-to-RxNorm}/dron-to-chebi-and-rxnorm.txt" />
+    <delete file="${DrOn-to-RxNorm}/dron-rxcui-drug.txt" />
 
     <exec executable="rdfproc" dir="${DrOn-to-RxNorm}/">
       <arg value="-n" />
-      <arg value="dron" />
+      <arg value="dron-drug" />
       <arg value="parse" />
-      <arg value="../../${DRON_RXNORM}" />
+      <arg value="../../${DRON_RXCUI_DRUG}" />
     </exec>
 
     <exec executable="bash" dir="${DrOn-to-RxNorm}/" >
-      <arg line = "parseDrOnFromOWL.sh" />
+      <arg line = "parseDrOnFromOWLDrug.sh" />
     </exec>
 
     <antcall target="set.timestamp">
-      <param name="message" value="parse to get DrOn-rxnorm-chebi mappings from ${DRON_RXNORM}" />
+      <param name="message" value="parse to get DrOn-rxnorm mappings for clinical drug from ${DRON_RXCUI_DRUG}" />
     </antcall>
 
-    <delete file="${DrOn-to-RxNorm}/cleaned_dron-to-chebi-and-rxnorm-${TODAY_US}.txt"/>
+    <delete file="${DrOn-to-RxNorm}/cleaned-dron-to-rxcui-drug-${TODAY_US}.txt"/>
 
     <exec executable="python" failonerror="true">
-      <arg line="${DrOn-to-RxNorm}/cleanData.py ${DrOn-to-RxNorm}/dron-to-chebi-and-rxnorm.txt" /> 
+      <arg line="${DrOn-to-RxNorm}/cleanData.py ${DrOn-to-RxNorm}/dron-rxcui-drug.txt" /> 
       <redirector append="true">
-        <outputmapper type="merge" to="${DrOn-to-RxNorm}/cleaned_dron-to-chebi-and-rxnorm-${TODAY_US}.txt"/>
+        <outputmapper type="merge" to="${DrOn-to-RxNorm}/cleaned-dron-to-rxcui-drug-${TODAY_US}.txt"/>
         <errormapper type="merge" to="${ERROR_LOG}"/>
       </redirector>
     </exec>
@@ -649,17 +649,78 @@
      <pathelement location="${mysql-driver}"/>
    </classpath>
       <transaction>
-	truncate DrOn_ChEBI_RXCUI;
-	LOAD DATA LOCAL INFILE '${DrOn-to-RxNorm}/cleaned_dron-to-chebi-and-rxnorm-${TODAY_US}.txt' INTO TABLE `DrOn_ChEBI_RXCUI`  FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (dron_id, ChEBI, rxcui);
+	truncate DrOn_ChEBI_RXCUI_DRUG;
+	LOAD DATA LOCAL INFILE '${DrOn-to-RxNorm}/cleaned-dron-to-rxcui-drug-${TODAY_US}.txt' INTO TABLE `DrOn_ChEBI_RXCUI_DRUG`  FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (dron_id, ChEBI, rxcui);
       </transaction>
     </sql>
 
     <antcall target="set.timestamp">
-      <param name="message" value="loaded mappings of dron_id, ChEBI, rxcui into ${mysql-schema}.DrOn_ChEBI_RXCUI" />
+      <param name="message" value="loaded drug mappings of dron_id, ChEBI, rxcui into ${mysql-schema}.DrOn_ChEBI_RXCUI_DRUG" />
     </antcall>
 
 
   </target>
+
+
+  <!-- using redland to parse dron-rxnorm mapping xml
+       update mappings of dronId, ChEBI and Rxnorm 
+       update table: DrOn_ChEBI_RXCUI_INGREDIENT
+       folder: DrOn-to-RxNorm
+  -->
+
+  <target name="load-DrOn_RXCUI_INGREDIENT" >
+
+    <delete file="${DrOn-to-RxNorm}/dron-rxcui-ingredient.txt" />
+
+    <exec executable="rdfproc" dir="${DrOn-to-RxNorm}/">
+      <arg value="-n" />
+      <arg value="dron-ingredient" />
+      <arg value="parse" />
+      <arg value="../../${DRON_RXCUI_INGREDIENT}" />
+    </exec>
+
+    <exec executable="bash" dir="${DrOn-to-RxNorm}/" >
+      <arg line = "parseDrOnFromOWLIngredient.sh" />
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="parse to get DrOn-rxnorm mappings for ingredient from ${DRON_RXCUI_INGREDIENT}" />
+    </antcall>
+
+    <delete file="${DrOn-to-RxNorm}/cleaned-dron-chebi-rxcui-ingredient-${TODAY_US}.txt"/>
+
+    <exec executable="python" failonerror="true">
+      <arg line="${DrOn-to-RxNorm}/cleanData.py ${DrOn-to-RxNorm}/dron-chebi-rxcui-ingredient.txt" /> 
+      <redirector append="true">
+        <outputmapper type="merge" to="${DrOn-to-RxNorm}/cleaned-dron-chebi-rxcui-ingredient-${TODAY_US}.txt"/>
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="created DrOn mapping file" />
+    </antcall>
+
+    <sql
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
+   <classpath>
+     <pathelement location="${mysql-driver}"/>
+   </classpath>
+      <transaction>
+	truncate DrOn_ChEBI_RXCUI_DRUG;
+	LOAD DATA LOCAL INFILE '${DrOn-to-RxNorm}/cleaned-dron-chebi-rxcui-ingredient-${TODAY_US}.txt' INTO TABLE `DrOn_ChEBI_RXCUI_INGREDIENT` FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (dron_id, ChEBI, rxcui);
+      </transaction>
+    </sql>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="loaded drug mappings of dron_id, ChEBI, rxcui into ${mysql-schema}.DrOn_ChEBI_RXCUI_INGREDIENT" />
+    </antcall>
+
+  </target>
+
 
 
   <!-- by using Rxnorm REST API (deprecated)
