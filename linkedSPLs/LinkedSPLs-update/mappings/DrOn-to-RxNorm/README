@@ -62,3 +62,15 @@ CREATE TABLE `DrOn_ChEBI_RXCUI_INGREDIENT` (
 $ mysql -u root -p --local-infile linkedSPLs
 
 LOAD DATA LOCAL INFILE './cleaned_dron-to-chebi-and-rxnorm-07232014.txt' INTO TABLE `DrOn_ChEBI_RXCUI_DRUG`  FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (dron_id, ChEBI, rxcui);
+
+
+(4) get dron and drugbank mapping by query Mysql schema
+
+SELECT RXNORM_DRUGBANK.DRUGBANK_BIO2RDF, DRONI.dron_id
+FROM
+(SELECT RXNORM.PreferredSubstance, RXNORM.RxNORM, DRUGBANK.DRUGBANK_BIO2RDF
+FROM FDAPreferredSubstanceToRxNORM RXNORM, FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF DRUGBANK
+WHERE RXNORM.PreferredSubstance = DRUGBANK.PreferredSubstance) RXNORM_DRUGBANK,
+DrOn_ChEBI_RXCUI_INGREDIENT DRONI
+WHERE RXNORM_DRUGBANK.RxNORM = DRONI.rxcui
+AND DRONI.dron_id like "%DRON_%";

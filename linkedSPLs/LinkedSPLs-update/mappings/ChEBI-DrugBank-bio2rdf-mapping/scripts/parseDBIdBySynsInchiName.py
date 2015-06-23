@@ -26,15 +26,7 @@ DRUGBANK_CA = "http://www.drugbank.ca/drugs/"
 
 
 '''
-data structure of drugbank.xml
-	
-</drug><drug type="small molecule" created="2005-06-13 07:24:05 -0600"
-updated="2013-09-16 17:11:29 -0600" version="4.0">
-  <drugbank-id>DB00641</drugbank-id>
-
-
-ata structure of drugbank.xml                                                                                                                                  
-                                                                                                                                                               
+data structure of drugbank.xml                                                                                                                                                            
 </drug><drug type="small molecule" created="2005-06-13 07:24:05 -0600"                                                                                          
 updated="2013-09-16 17:11:29 -0600" version="4.0">                                                                                                              
   <drugbank-id>DB00641</drugbank-id>                                                                                                                            
@@ -49,7 +41,12 @@ updated="2013-09-16 17:11:29 -0600" version="4.0">
    <synonymn>...</synonymn>
    </synonyms>
 
-
+   <external-identifiers>
+    <external-identifier>
+    <resource>ChEBI</resource>
+    <identifier>6427</identifier>
+    </external-identifier>
+    </external-identifiers>
 '''
 
 

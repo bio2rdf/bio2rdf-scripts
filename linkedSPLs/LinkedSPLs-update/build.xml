@@ -395,6 +395,18 @@
 
   <target name="load-ChEBI_DRUGBANK_BIO2RDF" >
 
+    <exec executable="python" failonerror="true">
+      <arg line="${ChEBI-DrugBank-bio2rdf-mapping}/scripts/parseDBIdAndChEBI.py ${DRUGBANK_XML}"/>
+      <redirector append="true">
+        <outputmapper type="merge" to="${ChEBI-DrugBank-bio2rdf-mapping}/drugbank-to-chebi-${TODAY_US}.txt"/>
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
+
+    <antcall target="set.timestamp">
+      <param name="message" value="mappings of drugbank Id and chebi id is created at ${ChEBI-DrugBank-bio2rdf-mapping}/drugbank-to-chebi-${TODAY_US}.txt" />
+    </antcall>
+
     <sql
    	driver="com.mysql.jdbc.Driver"
    	url="jdbc:mysql://localhost:3306/${mysql-schema}"
@@ -404,13 +416,9 @@
      <pathelement location="${mysql-driver}"/>
    </classpath>
       <transaction>
-	truncate FDAPharmgxTable;
-	INSERT INTO ChEBI_DRUGBANK_BIO2RDF(ChEBI_OBO,ChEBI_BIO2RDF,DRUGBANK_CA,DRUGBANK_BIO2RDF)
-	SELECT ChEBI AS ChEBI_OBO, REPLACE(ChEBI,'http://purl.obolibrary.org/obo/CHEBI_','http://bio2rdf.org/chebi:') AS ChEBI_BIO2RDF, DRUGBANK_CA, DRUGBANK_BIO2RDF 
-	FROM linkedSPLs.FDA_UNII_to_ChEBI pt_chebi, 
-		linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF pt_db
-	WHERE pt_chebi.PreferredSubstance = pt_db.PreferredSubstance;
-
+	truncate ChEBI_DRUGBANK_BIO2RDF;
+	load data local infile '${ChEBI-DrugBank-bio2rdf-mapping}/drugbank-to-chebi-${TODAY_US}.txt' into table ChEBI_DRUGBANK_BIO2RDF fields terminated by '\t'
+     lines terminated by '\n' (CHEBI_OBO, CHEBI_BIO2RDF, DRUGBANK_CA, DRUGBANK_BIO2RDF);
       </transaction>
     </sql>
 
