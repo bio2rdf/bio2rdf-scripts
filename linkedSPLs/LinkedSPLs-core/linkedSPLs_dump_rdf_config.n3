@@ -306,33 +306,33 @@ map:activeMoietyUNII a d2rq:PropertyBridge;
 	d2rq:propertyDefinitionComment "The FDA Unique Ingredient Identifier an active moiety contained in the drug product (see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162523.htm)"@en;
 	.
 
-
+## rxcui as Id for clinical drug mapping
 map:drugRxNormSubject a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
 	d2rq:property dc:subject;
 	d2rq:join "structuredProductLabelMetadata.setId = SPLSetIDToRxNORM.setId";
-	d2rq:uriSqlExpression "CONCAT('http://purl.bioontology.org/ontology/RXNORM/', SPLSetIDToRxNORM.RxCUI)";
+	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls:', SPLSetIDToRxNORM.RxCUI)";
 	.
 
 ## Omop concept Id from OHDSI
-map:drugConceptId a d2rq:PropertyBridge;
-	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
-	d2rq:property ohdsi:Imeds;
-	d2rq:join "structuredProductLabelMetadata.setId <= SPLSetIDToRxNORM.setId";
-	d2rq:join "SPLSetIDToRxNORM.RxCUI <= OMOP_RXCUI.RxCUI";
-	d2rq:column "OMOP_RXCUI.OMOPConceptId";
-	d2rq:propertyDefinitionLabel "OMOPConceptId"@en;
-	.
+# map:drugConceptId a d2rq:PropertyBridge;
+# 	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+# 	d2rq:property ohdsi:Imeds;
+# 	d2rq:join "structuredProductLabelMetadata.setId <= SPLSetIDToRxNORM.setId";
+# 	d2rq:join "SPLSetIDToRxNORM.RxCUI <= OMOP_RXCUI.RxCUI";
+# 	d2rq:column "OMOP_RXCUI.OMOPConceptId";
+# 	d2rq:propertyDefinitionLabel "OMOPConceptId"@en;
+# 	.
 
 ## DrOn Id 
-map:DrOnId a d2rq:PropertyBridge;
-	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
-	d2rq:property obo:dronId;
-	d2rq:join "structuredProductLabelMetadata.setId <= SPLSetIDToRxNORM.setId";
-	d2rq:join "SPLSetIDToRxNORM.RxCUI <= DrOn_ChEBI_RXCUI.rxcui";
-	d2rq:uriSqlExpression "CONCAT('http://purl.obolibrary.org/obo/', DrOn_ChEBI_RXCUI.dron_id)";
-	d2rq:propertyDefinitionLabel "DrOn Id"@en;
-	.
+# map:DrOnId a d2rq:PropertyBridge;
+# 	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
+# 	d2rq:property obo:dronId;
+# 	d2rq:join "structuredProductLabelMetadata.setId <= SPLSetIDToRxNORM.setId";
+# 	d2rq:join "SPLSetIDToRxNORM.RxCUI <= DrOn_ChEBI_RXCUI.rxcui";
+# 	d2rq:uriSqlExpression "CONCAT('http://purl.obolibrary.org/obo/', DrOn_ChEBI_RXCUI.dron_id)";
+# 	d2rq:propertyDefinitionLabel "DrOn Id"@en;
+# 	.
 
 ## Sections mappings	
 map:genericMedicine a d2rq:PropertyBridge;

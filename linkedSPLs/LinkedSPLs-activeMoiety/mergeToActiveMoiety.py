@@ -58,6 +58,7 @@ unii_nui_namerole_DF = pd.read_csv(UNII_NUI_PREFERRED_NAME_ROLE, sep='\t', names
 
 unii_pt_rxcui_db_DF = unii_pt_rxcui_DF.merge(pt_drugbank_DF, on=['pt'], how='left')
 #print unii_pt_rxcui_db_DF.info()
+unii_pt_rxcui_db_DF.to_csv('PT-RXCUI-UNII-DB.csv', sep='\t', index=False)
 
 
 # ## merge chebi 
