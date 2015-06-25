@@ -28,23 +28,24 @@ RXNORM_BASE = "http://purl.bioontology.org/ontology/RXNORM/"
 DRUGBANK_CA = "http://www.drugbank.ca/drugs/"
 DRUGBANK_BIO2RDF = "http://bio2rdf.org/drugbank:"
 NDFRT_BASE = "http://purl.bioontology.org/ontology/NDFRT/"
+DRON_BASE = "http://purl.obolibrary.org/obo/"
 #OHDSI_BASE = "http://purl.org/net/ohdsi#"
-#DRON_BASE = "http://purl.obolibrary.org/obo/"
+
 
 class DictItem:
 
-   def __init__(self, pt, db_uri1, db_uri2, rxcui, chebi, nui, nameAndRole):
-      self.pt = str(pt)
-      self.db_uri1 = str(db_uri1)
-      self.db_uri2 = str(db_uri2)
-      self.rxcui = str(rxcui)
-      self.chebi = str(chebi)
+    def __init__(self, pt, db_uri1, db_uri2, rxcui, chebi, nui, dron, nameAndRole):
+        self.pt = str(pt)
+        self.db_uri1 = str(db_uri1)
+        self.db_uri2 = str(db_uri2)
+        self.rxcui = str(rxcui)
+        self.chebi = str(chebi)
+        self.dron = str(dron)
 
-
-      if nui and nameAndRole:
-         self.drugClass = Set([str(nui)+'|'+str(nameAndRole)])
-      else:
-         self.drugClass = Set()
+        if nui and nameAndRole:
+            self.drugClass = Set([str(nui)+'|'+str(nameAndRole)])
+        else:
+            self.drugClass = Set()
 
 
 data_set = csv.DictReader(open("mergedActiveMoiety.csv","rb"), delimiter='\t')
@@ -54,30 +55,30 @@ dict_moieties = {}
 
 for item in data_set:
 
-   if item["unii"] not in dict_moieties:
-      moiety = DictItem(item["pt"], item["db_uri1"], item["db_uri2"], item["rxcui"], item["chebi"], item["nui"], item["nameAndRole"])
-      dict_moieties[item["unii"]]=moiety
-      #print str(dict_moieties[item["unii"]].drugClass) 
+    if item["unii"] not in dict_moieties:
+        moiety = DictItem(item["pt"], item["db_uri1"], item["db_uri2"], item["rxcui"], item["chebi"], item["nui"], item["dron"] ,item["nameAndRole"])
+        dict_moieties[item["unii"]]=moiety
 
-   else:
-      if not dict_moieties[item["unii"]].pt and item["pt"]:
-         dict_moieties[item["unii"]].pt = item["pt"]  
-      if not dict_moieties[item["unii"]].db_uri1 and item["db_uri1"]:
-         dict_moieties[item["unii"]].db_uri1 = item["db_uri1"]      
-      if not dict_moieties[item["unii"]].db_uri2 and item["db_uri2"]:
-         dict_moieties[item["unii"]].db_uri2 = item["db_uri2"] 
-      if not dict_moieties[item["unii"]].rxcui:
-         dict_moieties[item["unii"]].rxcui = item["rxcui"] 
-      if not dict_moieties[item["unii"]].chebi:
-         dict_moieties[item["unii"]].chebi = item["chebi"] 
- 
-      #print item['nui']+'|'+item['nameAndRole']
+    else:
+        if not dict_moieties[item["unii"]].pt and item["pt"]:
+            dict_moieties[item["unii"]].pt = item["pt"]  
+        if not dict_moieties[item["unii"]].db_uri1 and item["db_uri1"]:
+            dict_moieties[item["unii"]].db_uri1 = item["db_uri1"]      
+        if not dict_moieties[item["unii"]].db_uri2 and item["db_uri2"]:
+            dict_moieties[item["unii"]].db_uri2 = item["db_uri2"] 
+        if not dict_moieties[item["unii"]].rxcui:
+            dict_moieties[item["unii"]].rxcui = item["rxcui"] 
+        if not dict_moieties[item["unii"]].dron:
+            dict_moieties[item["unii"]].dron = item["dron"] 
+        if not dict_moieties[item["unii"]].chebi:
+            dict_moieties[item["unii"]].chebi = item["chebi"]  
+        #print item['nui']+'|'+item['nameAndRole']
 
-      if item['nui'] and item['nameAndRole']:
-         if dict_moieties[item["unii"]].drugClass:
-            dict_moieties[item["unii"]].drugClass.add(item['nui']+'|'+item['nameAndRole'])
-         else:
-            dict_moieties[item["unii"]].drugClass = Set(item['nui']+'|'+item['nameAndRole'])
+        if item['nui'] and item['nameAndRole']:
+            if dict_moieties[item["unii"]].drugClass:
+                dict_moieties[item["unii"]].drugClass.add(item['nui']+'|'+item['nameAndRole'])
+            else:
+                dict_moieties[item["unii"]].drugClass = Set(item['nui']+'|'+item['nameAndRole'])
       
 
 
@@ -140,47 +141,49 @@ index =1
 
 for k,v in dict_moieties.items():
 
-   # pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole
+    # pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole
 
-   graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["UNII"], Literal(k)))
-   graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), RDFS.label, Literal(v.pt.strip())))
-   graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), RDF.type, linkedspls_vocabulary["ActiveMoietyUNII"]))
-   if v.rxcui:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(int(float(v.rxcui))))))
+    graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["UNII"], Literal(k)))
+    graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), RDFS.label, Literal(v.pt.strip())))
+    graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), RDF.type, linkedspls_vocabulary["ActiveMoietyUNII"]))
+    if v.rxcui:
+        graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(int(float(v.rxcui))))))
 
-   if v.chebi:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["ChEBI"], URIRef(CHEBI_BASE + v.chebi)))
+    if v.chebi:
+        graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["ChEBI"], URIRef(CHEBI_BASE + v.chebi)))
 
-   if v.db_uri1:
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["x-drugbank"], URIRef(v.db_uri1)))
-      graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["x-drugbank"], URIRef(v.db_uri2)))
+    if v.db_uri1:
+        graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["x-drugbank"], URIRef(v.db_uri1)))
+        graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["x-drugbank"], URIRef(v.db_uri2)))
 
+    if v.dron:
+        graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + v.dron)))
+        
    # if v.omopid:
    #    graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["OMOPConceptId"], Literal(OHDSI_BASE + str(int(float(v.omopid))))))
 
-   # if v.dron:
-   #    graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + v.dron)))
 
-   if v.drugClass:
 
-      for dc in v.drugClass:
-         idx = dc.find('|')
-         nui = dc[0:idx]
-         dcStr = dc[idx+1:]
+    if v.drugClass:
 
-         dcGroup = None
+        for dc in v.drugClass:
+            idx = dc.find('|')
+            nui = dc[0:idx]
+            dcStr = dc[idx+1:]
 
-         if '[PE]' in dcStr:
-            dcGroup = "N0000009802"
-         elif '[MoA]' in dcStr:
-            dcGroup = "N0000000223"
-         elif '[Chemical/Ingredient]' in dcStr:
-            dcGroup = "N0000000002"
-         elif '[EPC]' in dcStr:
-            dcGroup = "N0000182631"
+            dcGroup = None
 
-         if dcGroup:
-            graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), ndfrt[dcGroup], ndfrt[nui]))
+            if '[PE]' in dcStr:
+                dcGroup = "N0000009802"
+            elif '[MoA]' in dcStr:
+                dcGroup = "N0000000223"
+            elif '[Chemical/Ingredient]' in dcStr:
+                dcGroup = "N0000000002"
+            elif '[EPC]' in dcStr:
+                dcGroup = "N0000182631"
+
+            if dcGroup:
+                graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), ndfrt[dcGroup], ndfrt[nui]))
 
 ##display the graph
 f = codecs.open(OUT_FILE,"w","utf8")
