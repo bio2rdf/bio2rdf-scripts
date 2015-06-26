@@ -150,7 +150,7 @@ for k,v in dict_moieties.items():
         graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(int(float(v.rxcui))))))
 
     if v.chebi:
-        graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["ChEBI"], URIRef(CHEBI_BASE + v.chebi)))
+        graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["ChEBI"], URIRef(v.chebi)))
 
     if v.db_uri1:
         graph.add((URIRef(ACTIVEMOIETY_BASE + str(k)), linkedspls_vocabulary["x-drugbank"], URIRef(v.db_uri1)))

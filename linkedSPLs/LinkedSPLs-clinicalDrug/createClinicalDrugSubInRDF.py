@@ -30,11 +30,11 @@ DRON_BASE = "http://purl.obolibrary.org/obo/"
 
 class DictItem:
 
-   def __init__(self, dron, rxcui, omop):
+   def __init__(self, dron, rxcui, omop, pt):
       self.dron = str(dron)
       self.rxcui = str(rxcui)
       self.omop = str(omop)
-
+      self.pt = str(pt)
 
 data_set = csv.DictReader(open("mergedClinicalDrug.csv","rb"), delimiter='\t')
 drugsL = []
@@ -42,8 +42,8 @@ drugsL = []
 ## convert data from csv to dict 
 
 for item in data_set:
-    if item["rxcui"] and item["dron"] and item["omop"]:
-        drugRow = DictItem(item["dron"], item["rxcui"], item["omop"])
+    if item["rxcui"] and item["dron"] and item["omop"] and item["pt"]:
+        drugRow = DictItem(item["dron"], item["rxcui"], item["omop"], item["pt"])
         drugsL.append(drugRow)
 
 ## set up RDF graph
@@ -103,16 +103,18 @@ index =1
 
 for drug in drugsL:
 
-   clinicalDrug = CLINICALDRUG_BASE + drug.rxcui
+    clinicalDrug = CLINICALDRUG_BASE + drug.rxcui
 
-   graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(int(float(drug.rxcui))))))
+    graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(drug.rxcui))))
 
-   if drug.omop:
-      graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["OMOPConceptId"], URIRef((OHDSI_BASE + str(int(float(drug.omop)))))))
+    graph.add((URIRef(clinicalDrug), RDFS.label, Literal(drug.pt.strip())))
+    graph.add((URIRef(clinicalDrug), RDF.type, linkedspls_vocabulary["clinicalDrug"]))
 
-   if drug.dron:
-      graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + drug.dron)))
+    if drug.omop:
+        graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["OMOPConceptId"], URIRef((OHDSI_BASE + str(drug.omop)))))
 
+    if drug.dron:
+        graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["DrOnId"], URIRef(DRON_BASE + drug.dron)))
       
 ##display the graph
 f = codecs.open(OUT_FILE,"w","utf8")
