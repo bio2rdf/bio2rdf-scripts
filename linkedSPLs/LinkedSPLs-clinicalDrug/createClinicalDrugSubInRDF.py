@@ -23,27 +23,28 @@ from rdflib import Graph, BNode, Literal, Namespace, URIRef, RDF, RDFS
 from sets import Set
 
 OUT_FILE = "clinicalDrugSub-in-rdf.xml"
-CLINICALDRUG_BASE = "http://bio2rdf.org/linkedspls:"
+CLINICALDRUG_BASE = "http://bio2rdf.org/linkedspls_resource:"
 RXNORM_BASE = "http://purl.bioontology.org/ontology/RXNORM/"
 OHDSI_BASE = "http://purl.org/net/ohdsi#"
 DRON_BASE = "http://purl.obolibrary.org/obo/"
 
 class DictItem:
 
-   def __init__(self, dron, rxcui, omop, pt):
-      self.dron = str(dron)
-      self.rxcui = str(rxcui)
-      self.omop = str(omop)
-      self.pt = str(pt)
+   def __init__(self, setid, dron, rxcui, omop, fullname):
+      self.dron = str(dron).strip()
+      self.rxcui = str(rxcui).strip()
+      self.omop = str(omop).strip()
+      self.fullname = str(fullname).strip()
+      self.setid = str(setid).strip()
 
-data_set = csv.DictReader(open("mergedClinicalDrug.csv","rb"), delimiter='\t')
+data_set = csv.DictReader(open("mergedClinicalDrug.tsv","rb"), delimiter='\t')
 drugsL = []
 
 ## convert data from csv to dict 
 
 for item in data_set:
-    if item["rxcui"] and item["dron"] and item["omop"] and item["pt"]:
-        drugRow = DictItem(item["dron"], item["rxcui"], item["omop"], item["pt"])
+    if item["setid"] and item["fullname"] and item["rxcui"] and item["dron"] and item["omop"]:
+        drugRow = DictItem(item["setid"], item["dron"], item["rxcui"], item["omop"], item["fullname"])
         drugsL.append(drugRow)
 
 ## set up RDF graph
@@ -103,11 +104,11 @@ index =1
 
 for drug in drugsL:
 
-    clinicalDrug = CLINICALDRUG_BASE + drug.rxcui
+    clinicalDrug = CLINICALDRUG_BASE + drug.setid
 
     graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(drug.rxcui))))
 
-    graph.add((URIRef(clinicalDrug), RDFS.label, Literal(drug.pt.strip())))
+    graph.add((URIRef(clinicalDrug), RDFS.label, Literal(drug.fullname.strip())))
     graph.add((URIRef(clinicalDrug), RDF.type, linkedspls_vocabulary["clinicalDrug"]))
 
     if drug.omop:

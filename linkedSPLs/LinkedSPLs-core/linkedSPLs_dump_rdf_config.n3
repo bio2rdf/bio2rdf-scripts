@@ -310,8 +310,7 @@ map:activeMoietyUNII a d2rq:PropertyBridge;
 map:drugRxNormSubject a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
 	d2rq:property dc:subject;
-	d2rq:join "structuredProductLabelMetadata.setId = SPLSetIDToRxNORM.setId";
-	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls:', SPLSetIDToRxNORM.RxCUI)";
+	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls_resource:', structuredProductLabelMetadata.setId)";
 	.
 
 ## Omop concept Id from OHDSI

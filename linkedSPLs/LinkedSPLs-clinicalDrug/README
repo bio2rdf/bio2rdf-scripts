@@ -1,0 +1,20 @@
+Merge clinical drug mapping to create clinical drug RDF graph. Each clinical drug entity include attributes FDA preferred name, Rxcui, DrOn Id, OMOP concept Id. 
+mappings folder keep all orginal mappings from linkedSPLs
+(1) imeds_drugids_to_rxcuis.csv
+OMOP concept Id and Rxcui mapping download from "https://github.com/OHDSI/KnowledgeBase/tree/master/LAERTES/terminology-mappings/StandardVocabToRxNorm/imeds_drugids_to_rxcuis.csv"
+
+(2) cleaned-dron-to-rxcui-drug-<DATE>.txt
+mappings of DrOn Id and Rxcui available from "linkedSPLs/LinkedSPLs-update/mappings/DrOn-to-RxNorm/cleaned-dron-to-rxcui-drug-<DATE>.txt"
+
+(3) converted_rxnorm_mappings_<DATE>.txt
+Dailymed product label indexing mapping from "linkedSPLs/LinkedSPLs-update/mappings/RxNORM-mapping/converted_rxnorm_mappings_<DATE>"
+
+$ cat converted_rxnorm_mappings_06262015.txt | cut -f1,2 -d\| | sort | uniq > setid_rxcui.txt
+
+(4) mappings of FDA preferred term and setId
+
+$ mysql -u <username> -p
+
+SELECT setId, fullName FROM linkedSPLs.structuredProductLabelMetadata INTO OUTFILE '/tmp/setid_fullname.txt' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+
+$ cp /tmp/setid_fullname.txt ../linkedSPLs/LinkedSPLs-clinicalDrug/mappings/
