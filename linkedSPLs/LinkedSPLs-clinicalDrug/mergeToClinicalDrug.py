@@ -58,14 +58,14 @@ fullname_setid_DF = pd.read_csv(FULLNAME_SETID, sep=',', names=fullname_setid_co
 
 ## merge fullname, setid, rxcui
 fullname_rxcui_setid_DF = pd.DataFrame({'rxcui': ['string'],'setid': ['string'],'fullname': ['string']})
-fullname_rxcui_setid_DF = fullname_setid_DF.merge(setid_rxcui_DF, on=['setid'], how='left')
+fullname_rxcui_setid_DF = fullname_setid_DF.merge(setid_rxcui_DF, on=['setid'], how='inner')
 print fullname_rxcui_setid_DF.info()
 
 
 
 ## merge fullname, rxcui, dron, omopid
 
-output_DF = fullname_rxcui_setid_DF.merge(dron_omop_rxcui_DF, on=['rxcui'], how='left')
+output_DF = fullname_rxcui_setid_DF.merge(dron_omop_rxcui_DF, on=['rxcui'], how='inner')
 
 print output_DF.info()
 print output_DF
