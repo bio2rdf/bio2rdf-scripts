@@ -29,6 +29,7 @@ SOFTWARE.
 */
 
 $fnx = array(
+//	"typePropertyTypeCount"
 	"triples", 
 	"distinctEntities", 
 	"distinctSubjects",
@@ -744,6 +745,15 @@ function addSubjectPropertyObjectCount()
 function addTypePropertyTypeCount()
 {
 	global $options;
+	$sparql = "SELECT ?p 
+".$options['from-graph']." 
+	  { ?s ?p ?o FILTER (!isLiteral(?o)) }
+	  GROUP BY ?p
+";
+	$r = query($sparql);
+	foreach($r AS $c) {
+	$p = $c->p->value;
+
 	$sparql = "SELECT 
 		distinct ?stype (str(?stype_label) AS ?stype_label) (?sn AS ?sn) (?dsn AS ?dsn) 
 		?p (str(?plabel) AS ?plabel) 
@@ -756,6 +766,7 @@ function addTypePropertyTypeCount()
 			?s ?p ?o . 
 			?s a ?stype .
 			?o a ?otype .
+			FILTER(?p = <$p>)
 		}
 		GROUP BY ?p ?stype ?otype 
 	}
@@ -798,6 +809,7 @@ function addTypePropertyTypeCount()
 			Quad("http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Object-Count", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://bio2rdf.org/bio2rdf.dataset_vocabulary:Dataset-Descriptor")
 		);
 	}
+        } // foreach property
 }
 
 function addDatasetPropertyDatasetCount()

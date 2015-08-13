@@ -117,11 +117,13 @@ class HGNCParser extends Bio2RDFizer {
 	function process(){
 		$header = $this->GetReadFile()->Read(200000);
 		$header_arr = explode("\t", $header);
-
-		if (count($header_arr) != 40)
+		$n = 41;
+		$c = count($header_arr);
+		if ($c != $n)
 		{
 			echo PHP_EOL;
-			trigger_error ("Header format is different than expected, please update the script",E_USER_ERROR);
+			print_r($header_arr);
+			trigger_error ("Expected $n columns, found $c . please update the script",E_USER_ERROR);
 			exit;
 		}
 
@@ -164,9 +166,10 @@ class HGNCParser extends Bio2RDFizer {
 			$refseq_mappeddatasuppliedbyNCBI = $fields[34];
 			$uniprot_id_mappeddatasuppliedbyUniProt = $fields[35];
 			$ensembl_id_mappeddatasuppliedbyEnsembl = $fields[36];
-			$ucsc_id_mappeddatasuppliedbyUCSC = $fields[37];
-			$mouse_genome_database_id_mappeddatasuppliedbyMGI = $fields[38];
-			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[39];
+			$vega_id_mappeddatasuppliedbyVega = $fields[37];
+			$ucsc_id_mappeddatasuppliedbyUCSC = $fields[38];
+			$mouse_genome_database_id_mappeddatasuppliedbyMGI = $fields[39];
+			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[40];
 
 			$id_res = $id;
 			$id_label = "Gene Symbol for ".$approved_symbol;
@@ -464,6 +467,15 @@ class HGNCParser extends Bio2RDFizer {
 				}
 			}
 
+			if(!empty($ucsc_id_mappeddatasuppliedbyVega)){
+				$ucsc_id_mappeddatasuppliedbyVega = explode(", ", $ucsc_id_mappeddatasuppliedbyVega);
+				foreach ($ucsc_id_mappeddatasuppliedbyVega as $vega_id) {
+					parent::AddRDF(
+						parent::triplify($id_res, $this->getVoc()."x-vega", "vega:".trim($vega_id)).
+						parent::describeProperty($this->getVoc()."x-vega", "Vega entry")
+					);
+				}
+			}
 			if(!empty($ucsc_id_mappeddatasuppliedbyUCSC)){
 				$ucsc_id_mappeddatasuppliedbyUCSC = explode(", ", $ucsc_id_mappeddatasuppliedbyUCSC);
 				foreach ($ucsc_id_mappeddatasuppliedbyUCSC as $ucsc_id) {
