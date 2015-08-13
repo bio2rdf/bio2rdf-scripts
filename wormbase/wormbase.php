@@ -35,7 +35,7 @@ class WormbaseParser extends Bio2RDFizer {
 	function __construct($argv) {
 		parent::__construct($argv, "wormbase");
 		parent::addParameter('files', true, 'all|geneIDs|functional_descriptions|gene_associations|gene_interactions|phenotype_associations','all','files to process');
-		parent::addParameter('release', false, null, 'WS243', 'Release version of WormBase');
+		parent::addParameter('release', false, null, 'current', 'Release version of WormBase');
 		parent::addParameter('download_url', false, null,'ftp://ftp.wormbase.org/pub/wormbase/');
 		parent::initialize();
 	}//constructor
@@ -49,12 +49,13 @@ class WormbaseParser extends Bio2RDFizer {
 			$files = explode(",",parent::getParameterValue('files'));
 		}
 		$release = parent::getParameterValue('release');
+		$releaseb = "WS247";
 		$remote_files = array(
-			"geneIDs" => "species/c_elegans/annotation/geneIDs/c_elegans.PRJNA13758.".parent::getParameterValue('release').".geneIDs.txt.gz",
-			"functional_descriptions" => "species/c_elegans/annotation/functional_descriptions/c_elegans.PRJNA13758.".parent::getParameterValue('release').".functional_descriptions.txt.gz",
-			"gene_interactions" => "species/c_elegans/annotation/gene_interactions/c_elegans.PRJNA13758.".parent::getParameterValue('release').".gene_interactions.txt.gz",
-			"gene_associations" => "releases/".$release."/ONTOLOGY/gene_association.".parent::getParameterValue('release').".wb",
-			"phenotype_associations" => "releases/".$release."/ONTOLOGY/phenotype_association.".parent::getParameterValue('release').".wb"
+			"geneIDs" => "species/c_elegans/annotation/geneIDs/c_elegans.PRJNA13758.".$release.".geneIDs.txt.gz",
+			"functional_descriptions" => "species/c_elegans/annotation/functional_descriptions/c_elegans.PRJNA13758.".$release.".functional_descriptions.txt.gz",
+			"gene_interactions" => "species/c_elegans/annotation/gene_interactions/c_elegans.PRJNA13758.".$release.".gene_interactions.txt.gz",
+			"gene_associations" => "releases/current-production-release/ONTOLOGY/gene_association.".$releaseb.".wb",
+			"phenotype_associations" => "releases/current-production-release/ONTOLOGY/phenotype_association.".$releaseb.".wb"
 		);
 
 		$local_files = array(
@@ -62,7 +63,7 @@ class WormbaseParser extends Bio2RDFizer {
 			"functional_descriptions" => "wormbase.".parent::getParameterValue('release').".functional_descriptions.txt.gz",
 			"gene_interactions" => "wormbase.".parent::getParameterValue('release').".gene_interactions.txt.gz",
 			"gene_associations" => "wormbase.".parent::getParameterValue('release').".gene_association.wb",
-			"phenotype_associations" => "wormbase.".parent::getParameterValue('release')."phenotype_associations.wb"
+			"phenotype_associations" => "wormbase.".parent::getParameterValue('release').".phenotype_associations.wb"
 		);
 
 		$idir = parent::getParameterValue('indir');
@@ -84,7 +85,6 @@ class WormbaseParser extends Bio2RDFizer {
 				Utils::DownloadSingle($rfile, $lfile);
 				echo "done!".PHP_EOL;
 			}
-
 			if(strstr($lfile, "gz")){
 				parent::setReadFile($lfile, TRUE);
 			} else {
@@ -190,10 +190,11 @@ class WormbaseParser extends Bio2RDFizer {
 	{
 		while($l = $this->getReadFile()->read(2000000)){
 			if($l[0] == "#") continue;
-			// gene_id public_name molecular_name concise_description provisional_description detailed_description gene_class_description
+			if(strstr($l,"gene_id")) continue;
 
-			$a = explode("\t",rtrim($l));
-			if(count($a) != 7) {trigger_error("Found one row that only has ".count($a)." columns, expecting 7");continue;}
+			// gene_id public_name molecular_name concise_description provisional_description detailed_description automated_description gene_class_description
+			$a = explode("\t",$l);
+			if(count($a) != 8) {trigger_error("Found one row that only has ".count($a)." columns, expecting 8",E_USER_ERROR);continue;}
 
 			$id = parent::getNamespace().$a[0];
 			$label = $a[1].($a[2]?" (".$a[2].")":"");
@@ -204,7 +205,8 @@ class WormbaseParser extends Bio2RDFizer {
 				parent::triplifyString($id, parent::getVoc()."concise-description", $a[3]).
 				parent::triplifyString($id, parent::getVoc()."provisional-description", $a[4]).
 				parent::triplifyString($id, parent::getVoc()."detailed-description", $a[5]).
-				parent::triplifyString($id, parent::getVoc()."gene-class-description", $a[6])
+				parent::triplifyString($id, parent::getVoc()."automated-description", $a[6]).
+				parent::triplifyString($id, parent::getVoc()."gene-class-description", trim($a[7]))
 			);
 			parent::writeRDFBufferToWriteFile();
 		}
@@ -258,16 +260,17 @@ class WormbaseParser extends Bio2RDFizer {
 				$split_paper = explode(":", $paper);
 				if($split_paper[0] == "PMID"){
 					$paper_id = "pubmed:".$split_paper[1];
+					parent::addRDF(
+						parent::triplify($association_id, parent::getVoc()."x-pubmed", $paper_id)
+					);
 				} elseif($split_paper[0] == "WB_REF"){
 					$paper_id = parent::getNamespace().$split_paper[1];
 					$paper_label = "Wormbase paper ".$split_paper[1];
 					parent::addRDF(
-						parent::describeIndividual($paper_id, $paper_label, parent::getVoc()."Publication") 
+						parent::describeIndividual($paper_id, $paper_label, parent::getVoc()."Publication").
+						parent::triplify($association_id, parent::getVoc()."publication", $paper_id)
 					);
 				}
-				parent::addRDF(
-					parent::triplify($association_id, parent::getVoc()."publication", $paper_id)
-				);
 			}//foreach
 			parent::WriteRDFBufferToWriteFile();
 		}//while
@@ -308,18 +311,15 @@ class WormbaseParser extends Bio2RDFizer {
 
 			if(strstr($data[7], "WBVar")){
 				foreach($variant AS $v) {
-					$v = str_replace("|","",$v);
-
 					if(trim($v) == '') continue;
 		 			parent::addRDF(
-		 				parent::describeIndividual(parent::getNamespace().$v, "Variant of ".$gene, parent::getVoc()."Gene-Variant").
+		 				parent::describeIndividual($v, "Variant of ".$gene, parent::getVoc()."Gene-Variant").
 						parent::describeClass(parent::getVoc()."Gene-Variant","Gene Variant").
-	 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", parent::getNamespace().$v)
+	 					parent::triplify($pa_id, parent::getVoc()."associated-gene-variant", $v)
 	 				);
 				}
 	 		} elseif(strstr($data[7], "WBRNAi")){
 				foreach($variant AS $v) {
-					$v = str_replace("|","",$v);
 		 			$var_rnai_id = $v;
 			 		$var_rnai_label = "RNAi ".$v;
 			 		$rnai_exp_id = parent::getRes().($z++);
@@ -333,7 +333,9 @@ class WormbaseParser extends Bio2RDFizer {
 	 					parent::triplify($pa_id, parent::getVoc()."associated-rnai-knockdown-experiment", $rnai_exp_id)
 	 				);
 				}
-	 		}
+	 		} else {
+//				var_dump($variant);
+			}
 
 			if($neg) {
 	 			parent::addRDF(
