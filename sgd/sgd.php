@@ -38,7 +38,7 @@ class SGDParser extends Bio2RDFizer {
 		parent::__construct($argv,"sgd");
 		parent::addParameter('files',true,'all|dbxref|features|domains|protein|goa|goslim|complex|interaction|phenotype|pathways|mapping','all','all or comma-separated list of files to process');
 		parent::addParameter('download_url',false,null,'http://downloads.yeastgenome.org/');
-		parent::addParameter('ncbo_download_dir', false, null, '/data/download/ncbo/', 'directory of ncbo ontologies');
+		parent::addParameter('ncbo_download_dir', false, null, '/data/download/bioportal/', 'directory of bioportal ontologies');
 		parent::addParameter('ncbo_api_key',true,null,null,'your NCBO API key');
 		parent::addParameter('one_file',false,'true|false','true',"whether to produce a single file output");
 		parent::initialize();
@@ -639,7 +639,11 @@ class SGDParser extends Bio2RDFizer {
 			"SignalP_GRAM_POSITIVE" => "signalp",
 			"SignalP_GRAM_NEGATIVE" => "signalp",
 			"SignalP_EUK" => "signalp",
-			"TMHMM" => "tmhmm" 
+			"TMHMM" => "tmhmm",
+			"ProDom" => "prodom",
+			"ProSiteProfiles" => "prosite",
+			"ProSitePatterns" => "prosite",
+			"Hamap" => "hamap" 
 		);
 
 		while($l = $this->GetReadFile()->Read(2048)) {

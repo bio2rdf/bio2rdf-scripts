@@ -398,9 +398,16 @@ class PharmGKBParser extends Bio2RDFizer
 			"refseqrna" => "refseq",
 			"ucscgenomebrowser" => "refseq",
 			"uniprotkb" => "uniprot",
-			'genecard'=>'genecards'
+			'genecard'=>'genecards',
+			'ucsc genome browser' => 'refseq',
+			'refseq rna' => 'refseq',
+			'refseq protein' => 'refseq',
+			'refseq dna' => 'refseq',
+			'comparative toxicogenomics database' => 'ctd',
+			'humancyc gene' => 'humancyc'
 		);
 		$this->getRegistry()->ParseQName($xref,$ns,$id);
+		$ns = str_replace('"','',$ns);
 		if(isset($xrefs[$ns])) {
 			$ns = $xrefs[$ns];
 		}
@@ -499,7 +506,9 @@ class PharmGKBParser extends Bio2RDFizer
 				$b = explode(',',trim($a[6]));
 				foreach($b as $c) {
 					$this->getRegistry()->parseQName($c,$ns,$id1);
-					$ns = str_replace(array('keggcompound','keggdrug','drugbank','uniprotkb'), array('kegg','kegg','drugbank', 'uniprot'), strtolower($ns));
+					$ns = str_replace(array('keggcompound','keggdrug','drugbank','uniprotkb','clinicaltrials.gov','drugs product database (dpd)','national drug code directory','therapeutic targets database','fda drug label at dailymed'), 
+						array('kegg','kegg','drugbank', 'uniprot','clinicaltrials','dpd','ndc','ttd','dailymed'), 
+						strtolower(str_replace('"','',$ns)));
 					if($ns == "url") {
 						parent::addRDF(
 							parent::QQuadO_URL($id, "rdfs:seeAlso", $id)
@@ -728,6 +737,10 @@ class PharmGKBParser extends Bio2RDFizer
 		$z = 0;
 		$this->GetReadFile()->Read();
 		$this->GetReadFile()->Read();
+		parent::addRDF(
+			parent::describeClass(parent::getVoc()."Variation", "PharmGKB Variation")
+		);
+
 		while($l = $this->GetReadFile()->Read()) {
 			if($z % 10000 == 0) {
 				parent::writeRDFBufferToWriteFile();
@@ -736,10 +749,8 @@ class PharmGKBParser extends Bio2RDFizer
 			$rsid = "dbsnp:".$a[0];
 			$genes = explode(";",$a[1]);
 			parent::addRDF(
-				parent::describeIndividual($rsid, $rsid, parent::getVoc()."Variation").
-				parent::describeClass(parent::getVoc()."Variation", "PharmGKB Variation")
+				parent::describeIndividual($rsid, $rsid, parent::getVoc()."Variation")
 			);
-			$this->AddRDF($this->QQuad($rsid,"void:inDataset",$this->GetDatasetURI()));
 			foreach($genes AS $gene) {
 				parent::addRDF(
 					parent::triplify($rsid, parent::getVoc()."gene", parent::getNamespace().$gene)

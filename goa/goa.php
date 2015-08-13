@@ -36,7 +36,8 @@ class GOAParser extends Bio2RDFizer
 {
 	function __construct($argv) {
 		parent::__construct($argv,"goa");
-		parent::addParameter('files',true,'all|arabidopsis|chicken|cow|dicty|dog|fly|human|mouse|pdb|pig|rat|uniprot|worm|yeast|zebrafish','all','all or comma-separated list of files to process');
+//		parent::addParameter('files',true,'all|arabidopsis|chicken|cow|dicty|dog|fly|human|mouse|pdb|pig|rat|uniprot|worm|yeast|zebrafish','all','all or comma-separated list of files to process');
+		parent::addParameter('files',true,'all|arabidopsis|chicken|cow|dicty|dog|fly|human|mouse|pig|rat|worm|yeast|zebrafish','all','all or comma-separated list of files to process');
 		parent::addParameter('download_url',false,null,'ftp://ftp.ebi.ac.uk/pub/databases/GO/goa/');		
 		parent::initialize();
 	}
@@ -161,9 +162,13 @@ class GOAParser extends Bio2RDFizer
 
 			//entity id
 			$eid = $this->getdbURI($db,$id);
+if(!$eid) {
+print_r($fields);
+continue;
+}
 			parent::addRDF(
 				parent::describeIndividual($eid,$label,parent::getVoc()."GO-Annotation").
-				parent::describeClass(parent::getVoc()."GO-Annotation","GO Annotation").
+ 				parent::describeClass(parent::getVoc()."GO-Annotation","GO Annotation").
 				parent::triplifyString($eid,parent::getVoc()."symbol",$symbol)
 			);
 			parent::addRDF(
@@ -261,6 +266,8 @@ class GOAParser extends Bio2RDFizer
 		} else if ($db_id == "PDB"){
 			$split_object = explode("_", $db_object_id);
 			$returnMe = "pdb:".$split_object[0]."/chain_".$split_object[1];
+		} else {
+			$returnMe = $db_id.":".$db_object_id;
 		}
 		return $returnMe;
 	}

@@ -47,7 +47,7 @@ class OMIMParser extends Bio2RDFizer
 		if(parent::getParameterValue('omim_api_key') == '') {
 			$key_file = parent::getParameterValue('omim_api_key_file');
 			if(file_exists($key_file)) {
-				$key = file_get_contents($key_file);
+				$key = trim(file_get_contents($key_file));
 				if($key) {
 					parent::setParameterValue('omim_api_key', $key);
 				} else {
@@ -199,8 +199,9 @@ class OMIMParser extends Bio2RDFizer
 			}
 				
 			// download
+			ftp_pasv($ftp, true);
 			echo "Downloading $file ...";
-			if(ftp_get($ftp, $ldir.$file, 'omim/'.$file, FTP_BINARY) === FALSE) {
+			if(ftp_get($ftp, $ldir.$file, 'OMIM/'.$file, FTP_BINARY) === FALSE) {
 				trigger_error("Error in downloading $file");
 				continue;
 			}

@@ -48,7 +48,7 @@ class TaxonomyParser extends Bio2RDFizer{
 			),
 			"file_url" => "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip"
 		),
-		"gi2taxid_protein" => array(
+/*		"gi2taxid_protein" => array(
 			"filename" => "gi_taxid_prot.zip",
 			"contents" => array(
 				"gi_taxid_prot" => "gi_taxid_prot.dmp",
@@ -62,7 +62,7 @@ class TaxonomyParser extends Bio2RDFizer{
 			),
 			"file_url" => "ftp://ftp.ncbi.nih.gov/pub/taxonomy/gi_taxid_nucl.zip"
 		) 
-	);
+*/	);
 
 	function __construct($argv) {
 		parent::__construct($argv, "taxonomy");
@@ -325,13 +325,20 @@ class TaxonomyParser extends Bio2RDFizer{
 				continue;
 			}
 			$c = parent::getRes()."citation-id-".$a[0];
+			$seealso = isset($a[4])?trim($a[4]):"";
+			if($seealso) {
+				$seealso = str_replace(array("lx: DOI ","http;//"), array("http://dx.doi.org/","http://"), $seealso);
+				if(strlen($seealso) > 2 and !strstr($seealso,"http")) $seealso = "http://".$seealso;
+				$seelalso = parent::triplify($c, "rdfs:seeAlso", $seealso);
+			}
+
 			parent::addRDF(
 				parent::describeIndividual($c, $a[1], $this->getVoc()."Citation").
 				parent::describeClass($this->getVoc()."Citation", "Citation").
 				parent::triplifyString($c, parent::getVoc()."citation-key", $a[1]).
 				($a[2]=="0"?"":parent::triplify($c, parent::getVoc()."x-pubmed", "pubmed:".$a[2])).
-				(!isset($a[4])?"":parent::triplify($c, "rdfs:seeAlso", str_replace("lx: DOI ","http://dx.doi.org/", $a[4]))).
-				(!isset($a[5])?"":parent::triplifyString($c, parent::getVoc()."text", str_replace("\"","", $a[5])))
+				$seealso.
+				((isset($a[5]) and $a[5])?parent::triplifyString($c, parent::getVoc()."text", str_replace("\"","", $a[5])):"")
 			);
 			if(isset($a[6])) {
 				$taxids = explode(" ", trim($a[6]));
