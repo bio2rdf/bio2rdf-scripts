@@ -929,3 +929,126 @@ ORDER BY DESC(?annot)
 
 
 Results set in shorten URL: http://goo.gl/y1oiW5
+
+
+################################################################################
+# LinkedSPLs analysis queries - updated 08242015
+################################################################################
+
+
+--------------------------------------------------------------------------------
+get number of labels have each active ingredient entity mapping available
+--------------------------------------------------------------------------------
+
+(1) numbers of product labels have active ingredient mapped 
+
+Qry:
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+
+SELECT count(DISTINCT ?s)
+WHERE {
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
+?s linkedspls_vocabulary:setId ?setId.
+
+?activeMoiety linkedspls_vocabulary:UNII ?UNII.
+
+}
+
+Results:
+62735 out of 62739 labels
+
+(2) number of product labels have active ingredient RxCUI mapping
+
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+
+SELECT count(DISTINCT ?s)
+WHERE {
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
+?s linkedspls_vocabulary:setId ?setId.
+
+?activeMoiety linkedspls_vocabulary:RxCUI ?RxCUI.
+
+}
+
+Results: 62735 out of 62739 labels
+
+(3) number of product labels have active ingredient ChEBI mapping
+
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+
+SELECT count(DISTINCT ?s)
+WHERE {
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
+?s linkedspls_vocabulary:setId ?setId.
+
+?activeMoiety linkedspls_vocabulary:ChEBI ?ChEBI.
+
+}
+
+Resutls:
+39042 out of 62739 labels
+ 
+
+(4) number of product labels have drug classes mapped 
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX ndfrt: <http://purl.bioontology.org/ontology/NDFRT/>
+
+SELECT count(DISTINCT ?s)
+WHERE {
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
+?s linkedspls_vocabulary:setId ?setId.
+
+{?activeMoiety ndfrt:N0000000002 ?x }
+UNION 
+{?activeMoiety ndfrt:N0000182631 ?x }
+UNION 
+{?activeMoiety ndfrt:N0000009802 ?x }
+UNION 
+{?activeMoiety ndfrt:N0000000223 ?x }
+
+}
+
+
+
+--------------------------------------------------------------------------------
+query number of labels have each clinical drug entity mapping available
+--------------------------------------------------------------------------------
+
+(1) number of product label have clinical drug mapped
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+
+SELECT count(distinct ?s)
+
+WHERE {
+
+?s linkedspls_vocabulary:setId ?setId.
+?s dc:subject ?clinicalDrug.
+
+}
+
+Results: 62739
+
+(2) number of product label have clinical drug RxCUI, DrOn Id, OMOP Concept Id mapped
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+
+SELECT count(distinct ?s)
+
+WHERE {
+
+?s linkedspls_vocabulary:setId ?setId.
+?s dc:subject ?clinicalDrug.
+
+?clinicalDrug linkedspls_vocabulary:RxCUI ?RxCUI.
+?clinicalDrug linkedspls_vocabulary:OMOPConceptId ?OMOPConceptId.
+?clinicalDrug linkedspls_vocabulary:DrOnId ?DrOnId.
+
+}
+
+Results: 49457
+
