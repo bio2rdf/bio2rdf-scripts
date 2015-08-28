@@ -43,7 +43,8 @@ drugsL = []
 ## convert data from csv to dict 
 
 for item in data_set:
-    if item["setid"] and item["fullname"] and item["rxcui"] and item["dron"] and item["omop"]:
+    #if item["setid"] and item["fullname"] and item["rxcui"] and item["dron"] and item["omop"]:
+    if item["setid"]:
         drugRow = DictItem(item["setid"], item["dron"], item["rxcui"], item["omop"], item["fullname"])
         drugsL.append(drugRow)
 
@@ -105,11 +106,13 @@ index =1
 for drug in drugsL:
 
     clinicalDrug = CLINICALDRUG_BASE + drug.setid
-
-    graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(drug.rxcui))))
-
-    graph.add((URIRef(clinicalDrug), RDFS.label, Literal(drug.fullname.strip())))
     graph.add((URIRef(clinicalDrug), RDF.type, linkedspls_vocabulary["clinicalDrug"]))
+
+    if drug.rxcui:
+        graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["RxCUI"], URIRef(RXNORM_BASE + str(drug.rxcui))))
+
+    if drug.fullname.strip():
+        graph.add((URIRef(clinicalDrug), RDFS.label, Literal(drug.fullname.strip())))
 
     if drug.omop:
         graph.add((URIRef(clinicalDrug), linkedspls_vocabulary["OMOPConceptId"], URIRef((OHDSI_BASE + str(drug.omop)))))

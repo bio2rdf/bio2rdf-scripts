@@ -935,6 +935,127 @@ Results set in shorten URL: http://goo.gl/y1oiW5
 # LinkedSPLs analysis queries - updated 08242015
 ################################################################################
 
+(1) number of labels have both active ingredient and clinical drug entity mapped
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX ndfrt: <http://purl.bioontology.org/ontology/NDFRT/>
+
+SELECT count(distinct ?s)
+
+WHERE {
+
+?s linkedspls_vocabulary:setId ?setId.
+?s dc:subject ?clinicalDrug.
+?clinicalDrug linkedspls_vocabulary:RxCUI ?rxcui1.
+
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
+?activeMoiety linkedspls_vocabulary:RxCUI ?rxcui2.
+
+}
+
+Results: 51571
+
+(2) number of labels have one drug product and two active moiety entities mapped
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX ndfrt: <http://purl.bioontology.org/ontology/NDFRT/>
+
+SELECT count(distinct ?s) WHERE
+
+{
+
+?s a ?setId.
+{
+SELECT distinct ?s count(distinct ?activeMoiety) as ?amNum
+
+WHERE {
+
+?s linkedspls_vocabulary:setId ?setId;
+   dc:subject ?clinicalDrug;
+   linkedspls_vocabulary:activeMoiety ?activeMoiety.
+
+?clinicalDrug linkedspls_vocabulary:RxCUI ?rxcui1.
+
+} group by ?s having count(distinct ?activeMoiety) > 1
+
+}
+}
+
+Resutls: 10112
+
+(3) number of labels have one drug product and three more active moiety entities
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX ndfrt: <http://purl.bioontology.org/ontology/NDFRT/>
+
+SELECT count(distinct ?s) WHERE
+
+{
+?s a ?setId.
+{
+SELECT distinct ?s count(distinct ?activeMoiety) as ?amNum
+
+WHERE {
+
+?s linkedspls_vocabulary:setId ?setId;
+   dc:subject ?clinicalDrug;
+   linkedspls_vocabulary:activeMoiety ?activeMoiety.
+
+?clinicalDrug linkedspls_vocabulary:RxCUI ?rxcui1.
+
+} group by ?s having count(distinct ?activeMoiety) > 2
+
+}
+}
+
+Resutls: 4165
+
+(4) get number of labels that have clinical drug rxcui mapped 
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+
+
+SELECT count(distinct ?s) WHERE
+
+{
+?s linkedspls_vocabulary:setId ?setId.
+{
+
+SELECT distinct ?s count(distinct ?clinicalDrug) as ?num
+
+WHERE {
+
+?s linkedspls_vocabulary:setId ?setId.
+
+   optional{
+   ?s dc:subject ?clinicalDrug.
+   ?clinicalDrug linkedspls_vocabulary:RxCUI ?rxcui1.
+}
+   FILTER regex(?rxcui1,'^http','i')
+} group by ?s
+}
+}
+
+Results: 51572
+
+
+(5) examples of dailymed label that don't have rxcui mapping available from dailymed mapping
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+
+SELECT distinct ?s ?clinicalDrug
+
+WHERE {
+
+?s linkedspls_vocabulary:setId ?setId.
+?s dc:subject ?clinicalDrug.
+
+OPTIONAL {
+?clinicalDrug linkedspls_vocabulary:RxCUI ?rxcui1.
+}
+   FILTER (!regex(?rxcui1,'^http','i'))
+}
+limit 20
 
 --------------------------------------------------------------------------------
 get number of labels have each active ingredient entity mapping available
