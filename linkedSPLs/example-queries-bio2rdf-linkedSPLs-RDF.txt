@@ -983,32 +983,25 @@ WHERE {
 
 Resutls: 10112
 
-(3) number of labels have one drug product and three more active moiety entities
-
+(3) find product label that have most number of clinical drug mappings
+ 
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
-PREFIX ndfrt: <http://purl.bioontology.org/ontology/NDFRT/>
 
-SELECT count(distinct ?s) WHERE
-
-{
-?s a ?setId.
-{
-SELECT distinct ?s count(distinct ?activeMoiety) as ?amNum
+SELECT distinct ?s count(distinct ?rxcui1) as ?num
 
 WHERE {
 
-?s linkedspls_vocabulary:setId ?setId;
-   dc:subject ?clinicalDrug;
-   linkedspls_vocabulary:activeMoiety ?activeMoiety.
+?s linkedspls_vocabulary:setId ?setId.
 
-?clinicalDrug linkedspls_vocabulary:RxCUI ?rxcui1.
-
-} group by ?s having count(distinct ?activeMoiety) > 2
-
-}
+   optional{
+   ?s dc:subject ?clinicalDrug.
+   ?clinicalDrug linkedspls_vocabulary:RxCUI ?rxcui1.
 }
 
-Resutls: 4165
+   FILTER regex(?rxcui1,'^http','i')
+} group by ?s order by DESC(?num)
+
+limit 10
 
 (4) get number of labels that have clinical drug rxcui mapped 
 
