@@ -734,11 +734,15 @@ class DrugBankParser extends Bio2RDFizer
 							);
 						}
 					}
+					$kid = parent::getvoc().md5($l->asXML());
 					foreach($l->children() AS $k2 => $v2) {
 						$this->addRDF(
-							$this->triplifyString($kid, parent::getVoc().$k2, $v2)
+							$this->describeIndividual($kid,($k2=="name"?$v2:$predicate),parent::getVoc().ucfirst($k2)).
+							$this->describeClass(parent::getVoc().ucfirst($k2),ucfirst("".$v2)).
+							$this->triplifyString($kid, parent::getVoc().$k2, $v2).
+							$this->triplify($id, $predicate, $kid)
 						);
-					}			
+					}
 				}
 			}
 		}
