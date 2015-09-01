@@ -357,6 +357,7 @@ class PharmGKBParser extends Bio2RDFizer
 					
 					$url = false;
 					$x = $this->MapXrefs($xref, $url, $ns, $id2);
+					$ns = str_replace(' ','',$ns);
 					if($url == true) {
 						parent::addRDF(
 							parent::QQuadO_URL($id, parent::getVoc()."x-$ns", $x)
@@ -399,15 +400,15 @@ class PharmGKBParser extends Bio2RDFizer
 			"ucscgenomebrowser" => "refseq",
 			"uniprotkb" => "uniprot",
 			'genecard'=>'genecards',
-			'ucsc genome browser' => 'refseq',
-			'refseq rna' => 'refseq',
-			'refseq protein' => 'refseq',
-			'refseq dna' => 'refseq',
-			'comparative toxicogenomics database' => 'ctd',
-			'humancyc gene' => 'humancyc'
+			'ucscgenomebrowser' => 'refseq',
+			'refseqrna' => 'refseq',
+			'refseqprotein' => 'refseq',
+			'refseqdna' => 'refseq',
+			'comparativetoxicogenomicsdatabase' => 'ctd',
+			'humancycgene' => 'humancyc'
 		);
 		$this->getRegistry()->ParseQName($xref,$ns,$id);
-		$ns = str_replace('"','',$ns);
+		$ns = str_replace(array('"',' '),'',$ns);
 		if(isset($xrefs[$ns])) {
 			$ns = $xrefs[$ns];
 		}
@@ -503,10 +504,11 @@ class PharmGKBParser extends Bio2RDFizer
 			if(trim($a[6])) {
 				// Cross References	
 				// drugBank:DB00789,keggDrug:D01707,pubChemCompound:55466,pubChemSubstance:192903,url:http://en.wikipedia.org/wiki/Gadopentetate_dimeglumine
-				$b = explode(',',trim($a[6]));
+				$b = explode(',',trim(str_replace('"','',$a[6])));
 				foreach($b as $c) {
 					$this->getRegistry()->parseQName($c,$ns,$id1);
-					$ns = str_replace(array('keggcompound','keggdrug','drugbank','uniprotkb','clinicaltrials.gov','drugs product database (dpd)','national drug code directory','therapeutic targets database','fda drug label at dailymed'), 
+					$ns = str_replace(array('"',' '),'',$ns);
+					$ns = str_replace(array('keggcompound','keggdrug','drugbank','uniprotkb','clinicaltrials.gov','drugsproductdatabase(dpd)','nationaldrugcodedirectory','therapeutictargetsdatabase','fdadruglabelatdailymed'), 
 						array('kegg','kegg','drugbank', 'uniprot','clinicaltrials','dpd','ndc','ttd','dailymed'), 
 						strtolower(str_replace('"','',$ns)));
 					if($ns == "url") {
@@ -562,7 +564,7 @@ class PharmGKBParser extends Bio2RDFizer
 
 	  while($l = $this->GetReadFile()->Read(10000)) {
 		$a = explode("\t",$l);
-			
+
 		$id = parent::getNamespace().$a[0];
 		$label = str_replace("'", "\\\'", $a[1]);
 
@@ -595,19 +597,23 @@ class PharmGKBParser extends Bio2RDFizer
 		parent::addRDF(
 			parent::triplify($id, "owl:sameAs", $sameID)
 		);
-		if(isset($a[4]) && trim($a[4]) != '') {	 
-			$d = preg_match_all('/[,]?([^\:]+):([A-Za-z0-9]+)\(([^\)]+)\)/',$a[4],$m, PREG_SET_ORDER);
-			foreach($m AS $n) {
-				if(isset($n[1]) && isset($n[2]) && !strstr($n[1]," ")) {
-					$n[1] = str_replace("),","",strtolower($n[1]));
-					$id2 = $n[1].':'.$n[2];
-					parent::addRDF(
-						parent::triplify($id, "pharmgkb_vocabulary:x-".$n[1], $id2)
-					);
-					if(isset($n[3]) && $n[2] != $n[3]){
+		if(isset($a[4]) && trim($a[4]) != '') {
+			$xrefs = explode('","', $a[4]);
+			foreach($xrefs AS $xref) {
+				$xref = str_replace('"','',$xref);
+				$d = preg_match_all('/[,]?([^\:]+):([A-Za-z0-9]+)\(([^\)]+)\)/',$xref,$m, PREG_SET_ORDER);
+				foreach($m AS $n) {
+					if(isset($n[1]) && isset($n[2]) && !strstr($n[1]," ")) {
+						$n[1] = str_replace("),","",strtolower($n[1]));
+						$id2 = $n[1].':'.$n[2];
 						parent::addRDF(
-							parent::triplifyString($id2, "rdfs:label", str_replace(array("\'", "\""),array("\\\'", ""),$n[3]))
+							parent::triplify($id, "pharmgkb_vocabulary:x-".$n[1], $id2)
 						);
+						if(isset($n[3]) && $n[2] != $n[3]){
+							parent::addRDF(
+								parent::triplifyString($id2, "rdfs:label", str_replace(array("\'", "\""),array("\\\'", ""),$n[3]))
+							);
+						}
 					}
 				}
 			}
