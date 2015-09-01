@@ -233,12 +233,11 @@ class ClinicalTrialsParser extends Bio2RDFizer
 	**/
 	function process_file($infile) {
 		$indir = parent::getParameterValue('indir');
-		$xml = new CXML($indir,basename($infile));
+		$xml = new CXML($infile);
 		$this->setCheckPoint('file');
 		while($xml->Parse("clinical_study") == TRUE) {
 			$this->setCheckPoint('record');
 			$this->root = $root = $xml->GetXMLRoot();
-	
 			$this->nct_id = $nct_id = $this->getString("//id_info/nct_id");
 			$this->study_id = $study_id = parent::getNamespace()."$nct_id";
 
@@ -759,7 +758,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						parent::triplifyString($location_uri,parent::getVoc()."status", $this->getString('//status',$location)).
 						parent::triplify($study_id,parent::getVoc()."location",$location_uri).
 						parent::triplify($location_uri, parent::getVoc()."address", $this->makeAddress($address)).
-						parent::triplify($location_uri, parent::getVoc()."contact", $this->makeContact($contact))
+						($contact != null?parent::triplify($location_uri, parent::getVoc()."contact", $this->makeContact($contact)):"")
 					);
 					if($backups) {
 						foreach($backups AS $backup) {
@@ -831,11 +830,13 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			try{
 				$links = $root->xpath('//link');
 				foreach($links AS $i => $link) {
-					$lid = parent::getRes().md5($this->getString('./url',$link));
+					$url = $this->getString('./url',$link);
+					$url = preg_replace("/>.*$/","",$url);
+					$lid = parent::getRes().md5($url);
 					parent::addRDF(
 						parent::describeIndividual($lid, $this->getString('./description',$link), parent::getVoc()."Link").
 						parent::describeClass(parent::getVoc()."Link","Link").
-						parent::triplify($lid,parent::getVoc()."url",preg_replace("/>$/","",$this->getString('./url',$link))).
+						parent::triplify($lid,parent::getVoc()."url",$url).
 						parent::triplify($study_id,parent::getVoc()."link",$lid)
 					);
 				}
@@ -1166,7 +1167,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 						if(!$et) continue;
 						$ev_uri = parent::getVoc().str_replace(" ","-",$ev_label);
 
-						$categories = array_shift($et->xpath('./category_list'));
+						$categories = @array_shift($et->xpath('./category_list'));
 						foreach($categories AS $category) {
 							$major_title = $this->getString('./title', $category);
 							$major_title_uri = parent::getRes().md5($major_title);
@@ -1272,8 +1273,8 @@ class ClinicalTrialsParser extends Bio2RDFizer
 	
 	public function makeContact($contact)
 	{
-		if($contact == null) return null;
-		$contact_uri = parent::getRes().md5($contact->asXML());		
+		if($contact == null) return '';
+		$contact_uri = parent::getRes().md5($contact->asXML());
 		$contact_type_uri = parent::getVoc()."Contact";
 		$contact_label = trim($this->getString('//first_name',$contact)." ".$this->getString('//last_name', $contact));
 		parent::addRDF(

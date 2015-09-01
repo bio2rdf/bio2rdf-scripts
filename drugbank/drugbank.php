@@ -721,11 +721,11 @@ class DrugBankParser extends Bio2RDFizer
 				if(isset($item->$item_name) && ($item->$item_name != '')) { 
 					$l = $item->$item_name;
 					$att = ($l->attributes()); 
-					foreach($l AS $item_value) {
+					foreach($l AS $key => $item_value) {
 						$kid = parent::getvoc().md5($item_value);
 						$this->addRDF(
-							$this->describeIndividual($kid,$item_value,parent::getVoc().ucfirst($item_name)).
-							$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst($item_name)).
+							$this->describeIndividual($kid,"".$item_value,parent::getVoc().ucfirst($item_name)).
+							$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst("".$item_name)).
 							$this->triplify($id,$predicate,$kid)
 						);
 						foreach($att AS $ka => $va) {
@@ -733,6 +733,15 @@ class DrugBankParser extends Bio2RDFizer
 								$this->triplifyString($kid, parent::getVoc().$ka, "".$va)
 							);
 						}
+					}
+					$kid = parent::getvoc().md5($l->asXML());
+					foreach($l->children() AS $k2 => $v2) {
+						$this->addRDF(
+							$this->describeIndividual($kid,($k2=="name"?$v2:$predicate),parent::getVoc().ucfirst($k2)).
+							$this->describeClass(parent::getVoc().ucfirst($k2),ucfirst("".$v2)).
+							$this->triplifyString($kid, parent::getVoc().$k2, $v2).
+							$this->triplify($id, $predicate, $kid)
+						);
 					}
 				}
 			}
