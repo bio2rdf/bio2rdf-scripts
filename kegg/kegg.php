@@ -739,7 +739,11 @@ class KEGGParser extends Bio2RDFizer
 	
 	function parseKGML($lfile)
 	{
-		$pathway = simplexml_load_file($lfile) or die("Error: Cannot create object");
+		$pathway = simplexml_load_file($lfile);
+		if($pathway === false) {
+			echo "Error in parsing $lfile".PHP_EOL;
+			return;
+		}
 		$pathway_id = str_replace("path","kegg",$pathway['name']);
 		$base_id = str_replace("kegg","kegg_resource",$pathway_id).".";
 
