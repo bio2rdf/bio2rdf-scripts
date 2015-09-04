@@ -1,6 +1,6 @@
---------------------------------------------------------------------------------
+################################################################################
 OVERVIEW
---------------------------------------------------------------------------------
+################################################################################
 
 This folder will hold a graph that maps the active moiety components of an SPL to other drug resources
 
@@ -12,8 +12,6 @@ Inputs are original mappings listed as belows:
 
 (3) RxNORM to Drugbank
 
-(4) UNII to DrOn
-
 (5) RxNORM to NDFRT (EPC)
 
 (6) RxNORM to OMOP
@@ -23,32 +21,53 @@ Inputs are original mappings listed as belows:
 Outputs is a RDF/XML graph that represents all active moiety with linked resouces.
 
 
---------------------------------------------------------------------------------
+################################################################################
 Procedures to get active moieties RDF graph
---------------------------------------------------------------------------------
+################################################################################
 
-STEP 1: prepare mappings in folder mappings/
+<STEP 1>: prepare mappings in folder mappings/
 
-mappings/dron-to-chebi-and-rxnorm.txt
-FROM "../../LinkedSPLs-update/mappings/DrOn-to-RxNorm/dron-to-chebi-and-rxnorm.txt"
+----------------------------------------------
+mappings/dron#to#chebi#and#rxnorm.txt
+----------------------------------------------
+FROM "../../LinkedSPLs#update/mappings/DrOn#to#RxNorm/dron#to#chebi#and#rxnorm.txt"
 
+----------------------------------------------
 mappings/imeds_drugids_to_rxcuis.csv
-FROM "https://github.com/OHDSI/KnowledgeBase/tree/master/LAERTES/terminology-mappings/StandardVocabToRxNorm/imeds_drugids_to_rxcuis.csv"
+----------------------------------------------
+ 
+query OMOP CDM V5 (GeriOMOP) by SQL query below:
+SELECT cpt.CONCEPT_ID as omopid, cpt.CONCEPT_CODE as rxcui FROM
+CONCEPT cpt
+WHERE 
+cpt.CONCEPT_CLASS = 'Ingredient';
 
-mappings/UNIIToChEBI-<DATE>.txt
-FROM "../../LinkedSPLs-update/mappings/PT-UNII-ChEBI-mapping/UNIIToChEBI-<DATE>.txt"
+09/04/2015: 17049 results
 
-mappings/pt_drugbank-<DATE>.txt
-FROM "../../LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/fda-substance-preferred-name-to-drugbank-<DATE>.txt"
+right click result table and export to csv ('|' delimited) 
 
-mappings/PreferredTerm-UNII-Rxcui-mapping.txt
-FROM "../../LinkedSPLs-update/mappings/RxNORM-mapping/PreferredTerm-UNII-Rxcui-mapping.txt"
+----------------------------------------------
+mappings/UNIIToChEBI#<DATE>.txt
+----------------------------------------------
+FROM "../../LinkedSPLs#update/mappings/PT#UNII#ChEBI#mapping/UNIIToChEBI#<DATE>.txt"
 
+----------------------------------------------
+mappings/pt_drugbank#<DATE>.txt
+----------------------------------------------
+FROM "../../LinkedSPLs#update/mappings/ChEBI#DrugBank#bio2rdf#mapping/fda#substance#preferred#name#to#drugbank#<DATE>.txt"
+
+----------------------------------------------
+mappings/PreferredTerm#UNII#Rxcui#mapping.txt
+----------------------------------------------
+FROM "../../LinkedSPLs#update/mappings/RxNORM#mapping/PreferredTerm#UNII#Rxcui#mapping.txt"
+
+----------------------------------------------
 mappings/EPC_extraction_most_recent_<DATE>.txt"
-FROM "../../LinkedSPLs-update/mappings/pharmacologic_class_indexing/EPC_extraction_most_recent_<DATE>.txt"
+----------------------------------------------
+FROM "../../LinkedSPLs#update/mappings/pharmacologic_class_indexing/EPC_extraction_most_recent_<DATE>.txt"
 
 
-STEP 2: run python script to merge those mappings together
+<STEP 2>: run python script to merge those mappings together
 
 $ python mergeToActiveMoiety.py
 
@@ -56,16 +75,16 @@ outputs: mergedActiveMoiety.csv contains all joined mappings
 
 columns: pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole
 
-STEP 3: run python script to create RDF graph for all active moieties
+<STEP 3>: run python script to create RDF graph for all active moieties
 
 $ python createActiveMoietySubInRDF.py
 
 outputs: activeMoietySub-in-rdf.xml
 
 
---------------------------------------------------------------------------------
-PRE-REQUISITES:
---------------------------------------------------------------------------------
+################################################################################
+PRE#REQUISITES:
+################################################################################
 
 python libraries:
 
@@ -74,8 +93,8 @@ from "http://biopython.org/wiki/Download"
 
 (2) rdflib 
 
-(3) rdflib-jsonld
-from "https://github.com/RDFLib/rdflib-jsonld"
+(3) rdflib#jsonld
+from "https://github.com/RDFLib/rdflib#jsonld"
 
 (4) pandas
 
