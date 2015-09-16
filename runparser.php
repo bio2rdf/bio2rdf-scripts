@@ -34,8 +34,6 @@ class Bio2RDFApp extends Application
 		$parsers = $this->getParsers();
 		parent::addParameter('parser',true,implode("|",$parsers),null,'bio2rdf parser to run');
 		parent::addParameter('statistics',false,"true|false","false",'generate statistics');
-		parent::addParameter('bio2rdf_release',false,null,"3",'Bio2RDF release number');
-
 
 		if(parent::setParameters($argv,true) === FALSE) {
 			if(parent::getParameterValue('parser') == '') {
