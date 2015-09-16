@@ -49,7 +49,7 @@ class WormbaseParser extends Bio2RDFizer {
 			$files = explode(",",parent::getParameterValue('files'));
 		}
 		$release = parent::getParameterValue('release');
-		$releaseb = "WS247";
+		$releaseb = "WS249";
 		$remote_files = array(
 			"geneIDs" => "species/c_elegans/annotation/geneIDs/c_elegans.PRJNA13758.".$release.".geneIDs.txt.gz",
 			"functional_descriptions" => "species/c_elegans/annotation/functional_descriptions/c_elegans.PRJNA13758.".$release.".functional_descriptions.txt.gz",
@@ -215,12 +215,15 @@ class WormbaseParser extends Bio2RDFizer {
 	function gene_associations(){
 		$go_evidence_type = array(
 			'IC'=>'eco:0000001', 
+			'IBA'=>'eco:0000318',
 			'IDA'=>'eco:0000314', 
 			'IEA'=>'eco:0000203', 
 			'IEP'=>'eco:0000008', 
 			'IGI'=>'eco:0000316',
+			'IKR'=>'eco:0000320',
 			'IMP'=>'eco:0000315',
 			'IPI'=>'eco:0000021',
+			'IRD'=>'eco:0000321',
 			'ISM'=>'eco:0000202',
 			'ISO'=>'eco:0000201',
 			'ISS'=>'eco:0000044',
