@@ -89,8 +89,9 @@ class BioportalParser extends Bio2RDFizer
 		foreach($ontologies AS $i => $o) {
 			$label = (string) $o->name;
 			$abbv = (string) $o->acronym;
-
-			if(array_search($abbv,$exclude_list) !== FALSE) continue;
+			if(array_search($abbv,$exclude_list) !== FALSE) {
+				continue;
+			}
 			if($include_list[0] != 'all') {
 				// ignore if we don't find it in the include list OR we do find it in the exclude list
 				if( (array_search($abbv,$include_list) === FALSE)
@@ -106,9 +107,7 @@ class BioportalParser extends Bio2RDFizer
 			if(!isset($ls['hasOntologyLanguage'])) {echo 'insufficient metadata'.PHP_EOL;continue;}
 
 			$format = strtolower($ls['hasOntologyLanguage']);
-/***********/
 			if($format != 'owl' and $format != 'obo') continue;
-
 			echo "Processing ($i/$total) $abbv ... ";
 
 			$version = $ls['version'];
@@ -116,7 +115,6 @@ class BioportalParser extends Bio2RDFizer
 			if(isset($ls['description'])) $description = $ls['description'];
 
 			$rfile = $ls['ontology']['links']['download'];
-
 
 			$lfile = $abbv.".".$format.".gz";
 			if(parent::getParameterValue('download') == 'true') {
@@ -138,6 +136,7 @@ class BioportalParser extends Bio2RDFizer
 				if(isset($m[1])) {
 					$filename = $m[1];
 					if(strstr($filename,".zip"))  continue;
+
 				} else {echo "error: no filename".PHP_EOL;continue;}
 
 				$body = substr($ret, $header_size);
@@ -148,6 +147,7 @@ class BioportalParser extends Bio2RDFizer
 
 				$lz = "compress.zlib://".$idir.$lfile;
 				file_put_contents($lz,$body);
+
 				echo "done".PHP_EOL;
 			}
 
@@ -160,6 +160,11 @@ class BioportalParser extends Bio2RDFizer
 				// process
 				echo "converting ... ";
 				set_time_limit(0);
+				// let's double check the format
+				$fp = gzopen($idir.$lfile,"r");
+				$l = gzgets($fp);
+				if(strstr($l,"xml")) $format= "owl";
+				gzclose($fp);
 				if($format == 'obo') {
 					$this->OBO2RDF($abbv);
 				} else if($format == 'owl') {
@@ -366,6 +371,7 @@ class BioportalParser extends Bio2RDFizer
 		if($abbv == "doid") $abbv = "do";
 		$minimal = (parent::getParameterValue('detail') == 'min')?true:false;
 		$minimalp = (parent::getParameterValue('detail') == 'min+')?true:false;
+		$version = parent::getParameterValue("bio2rdf_release");
 
 		$tid = '';
 		$first = true;
@@ -374,7 +380,7 @@ class BioportalParser extends Bio2RDFizer
 		$min = $buf = '';
 		$ouri = "http://bio2rdf.org/lsr:".$abbv;
 
-		$dataset_uri = $abbv."_resource:bio2rdf.dataset.$abbv.R3";
+		$dataset_uri = $abbv."_resource:bio2rdf.dataset.$abbv.R".$version;
 		parent::setGraphURI($dataset_uri);
 		$buf = parent::triplify($ouri,"rdf:type","owl:Ontology");
 		$graph_uri = '<'.parent::getRegistry()->getFQURI(parent::getGraphURI()).'>';
