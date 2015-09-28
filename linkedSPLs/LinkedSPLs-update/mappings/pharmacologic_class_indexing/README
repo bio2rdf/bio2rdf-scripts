@@ -1,7 +1,7 @@
 This data, totally 9479, is up to date with all current SPLs as of March 20 2014.
 
 (1) To update, get the most current SPL class mappings from Dailymed, unzip
-the file into the /pharmacologic_class_indexing_spl_files_most_recent/ folder. 
+the file into the /pharmacologic_class_indexing_spl_files/ folder. 
 
 (2) Run python script parseEPCfromXMLs.py that write SPL EPCs into a txt file with columns setid, UNII,
 NUI and display name. 

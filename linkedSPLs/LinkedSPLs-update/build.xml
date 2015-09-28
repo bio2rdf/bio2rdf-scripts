@@ -284,34 +284,68 @@
        folder: PT-UNII-ChEBI-mapping
   -->
 
-  <target name="load-FDA_UNII_to_ChEBI" >
+  <target name="load-FDA_UNII_to_ChEBI">
 
     <delete file="${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt"/>
 
-    <exec executable="python" failonerror="true">
-      <arg line="${PT-UNII-ChEBI-mapping}/getChebiMappingsFromJSON.py data/FDA/FDAPreferredSubstanceToUNII.txt" /> 
-      <redirector append="true">
-        <outputmapper type="merge" to="${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt"/>
-        <errormapper type="merge" to="${ERROR_LOG}"/>
-      </redirector>
-    </exec>
+    <delete dir="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/bin"/>
+    <mkdir dir="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/bin" />
+
+
+    <path id="external.classpath">
+      <pathelement location="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/libs/chebiWS-client-2.2.1.jar"/>
+    </path>
+    
+    <javac srcdir="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/src" destdir="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/bin" includeantruntime="false" debug="on">
+      <classpath>
+    	<path refid="external.classpath" />
+      </classpath>
+    </javac>
+
+    <delete dir="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/jar" />
+    <mkdir dir="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/jar" />
+
+
+    <jar destfile="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/jar/ChEBIJavaClient.jar" basedir="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/bin">
+      <manifest>
+        <attribute name="Main-Class" value="chebi.service.GetChEBIbyNames"/>
+      </manifest>
+    </jar>
+
+    <echo>[INFO] : It takes about 4 hour ... </echo>
+
+    <java classname="chebi.service.GetChEBIbyNames" fork="true" >
+      <classpath>
+    	<path refid="external.classpath"/>
+    	<pathelement location="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/jar/ChEBIJavaClient.jar"/>
+      </classpath>
+    </java>
+
+    <!-- old apporach that query bioportal -->
+    <!-- <exec executable="python" failonerror="true"> -->
+    <!--   <arg line="${PT-UNII-ChEBI-mapping}/getChebiMappingsFromJSON.py data/FDA/FDAPreferredSubstanceToUNII.txt" />  -->
+    <!--   <redirector append="true"> -->
+    <!--     <outputmapper type="merge" to="${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt"/> -->
+    <!--     <errormapper type="merge" to="${ERROR_LOG}"/> -->
+    <!--   </redirector> -->
+    <!-- </exec> -->
 
     <antcall target="set.timestamp">
-      <param name="message" value="mappings of FDA preferred term and ChEBI is created at ${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt" />
+      <param name="message" value="mappings of FDA preferred term and ChEBI is created at ${PT-UNII-ChEBI-mapping}/UNIIToChEBI.txt" />
     </antcall>
 
     <sql
-	driver="com.mysql.jdbc.Driver"
-	url="jdbc:mysql://localhost:3306/${mysql-schema}"
-	userid="${mysql-u}"
-	password="${mysql-p}" >
+   	driver="com.mysql.jdbc.Driver"
+   	url="jdbc:mysql://localhost:3306/${mysql-schema}"
+   	userid="${mysql-u}"
+   	password="${mysql-p}" >
    <classpath>
      <pathelement location="${mysql-driver}"/>
    </classpath>
 
       <transaction>
-	truncate FDA_UNII_to_ChEBI;
-	LOAD DATA LOCAL INFILE "${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt" INTO TABLE FDA_UNII_to_ChEBI(PreferredSubstance, ChEBI)
+   	truncate FDA_UNII_to_ChEBI;
+   	LOAD DATA LOCAL INFILE "${PT-UNII-ChEBI-mapping}/UNIIToChEBI.txt" INTO TABLE FDA_UNII_to_ChEBI(PreferredSubstance, ChEBI)
       </transaction>
     </sql>
 
@@ -486,7 +520,7 @@
 
     <exec executable="bash">
       <arg value="-c" />
-      <arg value ='cat ${RXNORM_SETID} | cut -f 1,3,4 -d "|" | sort > ${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt' />
+      <arg value ='tail -n +2 ${RXNORM_SETID} | cut -f 1,3,4 -d "|" | sort > ${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt' />
     </exec>
 
     <antcall target="set.timestamp">

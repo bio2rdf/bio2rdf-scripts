@@ -1,6 +1,6 @@
 CODE TO GENERATE THE SQL AND LINKED-DATA VERSION OF LINKEDSPLS
 Authors: Richard Boyce, Greg Gardner, Yifan Ning
-Date: 6/08/2015
+Date: 09/25/2015
 
 ################################################################################
 OVERVIEW
@@ -28,24 +28,37 @@ Config mysql db connection at : db-connection.properties
 
 Run shell commands below to create database schema and unzip and parse dailymed XMLs and load product label sections from dailymed XMLs into Mysql Schema linkedSPLs
 
-$ cd LinkedSPLs-update
+$ cd bio2rdf/linkedSPLs/LinkedSPLs-update
+
 $ ant linkedSPLs-setup
 
 Update all linkedSPLs mappings by command below
-       (1) mappings of preferred term to UNII
-       (2) mappings of preferred term to ChEBI
-       (3) mappings of Preferred term and Rxnorm
-       (4) mappings of Preferred term, UNII and Drugbank URI
-       (5) mappings of Preferred term, rxcui and Dailymed setid
-       (6) mappings of RxNORM, NUI and NDFRT label
-       (7) mappings of setId, UNII, NUI and PreferredNameAndRole
-
 
 $ ant linkedSPLs-update
 
+Update piece by piece (recommended)
+
+$ ant load-FDAPreferredSubstanceToUNII          
+$ ant load-FDA_UNII_to_ChEBI         
+$ ant load-ChEBI_DRUGBANK_BIO2RDF               
+$ ant loadDailymedSPLsToRDB                     
+$ ant load-DrOn_RXCUI_DRUG                      
+$ ant load-DrOn_RXCUI_INGREDIENT                
+$ ant load-FDA_EPC_Table                        
+$ ant load-FDAPharmgxTable                      
+$ ant load-FDAPharmgxTableToOntologyMap         
+$ ant load-FDAPreferredSubstanceToRxNORM        
+$ ant load-FDAPreferredSubstanceToRxNORM-restAPI
+$ ant load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF    
+$ ant load-loincSection                         
+$ ant load-OMOPId-RXCUIs-from-OHDSI             
+$ ant load-RXNORM_NDFRT_INGRED_Table            
+$ ant load-SPLSetIDToRxNORM   
+
+
 
 ################################################################################
-PRE-REQUISITES
+PRE-REQUISITES (Download all source data before run any ant command)
 ################################################################################
 
 Download and organize all source data files in data folder
@@ -56,7 +69,8 @@ product label sections and mappings from Dailymed:
 
 (1) dailymed-labels:
 
-Download dm_spl_release_human_rx.zip and dm_spl_release_human_otc.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm
+Download dm_spl_release_human_rx.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm
+(skip otc drugs - dm_spl_release_human_otc.zip)
 
 Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-labels/"
 
@@ -72,11 +86,15 @@ Download pharmacologic_class_indexing_spl_files.zip from http://dailymed.nlm.nih
 
 Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-indexings/"
 
+unzip XMLs to folder "pharmacologic_class_indexing_spl_files"
+
+$ cd pharmacologic_class_indexing_spl_files; unzip \*.zip; rm \*.zip
+
 --------------------------------------------------------
 FDA Preferred terms, UNIIs from FDA:
 --------------------------------------------------------
 
-Download from http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162523.htm
+Download from http://fdasis.nlm.nih.gov/srs/jsp/srs/uniiListDownload.jsp
 
 (1) FDA_UNII_Names 
 Downloads UNII List ('UNIIs <DATE> Names.txt' as UNII lists)
@@ -86,8 +104,9 @@ Downloads UNII Data ('UNIIs <DATE> Records.txt' as UNII records)
 
 Keep in directory LinkedSPLs-update/data/FDA
 
-Edit LinkedSPLs-update/data-source.properties to reset FDA_UNII_NAMES and FDA_UNII_RECORDS
+(replace whitespace ' ' in file name to underscore '_')
 
+Edit LinkedSPLs-update/data-source.properties to reset FDA_UNII_NAMES and FDA_UNII_RECORDS 
 
 --------------------------------------------------------
 Drug bank Id from Drugbank: 
@@ -101,7 +120,7 @@ download drugbank.xml as drugbankX.X and keep in directory LinkedSPLs-update/dat
 UMLS:
 --------------------------------------------------------
 
-Download RXNORM mappings from UMLS at "http://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html"
+Download RXNORM mappings (full rxnorm) from UMLS at "http://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html"
 
 keep in directory: "LinkedSPLs-update/data/UMLS"
 
@@ -132,41 +151,37 @@ Mappings pulled using:
 rdfproc -c dron-drug query sparql - '       
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/dron#>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-rxcui-drug.txt
 
---------------------------------------------------------
-OMOP concept Id from OHDSI:
---------------------------------------------------------
+------------------------------------------------------------------------
+OMOP concept Id from OHDSI or query OMOP CDM V5 (GeriOMOP) by SQL query
+----------------------------------------------------------------------- 
 
 Download from "https://github.com/OHDSI/KnowledgeBase/tree/master/LAERTES/terminology-mappings/StandardVocabToRxNorm/imeds_drugids_to_rxcuis.csv"
+
+OR
+
+SELECT cpt.CONCEPT_ID as omopid, cpt.CONCEPT_CODE as rxcui FROM
+CONCEPT cpt
+WHERE 
+cpt.CONCEPT_CLASS = 'Clinical Drug';
+
+right click result table and export to csv ('|' delimited)
+keep csv in LinkedSPLs-clinicalDrug/mappings/
+
+AND
+
+query OMOP CDM V5 (GeriOMOP) by SQL query below:
+SELECT cpt.CONCEPT_ID as omopid, cpt.CONCEPT_CODE as rxcui FROM
+CONCEPT cpt
+WHERE 
+cpt.CONCEPT_CLASS = 'Ingredient';
+
+keep csv in LinkedSPLs-activeMoiety/mappings/
 
 
 ################################################################################
 Details for update each linkedSPLs mappings
 ################################################################################
 
--Scripts are using in Ant task linkedSPLs-setup
-
-update_lodd_dailymed.py:
-To do a full update, run update_lodd_dailymed.py directly.  This simply executes
-dailymed_rss.run() and loadDailymedToSql.update() with a custom logger (update_lodd_dailymed.log)
-
-dailymed_rss.py:
-Several functions for downloading and extracting the spls updated
-within the past 7 days from the rss feed
-http://dailymed.nlm.nih.gov/dailymed/rss.cfm.  The feedparser module
-is used to parse the rss feed.  Each entry in the feed provides a link
-to an information page for the insert.  The html on this page is
-parsed for the link to the zipped xml file, which is then downloaded
-to a temp directory.  After all inserts in the feed have been
-downloaded, the xml files are extracted into the temp directory.  If
-they don't exist, the script will create two other directories in the
-current directory, ./spls (holds a master set of all spls in their
-most current form) and ./spls/updates (holds the spls from the most
-recent execution of dailymed_rss.run()).  All files in ./spls/updates
-are removed.  All xml files in the temp directory are then copied to
-./spls/updates.  Finally, the temp directory and all files in it are
-removed.
-
-loadDailymedToSql.py
 A number of functions for parsing spls and loading the information to
 the local lodd_dailymed mysql database.  In particular, run() is used
 to insert new spls into the database, and update() is used for
@@ -179,6 +194,8 @@ insert in the database, removes that filename from ./spls and copies
 the updated spl to ./spls. NOTE: if the script is ran directly, it
 will truncate all SPL tables and load all SPLs in the 'spls' folder.
 
+$ cd bio2rdf/linkedSPLs/LinkedSPLs-update/load-dailymed-spls
+$ loadDailymedToSql.py
 
 ------------------------------------------------------------
 LOADING THE FDA UNII TO CHEBI MAPPING
@@ -403,6 +420,33 @@ CREATE TABLE `linkedSPLs`.`OMOP_RXCUI` (
 
 LOAD DATA LOCAL INFILE 'data/OMOP-OHDSI/imeds_drugids_to_rxcuis.csv' INTO TABLE `OMOP_RXCUI` FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' IGNORE 1 LINES (OMOPConceptId, RxCUI);
 
+
+
+--------------------------------------
+CREATE AND LOAD UNII to ChEBI MAPPING
+-------------------------------------
+
+- Method: use Bioportal's SPARQL endpoint to identify exact string matches between the UNII preferred names and the RDF label of concepts in Bioportal
+
+- Base folder in SVN: 
+<linkedSPLs/LinkedSPLs-update/mappings/UNII-to-ChEBI-mapping>
+
+- Date performed: 04/13/2012 and 09/14/2012
+
+- Input: active_moieties.txt -- all unique UNII preferred names from listed in "UNIIs 2Mar2012.txt"
+
+- Script: sparql1-for-drug-entities.py
+
+- Results Files: FDA-UNII-to-ChEBI-bioportal-mapping-04132012.txt, FDA-UNII-to-ChEBI-bioportal-mapping-09142012.txt, FDA-UNII-to-ChEBI-bioportal-mapping-04132012-PLUS-09142012.txt
+
+- Results (4/13/2012): 4,234 mappings
+
+- Results (09/14/2012): 2,180 mappings
+
+- Combined unique results: 4,411 (loaded into linkedSPLs: FDA-UNII-to-ChEBI-bioportal-mapping-04132012-PLUS-09142012.txt)
+
+
+
 ------------------------------------------------------------
 TESTING THE D2R SERVER ON THE DEVELOPMENT MACHINE
 ------------------------------------------------------------
@@ -454,32 +498,6 @@ SQL> update DB.DBA.load_list set ll_state = 0 where ll_file = '<name of RDF file
 SQL> rdf_loader_run();
 SQL> select * from DB.DBA.load_list; 
 
------------
-
-*UNII to ChEBI
-
-Approach 1:
-
-- Method: use Bioportal's SPARQL endpoint to identify exact string matches between the UNII preferred names and the RDF label of concepts in Bioportal
-
-- Base folder in SVN: 
-<linkedSPLs/LinkedSPLs-update/mappings/UNII-to-ChEBI-mapping>
-
-- Date performed: 04/13/2012 and 09/14/2012
-
-- Input: active_moieties.txt -- all unique UNII preferred names from listed in "UNIIs 2Mar2012.txt"
-
-- Script: sparql1-for-drug-entities.py
-
-- Results Files: FDA-UNII-to-ChEBI-bioportal-mapping-04132012.txt, FDA-UNII-to-ChEBI-bioportal-mapping-09142012.txt, FDA-UNII-to-ChEBI-bioportal-mapping-04132012-PLUS-09142012.txt
-
-- Results (4/13/2012): 4,234 mappings
-
-- Results (09/14/2012): 2,180 mappings
-
-- Combined unique results: 4,411 (loaded into linkedSPLs: FDA-UNII-to-ChEBI-bioportal-mapping-04132012-PLUS-09142012.txt)
-
------------
 
 
 - The D2R file has the mapping from RDB tables to RDF: ../LinkedSPLs-core/linkedSPLs_dump_rdf_config.n3

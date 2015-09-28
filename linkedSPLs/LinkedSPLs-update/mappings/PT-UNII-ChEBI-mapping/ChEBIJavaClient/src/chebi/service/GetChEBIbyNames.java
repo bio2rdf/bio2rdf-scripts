@@ -53,8 +53,9 @@ public class GetChEBIbyNames {
 
 		for (String drug : drugL) {
 			if (!drug.isEmpty()) {
-				System.out.println(drug);
 				String chebiURI = getChEBIByName(drug);
+
+				System.out.println(drug + "\t" + chebiURI);
 				if (!chebiURI.isEmpty())
 				    mappingD.put(drug.trim(), ("http://purl.obolibrary.org/obo/"+chebiURI.replace(":","_")));
 			}
@@ -133,8 +134,11 @@ public class GetChEBIbyNames {
 					break;
 				}
 
-				if (!line.isEmpty())
-					drugL.add(line.trim());
+				if (!line.isEmpty()){
+				    int idx = line.indexOf("\t");
+				    String drugname = line.substring(idx+1);
+				    drugL.add(drugname.trim());
+				}
 			}
 			br.close();
 
