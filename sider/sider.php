@@ -249,7 +249,7 @@ class SIDERParser extends Bio2RDFizer
 				parent::addRDF(
 					parent::triplify($stitch_id, "rdf:type", parent::getVoc()."Flat-Compound").
 					parent::describeClass(parent::getVoc()."Flat-Compound", "STITCH Flat compound").
-					parent::triplify($stitch_id, parent::getVoc()."x-flat-pubchem.compound", $pubchem_id)
+					parent::triplify($stitch_id, parent::getVoc()."x-pubchem.compound", $pubchem_id)
 				);
 				$declared[$stitch_flat] = '';
 			}
