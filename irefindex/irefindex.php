@@ -33,8 +33,8 @@ class irefindexParser extends Bio2RDFizer
 {
 	function __construct($argv) { //
 		parent::__construct($argv,"irefindex");
-		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606|A','all','all or comma-separated list of files to process');
-		parent::addParameter('version',false,'08122013|03022013|10182011','08122013','dated version of files to download');
+		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606','all','all or comma-separated list of files to process');
+		parent::addParameter('version',false,'07042015|08122013|03022013|10182011','07042015','dated version of files to download');
 		parent::addParameter('download_url',false,null,'http://irefindex.org/download/irefindex/data/current/psi_mitab/MITAB2.6/');
 		parent::initialize();
 	}
@@ -55,9 +55,8 @@ class irefindexParser extends Bio2RDFizer
 
 		foreach($files AS $file) {
 			$download = parent::getParameterValue('download');
-
-			$base_file = ucfirst($file).".mitab.".parent::getParameterValue("version").".txt";
-			$zip_file  = $base_file.".zip";
+			$version = parent::getParameterValue("version");
+			$zip_file  = ucfirst($file).".mitab.".$version.".txt.zip";
 			$lfile = $ldir.$zip_file;
 
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
@@ -82,9 +81,14 @@ class irefindexParser extends Bio2RDFizer
 				trigger_error("Unable to open $lfile");
 				exit;
 			}
+			if($zin->numFiles != 1) {
+				trigger_error("Found more than one file ... using first file");
+			}
+			$f = $zin->statIndex(0);
+			$base_file = $f['name'];
 			if(($fp = $zin->getStream($base_file)) === FALSE) {
-					trigger_error("Unable to get $base_file in ziparchive $lfile");
-					return FALSE;
+				trigger_error("Unable to get $base_file in ziparchive $lfile");
+				return FALSE;
 			}
 			parent::setReadFile($lfile);
 			parent::getReadFile()->setFilePointer($fp);

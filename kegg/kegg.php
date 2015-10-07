@@ -230,6 +230,7 @@ class KEGGParser extends Bio2RDFizer
 				parent::describeIndividual($uri,$name,parent::getVoc().ucfirst($db)).
 				parent::describeClass(parent::getVoc().ucfirst($db),"KEGG $db").
 				parent::triplifyString($uri,parent::getVoc()."internal-id",$nsid)
+				// http://www.kegg.jp/entry/
 			);
 
 			// now get the entries for each
@@ -248,6 +249,23 @@ class KEGGParser extends Bio2RDFizer
 			echo "parsing $nsid ... ";
 			$this->parseEntry($lfile);
 			parent::writeRDFBufferToWriteFile();
+			
+			if($db === "pathway") {
+					$ko = str_replace("map","ko",$id);
+					$lfile = $ldir.$id.".kgml";
+					$rfile = "http://www.kegg.jp/kegg-bin/download?entry=".$ko."&format=kgml";
+					if(!file_exists($lfile) || parent::getParameterValue('download') == 'true') {
+						echo "downloading KGML for $nsid ";
+						$ret = utils::downloadSingle($rfile,$lfile);
+						if($ret === false) {
+							echo "unable to download ".$nsid." ... skipping".PHP_EOL;
+							continue;
+						}
+						echo "done. ";
+					}
+					$this->parseKGML($lfile);
+					parent::writeRDFBufferToWriteFile();
+			}
 			echo "done!".PHP_EOL;
 		}
 	}
@@ -719,6 +737,99 @@ class KEGGParser extends Bio2RDFizer
 		fclose($fp);
 	}
 	
+	function parseKGML($lfile)
+	{
+		$pathway = simplexml_load_file($lfile);
+		if($pathway === false) {
+			echo "Error in parsing $lfile".PHP_EOL;
+			return;
+		}
+		$pathway_id = str_replace("path","kegg",$pathway['name']);
+		$base_id = str_replace("kegg","kegg_resource",$pathway_id).".";
+
+		parent::addRDF(
+			parent::describeIndividual($pathway_id, $pathway['title'], parent::getVoc()."Pathway").
+			parent::triplify($pathway_id, "rdfs:seeAlso", $pathway['link']).
+			parent::triplify($pathway_id, "foaf:depiction", $pathway['image'])
+		);
+		
+		// get the entries
+		foreach($pathway->children() as $type => $item) {
+			if($type == "entry") {
+				$eid = $base_id.$item['id'];
+				$entries[ "".$item['id']] = "".$item['name'];
+				
+				parent::addRDF(
+					parent::describeIndividual($eid, $item['name'], parent::getVoc()."Ortholog-Group").
+					parent::describeClass(parent::getVoc()."Ortholog-Group", "KEGG Ortholog Group")
+				);
+				$mids = explode(" ",$item['name']);
+				foreach($mids AS $mid) {
+					if($item['type'] == 'path') $mid = str_replace($mid,":","_");
+					else {
+						$mid = substr($mid, strpos($mid,":")+1);
+					}
+					
+					parent::addRDF(
+						parent::triplify($eid, parent::getVoc()."member", "kegg:".$mid)
+					);
+				}
+			} 
+		}
+
+		// iterate over the relations, reactions
+		foreach($pathway->children() as $type => $item) {
+			if($type == "relation") {
+			/*
+				<relation entry1="70" entry2="73" type="ECrel">
+					<subtype name="compound" value="86"/>
+				</relation>
+			    <relation entry1="26" entry2="25" type="PPrel">
+					<subtype name="compound" value="17"/>
+					<subtype name="activation" value="--&gt;"/>
+				</relation>
+			*/
+				$id1 = "".$item['entry1']; $id2 = "".$item['entry2'];$type = "".$type;
+				$relation_id = str_replace("kegg","kegg_resource",$pathway_id).".".$id1.".".$id2.".".$type;
+				$label = $type." relation between ".$entries[ $id1 ]. " and ".$entries[ $id2 ];
+
+				parent::addRDF(
+					parent::describeIndividual($relation_id, $label, parent::getVoc()."Pathway-Relation").
+					parent::describeClass(parent::getVoc()."Pathway-Relation","KEGG Pathway Relation").
+					parent::triplify($relation_id, parent::getVoc()."source", $base_id.$id1).
+					parent::triplify($relation_id, parent::getVoc()."target", $base_id.$id2).
+					parent::triplifyString($relation_id, parent::getVoc()."type", $item['type'])
+				);
+				foreach($item->children() as $subtype) {
+					parent::addRDF(
+						parent::triplifyString($relation_id, parent::getVoc()."subtype", ''.$subtype['name'])								
+					);
+				}
+	
+			} else if($type == "reaction") {
+				/*     <reaction id="133" name="rn:R09085" type="irreversible">
+							<substrate id="86" name="cpd:C00267"/>
+							<product id="90" name="cpd:C00668"/>
+						</reaction>
+				*/
+				$reaction_id = str_replace("kegg","kegg_resource",$pathway_id).".".substr($item['name'], strpos($item['name'],":")+1);
+				$reaction_type = parent::getVoc().ucfirst($item['type'])."-Reaction";
+				parent::addRDF(
+					parent::describeIndividual($reaction_id, $item['name'], parent::getVoc()."Reaction").
+					parent::describeClass(parent::getVoc()."Reaction", "KEGG Reaction").
+					parent::triplify($reaction_id, "rdf:type", $reaction_type)
+				);
+
+				foreach($item->children() AS $k => $v) {
+					$cid = str_replace("cpd:","kegg:",$v['name']);
+					parent::addRDF(
+						parent::triplify($reaction_id, parent::getVoc().$k, $cid)
+					);
+				}
+			}
+		}
+		return;				
+	}
 }
 
 
