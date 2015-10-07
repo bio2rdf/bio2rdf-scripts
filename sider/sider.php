@@ -136,9 +136,6 @@ class SIDERParser extends Bio2RDFizer
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
-
-		//reset graph URI to default value
-		parent::setGraphURI($graph_uri);
 	}
 
 	function GetPCFromFlat($id)
@@ -189,8 +186,8 @@ class SIDERParser extends Bio2RDFizer
 				$declared[$cui] = '';
 			}
 			if(!isset($declared[$stitch_flat])) {
-				$pubchem_id = "pubchem.compound:".ltrim( substr($stitch_flat,4), "0");
-				$stereo_id  = "pubchem.compound:".ltrim( substr($stitch_stereo,4), "0");
+				$pubchem_id = "pubchem.compound:".ltrim( substr($a[0],4), "0");
+				$stereo_id  = "pubchem.compound:".ltrim( substr($a[1],4), "0");
 				parent::addRDF(
 					parent::triplify($stitch_flat, "rdf:type", parent::getVoc()."Flat-Compound").
 					parent::describeClass(parent::getVoc()."Flat-Compound", "Flat compound").
@@ -200,7 +197,7 @@ class SIDERParser extends Bio2RDFizer
 				$declared[$stitch_flat] = '';
 			}
 			if(!isset($declared[$stitch_stereo])) {
-				$pubchem_id  = "pubchem.compound:".ltrim( substr($stitch_stereo,4), "0");
+				$pubchem_id  = "pubchem.compound:".ltrim( substr($a[1],4), "0");
 				parent::addRDF(
 					parent::triplify($stitch_stereo, "rdf:type", parent::getVoc()."Stereo-Compound").
 					parent::describeClass(parent::getVoc()."Stereo-Compound", "Stereo compound").
