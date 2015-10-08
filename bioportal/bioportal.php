@@ -36,7 +36,8 @@ class BioportalParser extends Bio2RDFizer
 		parent::__construct($argv,'bioportal');
 		parent::addParameter('files',true,null,'all','all or comma-separated list of ontology short names to process');
 		parent::addParameter('download_url',false,null,'http://data.bioontology.org/');
-		parent::addParameter('exclude',false,null,null,null,'ontologies to exclude - use acronyms');
+		parent::addParameter('exclude',false,null,"AURA",'ontologies to exclude - use acronyms');
+		parent::addParameter('continue_from',false,null,"",'the ontology abbreviation to restart from');
 		parent::addParameter('ncbo_api_key',false,null,null,'BioPortal API key (please use your own)');
 		parent::addParameter('ncbo_api_key_file',false,null,'ncbo.api.key','BioPortal API key file');
 		parent::addParameter('detail',false,'min|min+|max','max','min:generate rdfs:label and rdfs:subClassOf axioms; min+: min + owl axioms');
@@ -82,23 +83,30 @@ class BioportalParser extends Bio2RDFizer
 		if(parent::getParameterValue('exclude') != '') {
 			$exclude_list = explode(",",parent::getParameterValue('exclude'));
 		}
-
+		$continue_from = parent::getParameterValue('continue_from');	
+		$go = true;
+		if($continue_from) $go = false;
 		// now go through the list of ontologies
+		
 		$ontologies = json_decode(file_get_contents($olist), false);
 		$total = count($ontologies);
 		foreach($ontologies AS $i => $o) {
 			$label = (string) $o->name;
 			$abbv = (string) $o->acronym;
+			
+			if($continue_from and $continue_from == $abbv) $go = true;
+			if($go == false) continue;
+
 			if(array_search($abbv,$exclude_list) !== FALSE) {
 				continue;
 			}
 			if($include_list[0] != 'all') {
 				// ignore if we don't find it in the include list OR we do find it in the exclude list
-				if( (array_search($abbv,$include_list) === FALSE)
-					|| (array_search($abbv,$exclude_list) !== FALSE) ) {
-					 //echo "skipping $label ($abbv format=$format)".PHP_EOL;
+				if(array_search($abbv,$include_list) === FALSE) {
 					continue;
 				}
+			} else if(array_search($abbv,$exclude_list) !== FALSE ) {
+				continue;
 			}
 
 			// get info on the latest submission
@@ -117,7 +125,7 @@ class BioportalParser extends Bio2RDFizer
 			$rfile = $ls['ontology']['links']['download'];
 
 			$lfile = $abbv.".".$format.".gz";
-			if(parent::getParameterValue('download') == 'true') {
+			if(!file_exists($idir.$lfile) or parent::getParameterValue('download') == 'true') {
 				echo "downloading ... ";
 
 				$ch = curl_init(); // create cURL handle (ch)
@@ -202,16 +210,16 @@ class BioportalParser extends Bio2RDFizer
                                 	->setRights("by-attribution")
                                 	->setRights("restricted-by-source-license")
                                 	->setLicense("http://creativecommons.org/licenses/by/3.0/")
-					->setDataset(parent::getDatasetURI());
+									->setDataset(parent::getDatasetURI());
 
 				if($gz) $output_file->setFormat("application/gzip");
-        	               	if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
-                        	else $output_file->setFormat("application/n-quads");
+				if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+				else $output_file->setFormat("application/n-quads");
 
 				if(!isset($dd)) {
 					$dd = fopen($odir.'bio2rdf-bioportal.nq',"w");
 				}
-                        	fwrite($dd, $source_file->toRDF().$output_file->toRDF());
+                fwrite($dd, $source_file->toRDF().$output_file->toRDF());
 				fflush($dd);
 				echo "done!".PHP_EOL;
 			}
