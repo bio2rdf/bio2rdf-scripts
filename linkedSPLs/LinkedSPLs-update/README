@@ -37,23 +37,29 @@ Update all linkedSPLs mappings by command below
 $ ant linkedSPLs-update
 
 Update piece by piece (recommended)
+$ ant loadDailymedSPLsToRDB
+$ ant load-loincSection
 
 $ ant load-FDAPreferredSubstanceToUNII          
 $ ant load-FDA_UNII_to_ChEBI         
+$ ant load-FDAPreferredSubstanceToRxNORM
+$ ant load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF   
+$ ant load-SPLSetIDToRxNORM    
+$ ant load-RXNORM_NDFRT_INGRED_Table         
+$ ant load-FDA_EPC_Table                           
 $ ant load-ChEBI_DRUGBANK_BIO2RDF               
-$ ant loadDailymedSPLsToRDB                     
-$ ant load-DrOn_RXCUI_DRUG                      
-$ ant load-DrOn_RXCUI_INGREDIENT                
-$ ant load-FDA_EPC_Table                        
+                
 $ ant load-FDAPharmgxTable                      
-$ ant load-FDAPharmgxTableToOntologyMap         
-$ ant load-FDAPreferredSubstanceToRxNORM        
-$ ant load-FDAPreferredSubstanceToRxNORM-restAPI
-$ ant load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF    
-$ ant load-loincSection                         
+$ ant load-FDAPharmgxTableToOntologyMap
+         
+$ ant load-DrOn_RXCUI_DRUG                      
+$ ant load-DrOn_RXCUI_INGREDIENT        
+
+-- deprecated --
+$ ant load-FDAPreferredSubstanceToRxNORM-restAPI                         
 $ ant load-OMOPId-RXCUIs-from-OHDSI             
-$ ant load-RXNORM_NDFRT_INGRED_Table            
-$ ant load-SPLSetIDToRxNORM   
+
+
 
 
 
@@ -64,7 +70,7 @@ PRE-REQUISITES (Download all source data before run any ant command)
 Download and organize all source data files in data folder
 
 --------------------------------------------------------
-product label sections and mappings from Dailymed:
+Dailymed (product label sections, indexing and mappings) 
 --------------------------------------------------------
 
 (1) dailymed-labels:
@@ -91,7 +97,7 @@ unzip XMLs to folder "pharmacologic_class_indexing_spl_files"
 $ cd pharmacologic_class_indexing_spl_files; unzip \*.zip; rm \*.zip
 
 --------------------------------------------------------
-FDA Preferred terms, UNIIs from FDA:
+FDA (Preferred terms, UNIIs):
 --------------------------------------------------------
 
 Download from http://fdasis.nlm.nih.gov/srs/jsp/srs/uniiListDownload.jsp
@@ -109,7 +115,7 @@ Keep in directory LinkedSPLs-update/data/FDA
 Edit LinkedSPLs-update/data-source.properties to reset FDA_UNII_NAMES and FDA_UNII_RECORDS 
 
 --------------------------------------------------------
-Drug bank Id from Drugbank: 
+Drugbank (Drug bank Id) : 
 --------------------------------------------------------
 
 Download from http://www.drugbank.ca/downloads
@@ -117,39 +123,43 @@ Download from http://www.drugbank.ca/downloads
 download drugbank.xml as drugbankX.X and keep in directory LinkedSPLs-update/data/DrugBank
 
 --------------------------------------------------------
-UMLS:
+UMLS (rxcui):
 --------------------------------------------------------
 
 Download RXNORM mappings (full rxnorm) from UMLS at "http://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html"
 
 keep in directory: "LinkedSPLs-update/data/UMLS"
 
+------------------------------------------------------------------------
+PharmagxTable && FDAPharmgxTableToOntologyMap
+-----------------------------------------------------------------------
+
+Get CSVs from solomon
+biomarker-to-ontology-mapping.csv
+genetic-biomarker-table-raw-import.csv
+
+put at "LinkedSPLs-update/mappings/FDA-pharmacogenetic-info-mapping/"
+
+Edit data-source.properties
+ex.
+BIOMARKER = mappings/FDA-pharmacogenetic-info-mapping/biomarker-to-ontology-mapping-07242015.xlsx
+GENETIC= genetic-biomarker-table-update-07242015.csv
+
 --------------------------------------------------------
-umlsdbmi:
+umlsdbmi (DronId for drug and ingredient):
 --------------------------------------------------------
 Repository: https://bitbucket.org/uamsdbmi/dron
+Code: https://bitbucket.org/uamsdbmi/dron/src
 
-DrOn to RxNorm and ChEBI
+Download repository from "https://bitbucket.org/uamsdbmi/dron/downloads"
 
-Dron mapping file (dron-rxnorm.owl for drug and dron-ingredient.owl for ingredients) download from:
-https://bitbucket.org/uamsdbmi/dron/src
+unzip repository and then:
+copy dron-rxnorm.owl at data/umasdbmi/dron-rxnorm.owl
+copy dron-ingredient.owl at data/umasdbmi/dron-ingredient.owl
 
-Install readland:
-$ sudo apt-get install redland-utils
+dron-rxnorm.owl for drug product
+dron-ingredient.owl for active ingredients
 
-Load dron mapping for ingredient into a triple store by:
-rdfproc -n dron parse dron-ingredient.owl
-
-rdfproc -c dron-ingredient query sparql - '       
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/dron#>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-chebi-rxcui-ingredient.txt
-
-
-Load dron mapping for drug product into triple store by:
-rdfproc -n dron-drug parse dron-rxnorm.owl
-
-Mappings pulled using:
-rdfproc -c dron-drug query sparql - '       
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> PREFIX owl: <http://www.w3.org/2002/07/owl#> PREFIX xsd: <http://www.w3.org/2001/XMLSchema#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> PREFIX dron: <http://purl.obolibrary.org/obo/dron#>  SELECT * WHERE {   ?dron dron:DRON_00010000 ?rxcui. }' > dron-rxcui-drug.txt
 
 ------------------------------------------------------------------------
 OMOP concept Id from OHDSI or query OMOP CDM V5 (GeriOMOP) by SQL query
