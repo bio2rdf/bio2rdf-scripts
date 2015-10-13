@@ -39,28 +39,17 @@ class SIDERParser extends Bio2RDFizer
 		parent::__construct($argv, "sider");
 		
 		// set and print application parameters
-		parent::addParameter('files',true,'all|label_mapping|adverse_effects_raw|indications_raw|meddra_freq_parsed','all','all or comma-separated list of ontology short names to process');
+		parent::addParameter('files',true,'all|indications|se|freq','all','all or comma-separated list of ontology short names to process');
 		parent::addParameter('download_url',false,null,'http://sideeffects.embl.de/media/download/');
 		
 		parent::initialize();
 	}
 
 	function run() {
-
-		if(parent::getParameterValue('download') === true) 
-		{
-			$this->download();
-		}
-		if(parent::getParameterValue('process') === true) 
-		{
-			$this->process();
-		}
-		
-	}
-		
-	function download(){
 		$idir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
 		$files = parent::getParameterValue('files');
+		$dataset_description = '';
 
 		if($files == 'all') {
 			$files = explode('|', parent::getParameterList('files'));
@@ -70,8 +59,11 @@ class SIDERParser extends Bio2RDFizer
 		}
 		
 		foreach($files AS $file) {
-			$lfile = $idir.$file.'.tsv.gz';
-			$rfile = parent::getParameterValue('download_url').$file.'.tsv.gz';
+			$f = $file;
+			if($file != "freq") $f = "all_".$file; 
+			$f = "meddra_".$f.".tsv.gz";
+			$lfile = $idir.$f;
+			$rfile = parent::getParameterValue('download_url').$f;
 			if(!file_exists($lfile) || parent::getParameterValue('download') == 'true') {
 				echo "downloading $file... ";
 				$ret = file_get_contents($rfile);
@@ -86,43 +78,15 @@ class SIDERParser extends Bio2RDFizer
 				}		
 				echo "done!".PHP_EOL;
 			}
-		}//foreach
-	}
 
-	function process(){
-
-		$idir = parent::getParameterValue('indir');
-		$odir = parent::getParameterValue('outdir');
-		$files = parent::getParameterValue('files');
-		
-		if($files == 'all') {
-			$files = explode('|', parent::getParameterList('files'));
-			array_shift($files);
-		} else {
-			$files = explode(',', parent::getParameterValue('files'));
-		}
-		
-		parent::setCheckpoint('dataset');
-
-		$dataset_description = '';
-
-		$graph_uri = parent::getGraphURI();
-		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
-
-		foreach($files AS $file) {
-			$lfile = $idir.$file.'.tsv.gz';
-			$rfile = parent::getParameterValue('download_url').$file.'.tsv.gz';
-
-			echo "Processing $file... ";
+			echo "Processing $f... ";
 			parent::setReadFile($lfile,true);	
 			
 			$suffix = parent::getParameterValue('output_format');
 			$ofile = "sider-".$file.'.'.$suffix; 
 			$gz = false;
 			
-			if(strstr(parent::getParameterValue('output_format'), "gz")) {
-				$gz = true;
-			}
+			if(strstr(parent::getParameterValue('output_format'), "gz")) $gz = true;
 
 			parent::setWriteFile($odir.$ofile, $gz);
 			$this->$file();
@@ -143,8 +107,6 @@ class SIDERParser extends Bio2RDFizer
 				->setRights("use-share-modify")
 				->setLicense("http://creativecommons.org/licenses/by-nc-sa/3.0/")
 				->setDataset("http://identifiers.org/sider.effect/");
-
-			if($file == "label_mapping") $source_file->setLicense("http://creativecommons.org/publicdomain/zero/1.0/");
 
 			$prefix = parent::getPrefix();
 			$bVersion = parent::getParameterValue('bio2rdf_release');
@@ -174,134 +136,8 @@ class SIDERParser extends Bio2RDFizer
 		parent::getWriteFile()->write($dataset_description);
 		parent::getWriteFile()->close();
 		echo "done!".PHP_EOL;
-
-		//reset graph URI to default value
-		parent::setGraphURI($graph_uri);
-
 	}
-/*
-1 & 2: generic and brand names
 
-3: a marker if the drug could be successfully mapped to STITCH. Possible values:
- - [empty field]: success
- - combination: two or more drugs were combined
- - not found: could not find the name in the database
- - mapping conflict: the available names point to two different compounds
- - template: a package insert that contains information for a group of related drugs
-
-4 & 5: STITCH compound ids, based on PubChem. Salt forms and stereo-isomers have been merged.
-   Column 4: "flat compound", i.e. stereo-isomers have been merged into one compound
-	 Column 5: stereo-specific compound id
-	
-	 To get the PubChem Compound Ids: take absolute value, for flat compounds ids: subtract 100000000
-	 E.g. aspirin: -100002244 --> 2244
-
-6: URL of the downloaded PDF. This column is empty for FDA SPL labels, which are available in XML.
-	 Unfortunately, many links have become stale since the labels were downloaded in 2009. 
-
-7: label identifier
-*/
-	function label_mapping()
-	{
-		parent::setCheckpoint('file');
-
-		$declared = null;
-		while($l = parent::getReadFile()->Read(1000000)) {
-			parent::setCheckpoint('record');
-
-			$a = explode("\t",$l);
-			$id = parent::getNamespace().urlencode(trim($a[6]));
-
-			$gnames_list = explode(";",strtolower(trim($a[1])));
-			array_unique($gnames_list);
-			asort($gnames_list);
-			$gnames = implode(" + ",$gnames_list);
-			if($a[2] == "combination") {
-				$label = "combination: $gnames";
-				$type = "Combination-Drug";
-			} else {
-				if($a[0]) $label .= $a[0]." (".$gnames.")";
-				else $label = $gnames;
-				$type = "Drug";
-			}
-
-			parent::addRDF(
-				parent::describeIndividual($id, $label, parent::getVoc().$type).
-				parent::describeClass(parent::getVoc().$type,"SIDER ".$type)
-			);
-
-			// attempt to extract the spl id
-			$b = explode("_",trim($a[6]));
-			if(isset($b[1])) {
-				$c = explode("-",$b[1]);
-				if(count($c) == 5) {
-					// possibly an SPL id
-					parent::addRDF(parent::triplify($id,parent::getVoc()."x-spl","dailymed:".$b[1]));
-				}
-			}
-
-			if(trim($a[0])) {
-				$brand_label = strtolower(trim($a[0]));
-				$brand_qname = parent::getRes().md5($brand_label);
-				parent::addRDF(
-					parent::describeIndividual($brand_qname, $brand_label, parent::getVoc()."Brand-Drug-Name").
-					parent::describeClass(parent::getVoc()."Brand-Drug-Name","Brand Drug Name").
-					parent::triplify($id, parent::getVoc()."brand-name", $brand_qname)
-				);
-			}
-			if(trim($a[1])) {
-				foreach($gnames_list AS $generic_name) {
-					$generic_label = trim($generic_name);
-					$generic_qname = parent::getRes().md5($generic_label);
-					parent::addRDF(
-						parent::describeIndividual($generic_qname, $generic_label, parent::getVoc()."Generic-Drug-Name").
-						parent::describeClass(parent::getVoc()."Generic-Drug-Name","Generic Drug Name").
-						parent::triplify($id, parent::getVoc()."generic-name", $generic_qname)
-					);
-				}
-			}
-
-			if($a[2]){
-				$mapping_result = str_replace(" ","-",$a[2]);
-				parent::addRDF(
-					parent::triplify($id, parent::getVoc()."mapping-result", parent::getVoc().$mapping_result)
-				);
-			}
-
-			if($a[3]){
-				parent::addRDF(
-					parent::triplify($id, parent::getVoc()."stitch-flat-compound-id", "stitch:".$a[3])
-				);
-
-				$pubchemcompound = $this->GetPCFromFlat($a[3]);
-				parent::addRDF(
-					parent::triplify($id, parent::getVoc()."pubchem-flat-compound-id", "pubchemcompound:".$pubchemcompound)
-				);
-			}
-
-			if($a[4]){
-				parent::addRDF(
-					parent::triplify($id, parent::getVoc()."stitch-stereo-compound-id", "stitch:".$a[4])
-				);
-				$pubchemcompound = $this->GetPCFromStereo($a[4]);
-				parent::addRDF(
-					parent::triplify($id, parent::getVoc()."pubchem-stereo-compound-id", "pubchemcompound:".$pubchemcompound)
-				);
-			}
-
-			if($a[5]){
-				$url = str_replace(" ","+",$a[5]);
-				parent::addRDF(
-					parent::QQuadO_URL($id, parent::getVoc()."pdf-url", $url)
-				);
-			}
-
-			parent::setCheckpoint('record');
-
-		}
-		parent::setCheckpoint('file');
-	}
-	
 	function GetPCFromFlat($id)
 	{
 		return ltrim(abs($id)-100000000, "0");
@@ -320,43 +156,111 @@ class SIDERParser extends Bio2RDFizer
 	Format: label identifier, concept id, name of side effect (as found on the label)
 	*/
 
-	function adverse_effects_raw()
+	function se()
 	{
 		$declared = null;
 
 		parent::setCheckpoint('file');
-		while($l = $this->GetReadFile()->Read()) {
+		while($l = $this->getReadFile()->Read()) {
 			$a = explode("\t",$l);
-			$id = "sider:".urlencode($a[0]);
-			$cui = "umls:".$a[1];
-			$cui_label= strtolower(trim($a[2]));
+			if(count($a) != 6) {
+				trigger_error("Expecting 6 columns, found ".count($a)." instead.", E_USER_ERROR);
+				exit;
+			}
+			$stitch_flat = "stitch:".$a[0];
+			$stitch_stereo = "stitch:".$a[1];
+			$cui = "umls:".$a[2];
+			$term_type = $a[3];
+			$term_type_cui = $a[4];
+			$term_type_label = $a[5];
+
+			if($term_type == 'LLT') continue;
+
+			$id = "sider:".md5("se".$stitch_flat.$cui);
+
+			$cui_label= strtolower(trim($term_type_label));
+			if(!isset($declared[$cui])) {
+				parent::addRDF(
+					parent::describeClass($cui, $cui_label)
+				);
+				$declared[$cui] = '';
+			}
+			if(!isset($declared[$stitch_flat])) {
+				$pubchem_id = "pubchem.compound:".ltrim( substr($a[0],4), "0");
+				$stereo_id  = "pubchem.compound:".ltrim( substr($a[1],4), "0");
+				parent::addRDF(
+					parent::triplify($stitch_flat, "rdf:type", parent::getVoc()."Flat-Compound").
+					parent::describeClass(parent::getVoc()."Flat-Compound", "Flat compound").
+					parent::triplify($stitch_flat, parent::getVoc()."x-pubchem.compound", $pubchem_id).
+					parent::triplify($stitch_flat, parent::getVoc()."stitch-stereo", $stitch_stereo)
+				);
+				$declared[$stitch_flat] = '';
+			}
+			if(!isset($declared[$stitch_stereo])) {
+				$pubchem_id  = "pubchem.compound:".ltrim( substr($a[1],4), "0");
+				parent::addRDF(
+					parent::triplify($stitch_stereo, "rdf:type", parent::getVoc()."Stereo-Compound").
+					parent::describeClass(parent::getVoc()."Stereo-Compound", "Stereo compound").
+					parent::triplify($stitch_stereo, parent::getVoc()."x-pubchem.compound", $pubchem_id).
+					parent::triplify($stitch_stereo, parent::getVoc()."stitch-flat", $stitch_flat)
+				);
+				$declared[$stitch_stereo] = '';
+			}
+			
 			parent::addRDF(
-				parent::describeClass($cui, $cui_label).
-				parent::triplify($id, parent::getVoc()."side-effect", $cui)
+				parent::describeIndividual($id, "$stitch_flat $cui_label effect", parent::getVoc()."Drug-Effect-Association").
+				parent::triplify($id, parent::getVoc()."effect", $cui).
+				parent::triplify($id, parent::getVoc()."drug", $stitch_flat)
 			);
 			parent::setCheckpoint('record');
 		}
+
 		parent::setCheckpoint('file');
 	}
 
-	function indications_raw()
+	function indications()
 	{
 		$declared = null;
-
+		$list = null;
 		parent::setCheckpoint('file');
-		while($l = $this->GetReadFile()->Read()) {
+		while($l = $this->getReadFile()->Read()) {
 			parent::setCheckpoint('record');
 
 			$a = explode("\t",$l);
-			$id = "sider:".urlencode($a[0]);
-			$cui = "umls:".$a[1];
-			$cui_label = strtolower(trim($a[2]));
+			list($stitch_flat,$cui,$provenance,$cui_label,$term_type,$term_cui,$term_cui_label) = $a;
+			$id = "sider:".md5("i".$stitch_flat.$cui);
+
+			if($term_type == "LLT" or isset($list[$id])) continue;
+			if(!isset($list[$id])) {
+				$list[$id] = '';
+			}
+
+			$stitch_id = "stitch:$stitch_flat";
+			$meddra_id = "meddra:$cui";
+
+			if(!isset($declared[$cui])) {
+				parent::addRDF(
+					parent::describeClass($meddra_id, $cui_label)
+				);
+				$declared[$cui] = '';
+			}
+			if(!isset($declared[$stitch_flat])) {
+				$pubchem_id = "pubchem.compound:".ltrim( substr($stitch_flat,4), "0");
+				parent::addRDF(
+					parent::triplify($stitch_id, "rdf:type", parent::getVoc()."Flat-Compound").
+					parent::describeClass(parent::getVoc()."Flat-Compound", "STITCH Flat compound").
+					parent::triplify($stitch_id, parent::getVoc()."x-pubchem.compound", $pubchem_id)
+				);
+				$declared[$stitch_flat] = '';
+			}
 
 			parent::addRDF(
-				parent::describeClass($cui, $cui_label).
-				parent::triplify($id, parent::getVoc()."indication", $cui)
+				parent::describeIndividual($id, $stitch_id." - ".$meddra_id." indication ", parent::getVoc()."Drug-Indication-Association").
+				parent::describeClass(parent::getVoc()."Drug-Indication-Association","Drug-Disease Association").
+				parent::triplify($id, parent::getVoc()."drug", $stitch_id).
+				parent::triplify($id, parent::getVoc()."indication", $meddra_id).
+				parent::triplifyString($id, parent::getVoc()."provenance", $provenance)
 			);
-			parent::setCheckpoint('record');
 
 		}
 		parent::setCheckpoint('file');
@@ -384,113 +288,80 @@ The bounds are ranges like 0.01 to 1 for "frequent". If the exact frequency is k
 matches the upper bound. Due to the nature of the data, there can be more than one frequency for the same label,
 e.g. from different clinical trials or for different levels of severeness.
 */
-	function meddra_freq_parsed()
+	function freq()
 	{
-		$cols = 12;
+		$cols = 10;
 		$i = 1;
 		parent::setCheckpoint('file');
 		while($l = parent::getReadFile()->read()) {
-			parent::setCheckpoint('record');
-
 			$a = explode("\t",str_replace("%","",$l));
 			if(count($a) != $cols) {
-				trigger_error("Expecting $cols, but found ".count($a)." instead... skipping file!");
+				trigger_error("Expecting $cols, but found ".count($a)." instead... skipping file!", E_USER_ERROR);
 				return false; 
 			}
-			$label = $a[2];
-			$label_id = parent::getNamespace().urlencode($label);
-			$effect_id = "umls:".$a[3];
+			list($stitch_flat, $stitch_stereo, $cui, $placebo, $freq, $freq_lower, $freq_upper, $concept_type, $meddra_concept_id, $meddra_concept_label) = $a;
+			if($concept_type == "LLT") continue;
+			$meddra_concept_label = trim($meddra_concept_label);
 			
-			$id = parent::getRes().md5($a[2].$a[3].$a[6]);
-			$label = "$a[4] in $label $a[2]";
+			$id = "stitch_resource:".md5("se_freq".$l);
+			$stitch_flat = "stitch:$stitch_flat";
+			$label = "$meddra_concept_label frequency for $stitch_flat";
 			parent::addRDF(
-				parent::describeIndividual($id, $label, parent::getVoc()."Drug-Effect").
-				parent::describeClass(parent::getVoc()."Drug-Effect","SIDER Drug-Effect").
-				parent::triplify($id, parent::getVoc()."drug", $label_id).
-				parent::triplify($id, parent::getVoc()."effect", $effect_id)
+				parent::describeIndividual($id, $label, parent::getVoc()."Drug-Effect-Frequency").
+				parent::describeClass(parent::getVoc()."Drug-Effect-Frequency","SIDER Drug-Effect and Frequency").
+				parent::triplify($id, parent::getVoc()."drug", $stitch_flat).
+				parent::triplify($id, parent::getVoc()."effect", "meddra:".$meddra_concept_id)
 			);
 
-			if($a[5]){
+			if($placebo){
 				parent::addRDF(
 					parent::triplifyString($id, parent::getVoc()."placebo", "true", "xsd:boolean")
 				);
 			}
 
-				$fid = $id.md5($a[5].$a[6].$a[7].$a[8]);
-//				$fid = $id.($i++);
-				$flabel = $a[6];
-				$ftype  = parent::getVoc().ucfirst($a[6])."-Frequency";
-				$number = false;
-				if(is_numeric($a[6])) {
-					$flabel = $a[6]."%";
-					$ftype_label = "Specified-Frequency";
-					$ftype  = parent::getVoc().$ftype_label;
-					$number = true;
-				}
-				if($a[7] != $a[8]) {
-					$flabel .= "($a[7]-$a[8])";
-					$ftype_label = "Range-Frequency";
-					$ftype = parent::getVoc().$ftype_label;
-				}
+			$number = false;
+			if(is_numeric($freq)) {
+				$flabel = $freq."%";
+				$ftype_label = "Exact-Frequency";
+				$ftype  = parent::getVoc().$ftype_label;
+				$number = true;
+			} else {
+				$flabel = $freq;
+				$ftype_label = "Qualitative-Frequency";
+				$ftype = parent::getVoc()."$ftype_label";
+			}
+			if($freq_lower != $freq_upper) {
+				$flabel .= "($freq_lower-$freq_upper)";
+				$ftype_label = "Range-Frequency";
+				$ftype = parent::getVoc().$ftype_label;
+			} 
 
+			$fid = $id.md5($a[5].$a[6].$a[8]);
+			parent::addRDF(
+				parent::triplify($id,parent::getVoc()."frequency",$fid).
+				parent::describeIndividual($fid,$flabel,$ftype).
+				parent::describeClass($ftype, $ftype_label)
+			);
+	
+			if($number == true) {
 				parent::addRDF(
-					parent::triplify($id,parent::getVoc()."reported-frequency",$fid).
-					parent::describeIndividual($fid,$flabel,$ftype).
-					parent::describeClass($ftype, $ftype_label)
+					parent::triplifyString($fid, parent::getVoc()."frequency-value", $freq/100)
 				);
-		
-				if($number == true) {
-					parent::addRDF(
-						parent::triplifyString($fid, parent::getVoc()."frequency", $a[6]/100)
-					);
-				} else {
-					parent::addRDF(
-						parent::triplifyString($fid, parent::getVoc()."frequency", $a[6])
-					);
-				}
-			//	if($a[7] != $a[8]){
-					parent::addRDF(
-						parent::triplifyString($fid, parent::getVoc()."lower-frequency", $a[7]).
-						parent::triplifyString($fid, parent::getVoc()."upper-frequency", $a[8])
-					);
-			//	}
-
-				$meddra_id = "umls:$a[10]";
-				$label = "";
-				if(trim($a[11])) $label = strtolower(trim($a[11]));
-				$rel = "preferred-term";
-				if($a[9] != "LLT") $rel = "lower-level-term";	
-			
+			} else {
 				parent::addRDF(
-					parent::triplify($fid, parent::getVoc().$rel, $meddra_id).
-					parent::describeClass($meddra_id,$label)				
+					parent::triplifyString($fid, parent::getVoc()."frequency-value", $freq)
 				);
+			}
+			parent::addRDF(
+				parent::triplifyString($fid, parent::getVoc()."lower-frequency", sprintf("%.3f",$freq_lower)).
+				parent::triplifyString($fid, parent::getVoc()."upper-frequency", sprintf("%.3f",$freq_upper))
+			);
 
 			parent::setCheckpoint('record');
 		}
 		parent::setCheckpoint('file');
 
 	}
-	
-/*
-meddra_adverse_effects.tsv.gz
------------------------------
 
-1 & 2: STITCH compound ids (flat/stereo, see above)
-3: UMLS concept id as it was found on the label
-4: drug name
-5: side effect name
-6: MedDRA concept type (LLT = lowest level term, PT = preferred term)
-7: UMLS concept id for MedDRA term
-8: MedDRA side effect	name
-
-All side effects found on the labels are given as LLT. Additionally, the PT is shown. There is at least one
-PT for every side effect, but sometimes the PT is the same as the LLT. 
-*/
-// @TODO
-	function meddra_adverse_effects()
-	{
-		
-	}
 }
 ?>

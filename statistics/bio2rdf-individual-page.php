@@ -84,6 +84,7 @@ if($options['instance']) {
         while($l = fgets($fp)) {
                 if(!$l or $l[0] == "#" ) continue;
                 $a = explode("\t",$l);
+		if(!isset($a[2])) continue;
                 if($dataset == 'all' or $dataset == trim($a[2])) $list[] = trim($a[2]);
         }
         fclose($fp);
@@ -95,7 +96,7 @@ if($options['instance']) {
 		$endpoint  = getEndpointInfo($dataset);
 		$options['port'] = $endpoint['isql'];
 
-		$options['sparql'] = $entry['sparql'] = "http://localhost:".$endpoint['sparql']."/sparql";
+		$options['sparql'] = $entry['sparql'] = "http://s2.semanticscience.org:".$endpoint['sparql']."/sparql";
 
 		$entry['target.endpoint'] = $entry['sparql'];
 		if($options['target.endpoint']) $entry['target.endpoint'] = $options['target.endpoint']; 
@@ -107,6 +108,7 @@ if($options['instance']) {
 		$entry['from'] = "FROM <".$entry['graph'].">";
 		$entry['describe'] = '';
 		$outfile = $options['odir'].$dataset."/$dataset.html";
+		$outfile = $options['odir']."$dataset.html";
 		makeHTML($entry,$outfile);
 		echo "done.".PHP_EOL;
 	}

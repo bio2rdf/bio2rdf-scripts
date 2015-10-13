@@ -403,7 +403,7 @@ class MGIParser extends Bio2RDFizer
 			if(!$allele) {echo "ignoring ".$a[0].PHP_EOL;continue;}
 
 			$alleles = explode("|",strtolower($a[2]));
-
+			$genotype = $a[0];
 			$diseases = explode(",",$a[7]);
 			foreach($diseases AS $d) {
 				$disease = "omim:$d";
@@ -413,6 +413,7 @@ class MGIParser extends Bio2RDFizer
 					parent::addRDF(
 						parent::describeIndividual($id, $label, $this->getVoc()."Allele-Disease-Association").
 						parent::describeClass($this->getVoc()."Allele-Disease-Association","MGI Allele-Disease Association").
+						parent::triplifyString($id,$this->getVoc()."genotype-string",$genotype).
 						parent::triplify($id,$this->getVoc()."allele",$allele).
 						parent::triplify($id,$this->getVoc()."disease",$disease)
 					);
@@ -450,6 +451,7 @@ class MGIParser extends Bio2RDFizer
 				continue;
 			}
 			
+			$genotype = $a[0];
 			$alleles = explode("|",strtolower($a[2]));
 			$diseases = explode(",",$a[7]);
 			foreach($diseases AS $d) {
@@ -462,6 +464,7 @@ class MGIParser extends Bio2RDFizer
 						parent::describeIndividual($id, $label, $this->getVoc()."Allele-Disease-Non-Association").
 						parent::describeClass($this->getVoc()."Allele-Disease-Non-Association","MGI Allele-Disease Non-Association").
 						parent::triplify($id,$this->getVoc()."allele",$allele).
+						parent::triplifyString($id,$this->getVoc()."genotype-string",$genotype).
 						parent::triplify($id,$this->getVoc()."disease",$disease).
 						parent::triplifyString($id,$this->getVoc()."is-negated","true")
 					);

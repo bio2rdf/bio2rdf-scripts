@@ -34,7 +34,8 @@ class OMIMParser extends Bio2RDFizer
 		parent::__construct($argv, 'omim');
 		parent::addParameter('files',true,null,'all|omim#','entries to process: comma-separated list or hyphen-separated range');
 		parent::addParameter('omim_api_url',false,null,'http://api.omim.org/api/entry?include=all&format=json');
-		parent::addParameter('omim_api_key',false,null,'D43076A680B921682DA253BEFE05DE998957B3FC');
+		parent::addParameter('omim_api_key',false,null);
+		parent::addParameter('omim_api_key_file',false,null,'omim.key','A file containing your omim KEY');
 		parent::initialize();
 	}
 	
@@ -43,6 +44,19 @@ class OMIMParser extends Bio2RDFizer
 		// directory shortcuts
 		$ldir = parent::getParameterValue('indir');
 		$odir = parent::getParameterValue('outdir');
+		if(parent::getParameterValue('omim_api_key') == '') {
+			$key_file = parent::getParameterValue('omim_api_key_file');
+			if(file_exists($key_file)) {
+				$key = trim(file_get_contents($key_file));
+				if($key) {
+					parent::setParameterValue('omim_api_key', $key);
+				} else {
+					trigger_error("No API key found in the specified omim key file $key_file",E_USER_WARNING);						
+				}
+			} else {	
+				trigger_error("No OMIM key has been provided either by commmand line or in the expected omim key file $key_file",E_USER_WARNING);	
+			}
+		}
 
 		// get the list of mim2gene entries
 		$entries = $this->GetListOfEntries($ldir);
@@ -88,7 +102,8 @@ class OMIMParser extends Bio2RDFizer
 		$total = count($entries);
 		foreach($entries AS $omim_id => $type) {
 			echo "processing ".(++$i)." of $total - omim# ";
-			$download_file = $ldir.$omim_id.".json";
+			$download_file = $ldir.$omim_id.".json.gz";
+			$gzfile = "compress.zlib://$download_file";
 			// download if the file doesn't exist or we are told to
 			if(!file_exists($download_file) || parent::getParameterValue('download') == true) {
 				// download using the api
@@ -101,7 +116,7 @@ class OMIMParser extends Bio2RDFizer
 			}
 			
 			// load entry, parse and write to file
-			$entry = json_decode(file_get_contents($download_file), true);
+			$entry = json_decode(file_get_contents($gzfile), true);
 			$omim_id = trim((string)$entry["omim"]["entryList"][0]["entry"]['mimNumber']);
 			echo $omim_id;
 			$this->ParseEntry($entry,$type);
@@ -184,8 +199,9 @@ class OMIMParser extends Bio2RDFizer
 			}
 				
 			// download
+			ftp_pasv($ftp, true);
 			echo "Downloading $file ...";
-			if(ftp_get($ftp, $ldir.$file, 'omim/'.$file, FTP_BINARY) === FALSE) {
+			if(ftp_get($ftp, $ldir.$file, 'OMIM/'.$file, FTP_BINARY) === FALSE) {
 				trigger_error("Error in downloading $file");
 				continue;
 			}
@@ -480,7 +496,11 @@ class OMIMParser extends Bio2RDFizer
 			foreach($o['phenotypeMapList'] AS $i => $phenotypeMap) {
 				$phenotypeMap = $phenotypeMap['phenotypeMap'];
 				$pm_uri = parent::getRes().$omim_id."_pm_".($i+1);
-				parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."phenotype-map", $pm_uri));
+				parent::addRDF(
+					parent::describeIndividual($pm_uri,"phenotype mapping for $omim_id", parent::getVoc()."Phenotype-Map").
+					parent::describeClass(parent::getVoc()."Phenotype-Map","OMIM Phenotype-Map").
+					parent::triplify($omim_uri, parent::getVoc()."phenotype-map", $pm_uri)
+				);
 				
 				foreach(array_keys($phenotypeMap) AS $k) {
 					if(in_array($k, array("mimNumber","phenotypeMimNumber","phenotypicSeriesMimNumber"))) {
@@ -488,7 +508,7 @@ class OMIMParser extends Bio2RDFizer
 					} else if($k == "geneSymbols") {
 						$l = explode(", ",$phenotypeMap[$k]);
 						foreach($l AS $gene) {
-							parent::addRDF(parent::triplify($pm_uri, parent::getVoc().$k, "hgnc.symbol:".$gene));
+							parent::addRDF(parent::triplify($pm_uri, parent::getVoc()."gene-symbol", "hgnc.symbol:".$gene));
 						}
 					} else if ($k == "phenotypeMappingKey") {
 						$l = $this->get_phenotype_mapping_method_type($phenotypeMap[$k]);
@@ -519,7 +539,8 @@ class OMIMParser extends Bio2RDFizer
 		// external ids
 		if(isset($o['externalLinks'])) {		
 			foreach($o['externalLinks'] AS $k => $id) {
-
+				if($id === false) continue;
+				
 				$ns = '';
 				switch($k) {
 					case 'approvedGeneSymbols':        $ns = 'symbol';break;
@@ -544,10 +565,12 @@ class OMIMParser extends Bio2RDFizer
 					case 'icd9cmIDs':                  $ns = 'icd9';break;
 					case 'umlsIDs':                    $ns = 'umls';break;
 					case 'wormbaseIDs':                $ns = 'wormbase';break;
-					case 'diseaseOntologyIDs':	   $ns = 'do';break;
+					
+					case 'diseaseOntologyIDs':	   		$ns = 'do';break;
 					
 					// specifically ignorning
 					case 'geneTests':
+					case 'cmgGene':
 					case 'geneticAllianceIDs':  // #
 					case 'nextGxDx':
 					case 'nbkIDs': // NBK1207;;Alport Syndrome and Thin Basement Membrane Nephropathy
@@ -560,7 +583,11 @@ class OMIMParser extends Bio2RDFizer
 					case 'coriellDiseases': 
 					case 'clinicalDiseaseIDs':        
 					case 'possumSyndromes':
+					case 'keggPathways':
+					case 'gtr':
+					case 'gwasCatalog':
 					case 'mgiHumanDisease':
+					case 'wormbaseDO':
 					case 'dermAtlas':                  // true/false
 						break;
 					
@@ -571,11 +598,15 @@ class OMIMParser extends Bio2RDFizer
 				$ids = explode(",",$id);
 				foreach($ids AS $id) {
 					if($ns) {
-						$b = explode(";;",$id); // multiple ids//names
-						foreach($b AS $c) {
-							preg_match("/([a-z])/",$c,$m);
-							if(!isset($m[1])) {
-								parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-$ns", $ns.':'.$c)); 
+						if(strstr($id,";;") === FALSE) {
+							parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-$ns", $ns.':'.$id)); 
+						} else {
+							$b = explode(";;",$id); // multiple ids//names
+							foreach($b AS $c) {
+								preg_match("/([a-z])/",$c,$m);
+								if(!isset($m[1])) {
+									parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-$ns", $ns.':'.$c)); 
+								}
 							}
 						}
 					}
