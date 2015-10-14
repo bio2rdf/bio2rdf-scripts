@@ -17,11 +17,12 @@ CHEBI_BASE_URI = "http://purl.obolibrary.org/obo/"
 RXNORM_BASE_URI = "http://purl.bioontology.org/ontology/RXNORM/"
 
 ## Define data inputs
-DRON_RXCUI = "mappings/cleaned-dron-to-rxcui-drug-06222015.txt"
-OMOP_RXCUI = "mappings/imeds_drugids_to_rxcuis.csv"
+DRON_RXCUI = "../LinkedSPLs-update/mappings/DrOn-to-RxNorm/cleaned-dron-to-rxcui-drug.txt"
 SETID_RXCUI = "mappings/setid_rxcui.txt"
 FULLNAME_SETID = "mappings/setid_fullname.txt"
-#OMOP_RXCUI = "mappings/clinical-drug-omopid-rxcui-09042015.dsv"
+
+#OMOP_RXCUI = "mappings/imeds_drugids_to_rxcuis.csv"
+OMOP_RXCUI = "mappings/clinical-drug-omopid-rxcui-09042015.dsv"
 
 
 
@@ -71,6 +72,6 @@ print fullname_rxcui_setid_DF.info()
 output_DF = fullname_rxcui_setid_DF.merge(dron_omop_rxcui_DF, on=['rxcui'], how='left')
 
 print output_DF.info()
-print output_DF
+#print output_DF
 
 output_DF.to_csv('mergedClinicalDrug.tsv', sep='\t', index=False)

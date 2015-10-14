@@ -210,7 +210,7 @@
        (6) mappings of RxNORM, NUI and NDFRT label
        (7) mappings of setId, UNII, NUI and PreferredNameAndRole
        
-       takes about 1 hour for update
+       takes about 3 hour for update
   -->
 
   <target name="linkedSPLs-update" depends="check-mapping-sources">
@@ -221,12 +221,13 @@
 
     <!-- <antcall target="load-FDAPreferredSubstanceToUNII" /> -->
     <!-- <antcall target="load-FDA_UNII_to_ChEBI" /> -->
-    <!-- <antcall target="load-FDAPreferredSubstanceToRxNORM" /> -->
     <!-- <antcall target="load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF" /> -->
+    <!-- <antcall target="load-ChEBI_DRUGBANK_BIO2RDF" /> -->
+
+    <!-- <antcall target="load-FDAPreferredSubstanceToRxNORM" /> -->
     <!-- <antcall target="load-SPLSetIDToRxNORM" /> -->
     <!-- <antcall target="load-RXNORM_NDFRT_INGRED_Table" /> -->
     <!-- <antcall target="load-FDA_EPC_Table" /> -->
-    <!-- <antcall target="load-ChEBI_DRUGBANK_BIO2RDF" /> -->
 
     <!-- <antcall target="load-FDAPharmgxTable" /> -->
     <!-- <antcall target="load-FDAPharmgxTableToOntologyMap"  /> -->
@@ -290,7 +291,7 @@
 
   <target name="load-FDA_UNII_to_ChEBI">
 
-    <delete file="${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt"/>
+    <delete file="${PT-UNII-ChEBI-mapping}/UNIIToChEBI.txt"/>
 
     <delete dir="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/bin"/>
     <mkdir dir="${PT-UNII-ChEBI-mapping}/ChEBIJavaClient/bin" />
@@ -316,7 +317,7 @@
       </manifest>
     </jar>
 
-    <echo>[INFO] : It takes about 4 hour ... </echo>
+    <echo>[INFO] : It takes about 4 hours ... </echo>
 
     <java classname="chebi.service.GetChEBIbyNames" fork="true" >
       <classpath>
@@ -326,13 +327,13 @@
     </java>
 
     <!-- old apporach that query bioportal -->
-    <!-- <exec executable="python" failonerror="true"> -->
-    <!--   <arg line="${PT-UNII-ChEBI-mapping}/getChebiMappingsFromJSON.py data/FDA/FDAPreferredSubstanceToUNII.txt" />  -->
-    <!--   <redirector append="true"> -->
-    <!--     <outputmapper type="merge" to="${PT-UNII-ChEBI-mapping}/UNIIToChEBI-${TODAY_US}.txt"/> -->
-    <!--     <errormapper type="merge" to="${ERROR_LOG}"/> -->
-    <!--   </redirector> -->
-    <!-- </exec> -->
+    <exec executable="python" failonerror="true">
+      <arg line="${PT-UNII-ChEBI-mapping}/getChebiMappingsFromJSON.py data/FDA/FDAPreferredSubstanceToUNII.txt" />
+      <redirector append="true">
+        <outputmapper type="merge" to="${PT-UNII-ChEBI-mapping}/UNIIToChEBI.txt"/>
+        <errormapper type="merge" to="${ERROR_LOG}"/>
+      </redirector>
+    </exec>
 
     <antcall target="set.timestamp">
       <param name="message" value="mappings of FDA preferred term and ChEBI is created at ${PT-UNII-ChEBI-mapping}/UNIIToChEBI.txt" />
@@ -368,7 +369,7 @@
 
   <target name="load-FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF" >
 
-    <delete file="${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/Name_Syns_UNII_DbId_0_${TODAY_US}.txt"/>
+    <delete file="${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/Name_Syns_UNII_DbId_0.txt"/>
 
     <antcall target="set.timestamp">
       <param name="message" value="execute script to parse ${DRUGBANK_XML}, ${FDA_UNII_NAMES} and ${FDA_UNII_RECORDS} " />
@@ -379,26 +380,26 @@
     <exec executable="python" failonerror="true">
       <arg line="${ChEBI-DrugBank-bio2rdf-mapping}/scripts/parseDBIdBySynsInchiName.py 0 ${DRUGBANK_XML} ${FDA_UNII_NAMES} ${FDA_UNII_RECORDS}"/>
       <redirector append="true">
-        <outputmapper type="merge" to="${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/Name_Syns_UNII_DbId_0_${TODAY_US}.txt"/>
+        <outputmapper type="merge" to="${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/Name_Syns_UNII_DbId_0.txt"/>
         <errormapper type="merge" to="${ERROR_LOG}"/>
       </redirector>
     </exec>
 
-    <delete file="${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/INCHI-OR-Syns-OR-Name-${TODAY_US}.txt"/>
+    <delete file="${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/INCHI-OR-Syns-OR-Name.txt"/>
 
     <exec executable="bash">
       <arg value="-c" />
-      <arg value ='cat ${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/Name_Syns_UNII_DbId_0_${TODAY_US}.txt | cut -f1,3,4,5 | sort | uniq > ${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/INCHI-OR-Syns-OR-Name-${TODAY_US}.txt' />
+      <arg value ='cat ${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/Name_Syns_UNII_DbId_0.txt | cut -f1,3,4,5 | sort | uniq > ${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/INCHI-OR-Syns-OR-Name.txt' />
     </exec>
 
     <antcall target="set.timestamp">
-      <param name="message" value="mappings of perferred term, UNII and drugbank URI is created at ${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/INCHI-OR-Syns-OR-Name-${TODAY_US}.txt" />
+      <param name="message" value="mappings of perferred term, UNII and drugbank URI is created at ${ChEBI-DrugBank-bio2rdf-mapping}/UNII-data/INCHI-OR-Syns-OR-Name.txt" />
     </antcall>
 
     <delete file="${ChEBI-DrugBank-bio2rdf-mapping}/fda-substance-preferred-name-to-drugbank.txt"/>
 
     <exec executable="python" dir="${ChEBI-DrugBank-bio2rdf-mapping}/scripts" output="${ChEBI-DrugBank-bio2rdf-mapping}/fda-substance-preferred-name-to-drugbank.txt">
-      <arg line="addBio2rdf_UNII_to_DrugBank.py ../UNII-data/INCHI-OR-Syns-OR-Name-${TODAY_US}.txt"/>
+      <arg line="addBio2rdf_UNII_to_DrugBank.py ../UNII-data/INCHI-OR-Syns-OR-Name.txt"/>
     </exec>
 
     <antcall target="set.timestamp">
@@ -520,15 +521,15 @@
 
   <target name="load-SPLSetIDToRxNORM" >
 
-    <delete file="${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt"/>
+    <delete file="${RxNORM-mapping}/converted_rxnorm_mappings.txt"/>
 
     <exec executable="bash">
       <arg value="-c" />
-      <arg value ='tail -n +2 ${RXNORM_SETID} | cut -f 1,3,4 -d "|" | sort > ${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt' />
+      <arg value ='tail -n +2 ${RXNORM_SETID} | cut -f 1,3,4 -d "|" | sort > ${RxNORM-mapping}/converted_rxnorm_mappings.txt' />
     </exec>
 
     <antcall target="set.timestamp">
-      <param name="message" value="mappings of setid, RxCui and RxClinicalDrug is created at ${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt" />
+      <param name="message" value="mappings of setid, RxCui and RxClinicalDrug is created at ${RxNORM-mapping}/converted_rxnorm_mappings.txt" />
     </antcall>
 
     <sql
@@ -541,7 +542,7 @@
    </classpath>
       <transaction>
 	truncate SPLSetIDToRxNORM;
-	LOAD DATA LOCAL INFILE '${RxNORM-mapping}/converted_rxnorm_mappings_${TODAY_US}.txt' INTO TABLE `SPLSetIDToRxNORM` FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (setId, RxCUI, RxClinicalDrug);
+	LOAD DATA LOCAL INFILE '${RxNORM-mapping}/converted_rxnorm_mappings.txt' INTO TABLE `SPLSetIDToRxNORM` FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (setId, RxCUI, RxClinicalDrug);
       </transaction>
     </sql>
 
@@ -559,29 +560,29 @@
 
   <target name="load-RXNORM_NDFRT_INGRED_Table" >
 
-    <delete file="${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping-${TODAY_US}.txt"/>
+    <delete file="${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping.txt"/>
 
     <exec executable="bash">
       <arg value="-c" />
-      <arg value ='cat ${RXNCONSO_RRF} | grep "Chemical/Ingredient" | cut -f 1,14,15 -d "|" > ${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping-${TODAY_US}.txt' />
+      <arg value ='cat ${RXNCONSO_RRF} | grep "Chemical/Ingredient" | cut -f 1,14,15 -d "|" > ${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping.txt' />
     </exec>
 
     <antcall target="set.timestamp">
-      <param name="message" value="mappings of RxNORM, NUI and NDFRT label is created at ${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping-${TODAY_US}.txt" />
+      <param name="message" value="mappings of RxNORM, NUI and NDFRT label is created at ${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping.txt" />
     </antcall>
 
-    <delete file="${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient-${TODAY_US}.txt"/>
+    <delete file="${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient.txt"/>
 
     <exec executable="python" failonerror="true">
-      <arg line="${NDFRT-to-RxNorm}/convertNDFRTandRXNORM_UUIDsToPurls.py ${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping-${TODAY_US}.txt" /> 
+      <arg line="${NDFRT-to-RxNorm}/convertNDFRTandRXNORM_UUIDsToPurls.py ${NDFRT-to-RxNorm}/rxnorm-to-ndfrt-chemical-ingredient-mapping.txt" /> 
       <redirector append="true">
-        <outputmapper type="merge" to="${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient-${TODAY_US}.txt"/>
+        <outputmapper type="merge" to="${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient.txt"/>
         <errormapper type="merge" to="${ERROR_LOG}"/>
       </redirector>
     </exec>
 
     <antcall target="set.timestamp">
-      <param name="message" value="post-processed mappings of RxNORM, NUI and NDFRT label is created at ${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient-${TODAY_US}.txt" />
+      <param name="message" value="post-processed mappings of RxNORM, NUI and NDFRT label is created at ${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient.txt" />
     </antcall>
 
     <sql
@@ -594,7 +595,7 @@
    </classpath>
       <transaction>
 	truncate RXNORM_NDFRT_INGRED_Table;
-	LOAD DATA LOCAL INFILE "${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient-${TODAY_US}.txt" INTO TABLE RXNORM_NDFRT_INGRED_Table(RXNORM, NUI, NDFRT_LABEL);
+	LOAD DATA LOCAL INFILE "${NDFRT-to-RxNorm}/converted-rxnorm-to-ndfrt-chemical-ingredient.txt" INTO TABLE RXNORM_NDFRT_INGRED_Table(RXNORM, NUI, NDFRT_LABEL);
       </transaction>
     </sql>
 
@@ -612,10 +613,10 @@
 
   <target name="load-FDA_EPC_Table" >
 
-    <delete file="${pharmacologic_class_indexing}/EPC_extraction_most_recent_${TODAY_US}.txt"/>
+    <delete file="${pharmacologic_class_indexing}/EPC_extraction_most_recent.txt"/>
 
     <exec executable="python" failonerror="true">
-      <arg line="${pharmacologic_class_indexing}/parseEPCfromXMLs.py ${PG_CLASS_INDEXING_SPLS}" /> 
+      <arg line="${pharmacologic_class_indexing}/parseEPCfromXMLs.py ${PG_CLASS_INDEXING_SPLS}" />
       <redirector append="true">
         <outputmapper type="merge" to="${pharmacologic_class_indexing}/EPC_extraction_most_recent.txt"/>
         <errormapper type="merge" to="${ERROR_LOG}"/>

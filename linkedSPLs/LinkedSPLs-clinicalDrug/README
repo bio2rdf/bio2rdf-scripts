@@ -37,13 +37,19 @@ converted_rxnorm_mappings_<DATE>.txt
 
 Dailymed product label indexing mapping from "linkedSPLs/LinkedSPLs-update/mappings/RxNORM-mapping/converted_rxnorm_mappings_<DATE>"
 
-$ cat converted_rxnorm_mappings_06262015.txt | cut -f1,2 -d\| | sort | uniq > setid_rxcui.txt
+$ cd mappings
+
+$ cp ../../LinkedSPLs-update/mappings/RxNORM-mapping/converted_rxnorm_mappings_10132015.txt converted_rxnorm_mappings.txt
+
+$ cat converted_rxnorm_mappings.txt | cut -f1,2 -d\| | sort | uniq > setid_rxcui.txt
 
 ----------------------------------------------------------
 mappings of FDA preferred term and setId
 ----------------------------------------------------------
 
 $ mysql -u <username> -p
+
+$ use linkedSPLs;
 
 SELECT setId, fullName FROM linkedSPLs.structuredProductLabelMetadata INTO OUTFILE '/tmp/setid_fullname.txt' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
 

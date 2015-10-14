@@ -7,17 +7,11 @@ This folder will hold a graph that maps the active moiety components of an SPL t
 Inputs are original mappings listed as belows:
 
 (1) PT to UNII
-
 (2) UNII to RxNORM
-
 (3) PT to Drugbank
-
 (4) PT to ChEBI
-
 (5) RxNORM to OMOP
-
 (6) RxNORM to DrOn
-
 (7) RxNORM to NDFRT (EPC)
 
 Outputs is a RDF/XML graph that represents all active moiety with linked resouces.
@@ -27,28 +21,10 @@ Outputs is a RDF/XML graph that represents all active moiety with linked resouce
 Procedures to get active moieties RDF graph
 ################################################################################
 
-<STEP 1>: prepare mappings in folder mappings/
+<1>: query to get omopid mapping and put in mapping folder
 
-----------------------------------------------
-mappings of PT to UNII (FDA)
-----------------------------------------------
+mappings/active-ingredient-omopid-rxcui.dsv
 
-FROM "../../LinkedSPLs-update/data/FDA/FDAPreferredSubstanceToUNII.txt"
-
-----------------------------------------------
-mappings of UNII to RXCUI (UMLS)
-----------------------------------------------
-
-FROM "../../LinkedSPLs-update/data/UMLS/UNIIs-Rxcuis-from-UMLS.txt"
-
-----------------------------------------------
-mappings/dron-to-chebi-and-rxnorm.txt
-----------------------------------------------
-FROM "../../LinkedSPLs-update/mappings/DrOn-to-RxNorm/dron-to-chebi-and-rxnorm.txt"
-
-----------------------------------------------
-mappings/active-ingredient-omopid-rxcui-09042015.dsv
-----------------------------------------------
  
 query OMOP CDM V5 (GeriOMOP) by SQL query below:
 SELECT cpt.CONCEPT_ID as omopid, cpt.CONCEPT_CODE as rxcui FROM
@@ -59,21 +35,6 @@ cpt.CONCEPT_CLASS = 'Ingredient';
 09/04/2015: 17049 results
 
 right click result table and export to csv ('|' delimited) 
-
-----------------------------------------------
-mappings/UNIIToChEBI-<DATE>.txt
-----------------------------------------------
-FROM "../../LinkedSPLs-update/mappings/PT-UNII-ChEBI-mapping/UNIIToChEBI-<DATE>.txt"
-
-----------------------------------------------
-mappings/pt_drugbank-<DATE>.txt
-----------------------------------------------
-FROM "../../LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/fda-substance-preferred-name-to-drugbank-<DATE>.txt"
-
-----------------------------------------------
-mappings/EPC_extraction_most_recent_<DATE>.txt"
-----------------------------------------------
-FROM "../../LinkedSPLs-update/mappings/pharmacologic_class_indexing/EPC_extraction_most_recent_<DATE>.txt"
 
 
 <STEP 2>: run python script to merge those mappings together
@@ -92,7 +53,7 @@ outputs: activeMoietySub-in-rdf.xml
 
 
 ################################################################################
-PRE#REQUISITES:
+PRE-REQUISITES:
 ################################################################################
 
 python libraries:

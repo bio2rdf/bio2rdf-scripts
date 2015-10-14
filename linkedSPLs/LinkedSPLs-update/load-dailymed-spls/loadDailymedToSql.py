@@ -391,7 +391,6 @@ def run(logger, spls, limit=None):
             continue
         
         try:
-
             
             insert_active_moieties(tags['activeMoieties'], tags['activeMoietyUNIIs'])
             insertQuery = "INSERT INTO structuredProductLabelMetadata(setId, versionNumber, fullName, routeOfAdministration, genericMedicine, representedOrganization, effectiveTime, filename) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
@@ -410,7 +409,7 @@ def run(logger, spls, limit=None):
             for code in splSections:
 
                 cursor.execute("SELECT table_name FROM loinc WHERE loinc='{0}'".format(code))
-                res = cursor.fetchone()
+                res = cursor.fetchone
                 if res:
                     table = cursor.fetchone()[0]
                 else:
@@ -440,11 +439,11 @@ def run(logger, spls, limit=None):
             con.commit()
             os.rename ("spls/{0}".format(splF),"problematic-spls/{0}".format(splF))
             continue
-        # except:
-        #     print "Unexpected error:", sys.exc_info()[0]
-        #     con.rollback()
-        #     con.commit()
-        #     continue
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            con.rollback()
+            con.commit()
+            continue
 
 
 ##Create custom logger
