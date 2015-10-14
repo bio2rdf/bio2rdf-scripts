@@ -236,7 +236,7 @@ class SIDERParser extends Bio2RDFizer
 			}
 
 			$stitch_id = "stitch:$stitch_flat";
-			$meddra_id = "meddra:$cui";
+			$meddra_id = "umls:$cui";
 
 			if(!isset($declared[$cui])) {
 				parent::addRDF(
@@ -310,7 +310,7 @@ e.g. from different clinical trials or for different levels of severeness.
 				parent::describeIndividual($id, $label, parent::getVoc()."Drug-Effect-Frequency").
 				parent::describeClass(parent::getVoc()."Drug-Effect-Frequency","SIDER Drug-Effect and Frequency").
 				parent::triplify($id, parent::getVoc()."drug", $stitch_flat).
-				parent::triplify($id, parent::getVoc()."effect", "meddra:".$meddra_concept_id)
+				parent::triplify($id, parent::getVoc()."effect", "umls:".$meddra_concept_id)
 			);
 
 			if($placebo){
