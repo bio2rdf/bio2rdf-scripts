@@ -302,6 +302,9 @@ class MeshParser extends Bio2RDFizer{
 	*/
 	private function makeSupplementaryRecord($sup_record_arr){
 		//get the UI of the supplementary record
+
+		if(!isset($sup_record_arr['UI'][0]) or !isset($sup_record_arr['NM'][0])) return;
+
 		$sr_ui = $sup_record_arr["UI"][0];
 		$sr_res = $this->getNamespace().$sr_ui;
 		$sr_label = $sup_record_arr['NM'][0];
