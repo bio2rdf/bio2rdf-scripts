@@ -24,7 +24,7 @@ SOFTWARE.
 class GendrParser extends Bio2RDFizer {
 	function __construct($argv) {
 		parent::__construct($argv, "gendr");
-		parent::addParameter('files', true, 'all|gene_manipulations|gene_expression','all','files to process');
+		parent::addParameter('files', true, 'all|gene_manipulations' /* |gene_expression -- no longer supported*/ ,'all','files to process');
 		parent::addParameter('download_url', false, null,'http://genomics.senescence.info/diet/');
 		parent::initialize();
 	}//constructor
@@ -184,7 +184,7 @@ class GendrParser extends Bio2RDFizer {
 
 	function gene_manipulations(){
 		$h = explode(",", parent::getReadFile()->read());
-		$expected_columns = 6;
+		$expected_columns = 5;
 		if(($n = count($h)) != $expected_columns) {
 			trigger_error("Found $n columns in gene file - expecting $expected_columns!", E_USER_WARNING);
 			return false;			
@@ -197,7 +197,7 @@ class GendrParser extends Bio2RDFizer {
 			$species_name = $data[2];
 			$geneid = $data[3];
 			$gene_name = $data[4];
-			$references = $data[5];
+//			$references = $data[5];
 
 			$gendr_id = parent::getNamespace().$gendr;
 			$gendr_label = $gene_name." (".$gene_symbol.")";
