@@ -984,7 +984,7 @@ class RefSeqParser extends Bio2RDFizer{
 	* it removes the header at the top of the file
 	*/
 	function removeHeader($aGbRecord){
-		$gb_arr = split("\n", $aGbRecord);
+		$gb_arr = explode("\n", $aGbRecord);
 		for($i=0;$i<count($gb_arr);$i++){
 			preg_match("/^LOCUS/", $gb_arr[$i], $matches);
 			if(count($matches)){
@@ -1005,7 +1005,7 @@ class RefSeqParser extends Bio2RDFizer{
 	*/
 	function parseGenbankRaw($gb_record){
 		$sections = array();
-		$gb_arr = split("\n", $gb_record);
+		$gb_arr = explode("\n", $gb_record);
 		$aSection = "";
 		$section_name = "";
 		$record_counter = 0;
@@ -1063,9 +1063,13 @@ class RefSeqParser extends Bio2RDFizer{
 		    echo "Couldn't connect as $ftp_user\n";
 		    exit;
 		}
-	 
+		ftp_pasv($conn_id, TRUE);	 
 		// get contents of the current directory
 		$contents = ftp_nlist($conn_id, $path);
+		if(FALSE === $contents) {
+			echo "Unable to get contents for $path".PHP_EOL;
+			exit(-1);
+		}
 		foreach($contents as $aFile){
 //			$reg_exp = "/.*\/(.*".$extension.")/";
 			preg_match($regex, $aFile, $matches);
