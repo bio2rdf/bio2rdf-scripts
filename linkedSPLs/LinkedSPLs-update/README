@@ -1,6 +1,11 @@
 CODE TO GENERATE THE SQL AND LINKED-DATA VERSION OF LINKEDSPLS
 Authors: Richard Boyce, Greg Gardner, Yifan Ning
-Date: 09/25/2015
+
+Last updated Date: 09/25/2015
+
+problematic labels:
+spls/e8ae0b66-25de-41b1-8013-7f414bbb7568.xml
+
 
 ################################################################################
 OVERVIEW
@@ -37,8 +42,12 @@ Update all linkedSPLs mappings by command below
 $ ant linkedSPLs-update
 
 Update piece by piece (recommended)
-$ ant loadDailymedSPLsToRDB
-$ ant load-loincSection
+create schema linkedSPLs
+modify db connection information in db-connection.properties (if creating linkedSPLs)
+$ ant unzip-spls (if creating linkedSPLs)
+$ ant createTableSchema (if creating linkedSPLs)
+$ ant load-loincSection (if creating linkedSPLs)
+$ ant loadDailymedSPLsToRDB (ensure tables are truncated)
 
 $ ant load-FDAPreferredSubstanceToUNII          
 $ ant load-FDA_UNII_to_ChEBI         
@@ -61,11 +70,16 @@ $ ant load-OMOPId-RXCUIs-from-OHDSI
 
 
 
-
-
 ################################################################################
 PRE-REQUISITES (Download all source data before run any ant command)
 ################################################################################
+
+Install python libs if deploy linkedSPLs on new environment
+
+apt-get install libxml2-dev libxslt1-dev python-dev
+apt-get install python-lxml
+apt-get install python-feedparser
+
 
 Download and organize all source data files in data folder
 

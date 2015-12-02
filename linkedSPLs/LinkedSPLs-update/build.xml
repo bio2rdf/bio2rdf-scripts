@@ -171,7 +171,7 @@
 
   <target name ="check-mapping-sources">
 
-    <property name="datasource" value="${FDA_UNII_NAMES},${FDA_UNII_RECORDS},${DRUGBANK_XML},${PG_CLASS_INDEXING_SPLS},${RXNORM_SETID},${RXNCONSO_RRF},${RXNORM_FULL_SCHEMA},${DRON_RXCUI_INGREDIENT},${DRON_RXNORM_DRUG},${ERROR_LOG}"/>
+    <property name="datasource" value="${FDA_UNII_NAMES},${FDA_UNII_RECORDS},${DRUGBANK_XML},${PG_CLASS_INDEXING_SPLS},${RXNORM_SETID},${RXNCONSO_RRF},${RXNORM_FULL_SCHEMA},${DRON_RXCUI_INGREDIENT},${DRON_RXCUI_INGREDIENT},${DRON_RXCUI_DRUG},${ERROR_LOG}"/>
     <filelist id="data.sources" dir="." files="${datasource}" />
     
     <restrict id="missing.files">
@@ -232,10 +232,10 @@
     <!-- <antcall target="load-FDAPharmgxTable" /> -->
     <!-- <antcall target="load-FDAPharmgxTableToOntologyMap"  /> -->
 
-    <!-- <antcall target="load-DrOn_RXCUI_DRUG" />  -->
-    <!-- <antcall target="load-DrOn_RXCUI_INGREDIENT" />  -->
+    <!-- <antcall target="load-DrOn_RXCUI_DRUG" /> -->
+    <!-- <antcall target="load-DrOn_RXCUI_INGREDIENT" /> -->
 
-    <!-- <antcall target="load-OMOPId-RXCUIs-from-OHDSI" />  -->
+    <!-- <antcall target="load-OMOPId-RXCUIs-from-OHDSI" /> -->
 
     <antcall target="set.timestamp">
       <param name="message" value="updated all mappings in ${mysql-schema}" />
@@ -327,13 +327,13 @@
     </java>
 
     <!-- old apporach that query bioportal -->
-    <exec executable="python" failonerror="true">
-      <arg line="${PT-UNII-ChEBI-mapping}/getChebiMappingsFromJSON.py data/FDA/FDAPreferredSubstanceToUNII.txt" />
-      <redirector append="true">
-        <outputmapper type="merge" to="${PT-UNII-ChEBI-mapping}/UNIIToChEBI.txt"/>
-        <errormapper type="merge" to="${ERROR_LOG}"/>
-      </redirector>
-    </exec>
+    <!-- <exec executable="python" failonerror="true"> -->
+    <!--   <arg line="${PT-UNII-ChEBI-mapping}/getChebiMappingsFromJSON.py data/FDA/FDAPreferredSubstanceToUNII.txt" /> -->
+    <!--   <redirector append="true"> -->
+    <!--     <outputmapper type="merge" to="${PT-UNII-ChEBI-mapping}/UNIIToChEBI.txt"/> -->
+    <!--     <errormapper type="merge" to="${ERROR_LOG}"/> -->
+    <!--   </redirector> -->
+    <!-- </exec> -->
 
     <antcall target="set.timestamp">
       <param name="message" value="mappings of FDA preferred term and ChEBI is created at ${PT-UNII-ChEBI-mapping}/UNIIToChEBI.txt" />
@@ -868,7 +868,7 @@
    </classpath>
       <transaction>
 	truncate FDAPharmgxTableToOntologyMap;
-	LOAD DATA LOCAL INFILE "${BIOMARKER}" INTO TABLE FDAPharmgxTableToOntologyMap FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' IGNORE 1 LINES(FDAReferencedSubgroup,HGNCGeneSymbol,Synonymns,AlleleVariant,Pharmgkb,URI,Ontology,CuratorComments);
+	LOAD DATA LOCAL INFILE "${BIOMARKER}" INTO TABLE FDAPharmgxTableToOntologyMap FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n' IGNORE 1 LINES(FDAReferencedSubgroup,HGNCGeneSymbol,Synonymns,AlleleVariant,Pharmgkb,URI,Ontology,CuratorComments);
       </transaction>
     </sql>
 
