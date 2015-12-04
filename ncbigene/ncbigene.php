@@ -66,7 +66,7 @@ class NCBIGeneParser extends Bio2RDFizer
 		// set and print application parameters
 		parent::addParameter('files',true,'all|geneinfo|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega','','files to process');
 		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/gene/DATA/');
-		parent::addParameter('limit_organisms',false,'true|false','false','flag to use specified organisms');
+		parent::addParameter('limit_organisms',false,'true|false','true','flag to use specified organisms');
 		parent::addParameter('organisms',false,null,implode(",",array_keys($this->default_taxids)),'taxonomy ids for organisms to process');
 		parent::initialize();
 	}//constructor
