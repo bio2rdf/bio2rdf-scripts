@@ -798,6 +798,7 @@ class KEGGParser extends Bio2RDFizer
 					parent::describeClass(parent::getVoc()."Pathway-Relation","KEGG Pathway Relation").
 					parent::triplify($relation_id, parent::getVoc()."source", $base_id.$id1).
 					parent::triplify($relation_id, parent::getVoc()."target", $base_id.$id2).
+					parent::triplify($relation_id, parent::getVoc()."pathway", $pathway_id).
 					parent::triplifyString($relation_id, parent::getVoc()."type", $item['type'])
 				);
 				foreach($item->children() as $subtype) {

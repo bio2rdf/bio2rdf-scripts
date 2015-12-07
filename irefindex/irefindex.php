@@ -296,7 +296,7 @@ class irefindexParser extends Bio2RDFizer
 					);
 				}
 
-				$list = explode("|",$a[3]);
+				$list = explode("|",$a[3+($i-2)]);
 				foreach($list AS $item) {
 					$data = $this->ParseStringArray($item);
 					$ns = trim($data["ns"]);

@@ -59,7 +59,7 @@ class InterproParser extends Bio2RDFizer
 			file_put_contents($lfile,$ret);
 		}
 		echo "Loading XML file...";
-		$cxml = new CXML($ldir,$file);
+		$cxml = new CXML($lfile);
 		$cxml->Parse();
 		$xml = $cxml->GetXMLRoot();	
 		echo "Done".PHP_EOL;
@@ -182,14 +182,15 @@ class InterproParser extends Bio2RDFizer
 				parent::triplifyString($s,"dc:description",$abstract)
 			);
 			
-			foreach($o->example_list->example AS $example) {
-				$db = (string) $example->db_xref->attributes()->db;
-				$id = (string) $example->db_xref->attributes()->dbkey;
-				parent::addRDF(
-					parent::triplify($s,parent::getVoc()."example-entry", "$db:$id")
-				);
+			if(isset($o->example_list)) {
+				foreach($o->example_list->example AS $example) {
+					$db = (string) $example->db_xref->attributes()->db;
+					$id = (string) $example->db_xref->attributes()->dbkey;
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."example-entry", "$db:$id")
+					);
+				}
 			}
-			
 			if(isset($o->parent_list->rel_ref)) {
 				foreach($o->parent_list->rel_ref AS $parent) {
 					$id = (string) $parent->attributes()->ipr_ref;

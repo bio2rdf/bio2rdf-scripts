@@ -226,6 +226,7 @@ class DrugBankParser extends Bio2RDFizer
 				if($k2 == 'external-identifier') {
 					$ns = $this->NSMap($v2->resource);
 					$id = (string) $v2->identifier;
+					$id = str_replace(array(" "),"",$id);
 					$id = str_replace(array("HGNC:","GNC:"),"",$id);
 					parent::addRDF(
 						parent::triplify($pid, parent::getVoc()."x-$ns","$ns:$id")

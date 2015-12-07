@@ -156,6 +156,8 @@ class TaxonomyParser extends Bio2RDFizer{
 					if($k == "names" || $k == "nodes" || $k == "citations" 
 						|| $k == "gencode" || $k == "division" 
 						|| $k == "gi_taxid_prot" || $k == "gi_taxid_nucl"){
+
+//if($k !== 'citations') continue;
 						$fpin = $zin->getStream($fn);
 
 						if(!$fpin){
@@ -329,7 +331,7 @@ class TaxonomyParser extends Bio2RDFizer{
 			if($seealso) {
 				$seealso = str_replace(array("lx: DOI ","http;//"), array("http://dx.doi.org/","http://"), $seealso);
 				if(strlen($seealso) > 2 and !strstr($seealso,"http")) $seealso = "http://".$seealso;
-				$seelalso = parent::triplify($c, "rdfs:seeAlso", $seealso);
+				$seealso = parent::triplify($c, "rdfs:seeAlso", $seealso);
 			}
 
 			parent::addRDF(

@@ -310,14 +310,17 @@ class MGIParser extends Bio2RDFizer
 
         function MRK_Sequence()
         {
-		$cols = 20;
+		$cols = 21;
 		$line = 0;
-		$h = $this->getReadFile()->read(50000);
-		while($l = $this->GetReadFile()->Read(500000)) {
+		$h = $this->getReadFile()->read(500000);
+		$o = $this->getReadFile()->read(500000); // extra feature header on a separate line...if you can imagine
+		//print_r(explode("\t",$h));exit;
+		while($l = $this->getReadFile()->Read(500000)) {
 			$a = explode("\t",$l);
 			$line ++;
 			if(count($a) != $cols) {
 				echo "Expecting $cols columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
+				print_r($a);
 				continue;
 			}
 			$id  = strtolower($a[0]);
@@ -329,7 +332,11 @@ class MGIParser extends Bio2RDFizer
 				parent::triplifyString($id, parent::getVoc()."status", $a[2]).
 				parent::triplifyString($id, parent::getVoc()."name", $a[4]).
 				parent::triplifyString($id, parent::getVoc()."cm-position", $a[5], "xsd:string").
-				parent::triplifyString($id, parent::getVoc()."chromosome", $a[6], "xsd:string")
+				parent::triplifyString($id, parent::getVoc()."chromosome", $a[6], "xsd:string").
+				parent::triplifyString($id, parent::getVoc()."genome-start", $a[7], "xsd:string").
+				parent::triplifyString($id, parent::getVoc()."genome-end", $a[8], "xsd:string").
+				parent::triplifyString($id, parent::getVoc()."strand", $a[7], "xsd:string").
+				parent::triplifyString($id, parent::getVoc()."feature-type", $a[20], "xsd:string")
 			);
 			$start_pos = 10;
 			$list = array("genbank","refseq-transcript","vega-transcript","ensembl-transcript","uniprot","trembl","vega-protein","ensembl-protein","refseq-protein","unigene");

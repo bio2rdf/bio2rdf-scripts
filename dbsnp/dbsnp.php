@@ -151,7 +151,7 @@ class dbSNPParser extends Bio2RDFizer
 		$clinical = array("pathogenic","probable-pathogenic","drug-response","other");
 		if($clinical_flag == true) {
 			$term = implode("[Clinical Significance] or ",$all);
-			$term = '"'.substr($term,0)."\"[Clinical Significance]";
+			$term = '"'.substr($term,0)."[Clinical Significance]";
 		} else {
 			$term = "snp";
 		}
@@ -160,16 +160,15 @@ class dbSNPParser extends Bio2RDFizer
 			echo "Downloading snp list ";
 			$xmlfile = $this->getParameterValue('indir').'snp.list.xml';
 			$retmax = 10000000;
-//			$retmax = 10;
 			$start = 0;
 			$mylist = array();
 			do {
 				echo count($mylist).PHP_EOL;
 				$url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=snp&retmax=$retmax&term=".urlencode($term)."&retstart=$start";
-
 				$c = file_get_contents($url);
 				preg_match_all("/<Id>([^\<]+)<\/Id>/",$c,$m);
-				if(!isset($m[1])) break;
+				if(!isset($m[1]) or count($m[1]) == 0) break;
+				
 				$mylist = array_merge($mylist,$m[1]);
 				$start += $retmax;
 			} while(true);

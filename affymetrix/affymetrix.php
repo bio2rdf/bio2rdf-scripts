@@ -32,7 +32,7 @@ class AffymetrixParser extends Bio2RDFizer
 	function __construct($argv) {
 		parent::__construct($argv,"affymetrix");
 		parent::addParameter('files',true,null,'all','');
-		parent::addParameter('version',false,null,'33','to set another version to parse from');
+		parent::addParameter('version',false,null,'35','to set another version to parse from');
 		parent::addParameter('download_url',false,null,'http://www.affymetrix.com/support/technical/annotationfilesmain.affx','');
 		parent::initialize();
 	}
