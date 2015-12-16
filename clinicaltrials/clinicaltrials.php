@@ -259,15 +259,30 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			);
 
 			##########################################################################################
-			#info
+			#identifiers
 			##########################################################################################
 			parent::addRDF(
-				parent::triplifyString($study_id, parent::getVoc()."nct-id", $this->getString('//id_info/nct_id')).
-				parent::triplifyString($study_id, parent::getVoc()."org-study-id", $this->getString('//id_info/org_study_id')).
-				parent::triplifyString($study_id, parent::getVoc()."secondary-id", $this->getString('//id_info/secondary_id')). // this can be a list
-				parent::triplifyString($study_id, parent::getVoc()."nct-alias", $this->getString('//id_info/nct_alias'))	    // this can be a list
+				parent::triplifyString($study_id, parent::getVoc()."nct-id", $this->getString('//id_info/nct_id'), "xsd:string").
+				parent::triplifyString($study_id, parent::getVoc()."org-study-id", $this->getString('//id_info/org_study_id'), "xsd:string")
 			);
 
+			
+			$sids = $root->xpath('//id_info/secondary_id');
+			if(isset($sids)) {
+				foreach($sids AS $id) {
+					parent::addRDF(
+						parent::triplifyString($study_id, parent::getVoc()."secondary-id", (string)$id, "xsd:string")
+					);
+				}
+			}
+			$nctaliases = $root->xpath('//id_info/nct-alias');
+			if(isset($nctaliases)) {
+				foreach($nctaliases AS $id) {
+					parent::addRDF(
+						parent::triplifyString($study_id, parent::getVoc()."nct-alias", (string)$id, "xsd:string")
+					);
+				}		
+			}
 			
 			##########################################################################################
 			#titles
