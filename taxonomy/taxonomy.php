@@ -157,7 +157,7 @@ class TaxonomyParser extends Bio2RDFizer{
 						|| $k == "gencode" || $k == "division" 
 						|| $k == "gi_taxid_prot" || $k == "gi_taxid_nucl"){
 
-if($k !== 'names') continue;
+//if($k !== 'citations') continue;
 						$fpin = $zin->getStream($fn);
 
 						if(!$fpin){
