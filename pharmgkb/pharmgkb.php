@@ -352,7 +352,7 @@ class PharmGKBParser extends Bio2RDFizer
 			if($a[9]) {
 				$b = explode(",",$a[9]);
 				foreach($b AS $xref) {
-					$xref = trim($xref);
+					$xref = str_replace('"','', trim($xref) );
 					if(!$xref) continue;
 					
 					$url = false;
