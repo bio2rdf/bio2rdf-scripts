@@ -174,8 +174,12 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			if($i % 10000 == 0) {parent::clear();}
 			$trial_id = basename($file,'.xml');
 			if(parent::getParameterValue('id_list') == '' || in_array($trial_id, $ids)) {
-				echo "Processing $trial_id".PHP_EOL;
-				$this->process_file($file);
+				if(filesize($file)!=0) {
+					echo "Processing $trial_id".PHP_EOL;
+					$this->process_file($file);
+				} else{
+					echo "Processing $trial_id -> Empty!".PHP_EOL;
+				}
 			}
 		}
 		echo "Finished.".PHP_EOL;
