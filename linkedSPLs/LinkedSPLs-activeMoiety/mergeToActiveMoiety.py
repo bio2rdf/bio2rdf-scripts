@@ -20,12 +20,12 @@ RXNORM_BASE_URI = "http://purl.bioontology.org/ontology/RXNORM/"
 PT_UNII = "../LinkedSPLs-update/data/FDA/FDAPreferredSubstanceToUNII.txt"
 UNII_RXCUI = "../LinkedSPLs-update/data/UMLS/UNIIs-Rxcuis-from-UMLS.txt"
 
-PT_CHEBI = "mappings/UNIIToChEBI-06102015.txt"
-PT_DRUGBANK = "mappings/fda-substance-preferred-name-to-drugbank-06102015.txt"
+PT_CHEBI = "../LinkedSPLs-update/mappings/PT-UNII-ChEBI-mapping/UNIIToChEBI.txt"
+PT_DRUGBANK = "../LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/fda-substance-preferred-name-to-drugbank.txt"
 
-UNII_NUI_PREFERRED_NAME_ROLE = "mappings/EPC_extraction_most_recent_06102015.txt"
-DRON_CHEBI_RXCUI = "mappings/cleaned-dron-chebi-rxcui-ingredient-06222015.txt"
-OMOP_RXCUI = "mappings/active-ingredient-omopid-rxcui-09042015.dsv"
+UNII_NUI_PREFERRED_NAME_ROLE = "../LinkedSPLs-update/mappings/pharmacologic_class_indexing/EPC_extraction_most_recent.txt"
+DRON_CHEBI_RXCUI = "../LinkedSPLs-update/mappings/DrOn-to-RxNorm/cleaned-dron-chebi-rxcui-ingredient.txt"
+OMOP_RXCUI = "mappings/active-ingredient-omopid-rxcui.dsv"
 
 ## Get UNII - PT - RXCUI
 unii_pt_cols = ['unii','pt']

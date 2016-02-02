@@ -25,9 +25,9 @@ RAW_DATA_FILE = "genetic-biomarker-table-raw-import.csv"
 OUTFILE = "FDAPharmgxTable.csv"
 PT_RXCUI = "../RxNORM-mapping/PreferredTermRxcui-mapping.txt"
 
-#LINKED_SPL_SPARQL = SPARQLWrapper("http://dbmi-icode-01.dbmi.pitt.edu:8080/sparql")
+LINKED_SPL_SPARQL = SPARQLWrapper("http://dbmi-icode-01.dbmi.pitt.edu/sparql")
 #LINKED_SPL_SPARQL.addDefaultGraph("http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/")
-LINKED_SPL_SPARQL = SPARQLWrapper("http://130.49.206.86:8890/sparql")
+#LINKED_SPL_SPARQL = SPARQLWrapper("http://130.49.206.86:8890/sparql")
 
 RXNORM_BASE = "http://purl.bioontology.org/ontology/RXNORM/"
 

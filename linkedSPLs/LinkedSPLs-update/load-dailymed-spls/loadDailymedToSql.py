@@ -373,6 +373,9 @@ def run(logger, spls, limit=None):
         tree = parse(splF, parser=p)
         root = tree.getroot()        
         tags = get_tags(root, splF, logger)
+
+        #print "[DEBUG] tags: " + str(tags)
+        
         if len(tags.keys()) == 0:
             print "\nERROR: get_tags failed, most likely because a UNII could not be retrieved for all active moities. Please check the following spl: %s" % splF
             continue
@@ -388,6 +391,7 @@ def run(logger, spls, limit=None):
             continue
         
         try:
+            
             insert_active_moieties(tags['activeMoieties'], tags['activeMoietyUNIIs'])
             insertQuery = "INSERT INTO structuredProductLabelMetadata(setId, versionNumber, fullName, routeOfAdministration, genericMedicine, representedOrganization, effectiveTime, filename) VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"
             values = (tags['setId'], tags['versionNumber'], tags['fullName'], tags['routeOfAdministration'], tags['genericMedicine'], tags['representedOrganization'], tags['effectiveTime'], tags['filename'])
@@ -396,8 +400,12 @@ def run(logger, spls, limit=None):
             cursor.execute("SELECT id FROM structuredProductLabelMetadata WHERE setId=%s",[tags['setId']])
             splId = cursor.fetchone()[0]
 
+            #print "[DEBUG] insert active moieties - done"
         
             splSections = get_sections(root)
+
+            #print "[DEBUG] splSections: " + str(splSections)
+            
             for code in splSections:
 
                 cursor.execute("SELECT table_name FROM loinc WHERE loinc='{0}'".format(code))
