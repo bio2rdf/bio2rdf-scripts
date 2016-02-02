@@ -1,0 +1,96 @@
+################################################################################
+OVERVIEW
+################################################################################
+
+linkedSPLs contains all sections of FDA-approved drug package inserts from DailyMed for use by NLP and Semantic Web researchers. Major components are listed as follows:
+
+################################################################################
+COMPONENTS
+################################################################################
+
+------------------------------------------------------------
+linkedSpls core graph
+------------------------------------------------------------
+
+The core graph contains all SPLs (structured product labelings) label sections with metadata. They are directly comes from Dailymed product label in XMLs. Each dailymed product label identified by bio2rdf rules URI. (ex.http://bio2rdf.org/linkedspls_vocabulary:XXXX  replace XXXX with setid)
+
+source dailyed spls available from "http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-drug-labels.cfm"
+
+
+------------------------------------------------------------
+clinical drug mapping
+------------------------------------------------------------
+
+This is a subgraph that contains DronId, Rxcui, OHDSI Omop Id mappings for clinical drug.
+Graph naming drug entity by http://bio2rdf.org/linkedspls_clinicalDrug:<setId>
+
+Dailymed provide product label level mapping, dailymed setid to rxcui
+Clinical drug sub graph will connect to dailymed core graph by rxcui matching
+
+------------------------------------------------------------
+active ingredient mapping
+------------------------------------------------------------
+
+This is a graph holding all active moiety mappings, UNII, ChEBI, Drugbank, drug class(NDFRT) and Dron. Each active moiety identified by bio2rdf format URI (ex. http://bio2rdf.org/linkedspls_vocabulary:XXXX  replace XXXX with active moiety UNII code).
+
+Dailymed provide product label level mapping, dailymed setid to active ingredient UNII. ingredient sub graph represents all ingredient entities by id http://bio2rdf.org/linkedspls:<UNII>
+
+
+------------------------------------------------------------
+Pharmgx Data
+------------------------------------------------------------
+
+Pharmgx data is a rdf graph that have pharmacists's annotations 
+
+(1) FDA Pharmgx Table
+
+Inputs: csv file that comes from FDA table
+
+(2) Pharmagx annotations
+
+Inputs: pharmacists's annotations 
+
+Outputs: run the python elastico parsing program, which using RESTful API to fetch pgx annotations from data store, to dump annotations set in RDF. 
+
+------------------------------------------------------------
+ADR (adverse drug reactions)
+------------------------------------------------------------
+
+ADR data from SPLs will be provided in the OHDSI Knowledge Base (LAERTES)
+
+The link to OHDSI project:
+http://www.ohdsi.org/web/wiki/doku.php?id=projects:workgroups:kb-wg
+
+------------------------------------------------------------
+DDIs 
+------------------------------------------------------------
+
+This graph contains drug-drug interactions information, representing by PDDI model. Originally, DDI details are defined by NLP pipline. Then, annotators help to complete all interactions with assistence of pre-loaded NLP annotations. 
+
+Run the python elastico parsing program for DDIs, which using RESTful API to fetch Drug-drug interaction annotations from elastico data store, to generate data set in RDF. 
+
+################################################################################
+HOW TO UPDATE LINKEDSPLS
+################################################################################
+
+------------------------------------------------------------
+update linkedSPLs-core graph
+------------------------------------------------------------
+
+In folder LinkedSPLs-update, there is an ant program that helps update all mappings of linkedSPLs. Those mappings include pharmgxTable which comes from FDA and dailymed product label sections. All linkedspls mappings will be store in mysql which prepared to dump out by d2r server. 
+
+LinkedSPLs-core/linkedSPLs_dump_rdf_config.n3 is the configuration file that refers to mappings in mysql RDB and define the output n3 format graph.
+
+Please see the README under LinkedSPLs-core folder to dump core graph.
+
+------------------------------------------------------------
+update active moiety graph
+------------------------------------------------------------
+
+see LinkedSPLs-activeMoiety/README
+
+------------------------------------------------------------
+update pharmgx annotation graph and DDIs graph
+------------------------------------------------------------
+
+annotation set in rdf comes from elastico parsing program.

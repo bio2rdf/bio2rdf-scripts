@@ -1,0 +1,8 @@
+*.db
+*.txt
+*.pyc
+*~
+*#
+*backup*
+*backups
+*deprecated

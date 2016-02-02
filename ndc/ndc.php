@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2012 Michel Dumontier
+Copyright (C) 2013 Michel Dumontier, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -21,57 +21,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-require('../../php-lib/rdfapi.php');
 /**
  * NDC RDFizer
- * @version 1.0
+ * @version 2.0
  * @author Michel Dumontier
+ * @author Alison Callahan
  * @description http://www.fda.gov/Drugs/InformationOnDrugs/ucm142454.htm
 */
-class NDCParser extends RDFFactory 
+class NDCParser extends Bio2RDFizer 
 {
 	private $version = null;
-	
+
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("ndc");
-		
-		// set and print application parameters
+		parent::__construct($argv, "ndc");
+
 		$this->AddParameter('files',true,'all|product|package','all','files to process');
-		$this->AddParameter('indir',false,null,'/data/download/ndc/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/ndc/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
 		$this->AddParameter('download_url',false,null,'http://www.fda.gov/downloads/Drugs/DevelopmentApprovalProcess/UCM070838.zip');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		
-		return TRUE;
+		parent::initialize();
 	}
-	
+
 	function Run()
 	{
 		$ldir = $this->GetParameterValue('indir');
 		$odir = $this->GetParameterValue('outdir');
 		$rfile = $this->GetParameterValue('download_url');
 		$lfile = substr($rfile, strrpos($rfile,"/")+1);
-		
+
 		// check if exists
-		if(!file_exists($ldir.$lfile)) {
-			trigger_error($ldir.$lfile." not found. Will attempt to download. ", E_USER_NOTICE);
-			$this->SetParameterValue('download',true);
-		}
-		
-		// download
-		if($this->GetParameterValue('download') == true) {
-			trigger_error("Downloading $rfile", E_USER_NOTICE);
+		if(!file_exists($ldir.$lfile) or parent::getParameterValue('download') == 'true') {
+			echo "dowloading $rfile ...";
+			trigger_error("Will attempt to download ", E_USER_NOTICE);
 			Utils::DownloadSingle($rfile, $ldir.$lfile);
+			echo "done".PHP_EOL;
 		}
 
 		// make sure we have the zip archive
@@ -80,7 +61,7 @@ class NDCParser extends RDFFactory
 			trigger_error("Unable to open $ldir$lfile");
 			exit;
 		}
-		
+
 		// get the work
 		if($this->GetParameterValue('files') == 'all') {
 			$files = explode("|",$this->GetParameterList('files'));
@@ -88,114 +69,135 @@ class NDCParser extends RDFFactory
 		} else {
 			$files = explode("|",$this->GetParameterValue('files'));
 		}
-		
+
+
+		$gz=false;
+		if(strstr(parent::getParameterValue('output_format'), "gz")) $gz = true;
+		$outfile = "ndc.".parent::getParameterValue('output_format');
+		parent::setWriteFile($odir.$outfile, $gz);
+
+
 		// now go through each item in the zip file and process
 		foreach($files AS $file) {
-			echo "Processing $file ...";
-
-			// the file name in the zip archive is Product not product
-			if($file == "product"){
-				$file = ucfirst($file);
-			}
+			echo "Processing $file... ";
 
 			$fpin = $zin->getStream($file.".txt");
 			if(!$fpin) {
 				trigger_error("Unable to get pointer to $file in $ldir$lfile", E_USER_ERROR);
-				exit("failed\n");
+				return FALSE;
 			}
-			
-			// set the write file
-			$outfile = $file.'.nt'; $gz=false;
-			if($this->GetParameterValue('graph_uri')) {$outfile = $file.'.nq';}
-			if($this->GetParameterValue('gzip')) {
-				$outfile .= '.gz';
-				$gz = true;
-			}
-			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$outfile;
-			$this->SetWriteFile($odir.$outfile, $gz);
-			
-			// process
+
 			$this->$file($fpin);
-			
-			// write to file
-			$this->WriteRDFBufferToWriteFile();
-			$this->GetWriteFile()->Close();
-			
+			parent::writeRDFBufferToWriteFile();
 			echo "done!".PHP_EOL;
 		}
-		
-		
-		// generate the release file
-		$this->DeleteBio2RDFReleaseFiles($odir);
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ndc/ndc.php", 
-			$bio2rdf_download_files,
-			"http://www.fda.gov/Drugs/InformationOnDrugs/ucm142438.htm",
-			array("use-share"),
-			null, //license
-			$this->GetParameterValue('download_url'),
-			$this->version
-		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+
+		parent::getWriteFile()->close();
+
+		echo "Generating dataset description for $outfile... ";
+
+		//start generating dataset description file
+		$dataset_description = '';
+		$source_file = (new DataResource($this))
+			->setURI($rfile)
+			->setTitle("FDA National Drug Code Directory")
+			->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($ldir.$lfile)))
+			->setFormat("text/tab-separated-value")
+			->setFormat("application/zip")	
+			->setPublisher("http://www.fda.gov")
+			->setHomepage("http://www.fda.gov/Drugs/InformationOnDrugs/ucm142438.htm")
+			->setRights("use-share")
+			->setLicense(null)
+			->setDataset("http://identifiers.org/ndc/");
+
+
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ndc/ndc.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+
+		$dataset_description = $source_file->toRDF(). $output_file->toRDF();
+
+		//write dataset description to file
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
+		echo "done!".PHP_EOL;
 	}
-	
+
 	/* a relation between a product and it's packaging */
 	function package($fpin)
 	{
 		$types='';
-		// PRODUCTNDC	NDCPACKAGECODE	PACKAGEDESCRIPTION
+		// PRODUCTID PRODUCTNDC	NDCPACKAGECODE	PACKAGEDESCRIPTION
 		fgets($fpin); // header
 		while($l = fgets($fpin,4096)) {
-			$a = explode("\t",trim($l));
-			$ndc_product = "ndc:$a[0]";
-			$ndc_package = "ndc:$a[1]";
-			$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:package", $ndc_package));
-			$this->AddRDF($this->QQuadL($ndc_package, "rdfs:label",$a[2]." [$ndc_package]"));
-			$this->AddRDF($this->QQuad($ndc_package,  "rdf:type",  "ndc_vocabulary:Package"));
-			$this->AddRDF($this->QQuad($ndc_package,  "void:inDataset",$this->GetDatasetURI()));
-			
-			// now parse out the types
+			$a = explode("\t",rtrim($l));
+			if(count($a) != 4) {trigger_error("Expecting 4 columns, instead found ".count($a));}
+
+			$ndc_product = parent::getNamespace().$a[0];
+			$ndc_package = parent::getNamespace().$a[2];
+			$package_label = $a[3];
+			parent::addRDF(
+				parent::describeIndividual($ndc_package, $package_label, parent::getVoc()."Package").
+				parent::triplify($ndc_product, parent::getVoc()."has-package", $ndc_package).
+				parent::triplifyString($ndc_product, parent::getVoc()."ndc-product-id", $a[1]).
+				parent::describeClass(parent::getVoc()."Package", "NDC Package")
+			);
+
+			// now parse out the components
 			// multi-level packaging
-			$b = explode(" > ",$a[2]);
-			foreach($b AS $i => $c) {
+			$b = explode(" > ",$package_label);
+			foreach($b AS $i => $label) {
 				// get the type label by removing the inserted product code
-				$type_label = preg_replace("/ \([0-9\-]+\) /","",$c);			
-				
-				// get the identifier preg_match("/ \([0-9\-]+\) /",$c,$type_id);	
-				$type_uri   = "ndc_vocabulary:".md5($type_label);
-				if(!isset($types[$type_uri])) {
-					$types[$type_uri] = '';
-					$this->AddRDF($this->QQuadL($type_uri, "rdfs:label", $type_label));
-					$this->AddRDF($this->QQuad($type_uri, "rdfs:subClassOf", "ndc_vocabulary:Package"));
-				}
-				if($i == 0) $this->AddRDF($this->QQuad($ndc_package, "rdf:type", $type_uri));
-				else $this->AddRDF($this->QQuad($ndc_package, "ndc_vocabulary:has-part", $type_uri));
-				 $this->WriteRDFBufferToWriteFile();
+				$id = parent::getRes().md5($label);
+
+				parent::addRDF(
+					parent::describeIndividual($id, $label, parent::getVoc()."Package-Component").
+					parent::describeClass(parent::getVoc()."Package-Component","NDC Package Component").
+					parent::triplify($ndc_package, parent::getVoc()."has-part", $id)
+				);
 			}
+			parent::WriteRDFBufferToWriteFile();
+
 		}
 	}
 	
 	/* 
-	0 PRODUCTNDC	
-	1 PRODUCTTYPENAME	
-	2 PROPRIETARYNAME	
-	3 PROPRIETARYNAMESUFFIX	
-	4 NONPROPRIETARYNAME	
-	5 DOSAGEFORMNAME	
-	6 ROUTENAME	
-	7 STARTMARKETINGDATE	
-	8 ENDMARKETINGDATE	
-	9 MARKETINGCATEGORYNAME	
-	10 APPLICATIONNUMBER	
-	11 LABELERNAME	
-	12 SUBSTANCENAME	
-	13 ACTIVE_NUMERATOR_STRENGTH	
-	14 ACTIVE_INGRED_UNIT	
-	15 PHARM_CLASSES	
-	16 DEASCHEDULE
+	0 PRODCUTID
+	1 PRODUCTNDC	
+	2 PRODUCTTYPENAME	
+	3 PROPRIETARYNAME	
+	4 PROPRIETARYNAMESUFFIX	
+	5 NONPROPRIETARYNAME	
+	6 DOSAGEFORMNAME	
+	7 ROUTENAME	
+	8 STARTMARKETINGDATE	
+	9 ENDMARKETINGDATE	
+	10 MARKETINGCATEGORYNAME	
+	11 APPLICATIONNUMBER	
+	12 LABELERNAME
+	13 SUBSTANCENAME
+	14 STRENGTHNUMBER
+	15 UNIT
+	16 PHARM_CLASSES
+	17 DEASCHEDULE
 	*/
 	// 0002-1200	HUMAN PRESCRIPTION DRUG	Amyvid		Florbetapir F 18	INJECTION, SOLUTION	INTRAVENOUS	20120601		NDA	NDA202008	Eli Lilly and Company	FLORBETAPIR F-18	51	mCi/mL		
 	function product($fpin)
@@ -203,74 +205,102 @@ class NDCParser extends RDFFactory
 		$z = 0;
 		$list = '';
 		fgets($fpin); // header
-		while($l = fgets($fpin, 10000)) {
-			//if($z++ == 10) break;
+		while($l = fgets($fpin, 100000)) {
 			$a = explode("\t",$l);
-			$ndc_product = "ndc:$a[0]";
-			// tradename + suffix + dosageform + strength + unit
-			$label = $a[2];
-			 
-			$this->AddRDF($this->QQuadL($ndc_product, "dc:identifier", $ndc_product));
-			$this->AddRDF($this->QQuad($ndc_product,  "rdf:type",  "ndc_vocabulary:Product"));
-			$this->AddRDF($this->QQuad($ndc_product,  "rdf:type",  "ndc_vocabulary:".str_replace(" ","-",strtolower($a[1]))));
-			$this->AddRDF($this->QQuad($ndc_product,"void:inDataset",$this->GetDatasetURI()));
-			
-			$this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:trade-name", $a[2]));
-			if($a[3]) {
-				$this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:trade-name-suffix", $a[3]));
-				$label .= " ".$a[3];
-			}
-			if($a[4]) { // MV
-				$b = explode(";",$a[4]);
-				foreach($b AS $c) {
-					$this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:non-proprietary-name", trim($c)));
-				}
-			}
+
+			if(count($a) != 18) {trigger_error("Expected 18 coloumns, instead found".count($a)); continue;}
+			$product_id = parent::getNamespace().$a[0];
+			$product_label = $a[3];
+			$product_type_label = ucfirst(strtolower($a[2]));
+			$product_type = parent::getVoc().str_replace(" ","-",$product_label);
+
+			parent::addRDF(
+				parent::describeIndividual($product_id, $a[3], parent::getVoc()."Product").
+				parent::describeClass(parent::getVoc()."Product","NDC Product").
+				parent::triplify($product_id, parent::getVoc()."product-type", $product_type).
+				parent::describeIndividual($product_type, $product_type_label, parent::getVoc()."Product-Type").
+				parent::describeClass(parent::getVoc()."Product-Type","Product Type").
+
+				parent::triplifyString($product_id, parent::getVoc()."product-id", $a[1]).
+				parent::triplifyString($product_id, parent::getVoc()."proprietary-name", $a[3]).
+				parent::triplifyString($product_id, parent::getVoc()."trade-name-suffix", $a[4])
+			);
+
 			if($a[5]) {
-				$dosageform = strtolower($a[5]);
-				$dosageform_id = "ndc_vocabulary:".md5($dosageform);
-				if(!isset($list[$dosageform_id])) {
-					$list[$dosageform_id] = '';
-					$this->AddRDF($this->QQuadL($dosageform_id,  "rdfs:label", $dosageform." [$dosageform_id]"));
-					$this->AddRDF($this->QQuad($dosageform_id,  "rdfs:subClassOf", "ndc_vocabulary:Dosage-Form"));
+				$b = explode(";",$a[5]);
+				foreach($b AS $c) {
+					parent::addRDF(
+						parent::triplifyString($product_id, parent::getVoc()."non-proprietary-name", trim($c))
+					);
 				}
-				$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:dosage-form", $dosageform_id));
 			}
-			if($a[6]) { //  MV
-				$b = explode("; ",$a[6]);
+			if($a[6]) {
+				$b = explode(",", $a[6]);
+				foreach($b AS $c) {
+					$dosageform = strtolower($c);
+					$dosageform_id = parent::getVoc().str_replace(" ","-",ucfirst(strtolower($c)));
+					parent::addRDF(
+						parent::describeIndividual($dosageform_id, $dosageform, parent::getVoc()."Dosage-Form").
+						parent::describeClass(parent::getVoc()."Dosage-Form", "NDC Dosage Form").
+						parent::triplify($product_id, parent::getVoc()."dosage-form", $dosageform_id)
+					);
+				}
+			}
+			if($a[7]) { //  MV
+				$b = explode("; ",$a[7]);
 				foreach($b AS $c) {
 					$route = strtolower(trim($c));
-					$route_id = "ndc_vocabulary:".md5($route);
-					if(!isset($list[$route_id])) {
-						$list[$route_id] = '';
-						$this->AddRDF($this->QQuadL($route_id,  "rdfs:label", $route." [$route_id]"));
-						$this->AddRDF($this->QQuad($route_id,  "rdfs:subClassOf", "ndc_vocabulary:Route"));
-					}
-					$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:route", $route_id));
+					$route_id = parent::getVoc().str_replace(" ","-",ucfirst(strtolower($c)));
+					parent::addRDF(
+						parent::describeIndividual($route_id, $route, parent::getVoc()."Route").
+						parent::describeClass(parent::getVoc()."Route", "NDC Drug Route").
+						parent::triplify($product_id, parent::getVoc()."route", $route_id)
+					);
 				}
 			}
-			if($a[7])  $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:start-marketing-date", $a[7]));
-			if($a[8])  $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:end-marketing-date", $a[8]));
-			if($a[9])  $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:marketing-category", $a[9]));
-			if($a[10]) $this->AddRDF($this->QQuadL($ndc_product,  "ndc_vocabulary:application-number", $a[10]));
-			
+
+			if($a[8]){
+				$date = substr(0,4,$a[8])."-".substr(4,2,$a[8])."-".substr(6,2,$a[8]);
+				parent::addRDF(
+					parent::triplifyString($product_id, parent::getVoc()."start-marketing-date", $date)
+				);
+			}
+
+			if($a[9]){
+				$date = substr(0,4,$a[9])."-".substr(4,2,$a[9])."-".substr(6,2,$a[9]);
+				parent::addRDF(
+					parent::triplifyString($product_id, parent::getVoc()."end-marketing-date", $date)
+				);
+			}
+
+			if($a[10]){
+				parent::addRDF(
+					parent::triplifyString($product_id, parent::getVoc()."marketing-category", $a[10])
+				);
+			}
+			if($a[11]){
+				parent::addRDF(
+					parent::triplifyString($product_id, parent::getVoc()."application-number", $a[11])
+				);
+			}
+
 			// create a labeller node
-			if($a[11]) {
-				$labeller_id = "ndc_resource:".md5($a[11]);
-				if(!isset($list[$labeller_id])) {
-					$list[$labeller_id] = '';
-					$this->AddRDF($this->QQuadL($labeller_id,  "rdfs:label", addslashes($a[11])));
-					$this->AddRDF($this->QQuad ($labeller_id,  "rdf:type", "ndc_vocabulary:Labeller"));
-				}
-				$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:labeller", $labeller_id));
+			if($a[12]) {
+				$labeller_id = parent::getRes().md5($a[12]);
+				$label = addslashes($a[12]);
+				parent::addRDF(
+					parent::describeIndividual($labeller_id, $label, parent::getVoc()."Labeller").
+					parent::describeClass(parent::getVoc()."Labeller", "NDC Labeller").
+					parent::triplify($product_id, parent::getVoc()."labeller", $labeller_id)
+				);
 			}
-			
+
 			// the next three are together
-			if($a[12]) { // MV
-				$substances = explode(";",$a[12]);
-				$strengths  = explode(";",$a[13]);
-				$units      = explode(";",$a[14]);
-				
+			if($a[13]) { // MV
+				$substances = explode(";",$a[13]);
+				$strengths  = explode(";",$a[14]);
+				$units      = explode(";",$a[15]);
+
 				$l = '';
 				foreach($substances AS $i => $substance) {
 					// list the active ingredient
@@ -278,61 +308,46 @@ class NDCParser extends RDFFactory
 					$strength = '';
 					if(isset($strengths[$i])) $strength= $strengths[$i];
 					$unit = $units[$i];
-					
-					$ingredient_id = "ndc_resource:".md5($ingredient_label);
-					if(!isset($list[$ingredient_id])) {
-						$list[$ingredient_id] = '';
-						$this->AddRDF($this->QQuadL($ingredient_id, "rdfs:label", $ingredient_label." [$ingredient_id]"));
-						$this->AddRDF($this->QQuad($ingredient_id, "rdf:type", "ndc_vocabulary:Ingredient"));
-					}
-					$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:ingredient", $ingredient_id));
-					
+
+					$ingredient_id = parent::getRes().md5($ingredient_label);
+					parent::addRDF(
+						parent::describeIndividual($ingredient_id, $ingredient_label, parent::getVoc()."Ingredient").
+						parent::describeClass(parent::getVoc()."Ingredient", "NDC Ingredient").
+						parent::triplify($product_id, parent::getVoc()."ingredient", $ingredient_id)
+					);
+
 					// describe the substance composition
 					$substance_label = "$strength $unit $ingredient_label";
-					
-					$substance_id = "ndc_resource:".md5($substance_label);
-					if(!isset($list[$substance_id])) {
-						$list[$substance_id] = '';
-						$this->AddRDF($this->QQuadL($substance_id, "rdfs:label", $substance_label." [$substance_id]"));
-						$this->AddRDF($this->QQuad($substance_id, "rdf:type", "ndc_vocabulary:Substance"));
-						$this->AddRDF($this->QQuadL($substance_id, "ndc_vocabulary:amount", $strength));
-						
-						$unit_id = "ndc_vocabulary:".md5($unit);
-						if(!isset($list[$unit_id])) {
-							$list[$unit_id] = '';
-							$this->AddRDF($this->QQuadL($unit_id, "rdfs:label", $unit." [$unit_id]"));
-							$this->AddRDF($this->QQuad($unit_id, "rdfs:subClassOf", "ndc_vocabulary:Unit"));
-						}
-						$this->AddRDF($this->QQuad($substance_id, "ndc_vocabulary:amount_unit", $unit_id));
-					}
-					$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:has-part", $substance_id));
-					
-					$l .= $substance_label.", ";
+					$substance_id = parent::getRes().md5($substance_label);
+					parent::addRDF(
+						parent::describeIndividual($substance_id, $substance_label, parent::getVoc()."Substance").
+						parent::triplifyString($substance_id, parent::getVoc()."amount", $strength).
+						parent::describeClass(parent::getVoc()."Substance", "NDC Substance")
+					);
+
+					$unit_id = parent::getVoc().md5($unit);
+					parent::addRDF(
+						parent::describeIndividual($unit_id, $unit, parent::getVoc()."Unit").
+						parent::describeClass(parent::getVoc()."Unit", "NDC Unit").
+						parent::triplify($substance_id, parent::getVoc()."amount_unit", $unit_id).
+						parent::triplify($product_id, parent::getVoc()."has-part", $substance_id)
+					);
 				}
-				$label .= " (".substr($l,0,-2).")";
-			}	
-			
-			if($a[15]) { // MV
-				$b = explode(", ",$a[15]);
+			}
+
+			if($a[16]) { // MV
+				$b = explode(",",$a[16]);
 				foreach($b AS $c) {
-					$cat_id = 'ndc_vocabulary:'.md5($c);
-					if(!isset($list[$cat_id])) {
-						$list[$cat_id] = '';
-						$this->AddRDF($this->QQuadL($cat_id, "rdfs:label", $c." [$unit_id]"));
-						$this->AddRDF($this->QQuad($cat_id, "rdfs:subClassOf", "ndc_vocabulary:Pharmacological-Class"));
-					}
-					$this->AddRDF($this->QQuad($ndc_product,  "ndc_vocabulary:pharmagocological-class", $cat_id));
+					$cat_id = parent::getVoc().md5($c);
+					parent::addRDF(
+						parent::describeIndividual($cat_id, $c, parent::getVoc()."Pharmacological-Class").
+						parent::describeClass(parent::getVoc()."Pharmacological-Class", "NDC Pharmacological Class").
+						parent::triplify($product_id, parent::getVoc()."pharmacological-class", $cat_id)
+					);
 				}
-			}	
-			$this->AddRDF($this->QQuadL($ndc_product, "rdfs:label", $label." [$ndc_product]"));
-			 $this->WriteRDFBufferToWriteFile();
-			//echo $this->GetRDF();exit;
+			}
+			parent::WriteRDFBufferToWriteFile();
 		}
 	}
 }
-
-set_error_handler('error_handler');
-$parser = new NDCParser($argv);
-$parser->Run();
-
 ?>
