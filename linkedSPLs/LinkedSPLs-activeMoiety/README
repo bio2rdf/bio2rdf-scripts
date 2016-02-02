@@ -1,0 +1,70 @@
+################################################################################
+OVERVIEW
+################################################################################
+
+This folder will hold a graph that maps the active moiety components of an SPL to other drug resources
+
+Inputs are original mappings listed as belows:
+
+(1) PT to UNII
+(2) UNII to RxNORM
+(3) PT to Drugbank
+(4) PT to ChEBI
+(5) RxNORM to OMOP
+(6) RxNORM to DrOn
+(7) RxNORM to NDFRT (EPC)
+
+Outputs is a RDF/XML graph that represents all active moiety with linked resouces.
+
+
+################################################################################
+Procedures to get active moieties RDF graph
+################################################################################
+
+<1>: query to get omopid mapping and put in mapping folder
+
+mappings/active-ingredient-omopid-rxcui.dsv
+
+ 
+query OMOP CDM V5 (GeriOMOP) by SQL query below:
+SELECT cpt.CONCEPT_ID as omopid, cpt.CONCEPT_CODE as rxcui FROM
+CONCEPT cpt
+WHERE 
+cpt.CONCEPT_CLASS = 'Ingredient';
+
+09/04/2015: 17049 results
+
+right click result table and export to csv ('|' delimited) 
+
+
+<STEP 2>: run python script to merge those mappings together
+
+$ python mergeToActiveMoiety.py
+
+outputs: mergedActiveMoiety.csv contains all joined mappings
+
+columns: pt, unii, db_uri1, db_uri2, rxcui, omopid, chebi, dron, nui, nameAndRole
+
+<STEP 3>: run python script to create RDF graph for all active moieties
+
+$ python createActiveMoietySubInRDF.py
+
+outputs: activeMoietySub-in-rdf.xml
+
+
+################################################################################
+PRE-REQUISITES:
+################################################################################
+
+python libraries:
+
+(1) Bio 
+from "http://biopython.org/wiki/Download"
+
+(2) rdflib 
+
+(3) rdflib#jsonld
+from "https://github.com/RDFLib/rdflib-jsonld"
+
+(4) pandas
+

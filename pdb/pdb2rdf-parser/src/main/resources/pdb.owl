@@ -1,0 +1,967 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY bio2rdf "http://bio2rdf.org/" >
+    <!ENTITY pdb "http://bio2rdf.org/pdb:" >
+    <!ENTITY semanticscience "http://semanticscience.org/" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY owl2xml "http://www.w3.org/2006/12/owl2-xml#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://bio2rdf.org/"
+     xml:base="&bio2rdf;pdb.owl"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl2xml="http://www.w3.org/2006/12/owl2-xml#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:bio2rdf="http://bio2rdf.org/"
+     xmlns:pdb="&bio2rdf;pdb:"
+     xmlns:semanticscience="http://semanticscience.org/">
+    <owl:Ontology rdf:about="">
+        <dc:creator
+            >Alexander De Leon</dc:creator>
+        <dc:creator
+            >Jose Miguel Cruz Toledo</dc:creator>
+        <rdfs:comment
+            >Protein Data Bank Owl Ontology</rdfs:comment>
+        <owl:imports rdf:resource="&semanticscience;annotation.owl"/>
+        <owl:imports rdf:resource="&semanticscience;bro.owl"/>
+        <owl:imports rdf:resource="&semanticscience;nulo.owl"/>
+        <owl:imports rdf:resource="&semanticscience;ulo.owl"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:AnnotationProperty rdf:about="&dc;creator"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasAuthor -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasAuthor">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasCountryOfPublication -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasCountryOfPublication">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;isRelatedTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasDOI -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasDOI">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasDocumentSection -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasDocumentSection">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasISBN -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasISBN">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasISSN -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasISSN">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasJournalAbbreviation -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasJournalAbbreviation">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasMedlineId -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasMedlineId">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasPMID -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasPMID">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasPages -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasPages">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasPublication -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasPublication">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasReference"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasPublisher -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasPublisher">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasTitle -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasTitle">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:hasVolume -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:hasVolume">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;hasQuality"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:isPublishedIn -->
+
+    <owl:ObjectProperty rdf:about="&bio2rdf;pdb:isPublishedIn">
+        <rdfs:subPropertyOf rdf:resource="&semanticscience;isPartOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://semanticscience.org/hasQuality -->
+
+    <owl:ObjectProperty rdf:about="&semanticscience;hasQuality"/>
+    
+
+
+    <!-- http://semanticscience.org/hasReference -->
+
+    <owl:ObjectProperty rdf:about="&semanticscience;hasReference"/>
+    
+
+
+    <!-- http://semanticscience.org/isPartOf -->
+
+    <owl:ObjectProperty rdf:about="&semanticscience;isPartOf"/>
+    
+
+
+    <!-- http://semanticscience.org/isRelatedTo -->
+
+    <owl:ObjectProperty rdf:about="&semanticscience;isRelatedTo"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://bio2rdf.org/Polydeoxyribonucleotide-Polyribonucleotide -->
+
+    <owl:Class rdf:about="&bio2rdf;Polydeoxyribonucleotide-Polyribonucleotide">
+        <rdfs:label
+            >polydeoxyribonucleotide-polyribonucleotide hybrid</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Polymer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Abstract -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Abstract">
+        <rdfs:label>abstract</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Book -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Book">
+        <rdfs:label>book</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Publication"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Cell -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Cell">
+        <rdfs:label>cell</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Chain -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Chain">
+        <rdfs:label>chain</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ChainPosition -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ChainPosition">
+        <rdfs:label>chain position</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ChemicalAmount -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ChemicalAmount">
+        <rdfs:label>chemical amount</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+        <rdfs:comment
+            >number of chemicals or molecules of a certain type</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ChemicalEntityExtraction -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ChemicalEntityExtraction">
+        <rdfs:label
+            >chemical entity extraction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Process"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Cosmid -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Cosmid">
+        <rdfs:label>cosmid</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Vector"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Country -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Country">
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:DOI -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:DOI">
+        <rdfs:label
+            >document object identifier</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ElectronCrystallography -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ElectronCrystallography">
+        <rdfs:label
+            >electron crystallography</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ElectronMicroscopy -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ElectronMicroscopy">
+        <rdfs:label
+            >electron microscopy</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Entity -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Entity">
+        <rdfs:label>entity</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Experiment -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Experiment">
+        <rdfs:label>experiment</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Process"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ExperimentalFormulaWeight -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ExperimentalFormulaWeight">
+        <rdfs:label
+            >experimental formula weight</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:FormulaWeight"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:FiberDiffraction -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:FiberDiffraction">
+        <rdfs:label
+            >fiber diffraction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:FluorescenceTransfer -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:FluorescenceTransfer">
+        <rdfs:label
+            >fluorescence transfer</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:FormulaWeight -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:FormulaWeight">
+        <rdfs:label>formula weight</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:GeneticallyManipulatedChemicalEntityExtraction -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:GeneticallyManipulatedChemicalEntityExtraction">
+        <rdfs:label
+            >genetically manipulated chemical entity extraction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:ChemicalEntityExtraction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:GeneticallyManipulatedSource -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:GeneticallyManipulatedSource">
+        <rdfs:label
+            >genetically manipulated source</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Helix -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Helix">
+        <rdfs:label>helix</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:ProteinSecondaryStructure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ISBN -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ISBN">
+        <rdfs:label
+            >international standard book number</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ISSN -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ISSN">
+        <rdfs:label
+            >international standard serial number</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:InfraredSpectroscopy -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:InfraredSpectroscopy">
+        <rdfs:label
+            >infrared spectroscopy</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Journal -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Journal">
+        <rdfs:label>journal</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Publication"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:JournalAbbreviation -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:JournalAbbreviation">
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:LeftHandHelix -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:LeftHandHelix">
+        <rdfs:label>left hand helix</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Helix"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Macrolide -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Macrolide">
+        <rdfs:label>macrolide</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Entity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:MedlineId -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:MedlineId">
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:NaturalChemicalEntityExtraction -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:NaturalChemicalEntityExtraction">
+        <rdfs:label
+            >natural chemical entity extraction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:ChemicalEntityExtraction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:NaturalSource -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:NaturalSource">
+        <rdfs:label>natural source</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:NeutronDiffraction -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:NeutronDiffraction">
+        <rdfs:label
+            >neutron diffraction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:NonPolymer -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:NonPolymer">
+        <rdfs:label>non-polymer</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Entity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:NuclearMagneticResonance -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:NuclearMagneticResonance">
+        <rdfs:label
+            >nuclear magnetic resonance</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:NucleicAcidSecondaryStructure -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:NucleicAcidSecondaryStructure">
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:SecondaryStructure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Organ -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Organ">
+        <rdfs:label>organ</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Organelle -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Organelle">
+        <rdfs:label>organelle</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Organism -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Organism">
+        <rdfs:label>organism</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:PMID -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:PMID">
+        <rdfs:label
+            >pubmed identifier</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Person -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Person">
+        <rdfs:label>person</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Plasmid -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Plasmid">
+        <rdfs:label>plasmid</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Vector"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Polydeoxyribonucleotide -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Polydeoxyribonucleotide">
+        <rdfs:label
+            >Polydeoxyribonucleotide</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Polymer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Polymer -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Polymer">
+        <rdfs:label>polymer</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Entity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Polypeptyde(D) -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Polypeptyde(D)">
+        <rdfs:label>polypeptide (D)</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Polymer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Polypeptyde(L) -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Polypeptyde(L)">
+        <rdfs:label>polypeptide (L)</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Polymer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Polyribonucleotide -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Polyribonucleotide">
+        <rdfs:label
+            >polyribonucleotide</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Polymer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Polysaccharide(D) -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Polysaccharide(D)">
+        <rdfs:label
+            >polysaccharide(D)</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Polymer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Polysaccharide(L) -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Polysaccharide(L)">
+        <rdfs:label
+            >polysaccharide(L)</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Polymer"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:PowderDiffraction -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:PowderDiffraction">
+        <rdfs:label
+            >powder diffraction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ProteinDataBankRecord -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ProteinDataBankRecord">
+        <rdfs:label
+            >protein data bank record</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:ProteinSecondaryStructure -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:ProteinSecondaryStructure">
+        <rdfs:label
+            >protein secondary structure</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:SecondaryStructure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Publication -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Publication">
+        <rdfs:label>publication</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:PublicationPages -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:PublicationPages">
+        <rdfs:label
+            >publication pages</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:PublicationVolume -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:PublicationVolume">
+        <rdfs:label
+            >publication volume</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Publisher -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Publisher">
+        <rdfs:label>publisher</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Residue -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Residue">
+        <rdfs:label>residue</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Revision -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Revision">
+        <rdfs:label>revision</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:RightHandHelix -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:RightHandHelix">
+        <rdfs:label
+            >right hand helix</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Helix"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:SecondaryStructure -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:SecondaryStructure">
+        <rdfs:label
+            >secondary structure</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Secretion -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Secretion">
+        <rdfs:label>secretion</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:SolidStateNuclearMagneticResonance -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:SolidStateNuclearMagneticResonance">
+        <rdfs:label
+            >solid state nuclear magnetic resonance</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NuclearMagneticResonance"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:SolutionNuclearMagneticResonance -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:SolutionNuclearMagneticResonance">
+        <rdfs:label
+            >solution nuclear magnetic resonance</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NuclearMagneticResonance"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:SolutionScattering -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:SolutionScattering">
+        <rdfs:label
+            >solution scattering</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Structure -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Structure">
+        <rdfs:label>structure</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Object"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:StructureDetermination -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:StructureDetermination">
+        <rdfs:label
+            >structure determination</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Process"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:SyntheticChemicalEntityExtraction -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:SyntheticChemicalEntityExtraction">
+        <rdfs:label
+            >synthetic chemical entity extraction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:ChemicalEntityExtraction"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:TheoreticalFormulaWeight -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:TheoreticalFormulaWeight">
+        <rdfs:label
+            >theoretical formula weight</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:FormulaWeight"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Tissue -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Tissue">
+        <rdfs:label>tissue</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:TissueFraction -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:TissueFraction">
+        <rdfs:label>tissue fraction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Title -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Title">
+        <rdfs:label>title</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Turn -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Turn">
+        <rdfs:label>turn</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:ProteinSecondaryStructure"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Vector -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Vector">
+        <rdfs:label>vector</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:NaturalSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Virus -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Virus">
+        <rdfs:label>virus</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Vector"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Water -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Water">
+        <rdfs:label>water</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:Entity"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:XRayDiffraction -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:XRayDiffraction">
+        <rdfs:label
+            >x-ray diffraction</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&bio2rdf;pdb:StructureDetermination"/>
+    </owl:Class>
+    
+
+
+    <!-- http://bio2rdf.org/pdb:Year -->
+
+    <owl:Class rdf:about="&bio2rdf;pdb:Year">
+        <rdfs:subClassOf rdf:resource="&semanticscience;Quality"/>
+    </owl:Class>
+    
+
+
+    <!-- http://semanticscience.org/Object -->
+
+    <owl:Class rdf:about="&semanticscience;Object"/>
+    
+
+
+    <!-- http://semanticscience.org/Process -->
+
+    <owl:Class rdf:about="&semanticscience;Process"/>
+    
+
+
+    <!-- http://semanticscience.org/Quality -->
+
+    <owl:Class rdf:about="&semanticscience;Quality"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 2.2.1.1042) http://owlapi.sourceforge.net -->
+

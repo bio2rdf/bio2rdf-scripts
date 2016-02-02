@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2011-2012 Michel Dumontier
+Copyright (C) 2013 Michel Dumontier, Alison Callahan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -21,114 +21,184 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-require('../../php-lib/rdfapi.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 
 /** 
  * Parser for CTD: The Comparative Toxicogenomics Database (http://ctd.mdibl.org/)
  * documentation: http://ctdbase.org/downloads
  * download pattern: http://ctd.mdibl.org/reports/XXXX.tsv.gz
 */
-class CTDParser extends RDFFactory 
+class CTDParser extends Bio2RDFizer 
 {
 	private $version = null;
 
-	function __construct($argv) { //
-		parent::__construct();
-		$this->SetDefaultNamespace("ctd");
-		
-		// set and print application parameters
-		$this->AddParameter('files',true,'all|chem_gene_ixns|chem_gene_ixn_types|chemicals_diseases|chem_go_enriched|chem_pathways_enriched|genes_diseases|genes_pathways|diseases_pathways|chemicals|diseases|genes|pathways','all','all or comma-separated list of files to process');
-		$this->AddParameter('indir',false,null,'/data/download/ctd/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/ctd/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'http://ctdbase.org/reports/');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) {
-			$this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		}
-		
-		return TRUE;
+	function __construct($argv) {
+
+		parent::__construct($argv,"ctd");
+		parent::addParameter('files',true,'all|chem_gene_ixns|chem_gene_ixn_types|chemicals_diseases|chem_go_enriched|chem_pathways_enriched|genes_diseases|genes_pathways|diseases_pathways|chemicals|diseases|genes|pathways','all','all or comma-separated list of files to process');
+		parent::addParameter('download_url',false,null,'http://ctdbase.org/reports/');
+		parent::initialize();
 	}
 	
 	function Run()
 	{
+		if(parent::getParameterValue('download') === true) 
+		{
+			$this->download();
+		}
+		if(parent::getParameterValue('process') === true) 
+		{
+			$this->process();
+		}
+	}
+
+	function download(){
+
 		// get the file list
-		if($this->GetParameterValue('files') == 'all') {
-			$files = explode("|",$this->GetParameterList('files'));
+		if(parent::getParameterValue('files') == 'all') {
+			$files = explode("|",parent::getParameterList('files'));
 			array_shift($files);
 		} else {
-			$files = explode(",",$this->GetParameterValue('files'));
+			$files = explode(",",parent::getParameterValue('files'));
 		}
 
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		$rdir = $this->GetParameterValue('download_url');
+		//set directory values
+		$ldir = parent::getParameterValue('indir');
+		$rdir = parent::getParameterValue('download_url');
+		
 		$gz_suffix = ".gz";		
 
-		foreach($files AS $file) {
+		foreach($files AS $file) {	
+			if($file == 'chem_gene_ixn_types') $suffix = '.tsv';
+			else if($file == 'exposure_ontology') $suffix = '.obo';
+			else $suffix = ".tsv.gz";
 			$lfile = $ldir.$file.$gz_suffix;
-			$ofile = $file.".nt"; $gz = false;
-			if($this->GetParameterValue('graph_uri')) {$ofile = $file.'.nq';}
-			if($this->GetParameterValue('gzip')) {$ofile .= '.gz';$gz = true;}
-			$bio2rdf_download_files[] = $this->GetBio2RDFDownloadURL($this->GetNamespace()).$ofile;
+			$rfile = $rdir.'CTD_'.$file.$suffix;
+			if($suffix == ".tsv.gz") {
+				Utils::DownloadSingle ($rfile, $lfile);
+			} else {
+				Utils::DownloadSingle ($rfile, "compress.zlib://".$lfile);
+			}
+		}
+	}
+
+	function process(){
+		// get the file list
+		if(parent::getParameterValue('files') == 'all') {
+			$files = explode("|",parent::getParameterList('files'));
+			array_shift($files);
+		} else {
+			$files = explode(",",parent::getParameterValue('files'));
+		}
+
+		$dataset_description = '';
+
+		//set directory values
+		$ldir = parent::getParameterValue('indir');
+		$rdir = parent::getParameterValue('download_url');
+		$odir = parent::getParameterValue('outdir');
+			
+		$graph_uri = parent::getGraphURI();
+		if(parent::getParameterValue('dataset_graph') == true) parent::setGraphURI(parent::getDatasetURI());
+
+		$gz_suffix = ".gz";
+
+		foreach($files as $file){
+			if($file == 'chem_gene_ixn_types') $suffix = '.tsv';
+			else if($file == 'exposure_ontology') $suffix = '.obo';
+			else $suffix = ".tsv.gz";
+
+			$lfile = $ldir.$file.$gz_suffix;
+			$rfile = $rdir.'CTD_'.$file.$suffix;
 			
 			if(!file_exists($lfile)) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
-				$this->SetParameterValue('download',true);
-			}
-			
-			if($this->GetParameterValue('download') == true) {
-				if($file == 'chem_gene_ixn_types') $suffix = '.tsv';
-				else if($file == 'exposure_ontology') $suffix = '.obo';
-				else $suffix = ".tsv.gz";
-				
-				$rfile = $rdir.'CTD_'.$file.$suffix;
 				if($suffix == ".tsv.gz") {
 					Utils::DownloadSingle ($rfile, $lfile);
 				} else {
 					Utils::DownloadSingle ($rfile, "compress.zlib://".$lfile);
 				}
 			}
-			
+
+			$out_suffix = parent::getParameterValue('output_format');
+			$ofile = "ctd_".$file.".".$out_suffix;
+			$gz = false;
+
+			if(strstr(parent::getParameterValue('output_format'), "gz")) {
+				$gz = true;
+			}
+
 			echo "Processing ".$file." ...";
-			$this->SetReadFile($lfile, true);
-			$this->SetWriteFile($odir.$ofile, $gz);
+			parent::setWriteFile($odir.$ofile, $gz);
+
+			//set read file
+			parent::setReadFile($lfile, TRUE);
 	
 			$fnx = "CTD_".$file;
-			if($this->$fnx() === FALSE) {
-				trigger_error("Error in $fnx");
-				exit;
-			}
+			$this->$fnx();
 			
-			$this->WriteRDFBufferToWriteFile();
-			$this->GetWriteFile()->Close();
-			echo "Done!".PHP_EOL;
+			//close write file
+			parent::getWriteFile()->close();
+			parent::clear();
+			echo "done!".PHP_EOL;
+
+			// generate the dataset release file
+			echo "Generating dataset description... ";
+
+			if($file == "chemicals"){
+				$dataset = "http://identifiers.org/ctd.chemical/";
+			} else if($file == "diseases"){
+				$dataset = "http://identifiers.org/ctd.disease/";
+			} else if ($file == "genes"){
+				$dataset = "http://identifiers.org/ctd.gene/";
+			} else {
+				$dataset = null;
+			}
+			// dataset description
+			$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle("Comparative Toxicogenomics Database ($file.$gz_suffix")
+				->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+				->setFormat("text/tab-separated-value")
+				->setFormat("application/gzip")	
+				->setPublisher("http://ctdbase.org/")
+				->setHomepage("http://ctdbase.org/")
+				->setRights("use")
+				->setRights("by-attribution")
+				->setRights("no-commercial")
+				->setLicense("http://ctdbase.org/about/legal.jsp")
+				->setDataset($dataset);
+
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = date ("Y-m-d\TG:i:s\Z");
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ctd/ctd.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")			
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
+
+			if($gz) $output_file->setFormat("application/gzip");
+			if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+			else $output_file->setFormat("application/n-quads");
+			
+			$dataset_description .= $source_file->toRDF().$output_file->toRDF();
 		}
-		
-		// generate the release file
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/ctd/ctd.php", 
-			$bio2rdf_download_files,
-			"http://ctdbase.org", 
-			array("use","no-commercial"), 
-			"http://ctdbase.org/about/legal.jsp",
-			$this->GetParameterValue('download_url'),
-			$this->version
-		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
-		
-		return TRUE;
+
+		parent::setGraphURI($graph_uri);
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
+		echo "done!".PHP_EOL;
+
 	}
 
 
@@ -142,6 +212,7 @@ x 2 CasRN
   5 ChemicalTreeNumbers (unique identifiers of the chemical's nodes; '|'-delimited list)
   6 ParentTreeNumbers (unique identifiers of the parent nodes; '|'-delimited list)
   7 Synonyms ('|'-delimited list)
+  8 DrugBankIDS
 */
 function CTD_chemicals()
 {
@@ -149,20 +220,27 @@ function CTD_chemicals()
 	while($l = $this->GetReadFile()->Read()) {
 		if($l[0] == '#') continue;
 		$a = explode("\t",$l);
-		
 		if($first) {
-			if(($c = count($a) != 8)) {
-				trigger_error("Expecting 8 fields, found $c!");return FALSE;
+			if(($c = count($a) != 9)) {
+				trigger_error("CTD_chemicals function expects 8 fields, found $c!".PHP_EOL, E_USER_WARNING);
 			}
 			$first = false;
 		}
-	
-		$this->GetNS()->ParsePrefixedName($a[1],$ns,$id);
+
+		$this->getRegistry()->parseQName($a[1],$ns,$id);
 		$mesh_id = "mesh:$id";
-		$this->AddRDF($this->QQuadL($mesh_id,"rdfs:label", "$a[0] [$mesh_id]"));
-		$this->AddRDF($this->QQuad($mesh_id, "rdf:type", "ctd_vocabulary:Chemical"));
-		if($a[2]) $this->AddRDF($this->QQuad($mesh_id,"owl:equivalentClass","cas:$a[2]"));
-		$this->WriteRDFBufferToWriteFile();
+
+		$this->AddRDF(
+			parent::describeIndividual($mesh_id, $a[0], $this->getVoc()."Chemical").
+			parent::describeClass($this->getVoc()."Chemical", "CTD Chemical")
+		);
+
+		if($a[2]){
+			$this->AddRDF(
+				parent::triplify($mesh_id, parent::getVoc()."x-cas", "cas:".$a[2])
+			);
+		}
+		parent::WriteRDFBufferToWriteFile();
 	}
 	return TRUE;
 }
@@ -190,7 +268,7 @@ function CTD_chem_gene_ixns()
 		
 		if($first) {
 			if(($c = count($a)) != 11) {
-				trigger_error("Expecting 11 fields, found $c!");return FALSE;
+				trigger_error("CTD_chem_gene_ixns function expects 11 fields, found $c!".PHP_EOL, E_USER_WARNING);
 			}
 			$first = false;
 		}
@@ -205,20 +283,41 @@ function CTD_chem_gene_ixns()
 			if(!is_int($pmid)) unset($pubmed_ids[$i]);
 		}
 		
-		$uri  = "ctd_resource:$mesh_id$gene_id";  // should taxon be part of the ID?
+		$uri  = $this->getRes().$mesh_id.$gene_id;  // should taxon be part of the ID?
 		
-		$this->AddRDF($this->QQuadL($uri,"rdfs:label","interaction between $a[3] (geneid:$gene_id) and $a[0] (mesh:$mesh_id) [$uri]"));
-		$this->AddRDF($this->QQuad($uri,"rdf:type","ctd_vocabulary:Chemical-Gene-Association"));
-		$this->AddRDF($this->QQuad($uri,"void:inDataset",$this->GetDatasetURI()));
-		
-		$this->AddRDF($this->QQuadL($uri,"rdfs:comment","$a[7]"));
-		$this->AddRDF($this->QQuad($uri,"ctd_vocabulary:gene","geneid:$gene_id"));
-		$this->AddRDF($this->QQuad($uri,"ctd_vocabulary:chemical","mesh:$mesh_id"));
-		if($taxon_id) $this->AddRDF($this->QQuad($uri,"ctd_vocabulary:organism","taxon:$taxon_id"));
-		if($pubmed_ids) foreach($pubmed_ids AS $pubmed_id) $this->AddRDF($this->QQuad($uri,"ctd_vocabulary:article","pubmed:$pubmed_id"));
-		if($interaction_action) $this->AddRDF($this->QQuadL($uri,"ctd_vocabulary:action","$interaction_action"));
-		$this->WriteRDFBufferToWriteFile();
+		$this->AddRDF(
+			parent::describeIndividual($uri, "association between ".$a[3]." (ncbigene:$gene_id) and ".$a[0]." (mesh:$mesh_id)", $this->getVoc()."Chemical-Gene-Association").
+			parent::triplifyString($uri, "rdfs:comment", $a[7]).
+			parent::triplify($uri, $this->getVoc()."gene", "ncbigene:".$gene_id).
+			parent::triplify($uri, $this->getVoc()."chemical", "mesh:".$mesh_id).
+			parent::describeProperty($this->getVoc()."gene", "Relation bteween a CTD entity and a gene").
+			parent::describeProperty($this->getVoc()."chemical", "Relation between a CTD entity and a chemical").
+			parent::describeClass($this->getVoc()."Chemical-Gene-Association", "A CTD association between a chemical and a gene")
+		);
 
+		if($taxon_id){
+			$this->AddRDF(
+				parent::triplify($uri, $this->getVoc()."organism", "taxon:".$taxon_id).
+				parent::describeProperty($this->getVoc()."organism", "Relation between a CTD entity and the organism it was observed in")
+			);
+		}
+
+		if($pubmed_ids){
+			foreach ($pubmed_ids as $pubmed_id) {
+				$this->AddRDF(
+					parent::triplify($uri, $this->getVoc()."article", "pubmed".$pubmed_id).
+					parent::describeProperty($this->getVoc()."article", "Relation between a CTD entity and a published article")
+				);
+			}
+		}
+
+		if($interaction_action){
+			$this->AddRDF(
+				parent::triplifyString($uri, $this->getVoc()."action", $interaction_action).
+				parent::describeProperty($this->getVoc()."action", "Relation between a CTD entity and its resulting action")
+			);
+		}
+		parent::WriteRDFBufferToWriteFile();
 	}
 	return TRUE;
 }
@@ -247,7 +346,7 @@ function CTD_chemicals_diseases()
 
 		if($first) {
 			if(($c = count($a)) != 10) {
-				trigger_error("Expecting 10 fields, found $c!");return FALSE;
+				trigger_error("CTD_chemicals_diseases function expects 10 fields, found $c!".PHP_EOL, E_USER_WARNING);
 			}
 			$first = false;
 		}
@@ -260,25 +359,35 @@ function CTD_chemicals_diseases()
 		$disease_id = $disease[1];
 				
 		$uid = "$chemical_id$disease_id";
-		$uri = "ctd_resource:$uid";
+		$uri = $this->getRes().$uid;
 		
-		$this->AddRDF($this->QQuadL($uri, 'rdfs:label',"interaction between $chemical_name ($chemical_id) and disease $disease_name ($disease_ns:$disease_id) [$uri]"));
-		$this->AddRDF($this->QQuad($uri, 'rdf:type', 'ctd_vocabulary:Chemical-Disease-Association'));
-		$this->AddRDF($this->QQuad($uri,"void:inDataset",$this->GetDatasetURI()));
-		
-		$this->AddRDF($this->QQuad($uri, 'ctd_vocabulary:chemical', "mesh:$chemical_id"));
-		$this->AddRDF($this->QQuad($uri, 'ctd_vocabulary:disease', "$disease_ns:$disease_id"));
-		
+		$this->AddRDF(
+			parent::describeIndividual($uri, "association between $chemical_name ($chemical_id) and disease $disease_name ($disease_ns:$disease_id)", $this->getVoc()."Chemical-Disease-Association").
+			parent::triplify($uri, $this->getVoc()."chemical", "mesh:".$chemical_id).
+			parent::triplify($uri, $this->getVoc()."disease", $disease_ns.":".$disease_id).
+			parent::describeClass($this->getVoc()."Chemical-Disease-Association", "A CTD association between a chemical and a disease").
+			parent::describeProperty($this->getVoc()."chemical", "Relation between a CTD entity and a chemical").
+			parent::describeProperty($this->getVoc()."disease", "Relation between a CTD entity and a disease")
+		);
+
 		if($a[8])  {
 			$omim_ids = explode("|",strtolower($a[8]));
-			foreach($omim_ids AS $omim_id)     $this->AddRDF($this->QQuad($uri, 'ctd_vocabulary:disease', "omim:$omim_id"));
-		}
-		if(isset($a[9])) {
-			$pubmed_ids = explode("|",trim($a[9]));
-			foreach($pubmed_ids AS $pubmed_id) {
-				if($pubmed_id) $this->AddRDF($this->QQuad($uri,'ctd_vocabulary:article', "pubmed:$pubmed_id"));
+			foreach($omim_ids as $omim_id){
+				$this->AddRDF(
+					parent::triplify($uri, $this->getVoc()."disease", "omim:".$omim_id)
+				);
 			}
 		}
+
+		if(isset($a[9])) {
+			$pubmed_ids = explode("|",trim($a[9]));
+			foreach($pubmed_ids as $pubmed_id){
+				$this->AddRDF(
+					parent::triplify($uri, $this->getVoc()."article", "pubmed:".$pubmed_id)
+				);
+			}
+		}
+		parent::WriteRDFBufferToWriteFile();
 	}
 	
 	return TRUE;
@@ -307,17 +416,28 @@ function CTD_chem_pathways_enriched()
 		$a = explode("\t",trim($l));
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 11) {
-				trigger_error("Expecting 11 fields, found $c!");
+				trigger_error("CTD_chem_pathways_enriched function expects 11 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
 		}
 		
 		$chemical_id = $a[1];
-		$this->GetNS()->ParsePrefixedName($a[4],$pathway_ns,$pathway_id);
+
+		$this->getRegistry()->parseQName($a[4], $pathway_ns, $pathway_id);
 		if($pathway_ns == "react") $pathway_ns = "reactome";
+
+		$pathway_resource_id = parent::getRes().md5($chemical_id.$pathway_ns.$pathway_id.$a[6]);
+		$pathway_resource_label = "Chemical-pathway association between mesh:".$chemical_id." and ".$pathway_ns.":".$pathway_id." with p-value ".$a[6];
 		
-		$this->AddRDF($this->QQuad("mesh:$chemical_id","ctd_vocabulary:pathway","$pathway_ns:$pathway_id"));
+		$this->AddRDF(
+			parent::describeIndividual($pathway_resource_id, $pathway_resource_label, parent::getVoc()."Chemical-Pathway-Association").
+			parent::describeClass(parent::getVoc()."Chemical-Pathway-Association","Chemical-Pathway Association").
+			parent::triplify($pathway_resource_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
+			parent::triplify($pathway_resource_id, parent::getVoc()."chemical", "mesh:".$chemical_id).
+			parent::triplifyString($pathway_resource_id, $this->getVoc()."p-value", $a[6], "xsd:double")
+		);
+		parent::WriteRDFBufferToWriteFile();
 	}
 	
 	return TRUE;
@@ -333,7 +453,6 @@ X 1 DiseaseID (MeSH or OMIM accession identifier)
   6 ParentTreeNumbers
   7 Synonyms
   8 SlimMappings
-
 */
 function CTD_diseases()
 {
@@ -345,18 +464,20 @@ function CTD_diseases()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 9) {
-				trigger_error("Expecting 9 fields, found $c!");
+				trigger_error("CTD_diseases function expects 9 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
 		}
 		
-		$this->GetNS()->ParsePrefixedName($a[1],$disease_ns,$disease_id);
-
+		$this->getRegistry()->parseQName($a[1],$disease_ns,$disease_id);
 		$uid = "$disease_ns:$disease_id";
-		$this->AddRDF($this->QQuadL($uid,"rdfs:label","$a[0] [$uid]"));
-		$this->AddRDF($this->QQuad($uid,"rdf:type", "ctd_vocabulary:Disease"));
-		$this->AddRDF($this->QQuadL($uid,"dc:description","$a[3]"));
+
+		$this->AddRDF(
+			parent::describeIndividual($uid, $a[0], $this->getVoc()."Disease", null, $a[3]).
+			parent::describeClass($this->getVoc()."Disease", "CTD Disease")
+		);
+		parent::WriteRDFBufferToWriteFile();
 	}
 	return TRUE;
 }
@@ -379,25 +500,25 @@ function CTD_diseases_pathways()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 5) {
-				trigger_error("Expecting 5 fields, found $c!");
+				trigger_error("CTD_diseases_pathways function expects 5 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
 		}
 		
-		$this->GetNS()->ParsePrefixedName($a[1],$disease_ns,$disease_id);
-		$this->GetNS()->ParsePrefixedName($a[3],$pathway_ns,$pathway_id);
+		$this->getRegistry()->parseQName($a[1],$disease_ns,$disease_id);
+		$this->getRegistry()->parseQName($a[3],$pathway_ns,$pathway_id);
 		if($pathway_ns == 'react') $pathway_ns = 'reactome';
 
-		$this->AddRDF($this->QQuad("$disease_ns:$disease_id","ctd_vocabulary:pathway","$pathway_ns:$pathway_id"));
-		
-		// extra
-		$this->AddRDF($this->QQuadL("$disease_ns:$disease_id","rdfs:label","$a[0] [$disease_ns:$disease_id]"));
-		$this->AddRDF($this->QQuadL("$pathway_ns:$pathway_id","rdfs:label","$a[2] [$pathway_ns:$pathway_id]"));
+		$this->AddRDF(
+			parent::triplify($disease_ns.":".$disease_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
+			parent::triplifyString($disease_ns.":".$disease_id, "rdfs:label", $a[0]." [$disease_ns:$disease_id]").
+			parent::triplifyString($pathway_ns.":".$pathway_id, "rdfs:label", $a[2]." [$pathway_ns:$pathway_id]")
+		);
+		parent::WriteRDFBufferToWriteFile();
 	}
 	return TRUE;
 }
-
 
 /*
   0 GeneSymbol
@@ -420,7 +541,7 @@ function CTD_genes_diseases()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 9) {
-				trigger_error("Expecting 9 fields, found $c!");
+				trigger_error("CTD_genes_diseases function expects 9 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
@@ -429,28 +550,37 @@ function CTD_genes_diseases()
 		$gene_name = $a[0];
 		$gene_id = $a[1];
 		$disease_name = $a[2];
-		$this->GetNS()->ParsePrefixedName($a[3],$disease_ns,$disease_id);
+
+		$this->getRegistry()->parseQName($a[3],$disease_ns,$disease_id);
 		
-		$uri = "ctd_resource:$gene_id$disease_id";
+		$uri = $this->getRes().$gene_id.$disease_id;
+
+		$this->AddRDF(
+			parent::describeIndividual($uri, "$gene_name (ncbigene:$gene_id) - $disease_name ($disease_ns:$disease_id) association", $this->getVoc()."Gene-Disease-Association").
+			parent::describeClass($this->getVoc()."Gene-Disease-Association","Gene-Disease Association").
+			parent::triplify($uri, $this->getVoc()."gene", "ncbigene:".$gene_id).
+			parent::triplify($uri, $this->getVoc()."disease", $disease_ns.":".$disease_id)
+		);
 		
-		$this->AddRDF($this->QQuadL($uri,"rdfs:label","$gene_name (geneid:$gene_id) - $disease_name ($disease_ns:$disease_id) association [$uri]"));
-		$this->AddRDF($this->QQuad($uri,"rdf:type","ctd_vocabulary:Gene-Disease-Association"));
-		$this->AddRDF($this->QQuad($uri,"void:inDataset",$this->GetDatasetURI()));		
-		
-		$this->AddRDF($this->QQuad($uri,"ctd_vocabulary:gene","geneid:$gene_id"));
-		$this->AddRDF($this->QQuad($uri,"ctd_vocabulary:disease","$disease_ns:$disease_id"));
 		if($a[7]) {
-			$omim_ids = explode("|",$a[7]);			
-			foreach($omim_ids AS $omim_id) $this->AddRDF($this->QQuad($uri,"ctd_vocabulary:disease","omim:$omim_id"));
+			$omim_ids = explode("|",$a[7]);
+			foreach($omim_ids as $omim_id){
+				$this->AddRDF(
+					parent::triplify($uri, $this->getVoc()."disease", "omim:".$omim_id)
+				);
+			}
 		}
+
 		if(isset($a[8])) {
 			$pubmed_ids = explode("|",trim($a[8]));
 			foreach($pubmed_ids AS $pubmed_id) {
 				if(!is_numeric($pubmed_id)) continue;
-				$this->AddRDF($this->QQuad($uri,"ctd_vocabulary:article","pubmed:$pubmed_id"));
+				$this->AddRDF(
+					parent::triplify($uri, $this->getVoc()."article", "pubmed:".$pubmed_id)
+				);
 			}
 		}
-		$this->WriteRDFBufferToWriteFile();
+		parent::WriteRDFBufferToWriteFile();
 	}
 	return TRUE;
 }
@@ -471,23 +601,24 @@ function CTD_genes_pathways()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 4) {
-				trigger_error("Expecting 4 fields, found $c!");
+				trigger_error("CTD_genes_pathways function expects 4 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
 		}
 		
-		$gene_ns = 'geneid';
+		$gene_ns = 'ncbigene';
 		$gene_id = $a[1];
-		$this->GetNS()->ParsePrefixedName($a[3],$pathway_ns,$pathway_id);
+		$this->getRegistry()->parseQName($a[3],$pathway_ns,$pathway_id);
 		$pathway_id = trim($pathway_id);
 		if($pathway_ns == "react") $pathway_ns = "reactome";
 
-		$this->AddRDF($this->QQuad("$gene_ns:$gene_id","ctd_vocabulary:pathway","$pathway_ns:$pathway_id"));
-		
-		// extra
-		$this->AddRDF($this->QQuadL("$pathway_ns:$pathway_id","rdfs:label","$a[2] [$pathway_ns:$pathway_id]"));
-		$this->AddRDF($this->QQuadL("$gene_ns:$gene_id","rdfs:label","gene ".str_replace(array("\/", "'"), array("/", "\\\'"), ($a[0]))." [$gene_ns:$gene_id]"));
+		$this->ADDRDF(
+			parent::triplify($gene_ns.":".$gene_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
+			parent::triplifyString($gene_ns.":".$gene_id, "rdfs:label", "gene ".str_replace(array("\/", "'"), array("/", "\\\'"), ($a[0]))." [$gene_ns:$gene_id]").
+			parent::triplifyString($pathway_ns.":".$pathway_id, "rdfs:label", $a[2]." [$pathway_ns:$pathway_id]")
+		);
+		parent::WriteRDFBufferToWriteFile();
 	}
 	return TRUE;
 }
@@ -506,17 +637,21 @@ function CTD_Pathways()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 2) {
-				trigger_error("Expecting 2 fields, found $c!");
+				trigger_error("CTD_pathways function expects 2 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
 		}
 		
-		$this->GetNS()->ParsePrefixedName(trim($a[1]),$pathway_ns,$pathway_id);	
-		if($pathway_ns == "react") $pathway_ns = "reactome";		
-		
-		$this->AddRDF($this->QQuadL("$pathway_ns:$pathway_id","rdfs:label","$a[0] [$pathway_ns:$pathway_id]"));
-		$this->AddRDF($this->QQuadL("$pathway_ns:$pathway_id","rdf:type","ctd_vocabulary:Pathway"));
+		$this->getRegistry()->parseQName(trim($a[1]),$pathway_ns,$pathway_id);	
+		if($pathway_ns == "react") $pathway_ns = "reactome";	
+
+		$this->AddRDF(
+			parent::describeIndividual($pathway_ns.":".$pathway_id, $a[0], $this->getVoc()."Pathway").
+			parent::describeClass($this->getVoc()."Pathway", "CTD Pathway")	
+		);
+		parent::WriteRDFBufferToWriteFile();
+
 	}	
 	return TRUE;
 }
@@ -527,6 +662,9 @@ function CTD_Pathways()
 2 GeneID (primary NCBI Gene accession identifier)
 3 AltGeneIDs (alternative NCBI Gene accession identifiers; '|'-delimited list)
 4 Synonyms ('|'-delimited list)
+5 BioGRIDIDs
+6 PharmGKBIDs
+7 UniProtIDs
 */
 function CTD_Genes()
 {
@@ -534,23 +672,52 @@ function CTD_Genes()
 	while($l = $this->GetReadFile()->Read()) {
 		if($l[0] == '#') continue;
 		$a = explode("\t",$l);
-		
+
 		// check number of columns
 		if($first) {
-			if(($c = count(explode("\t",$l))) != 5) {
-				trigger_error("Expecting 5 fields, found $c!");
+			if(($c = count(explode("\t",$l))) != 8) {
+				trigger_error("CTD_genes function expects 8 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
 		}
-		
+
 		$symbol = str_replace(array("\\/"),array('|'),$a[0]);
 		$label = str_replace("\\+/",'+',$a[1]);
-		$geneid = $a[2];
-		
-		$this->AddRDF($this->QQuadL("geneid:$geneid","rdfs:label","$label [geneid:$geneid]"));
-		$this->AddRDF($this->QQuad("geneid:$geneid","rdf:type","ctd_vocabulary:Gene"));
-		$this->AddRDF($this->QQuadL("geneid:$geneid","ctd_vocabulary:gene-symbol",$symbol));
+		$geneid = "ncbigene:".$a[2];
+		$synonyms = $a[4];
+
+		$this->addRDF(
+			parent::describeIndividual($geneid, $label, $this->getVoc()."Gene").
+			parent::triplifyString($geneid, $this->getVoc()."gene-symbol", $symbol).
+			parent::describeClass($this->getVoc()."Gene", "CTD Gene")
+		);
+
+		$ids = array(
+			3 => array('rel'=>"alternative-ncbigene-id", 'ns'=> "ncbigene"),
+			4 => array('rel'=>'synonym'),
+			5 => array('rel'=>'x-biogrid', 'ns'=>'biogrid'),
+			6 => array('rel'=>'x-pharmgkb', 'ns'=>'pharmgkb'),
+			7 => array('rel'=>'x-uniprot', 'ns'=>'uniprot')
+		);
+
+		foreach($ids AS $i => $v) {
+			if(!trim($a[$i])) continue;
+			$b = explode("|",$a[$i]);
+			foreach($b AS $c) {
+				if(isset($v['ns'])) {
+					parent::addRDF(
+						parent::triplify($geneid, parent::getVoc().$v['rel'], $v['ns'].":".$c)
+					);
+				} else {
+					parent::addRDF(
+						parent::triplifyString($geneid, parent::getVoc().$v['rel'], $c)
+					);
+				}
+			}
+		}
+
+		parent::WriteRDFBufferToWriteFile();
 	}	
 	return TRUE;
 }
@@ -581,20 +748,23 @@ function CTD_chem_go_enriched()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 13) {
-				trigger_error("Expecting 13 fields, found $c!");
+				trigger_error("CTD_chem_go_enriched function expects 13 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
 		}		
 		
-		$this->GetNS()->ParsePrefixedName($a[5],$go_ns,$go_id);
+		$this->getRegistry()->parseQName($a[5], $go_ns, $go_id);
 		$rel = "involved-in";
 		if($a[3] == "Biological Process") $rel = "is-participant-in";
 		elseif($a[3] == "Molecular Function") $rel = "has-function";
 		elseif($a[3] == "Cellular Component") $rel = "is-located-in";
 
-		$this->AddRDF($this->QQuad("mesh:$a[1]","ctd_vocabulary:$rel","$go_ns:$go_id"));
-		$this->WriteRDFBufferToWriteFile();
+		$this->AddRDF(
+			parent::triplify("mesh:".$a[1], $this->getVoc().$rel, $go_ns.":".$go_id).
+			parent::describeProperty($this->getVoc().$rel, str_replace("-", " ", $rel))
+		);
+		parent::WriteRDFBufferToWriteFile();
 	}	
 	return TRUE;
 }
@@ -615,36 +785,28 @@ function CTD_chem_gene_ixn_types()
 		// check number of columns
 		if($first) {
 			if(($c = count(explode("\t",$l))) != 4) {
-				trigger_error("Expecting 4 fields, found $c!");
+				trigger_error("CTD_chem_gene_ixn_types function expects 4 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				return FALSE;
 			}
 			$first = false;
 		}
-		$id = "ctd_vocabulary:$a[1]";
-		$this->AddRDF($this->QQuadL($id,"rdfs:label",$a[0]." [$id]"));
-		$this->AddRDF($this->QQuadL($id,"dc:description",$a[2]));
-		if(isset($a[4]))
-			$this->AddRDF($this->QQuad($id,"rdfs:subClassOf","ctd_vocabulary:$a[4]"));
-
-		$this->WriteRDFBufferToWriteFile();
-
+		$id = $this->getVoc().$a[1];
+		
+		$parent = trim($a[3]);
+		if(isset($parent) && !empty($parent)){
+			$this->AddRDF(
+				parent::describeClass($id, $a[0], $this->getVoc().$parent, null, $a[2])
+			);
+		} else {
+			$this->AddRDF(
+				parent::describeClass($id, $a[0], null, null, $a[2])
+			);
+		}
+		parent::WriteRDFBufferToWriteFile();
 	}	
 	return TRUE;
 }
 
 } // end class
-
-$start = microtime(true);
-
-set_error_handler('error_handler');
-$parser = new CTDParser($argv);
-$parser->Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
-
 
 ?>

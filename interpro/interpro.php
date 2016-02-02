@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2012 Michel Dumontier
+Copyright (C) 2012-2013 Michel Dumontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -20,54 +20,36 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-require('../../php-lib/rdfapi.php');
-require('../../php-lib/xmlapi.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
+require_once(__DIR__.'/../../php-lib/xmlapi.php');
 /**
  * InterPro RDFizer
- * @version 1.0 
+ * @version 2.0 
  * @author Michel Dumontier
  * @description http://www.ebi.ac.uk/interpro/
 */
-class AffymetrixParser extends RDFFactory 
+class InterproParser extends Bio2RDFizer 
 {	
 	private $version = null;
-	
-	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("interpro");
-		
-		// set and print application parameters
-		$this->AddParameter('files',true,'all','all','');
-		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz','');
 
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));		
-		
-		return TRUE;
+	function __construct($argv) {
+		parent::__construct($argv,"interpro");
+		parent::addParameter('files',true,'all','all','');
+		parent::addParameter('download_url',false,null,'ftp://ftp.ebi.ac.uk/pub/databases/interpro/interpro.xml.gz','');
+		parent::initialize();
 	}
 	
 	function Run()
 	{	
 		// directory shortcuts
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
-		
+		$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
 		
 		// get the listings page
-		$rfile = trim($this->GetParameterValue('download_url'));
+		$rfile = trim(parent::getParameterValue('download_url'));
 		$file = "interpro.xml.gz";
 		$lfile = $ldir.$file;
-		if(!file_exists($lfile) || $this->GetParameterValue("download") == "true") {
+		if(!file_exists($lfile) || parent::getParameterValue("download") == "true") {
 			echo "Downloading $lfile".PHP_EOL;
 			$ret = file_get_contents($rfile);
 			if($ret === FALSE) {
@@ -76,41 +58,67 @@ class AffymetrixParser extends RDFFactory
 			}
 			file_put_contents($lfile,$ret);
 		}
-		$cxml = new CXML($ldir,$file);
+		echo "Loading XML file...";
+		$cxml = new CXML($lfile);
 		$cxml->Parse();
-		$xml = $cxml->GetXMLRoot();
-		
+		$xml = $cxml->GetXMLRoot();	
+		echo "Done".PHP_EOL;
 		
 		// set the write file
-		$outfile = 'interpro.nt'; $gz=false;
-		if($this->GetParameterValue('graph_uri')) {$outfile = 'interpro.nq';}
-		if($this->GetParameterValue('gzip')) {
-			$outfile .= '.gz';
-			$gz = true;
-		}
-		$this->SetWriteFile($odir.$outfile, $gz);
+		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+		$outfile = "interpro.".parent::getParameterValue('output_format'); 	
+		parent::setWriteFile($odir.$outfile, $gz);
 		
 		echo "Parsing interpro xml file".PHP_EOL;
-		$this->Parse($xml);		
-		$this->WriteRDFBufferToWriteFile();
-		$this->GetWriteFile()->Close();	
+		$this->parse($xml);		
+		parent::writeRDFBufferToWriteFile();
+		parent::getWriteFile()->close();	
 		echo "Done!".PHP_EOL;
+
+
+		// let's make an nq file
+		parent::setGraphURI(parent::getDatasetURI());
+		
+		// dataset description
+		$source_version = parent::getDatasetVersion();
+		$source_file = (new DataResource($this))
+		->setURI($rfile)
+		->setTitle("InterPro v$source_version")
+		->setRetrievedDate( date ("Y-m-d\TG:i:s\Z", filemtime($lfile)))
+		->setFormat("application/xml")
+		->setFormat("application/g-zip")
+		->setPublisher("http://www.ebi.ac.uk/")
+		->setHomepage("http://www.ebi.ac.uk/interpro/")
+		->setRights("InterPro - Integrated Resource Of Protein Domains And Functional Sites. Copyright (C) 2001 The InterPro Consortium")
+		->setLicense("http://www.ebi.ac.uk/interpro/faqs.html")
+		->setDataset("http://identifiers.org/interpro/");
 	
-		// generate the release file
-		$this->DeleteBio2RDFReleaseFiles($odir);
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(),
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/interpro/intepro.php", 
-			$this->GetBio2RDFDownloadURL($this->GetNamespace()).$outfile,
-			"http://www.ebi.ac.uk/interpro/",
-			array("use-share-modify"),
-			null, // license
-			$this->GetParameterValue('download_url'),
-			$this->version
-		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix v$source_version")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/interpro/interpro.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")			
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+		
+		$dataset_description = $source_file->toRDF().$output_file->toRDF();
+
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
 		
 		return true;
 	}	
@@ -120,24 +128,35 @@ class AffymetrixParser extends RDFFactory
 		// state the dataset info
 		foreach($xml->release->dbinfo AS $o) {
 			$db = $o->attributes()->dbname." v".$o->attributes()->version." (".$o->attributes()->entry_count." entries) [".$o->attributes()->file_date."]";
-			$this->AddRDF($this->QQuadL($this->GetDatasetURI(), "interpro_vocabulary:contains", $db));
+			parent::addRDF(
+				parent::triplifyString(parent::getDatasetURI(), parent::getVoc()."contains", $db)
+			);
+			if(((string)$o->attributes()->dbname) === "INTERPRO") {
+				parent::setDatasetVersion($o->attributes()->version);
+			}
 		}
+		// get a potential id list
+		if(parent::getParameterValue("id_list") != '') $id_list = explode(",",parent::getParameterValue("id_list"));
+		
 		// now interate over the entries
 		foreach($xml->interpro AS $o) {
-			$this->WriteRDFBufferToWriteFile();
+			parent::writeRDFBufferToWriteFile();
 
 			$interpro_id = $o->attributes()->id;
-			echo "Processing id... $interpro_id".PHP_EOL;
+			if(isset($id_list) && !in_array($interpro_id,$id_list)) {
+				continue;
+			}
+			echo "Processing $interpro_id".PHP_EOL;
 			
 			$name = $o->name;
 			$short_name = $o->attributes()->short_name;
 			$type = $o->attributes()->type;
-			$s = "interpro:$interpro_id";
+			$s = parent::getNamespace().$interpro_id;
 			
-			echo "Adding... $s rdfs:label $name ($short_name) $type [$s]".PHP_EOL;
-			$this->AddRDF($this->QQuadL($s,"rdfs:label","$name ($short_name) $type [$s]"));
-			$this->AddRDF($this->QQuad($s,"rdf:type","interpro_vocabulary:$type"));
-			$this->AddRDF($this->QQuad($s,"void:inDataset",$this->GetDatasetURI()));
+			//echo "Adding... $s rdfs:label $name ($short_name) $type [$s]".PHP_EOL;
+			parent::addRDF(
+				parent::describeIndividual($s,"$name ($short_name) $type", parent::getVoc().$type)
+			);
 			
 			// get the pubs
 			unset($pubs);
@@ -148,7 +167,9 @@ class AffymetrixParser extends RDFFactory
 						$pmid = (string) $p->db_xref->attributes()->dbkey;
 						$pubs['pid'][] = '<cite idref="'.$pid.'"/>';
 						$pubs['pmid'][] = '<a href="http://www.ncbi.nlm.nih.gov/pubmed/'.$pmid.'">pubmed:'.$pmid.'</a>';
-						$this->AddRDF($this->QQuad($s,"interpro_vocabulary:x-pubmed","pubmed:$pmid"));
+						parent::addRDF(
+							parent::triplify($s,parent::getVoc()."x-pubmed","pubmed:$pmid")
+						);
 					}
 				}
 			}
@@ -157,42 +178,57 @@ class AffymetrixParser extends RDFFactory
 				$abstract = str_replace($pubs['pid'],$pubs['pmid'],$abstract);
 			}
 			
-			$this->AddRDF($this->QQuadL($s,"dc:description",$this->SafeLiteral($abstract)));
+			parent::addRDF(
+				parent::triplifyString($s,"dc:description",$abstract)
+			);
 			
-			foreach($o->example_list->example AS $example) {
-				$db = (string) $example->db_xref->attributes()->db;
-				$id = (string) $example->db_xref->attributes()->dbkey;
-				$this->AddRDF($this->QQuad($s,"interpro_vocabulary:example-entry", $this->GetNS()->MapQName("$db:$id")));
+			if(isset($o->example_list)) {
+				foreach($o->example_list->example AS $example) {
+					$db = (string) $example->db_xref->attributes()->db;
+					$id = (string) $example->db_xref->attributes()->dbkey;
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."example-entry", "$db:$id")
+					);
+				}
 			}
-			
 			if(isset($o->parent_list->rel_ref)) {
 				foreach($o->parent_list->rel_ref AS $parent) {
 					$id = (string) $parent->attributes()->ipr_ref;
-					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:parent", "interpro:$id"));
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."parent", "interpro:$id")
+					);
 				}
 			}
 			if(isset($o->child->rel_ref)) {
 				foreach($o->child->rel_ref AS $child) {
 					$id = (string) $child->attributes()->ipr_ref;
-					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:child", "interpro:$id"));
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."child", "interpro:$id")
+					);
 				}
 			}
 			if(isset($o->contains->rel_ref)) {
 				foreach($o->contains->rel_ref AS $contains) {
 					$id = (string) $contains->attributes()->ipr_ref;
-					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:contains", "interpro:$id"));
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."contains", "interpro:$id")
+					);
 				}
 			}
 			if(isset($o->found_in->rel_ref)) {
 				foreach($o->found_in->rel_ref AS $f) {
 					$id = (string) $f->attributes()->ipr_ref;
-					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:found-in", "interpro:$id"));
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."found-in", "interpro:$id")
+					);
 				}
 			}
 			if(isset($o->sec_list->sec_ac)) {
 				foreach($o->sec_ac AS $s) {
 					$id = (string) $s->attributes()->acc;
-					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:secondary-accession", "interpro:$id"));
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."secondary-accession", "interpro:$id")
+					);
 				}
 			}
 			
@@ -202,21 +238,27 @@ class AffymetrixParser extends RDFFactory
 				foreach($o->member_list->db_xref AS $dbxref) {
 					$db = (string) $dbxref->attributes()->db;
 					$id = (string) $dbxref->attributes()->dbkey;
-					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:x-".strtolower($db), "$db:$id"));
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."x-".strtolower($db), "$db:$id")
+					);
 				}
 			}
 			if(isset($o->external_doc_list)) {
 				foreach($o->external_doc_list->db_xref AS $dbxref) {
 					$db = (string) $dbxref->attributes()->db;
 					$id = (string) $dbxref->attributes()->dbkey;
-					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:x-".strtolower($db), "$db:$id"));
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."x-".strtolower($db), "$db:$id")
+					);
 				}
 			}
 			if(isset($o->structure_db_links->db_xref)) {
 				foreach($o->structure_db_links->db_xref AS $dbxref) {
 					$db = (string) $dbxref->attributes()->db;
 					$id = (string) $dbxref->attributes()->dbkey;
-					$this->AddRDF($this->QQuad($s,"interpro_vocabulary:x-".strtolower($db), "$db:$id"));
+					parent::addRDF(
+						parent::triplify($s,parent::getVoc()."x-".strtolower($db), "$db:$id")
+					);
 				}
 			}
 			
@@ -224,23 +266,11 @@ class AffymetrixParser extends RDFFactory
 			foreach($o->taxonomy_distribution->taxon_data AS $t) {
 				$organism = (string) $t->attributes()->name;
 				$number = (string) $t->attributes()->proteins_count;
-				$this->AddRDF($this->QQuadL($s,"interpro_vocabulary:taxon-distribution", "$organism ($number)"));
+				parent::addRDF(
+					parent::triplifyString($s,parent::getVoc()."taxon-distribution", "$organism ($number)")
+				);
 			}
 		}
 	}
-
 }
-$start = microtime(true);
-
-set_error_handler('error_handler');
-$parser = new AffymetrixParser($argv);
-$parser->Run();
-
-$end = microtime(true);
-$time_taken =  $end - $start;
-print "Started: ".date("l jS F \@ g:i:s a", $start)."\n";
-print "Finished: ".date("l jS F \@ g:i:s a", $end)."\n";
-print "Took: ".$time_taken." seconds\n"
 ?>
-
-
