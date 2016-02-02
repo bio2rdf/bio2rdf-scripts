@@ -1,6 +1,6 @@
 <?php
 /**
-Copyright (C) 2012 Michel Dumontier
+Copyright (C) 2012-2013 Michel Dumontier
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -21,53 +21,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-require('../../php-lib/rdfapi.php');
+require_once(__DIR__.'/../../php-lib/bio2rdfapi.php');
 /**
  * OMIM RDFizer (API version)
- * @version 1.0
+ * @version 2.0
  * @author Michel Dumontier
  * @description http://www.omim.org/help/api
 */
-class OMIMParser extends RDFFactory
+class OMIMParser extends Bio2RDFizer
 {
-	private $version = null;
-	
 	function __construct($argv) {
-		parent::__construct();
-		$this->SetDefaultNamespace("omim");
-		
-		// set and print application parameters
-		$this->AddParameter('files',true,null,'all|omim#','entries to process: comma-separated list or hyphen-separated range');
-		$this->AddParameter('indir',false,null,'/data/download/'.$this->GetNamespace().'/','directory to download into and parse from');
-		$this->AddParameter('outdir',false,null,'/data/rdf/'.$this->GetNamespace().'/','directory to place rdfized files');
-		$this->AddParameter('graph_uri',false,null,null,'provide the graph uri to generate n-quads instead of n-triples');
-		$this->AddParameter('gzip',false,'true|false','true','gzip the output');
-		$this->AddParameter('download',false,'true|false','false','set true to download files');
-		$this->AddParameter('download_url',false,null,'ftp://grcf.jhmi.edu/OMIM/');
-		$this->AddParameter('omim_api_url',false,null,'http://api.omim.org/api/entry?include=all&format=json');
-		$this->AddParameter('omim_api_key',false,null,'06402537D15CFD3880C99805B2AACA9858FAEE37','the OMIM key to download entries');
-		if($this->SetParameters($argv) == FALSE) {
-			$this->PrintParameters($argv);
-			exit;
-		}
-		if($this->CreateDirectory($this->GetParameterValue('indir')) === FALSE) exit;
-		if($this->CreateDirectory($this->GetParameterValue('outdir')) === FALSE) exit;
-		if($this->GetParameterValue('graph_uri')) $this->SetGraphURI($this->GetParameterValue('graph_uri'));
-		
-		return TRUE;
+		parent::__construct($argv, 'omim');
+		parent::addParameter('files',true,null,'all|omim#','entries to process: comma-separated list or hyphen-separated range');
+		parent::addParameter('omim_api_url',false,null,'http://api.omim.org/api/entry?include=all&format=json');
+		parent::addParameter('omim_api_key',false,null);
+		parent::addParameter('omim_api_key_file',false,null,'omim.key','A file containing your omim KEY');
+		parent::initialize();
 	}
 	
 	function Run()
 	{	
 		// directory shortcuts
-		$ldir = $this->GetParameterValue('indir');
-		$odir = $this->GetParameterValue('outdir');
+		$ldir = parent::getParameterValue('indir');
+		$odir = parent::getParameterValue('outdir');
+		if(parent::getParameterValue('omim_api_key') == '') {
+			$key_file = parent::getParameterValue('omim_api_key_file');
+			if(file_exists($key_file)) {
+				$key = trim(file_get_contents($key_file));
+				if($key) {
+					parent::setParameterValue('omim_api_key', $key);
+				} else {
+					trigger_error("No API key found in the specified omim key file $key_file",E_USER_WARNING);						
+				}
+			} else {	
+				trigger_error("No OMIM key has been provided either by commmand line or in the expected omim key file $key_file",E_USER_WARNING);	
+			}
+		}
 
 		// get the list of mim2gene entries
 		$entries = $this->GetListOfEntries($ldir);
 		
 		// get the work specified
-		$list = trim($this->GetParameterValue('files'));		
+		$list = trim(parent::getParameterValue('files'));		
 		if($list != 'all') {
 			// check if a hyphenated list was provided
 			if(($pos = strpos($list,"-")) !== FALSE) {
@@ -85,7 +80,7 @@ class OMIMParser extends RDFFactory
 				$entries = $myentries;
 			} else {
 				// for comma separated list
-				$b = explode(",",$this->GetParameterValue('files'));
+				$b = explode(",",parent::getParameterValue('files'));
 				foreach($b AS $e) {
 					$myentries[$e] = '';
 				}
@@ -94,13 +89,10 @@ class OMIMParser extends RDFFactory
 		}
 		
 		// set the write file
-		$outfile = 'omim.nt'; $gz=false;
-		if($this->GetParameterValue('graph_uri')) {$outfile = 'omim.nq';}
-		if($this->GetParameterValue('gzip')) {
-			$outfile .= '.gz';
-			$gz = true;
-		}
-		$this->SetWriteFile($odir.$outfile, $gz);
+		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
+		$outfile = 'omim.'.parent::getParameterValue('output_format');
+		
+		parent::setWriteFile($odir.$outfile, $gz);
 		
 		// declare the mapping method types
 		$this->get_method_type(null,true);
@@ -110,11 +102,12 @@ class OMIMParser extends RDFFactory
 		$total = count($entries);
 		foreach($entries AS $omim_id => $type) {
 			echo "processing ".(++$i)." of $total - omim# ";
-			$download_file = $ldir.$omim_id.".json";
+			$download_file = $ldir.$omim_id.".json.gz";
+			$gzfile = "compress.zlib://$download_file";
 			// download if the file doesn't exist or we are told to
-			if(!file_exists($download_file) || $this->GetParameterValue('download') == 'true') {
+			if(!file_exists($download_file) || parent::getParameterValue('download') == true) {
 				// download using the api
-				$url = $this->GetParameterValue('omim_api_url').'&apiKey='.$this->GetParameterValue('omim_api_key').'&mimNumber='.$omim_id;
+				$url = parent::getParameterValue('omim_api_url').'&apiKey='.parent::getParameterValue('omim_api_key').'&mimNumber='.$omim_id;
 				$buf = file_get_contents($url);
 				if(strlen($buf) != 0)  {
 					file_put_contents($download_file, $buf);
@@ -123,31 +116,56 @@ class OMIMParser extends RDFFactory
 			}
 			
 			// load entry, parse and write to file
-			$entry = json_decode(file_get_contents($download_file), true);
+			$entry = json_decode(file_get_contents($gzfile), true);
 			$omim_id = trim((string)$entry["omim"]["entryList"][0]["entry"]['mimNumber']);
 			echo $omim_id;
 			$this->ParseEntry($entry,$type);
-			$this->WriteRDFBufferToWriteFile();
-		
+			parent::writeRDFBufferToWriteFile();
 			echo PHP_EOL;
 		}
-		$this->GetWriteFile()->Close();
+		parent::writeRDFBufferToWriteFile();
+		parent::getWriteFile()->close();
 		
-		// generate the release file
-		$this->DeleteBio2RDFReleaseFiles($odir);
-		$desc = $this->GetBio2RDFDatasetDescription(
-			$this->GetNamespace(), 
-			"https://github.com/bio2rdf/bio2rdf-scripts/blob/master/omim/omim.php", 
-			$this->GetBio2RDFDownloadURL($this->GetNamespace()).$outfile,
-			"http://omim.org", 
-			array("use","no-commercial"), 
-			"http://omim.org/downloads",
-			$this->GetParameterValue("download_url"),
-			$this->version
-		);
-		$this->SetWriteFile($odir.$this->GetBio2RDFReleaseFile($this->GetNamespace()));
-		$this->GetWriteFile()->Write($desc);
-		$this->GetWriteFile()->Close();
+		// generate the dataset description file
+		$source_file = (new DataResource($this))
+		->setURI(parent::getParameterValue('omim_api_url'))
+		->setTitle("OMIM ".parent::getDatasetVersion())
+		->setRetrievedDate( date ("Y-m-d\TG:i:s\Z"))
+		->setFormat("application/json")
+		->setPublisher("http://omim.org")
+		->setHomepage("http://omim.org")
+		->setRights("use")
+		->setRights("no-commercial")
+		->setRights("registration-required")
+		->setLicense("http://www.omim.org/help/agreement")
+		->setDataset("http://identifiers.org/omim/");
+		
+		$prefix = parent::getPrefix();
+		$bVersion = parent::getParameterValue('bio2rdf_release');
+		$date = date ("Y-m-d\TG:i:s\Z");
+		$output_file = (new DataResource($this))
+			->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$outfile")
+			->setTitle("Bio2RDF v$bVersion RDF version of $prefix (generated at $date)")
+			->setSource($source_file->getURI())
+			->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/omim/omim.php")
+			->setCreateDate($date)
+			->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+			->setPublisher("http://bio2rdf.org")			
+			->setRights("use-share-modify")
+			->setRights("by-attribution")
+			->setRights("restricted-by-source-license")
+			->setLicense("http://creativecommons.org/licenses/by/3.0/")
+			->setDataset(parent::getDatasetURI());
+
+		if($gz) $output_file->setFormat("application/gzip");
+		if(strstr(parent::getParameterValue('output_format'),"nt")) $output_file->setFormat("application/n-triples");
+		else $output_file->setFormat("application/n-quads");
+		
+		$dataset_description = $source_file->toRDF().$output_file->toRDF();
+			
+		parent::setWriteFile($odir.parent::getBio2RDFReleaseFile());
+		parent::getWriteFile()->write($dataset_description);
+		parent::getWriteFile()->close();
 		
 		return TRUE;
 	}
@@ -161,10 +179,10 @@ class OMIMParser extends RDFFactory
 			$this->SetParameterValue('download',true);
 		}		
 		
-		if($this->GetParameterValue('download')==true) {
+		if(parent::getParameterValue('download')==true) {
 			// connect
 			if(!isset($ftp)) {
-				$host = 'grcf.jhmi.edu';
+				$host = 'ftp.omim.org';
 				echo "connecting to $host ...";
 				$ftp = ftp_connect($host);
 				if(!$ftp) {
@@ -181,8 +199,9 @@ class OMIMParser extends RDFFactory
 			}
 				
 			// download
+			ftp_pasv($ftp, true);
 			echo "Downloading $file ...";
-			if(ftp_get($ftp, $ldir.$file, 'omim/'.$file, FTP_BINARY) === FALSE) {
+			if(ftp_get($ftp, $ldir.$file, 'OMIM/'.$file, FTP_BINARY) === FALSE) {
 				trigger_error("Error in downloading $file");
 				continue;
 			}
@@ -207,25 +226,27 @@ class OMIMParser extends RDFFactory
 	function get_phenotype_mapping_method_type($id = null, $generate_declaration = false)
 	{
 		$pmm = array(
-			"1" => array("name"=>"association",
+			"1" => array("name"=>"mapping-by-association",
 					"description" => "the disorder is placed on the map based on its association with a gene"),
-			"2" => array("name" => "linkage",
+			"2" => array("name" => "mapping-by-linkage",
 					"description" => "the disorder is placed on the map by linkage"),
-			"3" => array("name" => "mutation",
+			"3" => array("name" => "mapping-by-mutation",
 					"description" => "the disorder is placed on the map and a mutation has been found in the gene"),
-			"4" => array("name" => "copy-number-variation",
+			"4" => array("name" => "mapping-by-copy-number-variation",
 					"description" => "the disorder is caused by one or more genes deleted or duplicated")
 		);
 		
 		if($generate_declaration == true) {
 			foreach($pmm AS $i => $o) {
-				$pmm_uri = "omim_vocabulary:".$pmm[$i]['name'];
-				$this->AddRDF($this->QQuadL($pmm_uri, "rdfs:label", $pmm[$pid]['description']." [$pmm_uri]"));
+				$pmm_uri = parent::getVoc().ucfirst($pmm[$i]['name']);
+				parent::addRDF(
+					parent::describeClass($pmm_uri, $pmm[$id]['name'], parent::getVoc().'Mapping-Method', $pmm[$id]['description'])
+				);
 			}
 		}
 			
 		if(isset($id)) {
-			if(isset($pmm[$id])) return 'omim_vocabulary:'.$pmm[$id]['name'];
+			if(isset($pmm[$id])) return parent::getVoc().ucfirst($pmm[$id]['name']);
 			else return false;
 		}
 		return true;
@@ -266,13 +287,13 @@ class OMIMParser extends RDFFactory
 		);
 		if($generate_declaration == true) {
 			foreach($methods AS $k => $v) {
-				$method_uri = $this->GetVocabularyNamespace().":$k";
-				$this->AddRDF($this->QQuadL($method_uri, "rdfs:label", $methods[$k]." [$method_uri]"));
+				$method_uri = parent::getNamespace().$k;
+				parent::addRDF(parent::describe($method_uri, $methods[$k]));
 			}
 		}
 		
 		if(isset($id)) {
-			if(isset($methods[$id])) return $this->GetVocabularyNamespace().":$id";
+			if(isset($methods[$id])) return parent::getVoc().$id;
 			else return false;
 		}
 		return true;
@@ -283,45 +304,45 @@ class OMIMParser extends RDFFactory
 	{
 		$o = $obj["omim"]["entryList"][0]["entry"];
 		$omim_id = $o['mimNumber'];
-		$omim_uri = "omim:".$o['mimNumber'];
-		if(isset($o['version']) && !isset($this->version)) $this->version = $o['version'];
-		
-		// add the type info
-		$this->AddRDF($this->QQuad($omim_uri, "rdf:type", "omim_vocabulary:".str_replace("/","-", ucfirst($type))));
-		$this->AddRDF($this->QQuad($omim_uri,"void:inDataset",$this->GetDatasetURI()));
-		$this->AddRDF($this->QQuadO_URL($omim_uri, "rdfs:seeAlso", "http://omim.org/entry/".$omim_id));
-		$this->AddRDF($this->QQuadO_URL($omim_uri, "owl:sameAs",   "http://identifiers.org/omim/".$omim_id));
+		$omim_uri = parent::getNamespace().$o['mimNumber'];
+		if(isset($o['version'])) parent::setDatasetVersion($o['version']);
 
-		
+		// add the links
+		parent::addRDF($this->QQuadO_URL($omim_uri, "rdfs:seeAlso", "http://omim.org/entry/".$omim_id));
+		parent::addRDF($this->QQuadO_URL($omim_uri, "owl:sameAs",   "http://identifiers.org/omim/".$omim_id));
+
 		// parse titles
 		$titles = $o['titles'];
+		parent::addRDF(
+			parent::describeIndividual($omim_uri, $titles['preferredTitle'], parent::getVoc().str_replace(array(" ","/"),"-", ucfirst($type))).
+			parent::describeClass(parent::getVoc().str_replace(array(" ","/"),"-", ucfirst($type)),$type)
+		);
 		if(isset($titles['preferredTitle'])) {
-			$this->AddRDF($this->QQuadL($omim_uri, "rdfs:label", $this->SafeLiteral($titles['preferredTitle'])." [$omim_uri]"));
-			$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:preferred-title", $this->SafeLiteral($titles['preferredTitle'])));
+			parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."preferred-title", $titles['preferredTitle']));
 		}
 		if(isset($titles['alternativeTitles'])) {
 			$b = explode(";;",$titles['alternativeTitles']);
 			foreach($b AS $title) {
-				$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:alternative-title", $this->SafeLiteral(trim($title))));
+				parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."alternative-title", trim($title)));
 			}
-		}	
+		}
 
 		// parse text sections
 		if(isset($o['textSectionList'])) {
 			foreach($o['textSectionList'] AS $i => $section) {
 			
 				if($section['textSection']['textSectionTitle'] == "Description") {
-					$this->AddRDF($this->QQuadL($omim_uri, "dc:description", $this->SafeLiteral($section['textSection']['textSectionContent'])));	
+					parent::addRDF(parent::triplifyString($omim_uri, "dc:description", $section['textSection']['textSectionContent']));	
 				} else {
 					$p = str_replace(" ","-", strtolower($section['textSection']['textSectionTitle']));
-					$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:$p", $this->SafeLiteral($section['textSection']['textSectionContent'])));	
+					parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."$p", $section['textSection']['textSectionContent']));	
 				}
 				
 				// parse the omim references
-				preg_match_all("/\(([0-9]{6})\)/",$section['textSection']['textSectionContent'],$m);
+				preg_match_all("/\{([0-9]{6})\}/",$section['textSection']['textSectionContent'],$m);
 				if(isset($m[1][0])) {
 					foreach($m[1] AS $oid) {
-						$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:refers-to", "omim:$oid" ));
+						parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."refers-to", "omim:$oid"));
 					}
 				}
 			}
@@ -332,42 +353,47 @@ class OMIMParser extends RDFFactory
 			foreach($o['allelicVariantList'] AS $i => $v) {
 				$v = $v['allelicVariant'];
 			
-				$uri = "omim_resource:$omim_id"."_allele_".$i;
+				$uri = parent::getRes()."$omim_id"."_allele_".$i;
 				$label = str_replace("\n"," ",$v['name']);
 				
-				$this->AddRDF($this->QQuadL($uri, "rdfs:label", $label." [$uri]" ));
-				$this->AddRDF($this->QQuad($uri, "rdf:type", "omim_vocabulary:Allelic-Variant"));
-				$this->AddRDF($this->QQuad($uri,"void:inDataset",$this->GetDatasetURI()));
+				parent::addRDF(
+					parent::describeIndividual($uri, $label, parent::getVoc()."Allelic-Variant").
+					parent::describeClass(parent::getVoc()."Allelic-Variant","Allelic Variant")
+				);
 
 				if(isset($v['alternativeNames'])) {
 					$names = explode(";;",$v['alternativeNames']);
 					foreach($names AS $name) {
 						$name = str_replace("\n"," ",$name);
-						$this->AddRDF($this->QQuadL($uri,"omim_vocabulary:alternative-names",$name));				
+						parent::addRDF(parent::triplifyString($uri,parent::getVoc()."alternative-names",$name));				
 					}
 				}
-				if(isset($v['text'])) $this->AddRDF($this->QQuadText($uri,"dc:description",$v['text']));
-				if(isset($v['mutations'])) $this->AddRDF($this->QQuadText($uri,"omim_vocabulary:mutation",$v['mutations']));				
+				if(isset($v['text'])) parent::addRDF(parent::triplifyString($uri,"dc:description",$v['text']));
+				if(isset($v['mutations'])) parent::addRDF(parent::triplifyString($uri,parent::getVoc()."mutation",$v['mutations']));				
 				if(isset($v['dbSnps'])) {
-					$this->AddRDF($this->QQuad($uri, "omim_vocabulary:dbsnp", "dbsnp:".$v['dbSnps']));
+					$snps = explode(",",$v['dbSnps']);
+					foreach($snps AS $snp) {
+						parent::addRDF(parent::triplify($uri, parent::getVoc()."x-dbsnp", "dbsnp:".$snp));
+					}
 				}
-				$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:variant", $uri));
+				parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."variant", $uri));
 			}
 		}
 		
 		// clinical synopsis
 		if(isset($o['clinicalSynopsis'])) {
 			$cs = $o['clinicalSynopsis'];
-			$uri = "omim_resource:".$omim_id."_cs";
-			$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:clinical-synopsis", $uri));
-			$this->AddRDF($this->QQuadL($uri, "rdfs:label", "Clinical synopsis for omim $omim_id [$uri]"));
-			$this->AddRDF($this->QQuad($uri, "rdf:type", "omim_vocabulary:Clinical-Synopsis"));
-			$this->AddRDF($this->QQuad($uri,"void:inDataset",$this->GetDatasetURI()));
+			$cs_uri = parent::getRes()."".$omim_id."_cs";
+			parent::addRDF(
+				parent::describeIndividual($cs_uri, "Clinical synopsis for omim $omim_id", parent::getVoc()."Clinical-Synopsis").
+				parent::describeClass(parent::getVoc()."Clinical-Synopsis","Clinical Synopsis").
+				parent::triplify($omim_uri, parent::getVoc()."clinical-synopsis", $cs_uri)
+			);
 
 			foreach($cs AS $k => $v) {
 				if(!strstr($k,"Exists")) { // ignore the boolean assertion.
 					
-					// ignore provenance for now
+					// @todo ignore provenance for now
 					if(in_array($k, array('contributors','creationDate','editHistory','epochCreated','dateCreated','epochUpdated','dateUpdated'))) continue;
 					
 					if(!is_array($v)) $v = array($k=>$v);
@@ -378,42 +404,41 @@ class OMIMParser extends RDFFactory
 							$coded_phenotype = trim($coded_phenotype);
 							if(!$coded_phenotype) continue;
 							$phenotype = preg_replace("/\{.*\}/","",$coded_phenotype);
-							$phenotype_id = "omim_resource:".md5(strtolower($phenotype));
-							
-							$this->AddRDF($this->QQuad($uri, "omim_vocabulary:feature", $phenotype_id));
-							$this->AddRDF($this->QQuadL($phenotype_id, "rdfs:label", $this->SafeLiteral($phenotype)." [$phenotype_id]"));
-							$this->AddRDF($this->QQuad($phenotype_id, "rdf:type", 'omim_vocabulary:Characteristic'));
-							$this->AddRDF($this->QQuad($phenotype_id,"void:inDataset",$this->GetDatasetURI()));
-							
-							$entity_id = "omim_resource:".$k1;
-							$this->AddRDF($this->QQuadL($entity_id, "rdfs:label", "$k1 [$entity_id]"));
-							$this->AddRDF($this->QQuad($entity_id,  "rdf:type", "omim_vocabulary:Entity"));
-							$this->AddRDF($this->QQuad($entity_id,  "void:inDataset",$this->GetDatasetURI()));
+							$phenotype_id = parent::getRes()."".md5(strtolower($phenotype));
+							$entity_id = parent::getRes()."".$k1;
 
-							$this->AddRDF($this->QQuad($phenotype_id, "omim_vocabulary:characteristic-of", $entity_id));
-							
+							parent::addRDF(
+								parent::describeIndividual($phenotype_id, $phenotype, parent::getVoc().'Characteristic').
+								parent::describeClass(parent::getVoc().'Characteristic','Characteristic').
+								parent::triplify($cs_uri, parent::getVoc()."feature", $phenotype_id).
+								parent::describeIndividual($entity_id, $k1, parent::getVoc()."Entity").
+								parent::describeClass(parent::getVoc()."Entity","Entity").
+								parent::triplify($phenotype_id, parent::getVoc()."characteristic-of", $entity_id)
+							);
+
 							// parse out the vocab references
 							preg_match_all("/\{([0-9A-Za-z \:\-\.]+)\}|;/",$coded_phenotype,$codes);
-							//preg_match_all("/((UMLS|HP|SNOMEDCT|ICD10CM|ICD9CM)\:[A-Z0-9]+)/",$coded_phenotype,$m);
+							//preg_match_all("/((UMLS|HPO HP|SNOMEDCT|ICD10CM|ICD9CM|EOM ID)\:[A-Z0-9]+)/",$coded_phenotype,$m);
 							if(isset($codes[1][0])) {
 								foreach($codes[1] AS $entry) {
 									$entries = explode(" ",trim($entry));
 									foreach($entries AS $e) {
-										$this->GetNS()->ParsePrefixedName($e,$ns,$id);
+										if($e == "HPO" || $e == "EOM") continue;
+										$this->getRegistry()->parseQName($e,$ns,$id);
 										if(!isset($ns) || $ns == '') {
-											if($id == "HPO") continue;
 											$b = explode(".",$id);
 											$ns = "omim"; 
 											$id = $b[0];
 										} else {
-											$ns = str_replace(array("icd10cm","icd9cm","snomedct"), array("icd10","icd9","snomed"), $ns);
+											$ns = str_replace(array("hpo","id","icd10cm","icd9cm","snomedct"), array("hp","eom","icd10","icd9","snomed"), $ns);
 										}
-										$this->AddRDF($this->QQuad($phenotype_id, "rdfs:seeAlso", $ns.":".$id));
-										$this->AddRDF($this->QQuad($uri, "omim_vocabulary:refers-to", $ns.":".$id));										
+										parent::addRDF(
+											parent::triplify($phenotype_id, parent::getVoc()."x-$ns", "$ns:$id")
+										);
 									} // foreach
 								} // foreach
 							} // codes
-						} //foreach			
+						} //foreach
 					} // foreach
 				} // exists
 			}
@@ -423,23 +448,22 @@ class OMIMParser extends RDFFactory
 		if(isset($o['geneMap'])) {
 			$map = $o['geneMap'];
 			if(isset($map['chromosome'])) {
-				$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:chromosome", $map['chromosome']));
+				parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."chromosome", (string) $map['chromosome']));
 			}
 			if(isset($map['cytoLocation'])) {
-				$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:cytolocation", $map['cytoLocation']));
+				parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."cytolocation", (string)  $map['cytoLocation']));
 			}
 			if(isset($map['geneSymbols'])) {
 				$b = preg_split("/[,;\. ]+/",$map['geneSymbols']);
 				foreach($b AS $symbol) {
-					$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:gene-symbol", "symbol:".trim($symbol)));
+					parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."gene-symbol", "symbol:".trim($symbol)));
 				}
 			}
-			
-			
+
 			if(isset($map['geneName'])) {
 				$b = explode(",",$map['geneName']);
 				foreach($b AS $name) {
-					$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:gene-name", trim($name)));
+					parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."gene-name", trim($name)));
 				}
 			}
 			if(isset($map['mappingMethod'])) {
@@ -448,30 +472,54 @@ class OMIMParser extends RDFFactory
 					$mapping_method = trim($c);
 					$method_uri = $this->get_method_type($mapping_method);
 					if($method_uri !== false)
-						$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:mapping-method", $method_uri));
-					
+						parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."mapping-method", $method_uri));
 				}
 			}
-			
+
 			if(isset($map['mouseGeneSymbol'])) {
-				$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:mouse-gene-symbol", "symbol:".$map['mouseGeneSymbol']));
+				$b = explode(",",$map['mouseGeneSymbol']);
+				foreach($b AS $c) {
+					parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."mouse-gene-symbol", "symbol:".strtoupper($c)));
+				}
 			}
 			if(isset($map['mouseMgiID'])) {
-				$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:mouse-mgi", strtolower($map['mouseMgiID'])));
+				$b = explode(",",$map['mouseMgiID']);
+				foreach($b AS $c) {
+					parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-mgi", $c));
+				}
 			}
 			if(isset($map['geneInheritance']) && $map['geneInheritance'] != '') {
-				$this->AddRDF($this->QQuadL($omim_uri, "omim_vocabulary:gene-inheritance", $map['geneInheritance']));
-			}			
-			if(isset($map['phenotypeMapList'])) {
-				foreach($map['phenotypeMapList'] AS $phenotypeMap) {
-					$phenotypeMap = $phenotypeMap['phenotypeMap'];
-					if(isset($phenotypeMap['phenotypeMimNumber']))			
-						$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:phenotype", "omim:".$phenotypeMap['phenotypeMimNumber']));
-						
-					// $pmmt = get_phenotype_mapping_method_type($phenotype_map['phenotypeMappingKey']
-				}
-			}		
+				parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."gene-inheritance", $map['geneInheritance']));
+			}	
 		}
+		if(isset($o['phenotypeMapList'])) {	
+			foreach($o['phenotypeMapList'] AS $i => $phenotypeMap) {
+				$phenotypeMap = $phenotypeMap['phenotypeMap'];
+				$pm_uri = parent::getRes().$omim_id."_pm_".($i+1);
+				parent::addRDF(
+					parent::describeIndividual($pm_uri,"phenotype mapping for $omim_id", parent::getVoc()."Phenotype-Map").
+					parent::describeClass(parent::getVoc()."Phenotype-Map","OMIM Phenotype-Map").
+					parent::triplify($omim_uri, parent::getVoc()."phenotype-map", $pm_uri)
+				);
+				
+				foreach(array_keys($phenotypeMap) AS $k) {
+					if(in_array($k, array("mimNumber","phenotypeMimNumber","phenotypicSeriesMimNumber"))) {
+						parent::addRDF(parent::triplify($pm_uri, parent::getVoc().$k, "omim:".$phenotypeMap[$k]));
+					} else if($k == "geneSymbols") {
+						$l = explode(", ",$phenotypeMap[$k]);
+						foreach($l AS $gene) {
+							parent::addRDF(parent::triplify($pm_uri, parent::getVoc()."gene-symbol", "hgnc.symbol:".$gene));
+						}
+					} else if ($k == "phenotypeMappingKey") {
+						$l = $this->get_phenotype_mapping_method_type($phenotypeMap[$k]);
+						parent::addRDF(parent::triplify($pm_uri, parent::getVoc()."mapping-method", $l));
+					} else {
+						parent::addRDF(parent::triplifyString($pm_uri, parent::getVoc().$k, $phenotypeMap[$k]));
+					}
+				}
+			}
+		}
+		
 		
 		// references
 		if(isset($o['referenceList'])) {
@@ -479,21 +527,24 @@ class OMIMParser extends RDFFactory
 				$r = $r['reference'];
 				if(isset($r['pubmedID'])) {
 					$pubmed_uri = "pubmed:".$r['pubmedID'];
-					$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:article", $pubmed_uri)); 
-					if(isset($r['title']))      $this->AddRDF($this->QQuadL($pubmed_uri, "rdfs:label", addslashes($r['title'])." [$pubmed_uri]")); 
-					if(isset($r['articleUrl'])) $this->AddRDF($this->QQuadO_URL($pubmed_uri, "rdfs:seeAlso", htmlentities($r['articleUrl']))); 
+					parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."article", $pubmed_uri));
+					$title = 'article';
+					if(isset($r['title']))  $title = $r['title'];
+					parent::addRDF(parent::describe($pubmed_uri, addslashes($r['title'])));
+					if(isset($r['articleUrl'])) parent::addRDF($this->QQuadO_URL($pubmed_uri, "rdfs:seeAlso", htmlentities($r['articleUrl']))); 
 				}
 			}
 		}
 	
 		// external ids
-		if(isset($o['externalLinks'])) {
+		if(isset($o['externalLinks'])) {		
 			foreach($o['externalLinks'] AS $k => $id) {
-
+				if($id === false) continue;
+				
 				$ns = '';
 				switch($k) {
 					case 'approvedGeneSymbols':        $ns = 'symbol';break;
-					case 'geneIDs':                    $ns = 'geneid';break;
+					case 'geneIDs':                    $ns = 'ncbigene';break;
 					case 'ncbiReferenceSequences':     $ns = 'gi';break;
 					case 'genbankNucleotideSequences': $ns = 'gi';break;
 					case 'proteinSequences':           $ns = 'gi';break;
@@ -515,8 +566,14 @@ class OMIMParser extends RDFFactory
 					case 'umlsIDs':                    $ns = 'umls';break;
 					case 'wormbaseIDs':                $ns = 'wormbase';break;
 					
+					case 'diseaseOntologyIDs':	   		$ns = 'do';break;
 					
 					// specifically ignorning
+					case 'geneTests':
+					case 'cmgGene':
+					case 'geneticAllianceIDs':  // #
+					case 'nextGxDx':
+					case 'nbkIDs': // NBK1207;;Alport Syndrome and Thin Basement Membrane Nephropathy
 					case 'newbornScreeningUrls':  
 					case 'decipherUrls':
 					case 'geneReviewShortNames':      
@@ -526,23 +583,32 @@ class OMIMParser extends RDFFactory
 					case 'coriellDiseases': 
 					case 'clinicalDiseaseIDs':        
 					case 'possumSyndromes':
+					case 'keggPathways':
+					case 'gtr':
+					case 'gwasCatalog':
 					case 'mgiHumanDisease':
+					case 'wormbaseDO':
 					case 'dermAtlas':                  // true/false
 						break;
 					
 					default:
-						echo "external link $k $id".PHP_EOL;
+						echo "unhandled external link $k $id".PHP_EOL;
 				}
-			
-			
+
 				$ids = explode(",",$id);
 				foreach($ids AS $id) {
 					if($ns) {
-						$b = explode(";;",$id); // multiple ids//names
-						foreach($b AS $c) {
-							if(is_numeric($c) == TRUE) {
-								$this->AddRDF($this->QQuad($omim_uri, "omim_vocabulary:xref", $ns.':'.$c)); 
-						}}
+						if(strstr($id,";;") === FALSE) {
+							parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-$ns", $ns.':'.$id)); 
+						} else {
+							$b = explode(";;",$id); // multiple ids//names
+							foreach($b AS $c) {
+								preg_match("/([a-z])/",$c,$m);
+								if(!isset($m[1])) {
+									parent::addRDF(parent::triplify($omim_uri, parent::getVoc()."x-$ns", $ns.':'.$c)); 
+								}
+							}
+						}
 					}
 				}
 			}
@@ -551,7 +617,4 @@ class OMIMParser extends RDFFactory
 	} // end parse
 } 
 
-set_error_handler('error_handler');
-$parser = new OMIMParser($argv);
-$parser->Run();
 ?>

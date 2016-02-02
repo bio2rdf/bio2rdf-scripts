@@ -1,0 +1,32 @@
+--------------------------------------------------------------------------------
+OVERVIEW
+--------------------------------------------------------------------------------
+
+This folder will hold the DailyMed section content, provenance, 
+metadata, and some basic direct mappings (e.g., from the SPL to the 
+RxNorm CUI for the relevant drug product.
+
+
+Data storage:
+All mappings of linked data sotres in Mysql and presents in D2R endpoint
+
+for each loinc sections in linkedSPLs core graph, we are using resolveble URI as predicates for each section that pointed to specific section text
+
+loinc section list: http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162057.htm
+
+loinc example URI: http://www.hipaaspace.com/Medical_Billing/Coding/Logical.Observation.Identifiers.Names.and.Codes/34068-7
+
+--------------------------------------------------------------------------------
+Procedures to get linkedspls core graph
+--------------------------------------------------------------------------------
+
+By using d2rserver, run the command as follows in shell to dump out data in RDF
+
+$ ./dump-rdf -f N-TRIPLE -o linkedSPLs-core-08262014.nt <PATH TO D2R CONFIG FILE>
+
+--------------------------------------------------------------------------------
+PRE-REQUISITES:
+--------------------------------------------------------------------------------
+
+updated all linkedSPLs mappings in mysql, schema linkedSPLs
+ensure d2r config file available

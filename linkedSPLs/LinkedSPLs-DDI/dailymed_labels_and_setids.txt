@@ -1,0 +1,35 @@
+The apporach that get setid of section labels:
+
+Get the repository
+https://swat-4-med-safety.googlecode.com/svn/trunk/u-of-pitt-spl-ddi-v2.0/PK-DDI-NLP-pipeline/AnnotationStudyAndresH/revised-package-insert-statements
+
+
+1) See the file dailymed_htmls_and_textnumbers.txt. It explains the
+relationship between the URLs provided in the file and sections in the
+subfolders in the attached zip file
+
+2) the urls that have NDC codes ([http://....ndc=...]http://....ndc=...) should be pretty easy to use. Take the NDC code and search for it in DailyMed. The result should be a label. Open the section(s) and search for some text from the
+section. If you get a match, that is the setid to use!
+
+3) the urls with "id=" might work directly. For these cases, you will
+probably get the setid from the xml
+
+
+---------------------------------------------------------------------------
+
+Active ingredient: didanosine
+
+DailyMed URLs to products containing the active ingredient:
+        http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?ndc=00378888905&start=1
+ (1-2, new)
+
+Result: ndc code 00378888905 no found on dailymed
+
+
+Active ingredient: sertraline
+
+DailyMed URLs to products containing the active ingredient:
+        http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?ndc=63304016703&start=1
+ (11-20, one random)
+
+Result: http://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=c25f968b-7037-4f60-9a02-2189769b0cbf

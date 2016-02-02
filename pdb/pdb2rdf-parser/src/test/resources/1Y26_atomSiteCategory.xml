@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<PDBx:datablock datablockName="1Y26"
+   xmlns:PDBx="http://pdbml.pdb.org/schema/pdbx-v32.xsd"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://pdbml.pdb.org/schema/pdbx-v32.xsd pdbx-v32.xsd">
+
+   <PDBx:atom_siteCategory>
+      <PDBx:atom_site id="1">
+         <PDBx:B_iso_or_equiv>65.39</PDBx:B_iso_or_equiv>
+         <PDBx:B_iso_or_equiv_esd xsi:nil="true" />
+         <PDBx:Cartn_x>0.047</PDBx:Cartn_x>
+         <PDBx:Cartn_x_esd xsi:nil="true" />
+         <PDBx:Cartn_y>-6.959</PDBx:Cartn_y>
+         <PDBx:Cartn_y_esd xsi:nil="true" />
+         <PDBx:Cartn_z>1.489</PDBx:Cartn_z>
+         <PDBx:Cartn_z_esd xsi:nil="true" />
+         <PDBx:auth_asym_id>X</PDBx:auth_asym_id>
+         <PDBx:auth_atom_id>O5&apos;</PDBx:auth_atom_id>
+         <PDBx:auth_comp_id>C</PDBx:auth_comp_id>
+         <PDBx:auth_seq_id>13</PDBx:auth_seq_id>
+         <PDBx:group_PDB>ATOM</PDBx:group_PDB>
+         <PDBx:label_alt_id></PDBx:label_alt_id>
+         <PDBx:label_asym_id>A</PDBx:label_asym_id>
+         <PDBx:label_atom_id>O5&apos;</PDBx:label_atom_id>
+         <PDBx:label_comp_id>C</PDBx:label_comp_id>
+         <PDBx:label_entity_id>1</PDBx:label_entity_id>
+         <PDBx:label_seq_id>1</PDBx:label_seq_id>
+         <PDBx:occupancy>1.00</PDBx:occupancy>
+         <PDBx:occupancy_esd xsi:nil="true" />
+         <PDBx:pdbx_PDB_ins_code xsi:nil="true" />
+         <PDBx:pdbx_PDB_model_num>1</PDBx:pdbx_PDB_model_num>
+         <PDBx:pdbx_formal_charge xsi:nil="true" />
+         <PDBx:type_symbol>O</PDBx:type_symbol>
+      </PDBx:atom_site>
+   </PDBx:atom_siteCategory>
+</PDBx:datablock>

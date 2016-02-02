@@ -1,0 +1,59 @@
+TODO (4/04/2014)
+
+- drop  FDAPharmgxTable and then recreate and reload the table per the instructions in ../README
+
+- drop FDAPharmgxTableToOntologyMap and then recreate and reload the table per the instructions in ../README
+
+- revise the D2R mapping file to reflect changes to table's schema: 1) biomarker in FDAPharmgxTable is now a foreign key to HGNCGeneSymbol in FDAPharmgxTableToOntologyMap; 2) FDAString in FDAPharmgxTableToOntologyMap is now FDAReferencedSubgroup, 3) there are new therapeuticApplication instances that need to be mapped to NCIT
+
+-----
+
+Workflow (as of 04/04/2014):
+
+1) Data from the FDA's pharmacogenomic biomarker table
+ <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>
+ is downloaded and reformated into a pipe-delimitted file
+ (genetic-biomarker-table-raw-import.csv). This data is periodically
+ updated by the FDA. The script in check-pharmgx-site-for-updates.cron
+ can be added as a cron job to check regularly for changes on the
+ website. 
+
+
+2) The script 'createFDAPharmgxDBTable.py' is ran over the table. For
+listings with multiple active ingredients, the script searches for
+combination products. The script logs if combo products exist that
+contain all of the active ingredients and dumps the pharmgx row data
+into the log file. If there is a problem identifying any of the
+moieties because no combo products exist in linkedSPLs, this is noted in the
+log file as an ERROR. If there are no errors, the data is appended to
+the file "FDAPharmgxTable.csv". 
+
+NOTE: IT IS CRITICAL to add the lines that the script writes at the
+end of the log file to the FDA active ingredients-to-rxcuis mapping
+file.
+
+3) The file biomarker-to-ontology-mapping.csv contains a manually
+created mapping between the FDA biomarker strings, Pharmgkb, and the
+PRO ontology. This mapping can be used to generate all kinds of other
+mappings as well as facilitate distributed queries. The methods for
+conducting the mappings will be released in forthcoming conference
+papers and journal articles.
+
+Note: for the list of HGNCGeneSymbol in HGNCGeneSymbol.txt
+
+1) pick one term as a representive of combo
+BAFF/TNFSF13B search as TNFSF13B 
+BCR/ABL1 as ABL1
+ESR1, PGR as PGR
+FIP1L1/PDGFRA as PDGFRA
+PML/RARA as RARA
+
+2) some of item does not found in http://cu.hgnc.bio2rdf.org/sparql
+del (5q)
+IFNL3
+NAGS, CPS1, ASS1, OTC, ASL, ABL2
+NAT1-2
+Ph Chromosome
+
+use fake uri as temporary solution
+http://www.fakeuri.com
