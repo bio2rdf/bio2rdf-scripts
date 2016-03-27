@@ -59,7 +59,8 @@ class KEGGParser extends Bio2RDFizer
 
 		// handle genes separately
 		if(in_array("genes",$files)) {	
-			$orgs = array("hsa"); //,"mmu","eco","dre","dme","ath","sce","ddi");
+			$orgs = array("hsa","mmu","eco","dre","dme","ath","sce","ddi");
+			//$orgs = array("hsa"); 
 			echo "processing genes".PHP_EOL;
 			
 			$ofile = "kegg-genes.".parent::getParameterValue('output_format'); 
