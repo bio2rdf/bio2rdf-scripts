@@ -82,7 +82,7 @@ class KEGGParser extends Bio2RDFizer
 				
 				// get the list of genes for this organims
 				echo "processing $org".PHP_EOL;
-				$this->org = $org; // local variable
+				$this->org = strtoupper($org); // local variable
 				
 				$lfile = $ldir.$org.".txt";
 				$rfile = parent::getParameterValue("download_url")."list/$org";
@@ -223,9 +223,10 @@ class KEGGParser extends Bio2RDFizer
 			if(isset($this->idlist) and !in_array($id,$this->idlist)) continue;
 			
 			if(isset($this->org)) {
-				$id = $ns."_".$id;
+				$id = strtoupper($ns)."_".$id;
 			}
 			$uri = $this->getNamespace().$id;
+
 			parent::addRDF(
 				parent::describeIndividual($uri,$name,parent::getVoc().ucfirst($db)).
 				parent::describeClass(parent::getVoc().ucfirst($db),"KEGG $db").
@@ -293,6 +294,7 @@ class KEGGParser extends Bio2RDFizer
 				$uri = parent::getNamespace().$e['id'];
 				continue;
 			}
+			
 			// key with value
 			if(in_array($k, array("NAME","DESCRIPTION","DEFINITION","EQUATION","COMMENT"))) {
 				if($k == "NAME") {
