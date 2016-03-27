@@ -773,8 +773,9 @@ class PharmGKBParser extends Bio2RDFizer
 			trigger_error("Change in the number of columns. Expected ".count($header).", but found ".count($this_header),E_USER_ERROR);
 			return (-1);
 		}
-		while($l = $this->GetReadFile()->Read(200000)) {
+		while($l = $this->GetReadFile()->Read(2000000)) {
 			$a = explode("\t",$l);
+
 			$id = parent::getNamespace().$a[0];
 			$label = "clinical annotation for ".$a[1];
 			// [0] => Clinical Annotation Id
@@ -818,23 +819,24 @@ class PharmGKBParser extends Bio2RDFizer
 				);
 			}
 
-			// [6] => Clinical Annotation Types
+			// [4] => Clinical Annotation Types
 			if($a[4]) {
-				$types = explode(";",$a[4]);
+				$types = explode('","',$a[4]);
 				foreach($types AS $t) {
+					$t = strtolower(str_replace('"','',$t));
 					parent::addRDF(
-						parent::triplifyString($id, parent::getVoc()."annotation-type", strtolower($t))
+						parent::triplifyString($id, parent::getVoc()."annotation-type", $t)
 					);
 				}
 			}
 			// [5] => Genotype-Phenotypes IDs
 			// [6] => Text
 			if($a[5]) {
-				$gps = explode(";",$a[5]);
-				$gps_texts = explode(";",$a[6]);
+				$gps = explode('","',$a[5]);
+				$gps_texts = explode('","',$a[6]);
 				foreach($gps AS $i => $gp) {
-					$gp = trim($gp);
-					$gp_text = trim($gps_texts[$i]);
+					$gp = str_replace('"','',trim($gp));
+					$gp_text = str_replace('"','',trim($gps_texts[$i]));
 					$b = explode(":",$gp_text,2);
 
 					parent::addRDF(
@@ -851,11 +853,11 @@ class PharmGKBParser extends Bio2RDFizer
 			// [7] => Variant Annotations IDs
 			// [8] => Variant Annotations
 			if($a[7]) {
-				$b = explode(";",$a[7]);
-				$b_texts =  explode(";",$a[8]);
+				$b = explode('","',$a[7]);
+				$b_texts =  explode('","',$a[8]);
 				foreach($b AS $i => $variant) {
-					$variant = trim($variant);
-					$variant_text = trim ($b_texts[$i]);
+					$variant = str_replace('"','',trim($variant));
+					$variant_text = str_replace('"','',trim ($b_texts[$i]));
 					parent::addRDF(
 						parent::describeIndividual(parent::getNamespace().$variant, $variant_text, parent::getVoc()."Variant").
 						parent::triplify($id, parent::getVoc()."variant", parent::getNamespace().$variant)
@@ -865,9 +867,9 @@ class PharmGKBParser extends Bio2RDFizer
 			
 			// [9] => PMIDs
 			if($a[9]) {
-				$b = explode(";",$a[9]);
+				$b = explode('","',$a[9]);
 				foreach($b AS $i => $pmid) {
-					$pmid = trim($pmid);
+					$pmid = str_replace(',','',trim($pmid));
 					parent::addRDF(
 						parent::triplify($id, parent::getVoc()."article", "pubmed:".$pmid)
 					);
@@ -884,8 +886,9 @@ class PharmGKBParser extends Bio2RDFizer
 
 			// [11] => Related Drugs
 			if($a[11]) {
-				$b = explode(";",$a[11]);
+				$b = explode('","',$a[11]);
 				foreach($b AS $drug_label) {
+					$drug_label = str_replace('"','',$drug_label);
 					// find the id from the label
 					$find = @array_search($drug_label, $this->drug_names_array);
 					if($find !== FALSE and $find !== NULL){
@@ -906,8 +909,9 @@ class PharmGKBParser extends Bio2RDFizer
 			}
 			// [12] => Related Diseases
 			if($a[12]) {
-				$b = explode(";",$a[12]);
+				$b = explode('","',$a[12]);
 				foreach($b AS $disease_label) {
+					$disease_label = str_replace('"','',$disease_label);
 					// find the id from the label
 					$find = @array_search($disease_label, $this->disease_names_array);
 					if($find !== FALSE and $find !== NULL){
