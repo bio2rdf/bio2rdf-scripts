@@ -691,14 +691,19 @@ class KEGGParser extends Bio2RDFizer
 					parent::triplify($uri,parent::getVoc().strtolower($k),$id)
 				);
 				preg_match_all("/ \[([^\]]+)\]/",$v,$m);
-				if(isset($m[1])) {
-					foreach($m[1] AS $item) {
-						if(!strstr($item,"KO")) $item = "kegg:".str_replace(":","_",$item);
-						else $item = str_replace("KO:","kegg:",$item);
-						parent::addRDF(
-							parent::triplify($id,parent::getVoc()."link",$item)
-						);
+				if(isset($m[1]) and !empty($m[1])) {					
+					foreach($m[1] AS $item) {			
+						$a = explode(':',$item);  // get the namespace
+						$b = explode(' ',$a[1]);
+						foreach($b AS $c) {
+							if(!strstr($item,"KO")) $i = "kegg:".$a[0].'_'.$c;
+							else $i = "kegg:".$c;
+							parent::addRDF(
+								parent::triplify($id,parent::getVoc()."link",$i)
+							);
+						}
 					}
+					$test = true;
 				}
 				continue;
 			}
