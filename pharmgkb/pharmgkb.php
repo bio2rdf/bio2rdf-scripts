@@ -667,7 +667,6 @@ class PharmGKBParser extends Bio2RDFizer
 		$declared = '';
 		$hash = ''; // md5 hash list
 		$h = explode("\t", $this->GetReadFile()->Read());
-
 		if(count($h) != 11) {
 			trigger_error("Change in number of columns for relationships file (again)", E_USER_ERROR);
 			return FALSE;
@@ -676,7 +675,7 @@ class PharmGKBParser extends Bio2RDFizer
 					
 		while($l = $this->getReadFile()->read(100000)) {
 			$a = explode("\t",$l);
-	
+
 			$id1_list = explode(",",trim($a[0]));
 			$id1_names = explode(",",trim($a[1]));
 			$type1 = $a[2];
@@ -704,14 +703,21 @@ class PharmGKBParser extends Bio2RDFizer
 					// association
 					$z++;
 					$id = parent::getRes().$z;
-					$label = $id1_names[$i]." - ".$id2_names[$j]." association";
+					if($type1 < $type2) {
+						$type = $type1.'-'.$type2.'-Assocation';
+						$label = $id1_names[$i]." - ".$id2_names[$j]." association";
+					} else {
+						$type = $type2.'-'.$type1.'-Assocation';
+						$label = $id2_names[$i]." - ".$id1_names[$j]." association";
+					}
+
 					parent::addRDF(
-						parent::describeIndividual($id, $label, parent::getVoc().strtolower($type1)."-".strtolower($type2)."-Association").
+						parent::describeIndividual($id, $label, parent::getVoc().$type).
 						parent::triplify($id, parent::getVoc().strtolower($type1), $i1).
 						parent::triplify($id, parent::getVoc().strtolower($type2), $i2).
 						parent::triplify($i1, parent::getVoc().strtolower($type2), $i2).
 						parent::triplify($i2, parent::getVoc().strtolower($type1), $i1).
-						parent::describeClass(parent::getVoc().strtolower($type1)."-".strtolower($type2)."-Association", "PharmGKB $type1 $type2 Association").
+						parent::describeClass(parent::getVoc().$type, "PharmGKB $type").
 						parent::describeProperty(parent::getVoc().strtolower($type1), "Relationship between a PharmGKB association and a $type1").
 						parent::describeProperty(parent::getVoc().strtolower($type2), "Relationship between a PharmGKB association and a $type2")
 					);
@@ -848,9 +854,9 @@ class PharmGKBParser extends Bio2RDFizer
 
 			// [4] => Clinical Annotation Types
 			if($a[4]) {
-				$types = explode('","',$a[4]);
+				$types = $this->parseList($a[4]);
 				foreach($types AS $t) {
-					$t = strtolower(str_replace('"','',$t));
+					$t = strtolower($t);
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."annotation-type", $t)
 					);
