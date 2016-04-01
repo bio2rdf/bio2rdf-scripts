@@ -610,9 +610,8 @@ class PharmGKBParser extends Bio2RDFizer
 			parent::describeProperty(parent::getVoc()."name", "Relationship between a PharmGKB entity and its name")
 		);
 
-		if(!isset($a[2])) continue;
 		if($a[2] != '') {
-			$names = explode('",',$a[2]);
+			$names = $this->parseList($a[2]);
 			foreach($names AS $name) {
 				if($name != ''){
 					parent::addRDF(
@@ -623,30 +622,26 @@ class PharmGKBParser extends Bio2RDFizer
 			}
 		}
 		
-	//  MeSH:D001145(Arrhythmias, Cardiac),SnoMedCT:195107004(Cardiac dysrhythmia NOS),UMLS:C0003811(C0003811)
+		// $a[3] appears to be null.
 		
-		$sameID = parent::getRes().md5($a[1]);
-		parent::addRDF(
-			parent::triplify($id, "owl:sameAs", $sameID)
-		);
+		//  MeSH:D001145(Arrhythmias, Cardiac),SnoMedCT:195107004(Cardiac dysrhythmia NOS),UMLS:C0003811(C0003811)
 		if(isset($a[4]) && trim($a[4]) != '') {
-			$xrefs = explode('","', $a[4]);
+			$xrefs = $this->parseList($a[4]);
 			foreach($xrefs AS $xref) {
-				$xref = str_replace('"','',$xref);
-				$d = preg_match_all('/[,]?([^\:]+):([A-Za-z0-9]+)\(([^\)]+)\)/',$xref,$m, PREG_SET_ORDER);
-				foreach($m AS $n) {
-					if(isset($n[1]) && isset($n[2]) && !strstr($n[1]," ")) {
-						$n[1] = str_replace("),","",strtolower($n[1]));
-						$id2 = $n[1].':'.$n[2];
+				preg_match("/([^\(]+)?\((.*)\)/", str_replace('"','',$xref), $m);
+				if(isset($m[1])) {
+					$this->getRegistry()->parseQName($m[1],$ns,$id1);
+					$myid = $ns.":".$id1;
+					$label = $m[2];
+					parent::addRDF(
+						parent::triplify($id, "pharmgkb_vocabulary:x-".$ns, $myid)
+					);
+					if(!isset($declared[$myid]) and $id1 != $label) {
+						$declared[$myid] = '';
 						parent::addRDF(
-							parent::triplify($id, "pharmgkb_vocabulary:x-".$n[1], $id2)
+							parent::triplifyString($myid, "rdfs:label", $label)
 						);
-						if(isset($n[3]) && $n[2] != $n[3]){
-							parent::addRDF(
-								parent::triplifyString($id2, "rdfs:label", str_replace(array("\'", "\""),array("\\\'", ""),$n[3]))
-							);
-						}
-					}
+					}			
 				}
 			}
 		}
