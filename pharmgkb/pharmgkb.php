@@ -247,7 +247,8 @@ class PharmGKBParser extends Bio2RDFizer
 
 	/*
 	0 PharmGKB Accession Id	
-	1 Entrez Id	
+	1 NCBI Gene Id	
+	1.a HGNC Id
 	2 Ensembl Id	
 	3 Name	
 	4 Symbol	
@@ -264,9 +265,10 @@ class PharmGKBParser extends Bio2RDFizer
 	function genes()
 	{
 		$h = explode("\t",parent::getReadFile()->read());
-		$expected_columns = 14;
+		$expected_columns = 15;
 		if(($n = count($h)) != $expected_columns) {
 			trigger_error("Found $n columns in gene file - expecting $expected_columns!", E_USER_WARNING);
+			//print_r($h);
 			return false;			
 		}
 
@@ -293,28 +295,32 @@ class PharmGKBParser extends Bio2RDFizer
 					parent::triplify($id, parent::getVoc()."x-ncbigene", "ncbigene:".$a[1])
 				);
 			} 
-
 			if($a[2]){
 				parent::addRDF(
-					parent::triplify($id, parent::getVoc()."x-ensembl", "ensembl:".$a[2])
+					parent::triplify($id, parent::getVoc()."x-hgnc", "hgnc:".$a[2])
 				);
-			}
-
+			} 
 			if($a[3]){
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."name", $a[3]).
-					parent::describeProperty(parent::getVoc()."name", "Relationship between a PharmGKB entity and its name")
+					parent::triplify($id, parent::getVoc()."x-ensembl", "ensembl:".$a[3])
 				);
 			}
 
 			if($a[4]){
 				parent::addRDF(
-					parent::triplify($id, parent::getVoc()."symbol", "symbol:".$a[4]).
+					parent::triplifyString($id, parent::getVoc()."name", $a[4]).
+					parent::describeProperty(parent::getVoc()."name", "Relationship between a PharmGKB entity and its name")
+				);
+			}
+
+			if($a[5]){
+				parent::addRDF(
+					parent::triplify($id, parent::getVoc()."symbol", "symbol:".$a[5]).
 					parent::describeProperty(parent::getVoc()."symbol", "Relationship between a PharmGKB gene and a gene symbol")
 				);
 			}
-			if($a[5]) {
-				$b = explode('","',substr($a[5],1,-2));
+			if($a[6]) {
+				$b = explode('","',substr($a[6],1,-2));
 				foreach($b AS $alt_name) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."alternative-name", parent::safeLiteral(trim(stripslashes($alt_name))))
@@ -324,8 +330,8 @@ class PharmGKBParser extends Bio2RDFizer
 					parent::describeProperty(parent::getVoc()."alternative-name", "Relationship between a PharmGKB gene and an alternative name")
 				);
 			}
-			if($a[6]) { // these are not hgnc symbols
-				$b = explode('","',substr($a[6],1,-2));
+			if($a[7]) { // these are not hgnc symbols
+				$b = explode('","',substr($a[7],1,-2));
 				foreach($b as $alt_symbol) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."alternate-symbol", trim($alt_symbol))
@@ -336,21 +342,22 @@ class PharmGKBParser extends Bio2RDFizer
 				);
 			}
 		
-			if($a[7]){
+			if($a[8]){
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."is-vip", $a[7]).
+					parent::triplifyString($id, parent::getVoc()."is-vip", $a[8]).
 					parent::describeProperty(parent::getVoc()."is-vip", "Relationship between a PharmGKB gene and its vip status")
 				);
 			}
-			if($a[8]){
+			if($a[9]){
 				parent::addRDF(
-					parent::triplifyString($id, parent::getVoc()."has-variant-annotation", $a[8]).
+					parent::triplifyString($id, parent::getVoc()."has-variant-annotation", $a[9]).
 					parent::describeProperty(parent::getVoc()."has-variant-annotation", "Relationship between a PharmGKB gene and whether it has a variant annotation")
 				);
 			}
 
-			if($a[9]) {
-				$b = explode(",",$a[9]);
+			if($a[10]) {
+				$b = explode(",",$a[10]);
+				print_r($b);
 				foreach($b AS $xref) {
 					$xref = trim($xref);
 					if(!$xref) continue;
@@ -370,18 +377,18 @@ class PharmGKBParser extends Bio2RDFizer
 					}
 				}
 			}
-			if($a[10]) {
+			if($a[11]) {
 				parent::addRDF(
-					parent::triplifyString($id,parent::getVoc()."cpic-dosing-guideline",$a[10])
+					parent::triplifyString($id,parent::getVoc()."cpic-dosing-guideline",$a[11])
 				);
 			}
 
-			if($a[11]) {
+			if($a[12]) {
 				parent::addRDF(
-					parent::triplifyString($id,parent::getVoc()."chromosome",$a[11]).
+					parent::triplifyString($id,parent::getVoc()."chromosome",$a[12]).
 					parent::describeProperty(parent::getVoc()."chrosomome","Relationship between a PharmGKB gene and its chromosomal position").
-					parent::triplifyString($id,parent::getVoc()."chromosome-start",$a[12]).
-					parent::triplifyString($id,parent::getVoc()."chromosome-end",$a[13])
+					parent::triplifyString($id,parent::getVoc()."chromosome-start",$a[13]).
+					parent::triplifyString($id,parent::getVoc()."chromosome-end",$a[14])
 				);
 			}
 			parent::WriteRDFBufferToWriteFile();
