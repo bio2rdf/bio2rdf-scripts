@@ -457,7 +457,7 @@ class PharmGKBParser extends Bio2RDFizer
 	function drugs()
 	{
 		$declared = '';
-		$h = explode("\t",$this->GetReadFile()->Read(1000)); // first line is header
+		$h = explode("\t",$this->GetReadFile()->Read(10000)); // first line is header
 		if(count($h) != 10) {
 			trigger_error("Change in number of columns for drugs file",E_USER_ERROR);
 			return FALSE;
@@ -465,7 +465,6 @@ class PharmGKBParser extends Bio2RDFizer
 		while($l = $this->GetReadFile()->Read(200000)) {
 			$a = explode("\t",$l);
 			$id = parent::getNamespace().$a[0];
-			
 			$this->drugs[$a[0]] = $a[1];
 
 			parent::addRDF(
@@ -476,8 +475,8 @@ class PharmGKBParser extends Bio2RDFizer
 			if(trim($a[2])) { 
 				// generic names
 				// Entacapona [INN-Spanish],Entacapone [Usan:Inn],Entacaponum [INN-Latin],entacapone
-				$b = explode(',',trim($a[2]));
-				foreach($b AS $c) {
+				$list = $this->parseList(trim($a[2]));
+				foreach($list AS $c) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."generic_name",  str_replace('"','',$c))
 					);
@@ -489,8 +488,8 @@ class PharmGKBParser extends Bio2RDFizer
 			if(trim($a[3])) { 
 				// trade names
 				//Disorat,OptiPranolol,Trimepranol
-				$b = explode(',',trim($a[3]));
-				foreach($b as $c) {
+				$list = $this->parseList(trim($a[3]));
+				foreach($list as $c) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."trade_name", str_replace(array("'", "\""), array("\\\'", "") ,$c))
 					);
@@ -502,8 +501,8 @@ class PharmGKBParser extends Bio2RDFizer
 			if(trim($a[4])) {
 				// Brand Mixtures	
 				// Benzyl benzoate 99+ %,"Dermadex Crm (Benzoic Acid + Benzyl Benzoate + Lindane + Salicylic Acid + Zinc Oxide + Zinc Undecylenate)",
-				$b = explode(',',trim($a[4]));
-				foreach($b as $c) {
+				$list = $this->parseList(trim($a[4]));
+				foreach($list as $c) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."brand_mixture", str_replace(array("'", "\""),array("\\\'",""), $c))
 					);
@@ -522,8 +521,8 @@ class PharmGKBParser extends Bio2RDFizer
 			if(trim($a[6])) {
 				// Cross References	
 				// drugBank:DB00789,keggDrug:D01707,pubChemCompound:55466,pubChemSubstance:192903,url:http://en.wikipedia.org/wiki/Gadopentetate_dimeglumine
-				$b = explode(',',trim(str_replace('"','',$a[6])));
-				foreach($b as $c) {
+				$list = $this->parseList(trim($a[6]));
+				foreach($list as $c) {
 					$this->getRegistry()->parseQName($c,$ns,$id1);
 					$ns = str_replace(array('"',' '),'',$ns);
 					$ns = str_replace(array('keggcompound','keggdrug','drugbank','uniprotkb','clinicaltrials.gov','drugsproductdatabase(dpd)','nationaldrugcodedirectory','therapeutictargetsdatabase','fdadruglabelatdailymed'), 
@@ -531,7 +530,7 @@ class PharmGKBParser extends Bio2RDFizer
 						strtolower(str_replace('"','',$ns)));
 					if($ns == "url") {
 						parent::addRDF(
-							parent::QQuadO_URL($id, "rdfs:seeAlso", $id)
+							parent::QQuad($id, "rdfs:seeAlso", $id)
 						);
 					} else {
 						parent::addRDF(
@@ -540,28 +539,43 @@ class PharmGKBParser extends Bio2RDFizer
 					}
 				}
 			}
+			
+			if(trim($a[7])) {
+				parent::addRDF(
+					parent::triplifyString($id, parent::getVoc()."smiles", substr($a[7],1,-1)).
+					parent::describeProperty(parent::getVoc()."smiles", "Relationship between a PharmGKB drug and its SMILES string")
+				);
+			}
+			if($a[8]) {
+				parent::addRDF(
+					parent::triplifyString($id,parent::getVoc()."cpic-dosing-guideline",$a[8])
+				);
+			}			
 			if(trim($a[9])) {
 				// External Vocabulary
 				// ATC:H01AC(Somatropin and somatropin agonists),ATC:V04CD(Tests for pituitary function)
 				// ATC:D07AB(Corticosteroids, moderately potent (group II)) => this is why you don't use brackets and commas as separators.
-				$b = explode(',',trim($a[9]),2);
-				foreach($b as $c) {
-					preg_match_all("/ATC:([A-Z0-9]+)\((.*)\)$/",$c,$m);
-					if(isset($m[1][0])) {
-						$atc = "atc:".$m[1][0];
+				$list = $this->parseList(trim($a[9]));
+				foreach($list as $c) {
+					preg_match("/([^\(]+)?\((.*)\)/", $c, $m);
+					if(isset($m[1])) {				
+						$this->getRegistry()->parseQName($m[1],$ns,$id1);
+						$myid = $ns.":".$id1;
+						$label = $m[2];		
+						
 						parent::addRDF(
-							parent::triplify($id, parent::getVoc()."x-atc", $atc)
+							parent::triplify($id, parent::getVoc()."x-$ns", $myid)
 						);
-						if(!isset($declared[$atc])) {
-							$declared[$atc] = '';
+						if(!isset($declared[$myid])) {
+							$declared[$myid] = '';
 							parent::addRDF(
-								parent::triplifyString($atc, "rdfs:label", $m[2][0])
+								parent::triplifyString($myid, "rdfs:label", $m[2])
 							);
 						}
 					}
 				}
 			}
-			parent::WriteRDFBufferToWriteFile();
+			parent::writeRDFBufferToWriteFile();
 		}
 	}
 
