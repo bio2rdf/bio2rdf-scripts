@@ -320,8 +320,8 @@ class PharmGKBParser extends Bio2RDFizer
 				);
 			}
 			if($a[6]) {
-				$b = explode('","',substr($a[6],1,-2));
-				foreach($b AS $alt_name) {
+				$list = $this->parseList($a[6]);
+				foreach($list AS $alt_name) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."alternative-name", parent::safeLiteral(trim(stripslashes($alt_name))))
 					);
@@ -331,8 +331,8 @@ class PharmGKBParser extends Bio2RDFizer
 				);
 			}
 			if($a[7]) { // these are not hgnc symbols
-				$b = explode('","',substr($a[7],1,-2));
-				foreach($b as $alt_symbol) {
+				$list = $this->parseList($a[7]);
+				foreach($list as $alt_symbol) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."alternate-symbol", trim($alt_symbol))
 					);
@@ -356,9 +356,8 @@ class PharmGKBParser extends Bio2RDFizer
 			}
 
 			if($a[10]) {
-				$b = explode(",",$a[10]);
-				print_r($b);
-				foreach($b AS $xref) {
+				$list = $this->parseList($a[10]);
+				foreach($list AS $xref) {
 					$xref = trim($xref);
 					if(!$xref) continue;
 					
@@ -369,7 +368,6 @@ class PharmGKBParser extends Bio2RDFizer
 						parent::addRDF(
 							parent::QQuadO_URL($id, parent::getVoc()."x-$ns", $x)
 						);
-						
 					} else {
 						parent::addRDF(
 							parent::triplify($id, parent::getVoc()."x-$ns", $x)
@@ -377,6 +375,7 @@ class PharmGKBParser extends Bio2RDFizer
 					}
 				}
 			}
+	
 			if($a[11]) {
 				parent::addRDF(
 					parent::triplifyString($id,parent::getVoc()."cpic-dosing-guideline",$a[11])
@@ -386,16 +385,27 @@ class PharmGKBParser extends Bio2RDFizer
 			if($a[12]) {
 				parent::addRDF(
 					parent::triplifyString($id,parent::getVoc()."chromosome",$a[12]).
-					parent::describeProperty(parent::getVoc()."chrosomome","Relationship between a PharmGKB gene and its chromosomal position").
-					parent::triplifyString($id,parent::getVoc()."chromosome-start",$a[13]).
-					parent::triplifyString($id,parent::getVoc()."chromosome-end",$a[14])
+					parent::describeProperty(parent::getVoc()."chrosomome","Relationship between a PharmGKB gene and its chromosomal position")
 				);
+				if($a[13] != '-1' and $a[14] != '-1') {
+					parent::addRDF(
+						parent::triplifyString($id,parent::getVoc()."chromosome-start",$a[13]).
+						parent::triplifyString($id,parent::getVoc()."chromosome-end",$a[14])
+					);
+				}
 			}
-			parent::WriteRDFBufferToWriteFile();
-
+			parent::writeRDFBufferToWriteFile();
 		}
 	}
 
+	function parseList($str)
+	{
+		$list = '';
+		if($str[0] == '"') $list = explode('","', substr($str,1,-1));
+		else $list[] = $str;
+		return $list;
+	}
+	
 	function MapXrefs($xref, &$url = false, &$ns = null, &$id = null)
 	{
 		$xrefs = array(
@@ -419,6 +429,7 @@ class PharmGKBParser extends Bio2RDFizer
 		if(isset($xrefs[$ns])) {
 			$ns = $xrefs[$ns];
 		}
+		
 		$url = false;
 		if($ns == "url") {
 			$url = true;
