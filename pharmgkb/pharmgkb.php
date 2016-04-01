@@ -275,8 +275,8 @@ class PharmGKBParser extends Bio2RDFizer
 		while($l = parent::getReadFile()->read(200000)) {
 			$a = explode("\t",$l);
 			$id = parent::getNamespace().$a[0];
-			$label = $a[3];
-			$this->genes[$a[0]] = $a[3];
+			$label = $a[4];
+			$this->genes[$a[0]] = $a[4];
 
 			parent::addRDF(
 				parent::describeIndividual($id, $label, parent::getVoc()."Gene").
