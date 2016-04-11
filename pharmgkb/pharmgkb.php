@@ -193,10 +193,11 @@ class PharmGKBParser extends Bio2RDFizer
 				$this->GetReadFile()->SetFilePointer($fp);
 
 				if($file == "annotations") {
-					$fnx = substr($zipentry,0,strpos($zipentry,".tsv"));
+					$fnx = substr($zipentry,0,strpos($zipentry,".tsv"));				
 					echo "processing $zipentry..";
 				} else if($file == 'pathways') {
 					$fnx = 'pathways';
+					$this->pathway_name = $zipentry;
 					echo "processing $fnx ($zipentry)... ";
 				} else {
 					$fnx = $file;	
@@ -1124,39 +1125,119 @@ class PharmGKBParser extends Bio2RDFizer
 
 	function pathways()
 	{
-		// needs to be finished
-		return;
-		
-		while($l = $this->getReadFile()->read(50000)) {
-			$a = explode("\t",trim($l));
-			
-			// From	To	Reaction Type	Controller	Control Type	Cell Type	PubMed Id	Genes	Drugs	Diseases
-			// hmg coa reductase inhibitors	Active & Inactive metabolites	Biochemical Reaction	CYP2C19,CYP2C8,CYP2C9,CYP2D6,CYP3A4,CYP3A5,UGT1A1,UGT1A3,UGT2B7	Catalysis	hepatocyte		CYP3A4,CYP3A5,UGT1A3,CYP2C19,CYP2C9,CYP2C8,CYP2D6,UGT1A1,UGT2B7	hmg coa reductase inhibitors	
+		preg_match('/(PA[0-9]+)-([^\.]+)\.tsv/',$this->pathway_name,$m);
+		if(!isset($m[1]) and !isset($m[2])) {
+			trigger_error("unable to find pathway identifier in ".$this->pathway_name);
+			return false;
+		}
+		$pathway_id = parent::getNamespace().$m[1];
+		$pathway_name = $m[2];
 
-			$c1 = array_search($a[0],$this->drugs);
-			if($c1 === FALSE) {
-				$c1 = array_search($a[0],$this->genes);
-				if($c1 === FALSE) {
-					$c1 = parent::getRes().url_encode($c1);
-				} else {
-					$c1 = parent::getNamespace().$c1;
-				}
-			}
-			
-			$c2 = array_search($a[1],$this->drugs);
-			if($c2 === FALSE) {
-				$c2 = array_search($a[1],$this->genes);
-				if($c2 === FALSE) {
-					// not found
-					$c2 = parent::getRes().url_encode($c2);
-				} else {
-					// actual id
-					$c2 = parent::getNamespace().$c2;
-				}
-			}
+		parent::addRDF(
+			parent::describeIndividual($pathway_id,$pathway_name,parent::getVoc()."Pathway").
+			parent::describeClass(parent::getVoc()."Pathway","PharmGKB Pathway")
+		);
+
+		$fields = array('From','To','Reaction Type','Controller','Control Type','Cell Type','PubMed Id','Genes','Drugs','Diseases');
+		$h = explode("\t", $this->getReadFile()->read(50000));
+		// @todo check that the fields match
+	
+		while($l = $this->getReadFile()->read(50000)) {
+			$a = explode("\t",$l);
 			
 			$id = md5($l);
 			$uri = parent::getRes().$id;
+			$label = $a[2]." in ".$pathway_name;
+			$type = parent::getVoc().urlencode($a[2]);
+			$from = parent::getRes().md5($a[0]);
+			$to = parent::getRes().md5($a[1]);
+			
+			parent::addRDF(
+				parent::describeIndividual($uri, $label, $type).
+				parent::describeClass($type, $a[2]).
+				parent::describeIndividual($from, $a[0], parent::getVoc()."Resource").
+				parent::describeIndividual($to, $a[1], parent::getVoc()."Resource").
+				parent::triplify($uri, parent::getVoc()."from", $from).
+				parent::triplify($uri, parent::getVoc()."to", $to).
+				parent::triplify($uri, parent::getVoc()."pathway", $pathway_id). 
+				parent::triplify($pathway_id, parent::getVoc()."pathway-component", $uri)
+			);
+			
+			if($a[4]) {
+				// control type
+				$ctid= parent::getRes().md5($a[4]);
+				parent::addRDF(
+					parent::describeIndividual($ctid, $a[4], parent::getVoc()."Control-Type").
+					parent::describeClass(parent::getVoc()."Control-Type", "PharmGKB Control Type").
+					parent::triplify($uri, parent::getVoc()."control-type",$ctid)
+				);
+			}
+			if($a[5]) {
+				// cell type
+				$ctid= parent::getRes().md5($a[5]);
+				parent::addRDF(
+					parent::describeIndividual($ctid, $a[5], parent::getVoc()."Cell-Type").
+					parent::describeClass(parent::getVoc()."Cell-Type", "PharmGKB Cell Type").
+					parent::triplify($uri, parent::getVoc()."cell-type",$ctid)
+				);
+			}
+			if($a[6]) {
+				$pmids = explode(",",$a[6]);
+				foreach($pmids AS $pmid) {
+					parent::addRDF(
+						parent::triplify($uri, parent::getVoc()."x-pubmed", "pubmed:$pmid")
+					);
+				}
+			}
+			
+			if($a[7]) {
+				$genes = $this->parseList($a[7]);
+				foreach($genes AS $gene) {
+					$c1 = array_search($gene,$this->genes);
+					if(!$c1) {
+						$c1 = parent::getRes().urlencode($gene);
+					} else {
+						$c1 = parent::getNamespace().$c1;
+					}
+
+					if($c1 !== FALSE) {
+						parent::addRDF(
+							parent::triplify($uri, parent::getVoc()."gene", $c1)
+						);
+					}
+			}}
+				
+			if($a[8]) {
+				$drugs = $this->parseList($a[8]);
+				foreach($drugs AS $drug) {
+					$c2 = array_search($drug,$this->drugs);
+					if(!$c2) {
+						$c2 = parent::getRes().urlencode($drug);
+					} else {
+						$c2 = parent::getNamespace().$c2;
+					}
+					if($c2 !== FALSE) {
+						parent::addRDF(
+							parent::triplify($uri, parent::getVoc()."drug", $c2)
+						);
+					}
+			}}
+			if($a[9]) {
+				$diseases = $this->parseList($a[9]);
+				foreach($diseases AS $disease) {
+					$c2 = array_search($disease,$this->diseases);
+					if(!$c2) {
+						$c2 = parent::getRes().urlencode($disease);
+					} else {
+						$c2 = parent::getNamespace().$c2;
+					}
+					if($c2 !== FALSE) {
+						parent::addRDF(
+							parent::triplify($uri, parent::getVoc()."disease", $c2)
+						);
+					}
+			}}
+			
 			
 			
 			parent::writeRDFBufferToWriteFile();
