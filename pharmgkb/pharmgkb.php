@@ -128,6 +128,13 @@ class PharmGKBParser extends Bio2RDFizer
 					echo "Contact PharmGKB to get access to variants/clinical variants; save file as annotations.zip".PHP_EOL;
 					continue;
 				}
+			} elseif($file == 'pathways') {
+				if(!file_exists($lfile)) {
+					echo "Downloading $lfile ... ";
+					Utils::DownloadSingle('https://www.pharmgkb.org/download.do?objId='.$file.'-tsv.zip&dlCls=common', $lfile);
+					echo "done".PHP_EOL;
+				}
+			
 			} else {
 				if(!file_exists($lfile) or parent::getParameterValue('download') == true) {
 					echo "Downloading $lfile ... ";
