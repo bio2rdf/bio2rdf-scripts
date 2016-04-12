@@ -1148,7 +1148,7 @@ class PharmGKBParser extends Bio2RDFizer
 			$id = md5($l);
 			$uri = parent::getRes().$id;
 			$label = $a[2]." in ".$pathway_name;
-			$type = parent::getVoc().urlencode($a[2]);
+			$type = parent::getVoc().urlencode(str_replace(' ','-',$a[2]));
 			$from = parent::getRes().md5($a[0]);
 			$to = parent::getRes().md5($a[1]);
 			
@@ -1165,21 +1165,26 @@ class PharmGKBParser extends Bio2RDFizer
 			
 			if($a[4]) {
 				// control type
-				$ctid= parent::getRes().md5($a[4]);
-				parent::addRDF(
-					parent::describeIndividual($ctid, $a[4], parent::getVoc()."Control-Type").
-					parent::describeClass(parent::getVoc()."Control-Type", "PharmGKB Control Type").
-					parent::triplify($uri, parent::getVoc()."control-type",$ctid)
-				);
-			}
+				$types = explode(',',$a[4]);
+				foreach($types as $type) {
+					$ctid= parent::getRes().md5($type);
+					parent::addRDF(
+						parent::describeIndividual($ctid, $type, parent::getVoc()."Control-Type").
+						parent::describeClass(parent::getVoc()."Control-Type", "PharmGKB Control Type").
+						parent::triplify($uri, parent::getVoc()."control-type",$ctid)
+					);
+			}}
 			if($a[5]) {
 				// cell type
-				$ctid= parent::getRes().md5($a[5]);
-				parent::addRDF(
-					parent::describeIndividual($ctid, $a[5], parent::getVoc()."Cell-Type").
-					parent::describeClass(parent::getVoc()."Cell-Type", "PharmGKB Cell Type").
-					parent::triplify($uri, parent::getVoc()."cell-type",$ctid)
-				);
+				$list = $this->parseList($a[5]);
+				foreach($list AS $item) {
+					$ctid= parent::getRes().md5($item);
+					parent::addRDF(
+						parent::describeIndividual($ctid, $item, parent::getVoc()."Cell-Type").
+						parent::describeClass(parent::getVoc()."Cell-Type", "PharmGKB Cell Type").
+						parent::triplify($uri, parent::getVoc()."cell-type",$ctid)
+					);
+				}
 			}
 			if($a[6]) {
 				$pmids = explode(",",$a[6]);
