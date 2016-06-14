@@ -108,7 +108,7 @@ Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-indexings/"
 
 unzip XMLs to folder "pharmacologic_class_indexing_spl_files"
 
-$ cd pharmacologic_class_indexing_spl_files; unzip \*.zip; rm \*.zip
+$ cd pharmacologic_class_indexing_spl_files; unzip \*.zip; rm *.zip
 
 --------------------------------------------------------
 FDA (Preferred terms, UNIIs):
@@ -188,8 +188,9 @@ CONCEPT cpt
 WHERE 
 cpt.CONCEPT_CLASS = 'Clinical Drug';
 
-right click result table and export to csv ('|' delimited)
-keep csv in LinkedSPLs-clinicalDrug/mappings/
+right click result table and export to delimited ('|' delimited, none Left or Right Enclosure)
+save name as: clinical-drug-omopid-rxcui-<DATE>.dsv
+to dir: LinkedSPLs-clinicalDrug/mappings/
 
 AND
 
@@ -199,7 +200,8 @@ CONCEPT cpt
 WHERE 
 cpt.CONCEPT_CLASS = 'Ingredient';
 
-keep csv in LinkedSPLs-activeMoiety/mappings/
+save name as: active-ingredient-omopid-rxcui-<DATE>.dsv
+to dir: LinkedSPLs-activeMoiety/mappings/
 
 
 ################################################################################
@@ -522,6 +524,9 @@ SQL> update DB.DBA.load_list set ll_state = 0 where ll_file = '<name of RDF file
 SQL> rdf_loader_run();
 SQL> select * from DB.DBA.load_list; 
 
-
+Graph list:
+http://purl.org/net/nlprepository/spl-core
+http://purl.org/net/nlprepository/spl-active-moiety
+http://purl.org/net/nlprepository/spl-clinical-drug
 
 - The D2R file has the mapping from RDB tables to RDF: ../LinkedSPLs-core/linkedSPLs_dump_rdf_config.n3

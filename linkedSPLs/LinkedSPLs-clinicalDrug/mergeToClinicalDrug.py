@@ -22,7 +22,7 @@ SETID_RXCUI = "mappings/setid_rxcui.txt"
 FULLNAME_SETID = "mappings/setid_fullname.txt"
 
 #OMOP_RXCUI = "mappings/imeds_drugids_to_rxcuis.csv"
-OMOP_RXCUI = "mappings/clinical-drug-omopid-rxcui-09042015.dsv"
+OMOP_RXCUI = "mappings/clinical-drug-omopid-rxcui.dsv"
 
 
 
