@@ -49,6 +49,7 @@ INTO OUTFILE '/tmp/pt-drugbank-rxnorm-unconservetive-mapping-06232016.tsv'
 FIELDS TERMINATED BY '\t'
 LINES TERMINATED BY '\n';
 
+$ cp /tmp/pt-drugbank-rxnorm-unconservetive-mapping-06232016.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping>
 
 full mapping (1395 by 06/10/2016)
 
