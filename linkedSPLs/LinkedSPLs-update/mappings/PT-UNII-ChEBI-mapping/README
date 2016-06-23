@@ -1,5 +1,17 @@
+------------------------------------------------------------------------------
+How to update mappings of ChEBI and FDA preferred term - Table: FDA_UNII_to_ChEBI
+------------------------------------------------------------------------------
+
+(1) query chebi SOAP client (https://www.ebi.ac.uk/chebi/webServices.do) by java program at
+mappings/PT-UNII-ChEBI-mapping/ChEBIJavaClient
+
+Input: FDA prefered term
+Output: Mappings of UNII to ChEBI, save to UNIIToChEBI.txt (7601 by 06/10/2016)
+
+
+
 --------------------------------------------------------------------------------
--- Overview
+Deprecated below - Overview 
 --------------------------------------------------------------------------------
 
 This folder has a mapping between FDA UNIIs and ChEBI PURLs created using the
@@ -10,6 +22,7 @@ The script 'getChebiMappingsFromJSON.py' was ran to identify all
 entities in ChEBI as recorded in Bioportal with an uppercase label
 matching each UNII preferred name. This produced the UNII Preferred
 Name to ChEBI mapping.
+
 
 --------------------------------------------------------------------------------
 --How to load into the mysql database tables 
