@@ -32,30 +32,23 @@ LOAD DATA LOCAL INFILE './fda-substance-preferred-name-to-drugbank.txt'INTO TABL
 How to update mappings of PT and Drugbank URI, RxNorm
 -------------------------------------------------------------------------------------------
 
-Once tables FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF and FDAPreferredSubstanceToRxNORM are loaded in linkedSPLs schema. The query below would return mappings of Preferred term, Drugbank URI and RxNorm
+Once tables FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF and FDAPreferredSubstanceToRxNORM are loaded in linkedSPLs schema.
 
-Left join drugbank mapping with rxnorm mapping (2809 by 06/10/2016)
+(1) The query below would return left join mappings of Preferred term, Drugbank URI and RxNorm
 
-SELECT db.PreferredSubstance, db.DRUGBANK_CA, rx.RxNORM FROM FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db
-left join FDAPreferredSubstanceToRxNORM rx 
-on rx.PreferredSubstance = db.PreferredSubstance;
+Left join drugbank mapping with rxnorm mapping (2809 by 06/25/2016)
 
-Export query ressults to tsv:
+Export query results to tsv:
 
-SELECT db.PreferredSubstance, db.DRUGBANK_CA, rx.RxNORM FROM FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db
-LEFT JOIN FDAPreferredSubstanceToRxNORM rx 
-ON rx.PreferredSubstance = db.PreferredSubstance
-INTO OUTFILE '/tmp/pt-drugbank-rxnorm-unconservetive-mapping-06232016.tsv'
-FIELDS TERMINATED BY '\t'
-LINES TERMINATED BY '\n';
+SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.code FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db LEFT JOIN rxnorm.RXNCONSO rx  ON rx.STR = db.PreferredSubstance AND rx.SAB = "RXNORM" INTO OUTFILE '/tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping-06252016.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
 
-$ cp /tmp/pt-drugbank-rxnorm-unconservetive-mapping-06232016.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping>
+$ cp /tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping-06252016.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping/>
 
-full mapping (1395 by 06/10/2016)
+(2) full mapping (1597 by 06/25/2016)
 
-SELECT db.PreferredSubstance, db.DRUGBANK_CA, rx.RxNORM FROM FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db
-join FDAPreferredSubstanceToRxNORM rx 
-on rx.PreferredSubstance = db.PreferredSubstance;
+SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.code FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance AND rx.SAB = "RXNORM" INTO OUTFILE '/tmp/pt-drugbank-rxnorm-unconservative-mapping-06252016.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n'; Query OK, 1597 rows affected (43.50 sec)
+
+$ cp /tmp/pt-drugbank-rxnorm-unconservative-mapping-06252016.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping/>
 
 ------------------------------------------------------------------------------
 Deprecated - Old apporach that querying bioportal
