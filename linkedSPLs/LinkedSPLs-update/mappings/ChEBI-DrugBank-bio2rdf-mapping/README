@@ -32,23 +32,22 @@ LOAD DATA LOCAL INFILE './fda-substance-preferred-name-to-drugbank.txt'INTO TABL
 How to update mappings of PT and Drugbank URI, RxNorm
 -------------------------------------------------------------------------------------------
 
-Once tables FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF and FDAPreferredSubstanceToRxNORM are loaded in linkedSPLs schema.
+Requirements: table FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF loaded in linkedSPLs schema.
+	      rxnorm database from UMLS are loaded as seperated schema
 
-(1) The query below would return left join mappings of Preferred term, Drugbank URI and RxNorm
+(1) The query below would return mappings of Preferred term, Drugbank URI and RxNorm
 
-Left join drugbank mapping with rxnorm mapping (2809 by 06/25/2016)
+(1991 distinct mappings by 06/25/2016)
 
-Export query results to tsv:
+SQL query:
 
-SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.code FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db LEFT JOIN rxnorm.RXNCONSO rx  ON rx.STR = db.PreferredSubstance AND rx.SAB = "RXNORM" INTO OUTFILE '/tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping-06252016.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
-
-$ cp /tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping-06252016.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping/>
-
-(2) full mapping (1597 by 06/25/2016)
-
-SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.code FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance AND rx.SAB = "RXNORM" INTO OUTFILE '/tmp/pt-drugbank-rxnorm-unconservative-mapping-06252016.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n'; Query OK, 1597 rows affected (43.50 sec)
+SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.rxcui FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance INTO OUTFILE '/tmp/pt-drugbank-rxnorm-unconservative-mapping-06252016.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
 
 $ cp /tmp/pt-drugbank-rxnorm-unconservative-mapping-06252016.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping/>
+
+(2) The query use left join for debuging that drug bank mapping missed rxnorm mapping
+
+SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.rxcui FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance INTO OUTFILE '/tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping-06252016.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
 
 ------------------------------------------------------------------------------
 Deprecated - Old apporach that querying bioportal
