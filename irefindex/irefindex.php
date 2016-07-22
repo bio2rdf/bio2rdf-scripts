@@ -163,7 +163,7 @@ class irefindexParser extends Bio2RDFizer
 			trigger_erorr("Expecting 54 columns, found $c!");
 			return FALSE;
 		}
-
+		#print_r($header);exit;
 		// check # of columns
 		while($l = parent::getReadFile()->read(500000)) {
 			$a = explode("\t",trim($l));
@@ -280,14 +280,14 @@ class irefindexParser extends Bio2RDFizer
 			}
 
 			// add the alternatives through the taxon + seq redundant group
-			for($i=2;$i<=3;$i++) {
+			for($i=0;$i<1;$i++) {
 				$taxid = '';
-				$rogid = "irefindex.".$a[32+($i-2)];
+				$rogid = "irefindex.".$a[32+$i];
 				parent::addRDF(
 					parent::describeIndividual($rogid,"",parent::getVoc()."Taxon-Sequence-Identical-Group").
 					parent::describeClass(parent::getVoc()."Taxon-Sequence-Identical-Group","Taxon + Sequence Identical Group")
 				);
-				$tax = $a[9+($i-2)];
+				$tax = $a[9+$i];
 				if($tax && $tax != '-' && $tax != '-1') {
 					$data = $this->ParseStringArray($tax);
 					$taxid = trim($data["ns"]).":".trim($data["id"]);
@@ -296,7 +296,8 @@ class irefindexParser extends Bio2RDFizer
 					);
 				}
 
-				$list = explode("|",$a[3+($i-2)]);
+				// parse the alternative identifiers 
+				$list = explode("|",$a[2+$i]);
 				foreach($list AS $item) {
 					$data = $this->ParseStringArray($item);
 					$ns = trim($data["ns"]);
@@ -311,6 +312,24 @@ class irefindexParser extends Bio2RDFizer
 						);
 					}
 				}
+
+				// parse the aliases 
+				$list = explode("|",$a[4+$i]);
+				foreach($list AS $item) {
+					$data = $this->ParseStringArray($item);
+					$ns = trim($data["ns"]);
+					$id = trim($data["id"]);
+					$qname = $ns.":".$id;
+					if($ns && $ns != 'rogid' && $ns != 'irogid' and $ns != 'icrogid' and $id != '-') {
+						parent::addRDF(
+							parent::triplify($rogid,parent::getVoc()."has-member",$qname)
+						);
+						if($taxid && $taxid != '-' && $taxid != '-1') parent::addRDF(
+							parent::triplify($qname,parent::getVoc()."x-taxonomy",$taxid)
+						);
+					}
+				}
+
 			}
 
 			// publications
