@@ -56,6 +56,16 @@ class DrugBankParser extends Bio2RDFizer
 		if(parent::getParameterValue("id_list")) {
 			$this->id_list = array_flip(explode(",",parent::getParameterValue('id_list')));
 		}
+		
+		$go_cache_file = parent::getParameterValue('indir')."go.cache.json";
+		#unlink($go_cache_file);
+		if(!file_exists($go_cache_file) or parent::getParameterValue('download') == true) {
+			$this->getGO();
+			file_put_contents($go_cache_file,json_encode($this->go));
+		} else {
+			// read the file
+			$this->go = json_decode( file_get_contents($go_cache_file), true);		
+		}
 
 		$dataset_description = '';
 		foreach($files AS $f) {
@@ -241,9 +251,16 @@ class DrugBankParser extends Bio2RDFizer
 						parent::triplify($pid, parent::getVoc()."x-pfam","pfam:"."".$v2->identifier)
 					);
 				} else if($k2 == "go-classifier") {
-					parent::addRDF(
-						parent::triplifyString($pid, parent::getVoc()."go-".$v2->category, $v2->description)
-					);
+					$e = array_search($v2->description, $this->go);
+					if($e !== FALSE) {
+						parent::addRDF(		
+							parent::triplify($pid, parent::getVoc()."go-".$v2->category, $e)
+						);				
+					} else {
+						parent::addRDF(				
+							parent::triplifyString($pid, parent::getVoc()."go-".$v2->category, $v2->description)
+						);
+					}
 				} else {
 					trigger_error("no handler for $k2",E_USER_WARNING);
 	/*					parent::addRDF(
@@ -773,6 +790,35 @@ class DrugBankParser extends Bio2RDFizer
 		}
 	}
 
+	function getGO() 
+	{
+		$this->go = null;
+		
+		$server = "http://bio2rdf.org/sparql";
+		$sparql = "PREFIX dct: <http://purl.org/dc/terms/>
+SELECT distinct ?id ?title
+{
+ ?go a <http://bio2rdf.org/go_vocabulary:Resource> .
+ ?go dct:identifier ?id.
+ ?go dct:title ?title .
+} ";
+		$url = $server."?query=".urlencode($sparql)."&format=".urlencode("text/tab-separated-values");
+
+		$results = file_get_contents($url);
+		if($results === FALSE) {
+			trigger_error("Unable to get Gene Ontology labels",E_USER_WARNING);
+			return false;
+		}
+		$list = explode("\n",$results);
+		array_shift($list); array_pop($list);  // remove first and last
+		
+		foreach($list AS $v) {
+			$b = explode("\t",str_replace('"','',$v));
+			$this->go[$b[0]] = $b[1];
+		}
+		return true;
+	}
+	
 } // end class
 
 ?>

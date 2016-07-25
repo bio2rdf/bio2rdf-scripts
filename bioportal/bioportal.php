@@ -394,7 +394,7 @@ class BioportalParser extends Bio2RDFizer
 		$graph_uri = '<'.parent::getRegistry()->getFQURI(parent::getGraphURI()).'>';
 		$bid = 1;
 
-		while($l = parent::getReadFile()->read()) {
+		while(FALSE !== ($l = parent::getReadFile()->read())) {
 			$lt = trim($l);
 			if(strlen($lt) == 0) continue;
 			if($lt[0] == '!') continue;
@@ -676,7 +676,8 @@ class BioportalParser extends Bio2RDFizer
 			} else {
 				//header
 				//format-version: 1.0
-				$buf .= parent::triplifyString($ouri,"obo_vocabulary:$a[0]",str_replace( array('"','\:'), array('\"',':'), isset($a[1])?$a[1]:""));
+				$buf .= parent::triplifyString($ouri,"obo_vocabulary:$a[0]",
+					str_replace( array('"','\:'), array('\"',':'), isset($a[1])?$a[1]:""));
 			}
 
 			if($minimal || $minimalp) parent::getWriteFile()->write($min);

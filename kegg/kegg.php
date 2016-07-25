@@ -59,7 +59,8 @@ class KEGGParser extends Bio2RDFizer
 
 		// handle genes separately
 		if(in_array("genes",$files)) {	
-			$orgs = array("hsa"); //,"mmu","eco","dre","dme","ath","sce","ddi");
+			$orgs = array("hsa","mmu","eco","dre","dme","ath","sce","ddi");
+			//$orgs = array("hsa"); 
 			echo "processing genes".PHP_EOL;
 			
 			$ofile = "kegg-genes.".parent::getParameterValue('output_format'); 
@@ -82,7 +83,7 @@ class KEGGParser extends Bio2RDFizer
 				
 				// get the list of genes for this organims
 				echo "processing $org".PHP_EOL;
-				$this->org = $org; // local variable
+				$this->org = strtoupper($org); // local variable
 				
 				$lfile = $ldir.$org.".txt";
 				$rfile = parent::getParameterValue("download_url")."list/$org";
@@ -223,9 +224,10 @@ class KEGGParser extends Bio2RDFizer
 			if(isset($this->idlist) and !in_array($id,$this->idlist)) continue;
 			
 			if(isset($this->org)) {
-				$id = $ns."_".$id;
+				$id = strtoupper($ns)."_".$id;
 			}
 			$uri = $this->getNamespace().$id;
+
 			parent::addRDF(
 				parent::describeIndividual($uri,$name,parent::getVoc().ucfirst($db)).
 				parent::describeClass(parent::getVoc().ucfirst($db),"KEGG $db").
@@ -293,6 +295,7 @@ class KEGGParser extends Bio2RDFizer
 				$uri = parent::getNamespace().$e['id'];
 				continue;
 			}
+			
 			// key with value
 			if(in_array($k, array("NAME","DESCRIPTION","DEFINITION","EQUATION","COMMENT"))) {
 				if($k == "NAME") {
@@ -688,14 +691,19 @@ class KEGGParser extends Bio2RDFizer
 					parent::triplify($uri,parent::getVoc().strtolower($k),$id)
 				);
 				preg_match_all("/ \[([^\]]+)\]/",$v,$m);
-				if(isset($m[1])) {
-					foreach($m[1] AS $item) {
-						if(!strstr($item,"KO")) $item = "kegg:".str_replace(":","_",$item);
-						else $item = str_replace("KO:","kegg:",$item);
-						parent::addRDF(
-							parent::triplify($id,parent::getVoc()."link",$item)
-						);
+				if(isset($m[1]) and !empty($m[1])) {					
+					foreach($m[1] AS $item) {			
+						$a = explode(':',$item);  // get the namespace
+						$b = explode(' ',$a[1]);
+						foreach($b AS $c) {
+							if(!strstr($item,"KO")) $i = "kegg:".$a[0].'_'.$c;
+							else $i = "kegg:".$c;
+							parent::addRDF(
+								parent::triplify($id,parent::getVoc()."link",$i)
+							);
+						}
 					}
+					$test = true;
 				}
 				continue;
 			}
