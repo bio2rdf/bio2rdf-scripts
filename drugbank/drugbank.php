@@ -454,7 +454,7 @@ class DrugBankParser extends Bio2RDFizer
 			foreach($x->mixtures->mixture AS $item) {
 				if(isset($item)) {
 					$o = $item;
-					$mid = parent::getRes().str_replace(" ","-",$o->name[0]);
+					$mid = parent::getRes().md5(str_replace(" ","-",$o->name[0]));
 
 					parent::addRDF(
 						parent::triplify($did,parent::getVoc()."mixture",$mid).
