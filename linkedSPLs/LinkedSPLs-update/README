@@ -1,7 +1,7 @@
 CODE TO GENERATE THE SQL AND LINKED-DATA VERSION OF LINKEDSPLS
 Authors: Richard Boyce, Greg Gardner, Yifan Ning
 
-Last updated Date: 09/25/2015
+Last updated Date: 05/19/2016
 
 problematic labels:
 spls/e8ae0b66-25de-41b1-8013-7f414bbb7568.xml
@@ -134,7 +134,7 @@ Drugbank (Drug bank Id) :
 
 Download from http://www.drugbank.ca/downloads
 
-download drugbank.xml as drugbankX.X and keep in directory LinkedSPLs-update/data/DrugBank
+download drugbank.xml as drugbankX.X and keep in directory LinkedSPLs-update/data/DrugBank/drugbank.xml
 
 --------------------------------------------------------
 UMLS (rxcui):
