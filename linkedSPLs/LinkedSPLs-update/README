@@ -1,23 +1,20 @@
 CODE TO GENERATE THE SQL AND LINKED-DATA VERSION OF LINKEDSPLS
 Authors: Richard Boyce, Greg Gardner, Yifan Ning
 
-Last updated Date: 05/19/2016
-
-problematic labels:
-spls/e8ae0b66-25de-41b1-8013-7f414bbb7568.xml
+Last updated Date: 01/18/2017
 
 
 ################################################################################
 OVERVIEW
 ################################################################################
 
-The University of Pittsburgh Linked Structured Product Label (SPL) repository renders sections from the package inserts (product labels) of FDA-approved drugs as published in the SPL data standard and provided by the National Library of Medicine's DailyMed resource. Currently, only data from the product labels of prescription drugs is provided. This site's SPL data is updated weekly and all SPLs retain DailyMed versioning data so that researchers can record the provenance of the text and sections they work with. The Linked SPL resource currently contains 50,000 SPLs for products containing more than 2,300 active ingredients. 
+The University of Pittsburgh Linked Structured Product Label (SPL) repository renders sections from the package inserts (product labels) of FDA-approved drugs as published in the SPL data standard and provided by the National Library of Medicine's DailyMed resource. Currently, only data from the product labels of prescription drugs is provided. This site's SPL data is updated weekly and all SPLs retain DailyMed versioning data so that researchers can record the provenance of the text and sections they work with. The Linked SPL resource currently contains 33928 SPLs for products containing more than 2,300 active ingredients. 
 
 
 Most recent update at the time of creating this file: 
-- Labels for prescription drugs downloaded from http://dailymed.nlm.nih.gov/dailymed/spl-resources.cfm   Nov 15, 2014
+- Labels for prescription drugs downloaded from http://dailymed.nlm.nih.gov/dailymed/spl-resources.cfm  Jan 18, 2017
 
-updated in Jun 08 2015 08:00:31 AM EST
+updated in Jan 18 2017 08:00:31 AM EST
 
 - The file load-dailymed-spls/TableSchema.sql has the RDB schema needed to load the data. Note that, for manually way of update mappings, not all data is loaded using Python, read the rest of the README to see other data and how it is loaded. Recommended way of update and load mappings is run the ant program by following commands:
 
@@ -223,255 +220,22 @@ will truncate all SPL tables and load all SPLs in the 'spls' folder.
 $ cd bio2rdf/linkedSPLs/LinkedSPLs-update/load-dailymed-spls
 $ loadDailymedToSql.py
 
-------------------------------------------------------------
-LOADING THE FDA UNII TO CHEBI MAPPING
-------------------------------------------------------------
-
-The chemical entities in SPLs are named using Unique Ingredient
-Identifiers
-(UNIIs, see http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162523.htm). A
-mapping from the UNIIs to ChEBI PURLs has been created using the code
-in the folder 'UNII-to-ChEBI-mapping.' There are two files that are
-present in the database that can be used to map between active moiety
-string names and ChEBI as well as UNIIs and ChEBI:
-
-1) FDAPreferredSubstanceToUNII_03132014.txt
-
-Load into the RDB by:
-
-CREATE TABLE `FDAPreferredSubstanceToUNII` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `PreferredSubstance` varchar(200) NOT NULL,
-  `UNII` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-LOAD DATA LOCAL INFILE './FDAPreferredSubstanceToUNII_03132014.txt' INTO TABLE FDAPreferredSubstanceToUNII FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' (PreferredSubstance, UNII); 
-
-2) FDA_UNII_to_ChEBI_03132014.txt
-
-Load into the RDB by:
-
-CREATE TABLE `FDA_UNII_to_ChEBI` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `PreferredSubstance` varchar(200) NOT NULL,
-  `ChEBI` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-LOAD DATA LOCAL INFILE './FDA_UNII_to_ChEBI_03132014.txt' INTO TABLE FDA_UNII_to_ChEBI FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' (PreferredSubstance, ChEBI); 
-
-------------------------------------------------------------
-LOADING THE FDA SUBSTANCE NAME TO DRUGBANK MAPPING  (NOTE: IGNORE UNTIL VALIDATED - 03/21/2014)
-------------------------------------------------------------
-
-The potential usability of linkeSPLs is increased by including
-mappings to external sources that contain more structured knowledge
-about entities identified in SPLs. DrugBank is one such resource and
-the most current linked version of DrugBank is likely in the Bio2RDF
-resource. However, bio2rdf uses normalized URIs (see
-http://tinyurl.com/7laerbk and
-http://sourceforge.net/apps/mediawiki/bio2rdf/index.php?title=Banff_Manifesto)
-and some translation is required in order to contstruct federated
-queries across OBO ontologies, bio2rdf, and linked SPLs. 
-
-A validated mapping from FDA preferred substance names and UNIIs to
-DrugBank was created in late September 2012. This is an initial
-manually validated mapping known to be incomplete. The mapping was
-done using three different methods which are described in a conference
-manuscript currently under review (09/29/2012). The mapping itself is
-stored in
-"merged_results_with_drug_names-MANUALLY-EDITED-FINAL-VALIDATED-MAPPING-09272012.csv". The
-script 'merge-chebi-and-drugbank-mapping.py' creates a table
-"fda-substance-preferred-name-to-drugbank-09292012.csv" that can be
-loaded into the LinkedSPLs database and mapped to RDF. Here is how to
-load the mapping:
-
-CREATE TABLE `FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `PreferredSubstance` varchar(200) NOT NULL,
-  `DRUGBANK_CA` varchar(200) NOT NULL, 
-  `DRUGBANK_BIO2RDF` varchar(200) NOT NULL,     
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-LOAD DATA LOCAL INFILE './fda-substance-preferred-name-to-drugbank-09292012.csv' INTO TABLE FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' IGNORE 1 LINES (PreferredSubstance, DRUGBANK_CA, DRUGBANK_BIO2RDF); 
-
-
-------------------------------------------------------------
-LOADING THE FDA ACTIVE MOIETY TO RXNORM MAPPING
-------------------------------------------------------------
-
-FDA preferred substance names are mapped to RxNORM active ingredients
-using the script in the getPreferredSubstanceRxNORM_Mapping.py located
-in the RxNORM-mapping sub-folder.
-
-NOTE: IT IS CRITICAL to re-run the scripts for generating the table
-for FDA pharmacogenomic data (in sub-folder 'FDA-pharmacogenetic-info-mapping') and add the lines that the script
-writes at the end of the log file to any updated rxcuis mapping file.
-
-Load into the RDB by:
-
-CREATE TABLE `FDAPreferredSubstanceToRxNORM` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `PreferredSubstance` varchar(200) NOT NULL,
-  `RxNORM` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-LOAD DATA LOCAL INFILE './PreferredSubstance-to-Rxcui-mapping_03132014.txt' INTO TABLE FDAPreferredSubstanceToRxNORM FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' (PreferredSubstance, RxNORM); 
-
-
 ------------------------------------------------------------------------------------------------------------------------
-LOADING THE FDA SPL SETID TO RXNORM MAPPING (NOTE: load the active moiety to rxnorm mapping first!)
+To generate and load individual mapping, please check README in sub folders of dicrectory: "/LinkedSPLs-update/mappings/
 ------------------------------------------------------------------------------------------------------------------------
+ChEBI-DrugBank-bio2rdf-mapping    
+NDFRT-to-RxNorm
+RxNORM-mapping
+DrOn-to-RxNorm
+pharmacologic_class_indexing
+FDA-pharmacogenetic-info-mapping
+PT-UNII-ChEBI-mapping
 
-FDA SPL setids are mapped to RxNORM active ingredients using the
-script rxnorm-api-query-for-drug-entities-in-rxnorm.py in the
-RxNORM-mapping sub-folder. NOTE: The script queries linkedSPLs for RxCUIs
-for all active moieties so be sure to change the linkedSPLs SPARQL
-endpoint the script uses is it is incorrect.
+------------------------------------------------------------
+Mappings of Drugbank Id and RxNorm 
+------------------------------------------------------------
 
-Load into the RDB by:
-
-CREATE TABLE `SPLSetIDToRxNORM` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `setId` varchar(200) NOT NULL,
-  `RxCUI` varchar(50) NOT NULL,
-  `RxClinicalDrug` varchar(1000) NOT NULL,	
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-
-LOAD DATA LOCAL INFILE './converted_rxnorm_mappings_03132014.txt' INTO TABLE `SPLSetIDToRxNORM`  FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (setId, RxCUI, RxClinicalDrug); 
-
-
-------------------------------------------------------------------------------------------------------------------------
-LOADING THE FDA SPL SETID TO PHARMACOGENETIC INFORMATION DATA (NOTE: load the active moiety to rxnorm mapping first!)
-------------------------------------------------------------------------------------------------------------------------
-
- Data from the FDA's pharmacogenomic biomarker table
- <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>
- is loaded into a table format that can be used to link the data and
- SPL section date within linkedSPLs using the script
- 'createFDAPharmgxDBTable.py' in the FDA-pharmacogenetic-info-mapping
- table
-
-Load into the RDB by:
-
-CREATE TABLE `FDAPharmgxTable` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `activeMoiety` varchar(200) NOT NULL,	
-  `therapeuticApplication` varchar(500) NOT NULL,	
-  `biomarker` varchar(50) NOT NULL,
-  `setId` varchar(200) NOT NULL,
-  `SPLSection` varchar(500) NOT NULL,	
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-LOAD DATA LOCAL INFILE './FDAPharmgxTable.csv' INTO TABLE `FDAPharmgxTable`  FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' (activeMoiety, therapeuticApplication, biomarker, setId, SPLSection); 
-
-The file biomarker-to-ontology-mapping.csv contains a manually created
-mapping between the FDA biomarker strings, HGNC symbols, and ids in
-Pharmgkb, and the PRO ontology. This mapping can be used to generate
-all kinds of other mappings as well as facilitate distributed
-queries. This table is loaded as follows:
-
-
-CREATE TABLE `FDAPharmgxTableToOntologyMap` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `FDAReferencedSubgroup` varchar(200) NOT NULL,	
-  `HGNCGeneSymbol` varchar(100),	
-  `Synonymns` varchar(500) ,
-  `AlleleVariant` varchar(100),
-  `Pharmgkb` varchar(100),	
-  `URI` varchar(200),	
-  `Ontology` varchar(200),
-  `CuratorComments` varchar(500),
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-LOAD DATA LOCAL INFILE './biomarker-to-ontology-mapping.csv' INTO TABLE `FDAPharmgxTableToOntologyMap`  FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' (FDAReferencedSubgroup,HGNCGeneSymbol,Synonymns,AlleleVariant,Pharmgkb,URI,Ontology,CuratorComments); 
-
----------------------------
-LOADING THE EPC CLASS DATA 
----------------------------
-
-Data from DailyMed mappings to FDA Established Pharmacologic Class
-(EPC) classes
-<http://www.fda.gov/ForIndustry/DataStandards/StructuredProductLabeling/ucm162549.htm>
-is available in the file 'EPC_extraction_most_recent.txt' in the folder
-'pharmacologic_class_indexing.' Read the README in that folder. The mappings can be loaded
-into linkedSPLs as follows:
-
-CREATE TABLE `FDA_EPC_Table` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `setId` varchar(200) NOT NULL,
-  `UNII` varchar(50) NOT NULL,
-  `NUI` varchar(50) NOT NULL,
-  `PreferredNameAndRole` varchar(300) NOT NULL,	
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-LOAD DATA LOCAL INFILE './EPC_extraction_most_recent.txt' INTO TABLE `FDA_EPC_Table` FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' (setId, UNII, NUI, PreferredNameAndRole); 
-
-------------------------------------------------------
-LOADING THE RXNORM TO NDF-RT ACTIVE INGREDIENT MAPPING 
-------------------------------------------------------
-
-The RXNORM to NDF-RT active ingredient mapping is taken from RxNorm
-RRF files. See the README in NDFRT-to-RxNorm. The mappings can be
-loaded into linkedSPLs as follows:
-
-CREATE TABLE `RXNORM_NDFRT_INGRED_Table` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `RxNORM` varchar(200) NOT NULL,
-  `NUI` varchar(200) NOT NULL,
-  `NDFRT_LABEL` varchar(200) NOT NULL,
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET=utf8;
-
-LOAD DATA LOCAL INFILE './converted-rxnorm-to-ndfrt-chemical-ingredient-03192014.txt' INTO TABLE `RXNORM_NDFRT_INGRED_Table` FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n' (RxNORM, NUI, NDFRT_LABEL); 
-
-
-------------------------------------------------------
-LOADING THE OMOP Concept Id TO RxCUI MAPPING 
-------------------------------------------------------
-
-CREATE TABLE `linkedSPLs`.`OMOP_RXCUI` (
-  `Id` INT NOT NULL AUTO_INCREMENT,
-  `OMOPConceptId` VARCHAR(20) NOT NULL,
-  `RxCUI` VARCHAR(20) NOT NULL,
-  PRIMARY KEY (`Id`));
-
-LOAD DATA LOCAL INFILE 'data/OMOP-OHDSI/imeds_drugids_to_rxcuis.csv' INTO TABLE `OMOP_RXCUI` FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' IGNORE 1 LINES (OMOPConceptId, RxCUI);
-
-
-
---------------------------------------
-CREATE AND LOAD UNII to ChEBI MAPPING
--------------------------------------
-
-- Method: use Bioportal's SPARQL endpoint to identify exact string matches between the UNII preferred names and the RDF label of concepts in Bioportal
-
-- Base folder in SVN: 
-<linkedSPLs/LinkedSPLs-update/mappings/UNII-to-ChEBI-mapping>
-
-- Date performed: 04/13/2012 and 09/14/2012
-
-- Input: active_moieties.txt -- all unique UNII preferred names from listed in "UNIIs 2Mar2012.txt"
-
-- Script: sparql1-for-drug-entities.py
-
-- Results Files: FDA-UNII-to-ChEBI-bioportal-mapping-04132012.txt, FDA-UNII-to-ChEBI-bioportal-mapping-09142012.txt, FDA-UNII-to-ChEBI-bioportal-mapping-04132012-PLUS-09142012.txt
-
-- Results (4/13/2012): 4,234 mappings
-
-- Results (09/14/2012): 2,180 mappings
-
-- Combined unique results: 4,411 (loaded into linkedSPLs: FDA-UNII-to-ChEBI-bioportal-mapping-04132012-PLUS-09142012.txt)
-
-
+See README at LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/README 
 
 ------------------------------------------------------------
 TESTING THE D2R SERVER ON THE DEVELOPMENT MACHINE

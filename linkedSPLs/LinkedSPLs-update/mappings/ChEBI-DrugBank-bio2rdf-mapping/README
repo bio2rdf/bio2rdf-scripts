@@ -13,9 +13,11 @@ INCHI OR Name OR Synonym:
 - script output: Name_Syns_UNII_DbId_0.txt
 - converted to unique list of mappings using:
 
+$ cd UNII-data/
 $ cat Name_Syns_UNII_DbId_0.txt | cut -f1,3,4,5 | sort | uniq  > INCHI-OR-Syns-OR-Name.txt
 
 - 2809 mappings by 06/10/2016
+- 2660 mappings by 01/18/2017
 
 (2) add Drug bank base URI to update table: FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF
 
@@ -38,19 +40,24 @@ Requirements: table FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF loaded in linkedSPLs schem
 (1) The query below would return mappings of Preferred term, Drugbank URI and RxNorm
 
 (1991 distinct mappings by 06/25/2016)
+(2442 distinct mappings by 01/18/2017)
 
 SQL query:
 
-SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.rxcui FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance INTO OUTFILE '/tmp/pt-drugbank-rxnorm-unconservative-mapping-06252016.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
+SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.rxcui FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance INTO OUTFILE '/tmp/pt-drugbank-rxnorm-unconservative-mapping.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
 
-$ cp /tmp/pt-drugbank-rxnorm-unconservative-mapping-06252016.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping/>
+$ cp /tmp/pt-drugbank-rxnorm-unconservative-mapping.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping/pt-drugbank-rxnorm-unconservative-mapping-<DATE>.tsv>
 
 (2) The query use left join for debuging that drug bank mapping missed rxnorm mapping
 
-SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.rxcui FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance INTO OUTFILE '/tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping-06252016.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
+(2771 distinct mappings by 01/18/2017)
+
+SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.rxcui FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db LEFT JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance INTO OUTFILE '/tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
+
+$ cp /tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping/pt-drugbank-leftjoin-rxnorm-unconservative-mapping-<DATE>.tsv>
 
 ------------------------------------------------------------------------------
-Deprecated - Old apporach that querying bioportal
+(Deprecated) - Old apporach that querying bioportal
 ------------------------------------------------------------------------------
 
 run script parseDBIdAndChEBI.py to get mappings of UNIIs drugbank
