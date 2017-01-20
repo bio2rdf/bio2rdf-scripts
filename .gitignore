@@ -2,8 +2,17 @@
 .DS_Store
 *.lock
 *.log
+
+linkedSPLs/LinkedSPLs-activeMoiety/mergedActiveMoiety.csv
+linkedSPLs/LinkedSPLs-clinicalDrug/mergedClinicalDrug.tsv
 linkedSPLs/LinkedSPLs-activeMoiety/activeMoietySub-in-rdf.xml
 linkedSPLs/LinkedSPLs-clinicalDrug/clinicalDrugSub-in-rdf.xml
+
+linkedSPLs/LinkedSPLs-activeMoiety/mappings/
+linkedSPLs/LinkedSPLs-clinicalDrug/mappings/
+
+linkedSPLs/LinkedSPLs-activeMoiety/PT-RXCUI-UNII-DB.csv
+
 linkedSPLs/LinkedSPLs-update/data/
 linkedSPLs/LinkedSPLs-update/load-dailymed-spls/problematic-spls/
 linkedSPLs/LinkedSPLs-update/mappings/FDA-pharmacogenetic-info-mapping/cached-table-downloads/
