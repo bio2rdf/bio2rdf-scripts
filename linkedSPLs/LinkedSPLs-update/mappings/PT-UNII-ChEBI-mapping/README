@@ -6,9 +6,10 @@ How to update mappings of ChEBI and FDA preferred term - Table: FDA_UNII_to_ChEB
 mappings/PT-UNII-ChEBI-mapping/ChEBIJavaClient
 
 Input: FDA prefered term
-Output: Mappings of UNII to ChEBI, save to UNIIToChEBI.txt (7601 by 06/10/2016)
+Output: Mappings of UNII to ChEBI, save to UNIIToChEBI.txt
 
-
+(7953 by 01/18/2017)
+(7601 by 06/10/2016)
 
 --------------------------------------------------------------------------------
 Deprecated below - Overview 
@@ -16,7 +17,7 @@ Deprecated below - Overview
 
 This folder has a mapping between FDA UNIIs and ChEBI PURLs created using the
 Python script and the NCBO Bioportal's SPARQL endpoint. The UNII entities 
-and identifiers came from the FDA on 06/27/2014.
+and identifiers came from the FDA on 01/18/2017.
 
 The script 'getChebiMappingsFromJSON.py' was ran to identify all
 entities in ChEBI as recorded in Bioportal with an uppercase label
@@ -32,29 +33,29 @@ Tip: backup mysql tables before truncate its
 
 UPDATE FDAPreferredSubstanceToUNII
 
-(1)download UNIIS 27Jun2014 Names.txt from repository swat-4-med-safety
+(1)download UNIIS_<DATE>_Names.txt from repository swat-4-med-safety
 
 (2)slice data by linux shell command: 
-cat ../Data_Source/FDA/UNIIS\ 27Jun2014\ Names.txt | cut -f 1,3 | sort > /PATH/TO/FDAPreferredSubstanceToUNII_10202014.txt
-output column 1 as preferred terms and synonymns, and column 3 as UNII to FDAPreferredSubstanceToUNII_10202014.txt
+cat ../Data_Source/FDA/UNIIS_<DATE>_Names.txt | cut -f 1,3 | sort > /PATH/TO/FDAPreferredSubstanceToUNII_<DATE>.txt
+output column 1 as preferred terms and synonymns, and column 3 as UNII to FDAPreferredSubstanceToUNII_<DATE>.txt
 
-(3)import data in FDAPreferredSubstanceToUNII_10202014.txt to mysql table FDAPreferredSubstanceToUNII
+(3)import data in FDAPreferredSubstanceToUNII_<DATE>.txt to mysql table FDAPreferredSubstanceToUNII
 
 command in shell:
 mysql -u root -p --local-infile linkedSPLs
-LOAD DATA LOCAL INFILE "/PATH/TO/FDAPreferredSubstanceToUNII_10202014.txt" INTO TABLE FDAPreferredSubstanceToUNII(PreferredSubstance, UNII);
+LOAD DATA LOCAL INFILE "/PATH/TO/FDAPreferredSubstanceToUNII_<DATE>.txt" INTO TABLE FDAPreferredSubstanceToUNII(PreferredSubstance, UNII);
 
 UPDATE FDA_UNII_to_ChEBI
 
 (1) run script 'getChebiMappingsFromJSON.py' to get mappings of of preferred term and ChEBI by command:
 
-$ python getChebiMappingsFromJSON.py > UNIIToChEBI-10302014.txt
+$ python getChebiMappingsFromJSON.py > UNIIToChEBI-<DATE>.txt
 
-(3)import data in UNIIToChEBI-10302014.txt to RDB table FDA_UNII_to_ChEBI
+(3)import data in UNIIToChEBI-<DATE>.txt to RDB table FDA_UNII_to_ChEBI
 
 $ mysql -u root -p --local-infile linkedSPLs
 
-LOAD DATA LOCAL INFILE "/PATH/TO/UNIIToChEBI-10302014.txt/FDA_UNII_to_ChEBI_10202014.txt" INTO TABLE FDA_UNII_to_ChEBI(PreferredSubstance, ChEBI);
+LOAD DATA LOCAL INFILE "/PATH/TO/UNIIToChEBI-<DATE>.txt/FDA_UNII_to_ChEBI_<DATE>.txt" INTO TABLE FDA_UNII_to_ChEBI(PreferredSubstance, ChEBI);
 
 --------------------------------------------------------------------------------
 --How to merge original UNIIs data with UNIIs type including column SY, SN, CD
@@ -62,10 +63,10 @@ LOAD DATA LOCAL INFILE "/PATH/TO/UNIIToChEBI-10302014.txt/FDA_UNII_to_ChEBI_1020
 
 run the python script to merge:
 
-$ python mergeUNIIsNamesWithRecords.py > mergedUNIIs-07282014.txt
+$ python mergeUNIIsNamesWithRecords.py > mergedUNIIs-<DATE>.txt
 
-inputs: ../Data_Source/FDA/UNIIs 27Jun2014 Records.txt
-	../Data_Source/FDA/UNIIS 25Jan2014 Names.txt
+inputs: ../Data_Source/FDA/UNIIs_<DATE>_Records.txt
+	../Data_Source/FDA/UNIIS_<DATE>_Names.txt
 
 outputs: tsv file have columns: 
 

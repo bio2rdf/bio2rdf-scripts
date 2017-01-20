@@ -3,3 +3,8 @@
 *.lock
 *.log
 linkedSPLs/LinkedSPLs-activeMoiety/activeMoietySub-in-rdf.xml
+LinkedSPLs-clinicalDrug/clinicalDrugSub-in-rdf.xml
+LinkedSPLs-update/data/
+LinkedSPLs-update/load-dailymed-spls/problematic-spls/
+LinkedSPLs-update/mappings/FDA-pharmacogenetic-info-mapping/cached-table-downloads/
+LinkedSPLs-update/mappings/PT-UNII-ChEBI-mapping/ChEBIJavaClient/bin/
