@@ -1,19 +1,33 @@
+################################################################################
+OVERVIEW
+################################################################################
+
 Merge clinical drug mapping to create clinical drug RDF graph. Each clinical drug entity include attributes FDA preferred name, Rxcui, DrOn Id, OMOP concept Id.
 
-#############################################################
-update clinical drug entity graph
-#############################################################
+################################################################################
+PRE-CONDITIONS:
+################################################################################
 
-<STEP1> update clinical drug mappings
+------------------------------------------------------------------------
+Mappings from linkedSPLs core update
+------------------------------------------------------------------------
 
-mappings folder keep all orginal mappings from linkedSPLs
+(1) Dron to rxcui: linkedSPLs/LinkedSPLs-update/mappings/DrOn-to-RxNorm/cleaned-dron-to-rxcui-drug-<DATE>.txt
 
-----------------------------------------------------------
-mappings of omopid and rxcui 
-----------------------------------------------------------
-OMOP concept Id and Rxcui mapping download from "https://github.com/OHDSI/KnowledgeBase/tree/master/LAERTES/terminology-mappings/StandardVocabToRxNorm/imeds_drugids_to_rxcuis.csv"
+(2) Dailymed setid and rxcui: LinkedSPLs-update/mappings/RxNORM-mapping/converted_rxnorm_mappings_<DATE>.txt converted_rxnorm_mappings.txt
 
-OR 
+$ cat converted_rxnorm_mappings.txt | cut -f1,2 -d\| | sort | uniq > setid_rxcui.txt
+
+(3) Dailymed setid and drug fullname
+
+$ mysql -u <username> -p
+$ use linkedSPLs;
+
+SELECT setId, fullName FROM linkedSPLs.structuredProductLabelMetadata INTO OUTFILE '/tmp/setid_fullname.txt' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+
+$ cp /tmp/setid_fullname.txt ../linkedSPLs/LinkedSPLs-clinicalDrug/mappings/
+
+(4) mappings of omopid and rxcui 
 
 query OMOP CDM V5 (GeriOMOP) by SQL query below:
 
@@ -22,46 +36,23 @@ CONCEPT cpt
 WHERE 
 cpt.CONCEPT_CLASS = 'Clinical Drug';
 
-09/04/2015: 120561 results
+01/18/2017: 120561 results
 
-right click result table and export to csv ('|' delimited) 
+right click result table and export to delimited ('|' delimited, none Left or Right Enclosure)
+save name as: clinical-drug-omopid-rxcui-<DATE>.dsv
+to dir: LinkedSPLs-clinicalDrug/mappings/
 
-----------------------------------------------------------
-cleaned-dron-to-rxcui-drug-<DATE>.txt
-----------------------------------------------------------
-mappings of DrOn Id and Rxcui available from "linkedSPLs/LinkedSPLs-update/mappings/DrOn-to-RxNorm/cleaned-dron-to-rxcui-drug-<DATE>.txt"
+################################################################################
+Procedures to get clinical drug RDF graph
+################################################################################
 
-----------------------------------------------------------
-converted_rxnorm_mappings_<DATE>.txt
-----------------------------------------------------------
-
-Dailymed product label indexing mapping from "linkedSPLs/LinkedSPLs-update/mappings/RxNORM-mapping/converted_rxnorm_mappings_<DATE>"
-
-$ cd mappings
-
-$ cp ../../LinkedSPLs-update/mappings/RxNORM-mapping/converted_rxnorm_mappings_10132015.txt converted_rxnorm_mappings.txt
-
-$ cat converted_rxnorm_mappings.txt | cut -f1,2 -d\| | sort | uniq > setid_rxcui.txt
-
-----------------------------------------------------------
-mappings of FDA preferred term and setId
-----------------------------------------------------------
-
-$ mysql -u <username> -p
-
-$ use linkedSPLs;
-
-SELECT setId, fullName FROM linkedSPLs.structuredProductLabelMetadata INTO OUTFILE '/tmp/setid_fullname.txt' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
-
-$ cp /tmp/setid_fullname.txt ../linkedSPLs/LinkedSPLs-clinicalDrug/mappings/
-
-<STEP 2> merge clinical drug mappings
+(1) merge clinical drug mappings
 
 $ python mergeToClinicalDrug.py
 
 output: mergedClinicalDrug.tsv
 
-<STEP 3> create clinical drug entity graph 
+(2) create clinical drug entity graph 
 
 $ python createClinicalDrugSubInRDF.py
 

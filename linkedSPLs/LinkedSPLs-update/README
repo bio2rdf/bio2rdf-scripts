@@ -3,7 +3,6 @@ Authors: Richard Boyce, Greg Gardner, Yifan Ning
 
 Last updated Date: 01/18/2017
 
-
 ################################################################################
 OVERVIEW
 ################################################################################
@@ -197,6 +196,7 @@ CONCEPT cpt
 WHERE 
 cpt.CONCEPT_CLASS = 'Ingredient';
 
+right click result table and export to delimited ('|' delimited, none Left or Right Enclosure)
 save name as: active-ingredient-omopid-rxcui-<DATE>.dsv
 to dir: LinkedSPLs-activeMoiety/mappings/
 
@@ -262,35 +262,3 @@ On the public server:
 cd Downloads/d2rq-0.8.1/webapp/WEB-INF/templates
 
 ...Then edit the root_page.vm file
-
-------------------------------------------------------------
-CREATING AN RDF DUMP OF THE DATA IN THE D2R SERVER
-------------------------------------------------------------
-
-$ cd <d2r server for linkedSPLs>
-$ ./dump-rdf -m <path to mapping file> -o linkedSPLs-dump.nt 
-
----------------------------------------------------------------------------------------
-LOADING AN RDF DUMP OF THE DATA INTO VIRTUOSO (tested with OpenLink Virtuoso in Ubuntu)
----------------------------------------------------------------------------------------
-
-Initial load:
-$ isql-vt
-SQL> ld_dir ('/path/to/files', '*.n3', 'http://dbpedia.org');
-SQL> rdf_loader_run();
-SQL> select * from DB.DBA.load_list;
-
-Reloading (DELETE THE OLD GRAPH FIRST from Virtuoso composer!):
-$ isql-vt
-SQL> log_enable(3,1); # see http://www.openlinksw.com/dataspace/dav/wiki/Main/VirtTipsAndTricksGuideDeleteLargeGraphs
-SQL> SPARQL CLEAR GRAPH <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/>;
-SQL> update DB.DBA.load_list set ll_state = 0 where ll_file = '<name of RDF file>';
-SQL> rdf_loader_run();
-SQL> select * from DB.DBA.load_list; 
-
-Graph list:
-http://purl.org/net/nlprepository/spl-core
-http://purl.org/net/nlprepository/spl-active-moiety
-http://purl.org/net/nlprepository/spl-clinical-drug
-
-- The D2R file has the mapping from RDB tables to RDF: ../LinkedSPLs-core/linkedSPLs_dump_rdf_config.n3
