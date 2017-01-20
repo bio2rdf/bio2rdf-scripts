@@ -235,8 +235,6 @@
     <!-- <antcall target="load-DrOn_RXCUI_DRUG" /> -->
     <!-- <antcall target="load-DrOn_RXCUI_INGREDIENT" /> -->
 
-    <!-- <antcall target="load-OMOPId-RXCUIs-from-OHDSI" /> -->
-
     <antcall target="set.timestamp">
       <param name="message" value="updated all mappings in ${mysql-schema}" />
     </antcall>
@@ -614,6 +612,11 @@
   <target name="load-FDA_EPC_Table" >
 
     <delete file="${pharmacologic_class_indexing}/EPC_extraction_most_recent.txt"/>
+
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='unzip ${PG_CLASS_INDEXING_SPLS}/\*.zip -d ${PG_CLASS_INDEXING_SPLS}/' />
+    </exec>
 
     <exec executable="python" failonerror="true">
       <arg line="${pharmacologic_class_indexing}/parseEPCfromXMLs.py ${PG_CLASS_INDEXING_SPLS}" />
