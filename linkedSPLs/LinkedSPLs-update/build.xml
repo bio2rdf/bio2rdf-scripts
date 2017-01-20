@@ -679,7 +679,7 @@
     <delete file="${DrOn-to-RxNorm}/cleaned-dron-to-rxcui-drug.txt"/>
 
     <exec executable="python" failonerror="true">
-      <arg line="${DrOn-to-RxNorm}/cleanData.py ${DrOn-to-RxNorm}/dron-rxcui-drug.txt" /> 
+      <arg line="${DrOn-to-RxNorm}/cleanData.py ${DrOn-to-RxNorm}/dron-rxcui-drug.txt" />
       <redirector append="true">
         <outputmapper type="merge" to="${DrOn-to-RxNorm}/cleaned-dron-to-rxcui-drug.txt"/>
         <errormapper type="merge" to="${ERROR_LOG}"/>
