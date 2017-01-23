@@ -1,4 +1,8 @@
-This data, totally 9479, is up to date with all current SPLs as of March 20 2014.
+
+For all current SPLs
+9479 by March 20 2014,
+9607 by June 10 2016,
+9887 by Jan 18 2017
 
 (1) To update, get the most current SPL class mappings from Dailymed, unzip
 the file into the /pharmacologic_class_indexing_spl_files/ folder. 

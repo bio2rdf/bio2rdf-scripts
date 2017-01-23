@@ -77,7 +77,9 @@ HOW TO UPDATE LINKEDSPLS
 update linkedSPLs-core graph
 ------------------------------------------------------------
 
-In folder LinkedSPLs-update, there is an ant program that helps update all mappings of linkedSPLs. Those mappings include pharmgxTable which comes from FDA and dailymed product label sections. All linkedspls mappings will be store in mysql which prepared to dump out by d2r server. 
+In folder LinkedSPLs-update, there is an ant program that helps update all mappings of linkedSPLs. Those mappings include pharmgxTable which comes from FDA and dailymed product label sections. All linkedspls mappings will be store in mysql which prepared to dump out by d2r server.
+
+Please see LinkedSPLs-update/README for details
 
 LinkedSPLs-core/linkedSPLs_dump_rdf_config.n3 is the configuration file that refers to mappings in mysql RDB and define the output n3 format graph.
 
@@ -90,7 +92,43 @@ update active moiety graph
 see LinkedSPLs-activeMoiety/README
 
 ------------------------------------------------------------
+update clinical drug graph
+------------------------------------------------------------
+
+see LinkedSPLs-clinicalDrug/README
+
+------------------------------------------------------------
 update pharmgx annotation graph and DDIs graph
 ------------------------------------------------------------
 
 annotation set in rdf comes from elastico parsing program.
+
+
+################################################################################
+Load LinkedPLs RDF graphs into VIRTUOSO (tested with OpenLink Virtuoso in Ubuntu) 
+################################################################################
+
+Reloading (DELETE THE OLD GRAPH FIRST from Virtuoso composer!):
+$ isql-vt
+SQL> log_enable(3,1); # see http://www.openlinksw.com/dataspace/dav/wiki/Main/VirtTipsAndTricksGuideDeleteLargeGraphs
+
+Delete graph from RDF store
+SQL> SPARQL CLEAR GRAPH <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/>;
+
+Delete from load list
+SQL> delete from DB.DBA.load_list where ll_graph='graph name';
+
+Change status in load list 
+SQL> update DB.DBA.load_list set ll_state = 0 where ll_file = '<name of RDF file>';
+
+Initial load:
+$ isql-vt
+SQL> ld_dir ('/path/to/files', '*.n3', 'http://dbpedia.org');
+SQL> rdf_loader_run();
+SQL> select * from DB.DBA.load_list;
+
+
+Graph list:
+http://purl.org/net/nlprepository/spl-core
+http://purl.org/net/nlprepository/spl-active-moiety
+http://purl.org/net/nlprepository/spl-clinical-drug
