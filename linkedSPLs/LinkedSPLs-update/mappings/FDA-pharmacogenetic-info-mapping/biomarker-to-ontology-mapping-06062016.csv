@@ -23,8 +23,8 @@ CYP2C9 intermediate or poor metabolizers,CYP2C9,"cytochrome P450, family 2, subf
 CYP2D6 poor metabolizers,CYP2D6,"cytochrome P450, family 2, subfamily D, polypeptide 6; CPD6; CYP2D; P450-DB1; P450C2D",,PA128,http://purl.obolibrary.org/obo/PR_000006121,PRotein Ontology (PRO),
 CYP2D6 ultrarapid metabolizers,CYP2D6,"cytochrome P450, family 2, subfamily D, polypeptide 6; CPD6; CYP2D; P450-DB1; P450C2D",,PA128,http://purl.obolibrary.org/obo/PR_000006121,PRotein Ontology (PRO),
 CYP3A5 variant carriers,CYP3A5,"cytochrome P450, family 3, subfamily A, polypeptide 5",,PA131,http://purl.obolibrary.org/obo/PR_000006132,PRotein Ontology (PRO),
-Chromosome 17p deletion positive,del (17p),,,,,,
-Chromosome 5q deletion,del (5q),,,,,,"Deletion of part of chr 5q; is one cause of MDS, used as indication for treatment w/ drug"
+Chromosome 17p deletion positive,del (17p), ,,,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C42318,NCIT,
+Chromosome 5q deletion,del (5q),,,,http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C42306,NCIT,"Deletion of part of chr 5q; is one cause of MDS, used as indication for treatment w/ drug"
 DPD deficient,DPYD,dihydropyrimidine dehydrogenase; DPD,,PA145,http://purl.obolibrary.org/obo/PR_000006678,PRotein Ontology (PRO),"Map to DPYD, DPD is a synonym/alias"
 EGFR exon 19 deletion or exon 21 substitution (L858R) mutation positive,EGFR,epidermal growth factor receptor; ERBB1,,PA7360,http://purl.obolibrary.org/obo/PR_000006933,PRotein Ontology (PRO),
 EGFR protein expression positive,EGFR,epidermal growth factor receptor; ERBB1,,PA7360,http://purl.obolibrary.org/obo/PR_000006933,PRotein Ontology (PRO),
@@ -72,4 +72,4 @@ TPMT intermediate or poor metabolizers,TPMT,thiopurine S-methyltransferase,,PA35
 UGT1A1*28 allele homozygotes,UGT1A1,"UDP glucuronosyltransferase 1 family, polypeptide A1; UGT1A",UGT1A1*28 ,PA420,http://purl.obolibrary.org/obo/PR_000017048,PRotein Ontology (PRO),
 (TA)7/(TA)7 genotype (UGT1A1*28/*28),UGT1A1,"UDP glucuronosyltransferase 1 family, polypeptide A1; UGT1A",UGT1A1*28; (TA)7,PA420,http://purl.obolibrary.org/obo/PR_000017048,PRotein Ontology (PRO),
 VKORC1 rs9923231 A allele carriers,VKORC1,"vitamin K epoxide reductase complex, subunit 1",A,PA133787052,http://purl.obolibrary.org/obo/PR_000017303,PRotein Ontology (PRO),
-HLA-A*3101 allele carriers,HLA-A,"major histocompatibility complex, class I, A",HLA-A*3101,PA35055,,,
+HLA-A*3101 allele carriers,HLA-A,"major histocompatibility complex, class I, A",HLA-A*3101,PA35055,http://purl.obolibrary.org/obo/OGG_3000003105,The Ontology of Genes and Genomes,
