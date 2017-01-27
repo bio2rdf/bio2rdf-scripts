@@ -43,7 +43,7 @@ DPD deficient,DPYD,dihydropyrimidine dehydrogenase; DPD,,PA145,http://purl.oboli
 EGFR exon 19 deletion or exon 21 substitution (L858R) mutation positive,EGFR,epidermal growth factor receptor; ERBB1,,PA7360,http://purl.obolibrary.org/obo/PR_000006933,PRotein Ontology (PRO),
 EGFR protein expression positive,EGFR,epidermal growth factor receptor; ERBB1,,PA7360,http://purl.obolibrary.org/obo/PR_000006933,PRotein Ontology (PRO),
 EGFR T790M mutation positive,EGFR,epidermal growth factor receptor; ERBB1,,PA7360,http://purl.obolibrary.org/obo/PR_000006933,PRotein Ontology (PRO),
-Estrogen Receptor Positive,ESR1,estrogen receptor 1; Era; NR3A1 ,,PA156,http://purl.obolibrary.org/obo/PR_000007204,PRotein Ontology (PRO),ESR1 and ESR2 can homo or heterodimerize to form the ER receptor
+Estrogen Receptor Positive,ESR1,estrogen receptor 1; Era; NR3A1,,PA156,http://purl.obolibrary.org/obo/PR_000007204,PRotein Ontology (PRO),ESR1 and ESR2 can homo or heterodimerize to form the ER receptor
 Factor V Leiden carriers,F5,"coagulation factor V (proaccelerin, labile factor)",,PA159,http://purl.obolibrary.org/obo/PR_000007300,PRotein Ontology (PRO), human coagulation factor V (F5)  
 FIP1L1-PDGFR? fusion kinase (or CHIC2 deletion) positive,FIP1L1,FIP1 like 1 (S. cerevisiae); DKFZp586K0717,,PA134875694,http://purl.obolibrary.org/obo/PR_000007526,PRotein Ontology (PRO),
 FIP1L1-PDGFR? fusion kinase (or CHIC2 deletion) positive,PDGFRA,"platelet-derived growth factor receptor, alpha polypeptide; CD140a; PDGFR2",,PA33147,http://purl.obolibrary.org/obo/PR_000012492,PRotein Ontology (PRO),
@@ -55,12 +55,12 @@ HGPRT deficient,HPRT1,hypoxanthine phosphoribosyltransferase 1; HGPRT,,PA29427,h
 HLA-A*3101 allele carriers,HLA-A,"major histocompatibility complex, class I, A",HLA-A*3101,PA35055,http://purl.obolibrary.org/obo/OGG_3000003105,The Ontology of Genes and Genomes,
 HLA-B*1502 allele carriers,HLA-B,"major histocompatibility complex, class I, B",HLA-B*1502,PA35056,http://purl.obolibrary.org/obo/PR_000002010,PRotein Ontology (PRO),*1502 is an allele associated with drug toxicity (skin reactions)
 HLA-B*5701 allele carriers,HLA-B,"major histocompatibility complex, class I, B",HLA-B*5701,PA35056,http://purl.obolibrary.org/obo/PR_000002010,PRotein Ontology (PRO),*5701 is an allele associated with drug hypersensitivity reactions
-HLA-DQA1*0201 or -DRB1*0701 allele carriers,HLA-DQA1,"major histocompatibility complex, class II, DQ alpha 1",HLA-DQA1*0201,PA35066,http://purl.obolibrary.org/obo/PR_000002013 ,PRotein Ontology (PRO),
+HLA-DQA1*0201 or -DRB1*0701 allele carriers,HLA-DQA1,"major histocompatibility complex, class II, DQ alpha 1",HLA-DQA1*0201,PA35066,http://purl.obolibrary.org/obo/PR_000002013,PRotein Ontology (PRO),
 HLA-DQA1*0201 or -DRB1*0701 allele carriers,HLA-DRB1,"major histocompatibility complex, class II, DR beta 1",HLA-DRB1*0701,PA35072,http://purl.obolibrary.org/obo/PR_000002019,PRotein Ontology (PRO),
 Homozygous and Heterozygous familial hypercholesterolemia,LDLR,low density lipoprotein receptor,,PA227,http://purl.obolibrary.org/obo/PR_000009744,PRotein Ontology (PRO),
 Homozygous familial hypercholesterolemia,LDLR,low density lipoprotein receptor,,PA227,http://purl.obolibrary.org/obo/PR_000009744,PRotein Ontology (PRO),familial hypercholesterolemia
 Homozygous familial hypercholesterolemia and LDL receptor mutation deficient,LDLR,low density lipoprotein receptor,,PA227,http://purl.obolibrary.org/obo/PR_000009744,PRotein Ontology (PRO),
-Hormone receptor positive,ESR1,estrogen receptor 1; Era; NR3A1 ,,PA156,http://purl.obolibrary.org/obo/PR_000007204,PRotein Ontology (PRO),ESR1 and ESR2 can homo or heterodimerize to form the ER receptor
+Hormone receptor positive,ESR1,estrogen receptor 1; Era; NR3A1,,PA156,http://purl.obolibrary.org/obo/PR_000007204,PRotein Ontology (PRO),ESR1 and ESR2 can homo or heterodimerize to form the ER receptor
 Hormone receptor positive,PGR,progesterone receptor; NR3C3; PR,,PA266,http://purl.obolibrary.org/obo/PR_000012621,PRotein Ontology (PRO),
 IL28B rs12979860 T allele carriers (C/T and T/T genotype),IFNL3,"interferon, lambda 3; IL-28B; IL28B; IL28C",T,PA134952671,http://purl.obolibrary.org/obo/PR_000001470,PRotein Ontology (PRO),
 IL28B rs12979860 T allele carriers (non-C/C genotype),IFNL3,"interferon, lambda 3; IL-28B; IL28B; IL28C",T,PA134952671,http://purl.obolibrary.org/obo/PR_000001470,PRotein Ontology (PRO),
@@ -86,7 +86,7 @@ Philadelphia chromosome (t(9;22)) positive; T315I mutation-positive,ABL1,"c-abl 
 Philadelphia chromosome (t(9;22)) positive; T315I mutation-positive,BCR,breakpoint cluster region; ALL; CML; D22S662; PHL,,PA25321,http://purl.obolibrary.org/obo/PR_000004712,PRotein Ontology (PRO),BCR/ABL
 PML-RAR? translocation positive,RARA,"retinoic acid receptor, alpha; NR1B1; RAR",,PA34225,http://purl.obolibrary.org/obo/PR_000013736,PRotein Ontology (PRO),"PML and RARA fusion gene, dependent on retinoic acid for transcription"
 PML-RAR? translocation positive,PML,promyelocytic leukemia; MYL; RNF71; TRIM19,,PA33439,http://purl.obolibrary.org/obo/PR_000026474,PRotein Ontology (PRO),"PML and RARA fusion gene, dependent on retinoic acid for transcription"
-POLG Mutation Positive,POLG,DNA polymerase subunit gamma-1 ,,PA33500,http://purl.obolibrary.org/obo/PR_000012973  ,PRotein Ontology (PRO),
+POLG Mutation Positive,POLG,DNA polymerase subunit gamma-1 ,,PA33500,http://purl.obolibrary.org/obo/PR_000012973,PRotein Ontology (PRO),
 Progesterone Receptor Positive,PGR,progesterone receptor; NR3C3; PR,,PA266,http://purl.obolibrary.org/obo/PR_000012621,PRotein Ontology (PRO),
 Protein C deficient,PROC,vitamin k -dependent protein c,,PA446903,http://purl.obolibrary.org/obo/PR_000013261,PRotein Ontology (PRO),
 Protein S deficient,PROS,protein s (alpha),,PA33809,http://purl.obolibrary.org/obo/PR_000013269,PRotein Ontology (PRO),
@@ -96,9 +96,9 @@ Rh genotype,RHD,Rh genotype,,PA34387,http://purl.obolibrary.org/obo/PR_000001442
 Ryanodine receptor mutation positive,RYR1,ryanodine receptor 1 (skeletal),,PA34896,http://purl.obolibrary.org/obo/PR_000014377,PRotein Ontology (PRO),
 SLCO1B1 reduced function allele homozygotes,SLCO1B1,"solute carrier organic anion transporter family, member 1B1",,PA134865839,http://purl.obolibrary.org/obo/PR_000015223,PRotein Ontology (PRO),
 TPMT intermediate or poor metabolizers,TPMT,thiopurine S-methyltransferase,,PA356,http://purl.obolibrary.org/obo/PR_000016583,PRotein Ontology (PRO),
-UGT1A1 poor metabolizers,UGT1A1,"UDP glucuronosyltransferase 1 family, polypeptide A1; UGT1A",UGT1A1*28 ,PA420,http://purl.obolibrary.org/obo/PR_000017048,PRotein Ontology (PRO),
-UGT1A1*28 allele carriers,UGT1A1,"UDP glucuronosyltransferase 1 family, polypeptide A1; UGT1A",UGT1A1*28 ,PA420,http://purl.obolibrary.org/obo/PR_000017048,PRotein Ontology (PRO),
-UGT1A1*28 allele homozygotes,UGT1A1,"UDP glucuronosyltransferase 1 family, polypeptide A1; UGT1A",UGT1A1*28 ,PA420,http://purl.obolibrary.org/obo/PR_000017048,PRotein Ontology (PRO),
+UGT1A1 poor metabolizers,UGT1A1,"UDP glucuronosyltransferase 1 family, polypeptide A1; UGT1A",UGT1A1*28,PA420,http://purl.obolibrary.org/obo/PR_000017048,PRotein Ontology (PRO),
+UGT1A1*28 allele carriers,UGT1A1,"UDP glucuronosyltransferase 1 family, polypeptide A1; UGT1A",UGT1A1*28,PA420,http://purl.obolibrary.org/obo/PR_000017048,PRotein Ontology (PRO),
+UGT1A1*28 allele homozygotes,UGT1A1,"UDP glucuronosyltransferase 1 family, polypeptide A1; UGT1A",UGT1A1*28,PA420,http://purl.obolibrary.org/obo/PR_000017048,PRotein Ontology (PRO),
 Urea cycle enzyme deficient,ABL2,v-abl Abelson murine leukemia viral oncogene homolog 2; ARG,,PA24414,http://purl.obolibrary.org/obo/PR_000003583,PRotein Ontology (PRO),
 Urea cycle enzyme deficient,ASL,argininosuccinate lyase,,PA25046,http://purl.obolibrary.org/obo/PR_000004373,PRotein Ontology (PRO),
 Urea cycle enzyme deficient,ASS1,argininosuccinate synthase 1; CTLN1,,PA162376926,http://purl.obolibrary.org/obo/PR_000004386,PRotein Ontology (PRO),
