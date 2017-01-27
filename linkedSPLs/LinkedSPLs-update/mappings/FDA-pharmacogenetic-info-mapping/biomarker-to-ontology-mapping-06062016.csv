@@ -60,7 +60,7 @@ FIP1L1/PDGFRα fusion kinase (or CHIC2 deletion) positive,PDGFRA,"platelet-deriv
 PDGFR gene rearrangement positive,PDGFRB,"platelet-derived growth factor receptor, beta polypeptide; CD140b; JTK12; PDGFR1",,PA33148,http://purl.obolibrary.org/obo/PR_000002136,PRotein Ontology (PRO),
 Hormone receptor positive,PGR,progesterone receptor; NR3C3; PR,,PA266,http://purl.obolibrary.org/obo/PR_000012621,PRotein Ontology (PRO),
 PML/RARα (t(15;17)) gene expression positive,PML,promyelocytic leukemia; MYL; RNF71; TRIM19,,PA33439,http://purl.obolibrary.org/obo/PR_000026474,PRotein Ontology (PRO),"PML and RARA fusion gene, dependent on retinoic acid for transcription"
-POLG Mutation Positive,POLG,DNA polymerase subunit gamma-1 ,,PA33500,http://purl.obolibrary.org/obo/PR_000012973  ,PRotein Ontology (PRO),
+POLG Mutation Positive,POLG,DNA polymerase subunit gamma-1 ,,PA33500,http://purl.obolibrary.org/obo/PR_000012973,PRotein Ontology (PRO),
 Protein C deficient,PROC,vitamin k -dependent protein c,,PA446903,http://purl.obolibrary.org/obo/PR_000013261,PRotein Ontology (PRO),
 Protein S deficient,PROS,protein s (alpha),,PA33809,http://purl.obolibrary.org/obo/PR_000013269,PRotein Ontology (PRO),
 PML/RARα (t(15;17)) gene expression positive,RARA,"retinoic acid receptor, alpha; NR1B1; RAR",,PA34225,http://purl.obolibrary.org/obo/PR_000013736,PRotein Ontology (PRO),"PML and RARA fusion gene, dependent on retinoic acid for transcription"
