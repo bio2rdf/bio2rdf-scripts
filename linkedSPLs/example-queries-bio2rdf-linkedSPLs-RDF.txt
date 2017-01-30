@@ -28,7 +28,7 @@ WHERE {
 
 } 
 
-Results set in shorten URL: Results set in shorten URL: https://goo.gl/Z3CAuz
+Results set in shorten URL: https://goo.gl/Z3CAuz
 
 --------------------------------------------------------------------------------
 Get the three sections of interest for a specific SPL 
@@ -53,7 +53,7 @@ OPTIONAL { <http://bio2rdf.org/linkedspls:911cd48f-01ea-4dec-b30c-95e7e0ea9d2a> 
 LIMIT 10
 
 
-Results set in shorten URL: Results set in shorten URL: https://goo.gl/dYHEQe
+Results set in shorten URL: https://goo.gl/dYHEQe
 
 --------------------------------------------------------------------------------
 return all sections from all drug products containing Soma (Meda Pharmaceuticals Inc.) that the FDA notes as having pharmgx information:
