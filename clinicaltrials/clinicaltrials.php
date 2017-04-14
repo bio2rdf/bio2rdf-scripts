@@ -762,11 +762,12 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			# location of facility doing the testing
 			##############################################################
 			try {	
-				$location = @array_shift($root->xpath('//location'));
-				if($location){
+				$locations = $root->xpath('//location');
+				foreach($locations AS $location) {
 					$location_uri = parent::getRes().md5($location->asXML());
-					$name = $this->getString('//facility/name',$location);
-					$address = @array_shift($location->xpath('//facility/address'));					
+					$facility = $location->facility;
+					$name = $facility->name[0];
+					$address = $facility->address;//@array_shift($location->xpath('//facility/address'));					
 					$contact = @array_shift($location->xpath('//contact'));
 					$backups = @array_shift($location->xpath('//contact_backup'));
 					$investigators = @array_shift($location->xpath('//investigator'));
