@@ -33,7 +33,7 @@ Please ensure following mappings are available at specified path. They are shoul
 (5) RxNORM to DrOn: LinkedSPLs-update/mappings/DrOn-to-RxNorm/cleaned-dron-chebi-rxcui-ingredient.txt
 (6) RxNORM to NDFRT (EPC): LinkedSPLs-update/mappings/pharmacologic_class_indexing/EPC_extraction_most_recent.txt
 
-(7) OMOP concept Id from OHDSI or query OMOP CDM V5 (GeriOMOP) by SQL query
+(7) OMOP concept Id from OHDSI or query OMOP CDM V5 (GeriOMOP) by SQL query (it's available if just updated linkedSPLs core graph)
 
 query OMOP CDM V5 (GeriOMOP) by SQL query below:
 SELECT cpt.CONCEPT_ID as omopid, cpt.CONCEPT_CODE as rxcui FROM
@@ -45,7 +45,6 @@ right click result table and export to csv ('|' delimited)
 save name as: active-ingredient-omopid-rxcui-<DATE>.dsv
 to dir: LinkedSPLs-activeMoiety/mappings/active-ingredient-omopid-rxcui.dsv
 
-01/18/2017: 17049 results
 
 ################################################################################
 Procedures to get active moieties RDF graph

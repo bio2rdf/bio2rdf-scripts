@@ -241,7 +241,7 @@ TESTING THE D2R SERVER ON THE DEVELOPMENT MACHINE
 ------------------------------------------------------------
 
 cd /home/PITT/rdb20/Downloads/D2R/d2rq-0.8.1
-./d2r-server --verbose -b http://130.49.206.86:2021/ -p 2021 dailymed_d2r_map_config_d2rq_8_1.n3 
+./d2r-server --verbose -b http://<host>:<port>/ -p 2021 dailymed_d2r_map_config_d2rq_8_1.n3 
 
 ------------------------------------------------------------
 MOVING THE DEVELOPMENT MODE RDB DATA TO THE PUBLIC SERVER

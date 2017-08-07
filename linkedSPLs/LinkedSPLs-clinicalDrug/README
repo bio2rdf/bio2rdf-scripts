@@ -12,11 +12,11 @@ PRE-CONDITIONS:
 Mappings from linkedSPLs core update
 ------------------------------------------------------------------------
 
-(1) Dron to rxcui: linkedSPLs/LinkedSPLs-update/mappings/DrOn-to-RxNorm/cleaned-dron-to-rxcui-drug-<DATE>.txt
+(1) Dron to rxcui: LinkedSPLs-update/mappings/DrOn-to-RxNorm/cleaned-dron-to-rxcui.txt
 
-(2) Dailymed setid and rxcui: LinkedSPLs-update/mappings/RxNORM-mapping/converted_rxnorm_mappings_<DATE>.txt converted_rxnorm_mappings.txt
+(2) Dailymed setid and rxcui: 
 
-$ cat converted_rxnorm_mappings.txt | cut -f1,2 -d\| | sort | uniq > setid_rxcui.txt
+$ cat LinkedSPLs-update/mappings/RxNORM-mapping/converted_rxnorm_mappings.txt | cut -f1,2 -d\| | sort | uniq > LinkedSPLs-clinicalDrug/mappings/setid_rxcui.txt
 
 (3) Dailymed setid and drug fullname
 
@@ -25,9 +25,9 @@ $ use linkedSPLs;
 
 SELECT setId, fullName FROM linkedSPLs.structuredProductLabelMetadata INTO OUTFILE '/tmp/setid_fullname.txt' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
 
-$ cp /tmp/setid_fullname.txt ../linkedSPLs/LinkedSPLs-clinicalDrug/mappings/
+$ cp /tmp/setid_fullname.txt LinkedSPLs-clinicalDrug/mappings/
 
-(4) mappings of omopid and rxcui 
+(4) mappings of omopid and rxcui (it's available if just updated linkedSPLs core graph)
 
 query OMOP CDM V5 (GeriOMOP) by SQL query below:
 
@@ -35,8 +35,6 @@ SELECT cpt.CONCEPT_ID as omopid, cpt.CONCEPT_CODE as rxcui FROM
 CONCEPT cpt
 WHERE 
 cpt.CONCEPT_CLASS = 'Clinical Drug';
-
-01/18/2017: 120561 results
 
 right click result table and export to delimited ('|' delimited, none Left or Right Enclosure)
 save name as: clinical-drug-omopid-rxcui-<DATE>.dsv
