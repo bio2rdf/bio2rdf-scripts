@@ -238,6 +238,7 @@ class ClinicalTrialsParser extends Bio2RDFizer
 	function process_file($infile) {
 		$indir = parent::getParameterValue('indir');
 		$xml = new CXML($infile);
+
 		$this->setCheckPoint('file');
 		while($xml->Parse("clinical_study") == TRUE) {
 			$this->setCheckPoint('record');
@@ -364,16 +365,18 @@ class ClinicalTrialsParser extends Bio2RDFizer
 			######################################################################################
 			try {
 				$oversight = @array_shift($root->xpath('//oversight_info'));
-				$oversight_id = parent::getRes().md5($oversight->asXML());
+				if($oversight !== null) {
+					$oversight_id = parent::getRes().md5($oversight->asXML());
 			
-				$authority = $this->getString('//authority', $oversight);	
-				$authority_id = parent::getRes().md5($authority);
-				parent::addRDF(	
-					parent::describeIndividual($oversight_id,$authority,parent::getVoc()."Organization").
-					parent::triplify($study_id,$this->getVoc()."oversight",$oversight_id).
-					parent::triplify($study_id,$this->getVoc()."authority",$authority_id).
-					parent::triplifyString($oversight_id, parent::getVoc()."has-dmc", $this->getString('//has_dmc', $oversight))
-				);				
+					$authority = $this->getString('//authority', $oversight);	
+					$authority_id = parent::getRes().md5($authority);
+					parent::addRDF(	
+						parent::describeIndividual($oversight_id,$authority,parent::getVoc()."Organization").
+						parent::triplify($study_id,$this->getVoc()."oversight",$oversight_id).
+						parent::triplify($study_id,$this->getVoc()."authority",$authority_id).
+						parent::triplifyString($oversight_id, parent::getVoc()."has-dmc", $this->getString('//has_dmc', $oversight))
+					);
+				}				
 			} catch(Exception $e){
 				echo "There was an error in the oversight info element: $e\n";
 
