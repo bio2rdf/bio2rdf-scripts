@@ -1,14 +1,4 @@
-TODO (4/04/2014)
-
-- drop  FDAPharmgxTable and then recreate and reload the table per the instructions in ../README
-
-- drop FDAPharmgxTableToOntologyMap and then recreate and reload the table per the instructions in ../README
-
-- revise the D2R mapping file to reflect changes to table's schema: 1) biomarker in FDAPharmgxTable is now a foreign key to HGNCGeneSymbol in FDAPharmgxTableToOntologyMap; 2) FDAString in FDAPharmgxTableToOntologyMap is now FDAReferencedSubgroup, 3) there are new therapeuticApplication instances that need to be mapped to NCIT
-
------
-
-Workflow (as of 04/04/2014):
+Workflow (as of 01/18/2017):
 
 1) Data from the FDA's pharmacogenomic biomarker table
  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>

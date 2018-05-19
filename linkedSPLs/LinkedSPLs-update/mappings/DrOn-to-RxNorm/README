@@ -26,7 +26,7 @@ SELECT * WHERE {   ?dron obo:DRON_00010000 ?rxcui. }' > dron-rxcui-drug.txt
 
 (1) run python script to clean the data
 
-$ python cleanData.py > cleaned_dron-to-chebi-and-rxnorm-07232014.txt
+$ python cleanData.py > cleaned_dron-to-chebi-and-rxnorm-<DATE>.txt
 
 outputs: <dron_id>|<chebi_id>|<rxcui>
 
@@ -63,7 +63,7 @@ CREATE TABLE `DrOn_ChEBI_RXCUI_INGREDIENT` (
 
 $ mysql -u root -p --local-infile linkedSPLs
 
-LOAD DATA LOCAL INFILE './cleaned_dron-to-chebi-and-rxnorm-07232014.txt' INTO TABLE `DrOn_ChEBI_RXCUI_DRUG`  FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (dron_id, ChEBI, rxcui);
+LOAD DATA LOCAL INFILE './cleaned_dron-to-chebi-and-rxnorm-<DATE>.txt' INTO TABLE `DrOn_ChEBI_RXCUI_DRUG`  FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (dron_id, ChEBI, rxcui);
 
 
 (4) get dron and drugbank mapping by query Mysql schema

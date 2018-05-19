@@ -329,7 +329,7 @@ class TaxonomyParser extends Bio2RDFizer{
 			$c = parent::getRes()."citation-id-".$a[0];
 			$seealso = isset($a[4])?trim($a[4]):"";
 			if($seealso) {
-				$seealso = str_replace(array("lx: DOI ","http;//"), array("http://dx.doi.org/","http://"), $seealso);
+				$seealso = str_replace(array("lx: DOI ","http;//"), array("https://doi.org/","http://"), $seealso);
 				if(strlen($seealso) > 2 and !strstr($seealso,"http")) $seealso = "http://".$seealso;
 				$seealso = parent::triplify($c, "rdfs:seeAlso", $seealso);
 			}

@@ -1,58 +1,84 @@
-------------------------------------------------------------
-How to update mappings of PT and Drug bank URI
-------------------------------------------------------------
+-------------------------------------------------------------------------------------------
+How to update mappings of PT and Drugbank URI - Table: FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF
+-------------------------------------------------------------------------------------------
 
 (1) run the script parseDBIdBySynsInchiName.py with drugbank.xml , UNII Names and UNII Records from Data_Source/
 
-$ parseDBIdBySynsInchiName.py 0 > Name_Syns_UNII_DbId_0_09162014.txt
+$ parseDBIdBySynsInchiName.py 0 > Name_Syns_UNII_DbId_0.txt
 
 output terms: FDA_Preferred_Term      UNII    Drugbank drug   drugbank id
-output file: INCHI-OR-Syns-OR-Name-09162014.txt
+output file: INCHI-OR-Syns-OR-Name.txt
 
 INCHI OR Name OR Synonym:
-- script output: Name_Syns_UNII_DbId_0_09162014.txt
+- script output: Name_Syns_UNII_DbId_0.txt
 - converted to unique list of mappings using:
 
-$ cat Name_Syns_UNII_DbId_0_09162014.txt | cut -f1,3,4,5 | sort | uniq  > INCHI-OR-Syns-OR-Name-09162014.txt
+$ cd UNII-data/
+$ cat Name_Syns_UNII_DbId_0.txt | cut -f1,3,4,5 | sort | uniq  > INCHI-OR-Syns-OR-Name.txt
 
-- 2367 mappings
+- 2809 mappings by 06/10/2016
+- 2660 mappings by 01/18/2017
 
 (2) add Drug bank base URI to update table: FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF
 
-$ python scripts/addBio2rdf_UNII_to_DrugBank.py > fda-substance-preferred-name-to-drugbank-10202014.txt
+$ python scripts/addBio2rdf_UNII_to_DrugBank.py > fda-substance-preferred-name-to-drugbank.txt
 
 load int Mysql:
 
 $ mysql -u root -p --local-infile linkedSPLs
 
-LOAD DATA LOCAL INFILE './fda-substance-preferred-name-to-drugbank-10202014.txt'INTO TABLE FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF(PreferredSubstance, DRUGBANK_CA, DRUGBANK_BIO2RDF);
+LOAD DATA LOCAL INFILE './fda-substance-preferred-name-to-drugbank.txt'INTO TABLE FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF(PreferredSubstance, DRUGBANK_CA, DRUGBANK_BIO2RDF);
 
-------------------------------------------------------------------------
 
-(3) run script parseDBIdAndChEBI.py to get mappings of UNIIs drugbank
-URI and chebi URI into PT-ChEBI-Drugbank-09042014.txt. This script
-depends on FDA_UNII_to_ChEBI_09042014.txt which was generated using
-code in
-https://swat-4-med-safety.googlecode.com/svn/trunk/linkedSPLs/UNII-to-ChEBI-mapping
+-------------------------------------------------------------------------------------------
+How to update mappings of PT and Drugbank URI, RxNorm
+-------------------------------------------------------------------------------------------
 
-$ python parseDBIdAndChEBI.py > PT-ChEBI-Drugbank-09042014.txt
+Requirements: table FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF loaded in linkedSPLs schema.
+	      rxnorm database from UMLS are loaded as seperated schema
+
+(1) The query below would return mappings of Preferred term, Drugbank URI and RxNorm
+
+(1991 distinct mappings by 06/25/2016)
+(2442 distinct mappings by 01/18/2017)
+
+SQL query:
+
+SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.rxcui FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance INTO OUTFILE '/tmp/pt-drugbank-rxnorm-unconservative-mapping.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
+
+$ cp /tmp/pt-drugbank-rxnorm-unconservative-mapping.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping/pt-drugbank-rxnorm-unconservative-mapping-<DATE>.tsv>
+
+(2) The query use left join for debuging that drug bank mapping missed rxnorm mapping
+
+(2771 distinct mappings by 01/18/2017)
+
+SELECT distinct db.PreferredSubstance, db.DRUGBANK_CA, rx.rxcui FROM linkedSPLs.FDA_SUBSTANCE_TO_DRUGBANK_BIO2RDF db LEFT JOIN rxnorm.RXNCONSO rx ON rx.STR = db.PreferredSubstance INTO OUTFILE '/tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping.tsv' FIELDS TERMINATED BY '\t' LINES TERMINATED BY '\n';
+
+$ cp /tmp/pt-drugbank-leftjoin-rxnorm-unconservative-mapping.tsv </path/to/linkedSPLs/LinkedSPLs-update/mappings/ChEBI-DrugBank-bio2rdf-mapping/drugbank-rxnorm-mapping/pt-drugbank-leftjoin-rxnorm-unconservative-mapping-<DATE>.tsv>
+
+------------------------------------------------------------------------------
+(Deprecated) - Old apporach that querying bioportal
+------------------------------------------------------------------------------
+
+run script parseDBIdAndChEBI.py to get mappings of UNIIs drugbank
+URI and chebi URI. This script depends on UNIIToChEBI.txt which was generated using code at bio2rdf/linkedSPLs/LinkedSPLs-update/mappings/PT-UNII-ChEBI-mapping
+
+$ python parseDBIdAndChEBI.py <path/to/drugbank.xml> > drugbank-to-chebi.txt
 
 output terms: FDA Preferred Term, DrugBank Term, ChEBI URI, DrugBank URI
-output file: PT-ChEBI-Drugbank-09042014.txt
+output file: drugbank-to-chebi.txt
 
-(4) The script combineDrugBankMappings.py was ran to output a combined
+(2) The script combineDrugBankMappings.py was ran to output a combined
 mapping that indicated what kind of mapping was used.
 
 
-TODO: other properties may use as key to generate new mappings of drugbank id and UNIIss
+TODO: other properties may use as key to generate new mappings of drugbank id and UNIIs
 UNII MF EINECS RN NCIt ITIS NCBI PLANTS SMILES
 
 
-(5) The final VALIDATED FDA Preferred name to ChEBImapping was exported to FDA_UNII_to_ChEBI_03132014.txt (NOTE: file is ASCII encoded)
+(3) The final VALIDATED FDA Preferred name to ChEBImapping was exported to FDA_UNII_to_ChEBI_03132014.txt (NOTE: file is ASCII encoded)
 
 $ cat FDA_UNII_to_ChEBI_03132014.txt | cut -f 1,3 -d '|' > FDA_UNII_to_ChEBI-04082014.txt
 
 LOAD DATA LOCAL INFILE './FDA_UNII_to_ChEBI_04082014.txt' INTO TABLE FDA_UNII_to_ChEBI FIELDS TERMINATED BY '|' LINES TERMINATED BY '\n' (PreferredSubstance, ChEBI); 
 
-(5) Exported a table with the following columns and submitted to OHDSI:
-FDA_PreferredTerm       FDA_UNII        RxNorm_CUI      DrugBank_Name   DrugBank_CUI    ChEBI_CUI

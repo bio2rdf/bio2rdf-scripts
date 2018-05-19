@@ -28,12 +28,12 @@ WHERE {
 
 } 
 
-Results set in shorten URL: Results set in shorten URL: 
+Results set in shorten URL: https://goo.gl/Z3CAuz
 
 --------------------------------------------------------------------------------
 Get the three sections of interest for a specific SPL 
 (substituting an ?splid value from the above query for %s. 
-For example, try <http://bio2rdf.org/linkedspls:2150f73a-179b-4afc-b8ce-67c85cc72f04>)
+For example, try <http://bio2rdf.org/linkedspls:911cd48f-01ea-4dec-b30c-95e7e0ea9d2a>)
 --------------------------------------------------------------------------------
 
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -45,15 +45,15 @@ SELECT ?textClinicalStudies ?textDrugInteractions ?textClinicalPharmacology
 FROM <http://purl.org/net/nlprepository/spl-core>
 WHERE {
 
-OPTIONAL { <http://bio2rdf.org/linkedspls:2150f73a-179b-4afc-b8ce-67c85cc72f04> loinc:34092-7 ?textClinicalStudies }
-OPTIONAL { <http://bio2rdf.org/linkedspls:2150f73a-179b-4afc-b8ce-67c85cc72f04> loinc:34073-7 ?textDrugInteractions }
-OPTIONAL { <http://bio2rdf.org/linkedspls:2150f73a-179b-4afc-b8ce-67c85cc72f04> loinc:34090-1 ?textClinicalPharmacology }
+OPTIONAL { <http://bio2rdf.org/linkedspls:911cd48f-01ea-4dec-b30c-95e7e0ea9d2a> loinc:34092-7 ?textClinicalStudies }
+OPTIONAL { <http://bio2rdf.org/linkedspls:911cd48f-01ea-4dec-b30c-95e7e0ea9d2a> loinc:34073-7 ?textDrugInteractions }
+OPTIONAL { <http://bio2rdf.org/linkedspls:911cd48f-01ea-4dec-b30c-95e7e0ea9d2a> loinc:34090-1 ?textClinicalPharmacology }
 
 }
 LIMIT 10
 
 
-Results set in shorten URL: Results set in shorten URL: http://goo.gl/KfSGSR
+Results set in shorten URL: https://goo.gl/dYHEQe
 
 --------------------------------------------------------------------------------
 return all sections from all drug products containing Soma (Meda Pharmaceuticals Inc.) that the FDA notes as having pharmgx information:
@@ -77,7 +77,7 @@ WHERE {
 ?s ?sectionLoinc ?sectionText.
 }
 
-Results set in shorten URL: 
+Results set in shorten URL: https://goo.gl/UsnWRI
 
 --------------------------------------------------------------------------------
 # return all setIds and drug product rxcuis for product labels that contain sections with FDA pharmgx data for biomarker "CYPD6":
@@ -100,7 +100,7 @@ WHERE {
 
 } LIMIT 10
 
-Results set in shorten URL: http://goo.gl/Igwoh4
+Results set in shorten URL: https://goo.gl/z7HJdM
 
 --------------------------------------------------------------------------------
 get all sections w/ FDA pharmgx data for drugs with an antidepressant application.
@@ -125,7 +125,7 @@ WHERE {
 }
 LIMIT 10
 
-Results set in shorten URL: http://goo.gl/OzKUmR
+Results set in shorten URL: https://goo.gl/YHjIcB 
 
 --------------------------------------------------------------------------------
 Get the PRO, HUGO, and Pharmgkb mappings for pharmgx biomarkers associated with TRIMIPRAMINE in product labeling
@@ -147,7 +147,7 @@ foaf:homepage ?home;
 linkedspls_vocabulary:setId ?setId.
 }
 
-Results set in shorten URL: http://goo.gl/Uur5fX
+Results set in shorten URL: https://goo.gl/0Ogeka
 
 --------------------------------------------------------------------------------
 find most recently specific label sections, drug interaction and adverse reactions, for drug "Nardil"
@@ -175,7 +175,7 @@ OPTIONAL { ?spl loinc:34084-4 ?adverseReactions}
 ORDER BY DESC(?effectiveTime)
 LIMIT 10
 
-Results set in shorten URL: 
+Results set in shorten URL: https://goo.gl/64JQlU
 
 ################################################################################
 # Queries for GRAPH: http://purl.org/net/nlprepository/spl-active-moiety
@@ -206,7 +206,7 @@ WHERE {
 }
 LIMIT 100
 
-Results set in shorten URL: http://goo.gl/krLPjh
+Results set in shorten URL: https://goo.gl/XmphPo
 
 --------------------------------------------------------------------------------
 what pharmgx biomarkers are common to EPC classes?
@@ -231,7 +231,7 @@ WHERE {
 }
 LIMIT 100
 
-Results set in shorten URL: http://goo.gl/54gUBL
+Results set in shorten URL: https://goo.gl/gOZbHF
 
 --------------------------------------------------------------------------------
 what pharmgx biomarkers are common to MoA (mechanism of action) classes?
@@ -256,7 +256,7 @@ WHERE {
 }
 LIMIT 100
 
-Results set in shorten URL: http://goo.gl/N9vEiX
+Results set in shorten URL: https://goo.gl/VgSfw6
 
 --------------------------------------------------------------------------------
 what pharmgx biomarkers are common to Chemical/Ingredient classes (suggests how incomplete the class mapping is)?
@@ -281,7 +281,7 @@ WHERE {
 }
 LIMIT 100
 
-Results set in shorten URL: http://goo.gl/9ABxC9
+Results set in shorten URL: https://goo.gl/kS8agv
 
 --------------------------------------------------------------------------------
 Get the most recent product label for DULOXETINE
@@ -299,7 +299,7 @@ SELECT DISTINCT ?s ?date WHERE {
 ORDER BY DESC(?date)
 LIMIT 1
 
-Results set in shorten URL: http://goo.gl/ZDoj0I
+Results set in shorten URL: https://goo.gl/Q4RISO
 
 --------------------------------------------------------------------------------
 chain that gets all sections containing pharmgx data from the most recent PI for warfarin and clopidogrel:
@@ -321,7 +321,7 @@ linkedspls_vocabulary:effectiveTime ?date.
 ORDER BY DESC(?date)
 LIMIT 1
 
-Results set in shorten URL: http://goo.gl/aWhdSR
+Results set in shorten URL: https://goo.gl/ujJL5s
 
 --------------------------------------------------------------------------------
 Join graph active moiety with pharmgxTable in core graph by dailymed setid
@@ -333,21 +333,21 @@ PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 SELECT ?rxcui ?sectionTag ?sectionLoinc ?sectionText WHERE {
 
 ?pharmgxData a linkedspls_vocabulary:pharmgxData;
-linkedspls_vocabulary:setId "d655ff56-c17d-4331-8e9c-93e36f4ffeae";
+linkedspls_vocabulary:setId "66a756f2-ac77-451c-a19a-08896d73b15c";
 linkedspls_vocabulary:pharmgxSPLSection ?sectionLoinc.
 
 ?sectionLoinc rdfs:label ?sectionTag.
 ?s ?sectionLoinc ?sectionText.
 
 ?s a linkedspls_vocabulary:structuredProductLabelMetadata;
-linkedspls_vocabulary:setId "d655ff56-c17d-4331-8e9c-93e36f4ffeae".
+linkedspls_vocabulary:setId "66a756f2-ac77-451c-a19a-08896d73b15c".
 
 ?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
 ?activeMoiety linkedspls_vocabulary:RxCUI ?rxcui.
 
 }
 
-Results set in shorten URL: http://goo.gl/JvhA9D
+Results set in shorten URL: https://goo.gl/eY2ljk
 
 ################################################################################
 # GRAPH: http://purl.org/net/nlprepository/post-processed-pgx-consensus-oa-10072014
@@ -414,7 +414,7 @@ WHERE {
 GROUP BY ?text
 ORDER BY DESC(?item)
 
-Results set in shorten URL: http://goo.gl/UTavRR
+Results set in shorten URL: http://tinyurl.com/zauxa8b
 
 --------------------------------------------------------------------------------
 QUERY: Get back the SPL URL for an annotation over a given piece of text. To do this, replace the text in the regex with the text you are interested in:
@@ -440,45 +440,7 @@ WHERE {
 
 }   
 
-Results set in shorten URL: http://goo.gl/tKtZ22
-
---------------------------------------------------------------------------------
-QUERY: Annotations are grouped into Collections, one per SPL resource; show the number of annotations in each annotation collection for CLOPIDOGREL product labels
-
-Comment: the source uri won't matched in most cases 
-
-same product name but there are different srouce uri in spl-core and pharmgx consensus data
-ex1: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=edae8df1-caf9-ff72-1304-5ae8b355f8e7
-ex2: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1
-
-update linkedSPLs probably can fix this mismatching problem
---------------------------------------------------------------------------------
-
-PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
-PREFIX oa: <http://www.w3.org/ns/oa#>
-PREFIX cnt: <http://www.w3.org/2011/content#>
-PREFIX linkedspls: <file:///home/rdb20/Downloads/d2rq-0.8.1/linkedSPLs-dump.nt#structuredProductLabelMetadata/>
-PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
-PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
-PREFIX pav: <http://purl.org/pav/>
-
-SELECT ?item ?annCreatedOn ?annCreatedBy ?setId COUNT(?item) ?source WHERE {
-  ?splUri a linkedspls_vocabulary:structuredProductLabelMetadata;
-  linkedspls_vocabulary:setId ?setId;
-  foaf:homepage ?source;
-  linkedspls_vocabulary:activeMoiety ?activeMoiety.
-  ?activeMoiety rdfs:label "CLOPIDOGREL".   
- 
-  ?item a oa:SPLAnnotation;
-  pav:createdOn ?annCreatedOn;
-  pav:createdBy ?annCreatedBy.
-
-  ?item oa:hasTarget ?target.
-  ?target oa:hasSelector ?selector.
-  ?selector a oa:PrefixSuffixTextSelector;
-      oa:hasSource ?source.
-
-}  
+Results set in shorten URL: https://goo.gl/AsbpBQ
 
 --------------------------------------------------------------------------------
 QUERY: Show for all annotations for a given CLOPIDOGREL/CYP2C19 occuring in the boxedWarning  section
@@ -505,7 +467,7 @@ WHERE {
         dailymed:HGNCGeneSymbol "CYP2C19".
 }  
 
-Results set in shorten URL: http://goo.gl/cFpkqd
+Results set in shorten URL: https://goo.gl/al1r0y
 
 --------------------------------------------------------------------------------
 QUERY: Show all annotations of any SPL boxedWarning section
@@ -535,7 +497,7 @@ WHERE {
 GROUP BY ?drug
 ORDER BY ?drug 
 
-Results set in shorten URL: http://goo.gl/7zSxSw
+Results set in shorten URL: https://goo.gl/fp3syi
 
 --------------------------------------------------------------------------------
 QUERY: Show any pharmacodynamic impact for HLA-B*5701      
@@ -566,7 +528,7 @@ WHERE {
 GROUP BY ?section
 ORDER BY ?drug 
 
-Results set in shorten URL: http://goo.gl/mwymrO
+Results set in shorten URL: https://goo.gl/eQi5pf
 
 --------------------------------------------------------------------------------
 QUERY: Show any biomarkers expected to have a pharmacokinetic impact on any drug
@@ -602,8 +564,43 @@ WHERE {
 GROUP BY ?pkImpact
 ORDER BY ?gene
 
-Results set in shorten URL: http://goo.gl/58RIUJ
+Results set in shorten URL: https://goo.gl/nocS8m
 
+--------------------------------------------------------------------------------
+QUERY: Annotations are grouped into Collections, one per SPL resource; show the number of annotations in each annotation collection for CLOPIDOGREL product labels
+
+Comment: the source uri won't matched in most cases 
+
+same product name but there are different srouce uri in spl-core and pharmgx consensus data
+ex1: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=edae8df1-caf9-ff72-1304-5ae8b355f8e7
+ex2: http://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=03bec9ad-cd22-44d3-9b82-2796157de1d1
+
+update linkedSPLs probably can fix this mismatching problem
+--------------------------------------------------------------------------------
+
+PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
+PREFIX oa: <http://www.w3.org/ns/oa#>
+PREFIX cnt: <http://www.w3.org/2011/content#>
+PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+PREFIX pav: <http://purl.org/pav/>
+
+SELECT ?item ?annCreatedOn ?annCreatedBy ?setId COUNT(?item) ?source WHERE {
+  ?splUri a linkedspls_vocabulary:structuredProductLabelMetadata;
+  linkedspls_vocabulary:setId ?setId;
+  foaf:homepage ?source;
+  linkedspls_vocabulary:activeMoiety ?activeMoiety.
+  ?activeMoiety rdfs:label "CLOPIDOGREL".   
+ 
+  ?item a oa:SPLAnnotation;
+  pav:createdOn ?annCreatedOn;
+  pav:createdBy ?annCreatedBy.
+
+  ?item oa:hasTarget ?target.
+  ?target oa:hasSelector ?selector.
+  ?selector a oa:PrefixSuffixTextSelector;
+      oa:hasSource ?source.
+}  
 
 ################################################################################
 # INTEGRATION WITH linkedSPLs 
@@ -658,6 +655,7 @@ GROUP BY ?drug
 ORDER BY ?drug
 LIMIT 10
 
+Results set in shorten URL: http://tinyurl.com/z3wrh3j
 
 --------------------------------------------------------------------------------
 For which drugs do product labels associate  Pharmgkb PA124 (CYP2C19) with a toxicity?
@@ -692,6 +690,7 @@ WHERE {
 
   ?item a oa:SPLAnnotation;
        oa:hasTarget ?target.
+
   ?target oa:hasSelector ?selector.
   ?selector a oa:PrefixSuffixTextSelector;
       oa:hasSource ?source;
@@ -708,7 +707,7 @@ GROUP BY ?drug
 ORDER BY ?drug
 LIMIT 10
 
-Results set in shorten URL: http://goo.gl/6q0i7I
+Results set in shorten URL: http://tinyurl.com/z3wrh3j
 
 --------------------------------------------------------------------------------
 For which drugs do product labels associate a biomarker with toxicity?
@@ -721,7 +720,6 @@ PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
 PREFIX cnt: <http://www.w3.org/2011/content#>
 PREFIX gcds: <http://www.genomic-cds.org/ont/genomic-cds.owl#>
-PREFIX linkedspls: <file:///home/rdb20/Downloads/d2rq-0.8.1/linkedSPLs-dump.nt#structuredProductLabelMetadata/>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -759,6 +757,7 @@ GROUP BY ?biomarker
 ORDER BY ?biomarker
 LIMIT 10
 
+Results set in shorten URL: http://tinyurl.com/hx32ty3
 
 --------------------------------------------------------------------------------
 Show the annotations on product label statements for Pharmgkb PA124 (CYP2C19)
@@ -771,7 +770,6 @@ PREFIX sio: <http://semanticscience.org/resource/>
 PREFIX oa: <http://www.w3.org/ns/oa#>
 PREFIX cnt: <http://www.w3.org/2011/content#>
 PREFIX gcds: <http://www.genomic-cds.org/ont/genomic-cds.owl#>
-PREFIX linkedspls: <file:///home/rdb20/Downloads/d2rq-0.8.1/linkedSPLs-dump.nt#structuredProductLabelMetadata/>
 PREFIX dailymed: <http://dbmi-icode-01.dbmi.pitt.edu/linkedSPLs/vocab/resource/>
 PREFIX poc: <http://purl.org/net/nlprepository/spl-pharmgx-annotation-poc#>
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
@@ -815,7 +813,7 @@ WHERE {
 
 LIMIT 10
 
-Results set in shorten URL: http://goo.gl/7KcMBj
+Results set in shorten URL: http://tinyurl.com/jcty9qn
 
 ################################################################################
 # GRAPH: http://purl.org/net/nlprepository/ddi-expert2-11-20
@@ -872,7 +870,7 @@ GROUP BY ?exactText
 ORDER BY DESC(?annot)
 
 
-Results set in shorten URL: http://goo.gl/ZQTX8n
+Results set in shorten URL: http://tinyurl.com/gpxglqf
 
 --------------------------------------------------------------------------------
 query ddi annotations, label 11 - 20, by dailymed URI with setid
@@ -928,11 +926,11 @@ GROUP BY ?exactText
 ORDER BY DESC(?annot)
 
 
-Results set in shorten URL: http://goo.gl/y1oiW5
+Results set in shorten URL: http://tinyurl.com/hrulbmn
 
 
 ################################################################################
-# LinkedSPLs analysis queries - updated 08242015
+# LinkedSPLs analysis queries - updated 09262015
 ################################################################################
 
 (1) number of labels have both active ingredient and clinical drug entity mapped
@@ -953,7 +951,9 @@ WHERE {
 
 }
 
-Results: 51571
+Results: 31420
+
+Results set in shorten URL: https://goo.gl/WYIzYz
 
 (2) number of labels have one drug product and two active moiety entities mapped
 
@@ -981,13 +981,15 @@ WHERE {
 }
 }
 
-Resutls: 10112
+Resutls: 4037
+
+Results set in shorten URL: https://goo.gl/Hr1HMX
 
 (3) find product label that have most number of clinical drug mappings
  
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
-SELECT distinct ?s count(distinct ?rxcui1) as ?num
+SELECT distinct ?s count(distinct ?clinicalDrug) as ?num
 
 WHERE {
 
@@ -1003,10 +1005,11 @@ WHERE {
 
 limit 10
 
+Results set in shorten URL: https://goo.gl/WhpOFO
+
 (4) get number of labels that have clinical drug rxcui mapped 
 
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
-
 
 SELECT count(distinct ?s) WHERE
 
@@ -1029,8 +1032,9 @@ WHERE {
 }
 }
 
-Results: 51572
+Results: 31421
 
+Results set in shorten URL: https://goo.gl/jZ0jpi
 
 (5) examples of dailymed label that don't have rxcui mapping available from dailymed mapping
 
@@ -1049,6 +1053,22 @@ OPTIONAL {
    FILTER (!regex(?rxcui1,'^http','i'))
 }
 limit 20
+
+
+(6) count numbers of active moieties in dailymed labels
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+
+SELECT count(DISTINCT ?activeMoiety)
+WHERE {
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
+?s linkedspls_vocabulary:setId ?setId.
+
+?activeMoiety linkedspls_vocabulary:RxCUI ?RxCUI.
+
+}
+
+Results set in shorten URL: https://goo.gl/bH6gA1
 
 --------------------------------------------------------------------------------
 get number of labels have each active ingredient entity mapping available
@@ -1070,10 +1090,12 @@ WHERE {
 }
 
 Results:
-62735 out of 62739 labels
+33100 out of 33102 SPL labels
+
+Results set in shorten URL: https://goo.gl/fr1WoQ
+
 
 (2) number of product labels have active ingredient RxCUI mapping
-
 
 PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
 
@@ -1086,7 +1108,10 @@ WHERE {
 
 }
 
-Results: 62735 out of 62739 labels
+Results:
+33100 out of 33102 SPL labels
+
+Results set in shorten URL: https://goo.gl/fFFLwN
 
 (3) number of product labels have active ingredient ChEBI mapping
 
@@ -1103,8 +1128,9 @@ WHERE {
 }
 
 Resutls:
-39042 out of 62739 labels
- 
+26548 of 33102 labels
+
+Results set in shorten URL: https://goo.gl/YyIbec
 
 (4) number of product labels have drug classes mapped 
 
@@ -1126,7 +1152,28 @@ UNION
 
 }
 
+29292 of 33102 labels
 
+Results set in shorten URL: https://goo.gl/F9DF3N
+
+(5) number of labels that have drugbank URI 
+
+
+PREFIX linkedspls_vocabulary: <http://bio2rdf.org/linkedspls_vocabulary:>
+
+SELECT count(DISTINCT ?s)
+WHERE {
+?s linkedspls_vocabulary:activeMoiety ?activeMoiety.
+?s linkedspls_vocabulary:setId ?setId.
+
+?activeMoiety linkedspls_vocabulary:x-drugbank ?drugbank.
+
+}
+
+19590 of 29735 by 06/10/2016
+30054 of 33102 by 01/18/2017
+
+Results set in shorten URL: https://goo.gl/hoKbw6
 
 --------------------------------------------------------------------------------
 query number of labels have each clinical drug entity mapping available
@@ -1145,7 +1192,9 @@ WHERE {
 
 }
 
-Results: 62739
+Results: 33102
+
+Results set in shorten URL: https://goo.gl/yIzjo1
 
 (2) number of product label have clinical drug RxCUI, DrOn Id, OMOP Concept Id mapped
 
@@ -1164,5 +1213,5 @@ WHERE {
 
 }
 
-Results: 49457
-
+Results: 27176
+Results set in shorten URL: https://goo.gl/nMjTjE
