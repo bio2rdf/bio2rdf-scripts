@@ -117,7 +117,7 @@ class HGNCParser extends Bio2RDFizer {
 	function process(){
 		$header = $this->GetReadFile()->Read(200000);
 		$header_arr = explode("\t", $header);
-		$n = 41;
+		$n = 43;
 		$c = count($header_arr);
 		if ($c != $n)
 		{
@@ -170,6 +170,8 @@ class HGNCParser extends Bio2RDFizer {
 			$ucsc_id_mappeddatasuppliedbyUCSC = $fields[38];
 			$mouse_genome_database_id_mappeddatasuppliedbyMGI = $fields[39];
 			$rat_genome_database_id_mappeddatasuppliedbyRGD = $fields[40];
+			$rna_central_ids = $fields[41];
+			$LNCipedia_symbol = $fields[42];
 
 			$id_res = $id;
 			$id_label = "Gene Symbol for ".$approved_symbol;
@@ -509,6 +511,24 @@ class HGNCParser extends Bio2RDFizer {
 					}
 				}
 			}
+			if(!empty($rna_central_ids)) {
+				foreach(explode(",", $rna_central_ids) AS $id) {
+					if(!empty($id)){
+						parent::addRDF(
+							parent::triplify($id_res, $this->getVoc()."x-rna-central", "rnacentral:".trim($id)).
+							parent::describeProperty($this->getVoc()."x-rna-central", "RNA Central entry")
+						);
+					}
+				}
+			}
+			if(!empty($LNCipedia_symbol)) {
+				parent::addRDF(
+					parent::triplify($id_res, $this->getVoc()."x-lncipedia", "lncipedia:".trim($LNCipedia_symbol)).
+					parent::describeProperty($this->getVoc()."x-lncipedia", "LNCipedia entry")
+				);
+		
+			}
+			
 			//write RDF to file
 			$this->WriteRDFBufferToWriteFile();
 		}//while
