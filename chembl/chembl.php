@@ -1017,8 +1017,10 @@ class ChemblParser extends Bio2RDFizer {
 				}
 				parent::writeRDFBufferToWriteFile();
 			}
+		}
+		$result->free();
+	}
 
-<<<<<<< HEAD
 	/*
 	*	parse the assays tables
 	*/
@@ -1075,12 +1077,8 @@ class ChemblParser extends Bio2RDFizer {
 		     $this->WriteRDFBufferToWriteFile();
 
 		  }
-
 		  $this->AddRDF($this->QQuad($assay,"chembl_vocabulary:hasAssayType","chembl_vocabulary:".$row['assay_desc']));
 		  $this->WriteRDFBufferToWriteFile();
-=======
-			$result->free();
->>>>>>> release3
 		}
 	}
 
