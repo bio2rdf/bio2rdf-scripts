@@ -36,7 +36,7 @@ class HGNCParser extends Bio2RDFizer {
 	function __construct($argv){
 		parent::__construct($argv, "hgnc");
 		parent::addParameter('files',true,'all','all','files to process');
-		parent::addParameter('download_url',false,null,'ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc_complete_set.txt.gz');
+		parent::addParameter('download_url',false,null,'ftp://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/tsv/hgnc_complete_set.txt');
 		parent::initialize();
 	}//constructor
 
