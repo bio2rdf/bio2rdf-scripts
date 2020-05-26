@@ -149,7 +149,7 @@ class ORPHANETParser extends Bio2RDFizer
 					parent::triplifyString($orphanet_id, parent::getVoc()."internal-id", $internal_id).
 					parent::triplify($orphanet_id, parent::getVoc()."expert-link-url", $expert_link)
 				);
-				
+				// get the synonyms
 				foreach($d->SynonymList AS $s) {
 					$synonym = str_replace('"','', (string) $s->Synonym);
 					parent::addRDF(
@@ -165,6 +165,7 @@ class ORPHANETParser extends Bio2RDFizer
 						);
 					}
 				}
+				// get external references
 				foreach($d->ExternalReferenceList AS $erl) {
 					foreach($erl->ExternalReference AS $er) {						
 						$source = (string) $er->Source;
@@ -175,27 +176,14 @@ class ORPHANETParser extends Bio2RDFizer
 						);
 					}
 				}
-				/*
-				      <TextualInformationList count="1">
-        <TextualInformation id="63385" lang="en">
-          <TextSectionList count="1">
-            <TextSection id="83697" lang="en">
-              <TextSectionType id="16907">
-                <Name lang="en">Definition</Name>
-              </TextSectionType>
-              <Contents>Multiple epiphyseal dysplasia, Al-Gazali type is a skeletal dysplasia characterized by multiple epiphyseal dysplasia (see this term), macrocephaly and facial dysmorphism.</Contents>
-            </TextSection>
-          </TextSectionList>
-        </TextualInformation>
-	  </TextualInformationList>
-	  */
+				// get the definition
 				foreach($d->TextualInformationList AS $til) {
 					foreach($til->TextualInformation As $ti) {
 						foreach($ti->TextSectionList AS $tsl) {
 							foreach($tsl->TextSection AS $ts) {
 								if(((string) $ts->TextSectionType->Name) == "Definition") {
 									parent::addRDF(
-										parent::triplifyString($orphanet_id, parent::getVoc()."definition", (string) $ts->Contents)
+										parent::triplifyString($orphanet_id, parent::getVoc()."definition", addslashes((string) $ts->Contents))
 									);
 								};								
 							}
