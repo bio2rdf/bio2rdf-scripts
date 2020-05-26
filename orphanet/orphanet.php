@@ -35,14 +35,14 @@ class ORPHANETParser extends Bio2RDFizer
 {
 	private $filemap = array(
 		'disease' => 'en_product1.xml',
-		'epi'     => 'en_product2.xml',
-		'd2s'     => 'en_product4.xml',
-		'signs'   => 'en_product5.xml',
+		'epi'     => 'en_product9_prev.xml',
+		# 'd2s'     => 'en_product4.xml',
+		# 'signs'   => 'en_product5.xml',
 		'genes'   => 'en_product6.xml'
 	);
 	function __construct($argv) {
 		parent::__construct($argv, "orphanet");
-		parent::addParameter('files',true,'all|disease|epi|d2s|signs|genes','all','all or comma-separated list of ontology short names to process');
+		parent::addParameter('files',true,'all|disease|genes','all','all or comma-separated list of ontology short names to process');
 		parent::addParameter('download_url',false,null,'http://www.orphadata.org/data/xml/');
 		parent::initialize();
 	}
@@ -79,43 +79,43 @@ class ORPHANETParser extends Bio2RDFizer
 			$ofile = "orphanet-".$file.'.'.$suffix; 
 			$gz = strstr(parent::getParameterValue('output_format'), "gz")?($gz=true):($gz=false);
 			
-/*			parent::setWriteFile($odir.$ofile, $gz);
+			parent::setWriteFile($odir.$ofile, $gz);
 			$this->$file($lfile);
 			parent::getWriteFile()->close();
-*/			parent::getReadFile()->close();
+			parent::getReadFile()->close();
 			parent::clear();
 			echo "done!".PHP_EOL;
 
 			// dataset description
-                       $source_file = (new DataResource($this))
-                         ->setURI($rfile)
-                         ->setTitle("Orphanet: $file")
-                         ->setRetrievedDate(parent::getDate(filemtime($lfile)))
-                         ->setFormat("application/xml")
-                         ->setPublisher("http://www.orpha.net")
-                         ->setHomepage("http://www.orpha.net/")
-                         ->setRights("use")
-                         ->setRights("sharing-modified-version-needs-permission")
-                         ->setLicense("http://creativecommons.org/licenses/by-nd/3.0/")
-                         ->setDataset("http://identifiers.org/orphanet/");
+			$source_file = (new DataResource($this))
+				->setURI($rfile)
+				->setTitle("Orphanet: $file")
+				->setRetrievedDate(parent::getDate(filemtime($lfile)))
+				->setFormat("application/xml")
+				->setPublisher("http://www.orpha.net")
+				->setHomepage("http://www.orpha.net/")
+				->setRights("use")
+				->setRights("sharing-modified-version-needs-permission")
+				->setLicense("http://creativecommons.org/licenses/by-nd/3.0/")
+				->setDataset("http://identifiers.org/orphanet/");
 
-                        $prefix = parent::getPrefix();
-                        $bVersion = parent::getParameterValue('bio2rdf_release');
-                        $date = parent::getDate(filemtime($odir.$ofile));
+			$prefix = parent::getPrefix();
+			$bVersion = parent::getParameterValue('bio2rdf_release');
+			$date = parent::getDate(filemtime($odir.$ofile));
 
-                        $output_file = (new DataResource($this))
-                         ->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
-                         ->setTitle("Bio2RDF v$bVersion RDF version of $prefix")
-                         ->setSource($source_file->getURI())
-                         ->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/orphanet/orphanet.php")
-                         ->setCreateDate($date)
-                         ->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
-                         ->setPublisher("http://bio2rdf.org")
-                         ->setRights("use-share-modify")
-                         ->setRights("by-attribution")
-                         ->setRights("restricted-by-source-license")
-                         ->setLicense("http://creativecommons.org/licenses/by/3.0/")
-                         ->setDataset(parent::getDatasetURI());
+			$output_file = (new DataResource($this))
+				->setURI("http://download.bio2rdf.org/release/$bVersion/$prefix/$ofile")
+				->setTitle("Bio2RDF v$bVersion RDF version of $prefix")
+				->setSource($source_file->getURI())
+				->setCreator("https://github.com/bio2rdf/bio2rdf-scripts/blob/master/orphanet/orphanet.php")
+				->setCreateDate($date)
+				->setHomepage("http://download.bio2rdf.org/release/$bVersion/$prefix/$prefix.html")
+				->setPublisher("http://bio2rdf.org")
+				->setRights("use-share-modify")
+				->setRights("by-attribution")
+				->setRights("restricted-by-source-license")
+				->setLicense("http://creativecommons.org/licenses/by/3.0/")
+				->setDataset(parent::getDatasetURI());
 
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
 			if($gz) $output_file->setFormat("application/gzip");
@@ -137,6 +137,7 @@ class ORPHANETParser extends Bio2RDFizer
 			
 			foreach($x->Disorder AS $d) {
 				// var_dump($d);exit;
+
 				$internal_id = (string) $d->attributes()->id;
 				$orphanet_id = parent::getNamespace().((string)$d->OrphaNumber);
 				$name = (string) $d->Name;
@@ -150,7 +151,7 @@ class ORPHANETParser extends Bio2RDFizer
 				);
 				
 				foreach($d->SynonymList AS $s) {
-					$synonym = (string) $s->Synonym;
+					$synonym = str_replace('"','', (string) $s->Synonym);
 					parent::addRDF(
 						parent::triplifyString($orphanet_id, parent::getVoc()."synonym", $synonym)
 					);
@@ -165,13 +166,41 @@ class ORPHANETParser extends Bio2RDFizer
 					}
 				}
 				foreach($d->ExternalReferenceList AS $erl) {
-					$er = $erl->ExternalReference;
-					$source = (string) $er->Source;
-					$db = parent::getRegistry()->getPreferredPrefix($source);
-					$id = (string) $er->Reference;
-					parent::addRDF(
-						parent::triplify($orphanet_id, parent::getVoc()."x-$db", "$db:$id")
-					);
+					foreach($erl->ExternalReference AS $er) {						
+						$source = (string) $er->Source;
+						$db = parent::getRegistry()->getPreferredPrefix($source);
+						$id = (string) $er->Reference;
+						parent::addRDF(
+							parent::triplify($orphanet_id, parent::getVoc()."x-$db", "$db:$id")
+						);
+					}
+				}
+				/*
+				      <TextualInformationList count="1">
+        <TextualInformation id="63385" lang="en">
+          <TextSectionList count="1">
+            <TextSection id="83697" lang="en">
+              <TextSectionType id="16907">
+                <Name lang="en">Definition</Name>
+              </TextSectionType>
+              <Contents>Multiple epiphyseal dysplasia, Al-Gazali type is a skeletal dysplasia characterized by multiple epiphyseal dysplasia (see this term), macrocephaly and facial dysmorphism.</Contents>
+            </TextSection>
+          </TextSectionList>
+        </TextualInformation>
+	  </TextualInformationList>
+	  */
+				foreach($d->TextualInformationList AS $til) {
+					foreach($til->TextualInformation As $ti) {
+						foreach($ti->TextSectionList AS $tsl) {
+							foreach($tsl->TextSection AS $ts) {
+								if(((string) $ts->TextSectionType->Name) == "Definition") {
+									parent::addRDF(
+										parent::triplifyString($orphanet_id, parent::getVoc()."definition", (string) $ts->Contents)
+									);
+								};								
+							}
+						}
+					}
 				}
 				parent::writeRDFBufferToWriteFile();
 			}
