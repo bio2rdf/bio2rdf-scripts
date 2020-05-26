@@ -36,13 +36,13 @@ class ORPHANETParser extends Bio2RDFizer
 	private $filemap = array(
 		'disease' => 'en_product1.xml',
 		'epi'     => 'en_product9_prev.xml',
-		# 'd2s'     => 'en_product4.xml',
+		'phenotypefreq' => 'en_product4.xml',
 		# 'signs'   => 'en_product5.xml',
 		'genes'   => 'en_product6.xml'
 	);
 	function __construct($argv) {
 		parent::__construct($argv, "orphanet");
-		parent::addParameter('files',true,'all|disease|genes','all','all or comma-separated list of ontology short names to process');
+		parent::addParameter('files',true,'all|disease|phenotypefreq|genes','all','all or comma-separated list of ontology short names to process');
 		parent::addParameter('download_url',false,null,'http://www.orphadata.org/data/xml/');
 		parent::initialize();
 	}
@@ -282,41 +282,64 @@ class ORPHANETParser extends Bio2RDFizer
 		unset($xml);	
 	}
 	
-	function d2s($file)
+	function phenotypefreq($file)
 	{
 	/*
-	   <DisorderSignList count="18">
-        <DisorderSign>
-          <ClinicalSign id="2040">
-            <Name lang="en">Macrocephaly/macrocrania/megalocephaly/megacephaly</Name>
-          </ClinicalSign>
-          <SignFreq id="640">
-            <Name lang="en">Very frequent</Name>
-          </SignFreq>
-        </DisorderSign>
-	*/
+	<HPODisorderSetStatus id="51">
+      <Disorder id="109">
+        <OrphaNumber>558</OrphaNumber>
+        <ExpertLink lang="en">http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=en&amp;Expert=558</ExpertLink>
+        <Name lang="en">Marfan syndrome</Name>
+        <DisorderType id="21394">
+          <Name lang="en">Disease</Name>
+        </DisorderType>
+        <DisorderGroup id="36547">
+          <Name lang="en">Disorder</Name>
+		</DisorderGroup>
+		
+        <HPODisorderAssociationList count="59">
+          <HPODisorderAssociation id="207760">
+            <HPO id="104">
+              <HPOId>HP:0000768</HPOId>
+              <HPOTerm>Pectus carinatum</HPOTerm>
+            </HPO>
+            <HPOFrequency id="28412">
+              <Name lang="en">Very frequent (99-80%)</Name>
+            </HPOFrequency>
+            <DiagnosticCriteria id="28454">
+              <Name lang="en">Diagnostic criterion</Name>
+            </DiagnosticCriteria>
+		  </HPODisorderAssociation>
+		  */
 		$xml = new CXML($file);
-		while($xml->parse("DisorderList") == TRUE) {
+		while($xml->parse("HPODisorderSetStatus") == TRUE) {
 			$x = $xml->GetXMLRoot();
 			foreach($x->Disorder AS $d) {
 				$orphanet_id = parent::getNamespace().((string)$d->OrphaNumber);
-				foreach($d->DisorderSignList->DisorderSign AS $ds) {
-					$sfid = parent::getRes().md5($ds->asXML());
-					if($ds->ClinicalSign) {
-						$sid = parent::getVoc().((string)$ds->ClinicalSign->attributes()->id);
-						$s = (string) $ds->ClinicalSign->Name;
-						$fid = parent::getRes().((string) $ds->SignFreq->attributes()->id);
-						$f = (string) $ds->SignFreq->Name;
-						parent::addRDF(
-							parent::describeIndividual($sfid, "$f $s",parent::getVoc()."Clinical-Sign-And-Frequency").
-							parent::describeClass(parent::getVoc()."Clinical-Sign-And-Frequency","Clinical Sign and Frequency").
-							parent::triplify($orphanet_id, parent::getVoc()."sign-freq", $sfid).
-							parent::triplify($sfid,parent::getVoc()."sign", $sid).
-							parent::describeClass($sid,$s,parent::getVoc()."Clinical-Sign").
-							parent::triplify($sfid,parent::getVoc()."frequency",$fid).
-							parent::describeClass($fid,$f,parent::getVoc()."Frequency")
-						);
+				$disease_name = ((string)$d->Name);
+				foreach($d->HPODisorderAssociationList->HPODisorderAssociation AS $ds) {
+					$sfid = parent::getNamespace().((string)$ds->attributes()->id);
+					$s = (string) $ds->HPO->HPOTerm;
+					$sid = $ds->HPO->HPOId;
+					$f = (string) $ds->HPOFrequency->Name;
+					$fid = parent::getRes().((string) $ds->HPOFrequency->attributes()->id);
+
+					$diagnostic = false;
+					if($ds->DiagnosticCriteria->Name) {
+						$diagnostic = true;
 					}
+					$sflabel =  "$f $s".(($diagnostic == true)?" that is diagnostic":"")." for ".$disease_name;
+
+					parent::addRDF(
+						parent::describeIndividual($sfid, $sflabel, parent::getVoc()."Clinical-Sign-And-Frequency").
+						parent::describeClass(parent::getVoc()."Clinical-Sign-And-Frequency","Clinical Sign and Frequency").
+						parent::triplify($orphanet_id, parent::getVoc()."sign-freq", $sfid).
+						parent::triplify($sfid,parent::getVoc()."sign", $sid).
+						parent::triplify($sfid,parent::getVoc()."frequency",$fid).
+						parent::triplifyString($sfid, parent::getVoc()."is-diagnostic", (isset($diagnostic)?"true":"false")).
+						parent::triplifyString($fid, "rdfs:label", $fid).
+						parent::describeClass($fid,$f,parent::getVoc()."Frequency")
+					);
 				}
 				parent::writeRDFBufferToWriteFile();
 			}
