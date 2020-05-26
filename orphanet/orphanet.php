@@ -412,6 +412,19 @@ class ORPHANETParser extends Bio2RDFizer
 						}
 					}
 
+					// parse the sources of validation
+					//<SourceOfValidation>16150725[PMID]_16150725[PMID]_21771795[PMID]</SourceOfValidation>
+					$sources = explode("_",$dga->SourceOfValidation);
+					foreach($sources AS $source) {
+						preg_match_all("/([0-9]*)\[([^\]]*)?\]/",$source, $m, PREG_PATTERN_ORDER );
+						if(isset($m[1][0])) {
+							$prefix = parent::getRegistry()->getPreferredPrefix($m[2][0]);
+							parent::addRDF(
+								parent::triplify($gene_id,parent::getVoc()."source-of-validation", "$prefix:".$m[1][0])
+							);
+						}
+					}
+
 					$dga_id = parent::getRes().((string)$d->OrphaNumber)."_".md5($dga->asXML());
 					$ga = $dga->DisorderGeneAssociationType;
 					$ga_id    = parent::getNamespace().((string) $ga->attributes()->id);
