@@ -401,14 +401,15 @@ class ORPHANETParser extends Bio2RDFizer
 						);
 					}
 					foreach($gene->ExternalReferenceList AS $erl) {
-						$er = $erl->ExternalReference;
-						$db = (string) $er->Source;
-						$db = parent::getRegistry()->getPreferredPrefix($db);
-						$id = (string) $er->Reference;
-						$xref = "$db:$id";
-						parent::addRDF(
-							parent::triplify($gene_id, parent::getVoc()."x-$db", $xref)
-						);
+						foreach($erl->ExternalReference AS $er) {
+							$db = (string) $er->Source;
+							$db = parent::getRegistry()->getPreferredPrefix($db);
+							$id = (string) $er->Reference;
+							$xref = "$db:$id";
+							parent::addRDF(
+								parent::triplify($gene_id, parent::getVoc()."x-$db", $xref)
+							);
+						}
 					}
 
 					$dga_id = parent::getRes().((string)$d->OrphaNumber)."_".md5($dga->asXML());
