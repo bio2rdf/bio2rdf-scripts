@@ -384,15 +384,16 @@ class ORPHANETParser extends Bio2RDFizer
 				foreach($d->DisorderGeneAssociationList->DisorderGeneAssociation AS $dga) {
 					// gene
 					$gene = $dga->Gene;
-					$gene_id = parent::getNamespace().((string) $gene->OrphaNumber);
-					$gene_internal_id = ((string) $gene->attributes()->id);
+					$gid = ((string) $gene->attributes()->id);		
+					$gene_id = parent::getNamespace().$gid;
 					$gene_label = (string) $gene->Name;
 					$gene_symbol = (string) $gene->Symbol;
 					parent::addRDF(
 						parent::describeIndividual($gene_id,$gene_label,parent::getVoc()."Gene").
-						parent::describeClass(parent::getVoc()."Gene","orphanet gene").
+						parent::describeClass(parent::getVoc()."Gene","Orphanet Gene").
 						parent::triplifyString($gene_id,parent::getVoc()."symbol",$gene_symbol)
 					);
+
 					foreach($gene->SynonymList AS $s) {
 						$synonym = (string) $s->Synonym;
 						parent::addRDF(
