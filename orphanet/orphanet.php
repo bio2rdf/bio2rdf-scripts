@@ -35,14 +35,13 @@ class ORPHANETParser extends Bio2RDFizer
 {
 	private $filemap = array(
 		'disease' => 'en_product1.xml',
-		'epi'     => 'en_product9_prev.xml',
+		'prevalence'     => 'en_product9_prev.xml',
 		'phenotypefreq' => 'en_product4.xml',
-		# 'signs'   => 'en_product5.xml',
 		'genes'   => 'en_product6.xml'
 	);
 	function __construct($argv) {
 		parent::__construct($argv, "orphanet");
-		parent::addParameter('files',true,'all|disease|phenotypefreq|genes','all','all or comma-separated list of ontology short names to process');
+		parent::addParameter('files',true,'all|disease|genes|phenotypefreq|prevalence','all','all or comma-separated list of ontology short names to process');
 		parent::addParameter('download_url',false,null,'http://www.orphadata.org/data/xml/');
 		parent::initialize();
 	}
@@ -196,7 +195,103 @@ class ORPHANETParser extends Bio2RDFizer
 		unset($xml);	
 	}
 	
-	function epi ($file) 
+	function prevalence ($file) 
+	{
+		$seen = '';
+		$xml = new CXML($file);
+		while($xml->parse("DisorderList") == TRUE) {
+			$x = $xml->GetXMLRoot();
+			foreach($x->Disorder AS $d) {
+				
+				$orphanet_id = parent::getNamespace().((string)$d->OrphaNumber);
+				$disease_name = (string) $d->Name;
+
+				foreach($d->PrevalenceList->Prevalence AS $pl) {
+					$id = parent::getRes()."pl".((string) $pl->attributes()->id);
+					parent::addRDF(
+						parent::describeClass($id,"Prevalence",parent::getVoc()."Prevalence").
+						parent::describeIndividual($id, "Prevalence for $disease_name", parent::getVoc()."Prevalence")
+					);
+					$type_id = parent::getRes()."pt".(string) $pl->PrevalenceType->attributes()->id;
+					$type_label = (string) $pl->PrevalenceType->Name;
+					if($type_label != "") {
+						parent::addRDF(
+							parent::describeIndividual($type_id, $type_label, parent::getVoc()."Prevalence-Type").
+							parent::triplify($id, parent::getVoc()."prevalence-type", $type_id).
+							parent::triplify($orphanet_id, parent::getVoc()."prevalence", $id)
+						);
+					}
+
+					$qual_id = parent::getRes()."qu".(string) $pl->PrevalenceQualification->attributes()->id;
+					$qual_label = (string) $pl->PrevalenceQualification->Name;
+					if($qual_label != "") {
+						parent::addRDF(
+							parent::describeIndividual($qual_id, $qual_label, parent::getVoc()."Prevalence-Qualification").
+							parent::triplify($id, parent::getVoc()."prevalence-qualification", $qual_id)
+						);
+					}
+
+					$prev_id = parent::getRes()."pr".(string) $pl->PrevalenceClass->attributes()->id;
+					$prev_label = (string) $pl->PrevalenceClass->Name;
+					if($prev_label != "") {
+						parent::addRDF(
+							parent::describeIndividual($prev_id, $prev_label, parent::getVoc()."Prevalence-Value").
+							parent::triplify($id, parent::getVoc()."prevalence-value", $prev_id)
+						);
+					}
+
+					$geo_id = parent::getRes()."geo".(string) $pl->PrevalenceGeographic->attributes()->id;
+					$geo_label = (string) $pl->PrevalenceGeographic->Name;
+					if($geo_label != "") {
+						parent::addRDF(
+							parent::describeIndividual($geo_id, $geo_label, parent::getVoc()."Geographic-Prevalence").
+							parent::triplify($id, parent::getVoc()."prevalence-geo", $geo_id)
+						);
+					}
+
+					$val_id = parent::getRes()."val".(string) $pl->PrevalenceValidationStatus->attributes()->id;
+					$val_label = (string) $pl->PrevalenceValidationStatus->Name;
+					if($val_label != "") {
+						parent::addRDF(
+							parent::describeIndividual($val_id, $val_label, parent::getVoc()."Prevalence-Validation-Status").
+							parent::triplify($id, parent::getVoc()."prevalence-status", $val_id)
+						);
+					}
+					$valmoy =  (string) $pl->ValMoy;
+					if($valmoy != "") {
+						parent::addRDF(
+								parent::triplifyString($id, parent::getVoc()."val-moy", $valmoy)
+						);
+					}
+
+					
+					$source = trim((string) $pl->Source);
+					if($source and (strlen($source) != 0)) {
+						//23712425[PMID]
+						preg_match_all("/([0-9]*)\[([^\]]*)?\]/",$source, $m, PREG_SET_ORDER );
+						foreach($m AS $i) {
+							if(isset($i[2]) and ($i[2] == "PMID")) {
+								$source_id = "PMID:".$i[1];
+								parent::addRDF(
+									parent::triplify($id, parent::getVoc()."source", $source_id)
+								);
+							} else {
+								parent::addRDF(
+									parent::triplifyString($id, parent::getVoc()."source", $i[0])
+								);
+							}
+
+						}
+					
+					}
+				}
+				parent::writeRDFBufferToWriteFile();
+			}
+		}
+		unset($xml);	
+	}
+	
+	function onset ($file) 
 	{
 		$seen = '';
 		$xml = new CXML($file);
@@ -205,42 +300,15 @@ class ORPHANETParser extends Bio2RDFizer
 			foreach($x->Disorder AS $d) {
 				// var_dump($d);exit;
 				$orphanet_id = parent::getNamespace().((string)$d->OrphaNumber);
-				if(isset($d->ClassOfPrevalence)) {
-					$id = parent::getNamespace().((string) $d->ClassOfPrevalence->attributes()->id);
-					$name = (string) $d->ClassOfPrevalence->Name;
-					if($name != '' && $name != 'Unknown' && $name != 'No data available') {
-						if(!isset($seen[$name])) {
-							$seen[$name] = true;
-							$a = explode (" / ", $name);
-							$size = str_replace(" ","",$a[1]);
-							$upper_bound = $lower_bound = '';
-							if($a[0][0] == '<') {
-								$upper_bound = substr($a[0],1) / $size;
-							} else if($a[0][0] == '>') {
-								$lower_bound = substr($a[0],1) / $size;
-							} else {
-								$b = explode("-",$a[0]);
-								$lower_bound = $b[0] / $size;
-								$upper_bound = $b[1] / $size;
-							}
-							if($upper_bound) {
-								parent::addRDF(
-									parent::triplifyString($id,parent::getVoc()."upper-bound",$upper_bound, "xsd:float")
-								);
-							}
-							if($lower_bound) {
-								parent::addRDF(
-									parent::triplifyString($id,parent::getVoc()."lower-bound",$lower_bound, "xsd:float")
-								);
-							}
-						}
-						parent::addRDF(
-							parent::triplify($orphanet_id, parent::getVoc()."prevalence", $id).
-							parent::describeClass($id,$name,parent::getVoc()."Prevalence")
-						);
+				$disease_name = (string) $d->Name;
+				foreach($d->PrevalanceList AS $pl) {
+					$id = parent::getNamespace().((string) $pl->attributes()->id);
 
-						//echo parent::getRDF();exit;
-					}
+					parent::addRDF(
+						parent::triplify($orphanet_id, parent::getVoc()."prevalence", $id).
+						parent::describeClass($id,$name,parent::getVoc()."Prevalence")
+					);
+
 				}
 				if(isset($d->AverageAgeofOnset)) {
 					$id = parent::getNamespace().((string) $d->AverageAgeOfOnset->attributes()->id);
@@ -281,7 +349,8 @@ class ORPHANETParser extends Bio2RDFizer
 		}
 		unset($xml);	
 	}
-	
+
+
 	function phenotypefreq($file)
 	{
 	/*
@@ -318,11 +387,11 @@ class ORPHANETParser extends Bio2RDFizer
 				$orphanet_id = parent::getNamespace().((string)$d->OrphaNumber);
 				$disease_name = ((string)$d->Name);
 				foreach($d->HPODisorderAssociationList->HPODisorderAssociation AS $ds) {
-					$sfid = parent::getNamespace().((string)$ds->attributes()->id);
+					$sfid = parent::getRes()."sf".((string)$ds->attributes()->id);
 					$s = (string) $ds->HPO->HPOTerm;
 					$sid = $ds->HPO->HPOId;
 					$f = (string) $ds->HPOFrequency->Name;
-					$fid = parent::getRes().((string) $ds->HPOFrequency->attributes()->id);
+					$fid = parent::getRes()."f".((string) $ds->HPOFrequency->attributes()->id);
 
 					$diagnostic = false;
 					if($ds->DiagnosticCriteria->Name) {
@@ -450,11 +519,11 @@ class ORPHANETParser extends Bio2RDFizer
 
 					$dga_id = parent::getRes().((string)$d->OrphaNumber)."_".md5($dga->asXML());
 					$ga = $dga->DisorderGeneAssociationType;
-					$ga_id    = parent::getNamespace().((string) $ga->attributes()->id);
+					$ga_id    = parent::getRes()."ga".((string) $ga->attributes()->id);
 					$ga_label = (string) $ga->Name;
 
 					$s = $dga->DisorderGeneAssociationStatus;
-					$s_id    = parent::getNamespace().((string) $s->attributes()->id);
+					$s_id    = parent::getRes()."st".((string) $s->attributes()->id);
 					$s_label = (string) $s->Name;
 
 					parent::addRDF(
