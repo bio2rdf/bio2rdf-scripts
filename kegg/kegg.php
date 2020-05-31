@@ -315,13 +315,16 @@ class KEGGParser extends Bio2RDFizer
 					parent::addRDF(
 						parent::triplifyString($uri,"dc:description",$v)
 					);
-				} else if($k == "DEFINITION" and $e['type'] == "KO") {
-						preg_match("/\[([^\]]+)\]/",$v,$m);
-						if(isset($m[1])) {
+				} else if($k == "DEFINITION" and $e['type'] == "KO") { 
+					preg_match("/\[EC:([^\]]+)/",$v,$m);
+					if(isset($m[1])) {
+						$a = explode(" ", $m[1]);
+						foreach($a AS $b) {
 							parent::addRDF(
-								parent::triplify($uri,parent::getVoc()."x-ec",$m[1])
-							);
+								parent::triplify($uri,parent::getVoc()."x-ec","ec:".$b)
+							);					
 						}
+					}
 				} else if($k == "COMMENT") {
 					preg_match("/ICD-O: ([^,]+),/",$v,$m);
 					if(isset($m[1])) {
@@ -471,12 +474,12 @@ class KEGGParser extends Bio2RDFizer
 					echo "parse error: ".$k." ".$v.PHP_EOL;continue;
 				}
 				$str = $a[1];
-				
+
 				foreach($ids AS $id) {
-					$o = '';
-					$o['id'] = $id;
-					$o['label'] = $str;
-					$o['type'] = strtolower($k);
+					#$o = '';
+					#$o['id'] = $id;
+					#$o['label'] = $str;
+					#$o['type'] = strtolower($k);
 					parent::addRDF(
 						parent::triplify($uri,parent::getVoc().strtolower($k),"kegg:$id")
 					);
