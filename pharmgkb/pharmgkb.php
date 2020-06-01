@@ -120,7 +120,7 @@ class PharmGKBParser extends Bio2RDFizer
 
 			// set the write file, parse, write and close
 			$suffix = parent::getParameterValue('output_format');
-			$outfile = $file.'.'.$suffix; 
+			$outfile = "pharmgkb-".$file.'.'.$suffix; 
 			$gz=false;
 
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
