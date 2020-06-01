@@ -1092,7 +1092,7 @@ class SGDParser extends Bio2RDFizer {
 
 	function pathways(){
 		$sp = false;
-		$e = '';
+		$e = array();
 		while($l = $this->GetReadFile()->Read(96000)) {
 			$a = explode("\t",$l);
 			
