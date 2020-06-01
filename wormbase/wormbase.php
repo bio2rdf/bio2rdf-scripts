@@ -156,7 +156,7 @@ class WormbaseParser extends Bio2RDFizer {
 			// taxon, gene id, symbol, cosmid, status
 			$data = explode(",",trim($l));
 			if($first) {
-				if(($c = count($data) != 5)) {
+				if((($c = count($data)) != 5)) {
 					trigger_error("WormBase function expects 5 fields, found $c!".PHP_EOL, E_USER_WARNING);
 				}
 				$first = false;
