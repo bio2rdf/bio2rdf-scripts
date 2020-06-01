@@ -1052,8 +1052,9 @@ class SGDParser extends Bio2RDFizer {
 			*/
 
 			if(trim($a[7]) != ''){
+				$allele = addslashes($a[7]);
 				$this->AddRDF(
-					parent::triplifyString($this->getRes().$eid, $this->getVoc()."allele", $a[7]).
+					parent::triplifyString($this->getRes().$eid, $this->getVoc()."allele", $allele).
 					parent::describeProperty($this->getVoc()."allele", "Relationship between an SGD experiment and an allele")
 				);
 			} 
