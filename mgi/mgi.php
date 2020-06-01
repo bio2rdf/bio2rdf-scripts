@@ -36,7 +36,7 @@ class MGIParser extends Bio2RDFizer
         function __construct($argv) {
                 parent::__construct($argv, "mgi");
                 parent::addParameter('files',true,'all|MGI_Strain|MGI_PhenotypicAllele|MGI_GenePheno|MRK_Sequence|MGI_Geno_Disease|MGI_Geno_NotDisease','all','all or comma-separated list to process');
-                parent::addParameter('download_url', false, null,'ftp://ftp.informatics.jax.org/pub/reports/' );
+                parent::addParameter('download_url', false, null,'http://www.informatics.jax.org/downloads/reports/' );
                 parent::initialize();
         }
         
@@ -66,7 +66,7 @@ class MGIParser extends Bio2RDFizer
                         parent::setReadFile($lfile,true);
                         
                         echo "Processing $item...";
-                        $ofile = $odir.$item.'.'.parent::getParameterValue('output_format'); 
+                        $ofile = $odir."bio2rdf-".$item.'.'.parent::getParameterValue('output_format'); 
                         $gz= strstr(parent::getParameterValue('output_format'), "gz")?true:false;
 
                         parent::setWriteFile($ofile, $gz);
@@ -141,8 +141,9 @@ class MGIParser extends Bio2RDFizer
 			$a = explode("\t",$l);
 			$line++;
 			if($a[0][0] == "#") continue;
-			if(count($a) != 12) {
-				echo "Expecting 12 columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
+			$expected_columns = 13;
+			if(count($a) != $expected_columns) {
+				echo "Expecting $expected_columns columns, but found ".count($a)." at line $line. skipping!".PHP_EOL;
 				if($errors++ == 25) {echo 'stopping'.PHP_EOL;break;}
 				continue;
 			}
@@ -232,19 +233,19 @@ class MGIParser extends Bio2RDFizer
 	4 Mammalian Phenotype ID	- MP:0000364
 	5 PubMed ID	         - 15466160
 	6 MGI Marker Accession ID (comma-delimited) - MGI:96522
-	7 blank
-	8 MGI Genotype ID (comma-delimted) 
+	7 MGI Genotype ID (comma-delimted) 
 	*/
 	function MGI_GenePheno()
 	{
 		$line = 1;
 		while($l = $this->getReadFile()->read(248000)) {
 			$a = explode("\t",$l);
-			if(count($a) != 9) {
-				trigger_error("Incorrect number of columns",E_USER_WARNING);
-				continue;
+			$exp = 8;
+			if(count($a) != $exp) {
+				trigger_error("Incorrect number of columns: Found ".count($a)." and was expecting $exp",E_USER_WARNING);
+				exit();
 			}
-			$id = trim($a[8]);
+			$id = trim($a[7]);
 
 			$label = $a[0]." ".$a[3];
 			parent::addRDF(
@@ -310,7 +311,7 @@ class MGIParser extends Bio2RDFizer
 
         function MRK_Sequence()
         {
-		$cols = 21;
+		$cols = 19;
 		$line = 0;
 		$h = $this->getReadFile()->read(500000);
 		$o = $this->getReadFile()->read(500000); // extra feature header on a separate line...if you can imagine
@@ -335,11 +336,10 @@ class MGIParser extends Bio2RDFizer
 				parent::triplifyString($id, parent::getVoc()."chromosome", $a[6], "xsd:string").
 				parent::triplifyString($id, parent::getVoc()."genome-start", $a[7], "xsd:string").
 				parent::triplifyString($id, parent::getVoc()."genome-end", $a[8], "xsd:string").
-				parent::triplifyString($id, parent::getVoc()."strand", $a[7], "xsd:string").
-				parent::triplifyString($id, parent::getVoc()."feature-type", $a[20], "xsd:string")
+				parent::triplifyString($id, parent::getVoc()."strand", $a[7], "xsd:string")
 			);
 			$start_pos = 10;
-			$list = array("genbank","refseq-transcript","vega-transcript","ensembl-transcript","uniprot","trembl","vega-protein","ensembl-protein","refseq-protein","unigene");
+			$list = array("genbank","refseq-transcript","ensembl-transcript","uniprot","trembl","ensembl-protein","refseq-protein","unigene");
 			$list_len = count($list);
 			for($i=0;$i<$list_len;$i++) {
 				$value = trim($a[$i+$start_pos]);
@@ -413,7 +413,7 @@ class MGIParser extends Bio2RDFizer
 			$genotype = $a[0];
 			$diseases = explode(",",$a[7]);
 			foreach($diseases AS $d) {
-				$disease = "omim:$d";
+				$disease = "$d";
 				foreach($alleles AS $allele) {
 					$id = parent::getRes().md5($allele.$disease); 
 					$label = "$allele $disease association";
@@ -462,7 +462,7 @@ class MGIParser extends Bio2RDFizer
 			$alleles = explode("|",strtolower($a[2]));
 			$diseases = explode(",",$a[7]);
 			foreach($diseases AS $d) {
-				$disease = "omim:$d";
+				$disease = "$d";
 
 				foreach($alleles AS $allele) {
 					$id = parent::getRes().md5($allele.$disease); 
