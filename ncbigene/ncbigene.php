@@ -39,10 +39,10 @@ class NCBIGeneParser extends Bio2RDFizer
 		"gene2ensembl" => "gene2ensembl.gz",
 		"gene2go" => "gene2go.gz",
 		"gene2pubmed" => "gene2pubmed.gz",
-		"gene2refseq" => "gene2refseq.gz",
-		"gene2sts" => "gene2sts",
-		"gene2unigene" => "gene2unigene",
-		"gene2vega" => "gene2vega.gz",					
+		"gene2refseq" => "gene2refseq.gz"
+		#"gene2sts" => "gene2sts",
+		#"gene2unigene" => "gene2unigene",
+		#"gene2vega" => "gene2vega.gz",					
 	);
 	private $taxids = null;
 	private $default_taxids = array(
@@ -64,7 +64,7 @@ class NCBIGeneParser extends Bio2RDFizer
 		parent::__construct($argv,"ncbigene");
 
 		// set and print application parameters
-		parent::addParameter('files',true,'all|geneinfo|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq|gene2sts|gene2unigene|gene2vega','','files to process');
+		parent::addParameter('files',true,'all|geneinfo|gene2accession|gene2ensembl|gene2go|gene2pubmed|gene2refseq','','files to process'); # |gene2sts|gene2unigene|gene2vega were removed
 		parent::addParameter('download_url',false,null,'ftp://ftp.ncbi.nih.gov/gene/DATA/');
 		parent::addParameter('limit_organisms',false,'true|false','true','flag to use specified organisms');
 		parent::addParameter('organisms',false,null,implode(",",array_keys($this->default_taxids)),'taxonomy ids for organisms to process');
@@ -129,7 +129,7 @@ class NCBIGeneParser extends Bio2RDFizer
 			$file = $module.".gz";
 			$lfile = $ldir.$file;
 			$rfile = $rdir.$rfilename;
-			$ofile = $module.".".parent::getParameterValue('output_format');
+			$ofile = "bio2rdf-".$module.".".parent::getParameterValue('output_format');
 
 			$gz = false;
 			if(strstr(parent::getParameterValue('output_format'), "gz")) $gz = true;
@@ -140,6 +140,7 @@ class NCBIGeneParser extends Bio2RDFizer
 			$fnx = $module;
 			if($module == 'gene2refseq') $fnx = 'gene2accession';
 			$this->$fnx();
+			
 			parent::clear();
 
 			echo 'done!'.PHP_EOL;
@@ -343,7 +344,7 @@ class NCBIGeneParser extends Bio2RDFizer
 		$z = 1;
 		while($l = $this->getReadFile()->read(200000)){
 			if($l[0] == "#") continue;
-			if(($z++) % 10000 == 0) {echo $z.PHP_EOL;parent::clear();}
+			if(($z++) % 100000 == 0) {echo $z.PHP_EOL;parent::clear();}
 			$a = explode("\t",rtrim($l));
 			if(count($a) != 16) { trigger_error("gene2accession: expecting 16 columns, found ".count($a)." instead", E_USER_ERROR);}
 			$taxid = $a[0];
