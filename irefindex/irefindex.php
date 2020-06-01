@@ -34,8 +34,8 @@ class irefindexParser extends Bio2RDFizer
 	function __construct($argv) { //
 		parent::__construct($argv,"irefindex");
 		parent::addParameter('files',true,'all|10090|10116|4932|559292|562|6239|7227|9606','all','all or comma-separated list of files to process');
-		parent::addParameter('version',false,'07042015|08122013|03022013|10182011','07042015','dated version of files to download');
-		parent::addParameter('download_url',false,null,'http://irefindex.org/download/irefindex/data/current/psi_mitab/MITAB2.6/');
+		parent::addParameter('version',false,'07042015|08122013|03022013|10182011','05-29-2019','dated version of files to download');
+		parent::addParameter('download_url',false,null,'https://irefindex.vib.be/download/irefindex/data/archive/release_16.0/psi_mitab/MITAB2.6/');
 		parent::initialize();
 	}
 	
