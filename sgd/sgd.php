@@ -40,7 +40,7 @@ class SGDParser extends Bio2RDFizer {
 		parent::addParameter('download_url',false,null,'http://downloads.yeastgenome.org/');
 		parent::addParameter('ncbo_download_dir', false, null, '/data/download/bioportal/', 'directory of bioportal ontologies');
 		parent::addParameter('ncbo_api_key',true,null,null,'your NCBO API key');
-		parent::addParameter('one_file',false,'true|false','true',"whether to produce a single file output");
+		parent::addParameter('one_file',false,'true|false','false',"whether to produce a single file output");
 		parent::initialize();
 	}
 
@@ -74,7 +74,7 @@ class SGDParser extends Bio2RDFizer {
  			 "features"    => "curation/chromosomal_feature/SGD_features.tab",
  			 "domains"     => "curation/calculated_protein_info/domains/domains.tab",
  			 "protein"     => "curation/calculated_protein_info/protein_properties.tab",
-			 "goa"         => "curation/literature/gene_association.sgd.gz",
+			 "goa"         => "curation/literature/gene_association.sgd.gaf.gz",
 			 "goslim"      => "curation/literature/go_slim_mapping.tab",
 			 "complex"     => "curation/literature/go_protein_complex_slim.tab",
 			 "interaction" => "curation/literature/interaction_data.tab",
@@ -121,7 +121,7 @@ class SGDParser extends Bio2RDFizer {
  			 "features"    => "curation/chromosomal_feature/SGD_features.tab",
  			 "domains"     => "curation/calculated_protein_info/domains/domains.tab",
  			 "protein"     => "curation/calculated_protein_info/protein_properties.tab",
-			 "goa"         => "curation/literature/gene_association.sgd.gz",
+			 "goa"         => "curation/literature/gene_association.sgd.gaf.gz",
 			 "goslim"      => "curation/literature/go_slim_mapping.tab",
 			 "complex"     => "curation/literature/go_protein_complex_slim.tab",
 			 "interaction" => "curation/literature/interaction_data.tab",
@@ -135,7 +135,7 @@ class SGDParser extends Bio2RDFizer {
 
 		$gz = false;if(strstr(parent::getParameterValue('output_format'), "gz")) $gz = true;
 		if(parent::getParameterValue('one_file') == true) {
-			$ofile = "sgd.".parent::getParameterValue('output_format');
+			$ofile = "bio2rdf-sgd-".parent::getParameterValue('output_format');
 			parent::setWriteFile($odir.$ofile, $gz);
 		}
 		$dataset_description = '';
@@ -156,7 +156,7 @@ class SGDParser extends Bio2RDFizer {
 			}
 
 			if(parent::getParameterValue('one_file') == false) {
-				$ofile = "sgd_".$file.'.'.parent::getParameterValue('output_format');
+				$ofile = "bio2rdf-sgd-".$file.'.'.parent::getParameterValue('output_format');
 				parent::setWriteFile($odir.$ofile, $gz);
 			}
 
@@ -619,6 +619,7 @@ class SGDParser extends Bio2RDFizer {
 			"BlastProDom" => "prodom",
 			"FPrintScan" => "fprintscan",
 			"Gene3D" => "gene3d",
+			"CDD" => "cdd",
 			"Coil" => "coil",
 			"Coils" => "coil",
 			"Pfam" => "pfam",
@@ -627,6 +628,7 @@ class SGDParser extends Bio2RDFizer {
 			"PIRSF" => "pirsf",
 			"PRINTS" => "prints",
 			"Seg" => "seg",
+			"SFLD" => "sfld",
 			"SMART" => "smart",
 			"SUPERFAMILY" => "superfamily",
 			"TIGRPFAM" => "pfam",
@@ -636,6 +638,7 @@ class SGDParser extends Bio2RDFizer {
 			"HMMPfam" => "pfam",
 			"HMMPIR" => "pir",
 			"HMMTigr" => "tigr",
+			"signalp" => "signalp",
 			"SignalP_GRAM_POSITIVE" => "signalp",
 			"SignalP_GRAM_NEGATIVE" => "signalp",
 			"SignalP_EUK" => "signalp",
