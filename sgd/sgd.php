@@ -1347,7 +1347,10 @@ class SGDParser extends Bio2RDFizer {
 	}//GetMethodID
 
 	function GetLatestNCBOOntology($ontology_id,$apikey,$target_filepath){
-		Utils::DownloadSingle('http://data.bioontology.org/ontologies/'.$ontology_id.'/download?apikey='.$apikey, $target_filepath);
+		$url = 'http://data.bioontology.org/ontologies/'.$ontology_id.'/download?apikey='.$apikey;
+		$path = pathinfo($target_filepath);
+		@mkdir($path['dirname'],'0777');
+		Utils::DownloadSingle($url, $target_filepath);
 	}
 }//SGDParser
 
