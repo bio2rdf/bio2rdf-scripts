@@ -164,7 +164,7 @@ class TaxonomyParser extends Bio2RDFizer{
 							trigger_error("Unable to get pointer to $fn in $zinfile");
 							exit("failed\n");
 						}
-						$gzoutfile = $odir."taxonomy-$k".".".parent::getParameterValue('output_format');
+						$gzoutfile = $odir."bio2rdf-taxonomy-$k".".".parent::getParameterValue('output_format');
 
 						//set the write file
 						$gz= strstr(parent::getParameterValue('output_format'), 'gz')?true:false;
@@ -218,14 +218,14 @@ class TaxonomyParser extends Bio2RDFizer{
 			$rel = parent::getVoc().str_replace(" ","-",$a[3]);
 			
 			parent::addRDF(
-				parent::triplifyString($taxid, $rel, $name).
-				parent::triplifyString($taxid, parent::getVoc()."unique-name", utf8_encode($a[2]))
+				parent::triplifyString($taxid, $rel, addslashes($name)).
+				parent::triplifyString($taxid, parent::getVoc()."unique-name", addslashes(utf8_encode($a[2])))
 			);
 			
 			if($rel == "scientific-name") {
 				parent::addRDF(
-					parent::triplifyString($taxid, "dc:title", $name).
-					parent::triplifyString($taxid, "rdfs:label", $name)
+					parent::triplifyString($taxid, "dc:title", addslashes($name)).
+					parent::triplifyString($taxid, "rdfs:label", addslashes($name))
 				);
 			}
 			
@@ -327,20 +327,26 @@ class TaxonomyParser extends Bio2RDFizer{
 				continue;
 			}
 			$c = parent::getRes()."citation-id-".$a[0];
-			$seealso = isset($a[4])?trim($a[4]):"";
+/*			$seealso = isset($a[4])?trim($a[4]):"";
 			if($seealso) {
+				echo $seealso.PHP_EOL;
 				$seealso = str_replace(array("lx: DOI ","http;//"), array("https://doi.org/","http://"), $seealso);
 				if(strlen($seealso) > 2 and !strstr($seealso,"http")) $seealso = "http://".$seealso;
-				$seealso = parent::triplify($c, "rdfs:seeAlso", $seealso);
+				$seealso = parent::triplifyString($c, "rdfs:seeAlso", addslashes($seealso)); # all kinds of garbarge in this field
+			} 
+*/
+			$text = '';
+			if(isset($a[5])) {
+				$text = str_replace(array('"',"'","",'\\',),'',$a[5]); # get rid of garbage characters
 			}
-
+			
 			parent::addRDF(
 				parent::describeIndividual($c, $a[1], $this->getVoc()."Citation").
 				parent::describeClass($this->getVoc()."Citation", "Citation").
 				parent::triplifyString($c, parent::getVoc()."citation-key", $a[1]).
 				($a[2]=="0"?"":parent::triplify($c, parent::getVoc()."x-pubmed", "pubmed:".$a[2])).
-				$seealso.
-				((isset($a[5]) and $a[5])?parent::triplifyString($c, parent::getVoc()."text", str_replace("\"","", $a[5])):"")
+#				$seealso.
+				$text?parent::triplifyString($c, parent::getVoc()."text", $text):""
 			);
 			if(isset($a[6])) {
 				$taxids = explode(" ", trim($a[6]));
