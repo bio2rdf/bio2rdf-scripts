@@ -1,19 +1,19 @@
 CODE TO GENERATE THE SQL AND LINKED-DATA VERSION OF LINKEDSPLS
 Authors: Richard Boyce, Greg Gardner, Yifan Ning
 
-Last updated Date: 01/18/2017
+Last updated Date: 07/26/2017
 
 ################################################################################
 OVERVIEW
 ################################################################################
 
-The University of Pittsburgh Linked Structured Product Label (SPL) repository renders sections from the package inserts (product labels) of FDA-approved drugs as published in the SPL data standard and provided by the National Library of Medicine's DailyMed resource. Currently, only data from the product labels of prescription drugs is provided. This site's SPL data is updated weekly and all SPLs retain DailyMed versioning data so that researchers can record the provenance of the text and sections they work with. The Linked SPL resource currently contains 33928 SPLs for products containing more than 2,300 active ingredients. 
+The University of Pittsburgh Linked Structured Product Label (SPL) repository renders sections from the package inserts (product labels) of FDA-approved drugs as published in the SPL data standard and provided by the National Library of Medicine's DailyMed resource. Currently, only data from the product labels of prescription drugs is provided. This site's SPL data is updated weekly and all SPLs retain DailyMed versioning data so that researchers can record the provenance of the text and sections they work with. The Linked SPL resource currently contains 32136 SPLs for products containing 2,289 active ingredients. 
 
 
 Most recent update at the time of creating this file: 
-- Labels for prescription drugs downloaded from http://dailymed.nlm.nih.gov/dailymed/spl-resources.cfm  Jan 18, 2017
+- Labels for prescription drugs downloaded from http://dailymed.nlm.nih.gov/dailymed/spl-resources.cfm  July 26, 2017
 
-updated in Jan 18 2017 08:00:31 AM EST
+updated in July 26 2017 08:00:31 AM EST
 
 - The file load-dailymed-spls/TableSchema.sql has the RDB schema needed to load the data. Note that, for manually way of update mappings, not all data is loaded using Python, read the rest of the README to see other data and how it is loaded. Recommended way of update and load mappings is run the ant program by following commands:
 
@@ -100,11 +100,9 @@ Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-mappings/"
 
 Download pharmacologic_class_indexing_spl_files.zip from http://dailymed.nlm.nih.gov/dailymed/spl-resources-all-indexing-files.cfm
 
-Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-indexings/"
+Put in folder at "bio2rdf/linkedSPLs/LinkedSPLs-update/data/dailymed-indexings/pharmacologic_class_indexing_spl_files"
 
-unzip XMLs to folder "pharmacologic_class_indexing_spl_files"
-
-$ cd pharmacologic_class_indexing_spl_files; unzip \*.zip; rm *.zip
+$ unzip pharmacologic_class_indexing_spl_files.zip -d pharmacologic_class_indexing_spl_files
 
 --------------------------------------------------------
 FDA (Preferred terms, UNIIs):
@@ -118,9 +116,9 @@ Downloads UNII List ('UNIIs <DATE> Names.txt' as UNII lists)
 (2) UNIIs_Records 
 Downloads UNII Data ('UNIIs <DATE> Records.txt' as UNII records) 
 
-Keep in directory LinkedSPLs-update/data/FDA
-
-(replace whitespace ' ' in file name to underscore '_')
+Put in directory LinkedSPLs-update/data/FDA
+Unzip UNII_Data.zip and UNIIs.zip in LinkedSPLs-update/data/FDA/
+Replace whitespace ' ' in file names to underscore '_'
 
 Edit LinkedSPLs-update/data-source.properties to reset FDA_UNII_NAMES and FDA_UNII_RECORDS 
 
@@ -130,7 +128,8 @@ Drugbank (Drug bank Id) :
 
 Download from http://www.drugbank.ca/downloads
 
-download drugbank.xml as drugbankX.X and keep in directory LinkedSPLs-update/data/DrugBank/drugbank.xml
+download and unzip drugbank.xml as drugbankX.X in directory:
+LinkedSPLs-update/data/DrugBank/drugbank.xml
 
 --------------------------------------------------------
 UMLS (rxcui):
@@ -138,7 +137,7 @@ UMLS (rxcui):
 
 Download RXNORM mappings (full rxnorm) from UMLS at "http://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html"
 
-keep in directory: "LinkedSPLs-update/data/UMLS"
+Unzip and keep in directory: "LinkedSPLs-update/data/UMLS/rxnorm-full/"
 
 ------------------------------------------------------------------------
 PharmagxTable && FDAPharmgxTableToOntologyMap
@@ -152,8 +151,8 @@ put at "LinkedSPLs-update/mappings/FDA-pharmacogenetic-info-mapping/"
 
 Edit data-source.properties
 ex.
-BIOMARKER = mappings/FDA-pharmacogenetic-info-mapping/biomarker-to-ontology-mapping-07242015.xlsx
-GENETIC= genetic-biomarker-table-update-07242015.csv
+BIOMARKER = mappings/FDA-pharmacogenetic-info-mapping/biomarker-to-ontology-mapping-01262017.csv
+GENETIC= mappings/FDA-pharmacogenetic-info-mapping/FDA_PGx_Table.csv
 
 --------------------------------------------------------
 umlsdbmi (DronId for drug and ingredient):
@@ -164,12 +163,11 @@ Code: https://bitbucket.org/uamsdbmi/dron/src
 Download repository from "https://bitbucket.org/uamsdbmi/dron/downloads"
 
 unzip repository and then:
-copy dron-rxnorm.owl at data/umasdbmi/dron-rxnorm.owl
-copy dron-ingredient.owl at data/umasdbmi/dron-ingredient.owl
+copy dron-rxnorm.owl from repository to data/umasdbmi/dron-rxnorm.owl
+copy dron-ingredient.owl from repository to data/umasdbmi/dron-ingredient.owl
 
 dron-rxnorm.owl for drug product
 dron-ingredient.owl for active ingredients
-
 
 ------------------------------------------------------------------------
 OMOP concept Id from OHDSI or query OMOP CDM V5 (GeriOMOP) by SQL query
@@ -177,8 +175,9 @@ OMOP concept Id from OHDSI or query OMOP CDM V5 (GeriOMOP) by SQL query
 
 Download from "https://github.com/OHDSI/KnowledgeBase/tree/master/LAERTES/terminology-mappings/StandardVocabToRxNorm/imeds_drugids_to_rxcuis.csv"
 
-OR
+OR query OMOP CDM vocabulary Version 5 (below example via client sqldeveloper)
 
+(1) For drug product
 SELECT cpt.CONCEPT_ID as omopid, cpt.CONCEPT_CODE as rxcui FROM
 CONCEPT cpt
 WHERE 
@@ -188,7 +187,7 @@ right click result table and export to delimited ('|' delimited, none Left or Ri
 save name as: clinical-drug-omopid-rxcui-<DATE>.dsv
 to dir: LinkedSPLs-clinicalDrug/mappings/
 
-AND
+(2) For active ingredient
 
 query OMOP CDM V5 (GeriOMOP) by SQL query below:
 SELECT cpt.CONCEPT_ID as omopid, cpt.CONCEPT_CODE as rxcui FROM
@@ -242,7 +241,7 @@ TESTING THE D2R SERVER ON THE DEVELOPMENT MACHINE
 ------------------------------------------------------------
 
 cd /home/PITT/rdb20/Downloads/D2R/d2rq-0.8.1
-./d2r-server --verbose -b http://130.49.206.86:2021/ -p 2021 dailymed_d2r_map_config_d2rq_8_1.n3 
+./d2r-server --verbose -b http://<host>:<port>/ -p 2021 dailymed_d2r_map_config_d2rq_8_1.n3 
 
 ------------------------------------------------------------
 MOVING THE DEVELOPMENT MODE RDB DATA TO THE PUBLIC SERVER
