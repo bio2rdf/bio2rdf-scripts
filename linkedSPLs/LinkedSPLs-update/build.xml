@@ -235,8 +235,6 @@
     <!-- <antcall target="load-DrOn_RXCUI_DRUG" /> -->
     <!-- <antcall target="load-DrOn_RXCUI_INGREDIENT" /> -->
 
-    <!-- <antcall target="load-OMOPId-RXCUIs-from-OHDSI" /> -->
-
     <antcall target="set.timestamp">
       <param name="message" value="updated all mappings in ${mysql-schema}" />
     </antcall>
@@ -615,6 +613,11 @@
 
     <delete file="${pharmacologic_class_indexing}/EPC_extraction_most_recent.txt"/>
 
+    <exec executable="bash">
+      <arg value="-c" />
+      <arg value ='unzip ${PG_CLASS_INDEXING_SPLS}/\*.zip -d ${PG_CLASS_INDEXING_SPLS}/' />
+    </exec>
+
     <exec executable="python" failonerror="true">
       <arg line="${pharmacologic_class_indexing}/parseEPCfromXMLs.py ${PG_CLASS_INDEXING_SPLS}" />
       <redirector append="true">
@@ -676,7 +679,7 @@
     <delete file="${DrOn-to-RxNorm}/cleaned-dron-to-rxcui-drug.txt"/>
 
     <exec executable="python" failonerror="true">
-      <arg line="${DrOn-to-RxNorm}/cleanData.py ${DrOn-to-RxNorm}/dron-rxcui-drug.txt" /> 
+      <arg line="${DrOn-to-RxNorm}/cleanData.py ${DrOn-to-RxNorm}/dron-rxcui-drug.txt" />
       <redirector append="true">
         <outputmapper type="merge" to="${DrOn-to-RxNorm}/cleaned-dron-to-rxcui-drug.txt"/>
         <errormapper type="merge" to="${ERROR_LOG}"/>

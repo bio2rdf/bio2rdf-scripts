@@ -150,8 +150,8 @@ class MeshParser extends Bio2RDFizer{
 	function __construct($argv) {
 		parent::__construct($argv, "mesh");
 		parent::addParameter('files', true, 'all|descriptors|qualifiers|supplementary', 'all', 'all or comma-separated list of files to process');
-		parent::addParameter('download_url',false,'','ftp://nlmpubs.nlm.nih.gov/online/mesh/.asciimesh/','default ftp location');
-		parent::addParameter('year', false, '','2014',"Year to process");
+		parent::addParameter('download_url',false,'','ftp://nlmpubs.nlm.nih.gov/online/mesh/YEAR/asciimesh/','default ftp location');
+		parent::addParameter('year', false, '','2019',"Year to process");
 		parent::initialize();
 	  }//constructor
 
@@ -180,7 +180,7 @@ class MeshParser extends Bio2RDFizer{
 			$file = str_replace("YEAR",$year,$fpattern);
 			$lfile = $ldir.$file;
 			$rfile = parent::getParameterValue("download_url").$file;
-
+			$rfile = str_replace("YEAR",$year,$rfile);
 			// download if necessary
 			if(!file_exists($lfile) || parent::getParameterValue('download') == "true") {
 				echo "Downloading $file ... ";
@@ -193,7 +193,7 @@ class MeshParser extends Bio2RDFizer{
 			}
 
 			//set the outfile
-			$ofile = "mesh_".$k.".".parent::getParameterValue('output_format'); 
+			$ofile = "bio2rdf-mesh-".$k.".".parent::getParameterValue('output_format'); 
 			$gz= strstr(parent::getParameterValue('output_format'), "gz")?true:false;
 
 			echo "processing $k ...";
@@ -249,9 +249,8 @@ class MeshParser extends Bio2RDFizer{
 
 	private function supplementary(){
 		$sup_rec = "";
-		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^\n$/", $aLine, $matches);
-			if(count($matches)){
+		while(FALSE !== ($aLine = $this->GetReadFile()->Read(200000))){
+			if(strlen($aLine) == 0){
 				$dR = $this->readRecord($sup_rec);
 				$this->makeSupplementaryRecord($dR);
 				$sup_rec = "";
@@ -259,15 +258,14 @@ class MeshParser extends Bio2RDFizer{
 			}
 			preg_match("/\*NEWRECORD/", $aLine, $matches);
 			if(count($matches) == 0){
-				$sup_rec .= $aLine;
+				$sup_rec .= $aLine.PHP_EOL;
 			}			
 		}
 	}
 	private function descriptors(){
 		$descriptor_record = "";
-		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^\n$/", $aLine, $matches);
-			if(count($matches)){
+		while(FALSE !== ($aLine = $this->GetReadFile()->Read(200000))){
+			if(strlen($aLine) == 0){
 				$dR = $this->readRecord($descriptor_record);
 				$this->makeDescriptorRecord($dR);
 				$descriptor_record = "";
@@ -275,16 +273,15 @@ class MeshParser extends Bio2RDFizer{
 			}
 			preg_match("/\*NEWRECORD/", $aLine, $matches);
 			if(count($matches) == 0){
-				$descriptor_record .= $aLine;
+				$descriptor_record .= $aLine.PHP_EOL;
 			}			
 		}
 	}
 
 	private function qualifiers(){
 		$qualifier_record = "";
-		while($aLine = $this->GetReadFile()->Read(200000)){
-			preg_match("/^\n$/", $aLine, $matches);
-			if(count($matches)){
+		while(FALSE !== ($aLine = $this->GetReadFile()->Read(200000))){
+			if(strlen($aLine) == 0){
 				$qR = $this->readRecord($qualifier_record);
 				$this->makeQualifierRecordRDF($qR);
 				$qualifier_record = "";
@@ -292,7 +289,7 @@ class MeshParser extends Bio2RDFizer{
 			}
 			preg_match("/\*NEWRECORD/", $aLine, $matches);
 			if(count($matches) == 0){
-				$qualifier_record .= $aLine;
+				$qualifier_record .= $aLine.PHP_EOL;
 			}			
 		}
 	}
@@ -437,7 +434,7 @@ class MeshParser extends Bio2RDFizer{
 				if($k == "SO"){
 					foreach($v as $kv => $vv){
 						parent::AddRDF(
-							parent::triplifyString($sr_res, $this->getVoc().$sde['SO'], utf8_encode(htmlspecialchars($vv))).
+							parent::triplifyString($sr_res, $this->getVoc().$sde['SO'], addslashes(utf8_encode(htmlspecialchars($vv)))).
 							parent::describeProperty($this->getVoc().$sde['SO'], "Relationship between a supplementary record and its source")
 						);
 					}
@@ -499,7 +496,7 @@ class MeshParser extends Bio2RDFizer{
 						$vvrar = explode(";", $vv);
 						foreach($vvrar as $anAn){
 							parent::AddRDF(
-								parent::triplifyString($dr_res, $this->getVoc().$qde["AN"], $anAn).
+								parent::triplifyString($dr_res, $this->getVoc().$qde["AN"], addslashes($anAn)).
 								parent::describeProperty($this->getVoc().$qde["AN"], "Relationship between a descriptor and its annotation")
 							);
 						}//foreach
@@ -866,7 +863,7 @@ class MeshParser extends Bio2RDFizer{
 						$vvrar = explode(";", $vv);
 						foreach($vvrar as $anAn){
 							parent::AddRDF(
-								parent::triplifyString($qr_res, $this->getVoc().$qde["AN"], $anAn).
+								parent::triplifyString($qr_res, $this->getVoc().$qde["AN"], addslashes($anAn)).
 								parent::describeProperty($this->getVoc().$qde["AN"], "Relationship between a qualifier record and its annotation")
 							);
 						}//foreach

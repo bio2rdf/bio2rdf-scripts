@@ -36,7 +36,7 @@ class BioportalParser extends Bio2RDFizer
 		parent::__construct($argv,'bioportal');
 		parent::addParameter('files',true,null,'all','all or comma-separated list of ontology short names to process');
 		parent::addParameter('download_url',false,null,'http://data.bioontology.org/');
-		parent::addParameter('exclude',false,null,"AURA",'ontologies to exclude - use acronyms');
+		parent::addParameter('exclude',false,null,"AURA,HOOM",'ontologies to exclude - use acronyms');
 		parent::addParameter('continue_from',false,null,"",'the ontology abbreviation to restart from');
 		parent::addParameter('ncbo_api_key',false,null,null,'BioPortal API key (please use your own)');
 		parent::addParameter('ncbo_api_key_file',false,null,'ncbo.api.key','BioPortal API key file');
@@ -123,7 +123,6 @@ class BioportalParser extends Bio2RDFizer
 			if(isset($ls['description'])) $description = $ls['description'];
 
 			$rfile = $ls['ontology']['links']['download'];
-
 			$lfile = $abbv.".".$format.".gz";
 			if(!file_exists($idir.$lfile) or parent::getParameterValue('download') == 'true') {
 				echo "downloading ... ";
@@ -134,7 +133,7 @@ class BioportalParser extends Bio2RDFizer
 				$ret = curl_setopt($ch, CURLOPT_HEADER,         1);
 				$ret = curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 				$ret = curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-				$ret = curl_setopt($ch, CURLOPT_TIMEOUT,        300);
+				$ret = curl_setopt($ch, CURLOPT_TIMEOUT,        600);
 				$ret = curl_exec($ch);
 				if(!$ret) {echo "no content";continue;}
 
@@ -167,12 +166,13 @@ class BioportalParser extends Bio2RDFizer
 
 				// process
 				echo "converting ... ";
-				set_time_limit(0);
+				
 				// let's double check the format
 				$fp = gzopen($idir.$lfile,"r");
 				$l = gzgets($fp);
 				if(strstr($l,"xml")) $format= "owl";
 				gzclose($fp);
+
 				if($format == 'obo') {
 					$this->OBO2RDF($abbv);
 				} else if($format == 'owl') {
@@ -182,6 +182,7 @@ class BioportalParser extends Bio2RDFizer
 				} else {
 					echo "no processor for $label (format $format)".PHP_EOL;
 				}
+
 				if(!file_exists($odir.$ofile)) { echo "no output".PHP_EOL;continue;}
 				parent::getWriteFile()->close();
 				parent::clear();
@@ -366,7 +367,7 @@ class BioportalParser extends Bio2RDFizer
 			
 		} else {
 			parent::addRDF(
-				parent::triplifyString($s_uri,$p_uri,$a['o'],(($a['o_datatype'] == '')?null:$a['o_datatype']),(($a['o_lang'] == '')?null:$a['o_lang']))
+				parent::triplifyString($s_uri,$p_uri,addslashes($a['o']),(($a['o_datatype'] == '')?null:$a['o_datatype']),(($a['o_lang'] == '')?null:$a['o_lang']))
 			);			
 		}
 	
@@ -394,7 +395,7 @@ class BioportalParser extends Bio2RDFizer
 		$graph_uri = '<'.parent::getRegistry()->getFQURI(parent::getGraphURI()).'>';
 		$bid = 1;
 
-		while($l = parent::getReadFile()->read()) {
+		while(FALSE !== ($l = parent::getReadFile()->read())) {
 			$lt = trim($l);
 			if(strlen($lt) == 0) continue;
 			if($lt[0] == '!') continue;
@@ -461,6 +462,7 @@ class BioportalParser extends Bio2RDFizer
 					else {$ns = strtolower($c[0]);$id=$c[1];}
 					$id = str_replace( array("(",")"), array("_",""), $id);
 					$tid = $ns.":".$id;
+					echo $tid.PHP_EOL;
 				} else if($a[0] == "name") {
 					$buf .= parent::describeClass($tid,addslashes(stripslashes($a[1])));
 				} else if($a[0] == "is_a") {
@@ -483,7 +485,8 @@ class BioportalParser extends Bio2RDFizer
 					$buf .= $t;
 					$is_deprecated = true;
 				} else if($a[0] == "id") {	
-					parent::getRegistry()->parseQName($a[1],$ns,$id);					
+					parent::getRegistry()->parseQName($a[1],$ns,$id);
+					if(trim($ns) == '') $ns = "unspecified";			
 					$tid = "$ns:$id";
 //					$buf .= parent::describeClass($tid,null,"owl:Class");
 //					$buf .= parent::triplify($tid,"rdfs:isDefinedBy",$ouri);					
@@ -610,6 +613,7 @@ class BioportalParser extends Bio2RDFizer
 				} else if($a[0] == "is_a") {
 					// do subclassing
 					parent::getRegistry()->parseQName($a[1],$ns,$id);
+					if(trim($ns) == '') $ns = "unspecified";
 					$t = parent::triplify($tid,"rdfs:subClassOf","$ns:$id");
 					$buf .= $t;
 					$min .= $t;
@@ -657,17 +661,19 @@ class BioportalParser extends Bio2RDFizer
 					$c = explode(" ",$a[1]);
 					if(count($c) == 1) { // just a class	
 						parent::getRegistry()->parseQName($c[0],$ns,$id);
+						if(trim($ns) == '') $ns = "unspecified";
 						$relationship .= parent::getRegistry()->getFQURI("$ns:$id");
 						$buf .= parent::triplify($tid,"rdfs:subClassOf","$ns:$id");
 
 					} else if(count($c) == 2) { // an expression						
 						parent::getRegistry()->parseQName($c[0],$pred_ns,$pred_id);
 						parent::getRegistry()->parseQName($c[1],$obj_ns,$obj_id);
+						if(trim($obj_ns) == '') $obj_ns = "unspecified";
 
 						$relationship .= '_:b'.$bid.' <'.parent::getRegistry()->getFQURI('owl:onProperty').'> <'.parent::getRegistry()->getFQURI("obo_vocabulary:".$pred_id).">  $graph_uri .".PHP_EOL;
 						$relationship .= '_:b'.$bid.' <'.parent::getRegistry()->getFQURI('owl:someValuesFrom').'> <'.parent::getRegistry()->getFQURI("$obj_ns:$obj_id")."> $graph_uri .".PHP_EOL;
 		
-						$buf .= parent::triplify($tid,"obo_vocabulary:$pred_id","$obj_ns:$obj_id");
+						$buf .= parent::triplify($tid,"obo_vocabulary:$pred_id","$obj_ns:$obj_id"); #@todo this causes problem with OGG-MM
 					}
 				} else {
 					// default handler
@@ -676,7 +682,8 @@ class BioportalParser extends Bio2RDFizer
 			} else {
 				//header
 				//format-version: 1.0
-				$buf .= parent::triplifyString($ouri,"obo_vocabulary:$a[0]",str_replace( array('"','\:'), array('\"',':'), isset($a[1])?$a[1]:""));
+				$buf .= parent::triplifyString($ouri,"obo_vocabulary:$a[0]",
+					str_replace( array('"','\:'), array('\"',':'), isset($a[1])?$a[1]:""));
 			}
 
 			if($minimal || $minimalp) parent::getWriteFile()->write($min);

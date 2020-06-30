@@ -36,7 +36,7 @@ class NDCParser extends Bio2RDFizer
 		parent::__construct($argv, "ndc");
 
 		$this->AddParameter('files',true,'all|product|package','all','files to process');
-		$this->AddParameter('download_url',false,null,'http://www.fda.gov/downloads/Drugs/DevelopmentApprovalProcess/UCM070838.zip');
+		$this->AddParameter('download_url',false,null,'https://www.accessdata.fda.gov/cder/ndctext.zip');
 		parent::initialize();
 	}
 

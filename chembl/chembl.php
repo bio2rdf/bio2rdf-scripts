@@ -1017,8 +1017,68 @@ class ChemblParser extends Bio2RDFizer {
 				}
 				parent::writeRDFBufferToWriteFile();
 			}
+		}
+		$result->free();
+	}
 
-			$result->free();
+	/*
+	*	parse the assays tables
+	*/
+	function process_assays() {
+
+		$this->set_write_file("assays");
+
+		$allIDs = mysql_query(
+		    "SELECT DISTINCT * FROM assays, assay_type " .
+		    "WHERE assays.assay_type = assay_type.assay_type"
+		);
+
+		$num = mysql_numrows($allIDs);
+
+		while ($row = mysql_fetch_assoc($allIDs)) {
+
+		  $assay = "chembl:assay_".$row['assay_id'];
+		  $this->AddRDF($this->QQuad($assay,"rdf:type","chembl_vocabulary:Assay"));
+
+		  //chembl assay id
+		  $chembl = "chembl:". $row['chembl_id'];
+		  $this->AddRDF($this->QQuadl($assay,"dc:identifier",$row['chembl_id']));
+		  $this->AddRDF($this->QQuad($assay,"owl:equivalentClass",$chembl));
+		  $this->AddRDF($this->QQuad($chembl,"owl:equivalentClass",$assay));
+		  $this->WriteRDFBufferToWriteFile();
+
+		  if ($row['description']) {
+		    # clean up description
+		    $description = $row['description'];
+		    $description = str_replace("\\", "\\\\", $description);
+		    $description = str_replace("\"", "\\\"", $description);
+		    $this->AddRDF($this->QQuadl($assay,"chembl_vocabulary:hasDescription",$description));
+		  }
+
+		  if ($row['doc_id']){
+		  	$this->AddRDF($this->QQuad($assay,"chembl_vocabulary:citesAsDataSource","chembl:reference_".$row['doc_id']));
+		  }
+
+		  $props = mysql_query("SELECT DISTINCT * FROM assay2target WHERE assay_id = " . $row['assay_id']);
+		  
+		  while ($prop = mysql_fetch_assoc($props)) {		  	  
+		    if ($prop['tid']) {
+		      $target = "chembl:target_".$prop['tid'];
+		      $this->AddRDF($this->QQuad($assay,"chembl_vocabulary:hasTarget",$target));
+
+		      if ($prop['confidence_score']) {
+		        $targetScore = "chembl:tscore_".md5($assay.$prop['tid']);
+		        $this->AddRDF($this->QQuad($assay,"chembl_vocabulary:hasTargetScore",$targetScore));
+		        $this->AddRDF($this->QQuad($targetScore,"chembl_vocabulary:forTarget",$target));
+		        $this->AddRDF($this->QQuadl($targetScore,"rdf:value",$prop['confidence_score']));
+		      }
+		    }
+
+		     $this->WriteRDFBufferToWriteFile();
+
+		  }
+		  $this->AddRDF($this->QQuad($assay,"chembl_vocabulary:hasAssayType","chembl_vocabulary:".$row['assay_desc']));
+		  $this->WriteRDFBufferToWriteFile();
 		}
 	}
 
@@ -1287,4 +1347,5 @@ class ChemblParser extends Bio2RDFizer {
 		}
 	}
 }
+		
 ?>

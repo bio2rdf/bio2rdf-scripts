@@ -173,15 +173,20 @@ class InterproParser extends Bio2RDFizer
 					}
 				}
 			}
-			$abstract = (string) $o->abstract->p->asXML();
-			if(isset($pubs)) {
-				$abstract = str_replace($pubs['pid'],$pubs['pmid'],$abstract);
+			
+			if(isset($o->abstract)) {
+				$abstract = (string) $o->abstract->p->asXML();
+				if(isset($pubs)) {
+					$abstract = str_replace($pubs['pid'],$pubs['pmid'],$abstract);
+				}
+				$abstract= preg_replace('/(?i)<[^>]*>/', ' ', $abstract); #remove html tags
+				$abstract = trim(preg_replace("/\s+/",' ',$abstract)); # remove extra spaces
+				$abstract = addslashes($abstract);
+
+				parent::addRDF(
+					parent::triplifyString($s,"dc:description",$abstract)
+				);
 			}
-			
-			parent::addRDF(
-				parent::triplifyString($s,"dc:description",$abstract)
-			);
-			
 			if(isset($o->example_list)) {
 				foreach($o->example_list->example AS $example) {
 					$db = (string) $example->db_xref->attributes()->db;

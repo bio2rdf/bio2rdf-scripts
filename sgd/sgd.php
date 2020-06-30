@@ -40,7 +40,7 @@ class SGDParser extends Bio2RDFizer {
 		parent::addParameter('download_url',false,null,'http://downloads.yeastgenome.org/');
 		parent::addParameter('ncbo_download_dir', false, null, '/data/download/bioportal/', 'directory of bioportal ontologies');
 		parent::addParameter('ncbo_api_key',true,null,null,'your NCBO API key');
-		parent::addParameter('one_file',false,'true|false','true',"whether to produce a single file output");
+		parent::addParameter('one_file',false,'true|false','false',"whether to produce a single file output");
 		parent::initialize();
 	}
 
@@ -74,7 +74,7 @@ class SGDParser extends Bio2RDFizer {
  			 "features"    => "curation/chromosomal_feature/SGD_features.tab",
  			 "domains"     => "curation/calculated_protein_info/domains/domains.tab",
  			 "protein"     => "curation/calculated_protein_info/protein_properties.tab",
-			 "goa"         => "curation/literature/gene_association.sgd.gz",
+			 "goa"         => "curation/literature/gene_association.sgd.gaf.gz",
 			 "goslim"      => "curation/literature/go_slim_mapping.tab",
 			 "complex"     => "curation/literature/go_protein_complex_slim.tab",
 			 "interaction" => "curation/literature/interaction_data.tab",
@@ -121,7 +121,7 @@ class SGDParser extends Bio2RDFizer {
  			 "features"    => "curation/chromosomal_feature/SGD_features.tab",
  			 "domains"     => "curation/calculated_protein_info/domains/domains.tab",
  			 "protein"     => "curation/calculated_protein_info/protein_properties.tab",
-			 "goa"         => "curation/literature/gene_association.sgd.gz",
+			 "goa"         => "curation/literature/gene_association.sgd.gaf.gz",
 			 "goslim"      => "curation/literature/go_slim_mapping.tab",
 			 "complex"     => "curation/literature/go_protein_complex_slim.tab",
 			 "interaction" => "curation/literature/interaction_data.tab",
@@ -135,7 +135,7 @@ class SGDParser extends Bio2RDFizer {
 
 		$gz = false;if(strstr(parent::getParameterValue('output_format'), "gz")) $gz = true;
 		if(parent::getParameterValue('one_file') == true) {
-			$ofile = "sgd.".parent::getParameterValue('output_format');
+			$ofile = "bio2rdf-sgd-".parent::getParameterValue('output_format');
 			parent::setWriteFile($odir.$ofile, $gz);
 		}
 		$dataset_description = '';
@@ -156,7 +156,7 @@ class SGDParser extends Bio2RDFizer {
 			}
 
 			if(parent::getParameterValue('one_file') == false) {
-				$ofile = "sgd_".$file.'.'.parent::getParameterValue('output_format');
+				$ofile = "bio2rdf-sgd-".$file.'.'.parent::getParameterValue('output_format');
 				parent::setWriteFile($odir.$ofile, $gz);
 			}
 
@@ -619,6 +619,7 @@ class SGDParser extends Bio2RDFizer {
 			"BlastProDom" => "prodom",
 			"FPrintScan" => "fprintscan",
 			"Gene3D" => "gene3d",
+			"CDD" => "cdd",
 			"Coil" => "coil",
 			"Coils" => "coil",
 			"Pfam" => "pfam",
@@ -627,6 +628,7 @@ class SGDParser extends Bio2RDFizer {
 			"PIRSF" => "pirsf",
 			"PRINTS" => "prints",
 			"Seg" => "seg",
+			"SFLD" => "sfld",
 			"SMART" => "smart",
 			"SUPERFAMILY" => "superfamily",
 			"TIGRPFAM" => "pfam",
@@ -636,6 +638,7 @@ class SGDParser extends Bio2RDFizer {
 			"HMMPfam" => "pfam",
 			"HMMPIR" => "pir",
 			"HMMTigr" => "tigr",
+			"signalp" => "signalp",
 			"SignalP_GRAM_POSITIVE" => "signalp",
 			"SignalP_GRAM_NEGATIVE" => "signalp",
 			"SignalP_EUK" => "signalp",
@@ -1049,8 +1052,9 @@ class SGDParser extends Bio2RDFizer {
 			*/
 
 			if(trim($a[7]) != ''){
+				$allele = addslashes($a[7]);
 				$this->AddRDF(
-					parent::triplifyString($this->getRes().$eid, $this->getVoc()."allele", $a[7]).
+					parent::triplifyString($this->getRes().$eid, $this->getVoc()."allele", $allele).
 					parent::describeProperty($this->getVoc()."allele", "Relationship between an SGD experiment and an allele")
 				);
 			} 
@@ -1089,7 +1093,7 @@ class SGDParser extends Bio2RDFizer {
 
 	function pathways(){
 		$sp = false;
-		$e = '';
+		$e = array();
 		while($l = $this->GetReadFile()->Read(96000)) {
 			$a = explode("\t",$l);
 			
@@ -1344,7 +1348,10 @@ class SGDParser extends Bio2RDFizer {
 	}//GetMethodID
 
 	function GetLatestNCBOOntology($ontology_id,$apikey,$target_filepath){
-		Utils::DownloadSingle('http://data.bioontology.org/ontologies/'.$ontology_id.'/download?apikey='.$apikey, $target_filepath);
+		$url = 'http://data.bioontology.org/ontologies/'.$ontology_id.'/download?apikey='.$apikey;
+		$path = pathinfo($target_filepath);
+		@mkdir($path['dirname'],'0777');
+		Utils::DownloadSingle($url, $target_filepath);
 	}
 }//SGDParser
 

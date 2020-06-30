@@ -10,7 +10,7 @@ Created 03/20/2014
 import xml.etree.ElementTree as ET
 import os, sys
 
-XML_DIR = "../Data_Source/dailymed/pharmacologic_class_indexing_spl_files/"
+XML_DIR = "../../data/dailymed-indexing/pharmacologic_class_indexing_spl_files/"
 
 XML_SAMPLE = "0a1e7ef2-7bdd-4a6e-b725-5112ec46d65a.xml"
 NS = "{urn:hl7-org:v3}" 

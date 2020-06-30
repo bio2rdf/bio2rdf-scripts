@@ -38,13 +38,15 @@
 map:database a d2rq:Database;
     d2rq:jdbcDriver "com.mysql.jdbc.Driver";
 
-    d2rq:jdbcDSN "jdbc:mysql://127.0.0.1/linkedSPLs?autoReconnect=true&user=root&password=5bboys";
-
-    #d2rq:jdbcDSN "jdbc:mysql://136.142.148.191/linkedSPLs?autoReconnect=true&user=root&password=";
+    d2rq:jdbcDSN "jdbc:mysql://localhost/linkedSPLs";
+    d2rq:jdbcDriver "com.mysql.jdbc.Driver";
+    d2rq:username "root";
+    d2rq:password "";
+    .    
 
     # d2rq:resultSizeLimit 500;
     # d2rq:fetchSize 500;
-    .
+    #.
 
 map:DrugsRdfTypeBridge a d2rq:PropertyBridge;
     d2rq:belongsToClassMap map:structuredProductLabelMetadata;
@@ -89,7 +91,8 @@ map:pharmgxGeneSymbol a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property linkedspls_vocabulary:HGNCGeneSymbol;
 	d2rq:join "FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
-	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/hugo:', FDAPharmgxTableToOntologyMap.HGNCGeneSymbol)";
+	# d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/hugo:', FDAPharmgxTableToOntologyMap.HGNCGeneSymbol)";    ## contains whitespace
+	d2rq:column "FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
 	d2rq:propertyDefinitionLabel "HGNCGeneSymbol"@en;
 	d2rq:propertyDefinitionComment "The official gene symbol from the HUGO Gene Nomenclature Committee (HGNC) <www.genenames.org/> for a string that the FDA provides for the biomarker in its pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>"@en;	
 	.
@@ -107,14 +110,16 @@ map:pharmgxPharmgkb a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property foaf:homepage;
 	d2rq:join "FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
-	d2rq:uriSqlExpression "CONCAT('http://pharmgkb.org/gene/', FDAPharmgxTableToOntologyMap.Pharmgkb)";
+	d2rq:uriSqlExpression "CONCAT('http://pharmgkb.org/gene/', FDAPharmgxTableToOntologyMap.Pharmgkb)"; ## there are empty value in Pharmgkb mapping
+	#d2rq:sqlExpression "CONCAT('http://pharmgkb.org/gene/', FDAPharmgxTableToOntologyMap.Pharmgkb)";
 	.
 
 map:pharmgxBio2rdf a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property linkedspls_vocabulary:pharmgxXref;
 	d2rq:join " FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
-	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/pharmgkb:', FDAPharmgxTableToOntologyMap.Pharmgkb)";
+	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/pharmgkb:', FDAPharmgxTableToOntologyMap.Pharmgkb)";  ## there are empty value in Pharmgkb mapping
+	#d2rq:sqlExpression "CONCAT('http://bio2rdf.org/pharmgkb:', FDAPharmgxTableToOntologyMap.Pharmgkb)";
 	d2rq:propertyDefinitionLabel "pharmgxXref"@en;
 	d2rq:propertyDefinitionComment "A URI that links a biomarker present in the FDA pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm> to an external Semantic Web source"@en;	
 	.
@@ -122,14 +127,14 @@ map:pharmgxBio2rdf a d2rq:PropertyBridge;
 map:pharmgxPRoEntity a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property owl:sameAs;
-	d2rq:join " FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
+	d2rq:join "FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
 	d2rq:uriColumn "FDAPharmgxTableToOntologyMap.URI";
 	.
 
 map:pharmgxComment a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property rdfs:comment;
-	d2rq:join " FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
+	d2rq:join "FDAPharmgxTable.biomarker => FDAPharmgxTableToOntologyMap.HGNCGeneSymbol";
 	d2rq:column "FDAPharmgxTableToOntologyMap.CuratorComments";
 	.
 
@@ -144,7 +149,7 @@ map:pharmgxActiveMoiety a d2rq:PropertyBridge;
 map:pharmgxTherAppl a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property linkedspls_vocabulary:therapeuticApplication;
-	d2rq:uriColumn "FDAPharmgxTable.therapeuticApplication";
+	d2rq:column "FDAPharmgxTable.therapeuticApplication";
 	d2rq:translateWith map:pharmgxTherAppTranslate;
 	d2rq:propertyDefinitionLabel "therapeuticApplication"@en;
 	d2rq:propertyDefinitionComment "The therapeutic application that the FDA provides in its pharmacogenomic biomarker table  <http://www.fda.gov/Drugs/ScienceResearch/ResearchAreas/Pharmacogenetics/ucm083378.htm>"@en;	
@@ -154,7 +159,7 @@ map:pharmgxRxCuiActiveMoiety a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property linkedspls_vocabulary:activeMoietyRxCUI;
 	d2rq:join "FDAPharmgxTable.activeMoiety <= FDAPreferredSubstanceToRxNORM.PreferredSubstance";
-	d2rq:uriColumn "FDAPreferredSubstanceToRxNORM.RxNORM";
+	d2rq:uriSqlExpression "CONCAT('http://purl.bioontology.org/ontology/RXNORM/', CAST(FDAPreferredSubstanceToRxNORM.RxNORM AS CHAR))";
 	.
 
 map:pharmgxSetId a d2rq:PropertyBridge;
@@ -166,7 +171,7 @@ map:pharmgxSetId a d2rq:PropertyBridge;
 map:pharmgxSection a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:FDAPharmgxTable;
 	d2rq:property linkedspls_vocabulary:pharmgxSPLSection;
-	d2rq:uriColumn "FDAPharmgxTable.SPLSection";
+	d2rq:column "FDAPharmgxTable.SPLSection";
 	d2rq:translateWith map:pharmgxSectionTranslate;
 	.
 
@@ -346,8 +351,8 @@ map:routeOfAdministration a d2rq:PropertyBridge;
 	d2rq:belongsToClassMap map:structuredProductLabelMetadata;
 	d2rq:property linkedspls_vocabulary:routeOfAdministration;
 
-	#d2rq:uriPattern "routeOfAdministration/@@structuredProductLabelMetadata.routeOfAdministration|urlify@@";
-	d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls_vocabulary:routeOfAdministration#', structuredProductLabelMetadata.routeOfAdministration)";
+	#d2rq:uriSqlExpression "CONCAT('http://bio2rdf.org/linkedspls_vocabulary:routeOfAdministration#', structuredProductLabelMetadata.routeOfAdministration)"; ## white space in column routeOfAdministration
+	d2rq:column "structuredProductLabelMetadata.routeOfAdministration";
 	d2rq:propertyDefinitionLabel "routeOfAdministration"@en;
 	d2rq:propertyDefinitionComment "The route by which a drug product is taken into the body"@en;
 	.
