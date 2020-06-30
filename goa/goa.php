@@ -57,22 +57,22 @@ class GOAParser extends Bio2RDFizer
 		
 		foreach($files as $file){
 			$download = parent::getParameterValue('download');
-			$lfile = $ldir."goa_".$file.".gz";
+			$basefile = "goa_".$file.".gaf";
+			$lfile = $ldir."/".$basefile.".gz";
 			if(!file_exists($lfile) && $download == false) {
 				trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
 				$download = true;
 			}
 
 			//download file
-			$rfile = $rdir.strtoupper($file)."/gene_association.goa_".$file.".gz";
+			$rfile = $rdir.strtoupper($file)."/".$basefile.".gz";
 			if($download == true) {
-				echo "downloading $file ... ";
-				//file_put_contents($lfile,file_get_contents($rfile));
+				echo "downloading $file".".gz ... ";
 				utils::DownloadSingle($rfile,$lfile);
 			}
 
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-			$ofile = "goa_".$file.".".parent::getParameterValue('output_format'); 	
+			$ofile = $basefile.".".parent::getParameterValue('output_format'); 	
 		
 			parent::setReadFile($lfile, TRUE);
 			parent::setWriteFile($odir.$ofile, $gz);
@@ -153,6 +153,9 @@ class GOAParser extends Bio2RDFizer
 			$goid = substr($fields[4],3);
 			$refs = $this->getDbReferences($fields[5]);
 			$eco = $this->getEvidenceCodeLabelArr($fields[6]);
+			if($eco === null) {
+				print_r($fields[6]);exit;
+			}
 			$aspect = $this->getAspect($fields[8]);
 			$label = $fields[9];
 			$synonyms =  explode("|", $fields[10]);
@@ -291,6 +294,15 @@ continue;
 				"IGI"=> array("Inferred from Genetic Interaction","0000316"),
 				"IEP"=> array("Inferred from Expression Pattern", "0000008")
 				);
+				
+			$htp = array(			
+				"HTP" => array("Inferred from High Throughput Experiment",""),
+				"HDA" => array("Inferred from High Throughput Direct Assay",""),
+				"HMP" => array("Inferred from Hight Throughput Mutant Phenotype",""),
+				"HGI" => array("Inferred from High Throughput Genetic Interaction",""),
+				"HEP" => array("Inferred from High Throughput Expression Pattern","")
+			);
+			
 			//computational analysis codes
 			$cac = array(
 				"ISS"=> array("Inferred from Sequence or Structural Similarity","0000027"),
@@ -319,9 +331,11 @@ continue;
 			$aac = array(
 				"IEA"=>array("Inferred from Electronic Annotation", "0000203")
 			);
-
+			
 			if(array_key_exists($aec, $ec)){
 				return array("experimental evidence code"=>$ec[$aec]);
+			}elseif(array_key_exists($aec, $htp)){
+				return array("high throughput code"=>$htp[$aec]);
 			}elseif(array_key_exists($aec, $cac)){
 				return array("computational analysis code"=>$cac[$aec]);
 			}elseif(array_key_exists($aec, $asc)){
@@ -330,10 +344,8 @@ continue;
 				return array("curator statement code"=>$csc[$aec]);
 			}elseif(array_key_exists($aec, $aac)){
 				return array("automatically assigned code"=>$aac[$aec]);
-			}elseif(array_key_exists($aec, $oec)){
-				return array("obsolete evidence code"=>$oec[$aec]);
 			}else{
-				return null;
+				return array("unmapped evidence code"=> $aec);
 			}
 		} else {
 			return null;

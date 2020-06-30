@@ -675,6 +675,7 @@ class KEGGParser extends Bio2RDFizer
 			}
 			if(in_array($k, array("INTERACTION","METABOLISM","TARGET"))) {
 				// dopamine D2-receptor antagonist [HSA:1813] [KO:K04145]
+				// K04348 K06268 K17610 K17611
 				$id = parent::getRes().md5($uri.$v);
 				$type = ucfirst(strtolower($k));
 				if(in_array($k, array("INTERACTION","METABOLISM"))) {
@@ -697,10 +698,14 @@ class KEGGParser extends Bio2RDFizer
 				if(isset($m[1]) and !empty($m[1])) {					
 					foreach($m[1] AS $item) {			
 						$a = explode(':',$item);  // get the namespace
+						if(!isset($a[1])) {continue;} // skip this.
 						$b = explode(' ',$a[1]);
 						foreach($b AS $c) {
-							if(!strstr($item,"KO")) $i = "kegg:".$a[0].'_'.$c;
-							else $i = "kegg:".$c;
+							if(!strstr($item,"KO")) {
+								$i = "kegg:".$a[0].'_'.$c;
+							} else {
+								$i = "kegg:".$c;
+							}
 							parent::addRDF(
 								parent::triplify($id,parent::getVoc()."link",$i)
 							);

@@ -117,10 +117,12 @@ class HGNCParser extends Bio2RDFizer {
 	function process(){
 		$header = $this->getReadFile()->read(200000);
 		$header_arr = explode("\t", $header);
+
 		$h = array_flip($header_arr);
 
 		$c = count($h);
 		$n = 52;
+
 		if ($c != $n)
 		{
 			echo PHP_EOL;
