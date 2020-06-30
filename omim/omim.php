@@ -203,7 +203,6 @@ class OMIMParser extends Bio2RDFizer
 			echo "Downloading $file ...";
 			if(ftp_get($ftp, $ldir.$file, 'OMIM/'.$file, FTP_BINARY) === FALSE) {
 				trigger_error("Error in downloading $file");
-				continue;
 			}
 			if(isset($ftp)) ftp_close($ftp);
 			echo "success!".PHP_EOL;
