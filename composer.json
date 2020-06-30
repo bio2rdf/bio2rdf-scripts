@@ -1,5 +1,8 @@
 {
+    "name": "micheldumontier/bio2rdf-scripts",
+    "description": "Bio2RDF is a PHP-based platform to create linked data from remote resources",
     "require": {
-        "semsol/arc2": "2.3.*"
+        "semsol/arc2": "2.3.*",
+        "micheldumontier/php-lib": "dev-bio2rdfapi"
     }
 }
