@@ -2,6 +2,7 @@
 .DS_Store
 *.lock
 *.log
+vendor/
 
 linkedSPLs/LinkedSPLs-activeMoiety/mergedActiveMoiety.csv
 linkedSPLs/LinkedSPLs-clinicalDrug/mergedClinicalDrug.tsv
