@@ -212,7 +212,7 @@ class RefSeqParser extends Bio2RDFizer{
 						$p = "/(\S+)\=(.*)/";
 						preg_match($p, $aL, $m);
 						if(count($m)){
-							if($m[1] == "db_xref"){
+							if($m[1] == "db_xref" and strstr($m[2],"http") !== FALSE){
 								parent::AddRDF(
 									parent::triplify($feat_res, "rdfs:seeAlso", str_replace("\"", "", $m[2]))
 								);

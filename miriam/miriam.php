@@ -175,6 +175,8 @@ class MIRIAMParser extends Bio2RDFizer
 				$rid = parent::getRes().str_replace(":","",$id)."_".($i+1);
 				$a = $myitem['@attributes'];
 				$rid_type = parent::getVoc().'restriction_type_'.$a['type'];
+				$page = '';
+				if(isset($myitem['link']) and strstr($myitem['link'],"http") !== FALSE) $page = $myitem['link'];
 
 				parent::addRDF(
 					parent::describeIndividual($rid, $a['desc'], parent::getVoc()."Restriction").
@@ -182,7 +184,7 @@ class MIRIAMParser extends Bio2RDFizer
 					parent::triplify($rid, "rdf:type", $rid_type).
 					parent::describeClass($rid_type, $a['desc'], parent::getVoc()."Restriction").
 					parent::triplifyString($rid, "dct:description", $myitem['statement']).
-					parent::triplify($rid, "foaf:page", isset($myitem['link'])?$myitem['link']:"").
+					parent::triplify($rid, "foaf:page", $page).
 					parent::triplify($id, parent::getVoc()."restriction", $rid)
 				);
 		}}
