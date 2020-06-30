@@ -121,7 +121,7 @@ class CTDParser extends Bio2RDFizer
 			}
 
 			$out_suffix = parent::getParameterValue('output_format');
-			$ofile = "ctd_".$file.".".$out_suffix;
+			$ofile = "bio2rdf-ctd-".str_replace("_","-", $file).".".$out_suffix;
 			$gz = false;
 
 			if(strstr(parent::getParameterValue('output_format'), "gz")) {
