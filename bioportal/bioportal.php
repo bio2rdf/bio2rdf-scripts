@@ -516,37 +516,40 @@ class BioportalParser extends Bio2RDFizer
 						$buf .= parent::triplify($tid,"rdfs:seeAlso", str_replace( array(" ",'"wiki"',"\\"), array("+","",""), $a[1]));
 					} else {
 						$b = explode(":",$a[1],2);
-						if(substr($b[1],0,4) == "http") {
-							$buf .= parent::triplify($tid,"rdfs:seeAlso", stripslashes($b[1]));
-						} else {
-							$ns = str_replace(array(" ","\\",) ,"",strtolower($b[0]));
-							$id = trim($b[1]);
-														
-							// there may be a comment to remove
-							if(FALSE !== ($pos = strrpos($id,' "'))) {
-								$comment = substr($id,$pos+1,-1);
-								$id = substr($id,0,$pos);
-							}
-							$id = stripslashes($id);
-							// there may be a source statement to remove
-							$id = preg_replace("/{.*\}/","",$id);
-							if($ns == "pmid") {
-								$ns = "pubmed";
-								$y = explode(" ",$id);
-								$id = $y[0];
-							}
-							if($ns == "xx") continue;
-							if($ns == "icd9cm") {
-								$y = explode(" ",$id);
-								$id = $y[0];
-							}
-							if($ns == "xref; umls_cui") continue; 
-							if($ns == "submitter") $ns = "chebi.submitter";
-							if($ns == "wikipedia" || $ns == "mesh") $id = str_replace(" ","+",$id);
-							if($ns == "id-validation-regexp") {
-								$buf .= parent::triplifyString($tid,"obo_vocabulary:$ns", addslashes($id));
+						if(isset($b[1])) {
+							if(substr($b[1],0,4) == "http") {
+								$buf .= parent::triplify($tid,"rdfs:seeAlso", stripslashes($b[1]));
 							} else {
-								$buf .= parent::triplify($tid,"obo_vocabulary:x-$ns", "$ns:".str_replace(" ","-",$id));
+								$ns = str_replace(array(" ","\\",) ,"",strtolower($b[0]));
+								$id = trim($b[1]);
+															
+								// there may be a comment to remove
+								if(FALSE !== ($pos = strrpos($id,' "'))) {
+									$comment = substr($id,$pos+1,-1);
+									$id = substr($id,0,$pos);
+								}
+								$id = stripslashes($id);
+								// there may be a source statement to remove
+								$id = preg_replace("/{.*\}/","",$id);
+								if($ns == "pmid") {
+									$ns = "pubmed";
+									$y = explode(" ",$id);
+									$id = $y[0];
+								}
+								if($ns == "xx") continue;
+								if($ns == "icd9cm") {
+									$y = explode(" ",$id);
+									$id = $y[0];
+								}
+								if($ns == "xref; umls_cui") continue; 
+								if($ns == "submitter") $ns = "chebi.submitter";
+								if($ns == "wikipedia" || $ns == "mesh") $id = str_replace(" ","+",$id);
+								if($ns == "id-validation-regexp") {
+									$buf .= parent::triplifyString($tid,"obo_vocabulary:$ns", addslashes($id));
+								} else {
+									if($ns) 
+										$buf .= parent::triplify($tid,"obo_vocabulary:x-$ns", "$ns:".str_replace(" ","-",$id));
+								}
 							}
 						}
 					}
