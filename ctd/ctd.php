@@ -420,13 +420,13 @@ function CTD_chem_pathways_enriched()
 				return FALSE;
 			}
 			$first = false;
-		}
-		
+		}	
 		$chemical_id = $a[1];
 
 		$this->getRegistry()->parseQName($a[4], $pathway_ns, $pathway_id);
 		if($pathway_ns == "react") $pathway_ns = "reactome";
-
+		if($pathway_ns == "kegg") $pathway_id = "map".$pathway_id;
+		
 		$pathway_resource_id = parent::getRes().md5($chemical_id.$pathway_ns.$pathway_id.$a[6]);
 		$pathway_resource_label = "Chemical-pathway association between mesh:".$chemical_id." and ".$pathway_ns.":".$pathway_id." with p-value ".$a[6];
 		
@@ -509,7 +509,8 @@ function CTD_diseases_pathways()
 		$this->getRegistry()->parseQName($a[1],$disease_ns,$disease_id);
 		$this->getRegistry()->parseQName($a[3],$pathway_ns,$pathway_id);
 		if($pathway_ns == 'react') $pathway_ns = 'reactome';
-
+		if($pathway_ns == "kegg") $pathway_id = "map".$pathway_id;
+		
 		$this->AddRDF(
 			parent::triplify($disease_ns.":".$disease_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
 			parent::triplifyString($disease_ns.":".$disease_id, "rdfs:label", $a[0]." [$disease_ns:$disease_id]").
@@ -612,6 +613,7 @@ function CTD_genes_pathways()
 		$this->getRegistry()->parseQName($a[3],$pathway_ns,$pathway_id);
 		$pathway_id = trim($pathway_id);
 		if($pathway_ns == "react") $pathway_ns = "reactome";
+		if($pathway_ns == "kegg") $pathway_id = "map".$pathway_id;
 
 		$this->ADDRDF(
 			parent::triplify($gene_ns.":".$gene_id, $this->getVoc()."pathway", $pathway_ns.":".$pathway_id).
@@ -645,7 +647,8 @@ function CTD_Pathways()
 		
 		$this->getRegistry()->parseQName(trim($a[1]),$pathway_ns,$pathway_id);	
 		if($pathway_ns == "react") $pathway_ns = "reactome";	
-
+		if($pathway_ns == "kegg") $pathway_id = "map".$pathway_id;
+		
 		$this->AddRDF(
 			parent::describeIndividual($pathway_ns.":".$pathway_id, $a[0], $this->getVoc()."Pathway").
 			parent::describeClass($this->getVoc()."Pathway", "CTD Pathway")	

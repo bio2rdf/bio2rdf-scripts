@@ -9,9 +9,9 @@ function OBOParser($in)
 		
 		if(strstr($l,"[Term]")) {
 			if(isset($term)) {
-				$terms[$term['id'][0]] = $term;			
+				$terms[$term['id'][0]] = $term;	
 			}
-			$term = '';
+			$term = array();
 		} else if(strstr($l,"[Typedef]")) {
 			if(isset($term)) {
 				$terms[$term['id'][0]] = $term;			
@@ -27,7 +27,7 @@ function OBOParser($in)
 				if(count($m)) {
 					$a[1] = $m[1];
 				}
-				$term[$a[0]][] = $a[1];		
+				$term[$a[0]][] = $a[1];
 			
 			} else if(isset($typedef))  {
 				

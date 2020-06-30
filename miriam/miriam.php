@@ -159,7 +159,7 @@ class MIRIAMParser extends Bio2RDFizer
 			else $mylist = $i;
 			foreach($mylist AS $myitem) {
 				if(strstr($myitem, "pubmed")) $uri = "pubmed:".substr($myitem, strrpos($myitem, ":")+1);
-				else if(strstr($myitem, "doi")) $uri = "http://dx.doi.org/".substr($myitem, strpos($myitem, "doi:"));
+				else if(strstr($myitem, "doi")) $uri = "https://doi.org/".substr($myitem, strpos($myitem, "doi:"));
 				else $uri = $myitem;
 
 				parent::addRDF(

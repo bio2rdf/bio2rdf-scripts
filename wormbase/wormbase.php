@@ -34,7 +34,7 @@ class WormbaseParser extends Bio2RDFizer {
 
 	function __construct($argv) {
 		parent::__construct($argv, "wormbase");
-		parent::addParameter('files', true, 'all|geneIDs|functional_descriptions|gene_associations|gene_interactions|phenotype_associations','all','files to process');
+		parent::addParameter('files', true, 'all|geneIDs|gene_associations|gene_interactions|phenotype_associations','all','files to process'); #functional_descriptions turned into flatfile, needs work
 		parent::addParameter('release', false, null, 'current', 'Release version of WormBase');
 		parent::addParameter('download_url', false, null,'ftp://ftp.wormbase.org/pub/wormbase/');
 		parent::initialize();
@@ -49,10 +49,10 @@ class WormbaseParser extends Bio2RDFizer {
 			$files = explode(",",parent::getParameterValue('files'));
 		}
 		$release = parent::getParameterValue('release');
-		$releaseb = "WS249";
+		$releaseb = "WS276";
 		$remote_files = array(
 			"geneIDs" => "species/c_elegans/annotation/geneIDs/c_elegans.PRJNA13758.".$release.".geneIDs.txt.gz",
-			"functional_descriptions" => "species/c_elegans/annotation/functional_descriptions/c_elegans.PRJNA13758.".$release.".functional_descriptions.txt.gz",
+			#"functional_descriptions" => "species/c_elegans/annotation/functional_descriptions/c_elegans.PRJNA13758.".$release.".functional_descriptions.txt.gz",
 			"gene_interactions" => "species/c_elegans/annotation/gene_interactions/c_elegans.PRJNA13758.".$release.".gene_interactions.txt.gz",
 			"gene_associations" => "releases/current-production-release/ONTOLOGY/gene_association.".$releaseb.".wb",
 			"phenotype_associations" => "releases/current-production-release/ONTOLOGY/phenotype_association.".$releaseb.".wb"
@@ -92,7 +92,7 @@ class WormbaseParser extends Bio2RDFizer {
 			}
 
 			$suffix = parent::getParameterValue('output_format');
-			$ofile = "wormbase.".$file.".".$suffix;
+			$ofile = "bio2rdf-wormbase-".$file.".".$suffix;
 			$gz = strstr(parent::getParameterValue('output_format'), "gz")?true:false;
 
 			parent::setWriteFile($odir.$ofile, $gz);
@@ -153,11 +153,12 @@ class WormbaseParser extends Bio2RDFizer {
 		$first = true;
 		while($l = $this->getReadFile()->read()){
 			if($l[0] == '#') continue;
-			// taxon, gene id, symbol, cosmid, status
+			// taxon, gene id, symbol, cosmid, status, type
 			$data = explode(",",trim($l));
 			if($first) {
-				if(($c = count($data) != 5)) {
-					trigger_error("WormBase function expects 5 fields, found $c!".PHP_EOL, E_USER_WARNING);
+				$exp = 6; 
+				if((($c = count($data)) != $exp)) {
+					trigger_error("WormBase function expects $exp fields, found $c!".PHP_EOL, E_USER_WARNING);
 				}
 				$first = false;
 			}
@@ -194,7 +195,10 @@ class WormbaseParser extends Bio2RDFizer {
 
 			// gene_id public_name molecular_name concise_description provisional_description detailed_description automated_description gene_class_description
 			$a = explode("\t",$l);
-			if(count($a) != 8) {trigger_error("Found one row that only has ".count($a)." columns, expecting 8",E_USER_ERROR);continue;}
+			if(count($a) != 8) {
+				trigger_error("Found one row that only has ".count($a)." columns, expecting 8",E_USER_ERROR);
+				continue;
+			}
 
 			$id = parent::getNamespace().$a[0];
 			$label = $a[1].($a[2]?" (".$a[2].")":"");
@@ -230,7 +234,9 @@ class WormbaseParser extends Bio2RDFizer {
 			'NAS'=>'eco:0000034',
 			'ND'=>'eco:0000035',
 			'RCA'=>'eco:0000245',
-			'TAS'=>'eco:0000033'
+			'TAS'=>'eco:0000033',
+			'HEP'=>'eco:0007007',
+			'HDA'=>'eco:0007005'
 		);
 
 

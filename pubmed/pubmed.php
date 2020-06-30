@@ -65,6 +65,8 @@ class PubmedParser extends Bio2RDFizer
 
 		$files = glob($ldir."*.xml.gz");
 		foreach($files AS $i => $file) {
+			// if($file != '/data/download/pubmed/medline16n0345.xml.gz') continue;
+
 			echo "Processing $file (".($i+1)."/".count($files).") ...";
 			$this->process_file($file);
 			parent::clear();
@@ -185,19 +187,17 @@ class PubmedParser extends Bio2RDFizer
 				$i = 0;
 				foreach($citation->MeshHeadingList->MeshHeading AS $mh){
 					$id = parent::getRes().$pmid."_mh_".++$i;
-					$did = parent::getRes().md5($mh->DescriptorName);
+					$did = "mesh:".$mh->DescriptorName['UI'];
 					parent::addRDF(
 						parent::describeIndividual($id, $mh->DescriptorName, parent::getVoc()."MeshHeading").
-						parent::describeClass(parent::getVoc()."MeshHeading","MeSH Heading").
-						parent::triplify($pmid_uri, parent::getVoc()."mesh-heading", $id).
-						
+						parent::triplify($id, parent::getVoc()."x-mesh", $did).
 						parent::triplifyString($id, parent::getVoc()."descriptor-major-topic", "".$mh->DescriptorName['MajorTopicYN']).
-						parent::describeIndividual($did, "".$mh->DescriptorName, parent::getVoc()."Mesh-Descriptor").
-						parent::triplify($id, parent::getVoc()."mesh-descriptor", $did)
+						parent::describeClass(parent::getVoc()."MeshHeading","MeSH Heading").
+						parent::triplify($pmid_uri, parent::getVoc()."mesh-heading", $id)
 					);
 					if(!empty($mh->QualifierName)){
 						foreach($mh->QualifierName AS $qualifier_name) {
-							$qid = parent::getRes().md5($qualifier_name);
+							$qid = "mesh:".$mh->QualifierName['UI'];
 							parent::addRDF(
 								parent::describeIndividual($qid, $qualifier_name, parent::getVoc()."Mesh-Qualifier").
 								parent::triplify($id, parent::getVoc()."mesh-qualifier", $qid)
@@ -211,8 +211,10 @@ class PubmedParser extends Bio2RDFizer
 				$i = 0;
 				foreach($citation->ChemicalList->Chemical as $chemical){
 					$id = parent::getRes().$pmid."_ch_".++$i;
+					$mesh_id = "mesh:".$chemical->NameOfSubstance['UI'];
 					parent::addRDF(
 						parent::describeIndividual($id, $chemical->NameOfSubstance, parent::getVoc()."Chemical").
+						parent::triplify($id,parent::getVoc()."x-mesh",$mesh_id).
 						parent::describeClass(parent::getVoc()."Chemical","Chemical").
 						parent::triplify($pmid_uri, parent::getVoc()."chemical", $id)
 					);
@@ -255,7 +257,8 @@ class PubmedParser extends Bio2RDFizer
 				$label = str_replace(" ","-",$publicationType);
 				parent::addRDF(
 					parent::triplify($pmid_uri, parent::getVoc()."publication-type", $id).
-					parent::describeClass($id, $publicationType)
+					parent::describeClass($id, $publicationType).
+					parent::triplify($id,parent::getVoc()."x-mesh","mesh:".$publicationType['UI'])
 				);
 			}
 			
