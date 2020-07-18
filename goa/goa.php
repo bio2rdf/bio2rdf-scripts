@@ -65,14 +65,14 @@ class GOAParser extends Bio2RDFizer
 			}
 
 			//download file
-			$rfile = $rdir.strtoupper($file)."/".$basefile.".gz";
+			$rfile = $rdir.strtoupper($file)."/goa_".$file.".gaf.gz";
 			if($download == true) {
-				echo "downloading $file".".gz ... ";
+				echo "downloading $file ... ";
 				utils::DownloadSingle($rfile,$lfile);
 			}
 
 			$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
-			$ofile = $basefile.".".parent::getParameterValue('output_format'); 	
+			$ofile = "bio2rdf-goa-".$file.".".parent::getParameterValue('output_format'); 	
 		
 			parent::setReadFile($lfile, TRUE);
 			parent::setWriteFile($odir.$ofile, $gz);
@@ -144,7 +144,7 @@ class GOAParser extends Bio2RDFizer
 				trigger_error("Expected 17 columns, but found ".count($fields),E_USER_ERROR);
 				return false;
 			}
-		
+			#print_r($fields); exit;
 			//get the Go id
 			$db = $fields[0];
 			$id = $fields[1];
@@ -165,10 +165,6 @@ class GOAParser extends Bio2RDFizer
 
 			//entity id
 			$eid = $this->getdbURI($db,$id);
-if(!$eid) {
-print_r($fields);
-continue;
-}
 			parent::addRDF(
 				parent::describeIndividual($eid,$label,parent::getVoc()."GO-Annotation").
  				parent::describeClass(parent::getVoc()."GO-Annotation","GO Annotation").
@@ -198,12 +194,10 @@ continue;
 				parent::triplify($eid, parent::getVoc().$rel, "go:".$goid)					
 			);
 
-			$type = key($eco);
 			$aid = parent::getRes().$file."_".($z++);
 			parent::addRDF(
 				parent::describeObjectProperty(parent::getVoc()."go-annotation","GO annotation").
 				parent::triplify($eid, parent::getVoc()."go-annotation", $aid)
-				
 			);
 				
 			$cat = parent::getRes().md5($aspect);
@@ -212,7 +206,7 @@ continue;
 				parent::describeIndividual($aid, "$id-go:$goid association", parent::getVoc()."GO-Annotation").
 				parent::triplify($aid, parent::getVoc()."target", $eid).
 				parent::triplify($aid, parent::getVoc()."go-term", "go:".$goid).
-				parent::triplify($aid, parent::getVoc()."evidence", "eco:".$eco[$type][1]).
+				parent::triplify($aid, parent::getVoc()."evidence", "eco:".$eco[1]).
 				parent::triplify($aid, parent::getVoc()."go-category", $cat).
 				parent::describeClass($cat,$aspect).
 				parent::triplifyString($aid, parent::getVoc()."assigned-by", $assignedBy)
@@ -238,17 +232,13 @@ continue;
 
 
 	function getAspect($anAspect){
-		if(count($anAspect)){
-			if($anAspect == "F"){
-				return "function";
-			}elseif($anAspect == "P"){
-				return "process";
-			}elseif($anAspect == "C"){
-				return "component";
-			}
 
-		}else{
-			return null;
+		if($anAspect == "F"){
+			return "function";
+		}elseif($anAspect == "P"){
+			return "process";
+		}elseif($anAspect == "C"){
+			return "component";
 		}
 	}
 
@@ -284,70 +274,38 @@ continue;
 	 * See: http://www.geneontology.org/GO.evidence.shtml
 	 **/
 	function getEvidenceCodeLabelArr($aec){
-		if(count($aec)){
-			//experimental code
-			$ec = array(
-				"EXP"=> array("Inferred from Experiment","0000006"),
-				"IDA"=> array("Inferred from Direct Assay","0000314"),
-				"IPI"=> array("Inferred from Physical Interaction","0000021"),
-				"IMP"=> array("Inferred from Mutant Phenotype", "0000315"),
-				"IGI"=> array("Inferred from Genetic Interaction","0000316"),
-				"IEP"=> array("Inferred from Expression Pattern", "0000008")
-				);
-				
-			$htp = array(			
-				"HTP" => array("Inferred from High Throughput Experiment",""),
-				"HDA" => array("Inferred from High Throughput Direct Assay",""),
-				"HMP" => array("Inferred from Hight Throughput Mutant Phenotype",""),
-				"HGI" => array("Inferred from High Throughput Genetic Interaction",""),
-				"HEP" => array("Inferred from High Throughput Expression Pattern","")
-			);
-			
-			//computational analysis codes
-			$cac = array(
-				"ISS"=> array("Inferred from Sequence or Structural Similarity","0000027"),
-				"ISO"=> array("Inferred from Sequence Orthology", "0000201"),
-				"ISA"=> array("Inferred from Sequence Alignment", "0000200"),
-				"ISM"=> array("Inferred from Sequence Model", "0000202"),
-				"IGC"=> array("Inferred from Genomic Context", "0000317"),
-				"IBA"=> array("Inferred from Biological aspect of Ancestor","0000318"),
-				"IBD"=> array("Inferred from Biological aspect of Desendant", "0000319"),
-				"IKR"=> array("Inferred from Key Residues","0000320"),
-				"IRD"=> array("Inferred from Rapid Divergence","0000321"),
-				"RCA"=> array("Inferred from Reviewed Computational Analysis","0000245")
-				);
-				
-				//author statement codes
-			$asc = array(
-				"TAS"=> array("Traceable Author Statement","0000304"),
-				"NAS"=> array("Non-Traceable Author Statement","0000303")
-			);
-			//curator statement codes
-			$csc = array(
-				"IC"=> array("Inferred by Curator","0000001"),
-				"ND"=> array("No biological Data available","0000035")
-			);
-			//automatically assigned codes
-			$aac = array(
-				"IEA"=>array("Inferred from Electronic Annotation", "0000203")
-			);
-			
-			if(array_key_exists($aec, $ec)){
-				return array("experimental evidence code"=>$ec[$aec]);
-			}elseif(array_key_exists($aec, $htp)){
-				return array("high throughput code"=>$htp[$aec]);
-			}elseif(array_key_exists($aec, $cac)){
-				return array("computational analysis code"=>$cac[$aec]);
-			}elseif(array_key_exists($aec, $asc)){
-				return array("author statement code"=>$asc[$aec]);
-			}elseif(array_key_exists($aec, $csc)){
-				return array("curator statement code"=>$csc[$aec]);
-			}elseif(array_key_exists($aec, $aac)){
-				return array("automatically assigned code"=>$aac[$aec]);
-			}else{
-				return array("unmapped evidence code"=> $aec);
-			}
-		} else {
+		//experimental code
+		$ec = array(
+			"EXP"=> array("Inferred from Experiment","0000006"),
+			"IDA"=> array("Inferred from Direct Assay","0000314"),
+			"IPI"=> array("Inferred from Physical Interaction","0000021"),
+			"IMP"=> array("Inferred from Mutant Phenotype", "0000315"),
+			"IGI"=> array("Inferred from Genetic Interaction","0000316"),
+			"IEP"=> array("Inferred from Expression Pattern", "0000008"),
+			"ISS"=> array("Inferred from Sequence or Structural Similarity","0000027"),
+			"ISO"=> array("Inferred from Sequence Orthology", "0000201"),
+			"ISA"=> array("Inferred from Sequence Alignment", "0000200"),
+			"ISM"=> array("Inferred from Sequence Model", "0000202"),
+			"IGC"=> array("Inferred from Genomic Context", "0000317"),
+			"IBA"=> array("Inferred from Biological aspect of Ancestor","0000318"),
+			"IBD"=> array("Inferred from Biological aspect of Desendant", "0000319"),
+			"IKR"=> array("Inferred from Key Residues","0000320"),
+			"IRD"=> array("Inferred from Rapid Divergence","0000321"),
+			"RCA"=> array("Inferred from Reviewed Computational Analysis","0000245"),
+			"TAS"=> array("Traceable Author Statement","0000304"),
+			"NAS"=> array("Non-Traceable Author Statement","0000303"),
+			"IC"=> array("Inferred by Curator","0000001"),
+			"ND"=> array("No biological Data available","0000035"),
+			"IEA"=>array("Inferred from Electronic Annotation", "0000203"),
+			"HTP" => array("Inferred from High Throughput Experiment",""),
+			"HDA" => array("Inferred from High Throughput Direct Assay",""),
+			"HMP" => array("Inferred from Hight Throughput Mutant Phenotype",""),
+			"HGI" => array("Inferred from High Throughput Genetic Interaction",""),
+			"HEP" => array("Inferred from High Throughput Expression Pattern","")
+		);			
+		if(isset($ec[$aec])) return $ec[$aec];
+		else {
+			trigger_error("No code for $aec");
 			return null;
 		}
 	}
