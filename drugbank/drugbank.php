@@ -36,7 +36,7 @@ class DrugBankParser extends Bio2RDFizer
     function __construct($argv) {
 		parent::__construct($argv,"drugbank");
 		parent::addParameter('files', true, 'all|drugbank','all','Files to convert');
-		parent::addParameter('download_url',false,null,'http://www.drugbank.ca/system/downloads/current/');
+		parent::addParameter('download_url',false,null,'https://www.drugbank.ca/releases/5-0-5/downloads/all-full-database');
 		parent::initialize();
     }
     
@@ -70,8 +70,9 @@ class DrugBankParser extends Bio2RDFizer
 		$dataset_description = '';
 		foreach($files AS $f) {
 			if($f == 'drugbank') {
-				$file = 'drugbank.xml.zip';
+				$file = 'drugbank_all_full_database.xml.zip';
 				$lname = 'drugbank';
+				$insidezip_file = "full database.xml";
 			}
 			$fnx = 'parse_'.$f;
 
@@ -91,7 +92,7 @@ class DrugBankParser extends Bio2RDFizer
 			if(file_exists($indir.$file)) {
 				// call the parser
 				echo "processing $file ...".PHP_EOL;
-				$this->$fnx($indir,$file);
+				$this->$fnx($indir,$file, $insidezip_file);
 				echo "done".PHP_EOL;
 				parent::clear();
 			}
@@ -146,9 +147,9 @@ class DrugBankParser extends Bio2RDFizer
     }
 
 
-	function parse_drugbank($ldir,$infile)
+	function parse_drugbank($ldir,$infile, $insidezip_file)
 	{
-		$xml = new CXML($ldir.$infile);
+		$xml = new CXML($ldir.$infile, $insidezip_file);
 		while($xml->parse("drug") == TRUE) {
 			if(isset($this->id_list) and count($this->id_list) == 0) break;
 			$this->parseDrugEntry($xml);
