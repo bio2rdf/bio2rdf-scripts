@@ -238,17 +238,12 @@ continue;
 
 
 	function getAspect($anAspect){
-		if(count($anAspect)){
-			if($anAspect == "F"){
-				return "function";
-			}elseif($anAspect == "P"){
-				return "process";
-			}elseif($anAspect == "C"){
-				return "component";
-			}
-
-		}else{
-			return null;
+		if($anAspect == "F"){
+			return "function";
+		}elseif($anAspect == "P"){
+			return "process";
+		}elseif($anAspect == "C"){
+			return "component";
 		}
 	}
 
@@ -283,73 +278,72 @@ continue;
 	 * ["Experimental Evidence Code" => ["Inferred from Experiment", "0000006"]]
 	 * See: http://www.geneontology.org/GO.evidence.shtml
 	 **/
-	function getEvidenceCodeLabelArr($aec){
-		if(count($aec)){
-			//experimental code
-			$ec = array(
-				"EXP"=> array("Inferred from Experiment","0000006"),
-				"IDA"=> array("Inferred from Direct Assay","0000314"),
-				"IPI"=> array("Inferred from Physical Interaction","0000021"),
-				"IMP"=> array("Inferred from Mutant Phenotype", "0000315"),
-				"IGI"=> array("Inferred from Genetic Interaction","0000316"),
-				"IEP"=> array("Inferred from Expression Pattern", "0000008")
-				);
-				
-			$htp = array(			
-				"HTP" => array("Inferred from High Throughput Experiment",""),
-				"HDA" => array("Inferred from High Throughput Direct Assay",""),
-				"HMP" => array("Inferred from Hight Throughput Mutant Phenotype",""),
-				"HGI" => array("Inferred from High Throughput Genetic Interaction",""),
-				"HEP" => array("Inferred from High Throughput Expression Pattern","")
+	function getEvidenceCodeLabelArr($aec)
+	{
+		//experimental code
+		$ec = array(
+			"EXP"=> array("Inferred from Experiment","0000006"),
+			"IDA"=> array("Inferred from Direct Assay","0000314"),
+			"IPI"=> array("Inferred from Physical Interaction","0000021"),
+			"IMP"=> array("Inferred from Mutant Phenotype", "0000315"),
+			"IGI"=> array("Inferred from Genetic Interaction","0000316"),
+			"IEP"=> array("Inferred from Expression Pattern", "0000008")
 			);
 			
-			//computational analysis codes
-			$cac = array(
-				"ISS"=> array("Inferred from Sequence or Structural Similarity","0000027"),
-				"ISO"=> array("Inferred from Sequence Orthology", "0000201"),
-				"ISA"=> array("Inferred from Sequence Alignment", "0000200"),
-				"ISM"=> array("Inferred from Sequence Model", "0000202"),
-				"IGC"=> array("Inferred from Genomic Context", "0000317"),
-				"IBA"=> array("Inferred from Biological aspect of Ancestor","0000318"),
-				"IBD"=> array("Inferred from Biological aspect of Desendant", "0000319"),
-				"IKR"=> array("Inferred from Key Residues","0000320"),
-				"IRD"=> array("Inferred from Rapid Divergence","0000321"),
-				"RCA"=> array("Inferred from Reviewed Computational Analysis","0000245")
-				);
-				
-				//author statement codes
-			$asc = array(
-				"TAS"=> array("Traceable Author Statement","0000304"),
-				"NAS"=> array("Non-Traceable Author Statement","0000303")
-			);
-			//curator statement codes
-			$csc = array(
-				"IC"=> array("Inferred by Curator","0000001"),
-				"ND"=> array("No biological Data available","0000035")
-			);
-			//automatically assigned codes
-			$aac = array(
-				"IEA"=>array("Inferred from Electronic Annotation", "0000203")
+		$htp = array(			
+			"HTP" => array("Inferred from High Throughput Experiment",""),
+			"HDA" => array("Inferred from High Throughput Direct Assay",""),
+			"HMP" => array("Inferred from Hight Throughput Mutant Phenotype",""),
+			"HGI" => array("Inferred from High Throughput Genetic Interaction",""),
+			"HEP" => array("Inferred from High Throughput Expression Pattern","")
+		);
+		
+		//computational analysis codes
+		$cac = array(
+			"ISS"=> array("Inferred from Sequence or Structural Similarity","0000027"),
+			"ISO"=> array("Inferred from Sequence Orthology", "0000201"),
+			"ISA"=> array("Inferred from Sequence Alignment", "0000200"),
+			"ISM"=> array("Inferred from Sequence Model", "0000202"),
+			"IGC"=> array("Inferred from Genomic Context", "0000317"),
+			"IBA"=> array("Inferred from Biological aspect of Ancestor","0000318"),
+			"IBD"=> array("Inferred from Biological aspect of Desendant", "0000319"),
+			"IKR"=> array("Inferred from Key Residues","0000320"),
+			"IRD"=> array("Inferred from Rapid Divergence","0000321"),
+			"RCA"=> array("Inferred from Reviewed Computational Analysis","0000245")
 			);
 			
-			if(array_key_exists($aec, $ec)){
-				return array("experimental evidence code"=>$ec[$aec]);
-			}elseif(array_key_exists($aec, $htp)){
-				return array("high throughput code"=>$htp[$aec]);
-			}elseif(array_key_exists($aec, $cac)){
-				return array("computational analysis code"=>$cac[$aec]);
-			}elseif(array_key_exists($aec, $asc)){
-				return array("author statement code"=>$asc[$aec]);
-			}elseif(array_key_exists($aec, $csc)){
-				return array("curator statement code"=>$csc[$aec]);
-			}elseif(array_key_exists($aec, $aac)){
-				return array("automatically assigned code"=>$aac[$aec]);
-			}else{
-				return array("unmapped evidence code"=> $aec);
-			}
-		} else {
-			return null;
+			//author statement codes
+		$asc = array(
+			"TAS"=> array("Traceable Author Statement","0000304"),
+			"NAS"=> array("Non-Traceable Author Statement","0000303")
+		);
+		//curator statement codes
+		$csc = array(
+			"IC"=> array("Inferred by Curator","0000001"),
+			"ND"=> array("No biological Data available","0000035")
+		);
+		//automatically assigned codes
+		$aac = array(
+			"IEA"=>array("Inferred from Electronic Annotation", "0000203")
+		);
+		
+		if(array_key_exists($aec, $ec)){
+			return array("experimental evidence code"=>$ec[$aec]);
+		}elseif(array_key_exists($aec, $htp)){
+			return array("high throughput code"=>$htp[$aec]);
+		}elseif(array_key_exists($aec, $cac)){
+			return array("computational analysis code"=>$cac[$aec]);
+		}elseif(array_key_exists($aec, $asc)){
+			return array("author statement code"=>$asc[$aec]);
+		}elseif(array_key_exists($aec, $csc)){
+			return array("curator statement code"=>$csc[$aec]);
+		}elseif(array_key_exists($aec, $aac)){
+			return array("automatically assigned code"=>$aac[$aec]);
+		}else{
+			return array("unmapped evidence code"=> $aec);
 		}
+		
+		return null;
 	}
 
 	function parseDate($str){
