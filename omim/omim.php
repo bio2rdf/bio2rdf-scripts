@@ -33,7 +33,7 @@ class OMIMParser extends Bio2RDFizer
 	function __construct($argv) {
 		parent::__construct($argv, 'omim');
 		parent::addParameter('files',true,null,'all|omim#','entries to process: comma-separated list or hyphen-separated range');
-		parent::addParameter('omim_api_url',false,null,'http://api.omim.org/api/entry?include=all&format=json');
+		parent::addParameter('omim_api_url',false,null,'https://api.omim.org/api/entry?include=all&format=json');
 		parent::addParameter('omim_api_key',false,null);
 		parent::addParameter('omim_api_key_file',false,null,'omim.key','A file containing your omim KEY');
 		parent::initialize();
@@ -55,12 +55,30 @@ class OMIMParser extends Bio2RDFizer
 				}
 			} else {	
 				trigger_error("No OMIM key has been provided either by commmand line or in the expected omim key file $key_file",E_USER_WARNING);	
+				exit;
 			}
 		}
 
-		// get the list of mim2gene entries
-		$entries = $this->GetListOfEntries($ldir);
+		// get the list of entries
+		$file = "mimTitles.txt";
+		$rfile = "https://data.omim.org/downloads/$key/$file";
+		$lfile = $ldir.$file;
+		if(!file_exists($lfile) && parent::getParameterValue('download') == false) {
+			trigger_error($lfile." not found. Will attempt to download.", E_USER_NOTICE);
+			parent::setParameterValue('download',true);
+		}
+		if(parent::getParameterValue('download') == true) {
+			echo "downloading $file ... ";
+			Utils::DownloadSingle($rfile, $lfile);
+		}
+		// parse the file
+		$fp = fopen($lfile,"rb");
+		while($l = fgetcsv($fp,0,"\t")) {
+			if($l[0][0] == "#") continue;
+			$full_list[ $l[1] ] = "";
+		}
 		
+
 		// get the work specified
 		$list = trim(parent::getParameterValue('files'));		
 		if($list != 'all') {
@@ -68,9 +86,7 @@ class OMIMParser extends Bio2RDFizer
 			if(($pos = strpos($list,"-")) !== FALSE) {
 				$start_range = substr($list,0,$pos);
 				$end_range = substr($list,$pos+1);
-				
-				// get the whole list
-				$full_list = $this->GetListOfEntries($ldir);
+
 				// now intersect
 				foreach($full_list AS $e => $type) {
 					if($e >= $start_range && $e <= $end_range) {
@@ -84,9 +100,11 @@ class OMIMParser extends Bio2RDFizer
 				foreach($b AS $e) {
 					$myentries[$e] = '';
 				}
-				$entries = array_intersect_key ($entries,$myentries);
+				$entries = array_intersect_key ($full_list,$myentries);
 			}		
-		}
+		} else $entries = $full_list;
+
+		echo "Will process a total of ".count($entries)." OMIM entries".PHP_EOL; 
 		
 		// set the write file
 		$gz = (strstr(parent::getParameterValue('output_format'),".gz") === FALSE)?false:true;
@@ -102,17 +120,13 @@ class OMIMParser extends Bio2RDFizer
 		$total = count($entries);
 		foreach($entries AS $omim_id => $type) {
 			echo "processing ".(++$i)." of $total - omim# ";
-			$download_file = $ldir.$omim_id.".json.gz";
-			$gzfile = "compress.zlib://$download_file";
+			$lfile = $ldir.$omim_id.".json.gz";
+			$gzfile = "compress.zlib://$lfile";
 			// download if the file doesn't exist or we are told to
-			if(!file_exists($download_file) || parent::getParameterValue('download') == true) {
+			if(!file_exists($lfile) || parent::getParameterValue('download') == true) {
 				// download using the api
-				$url = parent::getParameterValue('omim_api_url').'&apiKey='.parent::getParameterValue('omim_api_key').'&mimNumber='.$omim_id;
-				$buf = file_get_contents($url);
-				if(strlen($buf) != 0)  {
-					file_put_contents($download_file, $buf);
-					usleep(500000); // limit of 4 requests per second
-				}
+				$rfile = parent::getParameterValue('omim_api_url').'&apiKey='.parent::getParameterValue('omim_api_key').'&mimNumber='.$omim_id;
+				Utils::DownloadSingle($rfile, $lfile);
 			}
 			
 			// load entry, parse and write to file
@@ -168,57 +182,6 @@ class OMIMParser extends Bio2RDFizer
 		parent::getWriteFile()->close();
 		
 		return TRUE;
-	}
-	
-	function getListOfEntries($ldir)
-	{
-		// get the master list of entries
-		$file = "mim2gene.txt";
-		if(!file_exists($ldir.$file)) {
-			trigger_error($ldir.$file." not found. Will attempt to download. ", E_USER_NOTICE);
-			$this->SetParameterValue('download',true);
-		}		
-		
-		if(parent::getParameterValue('download')==true) {
-			// connect
-			if(!isset($ftp)) {
-				$host = 'ftp.omim.org';
-				echo "connecting to $host ...";
-				$ftp = ftp_connect($host);
-				if(!$ftp) {
-					echo "Unable to connect to $host".PHP_EOL;
-					die;
-				}
-				ftp_pasv ($ftp, true) ;				
-				$login = ftp_login($ftp, 'anonymous', 'bio2rdf@gmail.com');
-				if ((!$ftp) || (!$login)) { 
-					echo "FTP-connect failed!"; die; 
-				} else {
-					echo "Connected".PHP_EOL;
-				}
-			}
-				
-			// download
-			ftp_pasv($ftp, true);
-			echo "Downloading $file ...";
-			if(ftp_get($ftp, $ldir.$file, 'OMIM/'.$file, FTP_BINARY) === FALSE) {
-				trigger_error("Error in downloading $file");
-			}
-			if(isset($ftp)) ftp_close($ftp);
-			echo "success!".PHP_EOL;
-		}
-
-		// parse the mim2gene file for the entries
-		// # Mim Number    Type    Gene IDs        Approved Gene Symbols
-		$fp = fopen($ldir.$file,"r");
-		fgets($fp);
-		while($l = fgets($fp)) {
-			$a = explode("\t",$l);
-			if($a[1] != "moved/removed")
-				$list[$a[0]] = $a[1];
-		}
-		fclose($fp);
-		return $list;
 	}
 	
 	
@@ -324,6 +287,14 @@ class OMIMParser extends Bio2RDFizer
 			foreach($b AS $title) {
 				parent::addRDF(parent::triplifyString($omim_uri, parent::getVoc()."alternative-title", trim($title)));
 			}
+		}
+
+		// check if moved
+		if(isset($o['movedTo'])) {
+			$new_omim_uri = parent::getNamespace().$o['movedTo'];
+			parent::addRDF(
+				parent::triplify($omim_uri, parent::getVoc()."superceded-by", $new_omim_uri)
+			);
 		}
 
 		// parse text sections
@@ -542,7 +513,8 @@ class OMIMParser extends Bio2RDFizer
 				
 				$ns = '';
 				switch($k) {
-					case 'approvedGeneSymbols':        $ns = 'symbol';break;
+					case 'hgncID':					   $ns = 'hgnc';break;
+					case 'approvedGeneSymbols':        $ns = 'hgnc.symbol';break;
 					case 'geneIDs':                    $ns = 'ncbigene';break;
 					case 'ncbiReferenceSequences':     $ns = 'gi';break;
 					case 'genbankNucleotideSequences': $ns = 'gi';break;
@@ -568,6 +540,11 @@ class OMIMParser extends Bio2RDFizer
 					case 'diseaseOntologyIDs':	   		$ns = 'do';break;
 					
 					// specifically ignorning
+					case 'newbornScreening':
+					case 'clinGenDosage':
+					case 'clinGenValidity':
+					case 'monarch':
+					case 'decipherSyndromes':
 					case 'geneTests':
 					case 'cmgGene':
 					case 'geneticAllianceIDs':  // #
