@@ -802,7 +802,7 @@ PA166156302	rs1000002	PA395	ABCC5	NC_000003.11:183635768	1	0	0	0	0	rs17623022, N
 
 	function clinical_ann_metadata()
 	{
-		$header = array("Clinical Annotation Id","Location","Gene","Level of Evidence","Clinical Annotation Types","Genotype-Phenotype IDs","Annotation Text","Variant Annotations IDs","Variant Annotations","PMIDs","Evidence Count","Related Drugs","Related Diseases","Biogeographical groups", "Chromosome");
+		$header = array("Clinical Annotation Id","Location","Gene","Level of Evidence","Clinical Annotation Types","Genotype-Phenotype IDs","Annotation Text","Variant Annotations IDs","Variant Annotations","PMIDs","Evidence Count","Related Chemicals","Related Diseases","Biogeographical groups", "Chromosome","Latest History");
 		$this_header = explode("\t",$this->getReadFile()->read());
 		if(count($this_header) != count($header)) {
 			trigger_error("Change in the number of columns. Expected ".count($header).", but found ".count($this_header),E_USER_ERROR);
@@ -812,19 +812,8 @@ PA166156302	rs1000002	PA395	ABCC5	NC_000003.11:183635768	1	0	0	0	0	rs17623022, N
 			$a = explode("\t",$l);
 
 			$id = parent::getNamespace().$a[0];
-			# fixing bad file formatting
-			if($a[0] == "982040598" or $a[0] == "982037603") {
-				$a[8] .= $a[11];
-				$a[9] = $a[12];
-				$a[10] = $a[13]; 
-				$a[11]= $a[14]; 
-				$a[12] = $a[15]; 
-				$a[13] = $a[16]; 
-				$a[14] = $a[17];
-			}
-
-
 			$label = "clinical genotype to phenotype annotations for ".$a[1];
+			
 			// [0] => Clinical Annotation Id
 			parent::addRDF(
 				parent::describeIndividual($id, $label, parent::getVoc()."Clinical-Annotation").
@@ -930,7 +919,7 @@ PA166156302	rs1000002	PA395	ABCC5	NC_000003.11:183635768	1	0	0	0	0	rs17623022, N
 				);
 			}
 
-			// [11] => Related Drugs
+			// [11] => Related Chemicals
 			if($a[11]) {
 				//print_r($a);exit;
 				$b = $this->parseList($a[11]);	
