@@ -324,19 +324,30 @@ class HGNCParser extends Bio2RDFizer {
 				}
 			}
 			if(!empty($r[$h['gene_family_id']])){
-				$s = $r[$h['gene_family_id']];
-				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."gene-family-tag",  utf8_encode(htmlspecialchars($s))).
-					parent::describeProperty($this->getVoc()."gene-family-tag", "Gene Family Tag","Tag used to designate a gene family or group the gene has been assigned to, according to either sequence similarity or information from publications, specialist advisors for that family or other databases. Families/groups may be either structural or functional, therefore a gene may belong to more than one family/group. These tags are used to generate gene family or grouping specific pages at genenames.org and do not necessarily reflect an official nomenclature. Each gene family has an associated gene family tag and gene family description. If a particular gene is a member of more than one gene family, the tags and the descriptions will be shown in the same order.")
+				parent::addRDF(
+					parent::describeProperty($this->getVoc()."gene-family", "gene family",null,null, "Used to designate a gene family or group the gene has been assigned to, according to either sequence similarity or information from publications, specialist advisors for that family or other databases. Families/groups may be either structural or functional, therefore a gene may belong to more than one family/group. These tags are used to generate gene family or grouping specific pages at genenames.org and do not necessarily reflect an official nomenclature. Each gene family has an associated gene family tag and gene family description. If a particular gene is a member of more than one gene family, the tags and the descriptions will be shown in the same order.").
+					parent::describeClass($this->getVoc()."Gene-Family", "gene family", null,null,"Name given to a particular gene family. The gene family description has an associated gene family tag. Gene families are used to group genes according to either sequence similarity or information from publications, specialist advisors for that family or other databases. Families/groups may be either structural or functional, therefore a gene may belong to more than one family/group.")
 				);
-			}
 
-			if(!empty($r[$h['gene_family']])){
-				$s = $r[$h['gene_family']];
-				parent::AddRDF(
-					parent::triplifyString($id_res, $this->getVoc()."gene-family-description",  utf8_encode(htmlspecialchars($s))).
-					parent::describeProperty($this->getVoc()."gene-family-description", "gene family name","Name given to a particular gene family. The gene family description has an associated gene family tag. Gene families are used to group genes according to either sequence similarity or information from publications, specialist advisors for that family or other databases. Families/groups may be either structural or functional, therefore a gene may belong to more than one family/group.")
-				);
+				$gf_ids = $r[$h['gene_family_id']];
+				$gf_des = $r[$h['gene_family']];
+
+				$_gf_ids = explode("|", $gf_ids);
+				$_gf_des = explode("|", $gf_des);
+				foreach ($_gf_ids as $i => $gf_id) {
+					$gf_res = $this->getRes().$uid."_gf_res_$gf_id";
+					#print_r($_gf_des);
+					if(isset($_gf_des[$i])) {
+						$gf_description = utf8_encode(htmlspecialchars($_gf_des[$i]));
+					} else $gf_description = "";
+					parent::addRDF(
+						parent::triplifyString($id, $this->getVoc()."gene-family", $gf_res).
+						parent::describeIndividual($gf_res, $gf_description, parent::getVoc()."Gene-Family" ))
+					;
+				}
+
+				#echo parent::getRDF();exit;
+
 			}
 			//write RDF to file
 			$this->WriteRDFBufferToWriteFile();

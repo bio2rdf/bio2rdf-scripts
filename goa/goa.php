@@ -232,7 +232,6 @@ class GOAParser extends Bio2RDFizer
 
 
 	function getAspect($anAspect){
-
 		if($anAspect == "F"){
 			return "function";
 		}elseif($anAspect == "P"){
@@ -308,6 +307,8 @@ class GOAParser extends Bio2RDFizer
 			trigger_error("No code for $aec");
 			return null;
 		}
+		
+		return null;
 	}
 
 	function parseDate($str){

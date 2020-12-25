@@ -464,7 +464,9 @@ class BioportalParser extends Bio2RDFizer
 					$tid = $ns.":".$id;
 					echo $tid.PHP_EOL;
 				} else if($a[0] == "name") {
-					$buf .= parent::describeClass($tid,addslashes(stripslashes($a[1])));
+					$name = addslashes(stripslashes($a[1]));
+					$buf .= parent::describeClass($tid,$name);
+					$buf .= parent::triplifyString($tid,"dc:title",$name);
 				} else if($a[0] == "is_a") {
 					if(FALSE !== ($pos = strpos($a[1],"!"))) $a[1] = substr($a[1],0,$pos-1);
 					$buf .= parent::triplify($tid,"rdfs:subPropertyOf","obo_vocabulary:".strtolower($a[1]));
@@ -493,7 +495,7 @@ class BioportalParser extends Bio2RDFizer
 				} else if($a[0] == "name") {
 //					$t = parent::triplifyString($tid,"rdfs:label",str_replace(array("\"", "'"), array("","\\\'"), stripslashes($a[1]))." [$tid]");
 					$label = str_replace(array("\"", "'"), array("","\\\'"), stripslashes($a[1]));
-					$t = parent::describeIndividual($tid,$label,"owl:Class");
+					$t = parent::describeIndividual($tid,$label,"owl:Class",$label);
 					$t .= parent::triplify($tid,"rdfs:isDefinedBy",$ouri);					
 					$min .= $t;
 					$buf .= $t;
