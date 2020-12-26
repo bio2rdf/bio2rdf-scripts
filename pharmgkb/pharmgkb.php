@@ -370,11 +370,17 @@ class PharmGKBParser extends Bio2RDFizer
 		}
 	}
 
-	function parseList($str)
+	function parseList($str, $delim = ';')
 	{
 		$list = '';
-		if($str[0] == '"') $list = explode('","', substr($str,1,-1));
-		else $list = array($str);
+		if($str[0] == '"') {
+			$list = explode('","', substr($str,1,-1));
+		} else {
+			if(strstr($str,$delim)) {
+				$list = explode($delim, $str);
+			}
+		}
+		if(!is_array($list)) $list = array($str);
 		return $list;
 	}
 	
@@ -454,7 +460,7 @@ class PharmGKBParser extends Bio2RDFizer
 			if(trim($a[2])) { 
 				// generic names
 				// Entacapona [INN-Spanish],Entacapone [Usan:Inn],Entacaponum [INN-Latin],entacapone
-				$list = $this->parseList(trim($a[2]));
+				$list = $this->parseList(trim($a[2]),",");
 				foreach($list AS $c) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."generic_name",  str_replace('"','',$c))
@@ -467,7 +473,7 @@ class PharmGKBParser extends Bio2RDFizer
 			if(trim($a[3])) { 
 				// trade names
 				//Disorat,OptiPranolol,Trimepranol
-				$list = $this->parseList(trim($a[3]));
+				$list = $this->parseList(trim($a[3]),",");
 				foreach($list as $c) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."trade_name", str_replace(array("'", "\""), array("\\\'", "") ,$c))
@@ -480,7 +486,7 @@ class PharmGKBParser extends Bio2RDFizer
 			if(trim($a[4])) {
 				// Brand Mixtures	
 				// Benzyl benzoate 99+ %,"Dermadex Crm (Benzoic Acid + Benzyl Benzoate + Lindane + Salicylic Acid + Zinc Oxide + Zinc Undecylenate)",
-				$list = $this->parseList(trim($a[4]));
+				$list = $this->parseList(trim($a[4]),",");
 				foreach($list as $c) {
 					parent::addRDF(
 						parent::triplifyString($id, parent::getVoc()."brand_mixture", str_replace(array("'", "\""),array("\\\'",""), $c))
@@ -500,7 +506,7 @@ class PharmGKBParser extends Bio2RDFizer
 			if(trim($a[6])) {
 				// Cross References	
 				// drugBank:DB00789,keggDrug:D01707,pubChemCompound:55466,pubChemSubstance:192903,url:http://en.wikipedia.org/wiki/Gadopentetate_dimeglumine
-				$list = $this->parseList(trim($a[6]));
+				$list = $this->parseList(trim($a[6]),",");
 				foreach($list as $c) {
 					$this->getRegistry()->parseQName($c,$ns,$id1);
 					if($ns == "chebi") $id1 = substr($id1, 6);
@@ -544,7 +550,10 @@ class PharmGKBParser extends Bio2RDFizer
 				// External Vocabulary
 				// ATC:H01AC(Somatropin and somatropin agonists),ATC:V04CD(Tests for pituitary function)
 				// ATC:D07AB(Corticosteroids, moderately potent (group II)) => this is why you don't use brackets and commas as separators.
-				$list = $this->parseList(trim($a[10]));
+				$list = $this->parseList(trim($a[10]),",");
+				if(strstr($a[10],"potent")) { $c = array(implode(",",$list));$list = $c;}
+				else if(strstr($a[10],"weak")) { $c = array(implode(",",$list));$list = $c;}
+
 				foreach($list as $c) {
 					preg_match("/([^\(]+)?\((.*)\)/", $c, $m);
 					if(isset($m[1])) {				
@@ -566,7 +575,7 @@ class PharmGKBParser extends Bio2RDFizer
 			}
 			if(trim($a[22])) {
 				// ATC identifiers
-				$list = $this->parseList(trim($a[22]));
+				$list = $this->parseList(trim($a[22]),",");
 				foreach($list as $c) {
 					parent::addRDF(
 						parent::triplify($id, parent::getVoc()."x-atc", "atc:".$c)
@@ -868,17 +877,15 @@ PA166156302	rs1000002	PA395	ABCC5	NC_000003.11:183635768	1	0	0	0	0	rs17623022, N
 			// [5] => Genotype-Phenotypes IDs
 			// [6] => Text
 			if($a[5]) {
-				$gps = explode('","',$a[5]);
-				$gps_texts = explode('","',$a[6]);
+				$gps = explode(';',$a[5]);
+				$gps_texts = explode('; ',$a[6]);
 				foreach($gps AS $i => $gp) {
-					$gp = str_replace('"','',trim($gp));
-					$gp_text = str_replace('"','',trim($gps_texts[$i]));
-					$b = explode(":",$gp_text,2);
+					$gp_text = str_replace('\\','',$gps_texts[$i]);
 
 					parent::addRDF(
 						parent::describeIndividual(parent::getNamespace().$gp, $gp_text, parent::getVoc()."Genotype-Phenotype-Association").
 						parent::triplify($id, parent::getVoc()."genotype_phenotype", parent::getNamespace().$gp).
-						parent::triplifyString(parent::getNamespace().$gp, parent::getVoc()."genotype", trim($b[0])).
+						parent::triplifyString(parent::getNamespace().$gp, parent::getVoc()."genotype", trim($gp)).
 						parent::describeClass(parent::getVoc()."Genotype-Phenotype-Association", "PharmGKB Genotype Phenotype Association").
 						parent::describeProperty(parent::getVoc()."genotype_phenotype", "Relationship between a PharmGKB entity and a Genotype Phenotype").
 						parent::describeProperty(parent::getVoc()."genotype", "Relationship between a PharmGKB Genotype Phenotype and a genotype")
@@ -889,11 +896,14 @@ PA166156302	rs1000002	PA395	ABCC5	NC_000003.11:183635768	1	0	0	0	0	rs17623022, N
 			// [7] => Variant Annotations IDs
 			// [8] => Variant Annotations
 			if($a[7]) {
-				$b = explode('","',$a[7]);
-				$b_texts =  explode('","',$a[8]);
+				$b = explode(';',$a[7]);
+				$b_texts =  explode(';',$a[8]);
+				if(count($b) != count($b_texts)) {
+					trigger_error("Error in parsing variant annotations");
+					exit();
+				}
 				foreach($b AS $i => $variant) {
-					$variant = str_replace('"','',trim($variant));
-					$variant_text = str_replace('"','',trim ($b_texts[$i]));
+					$variant_text = trim($b_texts[$i]);
 					parent::addRDF(
 						parent::describeIndividual(parent::getNamespace().$variant, $variant_text, parent::getVoc()."Variant-Annotation").
 						parent::triplify($id, parent::getVoc()."variant", parent::getNamespace().$variant)
@@ -903,7 +913,7 @@ PA166156302	rs1000002	PA395	ABCC5	NC_000003.11:183635768	1	0	0	0	0	rs17623022, N
 			
 			// [9] => PMIDs
 			if($a[9]) {
-				$b = $this->parseList($a[9]);
+				$b = explode(';', $a[9]);
 				foreach($b AS $i => $pmid) {
 					parent::addRDF(
 						parent::triplify($id, parent::getVoc()."article", "pubmed:".$pmid)
@@ -921,8 +931,7 @@ PA166156302	rs1000002	PA395	ABCC5	NC_000003.11:183635768	1	0	0	0	0	rs17623022, N
 
 			// [11] => Related Chemicals
 			if($a[11]) {
-				//print_r($a);exit;
-				$b = $this->parseList($a[11]);	
+				$b = explode(';', $a[11]);
 				foreach($b AS $drug_label) {
 					preg_match('/\(PA(.*)\)/',$drug_label,$m);
 					
@@ -940,7 +949,7 @@ PA166156302	rs1000002	PA395	ABCC5	NC_000003.11:183635768	1	0	0	0	0	rs17623022, N
 			}
 			// [12] => Related Diseases
 			if($a[12]) {
-				$b = $this->parseList($a[12]);
+				$b = explode(';', $a[12]);
 				foreach($b AS $disease_label) {
 					preg_match('/\(PA(.*)\)/',$disease_label,$m);
 					if(isset($m[1])) {
