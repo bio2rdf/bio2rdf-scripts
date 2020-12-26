@@ -41,10 +41,10 @@ class TaxonomyParser extends Bio2RDFizer{
 			"filename" => "taxdmp.zip",
 			"contents" => array(
 				"names" => "names.dmp",
-				"nodes" => "nodes.dmp",
-				"citations" => "citations.dmp",
-				"gencode" => "gencode.dmp",
-				"division" => "division.dmp"
+				#"nodes" => "nodes.dmp",
+				#"citations" => "citations.dmp",
+				#"gencode" => "gencode.dmp",
+				#"division" => "division.dmp"
 			),
 			"file_url" => "ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip"
 		),
@@ -218,14 +218,14 @@ class TaxonomyParser extends Bio2RDFizer{
 			$rel = parent::getVoc().str_replace(" ","-",$a[3]);
 			
 			parent::addRDF(
-				parent::triplifyString($taxid, $rel, addslashes($name)).
-				parent::triplifyString($taxid, parent::getVoc()."unique-name", addslashes(utf8_encode($a[2])))
+				parent::triplifyString($taxid, $rel, $name).
+				parent::triplifyString($taxid, parent::getVoc()."unique-name", utf8_encode($a[2]))
 			);
 			
 			if($rel == "scientific-name") {
 				parent::addRDF(
-					parent::triplifyString($taxid, "dc:title", addslashes($name)).
-					parent::triplifyString($taxid, "rdfs:label", addslashes($name))
+					parent::triplifyString($taxid, "dc:title", $name).
+					parent::triplifyString($taxid, "rdfs:label", $name)
 				);
 			}
 			
