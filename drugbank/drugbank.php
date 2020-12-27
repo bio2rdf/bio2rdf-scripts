@@ -185,7 +185,11 @@ class DrugBankParser extends Bio2RDFizer
             case 'genbank protein database':
                 return 'gi';
             case 'hugo gene nomenclature committee (hgnc)':
-                return 'hgnc';
+				return 'hgnc';
+			case 'therapeutic targets database':
+				return 'ttd';
+			case 'rxcui':
+				return 'rxnorm';
                 
             default:
                 return strtolower($source);
@@ -455,21 +459,24 @@ class DrugBankParser extends Bio2RDFizer
 			foreach($x->mixtures->mixture AS $item) {
 				if(isset($item)) {
 					$o = $item;
-					$mid = parent::getRes().md5(str_replace(" ","-",$o->name[0]));
+					$label = str_replace(array(" ","%"),array("-", "percent"), $o->name[0]);
+					$ingredients = str_replace(array(" ","%"),array("-", "percent"), $o->ingredients[0]);
+					$mid = parent::getRes().md5($label);
 
 					parent::addRDF(
 						parent::triplify($did,parent::getVoc()."mixture",$mid).
-						parent::describeIndividual($mid,$o->name[0],parent::getVoc()."Mixture").
+						parent::describeIndividual($mid,$label,parent::getVoc()."Mixture").
 						parent::describeClass(parent::getVoc()."Mixture","mixture").
-						parent::triplifyString($mid,$this->getVoc()."ingredients","".$o->ingredients[0]) 
+						parent::triplifyString($mid,$this->getVoc()."ingredients","".$ingredients) 
 					);
 
 					$a = explode(" + ",$o->ingredients[0]);
 					foreach($a AS $b) {
 						$b = trim($b);
-						$iid = parent::getRes().str_replace(" ","-",$b);
+						$label = str_replace(array(" ",",","%"),array("-","-","percent"),$b);
+						$iid = parent::getRes().$label;
 						parent::addRDF(
-							parent::describeClass($iid,$b, parent::getVoc()."Ingredient").
+							parent::describeClass($iid,$label, parent::getVoc()."Ingredient").
 							parent::describeClass(parent::getVoc()."Ingredient","Ingredient").
 							parent::triplify($mid,parent::getVoc()."ingredient",$iid)
 						);
@@ -661,7 +668,7 @@ class DrugBankParser extends Bio2RDFizer
 					$ns = $this->NSMap($obj->resource);
 					$id = $obj->identifier;
 					if($ns == "genecards") $id = str_replace(array(" "),array("_"),$id);
-
+					if($ns == "wikipedia") $id = str_replace(array(","), "-", $id);
 					parent::addRDF(
 						parent::triplify($did,parent::getVoc()."x-$ns","$ns:$id")
 					);
@@ -781,7 +788,10 @@ class DrugBankParser extends Bio2RDFizer
 		if(isset($mylist)) {
 			foreach($mylist AS $item) {
 				$label = ''.$item;
-				$kid = parent::getVoc().ucfirst(str_replace(" ","-",$label)); // generate a new identifier for the list item
+				$label = str_replace(array(" ","[","]",","),"-",$label);
+				$label = rawurlencode(utf8_encode($label));
+
+				$kid = parent::getVoc().ucfirst($label); // generate a new identifier for the list item
 				$this->addRDF(
 					$this->describeIndividual($kid,$label,parent::getVoc().ucfirst($item_name)).
 					$this->describeClass(parent::getVoc().ucfirst($item_name),ucfirst($item_name)).
