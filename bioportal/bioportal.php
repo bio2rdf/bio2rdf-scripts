@@ -367,7 +367,7 @@ class BioportalParser extends Bio2RDFizer
 			
 		} else {
 			parent::addRDF(
-				parent::triplifyString($s_uri,$p_uri,addslashes($a['o']),(($a['o_datatype'] == '')?null:$a['o_datatype']),(($a['o_lang'] == '')?null:$a['o_lang']))
+				parent::triplifyString($s_uri,$p_uri,$a['o'],(($a['o_datatype'] == '')?null:$a['o_datatype']),(($a['o_lang'] == '')?null:$a['o_lang']))
 			);			
 		}
 	
@@ -464,7 +464,7 @@ class BioportalParser extends Bio2RDFizer
 					$tid = $ns.":".$id;
 					echo $tid.PHP_EOL;
 				} else if($a[0] == "name") {
-					$name = addslashes(stripslashes($a[1]));
+					$name = stripslashes($a[1]);
 					$buf .= parent::describeClass($tid,$name);
 					$buf .= parent::triplifyString($tid,"dc:title",$name);
 				} else if($a[0] == "is_a") {
@@ -520,7 +520,9 @@ class BioportalParser extends Bio2RDFizer
 						$b = explode(":",$a[1],2);
 						if(isset($b[1])) {
 							if(substr($b[1],0,4) == "http") {
-								$buf .= parent::triplify($tid,"rdfs:seeAlso", stripslashes($b[1]));
+								// https://en.wikipedia.org/wiki/Prolamin {source="SUBMITTER"}
+								$url = preg_replace("/{.*\}/","",$b[1]);
+								$buf .= parent::triplify($tid,"rdfs:seeAlso", $url);
 							} else {
 								$ns = str_replace(array(" ","\\",) ,"",strtolower($b[0]));
 								$id = trim($b[1]);
@@ -547,10 +549,12 @@ class BioportalParser extends Bio2RDFizer
 								if($ns == "submitter") $ns = "chebi.submitter";
 								if($ns == "wikipedia" || $ns == "mesh") $id = str_replace(" ","+",$id);
 								if($ns == "id-validation-regexp") {
-									$buf .= parent::triplifyString($tid,"obo_vocabulary:$ns", addslashes($id));
+									$buf .= parent::triplifyString($tid,"obo_vocabulary:$ns", $id);
 								} else {
-									if($ns) 
-										$buf .= parent::triplify($tid,"obo_vocabulary:x-$ns", "$ns:".str_replace(" ","-",$id));
+									if($ns) {
+										$id = str_replace(array(" ",",","#","<",">"),array("%20","%2C","%23","%3C","%3E"),$id);
+										$buf .= parent::triplify($tid,"obo_vocabulary:x-$ns", "$ns:$id");
+									}
 								}
 							}
 						}
@@ -688,7 +692,7 @@ class BioportalParser extends Bio2RDFizer
 				//header
 				//format-version: 1.0
 				$buf .= parent::triplifyString($ouri,"obo_vocabulary:$a[0]",
-					str_replace( array('"','\:'), array('\"',':'), isset($a[1])?$a[1]:""));
+					str_replace( array('\:'), array(':'), isset($a[1])?$a[1]:""));
 			}
 
 			if($minimal || $minimalp) parent::getWriteFile()->write($min);
