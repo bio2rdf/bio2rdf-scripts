@@ -19,7 +19,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '7.4'
-        ini-values: 'memory_limit = 6144M'
+        ini-values: 'memory_limit=6144M'
         # Issue with default PHP 8.0 (4 error handling args instead of 5 expected)
 
     ## Setting up the environment
