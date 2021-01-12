@@ -35,6 +35,7 @@ jobs:
         path: 'bio2rdf-scripts'
 
     - name: Create data folders
+      working-directory: ./bio2rdf-scripts
       run: |
         mkdir -p data/download
         mkdir -p data/rdf
@@ -46,15 +47,15 @@ jobs:
       working-directory: ./bio2rdf-scripts
       # /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts
       run: |
-        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data/download/${{ matrix.bio2rdf-dataset }}/ outdir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data/rdf/${{ matrix.bio2rdf-dataset }}/ registry_dir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/registry
+        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/ outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/ registry_dir=registry
 
 
     - name: Upload output RDF data
       uses: actions/upload-artifact@v1
       with:
         name: rdf-output
-        path: /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data
-        # path: bio2rdf-scripts/data
+        # path: /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data
+        path: bio2rdf-scripts/data
 
 
 
