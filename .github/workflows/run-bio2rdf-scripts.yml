@@ -17,19 +17,19 @@ jobs:
         # bio2rdf-dataset: ['clinicaltrials', 'hgnc', 'sgd', 'pdb', 'pubmed', 'sabiork', 'affymetrix', 'pubchem', 'pharmgkb', 'lsr', 'drugbank', 'omim', 'mesh', 'interpro', 'ncbigene', 'irefindex', 'sider', 'mgi', 'homologene', 'genbank', 'taxonomy', 'chembl', 'wormbase', 'ctd', 'uniprot', 'dbsnp', 'ndc', 'biomodels', 'genage', 'ipi', 'pathwaycommons', 'biopax', 'refseq', 'bioportal', 'iproclass', 'goa', 'unists']
 
     steps:
+    # - name: Setup PHP with PECL extension
+    #   uses: shivammathur/setup-php@v2
+    #   with:
+    #     php-version: '5.3'
+        # extensions: imagick, swoole
+
+    ## Setting up the environment
     # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Setting-up-the-developer-environment
 
     - uses: actions/checkout@v2
       with:
         repository: 'micheldumontier/php-lib'
         path: 'php-lib'
-        # path: 'bio2rdf-scripts'
-
-    # - name: Setup PHP with PECL extension
-    #   uses: shivammathur/setup-php@v2
-    #   with:
-    #     php-version: '5.3'
-        # extensions: imagick, swoole
 
     - uses: actions/checkout@v2
       with:
@@ -40,6 +40,7 @@ jobs:
       run: |
         mkdir -p data/download
         mkdir -p data/rdf
+        cd bio2rdf-scripts
         pwd
         ls
         echo 'bio2rdf-scripts SCRIPTS'
@@ -49,6 +50,7 @@ jobs:
 
       # ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts
 
+    ## Run the Bio2RDF PHP parsers
     # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Run-the-Bio2RDF-parsers
 
     - name: Run ${{ matrix.bio2rdf-dataset }} parser
