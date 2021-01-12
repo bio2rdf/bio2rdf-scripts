@@ -43,9 +43,9 @@ jobs:
         pwd
         ls
         echo 'bio2rdf-scripts SCRIPTS'
-        ls /home/runner/work/bio2rdf-scripts
+        ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts
         echo 'PHP LIIIB'
-        ls /home/runner/work/php-lib
+        ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/php-lib
 
       # ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts
 
