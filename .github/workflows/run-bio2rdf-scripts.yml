@@ -1,5 +1,4 @@
 name: Run Bio2RDF PHP scripts
-
 on:
   workflow_dispatch:
   push:
@@ -8,15 +7,12 @@ on:
     branches: [ master ]
 
 jobs:
-
   run-scripts:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        bio2rdf-dataset: ['hgnc', 'sgd']
-        # bio2rdf-dataset: ['clinicaltrials', 'hgnc', 'sgd', 'pdb']
-        # bio2rdf-dataset: ['hgnc']
-        # bio2rdf-dataset: ['clinicaltrials', 'hgnc', 'sgd', 'pdb', 'pubmed', 'sabiork', 'affymetrix', 'pubchem', 'pharmgkb', 'lsr', 'drugbank', 'omim', 'mesh', 'interpro', 'ncbigene', 'irefindex', 'sider', 'mgi', 'homologene', 'genbank', 'taxonomy', 'chembl', 'wormbase', 'ctd', 'uniprot', 'dbsnp', 'ndc', 'biomodels', 'genage', 'ipi', 'pathwaycommons', 'biopax', 'refseq', 'bioportal', 'iproclass', 'goa', 'unists']
+        bio2rdf-dataset: ['hgnc', 'goa']
+        # bio2rdf-dataset: ['hgnc', 'clinicaltrials', 'sgd', 'pdb', 'pubmed', 'sabiork', 'affymetrix', 'pubchem', 'pharmgkb', 'lsr', 'drugbank', 'omim', 'mesh', 'interpro', 'ncbigene', 'irefindex', 'sider', 'mgi', 'homologene', 'genbank', 'taxonomy', 'chembl', 'wormbase', 'ctd', 'uniprot', 'dbsnp', 'ndc', 'biomodels', 'genage', 'ipi', 'pathwaycommons', 'biopax', 'refseq', 'bioportal', 'iproclass', 'goa', 'unists']
 
     steps:
     - name: Setup PHP with PECL extension
@@ -24,8 +20,7 @@ jobs:
       with:
         php-version: '7.4'
         ini-values: 'memory_limit = 6144M'
-        # Default PHP version: 8.0.0
-        # extensions: imagick, swoole
+        # Issue with default PHP 8.0 (4 error handling args instead of 5 expected)
 
     ## Setting up the environment
     # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Setting-up-the-developer-environment
@@ -38,21 +33,11 @@ jobs:
     - uses: actions/checkout@v2
       with:
         path: 'bio2rdf-scripts'
-        # submodules: 'true'
 
     - name: Create data folders
       run: |
         mkdir -p data/download
         mkdir -p data/rdf
-        php --version
-        pwd
-        ls
-        echo 'BIO2RDF-SCRIPTS FOLDER /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts'
-        ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts
-        echo 'PHP LIB FOLDER /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/php-lib'
-        ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/php-lib
-
-      # ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts
 
     ## Run the Bio2RDF PHP parsers
     # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Run-the-Bio2RDF-parsers
@@ -71,26 +56,5 @@ jobs:
         path: /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data
         # path: bio2rdf-scripts/data
 
-    # - name: Validate composer.json and composer.lock
-    #   run: composer validate
-
-    # - name: Cache Composer packages
-    #   id: composer-cache
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: vendor
-    #     key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-php-
-
-    # - name: Install dependencies
-    #   if: steps.composer-cache.outputs.cache-hit != 'true'
-    #   run: composer install --prefer-dist --no-progress --no-suggest
-
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
 
 
