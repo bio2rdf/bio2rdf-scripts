@@ -1,0 +1,68 @@
+name: Run Bio2RDF PHP scripts
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  run-scripts:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        bio2rdf-dataset: ['hgnc']
+        # bio2rdf-dataset: ['clinicaltrials', 'hgnc', 'sgd', 'pdb', 'pubmed', 'sabiork', 'affymetrix', 'pubchem', 'pharmgkb', 'lsr', 'drugbank', 'omim', 'mesh', 'interpro', 'ncbigene', 'irefindex', 'sider', 'mgi', 'homologene', 'genbank', 'taxonomy', 'chembl', 'wormbase', 'ctd', 'uniprot', 'dbsnp', 'ndc', 'biomodels', 'genage', 'ipi', 'pathwaycommons', 'biopax', 'refseq', 'bioportal', 'iproclass', 'goa', 'unists']
+
+    steps:
+    # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Setting-up-the-developer-environment
+    - uses: actions/checkout@v2
+
+    - uses: actions/checkout@v2
+      with:
+        repository: 'https://github.com/micheldumontier/php-lib'
+
+    # - name: Setup PHP with PECL extension
+    #   uses: shivammathur/setup-php@v2
+    #   with:
+    #     php-version: '7.4'
+        # extensions: imagick, swoole
+
+    - name: Create data folder
+      run: |
+        mkdir -p data/download
+        mkdir -p data/rdf
+
+    # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Run-the-Bio2RDF-parsers
+
+    - name: Run ${{ matrix.bio2rdf-dataset }} parser
+      run: |
+        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/  outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/
+
+
+
+    # - name: Validate composer.json and composer.lock
+    #   run: composer validate
+
+    # - name: Cache Composer packages
+    #   id: composer-cache
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: vendor
+    #     key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-php-
+
+    # - name: Install dependencies
+    #   if: steps.composer-cache.outputs.cache-hit != 'true'
+    #   run: composer install --prefer-dist --no-progress --no-suggest
+
+    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+    # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+    # - name: Run test suite
+    #   run: composer run-script test
+
+
