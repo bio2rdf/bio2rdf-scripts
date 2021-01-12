@@ -41,7 +41,6 @@ jobs:
         mkdir -p data/rdf
         pwd
         ls
-        ls /home/runner/work/php-lib
 
     # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Run-the-Bio2RDF-parsers
 

@@ -4,7 +4,7 @@ Bio2RDF-scripts
 
 ## Clone
 
-Clone with [`php-lib`](https://github.com/micheldumontier/php-lib) submodule:
+Clone with the [`php-lib`](https://github.com/micheldumontier/php-lib) submodule:
 
 ```bash
 git clone --recursive https://github.com/bio2rdf/bio2rdf-scripts.git
