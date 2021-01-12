@@ -59,14 +59,15 @@ jobs:
       working-directory: ./bio2rdf-scripts
       # /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts
       run: |
-        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/ outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/
+        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data/download/${{ matrix.bio2rdf-dataset }}/ outdir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data/rdf/${{ matrix.bio2rdf-dataset }}/
 
 
     - name: Upload output RDF data
       uses: actions/upload-artifact@v1
       with:
         name: rdf-output
-        path: bio2rdf-scripts/data
+        path: /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data
+        # path: bio2rdf-scripts/data
 
     # - name: Validate composer.json and composer.lock
     #   run: composer validate
