@@ -59,7 +59,7 @@ jobs:
       working-directory: ./bio2rdf-scripts
       # /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts
       run: |
-        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data/download/${{ matrix.bio2rdf-dataset }}/ outdir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data/rdf/${{ matrix.bio2rdf-dataset }}/
+        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data/download/${{ matrix.bio2rdf-dataset }}/ outdir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data/rdf/${{ matrix.bio2rdf-dataset }}/ registry_dir=/home/runner/work/bio2rdf-scripts/bio2rdf-scripts/registry
 
 
     - name: Upload output RDF data
