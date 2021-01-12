@@ -21,8 +21,8 @@ jobs:
     - name: Setup PHP with PECL extension
       uses: shivammathur/setup-php@v2
       with:
-        # php-version: '5.3'
         php-version: '7.4'
+        ini-values: 'memory_limit = 6144M'
         # Default PHP version: 8.0.0
         # extensions: imagick, swoole
 
