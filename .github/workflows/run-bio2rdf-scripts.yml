@@ -40,11 +40,12 @@ jobs:
       run: |
         mkdir -p data/download
         mkdir -p data/rdf
+        php --version
         pwd
         ls
-        echo 'bio2rdf-scripts SCRIPTS'
+        echo 'BIO2RDF-SCRIPTS FOLDER /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts'
         ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts
-        echo 'PHP LIIIB'
+        echo 'PHP LIB FOLDER /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/php-lib'
         ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/php-lib
 
       # ls /home/runner/work/bio2rdf-scripts/bio2rdf-scripts
@@ -54,6 +55,7 @@ jobs:
 
     - name: Run ${{ matrix.bio2rdf-dataset }} parser
       working-directory: ./bio2rdf-scripts
+      # /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts
       run: |
         php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/ outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/
 
