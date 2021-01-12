@@ -46,7 +46,7 @@ jobs:
 
     - name: Run ${{ matrix.bio2rdf-dataset }} parser
       run: |
-        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/  outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/
+        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/ outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/
 
 
     - name: Upload output RDF data
