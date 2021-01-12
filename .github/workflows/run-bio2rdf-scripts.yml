@@ -8,8 +8,8 @@ on:
     branches: [ master ]
 
 jobs:
-  run-scripts:
 
+  run-scripts:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,11 +18,13 @@ jobs:
 
     steps:
     # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Setting-up-the-developer-environment
-    - uses: actions/checkout@v2
 
     - uses: actions/checkout@v2
       with:
         repository: 'micheldumontier/php-lib'
+        path: 'php-lib'
+
+    - uses: actions/checkout@v2
 
     # - name: Setup PHP with PECL extension
     #   uses: shivammathur/setup-php@v2
@@ -30,7 +32,7 @@ jobs:
     #     php-version: '7.4'
         # extensions: imagick, swoole
 
-    - name: Create data folder
+    - name: Create data folders
       run: |
         mkdir -p data/download
         mkdir -p data/rdf
