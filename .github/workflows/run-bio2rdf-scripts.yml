@@ -9,6 +9,11 @@ on:
 jobs:
   run-scripts:
     runs-on: ubuntu-latest
+    # runs-on: self-hosted 
+    # https://sanderknape.com/2020/03/self-hosted-github-actions-runner-kubernetes/
+    # https://github.com/summerwind/actions-runner-controller
+    # https://github.com/evryfs/github-actions-runner-operator/
+
     strategy:
       matrix:
         bio2rdf-dataset: ['hgnc', 'goa']
@@ -52,7 +57,7 @@ jobs:
     - name: Upload output RDF data
       uses: actions/upload-artifact@v1
       with:
-        name: rdf-output
+        name: ${{ matrix.bio2rdf-dataset }}-bio2rdf-output
         path: bio2rdf-scripts/data
 
 
