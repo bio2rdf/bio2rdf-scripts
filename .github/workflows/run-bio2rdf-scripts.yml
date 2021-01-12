@@ -25,6 +25,8 @@ jobs:
         path: 'php-lib'
 
     - uses: actions/checkout@v2
+      with:
+        path: 'bio2rdf-scripts'
 
     # - name: Setup PHP with PECL extension
     #   uses: shivammathur/setup-php@v2
