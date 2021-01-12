@@ -5,14 +5,6 @@ Bio2RDF-scripts
 
  This Git repository holds all of the RDF converter scripts used to generate Bio2RDF linked data.
 
-## Clone
-
-Clone with the [`php-lib`](https://github.com/micheldumontier/php-lib) submodule:
-
-```bash
-git clone --recursive https://github.com/bio2rdf/bio2rdf-scripts.git
-```
-
 Requirements
 -------------
 

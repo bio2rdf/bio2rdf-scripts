@@ -45,7 +45,6 @@ jobs:
 
     - name: Run ${{ matrix.bio2rdf-dataset }} parser
       working-directory: ./bio2rdf-scripts
-      # /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/bio2rdf-scripts
       run: |
         php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/ outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/ registry_dir=registry
 
@@ -54,7 +53,6 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: rdf-output
-        # path: /home/runner/work/bio2rdf-scripts/bio2rdf-scripts/data
         path: bio2rdf-scripts/data
 
 
