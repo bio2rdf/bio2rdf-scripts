@@ -34,6 +34,8 @@ jobs:
       run: |
         mkdir -p data/download
         mkdir -p data/rdf
+        pwd
+        ls
 
     # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Run-the-Bio2RDF-parsers
 
@@ -42,6 +44,11 @@ jobs:
         php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/  outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/
 
 
+    - name: Upload output RDF data
+      uses: actions/upload-artifact@v1
+      with:
+        name: rdf-output
+        path: data
 
     # - name: Validate composer.json and composer.lock
     #   run: composer validate
