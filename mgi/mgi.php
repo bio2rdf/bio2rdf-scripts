@@ -266,14 +266,14 @@ class MGIParser extends Bio2RDFizer
 			}
 
 			if($a[5]) {
-				$pmids = explode(",",$a[5]);
+				$pmids = explode("|",$a[5]);
 				foreach($pmids AS $pmid) {
 					parent::addRDF(		
 						parent::triplify($id,$this->getVoc()."x-pubmed","pubmed:".$pmid)	
 					);
 				}
 			}
-			$b = explode(",",$a[6]);
+			$b = explode("|",$a[6]);
 			foreach($b AS $marker) {
 				parent::addRDF(
 					parent::triplify($id,$this->getVoc()."marker",$marker).
