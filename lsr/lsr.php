@@ -173,7 +173,7 @@ class LSRParser extends Bio2RDFizer
 			if($r['pubmed']) {
 				foreach(explode(",",$r['pubmed']) AS $pubmed) {
 					parent::addRDF(
-						parent::triplify($id,"cito:citesAsAuthority","pubmed:".$pubmed)
+						parent::triplify($id,"cito:citesAsAuthority","pubmed:".trim($pubmed))
 //						parent::triplify("pubmed:".$pubmed, "rdf:type", "pubmed_vocabulary:Resource")
 					);
 				}
@@ -206,7 +206,7 @@ class LSRParser extends Bio2RDFizer
 				&& $r['homepage'] !== 'dead'
 				&& $r['homepage'] !== 'unavailable') {
 				parent::addRDF(
-					parent::triplify($id,"foaf:page",$r['homepage'])
+					parent::triplify($id,"foaf:page",trim($r['homepage']))
 				);
 			}
 			if($r['license']) {
