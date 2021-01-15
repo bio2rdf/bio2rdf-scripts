@@ -1,0 +1,67 @@
+name: Run Bio2RDF PHP scripts
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  run-scripts:
+    runs-on: ubuntu-latest
+    # runs-on: self-hosted 
+    # https://sanderknape.com/2020/03/self-hosted-github-actions-runner-kubernetes/
+    # https://github.com/summerwind/actions-runner-controller
+    # https://github.com/evryfs/github-actions-runner-operator/
+
+    strategy:
+      matrix:
+        bio2rdf-dataset: ['hgnc', 'sgd']
+        # bio2rdf-dataset: ['hgnc', 'goa']
+        # bio2rdf-dataset: ['hgnc', 'clinicaltrials', 'sgd', 'pdb', 'pubmed', 'sabiork', 'affymetrix', 'pubchem', 'pharmgkb', 'lsr', 'drugbank', 'omim', 'mesh', 'interpro', 'ncbigene', 'irefindex', 'sider', 'mgi', 'homologene', 'genbank', 'taxonomy', 'chembl', 'wormbase', 'ctd', 'uniprot', 'dbsnp', 'ndc', 'biomodels', 'genage', 'ipi', 'pathwaycommons', 'biopax', 'refseq', 'bioportal', 'iproclass', 'goa', 'unists']
+
+    steps:
+    - name: Setup PHP with PECL extension
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        ini-values: memory_limit=6144M
+        # Issue with default PHP 8.0 (4 error handling args instead of 5 expected)
+
+    ## Setting up the environment
+    # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Setting-up-the-developer-environment
+
+    - uses: actions/checkout@v2
+      with:
+        repository: 'micheldumontier/php-lib'
+        path: 'php-lib'
+
+    - uses: actions/checkout@v2
+      with:
+        path: 'bio2rdf-scripts'
+
+    - name: Create data folders
+      working-directory: ./bio2rdf-scripts
+      run: |
+        mkdir -p data/download
+        mkdir -p data/rdf
+
+    ## Run the Bio2RDF PHP parsers
+    # https://github.com/bio2rdf/bio2rdf-scripts/wiki/Run-the-Bio2RDF-parsers
+
+    - name: Run ${{ matrix.bio2rdf-dataset }} parser
+      working-directory: ./bio2rdf-scripts
+      env:
+        APIKEY: ${{ secrets.APIKEY }}
+      run: |
+        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/ outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/ registry_dir=registry
+
+
+    - name: Upload output RDF data
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.bio2rdf-dataset }}-bio2rdf-output
+        path: bio2rdf-scripts/data
+
+
+

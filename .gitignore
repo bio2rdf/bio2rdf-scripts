@@ -18,3 +18,5 @@ linkedSPLs/LinkedSPLs-update/data/
 linkedSPLs/LinkedSPLs-update/load-dailymed-spls/problematic-spls/
 linkedSPLs/LinkedSPLs-update/mappings/FDA-pharmacogenetic-info-mapping/cached-table-downloads/
 linkedSPLs/LinkedSPLs-update/mappings/PT-UNII-ChEBI-mapping/ChEBIJavaClient/bin/
+
+data/
