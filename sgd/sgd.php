@@ -126,8 +126,8 @@ class SGDParser extends Bio2RDFizer {
 			 "complex"     => "curation/literature/go_protein_complex_slim.tab",
 			 "interaction" => "curation/literature/interaction_data.tab",
 			 "phenotype"   => "curation/literature/phenotype_data.tab",
-			 "pathways"    => "curation/literature/biochemical_pathways.tab",
-			 "mapping"     => "mapping"
+			 "pathways"    => "curation/literature/biochemical_pathways.tab"#,
+			 #"mapping"     => "mapping"
  		);
 
 		$graph_uri = parent::getGraphURI();
@@ -468,7 +468,7 @@ class SGDParser extends Bio2RDFizer {
 					);
 				}
 				if($a[1] == "ORF" && $a[4] != '') {
-					$p2 = ucfirst(strtolower(str_replace(array("(",")"), array("%28","%29"), $a[4])))."p";
+					$p2 = ucfirst(strtolower(str_replace(array("(",")",","), array("%28","%29","%2C"), $a[4])))."p";
 					$p2label = "$p2";
 					$this->AddRDF(
 						parent::triplify($sid, $this->getVoc()."encodes", "sgd:$p2").
@@ -507,7 +507,7 @@ class SGDParser extends Bio2RDFizer {
 			
 			// common names
 			if($a[4]) {
-				$nid = str_replace(array("(",")"), array("%28","%29"), $a[4]);
+				$nid = str_replace(array("(",")",","), array("%28","%29","%2C"), $a[4]);
 				$this->AddRDF(
 					parent::triplifyString($sid, $this->getVoc()."standardName", $a[4]).
 					parent::triplify($sid, "owl:sameAs", "sgd:$nid").
@@ -526,7 +526,7 @@ class SGDParser extends Bio2RDFizer {
 			// parent feature
 			$parent_type = '';
 			if($a[6]) {
-				$parent = str_replace(array("(",")"," "), array("%28","%29","_"), $a[6]);
+				$parent = str_replace(array("(",")"," ",","), array("%28","%29","_","%2C"), $a[6]);
 				$this->addRDF(
 					parent::triplify($sid, $this->getVoc()."is-proper-part-of", $this->getRes().$parent).
 					parent::describeProperty($this->getVoc()."is-proper-part-of", "Relationship between an SGD entity and an entity it is a proper part of")
@@ -1125,7 +1125,7 @@ class SGDParser extends Bio2RDFizer {
 
 			$eid = '';
 			if($a[3]) { // there is a protein
-				$eid = ucfirst(strtolower($a[3]))."p";
+				$eid = ucfirst(strtolower(str_replace(",","%2C",$a[3])))."p";
 				$this->AddRDF(
 					parent::triplify($this->getRes().$pid, $this->getVoc()."has-participant", $this->getRes().$eid)
 				);
