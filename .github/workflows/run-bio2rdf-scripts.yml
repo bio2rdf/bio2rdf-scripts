@@ -38,6 +38,11 @@ jobs:
 
     - uses: actions/checkout@v2
       with:
+        repository: 'semsol/arc2'
+        path: 'arc2'
+
+    - uses: actions/checkout@v2
+      with:
         path: 'bio2rdf-scripts'
 
     - name: Create data folders
