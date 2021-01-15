@@ -57,7 +57,7 @@ jobs:
     - name: Run ${{ matrix.bio2rdf-dataset }} parser
       working-directory: ./bio2rdf-scripts
       # env:
-      #   APIKEY: ${{ secrets.NCBO_API_KEY }}
+      #   NCBO_API_KEY: ${{ secrets.NCBO_API_KEY }}
       run: |
         php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=GO indir=data/download/${{ matrix.bio2rdf-dataset }}/ outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/ registry_dir=registry ncbo_api_key=${{ secrets.NCBO_API_KEY }}
 
