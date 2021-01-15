@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        bio2rdf-dataset: ['hgnc', 'sgd']
+        bio2rdf-dataset: ['bioportal']
         # bio2rdf-dataset: ['hgnc', 'goa']
         # bio2rdf-dataset: ['hgnc', 'clinicaltrials', 'sgd', 'pdb', 'pubmed', 'sabiork', 'affymetrix', 'pubchem', 'pharmgkb', 'lsr', 'drugbank', 'omim', 'mesh', 'interpro', 'ncbigene', 'irefindex', 'sider', 'mgi', 'homologene', 'genbank', 'taxonomy', 'chembl', 'wormbase', 'ctd', 'uniprot', 'dbsnp', 'ndc', 'biomodels', 'genage', 'ipi', 'pathwaycommons', 'biopax', 'refseq', 'bioportal', 'iproclass', 'goa', 'unists']
 
@@ -51,11 +51,10 @@ jobs:
 
     - name: Run ${{ matrix.bio2rdf-dataset }} parser
       working-directory: ./bio2rdf-scripts
-      env:
-        APIKEY: ${{ secrets.APIKEY }}
+      # env:
+      #   APIKEY: ${{ secrets.NCBO_API_KEY }}
       run: |
-        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=all indir=data/download/${{ matrix.bio2rdf-dataset }}/ outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/ registry_dir=registry
-
+        php runparser.php parser=${{ matrix.bio2rdf-dataset }} download=true files=GO indir=data/download/${{ matrix.bio2rdf-dataset }}/ outdir=data/rdf/${{ matrix.bio2rdf-dataset }}/ registry_dir=registry ncbo_api_key={{ secrets.NCBO_API_KEY }}
 
     - name: Upload output RDF data
       uses: actions/upload-artifact@v1
